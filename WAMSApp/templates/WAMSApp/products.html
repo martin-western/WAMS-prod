@@ -1,0 +1,852 @@
+{% extends 'WAMSApp/console.html' %}
+
+{% block content2 %}
+
+{% load static %}
+
+<style type="text/css">
+ul.dropdown-content.select-dropdown li span {
+    color: #521893;
+    font-size: 14px;
+    font-family: 'AvenirNext'; 
+}
+
+.select-wrapper input.select-dropdown {
+  font-size: 14px;
+  font-family: 'AvenirNext'; 
+  color: #521893;
+}
+.filter-parameter {
+  color: #521893;
+  font-size: 14px;
+  font-family: 'AvenirNext'; 
+}
+
+
+.input-field>label {
+  color: #521893;
+}
+
+.input-field input:focus + label {
+ color: #521893 !important;
+}
+
+.input-field input[type=text]:focus {
+   border-bottom: 1px solid #000;
+   box-shadow: 0 1px 0 0 #000;
+}
+
+.datepicker-date-display .date-text {
+  color: white;
+  font-size: 22px;
+}
+
+.datepicker-date-display .year-text {
+  color: white;
+  font-size: 14px;
+}
+
+.datepicker-date-display {
+  background-color: #521893;
+}
+
+.datepicker-table td.is-today {
+  color: #521893;
+}
+
+.datepicker-table td.is-selected {
+  background-color: #dfccea;
+}
+
+.datepicker-table td.is-selected {
+  color: #521893;
+}
+
+.datepicker-cancel {
+  color: grey;
+}
+
+.datepicker-done {
+  color: #521893;
+  font-weight: bolder;
+}
+
+.exportt:hover {
+  background-color: #521893 !important;
+  color:white !important;
+}
+
+.importt:hover {
+  background-color: #521893 !important;
+  color:white !important;
+}
+
+.filterr:hover {
+  background-color: #521893 !important;
+  color:white !important;
+}
+
+/*.checkbox-verified[type="checkbox"].filled-in:checked + label:after{
+   border: 2px solid #521893;
+   background-color: #521893;
+}*/
+
+</style>
+
+  <div class="row" style="margin-bottom: 0em;background-color: white !important;">
+    <div class="input-field col s10 search-input-div" style="padding: 0em;margin-top:0rem;margin-bottom: 0px;">
+      <i class="material-icons" style="z-index:100;position: absolute;margin-top: 0.4em;margin-left: 0.5em;color: grey !important;">search</i>
+
+      <div type="text" class="validate white search-input chips chips-placeholder" style="margin:0px;text-indent: 2.5em;box-shadow: none; border: none;outline: none;font-family: 'AvenirNextRegular';font-size: 14px;letter-spacing: 1px;"></div>
+    </div>
+
+    <div class="col s2 white user-icon-div">
+      <a href="/logout">
+        <i class="material-icons power_btn" style="
+          position: absolute;
+          top: 50%;right: 10%;    
+          padding: 5px;   
+          color: grey;
+          border-radius: 20px;    
+          font-size: 18px;    
+          border: 1px solid #d2dfeb;
+          cursor: pointer">
+          settings_power
+        </i>
+      </a>
+      
+      <span style="
+        margin-left: 2em;    
+        position: absolute;   
+        top: 60%;   
+        left: 6%;   
+        color: black;   
+        border-left: 1px solid rgba(28,110,164,0.21);   
+        padding-left: 18px;   
+        font-family: 'AvenirNext';    
+        text-transform: capitalize;">
+          {{request.user}}
+      </span>
+
+    </div>
+  </div>
+
+  <!-- <div class="row" style="margin-top: 1em;">
+    <div class="input-field col s1">
+      <label>
+        <input id="status-verified" type="checkbox" />
+        <span>Verified</span>
+      </label>
+    </div>
+
+    <div class="input-field col s2">
+      <input id="start-date" type="text" class="datepicker">
+      <label for="start-date">Start Date</label>
+    </div>
+    <div class="input-field col s2">
+      <input id="end-date" type="text" class="datepicker">
+      <label for="end-date">End Date</label>
+    </div>
+
+    <div class="input-field col s2">
+      <select id="brand-select">
+      </select>
+    </div>
+
+    <div class="input-field col s2">
+      <select id="has-image-select">
+        <option value="" selected>All</option>
+        <option value="1">With Images</option>
+        <option value="2">Without Images</option>
+      </select>
+    </div>
+
+    <div class="input-field col s1">
+      <input id="min-price" type="number" class="validate">
+      <label for="min-price">Min Price</label>
+    </div>
+
+    <div class="input-field col s1">
+      <input id="max-price" type="number" class="validate">
+      <label for="max-price">Max Price</label>
+    </div>
+
+  </div> -->
+
+
+  <div class="row" style = "margin : 20px 5px 0px 4px !important;">
+    <div class="col s6" style="position: relative;top: 20px;padding-left: 0px;font-family:'AvenirNext';">
+      <span id="total-products" style="font-family:'AvenirNext';"></span> Results   
+    </div>
+      
+    <div class="col s6" style="margin-bottom: 4px;padding-right:0px;">
+      <a id="export-btn" href="#export-modal" class="modal-trigger right">
+        <i class="material-icons exportt" title="Export" style="
+          color:gray;
+          background-color: white;
+          padding: 11px;
+          border-radius: 5px;
+          margin-left: 8px;
+          font-size: 18px;">
+          dynamic_feed
+        </i>
+      </a>
+
+      <a id="import-btn" href="#import-modal" class="modal-trigger right">    
+        <i class="material-icons importt" title="Import" style="
+          color: gray;
+          background-color: white;
+          padding: 11px;
+          border-radius: 5px;
+          margin-left: 8px;
+          font-size: 18px;">
+          merge_type
+        </i>    
+      </a>
+
+
+      <a href="#filter-modal" class="filterr modal-trigger waves-effect waves-light right" style="
+        position: relative;
+        padding: 12px 30px 10px;   
+        color: gray;    
+        border-radius: 5px;   
+        font-size: 13px;    
+        background-color: white;
+        font-family: 'AvenirNextRegular';
+        letter-spacing: 1px;">
+        Filter
+      </a>
+    </div>
+
+    <div class="col s12">
+
+      <div style="margin-top: 15px;">    
+        <div class="row product_row" style="margin-bottom: 10px;">    
+          <div class = "col s1 center" style="line-height: 100%;position: relative;">   
+            <label class="toggler-wrapper style-25">   
+              <input id="all-select-checkbox" type="checkbox" >   
+              <div class="toggler-slider">    
+                <div class="toggler-knob"></div>    
+              </div>    
+            </label>
+          </div>    
+          
+          <div class = "col s5" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Product Name</div>    
+          <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Brand</div>   
+          <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Date Created</div>   
+          <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;padding-right: 15px;">Status</div>   
+        </div>
+      </div>
+      <div id = "product-table">
+      </div>  
+
+    </div>
+
+  </div>
+  
+  <div class="row">
+    <div class="col s12 center">
+      <br>
+      <a id="load-more-btn" href="#!" class="btn btn-small" style="display: none;background-color: #521893;">Load More</a>
+      <br><br>
+    </div>
+  </div>
+
+  <div id="export-modal" class="modal" style="border-radius:5px;">
+    <div class="modal-content">
+      <h5 style="font-family: 'AvenirNext';font-size: 18px;">EXPORT PRODUCTS</h5>
+      <br>
+      <div class="row">
+        <div class="input-field col s6">
+          <select id="export-option">
+            <option value="New" selected style="font-family: 'AvenirNextRegular';">New</option>
+            <option value="Existing" style="font-family: 'AvenirNextRegular';">Existing</option>
+          </select>
+          <label>Existing/New</label>
+        </div>
+
+        <div class="input-field col s6" id="new-export-div">
+          <input id="export-title" type="text" class="validate">
+          <label for="export-title">Export Title</label>
+        </div>
+
+        <div class="input-field col s6" id="existing-export-div" style="display: none;">
+          <select id="export-titles-list">
+          </select>
+          <label>Choose List</label>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-bottom: 20px;">
+      <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+      <a id="add-to-export-btn" class="waves-effect btn-flat white-text" style="font-family: 'AvenirNext';background-color: #521893;border-radius: 2px;margin-right: 30px;">Add</a>
+    </div>
+  </div>
+
+
+
+  <div id="create-new-product-modal" class="modal" style="border-radius:5px;">
+    <div class="modal-content">
+      <h5 style="font-family: 'AvenirNext';font-size: 18px;">NEW PRODUCT</h5>
+      <br>
+      <div class="row">
+        
+        <div class="input-field col s12">
+          <input id="product-name" type="text" class="validate">
+          <label for="product-name" style="color:black;">Product Name<span style="color:#009051;">*</span></label>
+        </div>
+
+        <div class="input-field col s12">
+          <input id="product-id" type="text" class="validate">
+          <label for="product-id" style="color:black;">Product ID<span style="color:#009051;">*</span></label>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer" style="margin-bottom: 20px;">
+      <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+      <a id="create-new-product-btn" href="#!" class="waves-effect btn-flat white-text" style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Create</a>
+    </div>
+  </div>
+
+
+  <div id="import-modal" class="modal" style="border-radius:5px;">
+    <div class="modal-content">
+      <h5 style="font-family: 'AvenirNext';font-size: 18px;">IMPORT ITEMS</h5>
+      <br>
+      <div class="row">
+        <div class="input-field col s6 dropdown_spam">
+          <select id="import-format">
+            <option value="Amazon UK" selected>Amazon UK</option>
+            <option value="Amazon UAE">Amazon UAE</option>
+          </select>
+          <label>Format</label>
+        </div>
+
+        
+        <div class="input-field col s6 dropdown_spam">
+          <select id="import-rule">
+            <!-- <option value="Full" selected>Full Overwrite</option> -->
+            <option value="Partial">Partial Overwrite</option>
+            <option value="Missing">Add to missing values only</option>
+          </select>
+          <label>Import Rule</label>
+        </div>
+
+
+        <div class="file-field input-field col s12">
+          <div class="btn" style = "background-color: #521893">
+            <span style="font-family: 'AvenirNext';color: white !important;">file</span>
+            <i class="material-icons right">call_merge</i>
+            <input id="import-file" type="file">
+          </div>
+          <div class="file-path-wrapper">
+            <input class="file-path validate" type="text">
+          </div>
+        </div>
+
+        <div class="col s12">
+          <div id="loader-bar" class="progress" style="display: none;">
+              <div class="indeterminate"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-bottom: 20px;">
+      <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+      <a id="import-upload-btn" href="#!" class="waves-effect btn-flat white-text" style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Upload</a>
+    </div>
+  </div>
+
+
+
+  <div id="filter-modal" class="modal" style="border-radius:5px;">
+    <div class="modal-content">
+      <h5 style="font-family: 'AvenirNext';font-size: 18px;">FILTER</h5>
+
+      <div class="row" style="margin-bottom: 0em;">
+        <div class="input-field col s4">
+          <label>
+            <input id="status-verified" class="filled-in" type="checkbox" />
+            <span class="filter-parameter">Verified</span>
+          </label>
+        </div>
+
+        <div class="input-field col s4">
+          <select id="brand-select">
+          </select>
+        </div>
+
+
+        <div class="input-field col s4">
+          <select id="has-image-select">
+            <option value="" selected>All</option>
+            <option value="1">With Images</option>
+            <option value="2">Without Images</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="row" style="margin-bottom: 0em;">
+        <div class="input-field col s4">
+          <input id="start-date" type="text" class="datepicker">
+          <label for="start-date" class="filter-parameter">Start Date</label>
+        </div>
+        <div class="input-field col s4">
+          <input id="end-date" type="text" class="datepicker">
+          <label for="end-date" class="filter-parameter">End Date</label>
+        </div>
+      </div>
+      
+      <div class="row" style="margin-bottom: 0em;">
+        <div class="input-field col s4">
+          <input id="min-price" type="number" class="validate">
+          <label for="min-price" class="filter-parameter">Min Price</label>
+        </div>
+
+        <div class="input-field col s4">
+          <input id="max-price" type="number" class="validate">
+          <label for="max-price" class="filter-parameter">Max Price</label>
+        </div>
+
+      </div>
+
+
+    </div>
+    <div class="modal-footer" style="margin-bottom: 20px;">
+      <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+      <a id="apply-btn" href="#!" class="modal-close waves-effect btn-flat white-text" style="font-family: 'AvenirNext';background-color: #521893;border-radius: 2px;margin-right: 30px;">Apply</a>
+    </div>
+  </div>
+
+  <a href="#create-new-product-modal" class="modal-trigger btn-floating" style="position: fixed;right:1em;bottom:1em;background-color: #521893"><i class="material-icons">add</i></a>
+
+<script type="text/javascript">
+
+
+  function removeDefault()
+  {
+    let countchip = $('.chip').length;
+    console.log(countchip);
+    if(countchip > 0)
+    {
+      $('input').attr("placeholder" , "");
+    }
+  }
+
+  function addDefault()
+  {
+    let countchip = $('.chip').length;
+    console.log(countchip);
+    if(countchip == 0)
+    {
+      $('input').attr("placeholder" , "Search by product name, product id or seller sku");
+    }
+  }
+
+  var chip_tags = [];
+  $('.chips-placeholder').chips({
+    placeholder: 'Search by product name, product id or seller sku',
+    onChipAdd: (event, chip) => {
+          chip_tags = [];
+          for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
+            chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
+          }
+          page = 1;
+          fetch_product_list();
+          removeDefault();
+    },
+    onChipDelete: (event , chip) => {
+        chip_tags = [];
+          for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
+            chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
+          }
+          page = 1;
+          fetch_product_list();
+          addDefault();
+    }
+  });
+
+  var load_more_flag = false;
+
+  var filter_parameters = {}
+
+  $("#status-verified").change(function(e){
+    page = 1;
+    fetch_product_list();
+  })
+
+
+  function getCsrfToken() {
+      var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+      return CSRF_TOKEN;
+    }
+
+
+  function fetch_export_list()
+  {
+    $.ajax({
+      url: "/fetch-export-list/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: {},
+      success: function(response) {
+        console.log("Success!", response);
+        var export_list = response["export_list"];
+        var html_string = "";
+        for(var i=0;i<export_list.length;i++)
+        {
+          html_string += `<option value="`+export_list[i]["pk"]+`">`+export_list[i]["title"]+`</option>`;
+        }
+        $("#export-titles-list").html(html_string);
+        $('select').formSelect();
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+  }
+
+  $("#export-btn").click(function(){
+    fetch_export_list();
+  });
+
+
+  $("input[id=all-select-checkbox]").on("change", function(){
+    if($("input[id=all-select-checkbox]:checked").length==1)
+    {
+     $("input[class=product-checkmark]").prop("checked", true);
+    }
+    else
+    {
+     $("input[class=product-checkmark]").prop("checked", false); 
+    }
+  });
+
+  $("#add-to-export-btn").click(function(){
+
+    var export_option = $("#export-option").val();
+    var export_title_pk = $("#export-titles-list").val();
+    var export_title = $("#export-title").val();
+
+    var products = [];
+    $('input[class=product-checkmark]:checked').each(function() {
+      products.push($(this).attr('id').split("-")[1]);
+    });
+    console.log(products);
+
+    if(products.length==0)
+      return;
+
+    $("#add-to-export-btn").attr("disabled", "disabled");
+
+    $.ajax({
+      url: "/add-to-export/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: {
+        export_option: export_option,
+        export_title_pk: export_title_pk,
+        export_title: export_title,
+        products: JSON.stringify(products)
+      },
+      success: function(response) {
+        console.log("Success!", response);
+        $("#export-modal").modal("close");
+        $("#add-to-export-btn").removeAttr("disabled");
+        M.toast({html:"Products added to export list successfully!"});
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+  });
+
+  $("#export-option").on('change', function(){
+    if($("#export-option").val()=="Existing")
+    {
+      $("#new-export-div").hide();
+      $("#existing-export-div").show();
+    }
+    else
+    {
+      $("#existing-export-div").hide();
+      $("#new-export-div").show();
+    }
+  });
+
+  var page = 1;
+
+  function fetch_product_list()
+  {
+      filter_parameters['verified'] = $("#status-verified").is(":checked");
+      filter_parameters["start_date"] = $("#start-date").val();
+      filter_parameters["end_date"] = $("#end-date").val();
+      filter_parameters["brand_pk"] = $("#brand-select").val();
+      filter_parameters["has_image"] = $("#has-image-select").val();
+      filter_parameters["min_price"] = $("#min-price").val();
+      filter_parameters["max_price"] = $("#max-price").val();
+
+      // if (filter_parameters['verified']){
+      //   page = 1;
+      // }
+
+      $.ajax({
+        url: "/fetch-product-list/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: {
+          page: page,
+          filter_parameters: JSON.stringify(filter_parameters),
+          tags: JSON.stringify(chip_tags)
+        },
+        success: function(response) {
+          console.log("Success!", response);
+
+          var is_available = response["is_available"];
+
+          $("#total-products").html(response["total_products"]);
+
+          var products = response["products"];
+
+          var html_string = "";
+
+          for(var i=0;i<products.length;i++)
+          {
+            var img_tag = "";
+            if(products[i]["main_image"]!="")
+            {
+              img_tag = `<img src="`+products[i]["main_image"]+`" style="height:3em;width:3em;">`;
+            }
+
+            var product_name = products[i]["product_name_amazon_uk"].substring(0, 35);
+            if(products[i]["product_name_amazon_uk"].length>35)
+            {
+              product_name += "...";
+            }
+
+            html_string += `<div class="row product_row" style="margin-top: 5px;position: relative;padding: 20px 0px 20px 0px;">
+                <div class = "col s1" style="line-height: 100%;margin-top: 8px;">
+                  <label class="toggler-wrapper style-25">
+                    <input class="product-checkmark" id = "checkmark-`+products[i]["product_pk"]+`" type="checkbox" >
+                    <div class="toggler-slider">
+                      <div class="toggler-knob"></div>
+                    </div>
+                  </label>
+                </div>
+
+                <a target="_blank" href="/edit-product/`+products[i]["product_pk"]+`"><div class = "col s5" style="line-height: 100%;padding-top: 2px;">
+                  <div style="position: relative;">
+                    <div style="position: absolute;top: 50%;transform: translateY(-18%);">
+                    `+img_tag+`
+                    </div>
+                    <div style="position: absolute;left: 4rem;font-family:'AvenirNext';letter-spacing: 0.5px;font-weight: 100;color:black;" title="`+products[i]["product_name_amazon_uk"]+`">
+                      `+product_name+`
+                    </div>
+                    <div style="position: absolute;font-family: 'AvenirNextRegular';left: 4rem;font-size: 12px;top: 1.2rem;color: gray;letter-spacing: 1px;">
+                    `+ products[i]["product_id"] +` | `+ products[i]["seller_sku"] +`
+                    </div>
+                  </div>
+                </div></a>
+                <div class = "col s2" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;text-align:center;">`+products[i]["brand"]+`</div>
+                <div class = "col s2 left" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;text-align:center;">`+products[i]["created_date"]+`</div>
+                <div class = "col s2" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;padding-right:15px;text-align:left;text-align:center;">`+products[i]["status"]+`</div>
+                  </div>`
+          }
+          
+          if(load_more_flag==true)
+          {
+            $("#product-table").append(html_string);
+            load_more_flag = false;
+          }
+          else
+          {
+            $("#product-table").html(html_string);
+          }
+
+          if(is_available==true)
+          {
+            $("#load-more-btn").show();
+          }
+          else
+          {
+            $("#load-more-btn").hide(); 
+          }
+
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+  }
+
+  $(document).on('click', '.clickable-row', function() {
+      window.location = $(this).data("href");
+  });
+
+  //fetch_product_list();
+
+
+  $("#load-more-btn").click(function(){
+
+    $("#load-more-btn").hide();
+    fetch_product_list();
+    load_more_flag = true;
+    page++;
+  });
+
+
+
+
+  $("#import-upload-btn").click(function(){
+
+    var import_format = $("#import-format").val();
+    var import_rule = $("#import-rule").val();
+    var import_file = document.getElementById("import-file");
+
+    var fd = new FormData();
+
+    fd.append('import_format', import_format);
+    fd.append('import_rule', import_rule);
+    fd.append('import_file', import_file.files[0]);
+
+    $("#import-upload-btn").attr("disabled", "disabled");
+
+    $("#loader-bar").show();
+
+    $.ajax({
+        url: "/import-products/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        processData: false,
+        contentType: false,
+        data: fd,
+        success: function(response) {
+          console.log("Success!", response);
+          $("#import-upload-btn").removeAttr("disabled");
+          $("#import-modal").modal("close");
+          window.location.reload();
+          $("#loader-bar").hide();
+          //fetch_product_list();
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+    });
+
+  });
+
+
+  $("#start-date").change(function(){
+    fetch_product_list();
+  });
+
+
+  $("#end-date").change(function(){
+    fetch_product_list();
+  });
+
+
+  function fetch_brands()
+  {
+    $.ajax({
+        url: "/fetch-brands/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data:{
+
+        },
+        success: function(response) {
+          console.log("Success!", response);
+          if(response["status"]==200)
+          {
+            var html_string = "<option value='' selected>Brand</option>";
+            var brand_list = response["brand_list"];
+            for(var i=0;i<brand_list.length;i++)
+            {
+              html_string += `<option value="`+brand_list[i]["pk"]+`">`+brand_list[i]["name"]+`</option>`;
+            }
+            $("#brand-select").html(html_string);
+            $("select").formSelect();
+            fetch_product_list();
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+    });
+  }
+
+  fetch_brands();
+
+  $("#brand-select").change(function(){
+    fetch_product_list();
+  });
+
+  $("#has-image-select").change(function(){
+    fetch_product_list();
+  });
+
+  $("#min-price").change(function(){
+    fetch_product_list();
+  });
+
+  $("#max-price").change(function(){
+    fetch_product_list();
+  });
+  
+
+  function create_new_product()
+  {
+    var product_name = $("#product-name").val();
+    var product_id = $("#product-id").val();
+
+    if(product_name=="" || product_id=="")
+    {
+      M.toast({html: "Please fill all the details before creating new product"});
+      return;
+    }
+    
+    $.ajax({
+        url: "/create-new-product/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data:{
+          product_name: product_name,
+          product_id: product_id
+        },
+        success: function(response) {
+          console.log("Success!", response);
+          if(response["status"]==200)
+          {
+            window.location.href="/edit-product/"+response["product_pk"];
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+    });
+  }
+
+  $("#create-new-product-btn").click(function(){
+    create_new_product();
+  });
+
+  
+</script>
+
+{% endblock %}

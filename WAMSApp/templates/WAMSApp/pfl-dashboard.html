@@ -1,0 +1,179 @@
+{% extends 'WAMSApp/console.html' %}
+
+{% block content2 %}
+
+{% load static %}
+
+
+  <div class="row" style="margin-bottom: 0em;background-color: white !important;">
+      <div class="input-field col s10 search-input-div" style="padding: 0em;margin-top:0rem;margin-bottom: 0px;">
+        <i class="material-icons" style="z-index:100;position: absolute;margin-top: 0.4em;margin-left: 0.5em;color: grey !important;">search</i>
+
+        <div type="text" class="validate white search-input chips chips-placeholder" style="margin:0px;text-indent: 2.5em;box-shadow: none; border: none;outline: none;font-family: 'AvenirNextRegular';font-size: 14px;letter-spacing: 1px;"></div>
+      </div>
+
+      <div class="col s2 white user-icon-div">
+        <a href="/logout">
+          <i class="material-icons power_btn" style="
+            position: absolute;
+            top: 50%;right: 10%;    
+            padding: 5px;   
+            color: grey;
+            border-radius: 20px;    
+            font-size: 18px;    
+            border: 1px solid #d2dfeb;
+            cursor: pointer">
+            settings_power
+          </i>
+        </a>
+        
+        <span style="
+          margin-left: 2em;    
+          position: absolute;   
+          top: 60%;   
+          left: 6%;   
+          color: black;   
+          border-left: 1px solid rgba(28,110,164,0.21);   
+          padding-left: 18px;   
+          font-family: 'AvenirNext';    
+          text-transform: capitalize;">
+            {{request.user}}
+        </span>
+
+      </div>
+    </div>
+  
+  <div class="row" style = "margin : 20px 5px 0px 4px !important;">
+
+    <div class = "flex-container">
+
+    </div>  
+
+  </div>
+
+<div id="new-pfl-modal" class="modal">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">NEW PFL</h5>
+    <br>
+    <div class="row">
+      <div class="input-field col s12" id="new-export-div">
+        <input id="pfl-name" type="text" class="validate">
+        <label for="pfl-name">PFL Name</label>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect btn-flat">Close</a>
+    <a id="create-new-pfl-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #521893;">Create</a>
+  </div>
+</div>
+
+
+<a href="#new-pfl-modal" class="modal-trigger btn-floating" style="position: fixed;right:1em;bottom:1em;background-color: #521893;"><i class="material-icons">add</i></a>
+
+<script type="text/javascript">
+
+  var chip_tags = [];
+  $('.chips-placeholder').chips({
+    placeholder: 'Search by product name, product id or seller sku',
+    onChipAdd: (event, chip) => {
+          chip_tags = [];
+          for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
+            chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
+          }
+          fetch_pfl_list();
+
+    },
+    onChipDelete: (event , chip) => {
+      $("#product-tbody").html('');
+      chip_tags = [];
+          for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
+            chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
+          }
+          fetch_pfl_list();
+    }
+  });
+
+  function getCsrfToken() {
+    var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+    return CSRF_TOKEN;
+  }
+
+
+  function fetch_pfl_list()
+  {
+    var url =  "/fetch-pfl-list/";
+    var data = {}
+    if ( chip_tags.length > 0 ){
+      url = "/fetch-pfl-search-list/";
+      data = {'tags': JSON.stringify(chip_tags)};
+    }
+    $.ajax({
+      url: url,
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: data,
+      success: function(response) {
+        console.log("Success!", response);
+
+        var html_string = "";
+        var pfl_list = response["pfl_list"];
+
+        for(var i=0;i<pfl_list.length;i++)
+        {
+            html_string += `<div class = "flex-inside">
+            <div class="card center">
+              <img src="`+pfl_list[i]["product_image_url"]+`" style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;"/>
+              <a href="/pfl/`+ pfl_list[i]["pfl_pk"] +`" target = "_blank">
+              <div class = "card-text" style = "padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
+                 <p style="text-align: left;margin-left:10px;color:#521893;font-size:14px;margin-top:0em;margin-bottom:0em;">`+ pfl_list[i]["pfl_name"] +`</p>
+              </div>
+            </a>
+            </div>
+        </div>`
+        }
+          $(".flex-container").html(html_string);
+
+          $('.card').mouseover(function(){
+              $($(this).find(".card-text")).addClass("hovered");
+           }).mouseout(function(){
+               $($(this).find(".card-text")).removeClass("hovered");
+              })
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+
+  }
+
+  fetch_pfl_list();
+
+  $("#create-new-pfl-btn").click(function(){
+
+    $.ajax({
+      url: "/create-pfl/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: {
+        name: $("#pfl-name").val()
+      },
+      success: function(response) {
+        console.log("Success!", response);
+        window.location.pathname = "/pfl/"+response["pfl_pk"];
+
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+    
+  });
+  
+</script>
+
+{% endblock %}

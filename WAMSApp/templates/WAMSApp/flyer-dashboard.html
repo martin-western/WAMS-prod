@@ -1,0 +1,275 @@
+{% extends 'WAMSApp/console.html' %}
+
+{% block content2 %}
+
+{% load static %}
+
+
+<div class="row" style="margin-bottom: 0em;background-color: white !important;">
+      <div class="input-field col s10 search-input-div" style="padding: 0em;margin-top:0rem;margin-bottom: 0px;">
+        <i class="material-icons" style="z-index:100;position: absolute;margin-top: 0.4em;margin-left: 0.5em;color: grey !important;">search</i>
+
+        <div type="text" class="validate white search-input chips chips-placeholder" style="margin:0px;text-indent: 2.5em;box-shadow: none; border: none;outline: none;font-family: 'AvenirNextRegular';font-size: 14px;letter-spacing: 1px;"></div>
+      </div>
+
+      <div class="col s2 white user-icon-div">
+        <a href="/logout">
+          <i class="material-icons power_btn" style="
+            position: absolute;
+            top: 50%;right: 10%;    
+            padding: 5px;   
+            color: grey;
+            border-radius: 20px;    
+            font-size: 18px;    
+            border: 1px solid #d2dfeb;
+            cursor: pointer">
+            settings_power
+          </i>
+        </a>
+        
+        <span style="
+          margin-left: 2em;    
+          position: absolute;   
+          top: 60%;   
+          left: 6%;   
+          color: black;   
+          border-left: 1px solid rgba(28,110,164,0.21);   
+          padding-left: 18px;   
+          font-family: 'AvenirNext';    
+          text-transform: capitalize;">
+            {{request.user}}
+        </span>
+
+      </div>
+    </div>
+  
+  <div class="row" style = "margin : 20px 5px 0px 4px !important;">
+
+    <div class = "flex-container">
+
+    </div>  
+
+  </div>
+
+ 
+
+<div id="new-flyer-modal" class="scroll-style-1 modal" style="overflow-y: auto;">
+
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">NEW FLYER</h5>
+    <div class="row" style="margin-bottom: 0em;">
+      <div class="input-field col s6">
+        <input id="flyer-name" type="text" class="validate">
+        <label for="flyer-name">Flyer Name</label>
+      </div>
+
+      <div class="input-field col s6">
+        <select id="flyer-brand">
+          <option value="" disabled selected>Choose brand</option>
+        </select>
+        <label>Brand</label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="input-field col s2">
+        <input id="flyer-row" type="number" class="validate">
+        <label for="flyer-row">Row</label>
+      </div>
+
+      <div class="input-field col s2">
+        <input id="flyer-column" type="number" class="validate">
+        <label for="flyer-column">Column<label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="file-field input-field col s12">
+        <div class="btn" style="background-color: #521893;">
+          <span>Import Excel</span>
+          <input id="excel-file-input" type="file">
+        </div>
+        <div class="file-path-wrapper">
+          <input class="file-path validate" type="text">
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect btn-flat">Close</a>
+    <a id="create-new-flyer-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #009051;" >Create</a>
+  </div>
+</div>
+
+
+<a href="#new-flyer-modal" class="modal-trigger btn-floating" style="position: fixed;right:1em;bottom:1em;background-color: #521893;"><i class="material-icons">add</i></a>
+
+<script type="text/javascript">
+
+
+  $('.left-li').hover(function(){
+      $($(this).find('span')).css('color','white').css('font-family','AvenirNextBold');
+      $($(this).find('i')).css('color','white');
+  })
+
+  $('.left-li').mouseout(function(){
+    $($(this).find('span')).css('color','grey').css('font-family','AvenirNextRegular');
+    $($(this).find('i')).css('color','grey');
+  })
+
+  
+  $('.tabs').tabs();
+  $('.modal').modal();
+  $('body').css('background-color', '#ebebeb');
+  $('select').formSelect();
+  var chip_tags = [];
+  $('.chips-placeholder').chips({
+    placeholder: 'Search by product name, product id or seller sku',
+    onChipAdd: (event, chip) => {
+          chip_tags = [];
+          for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
+            chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
+          }
+          fetch_flyer_list();
+
+    },
+    onChipDelete: (event , chip) => {
+      $("#product-tbody").html('');
+        chip_tags = [];
+          for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
+            chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
+          }
+          fetch_flyer_list();
+
+    }
+  });
+
+
+
+
+  function getCsrfToken() {
+    var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+    return CSRF_TOKEN;
+  }
+
+
+  function fetch_flyer_list()
+  {
+     var url = "/fetch-flyer-list/";
+    var data = {};
+
+    if (chip_tags.length > 0 ){
+      url = "/fetch-flyer-search-list/"
+      data = {'tags': JSON.stringify(chip_tags)};
+    }
+    $.ajax({
+      url: url,
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: data,
+      success: function(response) {
+        console.log("Success!", response);
+
+        var html_string = "";
+        var flyer_list = response["flyer_list"];
+
+        for(var i=0;i<flyer_list.length;i++)
+        {
+          html_string += `<div class = "flex-inside">
+            <div class="card center">
+              <img src="`+flyer_list[i]["flyer_image"]+`" style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;" />
+              <a href="/flyer/`+ flyer_list[i]["flyer_pk"] +`" target = "_blank">
+              <div class = "card-text" style = "padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
+                 <p style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">`+ flyer_list[i]["flyer_name"] +`</p>
+              </div>
+            </a>
+            </div>
+        </div>`
+        }
+        $(".flex-container").html(html_string);
+        
+        $('.card').mouseover(function(){
+          $($(this).find(".card-text")).addClass("hovered");
+        }).mouseout(function(){
+          $($(this).find(".card-text")).removeClass("hovered");
+        })
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+  }
+
+  fetch_flyer_list();
+
+  $("#create-new-flyer-btn").click(function(){
+
+
+    var import_file = document.getElementById("excel-file-input");
+
+    var fd =  new FormData();
+    fd.append('name', $("#flyer-name").val());
+    fd.append('brand_pk', $("#flyer-brand").val());
+    fd.append('row', $("#flyer-row").val());
+    fd.append('column', $("#flyer-column").val());
+    fd.append('import_file', import_file.files[0]);
+
+    $.ajax({
+      url: "/create-flyer/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      processData: false,
+      contentType: false,
+      data: fd,
+      success: function(response) {
+        console.log("Success!", response);
+        window.location.pathname = "/flyer/"+response["flyer_pk"];
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+    
+  });
+
+  function fetch_brands()
+  {
+    $.ajax({
+      url: "/fetch-brands/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: {},
+      success: function(response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          var brand_list = response["brand_list"];
+          var html_string = "";
+          for(var i=0;i<brand_list.length;i++)
+          {
+            html_string += `
+              <option value="`+brand_list[i]["pk"]+`">`+brand_list[i]["name"]+`</option>
+            `;
+          }
+          $("#flyer-brand").append(html_string);
+          $("select").formSelect();
+        }
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+  }
+
+  fetch_brands();
+  
+</script>
+
+{% endblock %}

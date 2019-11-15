@@ -1,0 +1,340 @@
+{% extends 'WAMSApp/base.html' %}
+
+{% block content %}
+
+{% load static %}
+<style>
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: black;
+  opacity: 0.6; /* Firefox */
+}
+
+  @font-face {
+      font-family: AvenirNext;
+      src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Demi.otf' %}");
+    }
+
+    @font-face {
+      font-family: AvenirNextBold;
+      src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Bold.otf' %}");
+    }
+
+
+    @font-face {
+      font-family: AvenirNextRegular;
+      src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Regular.otf' %}");
+    }
+
+    @font-face {
+      font-family: AvenirNext-Flyer;
+      src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-DemiCn.otf' %}");
+    }
+
+
+.chips .input {
+    background: none;
+    border: 0;
+    color: rgba(0,0,0,0.6);
+    display: inline-block;
+    font-size: 16px;
+    height: 3rem;
+    line-height: 32px;
+    outline: 0;
+    margin: 0;
+    padding: 0 !important;
+    width: 400px !important ;
+}
+.left-li{
+  padding: 18px 0px 15px 10% !important;
+  margin:0px !important;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 0 gray;
+}
+
+.left-li:hover{
+   box-shadow: inset 0 0 0 50px #f7f7f7;
+}
+
+.left-li a i{
+  color: grey;
+}
+
+.power_btn:hover{   
+  color:white !important;   
+  background-color: #EE220C !important;   
+  border-color: white !important;
+}
+
+.left-li a span{
+  color: grey;
+  font-family:'AvenirNextRegular'; 
+  margin-left: 40px !important;
+  pointer-events: none;
+}
+
+.search-input-div
+{
+  padding: 12px 0px 10px 20px !important;
+}
+
+.search-input
+{
+  padding-left: 15px !important;
+}
+
+input:focus{
+ border-bottom: none!important;
+  box-shadow: none!important;
+}
+
+.user-icon-div{
+  padding: 20px 0px 20px 20px !important;
+  position: relative;
+}
+
+
+input[type="checkbox"]{   
+  -ms-transform: scale(1); /* IE */   
+ -moz-transform: scale(1); /* FF */   
+ -webkit-transform: scale(1); /* Safari and Chrome */   
+ -o-transform: scale(1); /* Opera */    
+  padding: 0px;   
+}
+
+.card{
+  width: 200px;
+  min-height: 100px;
+  border-radius: 10px;
+  box-shadow: none;
+  border: 1px solid rgba(28,110,164,0.21);
+}
+
+.card > img{
+  width: 100%;
+  height: 80%;
+  border-radius: 10px 10px 0px 0px;
+}
+
+.card-logo{
+  width: 50px;
+}
+
+.hovered{
+  padding: 0px 0px 12px 0px !important; 
+}
+
+
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex-container > .flex-inside {
+  margin: 10px;
+  text-align: center;
+}
+
+
+
+
+.product_row{   
+    margin: 0px;    
+    background-color: white;    
+    padding: 12px 0px 10px 0px;   
+    /*background-color: #521893;*/    
+    border-radius: 5px;   
+}   
+/*cheackbox*/   
+.toggler-wrapper {    
+  display: block;   
+  width: 30px;    
+  height: 20px;   
+  cursor: pointer;    
+  position: relative;   
+}   
+.toggler-wrapper input[type="checkbox"] {   
+  display: none;    
+}   
+.toggler-wrapper input[type="checkbox"]:checked+.toggler-slider {   
+  background-color: #44cc66;    
+}   
+.toggler-wrapper .toggler-slider {    
+  background-color: #ccc;   
+  position: absolute;     
+  border-radius: 100px;   
+  top: 0;   
+  left: 0;    
+  width: 100%;    
+  height: 100%;   
+  -webkit-transition: all 50ms ease;    
+  transition: all 50ms ease;    
+}   
+.toggler-wrapper .toggler-knob {    
+  position: absolute;   
+  -webkit-transition: all 50ms ease;    
+  transition: all 50ms ease;    
+}   
+.dropdown > div > ul > li > span{   
+  color: black !important;    
+}   
+.toggler-wrapper.style-25 input[type="checkbox"]:checked+.toggler-slider {    
+  background-color: white;    
+}   
+.toggler-wrapper.style-25 input[type="checkbox"]:checked+.toggler-slider .toggler-knob {    
+  left: calc(100% - 19px - 3px);    
+  background-color: #521893;    
+  background-image: url(../img/check-fill.svg);   
+}   
+.toggler-wrapper.style-25 .toggler-slider {   
+  background-color: white;    
+  box-shadow: none;   
+  border-radius: 5px;   
+}   
+.toggler-wrapper.style-25 .toggler-knob {   
+  width: calc(25px - 6px);    
+  height: calc(25px - 6px);   
+  border-radius: 5px;   
+  left: 3px;    
+  top: 3px;   
+  background-color: #ccc;   
+  background-image: url(../img/close-fill.svg);   
+  background-repeat: no-repeat;   
+  background-position: center;    
+}   
+.toggler-knob{    
+  transform: scale(0.8) translateY(-5px);   
+}
+
+
+</style>
+
+<div class="row">
+
+
+<!-- new dsign -->
+  <div class="col s2 white" style="height: 100vh;position: fixed;padding: 0em;box-shadow: 5px 0.1px 7px #88888838;">
+
+    <div class="center">
+      <br>
+      <h5 style = "font-weight: bold !important;margin: 25px 0px 0px 0px !important;    
+    font-size: 18px;    
+    position: relative;   
+    bottom: 5px;"><i class="material-icons" style="    position: relative;   
+    top: 5px;   
+    right: 10px;color: #521893;">   
+layers    
+</i>ROYALFORD</h5>
+      <br>
+    </div>
+    <!-- <div>
+      <p><i class="material-icons" style="color: black;position: absolute;">shopping_cart</i><span style="margin-left: 2em;">Inventory</span></p>
+      <p><i class="material-icons" style="color: black;position: absolute;">cloud_download</i><span style="margin-left: 2em;">Exported</span></p>
+    </div> -->
+    <ul style="width: 100%;">
+      <!-- <a href="/products/" style = "color:grey;">
+        <li class = "left-li selected" style="position: relative;background-color: #521893 !important;">
+          <i class="material-icons" style="position: absolute;top: 50%;left: 20%; transform: translate(0 , -50%);color: white !important;">select_all</i>
+          <span style="margin-left: 30%;color: white !important;font-family:'AvenirNext'">Products</span>
+        </li>
+      </a> -->
+
+      <a href="/products/" style = "color:grey;">   
+        <li id="li-product" class = "left-li" style="position: relative;">    
+          <i id="i-product" class="material-icons" style="position: absolute;top: 50%;left: 20%; transform: translate(0 , -50%);">select_all</i>   
+          <span id="span-product" style="margin-left: 30%;font-family:'AvenirNext'">Products</span>   
+        </li>
+      </a>
+
+      <a href="/export-list" style = "color:grey;">   
+        <li id="li-export-list" class = "left-li" style="position: relative;">    
+          <i id="i-export-list" class="material-icons" style="position: absolute;top: 50%;left: 20%; transform: translate(0 , -50%);">dynamic_feed</i>   
+          <span id="span-export-list" style="margin-left: 30%;font-family:'AvenirNext'">Exported</span>   
+        </li>   
+      </a>    
+      <a href="/pfl-dashboard" style = "color:grey;">   
+        <li id="li-pfl-dashboard" class = "left-li" style="position: relative;">    
+          <i id="i-pfl-dashboard" class="material-icons" style="position: absolute;top: 50%;left: 20%; transform: translate(0 , -50%);">vertical_split</i>   
+          <span id="span-pfl-dashboard" style="margin-left: 30%;font-family:'AvenirNext'">PFL</span>    
+        </li>   
+      </a>    
+      <a href="/flyer-dashboard" style = "color:grey;">   
+        <li id="li-flyer-dashboard" class = "left-li" style="position: relative;">    
+          <i id="i-flyer-dashboard" class="material-icons" style="position: absolute;top: 50%;left: 20%; transform: translate(0 , -50%);">view_module</i>    
+          <span id="span-flyer-dashboard" style="margin-left: 30%;font-family:'AvenirNext'">Flyer</span>    
+        </li>   
+      </a>
+
+
+
+    </ul>
+  </div>
+  
+
+  <div class="col s10 offset-s2" style="height: 4em;">
+    {% block content2 %}
+    {% endblock %}
+  </div>
+
+</div>
+
+<script type="text/javascript">
+
+  $('.left-li').mouseover(function(){
+    $($(this).find('span')).css('color','#521893');
+    $($(this).find('i')).css('color','#521893');
+  });
+
+  $('.left-li').mouseout(function(){
+    if(!$(this).hasClass('selected'))
+    {
+      $($(this).find('span')).css('color','grey');
+      $($(this).find('i')).css('color','grey');
+    }
+    else
+    {
+      $($(this).find('span')).css('color','white');
+      $($(this).find('i')).css('color','white');
+    }
+  });
+
+
+  $('.datepicker').datepicker();
+  $('.tabs').tabs();
+  $('.modal').modal();
+  $('body').css('background-color', '#ebebeb');
+  $('select').formSelect();
+
+  if(window.location.pathname=="/products/")
+  {
+    $("#li-product").attr("class", "left-li selected");
+    $("#li-product").css("background-color", "#521893");
+    $("#i-product").css("color", "white");
+    $("#span-product").css("color", "white");
+  }
+  else if(window.location.pathname=="/export-list/")
+  {
+    $("#li-export-list").attr("class", "left-li selected");
+    $("#li-export-list").css("background-color", "#521893");
+    $("#i-export-list").css("color", "white");
+    $("#span-export-list").css("color", "white");
+  }
+  else if(window.location.pathname=="/pfl-dashboard/")
+  {
+    $("#li-pfl-dashboard").attr("class", "left-li selected");
+    $("#li-pfl-dashboard").css("background-color", "#521893");
+    $("#i-pfl-dashboard").css("color", "white");
+    $("#span-pfl-dashboard").css("color", "white");
+  }
+  else if(window.location.pathname=="/flyer-dashboard/")
+  {
+    $("#li-flyer-dashboard").attr("class", "left-li selected");
+    $("#li-flyer-dashboard").css("background-color", "#521893");
+    $("#i-flyer-dashboard").css("color", "white");
+    $("#span-flyer-dashboard").css("color", "white");
+  }
+  
+</script>
+
+{% endblock %}

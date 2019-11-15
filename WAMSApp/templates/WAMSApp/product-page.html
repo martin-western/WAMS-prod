@@ -1,0 +1,500 @@
+{% extends 'WAMSApp/base.html' %}
+{% load static %}
+{% block content %}
+
+  <br>
+  <div id="product-main-card" class="row white" style="padding-left: 0.2em;margin-top: -2em;padding-bottom: 1em;color:#717171;">
+
+  </div>
+  
+  <div class="row white" style="padding-left: 0.2em;">
+    <div class="col s12 m12">
+      <h5>Product Images<a id="edit-product-images-btn" href="#edit-product-images-modal" class="modal-trigger" style="margin-left: 0.5em;"><i class="material-icons" style="position: absolute;font-size: 0.9em;color:grey;">edit</i></a></h5>
+    </div>
+    <div class="col s12 m12">
+      <div id="slider-div2" class="row">
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row white" style="padding-left: 0.2em;">
+    <div class="col s12 m12">
+      <h5>Product Attachments<a id="edit-product-attachments-btn" href="#edit-product-attachments-modal" class="modal-trigger" style="margin-left: 0.5em;"><i class="material-icons" style="position: absolute;font-size: 0.9em;color:grey;">edit</i></a></h5>
+    </div>
+    <div class="col s12 m12">
+      <div id="attachments-div" class="row">
+      </div>
+    </div>
+  </div>
+
+<div id="edit-product-modal" class="modal">
+  <div class="modal-content">
+    <h5>Edit Product</h5>
+    <br>
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="product-name-modal" type="text" class="validate">
+        <label for="product-name-modal">Product Name</label>
+      </div>
+      <div class="input-field col s12">
+        <input id="product-code-modal" type="text" class="validate">
+        <label for="product-code-modal">Product Code</label>
+      </div>
+      <div class="input-field col s12">
+        <input id="product-price-modal" type="text" class="validate">
+        <label for="product-price-modal">Product Price</label>
+      </div>
+      <div class="input-field col s12">
+        <input id="moq-modal" type="text" class="validate">
+        <label for="moq-modal">MOQ</label>
+      </div>
+      <div class="input-field col s12">
+        <input id="order-qty-modal" type="text" class="validate">
+        <label for="order-qty-modal">Order Qty</label>
+      </div>
+      <div class="input-field col s12">
+        <input id="other-info-modal" type="text" class="validate">
+        <label for="other-info-modal">Other Info</label>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    <a id="save-product-btn" href="#!" class="waves-effect waves-green btn-flat green white-text">Save</a>
+  </div>
+</div>
+
+
+
+<div id="edit-product-images-modal" class="modal">
+  <div class="modal-content">
+    <h5>Edit Product Images</h5>
+    <br>
+    <div id="product-images-div">
+    </div>
+    
+    <div class="file-field input-field col s12">
+      <div class="btn">
+        <i class="material-icons" style="position: absolute;">photo_camera</i>&nbsp;&nbsp;<span style="margin-left: 1em;">Upload Image</span>
+        <input id="new-image" type="file" accept="image/*;capture=camera">
+      </div>
+      <div class="file-path-wrapper">
+        <input class="file-path validate" type="text">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat green white-text">Done</a>
+  </div>
+</div>
+
+
+<div id="edit-product-attachments-modal" class="modal">
+  <div class="modal-content">
+    <h5>Edit Product Attachments</h5>
+    <br>
+    <div id="edit-product-attachments-div">
+    </div>
+    
+    <div class="file-field input-field col s12">
+      <div class="btn">
+        <i class="material-icons" style="position: absolute;">attachment</i>&nbsp;&nbsp;<span style="margin-left: 1em;">Upload File</span>
+        <input id="new-attachment" type="file">
+      </div>
+      <div class="file-path-wrapper">
+        <input class="file-path validate" type="text">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat green white-text">Done</a>
+  </div>
+</div>
+
+<script type="text/javascript">
+	
+  $('.modal').modal();
+
+  $('body').css('background-color', '#ebebeb');
+
+  $("#heading-title").html("PRODUCT DETAILS");
+
+  var global_product_name = "";
+  var global_product_price = "";
+  var global_product_code = "";
+  var global_moq = "";
+  var global_order_qty = "";
+  var global_other_info = "";
+  var global_images = [];
+  var global_attachments = [];
+
+
+  $("#new-image").change(function(){
+    var fd = new FormData();
+    var product_image = document.getElementById("new-image");
+
+    if(product_image.files.length==0)
+      return;
+
+    fd.append('product-image', product_image.files[0]);
+    fd.append('pk', window.location.pathname.split("/")[2]);
+    $.ajax({
+      url: "/upload-product-image/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      processData: false,
+      contentType: false,
+      data: fd,
+      success: function(response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_images.push({"url":response["image-url"], "pk":response["pk"]})
+          var html_string = `<div class="col s4">
+                          <img src="`+response["image-url"]+`" style="width:100%;">
+                          <a id="del-`+response["pk"]+`" class="delete-img-btn right" href="#!" style="top:0;right:0;"><i class="material-icons">delete</i></a>
+                      </div>`
+          $("#product-list-div").append(html_string);
+
+          $("#represent-card").attr("src", global_images[0]["url"]);
+
+
+          set_product_grid_images();
+
+        }
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+
+  });
+
+
+  $("#edit-product-images-btn").click(function(){
+
+    var html_string = `<div class="row" id="product-list-div">`;
+    for(var i=0;i<global_images.length;i++)
+    {
+      html_string += `<div class="col s12">
+                          <img src="`+global_images[i]["url"]+`" style="width:100%;">
+                          <a id="del-`+global_images[i]["pk"]+`" class="delete-img-btn right" href="#!" style="top:0;right:0;"><i class="material-icons">delete</i></a>
+                      </div>`
+    }
+    html_string += "</div>"
+    $("#product-images-div").html(html_string);
+  });
+
+  $(document).on("click", ".delete-img-btn", function(){
+    var id = this.id.split("-")[1];
+    console.log($(this).parent());
+    $(this).parent().remove();
+    $.ajax({
+      url: "/delete-image/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: {
+        pk: id,
+        product_pk: window.location.pathname.split("/")[2]
+      },
+      success: function(response) {
+        console.log("Success!", response);
+        global_images = response["images"];
+
+        if(global_images.length==0)
+        {
+          $("#represent-card").attr("src", "");
+        }
+        else
+        {
+          $("#represent-card").attr("src", global_images[0]["url"]);
+        }
+        set_product_grid_images();
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+  });
+
+
+  ///////////////////////////////////////////////////////
+
+
+  $("#edit-product-attachments-btn").click(function(){
+    console.log("Adasasdas");
+
+    var html_string = `<div class="row" id="attachment-list-div">`;
+    for(var i=0;i<global_attachments.length;i++)
+    {
+      html_string += `<div class="col s12">
+                          <a href="/files`+global_attachments[i]["url"]+`" target="_blank">`+global_attachments[i]["name"]+`</a>
+                          <a id="del-`+global_attachments[i]["pk"]+`" class="delete-attachment-btn right" href="#!" style="top:0;right:0;"><i class="material-icons">delete</i></a>
+                      </div>`
+    }
+    html_string += "</div>"
+    $("#edit-product-attachments-div").html(html_string);
+  })
+
+  $("#new-attachment").change(function(){
+    var fd = new FormData();
+    var attachment = document.getElementById("new-attachment");
+
+    if(attachment.files.length==0)
+      return;
+
+    fd.append('attachment', attachment.files[0]);
+    fd.append('pk', window.location.pathname.split("/")[2]);
+    $.ajax({
+      url: "/upload-attachment/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      processData: false,
+      contentType: false,
+      data: fd,
+      success: function(response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_attachments.push({"url":response["url"], "name":response["name"], "pk":response["pk"]});
+
+          var html_string = `<div class="col s12">
+                          <a href="/files`+response["url"]+`" target="_blank">`+response["name"]+`</a>
+                          <a id="del-`+response["pk"]+`" class="delete-attachment-btn right" href="#!" style="top:0;right:0;"><i class="material-icons">delete</i></a>
+                      </div>`
+
+
+          $("#attachment-list-div").append(html_string);
+          set_attachments();
+
+        }
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+
+  });
+
+  $(document).on("click", ".delete-attachment-btn", function(){
+    var id = this.id.split("-")[1];
+    console.log($(this).parent());
+    $(this).parent().remove();
+    $.ajax({
+      url: "/delete-attachment/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: {
+        pk: id,
+        product_pk: window.location.pathname.split("/")[2]
+      },
+      success: function(response) {
+        console.log("Success!", response);
+        global_attachments = response["attachments"];
+        set_attachments();
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+  });
+
+
+
+
+
+
+  ///////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+	function getCsrfToken() {
+    var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+    return CSRF_TOKEN;
+  }
+
+
+  function set_product_grid_images()
+  {
+    var html_string = "";
+    for(var i=0;i<global_images.length;i++)
+    {
+      html_string += `<div class="col s4 m4" style="padding-bottom:1em;">
+      <img src="`+global_images[i]["url"]+`" style="height:10em;max-width:100%;object-fit:cover;" class="materialboxed"></div>`
+    }
+    $("#slider-div2").html(html_string);
+    $(".materialboxed").materialbox();
+  }
+
+
+  function set_attachments()
+  {
+    var html_string = "";
+    for(var i=0;i<global_attachments.length;i++)
+    {
+      html_string += `<div class="col s12 m12"><a href="/files/`+global_attachments[i]["url"]+`" target="_blank">`+global_attachments[i]["name"]+`</a></div>`
+    }
+    $("#attachments-div").html(html_string);
+  }
+
+  function fetch_product_details()
+  {
+    $.ajax({
+      url: "/fetch-product-details/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: {
+        pk: window.location.pathname.split("/")[2]
+      },
+      success: function(response) {
+        console.log("Success!", response);
+
+
+        global_product_name = response["product-name"];
+        global_product_price = response["product-price"];
+        global_moq = response["moq"];
+        global_order_qty = response["order-qty"];
+        global_other_info = response["other-info"];
+        global_product_code = response["product-code"];
+        global_images = response["images"];
+
+        var temp_repr = "";
+        if(response["images"].length>0)
+        {
+          temp_repr = `<img style="width:100%;height:18em;object-fit:cover;" id="represent-card" src="`+response["images"][0]["url"]+`">`;
+        }
+
+        var html_string = `
+              <div class="col s12 white">
+                <h5><a id="product-name-card" href="/product/`+response["pk"]+`" style="color:black;">`+response["product-name"]+`</a><a id="edit-product-modal-btn" href="#edit-product-modal" style="margin-left: 0.5em;" class="modal-trigger"><i class="material-icons" style="position: absolute;font-size: 0.9em;color:grey;">edit</i></a></h5>
+              </div>
+              <div class="col s12 m12">
+                <h6 style="margin-bottom:0em;"><span style="color:#717171;">Product Code: <span id="product-code-card">`+response["product-code"]+`</span></span></h6>
+              </div>
+              <div class="col s12 m12">
+                <h6 style="margin-bottom:0em;">Product Price: <span id="product-price-card">`+response["product-price"]+`</span></h6>
+              </div>
+              <div class="col s12 m12">
+                <h6 style="margin-bottom:0em;">Min. Order: <span id="moq-card">`+response["moq"]+`</span></h6>
+              </div>
+              <div class="col s12 m12">
+                <h6 style="margin-bottom:0em;">Order Qty: <span id="order-qty-card">`+response["order-qty"]+`</span></h6>
+              </div>
+              <div class="col s12 m12">
+                <h6 style="margin-bottom:0em;">Other Info: <span id="other-info-card">`+response["other-info"]+`</span></h6>
+              </div>
+              <div class="col s12 m12">
+                <h6 style="margin-bottom:0em;">Factory: <a href="/factory/`+response["factory-pk"]+`">`+response["factory-name"]+`</a></span></h6>
+              </div>`
+
+        $("#main-product-img").html(temp_repr);
+
+        $("#product-main-card").html(html_string);
+
+        $(".card").css("height", "auto");
+
+        $("#edit-product-modal-btn").click(function(){
+          $("#product-name-modal").val(global_product_name);
+          $("#product-price-modal").val(global_product_price);
+          $("#product-code-modal").val(global_product_code);
+          $("#moq-modal").val(global_moq);
+          $("#order-qty-modal").val(global_order_qty);
+          $("#other-info-modal").val(global_other_info);
+          M.updateTextFields();
+        });
+
+
+        $("#save-product-btn").click(function(){
+          $("#save-product-btn").attr("disabled", "disabled");
+
+          var product_name = $("#product-name-modal").val();
+          var product_price = $("#product-price-modal").val();
+          var product_code = $("#product-code-modal").val();
+          var moq = $("#moq-modal").val();
+          var order_qty = $("#order-qty-modal").val();
+          var other_info = $("#other-info-modal").val()
+
+          $.ajax({
+            url: "/save-product-details/",
+            type: "POST",
+            headers:{
+              'X-CSRFToken':getCsrfToken()
+            },
+            data: {
+              pk: window.location.pathname.split("/")[2],
+              product_name: product_name,
+              product_price: product_price,
+              product_code: product_code,
+              moq: moq,
+              order_qty: order_qty,
+              other_info: other_info
+            },
+            success: function(response) {
+              console.log("Success!", response);
+              if(response["status"]==200)
+              {
+                $("#edit-product-modal").modal('close');
+                M.toast({html: "Product details updated successfully!"});
+                $("#product-name-card").html(product_name);
+                $("#product-code-card").html(product_code);
+                $("#product-price-card").html(product_price);
+                $("#moq-card").html(moq);
+                $("#order-qty-card").html(order_qty);
+                $("#other-info-card").html(other_info);
+
+                global_product_name = product_name;
+                global_product_code = product_code;
+                global_product_price = product_price;
+                global_moq = moq;
+                global_order_qty = order_qty;
+                global_other_info = other_info;
+              }
+              $("#save-product-btn").removeAttr("disabled");
+            },
+            error: function(xhr, textstatus, errorthrown) {
+              console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+            }
+          });
+        });
+
+
+        global_images = response["images"];
+        set_product_grid_images();
+        
+
+        global_attachments = response["attachments"];
+        set_attachments();
+
+
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+  }
+
+	 
+  fetch_product_details();
+   
+</script>
+
+{% endblock %}

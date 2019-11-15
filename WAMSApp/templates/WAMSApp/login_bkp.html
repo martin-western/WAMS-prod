@@ -1,0 +1,107 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>WAMS</title>
+  <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+  <link href="{% static 'WAMSApp/css/materialize.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body class="orange">
+{% csrf_token %}
+
+<div class="section no-pad-bot" id="index-banner">
+    <div>
+      <div class="row">
+        <div class="col s1"></div>
+
+        <div class="col s10">
+          <br><br>
+          <br><br>
+          <div class="card">
+            <div class="card-content black-text">
+              <span class="card-title center orange-text text-darken-2"><img src="{% static 'WAMSApp/img/Logo.jpg' %}"></span>
+              <p>
+                <div class="row">
+                  <div class="col s1"></div>
+                  <div class="col s10">
+                    <br>
+                      <div class="input-field">
+                        <input id="username" type="text" class="validate" autocomplete="off">
+                        <label for="username">Username</label>
+                      </div>
+                      <div class="input-field">
+                        <input id="password" type="password" class="validate" autocomplete="off">
+                        <label for="password">Password</label>
+                      </div>
+                      <!-- <small><a class="grey-text" href="#">Forgot Password</a></small> -->
+                      <a class="waves-effect waves-light btn orange darken-2 " href="#!" id="login_btn">Login</a>
+                  </div>
+                  <div class="col s1"></div>
+                </div>
+              </p>
+              <br>
+            </div>
+          </div>
+        </div>
+
+        <div class="col s1"></div>
+
+      </div>
+
+    </div>
+  </div>
+  
+  <script type="text/javascript" src="{% static 'WAMSApp/js/jquery-3.3.1.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'WAMSApp/js/materialize.js' %}"></script>
+  <script type="text/javascript" src="{% static 'WAMSApp/js/select2.min.js' %}">
+  </script>
+  <script type="text/javascript">
+
+    function getCsrfToken() {
+      var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+      return CSRF_TOKEN;
+    }
+
+    $("#login_btn").click(function(){
+      
+        $.ajax({
+          url: "/login-submit/",
+          type: "POST",
+          headers:{
+            'X-CSRFToken':getCsrfToken()
+          },
+          data: {
+            username: $("#username").val(),
+            password: $("#password").val()
+          },
+          success: function(response) {
+            console.log("Success!", response);
+            if(response["status"]==200)
+            {
+              window.location.pathname = "/products"
+            }
+            else
+            {
+              M.toast({html: "The username or password is incorrect!"});
+            }
+          },
+          error: function(xhr, textstatus, errorthrown) {
+            console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+          }
+        });
+    });
+
+    $("#password").keypress(function(e){
+      if(e.keyCode==13)
+      {
+        $("#login_btn").click();
+      }
+    });
+
+  </script>
+
+</body>
+</html>
