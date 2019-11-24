@@ -22,7 +22,7 @@
 
 </head>
 
-<body>
+<body class="scroll-style-1">
 
   <style type="text/css">
     @font-face {
@@ -109,7 +109,7 @@
   
   <div class="row" style="margin-bottom: 0em;">
 
-    <div class="scroll-style-1 col s3" style="position: fixed;height: 100vh;overflow-y: scroll;background-color: #EAEAEA;">
+    <div class="scroll-style-1 col s3 m4" style="position: fixed;height: 100vh;overflow-y: scroll;background-color: #EAEAEA;">
       <div class="row white" style="margin-bottom: 0em;">
         <div class="col s1" style="margin-top: 0.4em;">
           <i class="material-icons" style="position: absolute;margin-top: 0.5em;margin-left: 0.5em;color: #717171;">search</i>
@@ -167,13 +167,12 @@
 
 
         <!-- Background Image Bucket -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
             <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Background Image Bucket</span>
-            
-            <a href="#add-new-bg-modal" class="modal-trigger btn-floating btn-small waves-effect waves-light green" style="position: absolute;margin-left: 11em;height: 1.4em;width: 1.4em;padding: 0em;">
-              <i class="material-icons" style="font-size: 1.2em;margin-left: -0.6em;margin-top: -0.35em; position: absolute;">add</i>
+            <a href="#add-new-bg-modal" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px; ">
+              <i class="material-icons">add</i>
             </a>
           </span>
 
@@ -274,16 +273,16 @@
     </div>
 
 
-    <div class="col s9 offset-s3" style="background-color: #393939;">
-      <div class="container" style="width: 85%;">
-        <div class="row">
-          <div class="col s12" style="padding-left: 0em;padding-right: 0em;">
+    <div class="col s9 m8 offset-s3 offset-m4" style="background-color: #393939;">
+      <div>
+        <div class="row" style="margin-left: auto;margin-right: auto;">
+          <div class="col s12 center" style="padding-left: 0em;padding-right: 0em;">
             <br>
             <a class="btn" style="background-color: #717171;width:10em;text-align: left;text-transform: none;">Flyer</a>
-            <a id="download-flyer-btn" class="btn green" style="width:10em;text-align: left;text-transform: none;margin-left: 135mm;">Download<i style="position: absolute;" class="material-icons right">file_download</i></a>
+            <a id="download-flyer-btn" class="btn green" style="width:10em;text-align: left;text-transform: none;margin-left: 135mm;">Download<i class="material-icons right">file_download</i></a>
           </div>
         </div>
-        <div id="flyer-div" class="row white" style="text-align: center; height: 297mm;width: 210mm;">
+        <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;">
 
           <div class="col s12" style="background-color: #181818;text-align: center;width: 210mm;padding-top: 4mm;position: absolute;height: 20mm;">
             <img id="brand-image-img" src="" style="max-width: 73.5mm;margin-left:130mm;max-height:15mm;position: relative;object-fit: scale-down;">
@@ -361,6 +360,8 @@
   <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
   <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
   <script type="text/javascript">
+
+
     $('.sidenav').sidenav({
       "inDuration": 150,
       "outDuration": 150
@@ -444,7 +445,7 @@
                 dpi: 600,
                 scale: 3,
                 onrendered: function(canvas) {
-                    $('body').append(canvas);
+	            $("#download-flyer-btn").removeAttr("disabled");
                     var a = document.createElement('a');
                     a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
                     a.download = 'flyer_image_'+(window.location.pathname.split("/")[2])+'.jpg';
@@ -611,78 +612,93 @@
         {
           if(global_template_data["data"][i][j]["image_pk"]!=null)
           {
-            html_string += `<div class="col s`+width+`"><a id="gridbox-`+cnt+`" href="#!" class="flyer-item-box" style="color:black;"><div class="divgrid" id="divgrid-`+cnt+`" style="text-align: center;height: 10em;border: 2px solid #E9E9E9;border-bottom:none;">
-                  <div class="img-container">
-                    <img id="gridimg-`+cnt+`" src="`+global_template_data["data"][i][j]["image_url"]+`" style="max-width: 100%;max-height:8em;margin-top:2em;padding:0em;object-fit:scale-down;">
-                  </div>
-                </div></a></div>`;
-          }
-          else
-          {
-            html_string += `<div class="col s`+width+`"><a id="gridbox-`+cnt+`" href="#!" class="flyer-item-box" style="color:black;"><div class="divgrid" id="divgrid-`+cnt+`" style="text-align: center;height: 10em;background-color:#EBEBEB;">
-                  <div class="img-container">
-                    <i id="default404-`+cnt+`" class="material-icons" style="color:#A9A9A9;position:absolute;line-height:6em;margin-left:-0.5em;">image</i>
-                    <img id="gridimg-`+cnt+`" src="`+global_template_data["data"][i][j]["image_url"]+`" style="max-width: 100%;max-height:8em;margin-top:2em;padding:0em;object-fit:scale-down;display:none;">
-                  </div>
-                </div></a></div>`;
-          }
-          cnt++;
-        }
-
-
-        cnt -= column;
-        for(var j=0;j<column;j++)
-        {
-          if(global_template_data["data"][i][j]["image_pk"]!=null)
-          {
-            var product_name = global_template_data["data"][i][j]["product_title"];
-            var price = global_template_data["data"][i][j]["price"];
-
             html_string += `<div class="col s`+width+`">
-                              <div class="divgridinfo" id="divgridinfo-`+cnt+`" style="border: 2px solid #E9E9E9;background-color: transparent;text-align: center;min-height: 3.5em;padding-top:0.5em;">
-                                <a id="productinfobtn-`+cnt+`" href="#price-info-modal" class="productinfobtn modal-trigger">
-                                  <div class="info-container row" style="margin-bottom:0;padding-left:2mm;padding-right:2mm;height:3em;">
-                                    <div class="col s8" style="text-align:left;margin-left:3mm;padding-right:1mm;width:55%;padding-left:0em;">
-                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;margin-top:20%;transform:translateY(-50%);">`+product_name+`
-                                      </p>
-                                    </div>
-                                    
-                                    <div class="col s3" style="padding-left:2mm;;width:20%;padding-top:3mm;">
-                                      <div class="price-info-div white-text" style="padding-right:1mm;padding-top:0.5mm; background-color: #521893;width:13mm;">
-                                        <span style="font-family:'AvenirNext-Flyer';font-size:0.6em;margin-top:0.6em;margin-left:0.7em;" class="rotate" font-family:'AvenirNext-Flyer';>AED</span>
-                                        <span class="product-price-span" style="font-family:'AvenirNext-Flyer';font-size:0.8em;" id="productinfoprice-`+cnt+`">`+price+`</span>
-                                      </div>
+                              <div>
+                                <a id="gridbox-`+cnt+`" href="#!" class="flyer-item-box" style="color:black;">
+                                  <div class="divgrid" id="divgrid-`+cnt+`" style="text-align: center;height: 10em;border: 2px solid #E9E9E9;border-bottom:none;">
+                                    <div class="img-container">
+                                      <img id="gridimg-`+cnt+`" src="`+global_template_data["data"][i][j]["image_url"]+`" style="max-width: 100%;max-height:8em;margin-top:2em;padding:0em;padding-bottom:5px;object-fit:scale-down;">
                                     </div>
                                   </div>
                                 </a>
                               </div>
+
+
+                              <div class="divgridinfo" id="divgridinfo-`+cnt+`" style="border: 2px solid #E9E9E9;background-color: transparent;">
+                                <div style="position:relative;">
+                                  <a id="productinfobtn-`+cnt+`" href="#price-info-modal" class="productinfobtn modal-trigger red row" style="margin:0em !important;padding-bottom:0em !important;">
+                                  
+                                    
+                                    <div class="col s8 left" style="text-align:left;">
+
+                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;">`+global_template_data["data"][i][j]["product_title"]+`
+                                      </p>
+
+                                    </div>
+
+
+                                    <div class="price-info-div col s4 left" style="text-align:left;background-color: #521893;">
+
+                                      <p class="rotate product-price-span white-text" style="font-family:'AvenirNext-Flyer';font-size:0.6em;"> 
+                                          AED
+                                      </p>
+                                      <p class="product-price-span white-text center" id="productinfoprice-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;">`+global_template_data["data"][i][j]["price"]+`
+                                      </p>
+                                      
+                                    </div>
+                                  </a>
+                                </div>
+                              </div>
+
                             </div>`;
           }
           else
           {
             html_string += `<div class="col s`+width+`">
-                              <div class="divgridinfo" id="divgridinfo-`+cnt+`" style="border: 2px solid #E9E9E9;background-color: transparent;text-align: center;min-height: 3.5em;padding-top:0.5em;">
-                                <a id="productinfobtn-`+cnt+`" href="#price-info-modal" class="productinfobtn modal-trigger">
-                                  <div class="info-container row" style="margin-bottom:0;padding-left:2mm;padding-right:2mm;height:3em;">
-                                    <div class="col s8" style="text-align:left;margin-left:3mm;padding-right:1mm;width:55%;padding-left:0em;">
-                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;margin-top:20%;transform:translateY(-50%);">Add Title
-                                      </p>
-                                    </div>
-                                    
-                                    <div class="col s3" style="padding-left:2mm;;width:20%;padding-top:3mm;">
-                                      <div class="price-info-div white-text" style="padding-right:1mm;padding-top:0.5mm; background-color: #521893;width:13mm;">
-                                        <span style="font-family:'AvenirNext-Flyer';font-size:0.6em;margin-top:0.6em;margin-left:0.7em;" class="rotate" font-family:'AvenirNext-Flyer';>AED</span>
-                                        <span class="product-price-span" style="font-family:'AvenirNext-Flyer';font-size:0.8em;" id="productinfoprice-`+cnt+`">-</span>
-                                      </div>
+
+                              <div>
+                                <a id="gridbox-`+cnt+`" href="#!" class="flyer-item-box" style="color:black;">
+                                  <div class="divgrid" id="divgrid-`+cnt+`" style="text-align: center;height: 10em;background-color:#EBEBEB;">
+                                    <div class="img-container">
+                                      <i id="default404-`+cnt+`" class="material-icons" style="color:#A9A9A9;position:absolute;line-height:6em;">image</i>
+                                      <img id="gridimg-`+cnt+`" src="`+global_template_data["data"][i][j]["image_url"]+`" style="max-width: 100%;max-height:8em;margin-top:2em;padding:0em;padding-bottom:5px;object-fit:scale-down;display:none;">
                                     </div>
                                   </div>
                                 </a>
                               </div>
+
+                              
+                              <div class="divgridinfo" id="divgridinfo-`+cnt+`" style="border: 2px solid #E9E9E9;background-color: transparent;">
+                                <div style="position:relative;">
+                                  <a id="productinfobtn-`+cnt+`" href="#price-info-modal" class="productinfobtn modal-trigger red row" style="margin:0em !important;padding-bottom:0em !important;">
+                                  
+                                    
+                                    <div class="col s8 left" style="text-align:left;">
+
+                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;">Add Title
+                                      </p>
+
+                                    </div>
+
+
+                                    <div class="price-info-div col s4 left" style="text-align:left;background-color: #521893;">
+
+                                      <p class="rotate white-text" style="font-family:'AvenirNext-Flyer';font-size:0.6em;"> 
+                                          AED
+                                      </p>
+                                      <p class="product-price-span white-text center" id="productinfoprice-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;">-
+                                      </p>
+                                      
+                                    </div>
+                                  </a>
+                                </div>
+                              </div>
+
+
                             </div>`;
           }
           cnt++;
         }
-
 
         html_string += `</div>`
       }
@@ -860,7 +876,7 @@
         // </div>`;
 
         var short_product_name = global_product_bucket_list[i]["product_bucket_name"];
-        var char_length = 50;
+        var char_length = 25;
         if(short_product_name.length>char_length)
         {
           short_product_name = short_product_name.substring(0, char_length) + "...";

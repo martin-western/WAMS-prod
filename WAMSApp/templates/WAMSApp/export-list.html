@@ -10,6 +10,12 @@
   opacity: 0.6; /* Firefox */
 }
 
+.redd:hover
+{
+  background-color: red !important;
+  color:white !important;
+}
+
 .filterr:hover {
   background-color: #521893 !important;
   color:white !important;
@@ -170,7 +176,7 @@ ul.dropdown-content.select-dropdown li span {
         transform: translateY(-50%);    
 	background-color: white;">arrow_drop_down</i>Filter</a>-->
 
-        <a href="#filter-modal" class="filterr modal-trigger waves-effect waves-light right" style="
+        <a id="filter-btn" href="#filter-modal" class="filterr modal-trigger waves-effect waves-light right" style="
         position: relative;
         padding: 12px 30px 10px;   
         color: gray;    
@@ -287,7 +293,23 @@ ul.dropdown-content.select-dropdown li span {
   </div>
 </div>
 
+
+
+<div id="remove-product-modal" class="modal">
+  <div class="modal-content">
+    <h4 style="font-family:'AvenirNext';font-size:18px;">Are you sure you want to remove the product from this list?</h4>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    <a id="remove-product-btn" href="#!" class="red waves-effect waves-red btn-flat white-text">Remove</a>
+  </div>
+</div>
+
+
 <script type="text/javascript">
+
+  var global_remove_product_pk = null;
+  var global_selected_export_pk = null;
 
 
   var chip_tags = [];
@@ -311,13 +333,58 @@ ul.dropdown-content.select-dropdown li span {
   });
 
 
+  $(document).on("click", ".remove-product-modal-btn", function(){
+    global_remove_product_pk = this.id.split("-")[1];
+   })
+
+   $("#remove-product-btn").click(function(){
+      remove_product_from_export_list();
+   })
+
+   function remove_product_from_export_list()
+   {
+      var fd = new FormData();
+      fd.append("product_pk", global_remove_product_pk);
+      fd.append("export_pk", global_selected_export_pk);
+
+      $.ajax({
+        url: "/remove-product-from-export-list/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        processData: false,
+        contentType: false,
+        data: fd,
+        success: function(response) {
+          console.log("Success!", response);
+          if(response["status"]==200)
+          {
+            M.toast({html:"Product removed from the list"}); 
+          } 
+          else
+          {
+            M.toast({html:"Error removing product from the list!"});
+          }
+          $("#remove-product-modal").modal("close");
+          fetch_export_list();
+          fetch_export_product_list(global_selected_export_pk);
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+   }
+
+
+
   var global_export_pk;
 
 	function getCsrfToken() {
       var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
       return CSRF_TOKEN;
     }
-
+ 
 
   function fetch_export_list()
   {
@@ -472,9 +539,25 @@ ul.dropdown-content.select-dropdown li span {
 
           html_string += `<div class = "flex-inside">
             <div class="card center">
-              <img src="`+product_list[i]["product_image_url"]+`" style="height:8em;width:8em;object-fit:cover;"/>   
+		<div style="position:relative;">
+                <a href="#remove-product-modal" id="removeproduct-`+product_list[i]["product_pk"]+`" class="remove-product-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons redd" title="Remove Product Image" style="
+            background-color: transparent;
+    padding: 4px;
+    color: gray;
+    border-radius: 2px;
+    margin-left: 4px;
+    font-size: 20px;
+    margin-right: 4px;
+    display: block;
+    margin-bottom: 5px;">
+         close
+        </i>
+      </a>
+              <img src="`+product_list[i]["product_image_url"]+`" style="height:8em;width:8em;object-fit:cover;"/>  
+			</div>
               <div class = "card-text" style = "padding: 2px 2px 2px 0px; transition: 0.15s padding ease-out">    
-                 <h6 style="text-align: left;margin-left:10px;color:#521893;font-size:14px;margin-top:0px;"><a href="/edit-product/`+product_list[i]["product_pk"]+`" style="color:black;" title="`+product_list[i]["product_name_sap"]+`">`+product_name +`</a></h6>   
+                 <h6 style="text-align: left;margin-left:10px;color:#521893;font-size:14px;margin-top:0px;"><a target="_blank" href="/edit-product/`+product_list[i]["product_pk"]+`" style="color:black;" title="`+product_list[i]["product_name_sap"]+`">`+product_name +`</a></h6>   
               </div>    
             </div>    
         </div>`
@@ -506,6 +589,7 @@ ul.dropdown-content.select-dropdown li span {
       },
       success: function(response) {
         console.log("Success!", response);
+	$("#download-export-list-modal").modal("close");
         var file_path = response["file_path"]
         window.open(file_path);
       },
@@ -518,6 +602,7 @@ ul.dropdown-content.select-dropdown li span {
   $(document).on('click', '.clickable-row', function() {
       //console.log($(this).data("href"));
       $("#export-details-modal").modal("open");
+      global_selected_export_pk = $(this).data("href");
       fetch_export_product_list($(this).data("href"));
   });
 
@@ -531,14 +616,32 @@ ul.dropdown-content.select-dropdown li span {
 
 
   $("#start-date").change(function(){
+    check_filter_options()
     fetch_export_list();
   });
 
 
   $("#end-date").change(function(){
+    check_filter_options()
     fetch_export_list();
   });
 
+  function check_filter_options()
+  {
+    var start_date = $("#start-date").val();
+    var end_date = $("#end-date").val();
+    
+    if(start_date!="" || end_date!="")
+    {
+      $("#filter-btn").css("background-color", "#521893");
+      $("#filter-btn").css("color", "white");
+    }
+    else
+    {
+      $("#filter-btn").css("background-color", "white");
+      $("#filter-btn").css("color", "gray");
+    }
+  }
   
 </script>
 

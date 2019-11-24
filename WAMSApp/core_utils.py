@@ -1,5 +1,10 @@
 from WAMSApp.models import *
 
+def convert_to_ascii(s):
+    s = s.replace(u'\u2013', "-").replace(u'\u2019', "'").replace(u'\u2018', "'")
+    s = s.encode("ascii", "ignore")
+    return s
+
 
 def create_response_images_flyer_pfl(images):
 
@@ -28,7 +33,7 @@ def create_response_images(images):
     temp_list = []
     for image in images:
         temp_dict = {}
-        temp_dict["url"] = image.image.url
+        temp_dict["url"] = image.thumbnail.url
         temp_dict["pk"] = image.pk
         temp_list.append(temp_dict)
     return temp_list
@@ -39,7 +44,7 @@ def create_response_images_main(images):
     temp_list = []
     for image in images:
         temp_dict = {}
-        temp_dict["url"] = image.image.image.url
+        temp_dict["url"] = image.image.thumbnail.url
         temp_dict["pk"] = image.pk
         temp_dict["is_main_image"] = image.is_main_image
         temp_list.append(temp_dict)
@@ -51,7 +56,7 @@ def create_response_images_sub(images):
     temp_list = []
     for image in images:
         temp_dict = {}
-        temp_dict["url"] = image.image.image.url
+        temp_dict["url"] = image.image.thumbnail.url
         temp_dict["pk"] = image.pk
         temp_dict["is_sub_image"] = image.is_sub_image
         temp_dict["sub_image_index"] = image.sub_image_index

@@ -6,6 +6,15 @@
 
 <style type="text/css">
 
+.ck.ck-content ul,
+.ck.ck-content ul li{
+  list-style-type: inherit;
+}
+.ck.ck-content ul {
+  /* Default user agent stylesheet, you can change it to your needs. */
+  padding-left: 40px;
+}
+
 .flex-container-space-btw
  {
     display: flex;
@@ -420,18 +429,18 @@ label
       <div class="row image-section-dropdown" style="margin-bottom: 0px;">
         <div class="input-field left-section col s7" style="width: 21vw;border: none; background-color: white;height: 40px; font-size: 14px !important;margin-left: 10px;">
           <select id="images-category">
-            <option value="Main Images" >Main Images</option> 
-            <option value="Sub Images">Sub Images</option>
-            <option value="PFL Images">PFL Images</option>
-            <option value="PFL Generated Images">PFL Generated Images</option>
-            <option value="White Background Images">White Background Images</option>
-            <option value="Lifestyle Images">Lifestyle Images</option>
-            <option value="Certificate Images">Certificate Images</option>
-            <option value="Giftbox Images">Giftbox Images</option>
-            <option value="Diecut Images">Diecut Images</option>
-            <option value="A+ Content Images">A+ Content Images</option>
-            <option value="Ads Images">Ads Images</option>
-            <option value="Unedited Images">Unedited Images</option>
+	    <option value="Main Images" id="main-images-option" >Main Images</option> 
+            <option value="Sub Images" id="sub-images-option">Sub Images</option>
+            <option value="PFL Images" id="pfl-images-option">PFL Images</option>
+            <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images</option>
+            <option value="White Background Images" id="white-background-images-option">White Background Images</option>
+            <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
+            <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
+            <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
+            <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
+            <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
+            <option value="Ads Images" id="ads-images-option">Ads Images</option>
+            <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
           </select>
         </div>
 
@@ -478,7 +487,7 @@ label
 
       <ul class="scroll-style-2 tabs">
         <li class="active tab"><a href="#vital">VITAL</a></li>
-        <li class="tab"><a href="#information">INFORMATION</a></li>
+        <li class="tab"><a id="information-tab" href="#information">INFORMATION</a></li>
         <li class="tab"><a href="#dimensions">DIMENSIONS</a></li>
         <li class="tab"><a href="#attributes">ATTRIBUTES</a></li>
         <li class="tab"><a href="#variation">VARIATION</a></li>
@@ -541,7 +550,7 @@ label
 
         <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
           <div class="input-field col s6">
-            <input id="product-id" type="text" disabled >
+            <input id="product-id" type="text" >
             <label for="product-id">Product ID</label>
           </div>
 
@@ -601,7 +610,7 @@ label
         <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
           <div class="input-field col s6">
             <input id="barcode-string" type="text" >
-            <label for="barcode-string">Barcode String</label>
+            <label for="barcode-string">Barcode</label>
           </div>
 
         </div>
@@ -623,7 +632,7 @@ label
           </div>
         
           <div id="amazon_uk_description_div">
-            <div class="input-field col s12">
+            <div class="input-field col s12" style="text-align: left;">
               <div class="document-editor">
                 <div class="document-editor__toolbar"></div>
                 <div class="document-editor__editable-container">
@@ -650,7 +659,7 @@ label
           </div>
 
           <div id="amazon_uae_description_div">
-            <div class="input-field col s12">
+            <div class="input-field col s12" style="text-align: left;">
               <div class="document-editor">
                 <div class="document-editor__toolbar clone2_toolbar"></div>
                 <div class="document-editor__editable-container clone2_container">
@@ -678,7 +687,7 @@ label
 
           <div id="ebay_description_div">
 
-          <div class="input-field col s12">
+          <div class="input-field col s12" style="text-align: left;">
               <div class="document-editor">
                 <div class="document-editor__toolbar clone3_toolbar"></div>
                 <div class="document-editor__editable-container clone3_container">
@@ -1374,6 +1383,7 @@ display: block;
     </i>
   </a>
 
+       {% if perms.WAMSApp.change_product %}
        <a href="#!" id="save-btn" href="#import-modal" class="right" style="background-color: transparent;">    
         <i class="material-icons purplee" title="Save" style="
              background-color: #f7f7f7;
@@ -1387,7 +1397,8 @@ display: block;
      margin-bottom: 10px;">
          save
         </i> 
-      </a> 
+      </a>
+      {% endif %}
      </div>
 
    
@@ -1836,6 +1847,10 @@ display: block;
           $("#category").val(response["category"]);
           $("#subtitle").val(response["subtitle"]);
           $("#brand-name").val(response["brand"]);
+	  $("#manufacturer").val(response["manufacturer"]);
+	  $("#product-id").val(response["product_id"]);
+	  $("#product-id-type").val(response["product_id_type"]);
+	  $("#seller-sku").val(response["seller_sku"]);
           $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
           $("#barcode-string").val(response["barcode_string"]);
           $("#condition-type").val(response["condition_type"]);
@@ -1945,6 +1960,22 @@ display: block;
 
 
           global_images = response["images"];
+
+          $("#main-images-option").html("Main Images ("+global_images["main_images"].length+")");
+          $("#sub-images-option").html("Sub Images ("+global_images["sub_images"].length+")");
+          $("#pfl-images-option").html("PFL Images ("+global_images["pfl_images"].length+")");
+          $("#pfl-generated-images-option").html("PFL Generated Images ("+global_images["pfl_generated_images"].length+")");
+          $("#white-background-images-option").html("White Background Images ("+global_images["white_background_images"].length+")");
+          $("#lifestyle-images-option").html("Lifestyle Images ("+global_images["lifestyle_images"].length+")");
+          $("#certificate-images-option").html("Certificate Images ("+global_images["certificate_images"].length+")");
+          $("#giftbox-images-option").html("Giftbox Images ("+global_images["giftbox_images"].length+")");
+          $("#diecut-images-option").html("Diecut Images ("+global_images["diecut_images"].length+")");
+          $("#aplus-content-images-option").html("A+ Content Images ("+global_images["aplus_content_images"].length+")");
+          $("#ads-images-option").html("Ads Images ("+global_images["ads_images"].length+")");
+          $("#unedited-images-option").html("Unedited Images ("+global_images["unedited_images"].length+")");
+
+
+
           update_grid_images(global_image_key);
 
           //forpfl
@@ -2944,23 +2975,11 @@ display: block;
     save_product();
   });
 
-  function onTabClick(event) {
-  let activeTabs = document.querySelectorAll('.active');
-  // deactivate existing active tab and panel
-  activeTabs.forEach(function(tab) {
-    tab.className = tab.className.replace('active', '');
+  $("#information-tab").click(function(){
+    setTimeout(function(){
+      $('.tabs').tabs('updateTabIndicator');
+    }, 100);
   });
-  
-  // activate new tab and panel
-  event.target.parentElement.className += ' active';
-  document.getElementById(event.target.href.split('#')[1]).className += ' active';
-}
-
-
-const element = document.getElementById('nav-tab');
-
-element.addEventListener('click', onTabClick);
-
 </script>
 
 {% endblock %}

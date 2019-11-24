@@ -205,7 +205,7 @@ ul.dropdown-content.select-dropdown li span {
       </a>
 
 
-      <a href="#filter-modal" class="filterr modal-trigger waves-effect waves-light right" style="
+      <a id="filter-btn" href="#filter-modal" class="filterr modal-trigger waves-effect waves-light right" style="
         position: relative;
         padding: 12px 30px 10px;   
         color: gray;    
@@ -421,8 +421,9 @@ ul.dropdown-content.select-dropdown li span {
     </div>
   </div>
 
+  {% if perms.WAMSApp.add_product %}
   <a href="#create-new-product-modal" class="modal-trigger btn-floating" style="position: fixed;right:1em;bottom:1em;background-color: #521893"><i class="material-icons">add</i></a>
-
+  {% endif %}
 <script type="text/javascript">
 
 
@@ -474,6 +475,7 @@ ul.dropdown-content.select-dropdown li span {
   var filter_parameters = {}
 
   $("#status-verified").change(function(e){
+    check_filter_options();
     page = 1;
     fetch_product_list();
   })
@@ -531,8 +533,14 @@ ul.dropdown-content.select-dropdown li span {
 
     var export_option = $("#export-option").val();
     var export_title_pk = $("#export-titles-list").val();
-    var export_title = $("#export-title").val();
+    var export_title = $("#export-title").val().trim();
 
+    if(export_title=="" && export_option=="New")
+    {
+      M.toast({html: "Export Title cannot remain empty!"});
+      return;
+    }
+	
     var products = [];
     $('input[class=product-checkmark]:checked').each(function() {
       products.push($(this).attr('id').split("-")[1]);
@@ -748,11 +756,13 @@ ul.dropdown-content.select-dropdown li span {
 
 
   $("#start-date").change(function(){
+    check_filter_options();
     fetch_product_list();
   });
 
 
   $("#end-date").change(function(){
+    check_filter_options();
     fetch_product_list();
   });
 
@@ -792,18 +802,22 @@ ul.dropdown-content.select-dropdown li span {
   fetch_brands();
 
   $("#brand-select").change(function(){
+    check_filter_options();
     fetch_product_list();
   });
 
   $("#has-image-select").change(function(){
+    check_filter_options();
     fetch_product_list();
   });
 
   $("#min-price").change(function(){
+    check_filter_options();
     fetch_product_list();
   });
 
   $("#max-price").change(function(){
+    check_filter_options();
     fetch_product_list();
   });
   
@@ -845,6 +859,28 @@ ul.dropdown-content.select-dropdown li span {
   $("#create-new-product-btn").click(function(){
     create_new_product();
   });
+
+  function check_filter_options()
+  {
+    var brand_select = $("#brand-select").val();
+    var has_image_select = $("#has-image-select").val();
+    var start_date = $("#start-date").val();
+    var end_date = $("#end-date").val();
+    var min_price = $("#min-price").val();
+    var max_price = $("#max-price").val();
+    var is_verified = $("#status-verified").is(":checked");
+
+    if(brand_select!="" || has_image_select!="" || start_date!="" || end_date!="" || min_price!="" || max_price!="" || is_verified!=false)
+    {
+      $("#filter-btn").css("background-color", "#521893");
+      $("#filter-btn").css("color", "white");
+    }
+    else
+    {
+      $("#filter-btn").css("background-color", "white");
+      $("#filter-btn").css("color", "gray");
+    }
+  }
 
   
 </script>

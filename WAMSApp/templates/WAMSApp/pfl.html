@@ -90,7 +90,7 @@
   <div class="row" style="margin-bottom: 0em;">
     
 
-    <div class="scroll-style-1 col s3" style="position: fixed;height: 100vh;overflow-y: auto;background-color: #f7f7f7;">
+    <div class="scroll-style-1 col s3 m4" style="position: fixed;height: 100vh;overflow-y: auto;background-color: #f7f7f7;">
       <div class="row white" style="margin-bottom: 0em;">
         <div class="col s1" style="margin-top: 0.4em;">
           <i class="material-icons" style="position: absolute;margin-top: 0.5em;margin-left: 0.5em;color: #717171;">search</i>
@@ -193,16 +193,16 @@
 
 
 
-    <div class="col s9 offset-s3" style="background-color: #393939;">
-      <div class="container" style="width: 85%;">
-        <div class="row">
-          <div class="col s12" style="padding-left: 0em;padding-right: 0em;">
+    <div class="col s9 offset-s3 m8 offset-m4" style="background-color: #393939;">
+      <div>
+        <div class="row" style="margin-left: auto;margin-right: auto;">
+          <div class="col s12 center" style="padding-left: 0em;padding-right: 0em;">
             <br>
             <a class="btn" style="background-color: #717171;width:10em;text-align: left;text-transform: none;">PFL</a>
-            <a id="download-pfl-btn" class="btn right green" style="background-color: #717171;width:10em;text-align: left;text-transform: none;position: absolute;margin-left: 136mm;">Download<i style="position: absolute;" class="material-icons right">file_download</i></a>
+            <a id="download-pfl-btn" class="btn green" style="background-color: #717171;width:10em;text-align: left;text-transform: none;margin-left: 136mm;">Download<i class="material-icons right">file_download</i></a>
           </div>
         </div>
-        <div id="pfl-div" class="row white" style="height: 297mm;width: 210mm;">
+        <div id="pfl-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto;height: 297mm;width: 210mm;">
 
           <!-- Brand Image Preview -->
           <div id="brand-image" class="col s6 offset-s6">
@@ -218,13 +218,13 @@
 
           <!-- Product Name Preview -->
           <div class="col s12" style="background-color:#521893;text-align: center;width: 210mm;padding-bottom: 1em;position: absolute;margin-top: 190mm;width:210mm;height: 20mm;">
-            <div id="product-name-preview" class="white-text left" style="padding-left: 1em;text-transform: uppercase;margin-top: 6.4mm;font-size: 1.7em;font-family:'AvenirNextRegular';">
+            <div id="product-name-preview" class="white-text left" style="padding-left: 1em;text-transform: uppercase;margin-top: 6.4mm;font-size: 1.5em;font-family:'AvenirNextRegular';">
             </div>
           </div>
 
           <!-- Seller SKU Preview -->
           <div class="col s12" style="background-color:white;position: absolute;margin-top: 192.5mm;width:45mm;height: 15mm;margin-left: 156mm;text-align: center;">
-            <span id="seller-sku-preview" style="font-size: 1.4em;font-family:'AvenirNextRegular'; line-height: 16mm;color:#521893;"></span>
+            <span id="seller-sku-preview" style="font-size: 1.2em;font-family:'AvenirNextRegular'; line-height: 16mm;color:#521893;"></span>
           </div>
 
   
@@ -233,7 +233,7 @@
             <span style="color:#521893;font-size: 1.4em;font-family: 'AvenirNext';padding-left: 1em;">Features</span>
           </div>
           <div class="col s12" style="margin-top: 215mm;">
-            <div id="features-preview-div" style="padding-left: 1.3em;">
+            <div id="features-preview-div" style="padding-left: 1.3em;text-align:left;">
             </div>
           </div>
 
@@ -461,7 +461,7 @@
     })
 
     $("#product-name-input").keyup(function(){
-      $("#product-name-preview").html($("#product-name-input").val().substring(0,35));
+      $("#product-name-preview").html($("#product-name-input").val().substring(0,38));
     });
 
 
@@ -779,7 +779,7 @@
 
     function set_product_name()
     {
-      $("#product-name-preview").html(global_product_name);
+      $("#product-name-preview").html(global_product_name.substring(0, 38));
       $("#product-name-input").val(global_product_name);
       M.updateTextFields();
     }

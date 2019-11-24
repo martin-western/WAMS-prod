@@ -95,6 +95,7 @@ def export_amazon_uk(products):
             common_row[110] = "" if product.item_display_volume==None else str(product.item_display_volume)
             common_row[111] = product.item_display_volume_metric
             common_row[117] = product.package_weight_metric
+            common_row[118] = product.package_height_metric
             common_row[119] = "" if product.package_weight==None else str(product.package_weight)
             common_row[120] = "" if product.package_length==None else str(product.package_length)
             common_row[121] = "" if product.package_width==None else str(product.package_width)
@@ -193,6 +194,10 @@ def update_product_full_amazon_uk(product_obj, row):
     product_obj.item_display_volume = None if row[110]=="" else float(row[110])
     product_obj.item_display_volume_metric = row[111]
     product_obj.package_weight_metric = row[117]
+
+    product_obj.package_length_metric = row[118]
+    product_obj.package_width_metric = row[118]
+    product_obj.package_height_metric = row[118]
 
     product_obj.package_weight = None if row[119]=="" else float(row[119])
     product_obj.package_length = None if row[120]=="" else float(row[120])
@@ -305,6 +310,11 @@ def update_product_partial_amazon_uk(product_obj, row):
         product_obj.item_display_volume = partial_overwrite(product_obj.item_display_volume, row[110], "float")
         product_obj.item_display_volume_metric = partial_overwrite(product_obj.item_display_volume_metric, row[111], "str")
         product_obj.package_weight_metric = partial_overwrite(product_obj.package_weight_metric, row[117], "str")
+
+        product_obj.package_length_metric = partial_overwrite(product_obj.package_weight_metric, row[118], "str")
+        product_obj.package_width_metric = partial_overwrite(product_obj.package_width_metric, row[118], "str")
+        product_obj.package_height_metric = partial_overwrite(product_obj.package_height_metric, row[118], "str")
+
         product_obj.package_weight = partial_overwrite(product_obj.package_weight, row[119], "float")
         product_obj.package_length = partial_overwrite(product_obj.package_length, row[120], "float")
         product_obj.package_width = partial_overwrite(product_obj.package_width, row[121], "float")
@@ -407,6 +417,11 @@ def update_product_missing_amazon_uk(product_obj, row):
     product_obj.item_display_volume = fill_missing(product_obj.item_display_volume, row[110], "float")
     product_obj.item_display_volume_metric = fill_missing(product_obj.item_display_volume_metric, row[111], "str")
     product_obj.package_weight_metric = fill_missing(product_obj.package_weight_metric, row[117], "str")
+
+    product_obj.package_length_metric = fill_missing(product_obj.package_weight_metric, row[118], "str")
+    product_obj.package_width_metric = fill_missing(product_obj.package_width_metric, row[118], "str")
+    product_obj.package_height_metric = fill_missing(product_obj.package_height_metric, row[118], "str")
+
     product_obj.package_weight = fill_missing(product_obj.package_weight, row[119], "float")
     product_obj.package_length = fill_missing(product_obj.package_length, row[120], "float")
     product_obj.package_width = fill_missing(product_obj.package_width, row[121], "float")
@@ -515,6 +530,11 @@ def create_new_product_amazon_uk(row):
     product_obj.item_display_volume = None if row[110]=="" else float(row[110])
     product_obj.item_display_volume_metric = row[111]
     product_obj.package_weight_metric = row[117]
+
+    product_obj.package_length_metric = row[118]
+    product_obj.package_width_metric = row[118]
+    product_obj.package_height_metric = row[118]
+
     product_obj.package_weight = None if row[119]=="" else float(row[119])
     product_obj.package_length = None if row[120]=="" else float(row[120])
     product_obj.package_width = None if row[121]=="" else float(row[121])

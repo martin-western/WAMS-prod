@@ -327,7 +327,7 @@ class Flyer(models.Model):
 
 class PFL(models.Model):
 
-    name = models.CharField(default="SamplePFL", max_length=100)
+    name = models.CharField(default="SamplePFL", max_length=300)
     product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
     product_image = models.ForeignKey(Image, null=True, blank=True, related_name="product_images", on_delete=models.SET_NULL)
    
@@ -346,6 +346,7 @@ class ExportList(models.Model):
     title = models.CharField(default="SampleExportList", max_length=100)
     products = models.ManyToManyField(Product, blank=True)
     created_date = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "ExportList"

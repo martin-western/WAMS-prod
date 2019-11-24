@@ -75,7 +75,9 @@ urlpatterns = [
 
 	url(r'^verify-product/', views.VerifyProduct),
 
-        url(r'^delete-image/', views.DeleteImage)
+        url(r'^delete-image/', views.DeleteImage),
+
+        url(r'^remove-product-from-export-list/', views.RemoveProductFromExportList)
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

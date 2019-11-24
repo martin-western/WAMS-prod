@@ -1,0 +1,1092 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  
+  <title>WAMS</title>
+
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
+  <link rel="stylesheet" href="{% static 'WAMSApp/css/materialize.min.css' %}">
+
+  <link href="{% static 'WAMSApp/css/style.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/base/jquery-ui.css"> -->
+
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.4.0/gridstack.min.css" /> -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+</head>
+
+<body>
+
+  <style type="text/css">
+    @font-face {
+      font-family: AvenirNext;
+      src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Demi.otf' %}");
+    }
+
+    @font-face {
+      font-family: AvenirNextBold;
+      src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Bold.otf' %}");
+    }
+
+
+    @font-face {
+      font-family: AvenirNextRegular;
+      src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Regular.otf' %}");
+    }
+
+    @font-face {
+      font-family: AvenirNext-Flyer;
+      src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-DemiCn.otf' %}");
+    }
+
+    body{
+      font-family: 'AvenirNext';
+    }
+
+
+    .rotate {
+
+    /* Safari */
+    -webkit-transform: rotate(-90deg);
+
+    /* Firefox */
+    -moz-transform: rotate(-90deg);
+
+    /* IE */
+    -ms-transform: rotate(-90deg);
+
+    /* Opera */
+    -o-transform: rotate(-90deg);
+
+    float: left;
+
+    }
+
+
+
+
+    .scroll-style-1::-webkit-scrollbar-track
+    {
+      -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
+      background-color: #F5F5F5;
+    }
+
+    .scroll-style-1::-webkit-scrollbar
+    {
+      width: 3px;
+      background-color: #F5F5F5;
+    }
+
+    .scroll-style-1::-webkit-scrollbar-thumb
+    {
+      background-color: #000000;
+    }
+
+  </style>
+
+  {% csrf_token %}
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
+
+  <script type="text/javascript" src="{% static 'WAMSApp/js/jquery.js' %}"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js" type="text/javascript"></script>
+
+  <script type="text/javascript" src="{% static 'WAMSApp/js/jquery.dataTables.min.js' %}"></script>
+  <!-- <script type="text/javascript" src="{% static 'WAMSApp/js/materialize-.js' %}"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+
+
+  <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.jQueryUI.min.js' %}"></script>
+
+  
+  <div class="row" style="margin-bottom: 0em;">
+
+    <div class="scroll-style-1 col s3" style="position: fixed;height: 100vh;overflow-y: scroll;background-color: #EAEAEA;">
+      <div class="row white" style="margin-bottom: 0em;">
+        <div class="col s1" style="margin-top: 0.4em;">
+          <i class="material-icons" style="position: absolute;margin-top: 0.5em;margin-left: 0.5em;color: #717171;">search</i>
+        </div>
+        <div class="input-field col s11" style="margin-bottom: 0em;margin-top: 0.4em;">
+          <input id="autocomplete-input" placeholder="Search by product name" type="text" class="validate" style="border-bottom: none;box-shadow: none;text-indent: 0.5em;">
+        </div>
+      </div>
+      
+      <div class="row">
+
+        <!-- Product Basket -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;padding-top: 1em;margin-top: 1em;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.4em;margin-left: -0.5em;">shopping_basket</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Basket</span>
+          </span>
+          
+          <div id="product-basket-list-div" class="scroll-style-1 row white" style="margin-top:0.5em;min-height:6em;max-height: 20em;overflow-y: auto;padding-left: 1.2em;padding-right: 0.4em;padding-top: 0.8em;">
+          </div>
+        </div>
+
+
+        <!-- Image Categories -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Categories</span>
+          </span>
+
+          <div class="scroll-style-1 row white" style="margin-top:0.5em;">
+            <div class="input-field col s8">
+              <select id="image-categories-thumbnails-select" style="font-size: 0.8em;">
+                <option value="main_images">Main Images</option> 
+                <option value="sub_images">Sub Images</option>
+                <option value="pfl_images">PFL Images</option>
+                <option value="white_background_images">White Background Images</option>
+                <option value="lifestyle_images">Lifestyle Images</option>
+                <option value="certificate_images">Certificate Images</option>
+                <option value="giftbox_images">Giftbox Images</option>
+                <option value="diecut_images">Diecut Images</option>
+                <option value="aplus_content_images">A+ Content Images</option>
+                <option value="ads_images">Ads Images</option>
+                <option value="unedited_images">Unedited Images</option>
+              </select>
+            </div>
+
+            <div class="col s12">
+              <div id="image-categories-thumbnails-div" class="scroll-style-1 row" style="max-height: 10em;overflow-y:auto;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+        <!-- Background Image Bucket -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Background Image Bucket</span>
+            
+            <a href="#add-new-bg-modal" class="modal-trigger btn-floating btn-small waves-effect waves-light green" style="position: absolute;margin-left: 11em;height: 1.4em;width: 1.4em;padding: 0em;">
+              <i class="material-icons" style="font-size: 1.2em;margin-left: -0.6em;margin-top: -0.35em; position: absolute;">add</i>
+            </a>
+          </span>
+
+          <div id="background-image-bucket-thumbnails-div" class="scroll-style-1 row white" style="margin-top:0.5em;height: 10em;overflow-y:auto;padding-top: 0.6em;">
+          </div>
+        </div>
+
+
+
+        <!-- Border Settings -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">border_outer</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Border Settings</span>
+          </span>
+
+          <div id="background-image-bucket-thumbnails-div" class="scroll-style-1 row white" style="margin-top:0.5em;padding-top: 0.8em;">
+            <div class="col s12" style="margin-bottom: 1em;margin-top: 0.3em;">
+              <label>
+                <input id="border-option" type="checkbox" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Border Visible</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+
+        <!-- Font Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Font Settings</span>
+          </span>
+          
+          <div class="row white" style="margin-top:0.5em;padding-top:1em;">
+
+            <div class="input-field col s6">
+              <input id="product-title-font-size" type="text" class="validate" value="0.7em">
+              <label for="product-title-font-size">Product Title Font Size</label>
+            </div>
+
+            <div class="input-field col s6">
+              <input id="product-price-font-size" type="text" class="validate" value="0.8em">
+              <label for="product-price-font-size">Product Price Font Size</label>
+            </div>
+            
+
+            <div class="input-field col s6">
+              <input id="product-title-font-weight" type="text" class="validate" value="normal">
+              <label for="product-title-font-weight">Product Title Font Weight</label>
+            </div>
+
+            <div class="input-field col s6">
+              <input id="product-price-font-weight" type="text" class="validate" value="normal">
+              <label for="product-price-font-weight">Product Price Font Weight</label>
+            </div>
+
+
+            <div class="input-field col s6" style="margin-bottom: 0em;">
+              <select id="product-title-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="AvenirNextRegular" selected>AvenirNextRegular</option>
+              </select>
+            </div>  
+
+            <div class="input-field col s6" style="margin-bottom: 0em;">
+              <select id="product-price-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="AvenirNextRegular" selected>AvenirNextRegular</option>
+              </select>
+            </div> 
+
+            <div class="input-field col s6">
+              <p style="font-family: 'AvenirNext'; font-size: 14px;">Product Price BG Color</p>
+              <input id="product-price-bg-color" type="color" value="#521893">  
+            </div>
+
+          </div>
+        </div>
+
+
+        
+
+
+        <div class="col s12" style="width: 90%;margin-left: 5%;padding-right: 0em;">
+          <a id="save-flyer-template-btn" class="btn right" style="background-color: #521893;font-size: 14px;font-family: 'AvenirNext';">Save</a>
+        </div>
+        
+      </div>
+
+    </div>
+
+
+    <div class="col s9 offset-s3" style="background-color: #393939;">
+      <div class="container" style="width: 85%;">
+        <div class="row">
+          <div class="col s12" style="padding-left: 0em;padding-right: 0em;">
+            <br>
+            <a class="btn" style="background-color: #717171;width:10em;text-align: left;text-transform: none;">Flyer</a>
+            <a id="download-flyer-btn" class="btn green" style="width:10em;text-align: left;text-transform: none;margin-left: 135mm;">Download<i style="position: absolute;" class="material-icons right">file_download</i></a>
+          </div>
+        </div>
+        <div id="flyer-div" class="row white" style="text-align: center; height: 297mm;width: 210mm;">
+
+          <div class="col s12" style="background-color: #181818;text-align: center;width: 210mm;padding-top: 4mm;position: absolute;height: 20mm;">
+            <img id="brand-image-img" src="" style="max-width: 73.5mm;margin-left:130mm;max-height:15mm;position: relative;object-fit: scale-down;">
+          </div>
+
+
+          <div id="flyer-grid" class="col s12" style="width: 210mm;margin-top:32mm;">
+
+          </div>
+
+
+          <div class="col s12" style="background-color:#181818;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
+            <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
+              <p class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.geepas.com</p>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="price-info-modal" class="modal">
+    <div class="modal-content">
+      <h5 style="font-family: 'AvenirNext';font-size: 18px">PRODUCT INFO</h5>
+      <br>
+      <div class="row">
+        
+        <div class="input-field col s8">
+          <input id="product-info-name" type="text" class="validate">
+          <label for="product-info-name">Product Name</label>
+        </div>
+
+        <div class="input-field col s8">
+          <input id="product-info-price" type="text" class="validate">
+          <label for="product-info-price">Product Price</label>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
+      <a id="product-info-save-btn" href="#!" class="modal-close waves-effect btn-flat white-text" style="background-color: #521893;">Save</a>
+    </div>
+  </div>
+
+
+
+
+  <div id="add-new-bg-modal" class="modal">
+    <div class="modal-content">
+      <h5 style="font-family: 'AvenirNext';font-size: 18px">NEW BACKGROUND IMAGE</h5>
+      <br>
+      <div class="row">
+        
+        <div class="file-field input-field col s10">
+          <div class="btn" style="background-color: #521893;">
+            <span>File</span>
+            <input id="new-bg-image" type="file">
+          </div>
+          <div class="file-path-wrapper">
+            <input class="file-path validate" type="text">
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
+      <a id="upload-new-bg-image-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #521893;">Save</a>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
+  <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
+  <script type="text/javascript">
+    $('.sidenav').sidenav({
+      "inDuration": 150,
+      "outDuration": 150
+    });
+
+    $("select").formSelect();
+    $('.modal').modal();
+
+
+
+    var global_product_bucket_list = [];
+    var global_selected_product_pk = "";
+    var global_product_images_dict = {};
+    var global_selected_grid_id = "";
+    var global_template_data = {};
+    var global_selected_product_info_id = "";
+    var global_background_images_bucket = [];
+
+    $("#download-flyer-btn").click(function(e){
+
+      $("#download-flyer-btn").attr("disabled", "disabled");
+
+      var total_grids = global_template_data['column'] * global_template_data['row'];
+      var image_links = [];
+      
+      if ($("#flyer-div").css("background-image")!="none" ){
+        image_links.push({"key": "background_image", "url": $("#flyer-div").css("background-image").split("\"")[1]});
+      }
+
+      for (var i = 1; i <=total_grids; i++){
+        if($("#gridimg-"+i).attr('src')!="null")
+        {
+          image_links.push({"key": "gridimg-" + i, "url": $("#gridimg-"+i).attr('src')});
+        }
+      }
+    
+
+      $.ajax({
+        url: "/download-images-s3/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: { 
+          links : JSON.stringify(image_links)
+        },
+        success: function(response) {
+            console.log("Success! ", response);
+            
+            $("#download-flyer-btn").removeAttr("disabled");
+
+            if(response["status"]==200)
+            {
+              //[{"key": "grind-1", "url": "aws/im1.png"}, {}]
+              var local_links = response["local_links"];
+              
+              for(var i=0;i<response["local_links"].length;i++){
+                if (local_links[i]["key"] != "background_image"){
+                  $("#"+local_links[i]["key"]).attr("src", local_links[i]["url"]);
+                }
+                else
+                {
+                  $("#flyer-div").css("background-image", "url('" +local_links[i]["url"]+ "')");
+                }
+              }
+
+              if($("#border-option").prop("checked"))
+              {
+                $(".divgrid").css("border", "2px solid #E9E9E9");
+                $(".divgrid").css("border-bottom", "none");
+              }
+              else
+              {
+                $(".divgrid").css("border", "none");
+              }
+
+              e.preventDefault();
+
+              html2canvas($("#flyer-div"), {
+                logging: true,
+                dpi: 600,
+                scale: 3,
+                onrendered: function(canvas) {
+                    var a = document.createElement('a');
+                    a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+                    a.download = 'flyer_image_'+(window.location.pathname.split("/")[2])+'.jpg';
+                    a.click();
+                    $("#divgrid-"+global_selected_grid_id).css("border", "0.14em dashed");
+
+
+                    var image_data = canvas.toDataURL();
+
+                    var fd = new FormData();
+                    fd.append('image_data', image_data);
+                    fd.append('flyer_pk', window.location.pathname.split("/")[2]);
+
+                    $.ajax({
+                      url: "/save-flyer-in-bucket/",
+                      type: "POST",
+                      headers:{
+                        'X-CSRFToken':getCsrfToken()
+                      },
+                      processData: false,
+                      contentType: false,
+                      data: fd,
+                      success: function(response) {
+                        console.log("Success!", response);
+                      },
+                      error: function(xhr, textstatus, errorthrown) {
+                        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+                      }
+                    });
+
+                },
+                logging:true
+
+              });
+            }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+
+    });
+
+    $(document).on('click', '.productinfobtn', function(){
+        global_selected_product_info_id = this.id.split("-")[1]
+    });
+
+
+    $(document).on("change", "#border-option", function(){
+        if($("#border-option").prop("checked"))
+        {
+          $(".divgrid").css("border", "2px solid #E9E9E9");
+          $(".divgrid").css("border-bottom", "none");
+          $(".divgridinfo").css("border", "2px solid #E9E9E9");
+          //$(".divgridinfo").css("border-top", "none");
+          $("#divgrid-"+global_selected_grid_id).css("border", "0.14em dashed");
+        }
+        else
+        {
+          $(".divgrid").css("border", "none");
+          $(".divgridinfo").css("border", "none");
+          $("#divgrid-"+global_selected_grid_id).css("border", "0.14em dashed");
+        }
+    });
+
+
+    $("#upload-new-bg-image-btn").click(function(){
+
+      var fd = new FormData();
+      var bg_image = document.getElementById("new-bg-image"); 
+      fd.append('bg_image', bg_image.files[0]);
+      fd.append('flyer_pk', window.location.pathname.split("/")[2])
+
+      $.ajax({
+        url: "/upload-new-flyer-bg-image/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        processData: false,
+        contentType: false,
+        data: fd,
+        success: function(response) {
+          console.log("Success!", response);
+          if(response["status"]==200)
+          {
+            global_background_images_bucket.push({"pk":response["bg_image_pk"], "url":response["bg_image_url"]});
+            update_background_image_bucket();
+            $("#add-new-bg-modal").modal("close");
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+
+    })
+
+
+    $(document).on("keyup", "#product-title-font-size", function(){
+        $(".product-name-p").css("font-size", this.value);
+    });
+
+    $(document).on("keyup", "#product-price-font-size", function(){
+        $(".product-price-span").css("font-size", this.value);
+    });
+
+
+    $(document).on("keyup", "#product-title-font-weight", function(){
+        $(".product-name-p").css("font-weight", this.value);
+    });
+
+    $(document).on("keyup", "#product-price-font-weight", function(){
+        $(".product-price-span").css("font-weight", this.value);
+    });
+
+
+    $(document).on("change", "#product-title-font-family", function(){
+        $(".product-name-p").css("font-family", this.value);
+    });
+
+    $(document).on("change", "#product-price-font-family", function(){
+        $(".product-price-span").css("font-family", this.value);
+    });
+
+
+    $(document).on("change", "#product-price-bg-color", function(){
+        $(".price-info-div").css("background-color", this.value);
+    });
+
+
+    $("#product-info-save-btn").click(function(){
+
+        var product_name = $("#product-info-name").val();
+        var product_price = $("#product-info-price").val();
+
+        $("#productinfoname-"+global_selected_product_info_id).html(product_name);
+        $("#productinfoprice-"+global_selected_product_info_id).html(product_price);
+        $("#productbrief-"+global_selected_product_info_id).hide();
+        $("#productinfoprice-"+global_selected_product_info_id).show();
+
+
+        var row = Math.floor((global_selected_product_info_id-1)/global_template_data["column"]);
+        var column = (global_selected_product_info_id-1)%global_template_data["column"];
+
+        global_template_data["data"][row][column]["product_title"] = product_name;
+        global_template_data["data"][row][column]["price"] = product_price;
+    });
+
+
+    //Creates an empty flyer grid
+    function create_flyer_grid()
+    {
+      var row = global_template_data["row"];
+      var column = global_template_data["column"];
+
+      var html_string = "";
+      var cnt = 1;
+      for(var i=0;i<row;i++)
+      {
+        html_string += `<div class="row">`;
+        var width = (12/column).toString();
+        for(var j=0;j<column;j++)
+        {
+          if(global_template_data["data"][i][j]["image_pk"]!=null)
+          {
+            html_string += `<div class="col s`+width+`"><a id="gridbox-`+cnt+`" href="#!" class="flyer-item-box" style="color:black;"><div class="divgrid" id="divgrid-`+cnt+`" style="text-align: center;height: 10em;border: 2px solid #E9E9E9;border-bottom:none;">
+                  <div class="img-container">
+                    <img id="gridimg-`+cnt+`" src="`+global_template_data["data"][i][j]["image_url"]+`" style="max-width: 100%;max-height:8em;margin-top:2em;padding:0em;object-fit:scale-down;">
+                  </div>
+                </div></a></div>`;
+          }
+          else
+          {
+            html_string += `<div class="col s`+width+`"><a id="gridbox-`+cnt+`" href="#!" class="flyer-item-box" style="color:black;"><div class="divgrid" id="divgrid-`+cnt+`" style="text-align: center;height: 10em;background-color:#EBEBEB;">
+                  <div class="img-container">
+                    <i id="default404-`+cnt+`" class="material-icons" style="color:#A9A9A9;position:absolute;line-height:6em;margin-left:-0.5em;">image</i>
+                    <img id="gridimg-`+cnt+`" src="`+global_template_data["data"][i][j]["image_url"]+`" style="max-width: 100%;max-height:8em;margin-top:2em;padding:0em;object-fit:scale-down;display:none;">
+                  </div>
+                </div></a></div>`;
+          }
+          cnt++;
+        }
+
+
+        cnt -= column;
+        for(var j=0;j<column;j++)
+        {
+          if(global_template_data["data"][i][j]["image_pk"]!=null)
+          {
+            var product_name = global_template_data["data"][i][j]["product_title"];
+            var price = global_template_data["data"][i][j]["price"];
+
+            html_string += `<div class="col s`+width+`">
+                              <div class="divgridinfo" id="divgridinfo-`+cnt+`" style="border: 2px solid #E9E9E9;background-color: transparent;text-align: center;min-height: 3.5em;padding-top:0.5em;">
+                                <a id="productinfobtn-`+cnt+`" href="#price-info-modal" class="productinfobtn modal-trigger">
+                                  <div class="info-container row" style="margin-bottom:0;padding-left:2mm;padding-right:2mm;height:3em;">
+                                    <div class="col s8" style="text-align:left;margin-left:3mm;padding-right:1mm;width:55%;padding-left:0em;">
+                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;margin-top:20%;transform:translateY(-50%);">`+product_name+`
+                                      </p>
+                                    </div>
+                                    
+                                    <div class="col s3" style="padding-left:2mm;;width:20%;padding-top:3mm;">
+                                      <div class="price-info-div white-text" style="padding-right:1mm;padding-top:0.5mm; background-color: #521893;width:13mm;">
+                                        <span style="font-family:'AvenirNext-Flyer';font-size:0.6em;margin-top:0.6em;margin-left:0.7em;" class="rotate" font-family:'AvenirNext-Flyer';>AED</span>
+                                        <span class="product-price-span" style="font-family:'AvenirNext-Flyer';font-size:0.8em;" id="productinfoprice-`+cnt+`">`+price+`</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </a>
+                              </div>
+                            </div>`;
+          }
+          else
+          {
+            html_string += `<div class="col s`+width+`">
+                              <div class="divgridinfo" id="divgridinfo-`+cnt+`" style="border: 2px solid #E9E9E9;background-color: transparent;text-align: center;min-height: 3.5em;padding-top:0.5em;">
+                                <a id="productinfobtn-`+cnt+`" href="#price-info-modal" class="productinfobtn modal-trigger">
+                                  <div class="info-container row" style="margin-bottom:0;padding-left:2mm;padding-right:2mm;height:3em;">
+                                    <div class="col s8" style="text-align:left;margin-left:3mm;padding-right:1mm;width:55%;padding-left:0em;">
+                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;margin-top:20%;transform:translateY(-50%);">Add Title
+                                      </p>
+                                    </div>
+                                    
+                                    <div class="col s3" style="padding-left:2mm;;width:20%;padding-top:3mm;">
+                                      <div class="price-info-div white-text" style="padding-right:1mm;padding-top:0.5mm; background-color: #521893;width:13mm;">
+                                        <span style="font-family:'AvenirNext-Flyer';font-size:0.6em;margin-top:0.6em;margin-left:0.7em;" class="rotate" font-family:'AvenirNext-Flyer';>AED</span>
+                                        <span class="product-price-span" style="font-family:'AvenirNext-Flyer';font-size:0.8em;" id="productinfoprice-`+cnt+`">-</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </a>
+                              </div>
+                            </div>`;
+          }
+          cnt++;
+        }
+
+
+        html_string += `</div>`
+      }
+
+      $("#flyer-grid").html(html_string);
+      global_selected_grid_id = 1;
+      $("#divgrid-1").css("border", "0.14em dashed");
+
+    }
+
+
+    function render_fetures()
+    {
+      var html_string = `<br><br>`;
+      var feature_text = $(".feature-text");
+      for(var i=0;i<feature_text.length;i++)
+      {
+        html_string += `<h6>- `+feature_text[i].value+`</h6>`
+
+      }
+      $("#features-preview-div").html(html_string);
+    }
+
+
+    $("#product-name-input").keyup(function(){
+      $("#product-name-preview").html($("#product-name-input").val());
+    });
+
+
+    var products = [{"image_url":"/files/images/geepas-1.png", "pk":2, "name": "Geepas"}, {"image_url":"/files/images/geepas-1.png", "pk":2, "name": "Juicer"}, {"image_url":"/files/images/geepas-1.png", "pk":2, "name": "Geepas"}, {"image_url":"/files/images/geepas-1.png", "pk":2, "name": "Geepas"}];
+    var html_string = "";
+    
+
+
+
+    function getCsrfToken() {
+      var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+      return CSRF_TOKEN;
+    }
+
+
+    function add_to_product_basket()
+    {
+      var product_name = $("#autocomplete-input").val();
+
+
+      $.ajax({
+        url: "/add-product-flyer-bucket/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: {
+          product_name: product_name,
+          flyer_pk: window.location.pathname.split("/")[2]
+        },
+        success: function(response) {
+          console.log("Success!", response);
+          if(response["status"]==200)
+          {
+            global_product_bucket_list.push({"product_bucket_pk": response["product_pk"], "product_bucket_name":response["product_name"], "product_bucket_image_url": response["product_image_url"], "seller_sku": response["seller_sku"]});
+            global_product_images_dict[response["product_pk"]] = response["images"];
+            set_product_basket();
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+
+
+      $("#autocomplete-input").val("");
+
+    }
+
+    function fetch_product_list_autocomplete()
+    {
+      $.ajax({
+        url: "/fetch-product-list-flyer-pfl/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: {},
+        success: function(response) {
+          console.log("Success!", response);
+
+          var autocomplete_data = {};
+          var product_list = response["product_list"];
+          for(var i=0;i<product_list.length;i++)
+          {
+            autocomplete_data[product_list[i]["product_name_autocomplete"]] = product_list[i]["main_image_url"]; 
+          }
+
+          $('#autocomplete-input').autocomplete({
+            data: autocomplete_data,
+            onAutocomplete: function()
+            {
+              add_to_product_basket();
+            }
+          });
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+    }
+
+    fetch_product_list_autocomplete();
+
+
+
+    $(document).on('click', '.product-basket-card-btn', function(){
+      $(".product-basket-card").css('background-color', "white");
+
+      console.log($($(this).children()[0]));
+      $($(this).children()[0]).children()[1].style.background = "#f6eeff";
+
+      global_selected_product_pk = this.id.split("_")[1];
+      update_image_categories("main_images");
+      $("#image-categories-thumbnails-select").val("main_images");
+      $("select").formSelect();
+
+    });
+
+    function set_product_basket()
+    {
+      //Product Basket needs to be updated
+      var html_string = "";
+      for(var i=0;i<global_product_bucket_list.length;i++)
+      {
+        // html_string += `
+        // <div class="col s12 m12">
+        //   <a href="#!" class="product-basket-card-btn" id="basket_`+global_product_bucket_list[i]["product_bucket_pk"]+`"><div class="product-basket-card card" style="background-color:#E9E9E9">
+        //     <div class="card-content" style="padding-bottom:0em;">
+        //       <div class="row" style="margin-bottom:0;">
+        //         <div class="col s4 m4" style="margin-left:-1em;margin-top:-1em;">
+        //           <img src="`+global_product_bucket_list[i]["product_bucket_image_url"]+`" style="width:100%;height:8em;margin-left:0;object-fit: cover;">
+        //         </div>
+
+        //         <div class="col s8 m8" style="padding:0em;padding-left:1em;">
+        //           <div class="row white" style="margin-top:-0.5em;color:#717171;height:7em;">
+        //             <div class="col s12" style="color:black;font-family:AvenirNext-Flyer;">
+        //               `+global_product_bucket_list[i]["product_bucket_name"]+`
+        //             </div>
+        //           </div>
+        //         </div>
+        //       </div>
+        //     </div>
+        //   </div></a>
+        // </div>`;
+
+
+        // html_string += `
+        // <div class="col s12 m12 red" style="padding:1.5em;margin-bottom:0em;">
+        //   <a href="#!" class="product-basket-card-btn" id="basket_`+global_product_bucket_list[i]["product_bucket_pk"]+`" style="padding:0em;">
+        //     <div class="row blue" style="border: 2px solid #E9E9E9;margin-right:0em;">
+        //       <div class="col s4" style="padding-left:0em;margin-right:0em;padding-right:0em;">
+        //         <div class="img-box" style="border-right: 2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
+        //           <img src="`+global_product_bucket_list[i]["product_bucket_image_url"]+`" style="width:80%;max-height:5em;margin-left:0;object-fit: cover;object-position:center;">
+        //         </div>
+        //       </div>
+        //       <div class="col s8">
+        //         <div style="padding-left:0em;height:6em;">
+        //           <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;">`+
+        //           global_product_bucket_list[i]["product_bucket_name"]+`
+        //           </div>
+        //           <div style="padding-top:1em;font-family:'AvenirNextRegular';color:black;margin-top:-1em;font-size:0.8em;">`+
+        //           global_product_bucket_list[i]["seller_sku"]+`
+        //           </div>
+        //         </div>
+        //       </div>
+        //     </div>
+        //   </a>
+        // </div>`;
+
+        var short_product_name = global_product_bucket_list[i]["product_bucket_name"];
+        var char_length = 50;
+        if(short_product_name.length>char_length)
+        {
+          short_product_name = short_product_name.substring(0, char_length) + "...";
+        }
+
+        html_string += `
+          <a href="#!" class="product-basket-card-btn" id="basket_`+global_product_bucket_list[i]["product_bucket_pk"]+`">
+            <div class="row" style="border: 2px solid #E9E9E9;margin-right:0em;">
+              <div class="col s4" style="padding-left:0em;margin-right:0em;padding-right:0em;">
+                <div class="img-box" style="border-right: 2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
+                  <img src="`+global_product_bucket_list[i]["product_bucket_image_url"]+`" style="width:80%;max-height:5em;margin-left:0;object-fit: cover;object-position:center;">
+                </div>
+              </div>
+              <div class="product-basket-card col s8">
+                <div style="padding-left:0em;height:6em;">
+                  <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;">`+
+                  short_product_name+`
+                  </div>
+                  <div style="padding-top:1em;font-family:'AvenirNextRegular';color:black;margin-top:-1em;font-size:0.8em;">`+
+                  global_product_bucket_list[i]["seller_sku"]+`
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>`;
+      }
+
+        $("#product-basket-list-div").html(html_string);
+    }
+
+
+
+    function update_image_categories(key)
+    {
+      var html_string = "";
+
+      var images = global_product_images_dict[global_selected_product_pk][key];
+      for(var i=0;i<images.length;i++)
+      {
+        html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
+          <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
+            <a class="imgselect" id="imgselect_`+images[i]["pk"]+`" href="#!"><img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;"></a>
+          </div>
+        </div>`;
+      }
+
+      $("#image-categories-thumbnails-div").html(html_string);
+    }
+
+
+
+    function update_background_image_bucket()
+    {
+      var html_string = "";
+
+      var images = global_background_images_bucket;
+      for(var i=0;i<images.length;i++)
+      {
+        html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
+          <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.4em;">
+            <a class="bgimgselect" id="bgimgselect_`+images[i]["pk"]+`" href="#!">
+              <img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;">
+            </a>
+          </div>
+        </div>`;
+      }
+
+      $("#background-image-bucket-thumbnails-div").html(html_string);
+    }
+
+
+    function set_product_name()
+    {
+      $("#product-name-preview").html(global_product_name);
+      $("#product-name-input").val(global_product_name);
+      M.updateTextFields();
+    }
+
+
+    $(document).on('click', '.imgselect', function(){
+
+        var image_pk = this.id.split("_")[1];
+        var image_url = $(this).children()[0].src
+        console.log(image_pk, image_url, global_selected_grid_id);
+        $("#gridimg-"+global_selected_grid_id).attr("src", image_url);
+        $("#default404-"+global_selected_grid_id).hide();
+        $("#gridimg-"+global_selected_grid_id).show();
+        $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
+
+        //$(".divgrid").css("border", "1px solid black;")
+        //$("#divgrid-"+global_selected_grid_id).css("background-color", "white");
+
+
+        console.log(global_selected_grid_id);
+
+        var row = Math.floor((global_selected_grid_id-1)/global_template_data["column"]);
+        var column = (global_selected_grid_id-1)%global_template_data["column"];
+
+        console.log(row, column);
+        
+        global_template_data["data"][row][column]["image_url"] = image_url;
+        global_template_data["data"][row][column]["image_pk"] = image_pk;
+    });
+
+
+    $(document).on('click', '.bgimgselect', function(){
+        var image_pk = this.id.split("_")[1];
+        var image_url = $(this).children()[0].src
+          
+        $("#flyer-div").css("background-image", "url("+image_url+")");
+        $("#flyer-div").css("background-position", "center");
+        $("#flyer-div").css("background-size", "100% 297mm");
+    });
+
+
+
+    $("#image-categories-thumbnails-select").on("change", function(){
+      update_image_categories($("#image-categories-thumbnails-select").val());
+    });
+
+
+    // function fetch_product_details_flyer_pfl()
+    // {
+    //   $.ajax({
+    //     url: "/fetch-product-details-flyer-pfl/",
+    //     type: "POST",
+    //     headers:{
+    //       'X-CSRFToken':getCsrfToken()
+    //     },
+    //     data: {
+    //       product_pk: 
+    //     },
+    //     success: function(response) {
+    //       console.log("Success!", response);
+    //       global_product_images_dict = response["images"];
+    //       update_image_categories("main_images");
+    //     },
+    //     error: function(xhr, textstatus, errorthrown) {
+    //       console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+    //     }
+    //   });
+    // }
+
+    function set_brand_image(url)
+    {
+      $("#brand-image-img").attr("src", url);
+    } 
+
+    function fetch_flyer_details()
+    {
+      $.ajax({
+        url: "/fetch-flyer-details/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: {
+          pk: window.location.pathname.split("/")[2]
+        },
+        success: function(response) {
+          console.log("Success!", response);
+
+          global_product_bucket_list = response["product_bucket_list"];
+          global_product_images_dict = response['images'];
+          global_template_data = response["template_data"];
+          global_background_images_bucket = response["background_images_bucket"];
+
+          create_flyer_grid();
+          set_product_basket();
+          update_background_image_bucket();
+          set_brand_image(response["brand_image_url"]);
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+    }
+
+
+
+    $(document).on("click", ".flyer-item-box", function(){
+        
+        global_selected_grid_id = this.id.split("-")[1];
+        if($("#border-option").prop("checked"))
+        {
+          $(".divgrid").css("border", "2px solid #E9E9E9");
+          $(".divgrid").css("border-bottom", "none");
+        }
+        else
+        {
+          $(".divgrid").css("border", "none");
+        }
+
+        $("#divgrid-"+global_selected_grid_id).css("border", "0.14em dashed");
+
+    });
+
+    fetch_flyer_details();
+
+
+    $("#save-flyer-template-btn").click(function(){
+      
+      $("#save-flyer-template-btn").attr("disabled", "disabled");
+
+      $.ajax({
+        url: "/save-flyer-template/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: {
+          flyer_pk: window.location.pathname.split("/")[2],
+          template_data: JSON.stringify(global_template_data)
+        },
+        success: function(response) {
+          console.log("Success!", response);
+          $("#save-flyer-template-btn").removeAttr("disabled");
+          M.toast({html: "Flyer template saved successfully!"});
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+
+    });
+
+  </script>
+
+</body>
+</html>

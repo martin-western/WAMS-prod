@@ -212,8 +212,8 @@ class CreateNewProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_name = data["product_name"]
-            product_id = data["product_id"]
+            product_name = convert_to_ascii(data["product_name"])
+            product_id = convert_to_ascii(data["product_id"])
 
             if Product.objects.filter(product_id=product_id).exists():
                 # Duplicate product detected!
@@ -395,7 +395,7 @@ class FetchProductDetailsAPI(APIView):
 
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
             if prod_obj.main_images.filter(is_main_image=True).count()>0:
-                repr_image_url = prod_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                repr_image_url = prod_obj.main_images.filter(is_main_image=True)[0].image.thumbnail.url
 
             response["repr_image_url"] = repr_image_url
 
@@ -490,12 +490,12 @@ class SaveProductAPI(APIView):
                 return Response(data=response)
 
 
-            product_name_amazon_uk = data["product_name_amazon_uk"]
-            product_name_amazon_uae = data["product_name_amazon_uae"]
-            product_name_ebay = data["product_name_ebay"]
-            product_name_sap = data["product_name_sap"]
+            product_name_amazon_uk = convert_to_ascii(data["product_name_amazon_uk"])
+            product_name_amazon_uae = convert_to_ascii(data["product_name_amazon_uae"])
+            product_name_ebay = convert_to_ascii(data["product_name_ebay"])
+            product_name_sap = convert_to_ascii(data["product_name_sap"])
             category = data["category"]
-            subtitle = data["subtitle"]
+            subtitle = convert_to_ascii(data["subtitle"])
             brand = data["brand"]
             manufacturer = data["manufacturer"]
             product_id_type = data["product_id_type"]
@@ -506,20 +506,20 @@ class SaveProductAPI(APIView):
             feed_product_type = data["feed_product_type"]
             update_delete = data["update_delete"]
             recommended_browse_nodes = data["recommended_browse_nodes"]
-            product_description_amazon_uk = data["product_description_amazon_uk"]
-            product_description_amazon_uae = data["product_description_amazon_uae"]
-            product_description_ebay = data["product_description_ebay"]
-            product_attribute_list_amazon_uk = data[
-                "product_attribute_list_amazon_uk"]
-            product_attribute_list_amazon_uae = data[
-                "product_attribute_list_amazon_uae"]
-            product_attribute_list_ebay = data["product_attribute_list_ebay"]
+            product_description_amazon_uk = convert_to_ascii(data["product_description_amazon_uk"])
+            product_description_amazon_uae = convert_to_ascii(data["product_description_amazon_uae"])
+            product_description_ebay = convert_to_ascii(data["product_description_ebay"])
+            product_attribute_list_amazon_uk = convert_to_ascii(data[
+                "product_attribute_list_amazon_uk"])
+            product_attribute_list_amazon_uae = convert_to_ascii(data[
+                "product_attribute_list_amazon_uae"])
+            product_attribute_list_ebay = convert_to_ascii(data["product_attribute_list_ebay"])
             search_terms = data["search_terms"]
             color_map = data["color_map"]
             color = data["color"]
             enclosure_material = data["enclosure_material"]
             cover_material_type = data["cover_material_type"]
-            special_features = data["special_features"]
+            special_features = convert_to_ascii(data["special_features"])
             package_length = None if data[
                 "package_length"] == "" else float(data["package_length"])
             package_length_metric = data["package_length_metric"]
@@ -562,7 +562,7 @@ class SaveProductAPI(APIView):
             item_display_height = None if data[
                 "item_display_height"] == "" else float(data["item_display_height"])
             item_display_height_metric = data["item_display_height_metric"]
-            item_condition_note = data["item_condition_note"]
+            item_condition_note = convert_to_ascii(data["item_condition_note"])
             max_order_quantity = None if data[
                 "max_order_quantity"] == "" else int(data["max_order_quantity"])
             number_of_items = None if data[
@@ -582,8 +582,8 @@ class SaveProductAPI(APIView):
             sale_from = None if data["sale_from"] == "" else data["sale_from"]
             sale_end = None if data["sale_end"] == "" else data["sale_end"]
 
-            pfl_product_name = data["pfl_product_name"]
-            pfl_product_features = data["pfl_product_features"]
+            pfl_product_name = convert_to_ascii(data["pfl_product_name"])
+            pfl_product_features = convert_to_ascii(data["pfl_product_features"])
 
 
             brand_obj = None
@@ -886,9 +886,9 @@ class FetchExportListAPI(APIView):
                 end_date = datetime.datetime.strptime(
                     data["end_date"], "%b %d, %Y")
                 export_list_objs = ExportList.objects.filter(
-                    created_date__gte=start_date).filter(created_date__lte=end_date)
+                    created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user)
             else:
-                export_list_objs = ExportList.objects.all()
+                export_list_objs = ExportList.objects.all().filter(user=request.user)
 
             if len(chip_data) == 0:
                 search_list_objs = export_list_objs
@@ -956,12 +956,12 @@ class AddToExportAPI(APIView):
 
             export_option = data["export_option"]
             export_title_pk = data["export_title_pk"]
-            export_title = data["export_title"]
+            export_title = convert_to_ascii(data["export_title"])
             products = json.loads(data["products"])
 
             export_obj = None
             if export_option == "New":
-                export_obj = ExportList.objects.create(title=export_title)
+                export_obj = ExportList.objects.create(title=export_title, user=request.user)
             else:
                 export_obj = ExportList.objects.get(pk=int(export_title_pk))
 
@@ -1305,7 +1305,7 @@ class CreateFlyerAPI(APIView):
 
             template_data = {"row": row, "column": column, "data": empty_grid}
 
-            flyer_obj = Flyer.objects.create(name=data["name"],
+            flyer_obj = Flyer.objects.create(name=convert_to_ascii(data["name"]),
                                              template_data=json.dumps(
                                                  template_data),
                                              brand=brand_obj)
@@ -1475,7 +1475,7 @@ class CreatePFLAPI(APIView):
             data = request.data
             logger.info("CreatePFLAPI: %s", str(data))
 
-            pfl_obj = PFL.objects.create(name=data["name"])
+            pfl_obj = PFL.objects.create(name=convert_to_ascii(data["name"]))
 
             response["pfl_pk"] = pfl_obj.pk
             response['status'] = 200
@@ -1902,8 +1902,8 @@ class SavePFLTemplateAPI(APIView):
                 image_obj = Image.objects.get(pk=data["image_pk"])
                 pfl_obj.product_image = image_obj
 
-            product_name = data["product_name"]
-            product_features = data["product_features"]
+            product_name = convert_to_ascii(data["product_name"])
+            product_features = convert_to_ascii(data["product_features"])
 
             pfl_obj.product.pfl_product_name = product_name
             pfl_obj.product.pfl_product_features = product_features
@@ -2414,6 +2414,11 @@ class DeleteImageAPI(APIView):
         response = {}
         response['status'] = 500
         try:
+            
+            if request.user.has_perm('WAMSApp.delete_image') == False:
+                logger.warning("DeleteImageAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
 
             data = request.data
             logger.info("DeleteImageAPI: %s", str(data))
@@ -2434,7 +2439,41 @@ class DeleteImageAPI(APIView):
         return Response(data=response)
 
 
+class RemoveProductFromExportListAPI(APIView):
 
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            if request.user.has_perm('WAMSApp.delete_exportlist') == False:
+                logger.warning("RemoveProductFromExportListAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("RemoveProductFromExportListAPI: %s", str(data))
+
+            product_pk = int(data["product_pk"])
+            export_pk = int(data["export_pk"])
+            
+            export_obj = ExportList.objects.get(pk=export_pk)
+            product_obj = Product.objects.get(pk=product_pk)
+
+            export_obj.products.remove(product_obj)
+            export_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveProductFromExportListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 LoginSubmit = LoginSubmitAPI.as_view()
 
@@ -2509,3 +2548,5 @@ SaveFlyerInBucket = SaveFlyerInBucketAPI.as_view()
 VerifyProduct = VerifyProductAPI.as_view()
 
 DeleteImage = DeleteImageAPI.as_view()
+
+RemoveProductFromExportList = RemoveProductFromExportListAPI.as_view()

@@ -1,5 +1,7 @@
 *.pyc
 db.sqlite3
 *.sock
-WAMS.sock
 log/*
+files/*
+static/*
+WAMSApp/migrations/*
