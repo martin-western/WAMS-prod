@@ -671,216 +671,246 @@ label {
           <h4>Dimensions</h4> 
           <div class="row white" style="margin-bottom:0px !important;">
             
-            <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-              <input id="package-length" type="number" >
-              <label for="package-length">Package Length</label>
-            </div>
-            
-            <div class="input-field  col s2" style="padding: 0px 40px 0px 10px !important;">
-              <select id="package-length-metric">
-                <option selected value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
-            </div>
+            <div class="col s12">
+              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;">
+                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
+                  <input id="package-length" type="number" >
+                  <label for="package-length">Package Length</label>
+                </div>
+                
+                <div class="input-field  col s2" style="padding: 0px 40px 0px 10px !important;">
+                  <select id="package-length-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
 
-            <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-              <input id="package-width" type="number" >
-              <label for="package-width">Package Width</label>
-            </div>
+                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
+                  <input id="package-width" type="number" >
+                  <label for="package-width">Package Width</label>
+                </div>
 
-            <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-              <select id="package-width-metric">
-                <option value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
-            </div>
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                  <select id="package-width-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
 
-            <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-              <input id="package-height" type="number" >
-              <label for="package-height">Package Height</label>
-            </div>
+              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
+                  <input id="package-height" type="number" >
+                  <label for="package-height">Package Height</label>
+                </div>
 
-            <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-              <select id="package-height-metric">
-                <option value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
-            </div>
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                  <select id="package-height-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
 
-            <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-              <input id="package-weight" type="number" >
-              <label for="package-weight">Package Weight</label>
-            </div>
+                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
+                  <input id="package-weight" type="number" >
+                  <label for="package-weight">Package Weight</label>
+                </div>
 
-            <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
-              <select id="package-weight-metric">
-                <option value="KG">KG</option>
-                <option value="LB">LB</option>
-                <option value="OZ">OZ</option>
-                <option value="MG">MG</option>
-                <option value="GR">GR</option>
-              </select>
-            </div>
+                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+                  <select id="package-weight-metric">
+                    <option selected value="">Unit</option>
+                    <option value="KG">KG</option>
+                    <option value="LB">LB</option>
+                    <option value="OZ">OZ</option>
+                    <option value="MG">MG</option>
+                    <option value="GR">GR</option>
+                  </select>
+                </div>
+              </div>
 
-            <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-              <input id="shipping-weight" type="number" >
-              <label for="shipping-weight">Shipping Weight</label>
-            </div>
-            
-            <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-              <select id="shipping-weight-metric">
-                <option value="KG">KG</option>
-                <option value="LB">LB</option>
-                <option value="OZ">OZ</option>
-                <option value="MG">MG</option>
-                <option value="GR">GR</option>
-              </select>
-            </div>
-
-
-            <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-              <input id="item-display-weight" type="number" >
-              <label for="item-display-weight">Item Display Weight</label>
-            </div>
-            
-            <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
-              <select id="item-display-weight-metric">
-                <option value="KG">KG</option>
-                <option value="LB">LB</option>
-                <option value="OZ">OZ</option>
-                <option value="MG">MG</option>
-                <option value="GR">GR</option>
-              </select>
-            </div>
-
-            <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-              <input id="item-display-volume" type="number" >
-              <label for="item-display-volume">Item Display Volume</label>
-            </div>
-            
-            <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-              <select id="item-display-volume-metric">
-                <option value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
-            </div>
+              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
+                  <input id="shipping-weight" type="number" >
+                  <label for="shipping-weight">Shipping Weight</label>
+                </div>
+                
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                  <select id="shipping-weight-metric">
+                    <option selected value="">Unit</option>
+                    <option value="KG">KG</option>
+                    <option value="LB">LB</option>
+                    <option value="OZ">OZ</option>
+                    <option value="MG">MG</option>
+                    <option value="GR">GR</option>
+                  </select>
+                </div>
 
 
-            <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-              <input id="item-display-length" type="number" >
-              <label for="item-display-length">Item Display Length</label>
-            </div>
-            
-            <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
-              <select id="item-display-length-metric">
-                <option value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
-            </div>
+                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
+                  <input id="item-display-weight" type="number" >
+                  <label for="item-display-weight">Item Display Weight</label>
+                </div>
+                
+                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+                  <select id="item-display-weight-metric">
+                    <option selected value="">Unit</option>
+                    <option value="KG">KG</option>
+                    <option value="LB">LB</option>
+                    <option value="OZ">OZ</option>
+                    <option value="MG">MG</option>
+                    <option value="GR">GR</option>
+                  </select>
+                </div>
+              </div>
 
-            <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-              <input id="item-weight" type="number" >
-              <label for="item-weight">Item Weight</label>
-            </div>
-            
-            <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-              <select id="item-weight-metric">
-                <option value="KG">KG</option>
-                <option value="LB">LB</option>
-                <option value="OZ">OZ</option>
-                <option value="MG">MG</option>
-                <option value="GR">GR</option>
-              </select>
-            </div>
+              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
+                  <input id="item-display-volume" type="number" >
+                  <label for="item-display-volume">Item Display Volume</label>
+                </div>
+                
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                  <select id="item-display-volume-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
 
-            <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-              <input id="item-length" type="number" >
-              <label for="item-length">Item Length</label>
-            </div>
-            
-            <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
-              <select id="item-length-metric">
-                <option value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
-            </div>
 
-            <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-              <input id="item-width" type="number" >
-              <label for="item-width">Item Width</label>
-            </div>
+                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
+                  <input id="item-display-length" type="number" >
+                  <label for="item-display-length">Item Display Length</label>
+                </div>
+                
+                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+                  <select id="item-display-length-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
 
-            <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-              <select id="item-width-metric">
-                <option value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
-            </div>
+              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
+                  <input id="item-weight" type="number" >
+                  <label for="item-weight">Item Weight</label>
+                </div>
+                
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                  <select id="item-weight-metric">
+                    <option selected value="">Unit</option>
+                    <option value="KG">KG</option>
+                    <option value="LB">LB</option>
+                    <option value="OZ">OZ</option>
+                    <option value="MG">MG</option>
+                    <option value="GR">GR</option>
+                  </select>
+                </div>
 
-            <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-              <input id="item-height" type="number" >
-              <label for="item-height">Item Height</label>
-            </div>
-    
-            <div class="input-field col s2 "  style="padding: 0px 40px 0px 10px !important;">
-              <select id="item-height-metric">
-                <option value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
-            </div>
+                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
+                  <input id="item-length" type="number" >
+                  <label for="item-length">Item Length</label>
+                </div>
+                
+                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+                  <select id="item-length-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
 
-            <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-              <input id="item-display-width" type="number" >
-              <label for="item-display-width">Item Display Width</label>
-            </div>
-            
-            <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-              <select id="item-display-width-metric">
-                <option value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
-            </div>
+              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
+                  <input id="item-width" type="number" >
+                  <label for="item-width">Item Width</label>
+                </div>
 
-            <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-              <input id="item-display-height" type="number" >
-              <label for="item-display-height">Item Display Height</label>
-            </div>
-            
-            <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
-              <select id="item-display-height-metric">
-                <option value="FT">FT</option>
-                <option value="IN">IN</option>
-                <option value="CM">CM</option>
-                <option value="MM">MM</option>
-                <option value="M">M</option>
-              </select>
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                  <select id="item-width-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+
+                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
+                  <input id="item-height" type="number" >
+                  <label for="item-height">Item Height</label>
+                </div>
+        
+                <div class="input-field col s2 "  style="padding: 0px 40px 0px 10px !important;">
+                  <select id="item-height-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
+                  <input id="item-display-width" type="number" >
+                  <label for="item-display-width">Item Display Width</label>
+                </div>
+                
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                  <select id="item-display-width-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+
+                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
+                  <input id="item-display-height" type="number" >
+                  <label for="item-display-height">Item Display Height</label>
+                </div>
+                
+                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+                  <select id="item-display-height-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -915,8 +945,9 @@ label {
           
             <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
               <select id="wattage-metric">
+                <option selected value="">Unit</option>
                 <option value="Volts">V</option>
-                <option value="Watts">Wt</option>
+                <option value="Watts">W</option>
                 <option value="Kilowatts">KW</option>
               </select>
             </div>
