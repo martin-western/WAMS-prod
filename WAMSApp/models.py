@@ -131,7 +131,7 @@ class Brand(models.Model):
 
 class Category(models.Model):
 
-    name = models.CharField(unique=True, max_length=300)
+    name = models.CharField(unique=True, max_length=250)
 
     class Meta:
         verbose_name = "Category"
