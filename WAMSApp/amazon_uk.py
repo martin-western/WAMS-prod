@@ -118,7 +118,7 @@ def export_amazon_uk(products):
                 if k==None:
                     data_row_2.append("")
                 elif isinstance(k, int)==False:
-                    l = k.encode('utf-8').strip()
+                    l = k.decode('utf-8').strip()
                     data_row_2.append(l)
                 else:
                     data_row_2.append(k)
