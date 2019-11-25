@@ -1043,7 +1043,7 @@ class DownloadExportListAPI(APIView):
 
             if export_format == "Amazon UK":
                 export_amazon_uk(products)
-                response["file_path"] = "/files/csv/export-list-amazon-uk.csv"
+                response["file_path"] = "/files/csv/export-list-amazon-uk.xlsx"
             elif export_format == "Amazon UAE":
                 export_amazon_uae(products)
                 response["file_path"] = "/files/csv/export-list-amazon-uae.csv"

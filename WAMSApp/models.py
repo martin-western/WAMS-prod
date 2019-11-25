@@ -131,7 +131,7 @@ class Brand(models.Model):
 
 class Category(models.Model):
 
-    name = models.CharField(unique=True, max_length=100)
+    name = models.CharField(unique=True, max_length=300)
 
     class Meta:
         verbose_name = "Category"
@@ -185,9 +185,9 @@ class Product(models.Model):
     product_id = models.CharField(max_length=100, unique=True)
     product_id_type = models.CharField(max_length=100, default="")
     seller_sku = models.CharField(max_length=100, default="")
-    category = models.CharField(max_length=100, default="")
+    category = models.CharField(max_length=300, default="")
     subtitle = models.CharField(max_length=300, default="")
-    brand = models.ForeignKey(Brand, null=True, blank=True)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
     condition_type = models.CharField(max_length=100, default="New")
@@ -299,7 +299,7 @@ class Product(models.Model):
 
 class Flyer(models.Model):
 
-    name = models.CharField(default="SampleFlyer", max_length=100)
+    name = models.CharField(default="SampleFlyer", max_length=300)
     product_bucket = models.ManyToManyField(Product, blank=True)
     template_data = models.TextField(null=True, blank=True)
     """
@@ -343,7 +343,7 @@ class PFL(models.Model):
 
 class ExportList(models.Model):
 
-    title = models.CharField(default="SampleExportList", max_length=100)
+    title = models.CharField(default="SampleExportList", max_length=300)
     products = models.ManyToManyField(Product, blank=True)
     created_date = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
