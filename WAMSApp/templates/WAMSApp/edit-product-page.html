@@ -226,6 +226,21 @@ label {
   top: -300px !important;
 }
 
+.material-placeholder {
+  width: 25vw;
+  height: 25vw;
+}
+
+.preview-img{
+  height: 100% !important;
+  width:  100% !important;
+  object-fit: contain;
+}
+
+body {
+  z-index: 100; 
+}
+
 </style>
 
 
@@ -1575,8 +1590,8 @@ label {
 
         $("#pfl-product-name").val(response["pfl_product_name"])
         var pfl_product_features = response["pfl_product_features"]
-        $('.preview-img').remove();
-        $('.main-image').append(`<img class = "preview-img materialboxed" src='`+response["repr_image_url"]+`' style = "width: 25vw; height: 25vw;">`)
+        $('.material-placeholder').remove();
+        $('.main-image').append(`<img class = "preview-img materialboxed" src='`+response["repr_image_url"]+`'>`)
         $('.materialboxed').materialbox();
 
         for(var i = 0;i<pfl_product_features.length;i++)
@@ -1875,8 +1890,8 @@ label {
     
     $('.miniimage').click(function(argument) {
       let url = $(this).attr('src');
-      $('.preview-img').remove();
-      $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`' style = "width: 25vw; height: 25vw;" >`)
+      $('.material-placeholder').remove();
+      $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`'>`)
       $('.materialboxed').materialbox();
     })
   }
@@ -2012,8 +2027,8 @@ label {
    
     $('.miniimage').click(function(argument) {
       let url = $(this).attr('src');
-      $('.preview-img').remove();
-      $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`' style = "width: 25vw; height: 25vw;" >`)
+      $('.material-placeholder').remove();
+      $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`'>`)
       $('.materialboxed').materialbox();
     })
   }
@@ -2109,9 +2124,10 @@ label {
     $("#graphics-section").html(html_string);
     $('.miniimage').click(function(argument) {
       let url = $(this).attr('src');
-      $('.preview-img').remove();
+      $('.material-placeholder').remove();
       $('.main-image').remove('img');
-      $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`' style = "width: 25vw; height: 25vw;" >`)
+      $('.main-image').remove('img');
+      $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`'>`)
       $('.materialboxed').materialbox();
     })
   }
