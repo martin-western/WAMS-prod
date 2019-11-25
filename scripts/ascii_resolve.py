@@ -1,0 +1,2 @@
+from WAMSApp.models import *
+
