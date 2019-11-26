@@ -137,6 +137,7 @@ li span {
 img.materialboxed {
   width: 100px;
   height: 100px;
+  background-color: white;
 }
 
 .tab-pane h4 {
@@ -374,7 +375,8 @@ body {
 <div>
   <div class="row" style="margin:0px;margin-left: 100px;">
     <div class="col s4 image-section" style="height: 90vh;">
-      <div class = "main-image">
+      <div class = "main-image" style="position: relative;">
+        <a id="download-image-btn" href="#!" class="right btn-floating btn-small white" style="position:absolute;right:5em;top:0em;z-index: 100;"><i class="material-icons" style="color: #521893;">file_download</i></a>
       </div>
         
       <div class="row image-section-dropdown" style="margin-bottom: 0px;">
@@ -1350,6 +1352,46 @@ body {
     $('.tabs').tabs();
   });
         
+
+  $("#download-image-btn").click(function(){
+
+    $("#download-image-btn").attr("disabled", "disabled");
+    var high_def_url = $($(".preview-img")[0]).attr("high_def_url");
+    var image_links = [];
+    image_links.push({
+      "key": "high_def_url",
+      "url": high_def_url
+    })
+
+    $.ajax({
+      url: "/download-images-s3/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: { 
+        links : JSON.stringify(image_links)
+      },
+      success: function(response) {
+        console.log("Success! ", response);
+        $("#download-image-btn").removeAttr("disabled");
+        if(response["status"]==200)
+        {
+          var local_link = response["local_links"][0]["url"];
+
+          var a = document.createElement('a');
+          a.href = local_link;
+          var filename = high_def_url.split("/")[high_def_url.split("/").length-1];
+          a.download = filename;
+          a.click();
+        }
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        $("#download-image-btn").removeAttr("disabled");
+      }
+    });
+  });
   
   var pfl_feature_cnt = 2;
   
@@ -1597,7 +1639,7 @@ body {
         $("#pfl-product-name").val(response["pfl_product_name"])
         var pfl_product_features = response["pfl_product_features"]
         $('.material-placeholder').remove();
-        $('.main-image').append(`<img class = "preview-img materialboxed" src='`+response["repr_image_url"]+`'>`)
+        $('.main-image').append(`<img class = "preview-img materialboxed" src='`+response["repr_image_url"]+`' high_def_url="`+response["repr_high_def_url"]+`">`)
         $('.materialboxed').materialbox();
 
         for(var i = 0;i<pfl_product_features.length;i++)
@@ -1880,7 +1922,7 @@ body {
                             close
                           </i>
                         </a>
-                        <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" style="width: 100%;object-fit:contain;">
+                        <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" high_def_url="`+global_images[key][i]["main-url"]+`"  style="width: 100%;object-fit:contain;">
                         <label style="margin-left:0px !important;">
                           <input value="`+global_images[key][i]["pk"]+`" name="group1" type="radio" `+checked+` />
                           <span class = "checkbox"></span>
@@ -1898,8 +1940,9 @@ body {
 
   $(document).on('click', '.miniimage', function(){
     let url = $(this).attr('midimage_url');
+    let high_def_url = $(this).attr('high_def_url');
     $('.material-placeholder').remove();
-    $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`'>`)
+    $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`' high_def_url="`+high_def_url+`">`)
     $('.materialboxed').materialbox();
   });
 
@@ -2021,7 +2064,7 @@ body {
                             close
                           </i>
                         </a>
-                        <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" style="width: 100%;object-fit:contain;">
+                        <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" high_def_url="`+global_images[key][i]["main-url"]+`" style="width: 100%;object-fit:contain;">
                         <input value="`+global_images[key][i]["sub_image_index"]+`" id="subcheck_`+global_images[key][i]["pk"]+`" type="text" >
                       </div>`;
 
@@ -2115,7 +2158,7 @@ body {
                               close
                             </i> 
                           </a> 
-                          <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" style="width: 100%;object-fit:contain;">
+                          <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" high_def_url="`+global_images[key][i]["main-url"]+`" style="width: 100%;object-fit:contain;">
                         </div>
                       </div>`;
     }

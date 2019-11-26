@@ -394,10 +394,13 @@ class FetchProductDetailsAPI(APIView):
                 prod_obj.unedited_images.all())
 
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
+            repr_high_def_url = repr_image_url
             if prod_obj.main_images.filter(is_main_image=True).count()>0:
                 repr_image_url = prod_obj.main_images.filter(is_main_image=True)[0].image.mid_image.url
+                repr_high_def_url = prod_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
             response["repr_image_url"] = repr_image_url
+            response["repr_high_def_url"] = repr_high_def_url
 
             pfl_pk = None
             if PFL.objects.filter(product=prod_obj).exists() == False:
