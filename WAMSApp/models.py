@@ -63,6 +63,7 @@ class Image(models.Model):
     description = models.TextField(null=True, blank=True)
     image = models.ImageField(upload_to='')
     thumbnail = models.ImageField(upload_to='thumbnails', null=True, blank=True)
+    mid_image = models.ImageField(upload_to='midsize', null=True, blank=True)
 
     class Meta:
         verbose_name = "Image"
@@ -86,6 +87,19 @@ class Image(models.Model):
             thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
 
             self.thumbnail = thumb_file
+
+
+
+
+            size2 = 512, 512
+            thumb2 = IMage.open(self.image)
+            thumb2.thumbnail(size2)
+            thumb_io2 = StringIO.StringIO()
+            thumb2.save(thumb_io2, format=im_type)
+
+            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
+
+            self.mid_image = thumb_file2
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
