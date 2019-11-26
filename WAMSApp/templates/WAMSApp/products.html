@@ -426,6 +426,7 @@ ul.dropdown-content.select-dropdown li span {
   {% endif %}
 <script type="text/javascript">
 
+  var page = 1;
 
   function removeDefault()
   {
@@ -589,8 +590,6 @@ ul.dropdown-content.select-dropdown li span {
     }
   });
 
-  var page = 1;
-
   function getStatus(e)
   {
     if(e == "Pending")
@@ -749,11 +748,10 @@ ul.dropdown-content.select-dropdown li span {
 
 
   $("#load-more-btn").click(function(){
-
+    page++;
     $("#load-more-btn").hide();
     fetch_product_list();
     load_more_flag = true;
-    page++;
   });
 
 
