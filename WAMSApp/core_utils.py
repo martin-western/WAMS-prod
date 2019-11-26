@@ -33,7 +33,9 @@ def create_response_images(images):
     temp_list = []
     for image in images:
         temp_dict = {}
-        temp_dict["url"] = image.thumbnail.url
+        temp_dict["main-url"] = image.image.url
+        temp_dict["thumbnail-url"] = image.thumbnail.url
+        temp_dict["midimage-url"] = image.mid_image.url
         temp_dict["pk"] = image.pk
         temp_list.append(temp_dict)
     return temp_list
@@ -44,7 +46,9 @@ def create_response_images_main(images):
     temp_list = []
     for image in images:
         temp_dict = {}
-        temp_dict["url"] = image.image.thumbnail.url
+        temp_dict["main-url"] = image.image.image.url
+        temp_dict["thumbnail-url"] = image.image.thumbnail.url
+        temp_dict["midimage-url"] = image.image.mid_image.url
         temp_dict["pk"] = image.pk
         temp_dict["is_main_image"] = image.is_main_image
         temp_list.append(temp_dict)
@@ -56,7 +60,9 @@ def create_response_images_sub(images):
     temp_list = []
     for image in images:
         temp_dict = {}
-        temp_dict["url"] = image.image.thumbnail.url
+        temp_dict["main-url"] = image.image.image.url
+        temp_dict["thumbnail-url"] = image.image.thumbnail.url
+        temp_dict["midimage-url"] = image.image.mid_image.urlurl
         temp_dict["pk"] = image.pk
         temp_dict["is_sub_image"] = image.is_sub_image
         temp_dict["sub_image_index"] = image.sub_image_index

@@ -395,7 +395,7 @@ class FetchProductDetailsAPI(APIView):
 
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
             if prod_obj.main_images.filter(is_main_image=True).count()>0:
-                repr_image_url = prod_obj.main_images.filter(is_main_image=True)[0].image.thumbnail.url
+                repr_image_url = prod_obj.main_images.filter(is_main_image=True)[0].image.mid_image.url
 
             response["repr_image_url"] = repr_image_url
 
@@ -834,7 +834,7 @@ class FetchProductListAPI(APIView):
                 temp_dict["product_pk"] = product_obj.pk
                 
                 if product_obj.main_images.filter(is_main_image=True).count() > 0:
-                    temp_dict["main_image"] = product_obj.main_images.filter(is_main_image=True)[0].image.thumbnail.url
+                    temp_dict["main_image"] = product_obj.main_images.filter(is_main_image=True)[0].image.mid_image.url
                 else:
                     temp_dict["main_image"] = Config.objects.all()[0].product_404_image.image.url
 
@@ -1004,7 +1004,7 @@ class FetchExportProductListAPI(APIView):
                 temp_dict["product_pk"] = product.pk
                 if product.main_images.filter(is_main_image=True).count() > 0:
                     temp_dict['product_image_url'] = product.main_images.filter(is_main_image=True)[
-                        0].image.thumbnail.url
+                        0].image.mid_image.url
                 else:
                     temp_dict['product_image_url'] = Config.objects.all()[
                         0].product_404_image.image.url

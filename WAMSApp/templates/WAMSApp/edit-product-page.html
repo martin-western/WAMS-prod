@@ -1872,7 +1872,7 @@ body {
                             close
                           </i>
                         </a>
-                        <img class="miniimage" src="`+global_images[key][i]["url"]+`" style="width: 100%;">
+                        <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" style="width: 100%;">
                         <label style="margin-left:0px !important;">
                           <input value="`+global_images[key][i]["pk"]+`" name="group1" type="radio" `+checked+` />
                           <span class = "checkbox"></span>
@@ -1885,15 +1885,15 @@ body {
     }
          
     $("#graphics-section").html(html_string);
-    
-    $('.miniimage').click(function(argument) {
-      let url = $(this).attr('src');
-      $('.material-placeholder').remove();
-      $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`'>`)
-      $('.materialboxed').materialbox();
-    })
   }
 
+
+  $(document).on('click', '.miniimage', function(){
+    let url = $(this).attr('midimage_url');
+    $('.material-placeholder').remove();
+    $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`'>`)
+    $('.materialboxed').materialbox();
+  });
 
   $(document).on("click", ".delete-image-modal-btn", function(){
     global_delete_image_pk = this.id.split("-")[1];
@@ -2013,7 +2013,7 @@ body {
                             close
                           </i>
                         </a>
-                        <img class="miniimage" src="`+global_images[key][i]["url"]+`" style="width: 100%;">
+                        <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" style="width: 100%;">
                         <input value="`+global_images[key][i]["sub_image_index"]+`" id="subcheck_`+global_images[key][i]["pk"]+`" type="text" >
                       </div>`;
 
@@ -2022,13 +2022,6 @@ body {
       }
     }
     $("#graphics-section").html(html_string);
-   
-    $('.miniimage').click(function(argument) {
-      let url = $(this).attr('src');
-      $('.material-placeholder').remove();
-      $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`'>`)
-      $('.materialboxed').materialbox();
-    })
   }
 
   function save_subimages_index() {
@@ -2114,20 +2107,12 @@ body {
                               close
                             </i> 
                           </a> 
-                          <img class="miniimage" src="`+global_images[key][i]["url"]+`" style="width: 100%;">
+                          <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" style="width: 100%;">
                         </div>
                       </div>`;
     }
 
     $("#graphics-section").html(html_string);
-    $('.miniimage').click(function(argument) {
-      let url = $(this).attr('src');
-      $('.material-placeholder').remove();
-      $('.main-image').remove('img');
-      $('.main-image').remove('img');
-      $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`'>`)
-      $('.materialboxed').materialbox();
-    })
   }
 
 
