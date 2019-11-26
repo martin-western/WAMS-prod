@@ -837,7 +837,7 @@ class FetchProductListAPI(APIView):
                 temp_dict["product_pk"] = product_obj.pk
                 
                 if product_obj.main_images.filter(is_main_image=True).count() > 0:
-                    temp_dict["main_image"] = product_obj.main_images.filter(is_main_image=True)[0].image.mid_image.url
+                    temp_dict["main_image"] = product_obj.main_images.filter(is_main_image=True)[0].image.thumbnail.url
                 else:
                     temp_dict["main_image"] = Config.objects.all()[0].product_404_image.image.url
 
