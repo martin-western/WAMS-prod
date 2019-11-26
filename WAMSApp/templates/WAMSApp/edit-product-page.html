@@ -2249,7 +2249,7 @@ body {
     //Set the images
     if(global_images["main_images"].length>0)
     {
-      $("#pfl-product-image-preview-img").attr("src", global_images["main_images"][0]["url"]);
+      $("#pfl-product-image-preview-img").attr("src", global_images["main_images"][0]["main-url"]);
     }
 
     $("#brand-image-img").attr("src", "");
@@ -2350,8 +2350,16 @@ body {
                   console.log("Success!", response);
                   if(response["status"]==200)
                   {
-                    global_images["pfl_generated_images"] = [response["pfl_image_url"]];
+                    global_images["pfl_generated_images"] = [{
+                      "main-url": response["main-url"],
+                      "midimage-url": response["midimage-url"],
+                      "thumbnail-url": response["thumbnail-url"]
+                    }];
                     update_grid_images(global_image_key);
+                    if(global_image_key=="pfl_generated_images")
+                    {
+                      $($(".miniimage")[0]).click(); 
+                    }
                   }
                 },
                 error: function(xhr, textstatus, errorthrown) {

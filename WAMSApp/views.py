@@ -2321,7 +2321,7 @@ class SavePFLInBucketAPI(APIView):
             data = request.data
             #logger.info("SavePFLInBucketAPI: %s", str(data))
 
-            pfl_image_url = None
+            image_obj = None
 
             if "product_pk" in data:
                 prod_obj = Product.objects.get(pk=int(data["product_pk"]))
@@ -2331,7 +2331,6 @@ class SavePFLInBucketAPI(APIView):
                 prod_obj.pfl_generated_images.clear()
                 prod_obj.pfl_generated_images.add(image_obj)
                 prod_obj.save()
-                pfl_image_url = image_obj.image.url
             elif "pfl_pk" in data:
                 image_decoded = decode_base64_file(data["image_data"])
                 image_obj = Image.objects.create(image=image_decoded)
@@ -2340,9 +2339,11 @@ class SavePFLInBucketAPI(APIView):
                 prod_obj.pfl_generated_images.clear()
                 prod_obj.pfl_generated_images.add(image_obj)
                 prod_obj.save()
-                pfl_image_url = image_obj.image.url
 
-            response["pfl_image_url"] = pfl_image_url
+            response["main-url"] = image_obj.image.url
+            response["midimage-url"] = image_obj.mid_image.url
+            response["thumbnail-url"] = image_obj.thumbnail.url
+
             response['status'] = 200
 
         except Exception as e:
