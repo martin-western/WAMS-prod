@@ -1298,18 +1298,14 @@ body {
 
   $("#pending-icon").click(function(){
     if(global_verification_status) {
-      set_verify(false);
       call_verify_api(0);
-      global_verification_status = false;
     }
   });
 
   $("#verified-icon").click(function(){
     if(!global_verification_status)
     {
-      set_verify(true);
       call_verify_api(1);
-      global_verification_status = true;
     }
   });
 
@@ -1334,12 +1330,20 @@ body {
         {
           if(verify==1)
           {
+            set_verify(true);
+            global_verification_status = true;
             M.toast({html: "Product status changed to verified"});
           }
           else
           {
+            set_verify(false);
+            global_verification_status = false;
             M.toast({html: "Product status changed to pending"});
           }
+        }
+        else if(response["status"]==403)
+        {
+          M.toast({html:"You do not have access to update the status!"});
         }
       },
       error: function(xhr, textstatus, errorthrown) {

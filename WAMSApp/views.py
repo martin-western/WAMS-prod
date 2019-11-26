@@ -2396,6 +2396,11 @@ class VerifyProductAPI(APIView):
             data = request.data
             logger.info("VerifyProductAPI: %s", str(data))
 
+            if request.user.username not in ["priyanka", "naveed", "ramees"]:
+                logger.warning("VerifyProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             verify = int(data["verify"])
             if verify==1:
