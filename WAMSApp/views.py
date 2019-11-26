@@ -510,8 +510,17 @@ class SaveProductAPI(APIView):
             update_delete = data["update_delete"]
             recommended_browse_nodes = data["recommended_browse_nodes"]
             product_description_amazon_uk = convert_to_ascii(data["product_description_amazon_uk"])
+            if product_description_amazon_uk=="<p>&nbsp;</p>":
+                product_description_amazon_uk = ""
+
             product_description_amazon_uae = convert_to_ascii(data["product_description_amazon_uae"])
+            if product_description_amazon_uae=="<p>&nbsp;</p>":
+                product_description_amazon_uae = ""
+
             product_description_ebay = convert_to_ascii(data["product_description_ebay"])
+            if product_description_ebay=="<p>&nbsp;</p>":
+                product_description_ebay = ""
+
             product_attribute_list_amazon_uk = convert_to_ascii(data[
                 "product_attribute_list_amazon_uk"])
             product_attribute_list_amazon_uae = convert_to_ascii(data[
