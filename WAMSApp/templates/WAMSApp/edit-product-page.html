@@ -1075,6 +1075,9 @@ body {
   <div class="modal-footer">
     <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
     <a id="upload-image-btn" href="#!" class="waves-effect waves-green btn-flat blue white-text" style="background-color:#009051 !important ;">Upload</a>
+    <div class="progress" id = "upload-preloader" style = "display:none;margin: 0px !important;background-color: white !important;">
+      <div class="indeterminate" style = "background-color: #512de8;"></div>
+    </div>
   </div>
 </div>
 
@@ -1505,6 +1508,7 @@ body {
   $("#upload-image-btn").click(function(){
     
     $("#upload-image-btn").attr("disabled", "disabled");
+    $("#upload-preloader").show();
 
     product_pk = window.location.pathname.split("/")[2];
 
@@ -1535,10 +1539,14 @@ body {
         console.log("Success!", response);
         $("#upload-image-modal").modal("close");
         $("#upload-image-btn").removeAttr("disabled");
+        $("#upload-preloader").hide();
+
         fetch_product_details();
       },
       error: function(xhr, textstatus, errorthrown) {
         console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        $("#upload-preloader").hide();
+
       }
     });
   })

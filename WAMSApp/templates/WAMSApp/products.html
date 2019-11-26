@@ -591,6 +591,49 @@ ul.dropdown-content.select-dropdown li span {
 
   var page = 1;
 
+  function getStatus(e)
+  {
+    if(e == "Pending")
+    {
+      return `<a><i id = "pending-icon" class = "material-icons" title = "Pending" style = "
+    background-color: #f7f7f7;
+    border-radius: 5px;
+    margin-left: 8px;
+    font-size: 20px;
+    margin-right: 9px;
+    display: block;
+    width: 30px;
+    height: 30px;
+    line-height: 1.4;
+    background: orange;
+    color: white;
+    margin: auto;
+    position: relative;
+    top: 1px;
+      " >
+        timer
+      </i></a>`
+    } 
+    return `<i id = "pending-icon" class = "material-icons" title = "Verified" style = "
+    background-color: #f7f7f7;
+    border-radius: 5px;
+    margin-left: 8px;
+    font-size: 20px;
+    margin-right: 9px;
+    display: block;
+    width: 30px;
+    height: 30px;
+    line-height: 1.4;
+    background: green;
+    color: white;
+    margin: auto;
+    position: relative;
+    top: 1px;
+      " > 
+        verified_user
+      </i>`; 
+  }
+
   function fetch_product_list()
   {
       filter_parameters['verified'] = $("#status-verified").is(":checked");
@@ -641,6 +684,8 @@ ul.dropdown-content.select-dropdown li span {
               product_name += "...";
             }
 
+            status_str = getStatus(products[i]["status"]);
+
             html_string += `<div class="row product_row" style="margin-top: 5px;position: relative;padding: 20px 0px 20px 0px;">
                 <div class = "col s1" style="line-height: 100%;margin-top: 8px;">
                   <label class="toggler-wrapper style-25">
@@ -666,7 +711,7 @@ ul.dropdown-content.select-dropdown li span {
                 </div></a>
                 <div class = "col s2" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;text-align:center;">`+products[i]["brand"]+`</div>
                 <div class = "col s2 left" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;text-align:center;">`+products[i]["created_date"]+`</div>
-                <div class = "col s2" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;padding-right:15px;text-align:left;text-align:center;">`+products[i]["status"]+`</div>
+                <div class = "col s2" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;padding-right:15px;text-align:left;text-align:center;">`+status_str+`</div>
                   </div>`
           }
           

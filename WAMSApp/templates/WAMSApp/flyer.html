@@ -46,6 +46,10 @@
       src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-DemiCn.otf' %}");
     }
 
+    .spinner-layer {
+      border-color: #521893;  
+    }
+
     body{
       font-family: 'AvenirNext';
     }
@@ -279,7 +283,19 @@
           <div class="col s12 center" style="padding-left: 0em;padding-right: 0em;">
             <br>
             <a class="btn" style="background-color: #717171;width:10em;text-align: left;text-transform: none;">Flyer</a>
-            <a id="download-flyer-btn" class="btn green" style="width:10em;text-align: left;text-transform: none;margin-left: 135mm;">Download<i class="material-icons right">file_download</i></a>
+            <a id="download-flyer-btn" class="btn green" style="width:10em;text-align: left;text-transform: none;margin-left: 135mm;position: relative;">Download<i class="material-icons right">file_download</i>
+              <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
+                <div class="spinner-layer spinner-green-only">
+                  <div class="circle-clipper left">
+                    <div class="circle"></div>
+                  </div><div class="gap-patch">
+                    <div class="circle"></div>
+                  </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                  </div>
+                </div>
+              </div>
+            </a>
           </div>
         </div>
         <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;">
@@ -383,6 +399,7 @@
     $("#download-flyer-btn").click(function(e){
 
       $("#download-flyer-btn").attr("disabled", "disabled");
+      $("#loader-div").show();
 
       var total_grids = global_template_data['column'] * global_template_data['row'];
       var image_links = [];
@@ -410,8 +427,6 @@
         },
         success: function(response) {
             console.log("Success! ", response);
-            
-            $("#download-flyer-btn").removeAttr("disabled");
 
             if(response["status"]==200)
             {
@@ -445,7 +460,8 @@
                 dpi: 600,
                 scale: 3,
                 onrendered: function(canvas) {
-	            $("#download-flyer-btn").removeAttr("disabled");
+      	            $("#download-flyer-btn").removeAttr("disabled");
+                    $("#loader-div").hide();
                     var a = document.createElement('a');
                     a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
                     a.download = 'flyer_image_'+(window.location.pathname.split("/")[2])+'.jpg';
