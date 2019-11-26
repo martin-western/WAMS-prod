@@ -544,7 +544,7 @@ body {
           
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <input id="barcode-string" type="text" >
+              <input id="barcode-string" type="text" data-length="20">
               <label for="barcode-string">Barcode</label>
             </div>
 
@@ -1352,6 +1352,7 @@ body {
     $('.tabs').tabs();
   });
         
+  $('#barcode-string').characterCounter();
 
   $("#download-image-btn").click(function(){
 
