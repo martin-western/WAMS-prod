@@ -1692,7 +1692,7 @@ class AddProductFlyerBucketAPI(APIView):
 
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
 
-            product_id = data["product_name"].split("|")[1].strip()
+            product_id = data["product_name"].split("|")[-1].strip()
             product_obj = Product.objects.get(product_id=product_id)
 
             flyer_obj.product_bucket.add(product_obj)
