@@ -798,7 +798,9 @@
         headers:{
           'X-CSRFToken':getCsrfToken()
         },
-        data: {},
+        data: {
+          "flyer_pk": window.location.pathname.split("/")[2]
+        },
         success: function(response) {
           console.log("Success!", response);
 
@@ -811,6 +813,7 @@
 
           $('#autocomplete-input').autocomplete({
             data: autocomplete_data,
+            minLength: 3,
             onAutocomplete: function()
             {
               add_to_product_basket();

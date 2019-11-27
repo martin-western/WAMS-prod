@@ -1625,6 +1625,15 @@ class FetchProductListFlyerPFLAPI(APIView):
             logger.info("FetchProductListFlyerPFLAPI: %s", str(data))
 
             product_objs = Product.objects.all()
+
+            try:
+                if "flyer_pk" in data:
+                    brand_obj = Flyer.objects.get(pk=int(data["flyer_pk"])).brand
+                    product_objs = product_objs.filter(brand=brand_obj)
+            except Exception as e:
+                logger.warning("Issue with filtering brands %s", str(e))
+
+
             product_list = []
             cnt = 1
             for product_obj in product_objs:
@@ -1637,8 +1646,11 @@ class FetchProductListFlyerPFLAPI(APIView):
                         product_obj.product_name_sap) + " | " + str(product_obj.product_id)
                     main_image_url = None
                     if product_obj.main_images.filter(is_main_image=True).count() > 0:
-                        main_image_url = product_obj.main_images.filter(is_main_image=True)[
-                            0].image.image.url
+                        try:
+                            main_image_url = product_obj.main_images.filter(is_main_image=True)[
+                                0].image.thumbnail.url
+                        except Exception as e:
+                            main_image_url = Config.objects.all()[0].product_404_image.image.url
                     else:
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
 
