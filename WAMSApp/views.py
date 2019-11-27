@@ -1630,7 +1630,7 @@ class FetchProductListFlyerPFLAPI(APIView):
             product_objs = Product.objects.all()
 
             try:
-                if "flyer_pk" in data:
+                if "flyer_kp" in data:
                     brand_obj = Flyer.objects.get(pk=int(data["flyer_pk"])).brand
                     product_objs = product_objs.filter(brand=brand_obj)
             except Exception as e:

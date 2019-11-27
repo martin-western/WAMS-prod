@@ -310,6 +310,8 @@
           <div class="col s12 center" style="padding-left: 0em;padding-right: 0em;">
             <br>
             <a class="btn" style="background-color: #717171;width:10em;text-align: left;text-transform: none;">Flyer</a>
+            <a id="refresh-template-btn" class="btn" title="Reset Template" style="background-color: #717171;position:absolute;text-transform: none;"><i class="material-icons">refresh</i></a>
+
             <a id="download-flyer-btn" class="btn green" style="width:10em;text-align: left;text-transform: none;margin-left: 135mm;position: relative;">Download<i class="material-icons right">file_download</i>
               <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
                 <div class="spinner-layer spinner-green-only">
@@ -768,6 +770,30 @@
 
     }
 
+
+
+    $("#refresh-template-btn").click(function (){
+
+      var row = global_template_data["row"];
+      var column = global_template_data["column"];
+
+      var html_string = "";
+      var cnt = 1;
+      for(var i=0;i<row;i++)
+      {
+        html_string += `<div class="row">`;
+        var width = (12/column).toString();
+        for(var j=0;j<column;j++)
+        {
+          global_template_data["data"][i][j]["image_pk"]=null;
+          global_template_data["data"][i][j]["image_url"]=null;
+          global_template_data["data"][i][j]["product_title"]=null;
+          global_template_data["data"][i][j]["price"]=null;
+        }
+      }
+
+      create_flyer_grid();
+    })
 
     function render_fetures()
     {
