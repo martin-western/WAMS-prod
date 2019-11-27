@@ -311,6 +311,14 @@ ul.dropdown-content.select-dropdown li span {
   var global_remove_product_pk = null;
   var global_selected_export_pk = null;
 
+  function removeDefault()
+  {
+    let countchip = $('.chip').length;
+    if(countchip > 0)
+    {
+      $('input').attr("placeholder" , "");
+    }
+  }
 
   var chip_tags = [];
   $('.chips-placeholder').chips({
@@ -321,6 +329,7 @@ ul.dropdown-content.select-dropdown li span {
             chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
           }
           fetch_export_list();
+          removeDefault();
     },
     onChipDelete: (event , chip) => {
       $("#product-tbody").html('');
