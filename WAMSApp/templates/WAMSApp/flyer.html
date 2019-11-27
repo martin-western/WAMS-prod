@@ -47,7 +47,11 @@
     }
 
     .spinner-layer {
-      border-color: #521893;  
+      border-color: white;  
+    }
+
+    li span {
+      color: black !important;
     }
 
     body{
@@ -147,17 +151,18 @@
           <div class="scroll-style-1 row white" style="margin-top:0.5em;">
             <div class="input-field col s8">
               <select id="image-categories-thumbnails-select" style="font-size: 0.8em;">
-                <option value="main_images">Main Images</option> 
-                <option value="sub_images">Sub Images</option>
-                <option value="pfl_images">PFL Images</option>
-                <option value="white_background_images">White Background Images</option>
-                <option value="lifestyle_images">Lifestyle Images</option>
-                <option value="certificate_images">Certificate Images</option>
-                <option value="giftbox_images">Giftbox Images</option>
-                <option value="diecut_images">Diecut Images</option>
-                <option value="aplus_content_images">A+ Content Images</option>
-                <option value="ads_images">Ads Images</option>
-                <option value="unedited_images">Unedited Images</option>
+                <option value="all_images" id="all-images-option">All Images</option>
+                <option value="main_images" id="main-images-option">Main Images</option>
+                <option value="sub_images" id="sub-images-option">Sub Images</option>
+                <option value="pfl_images" id="pfl-images-option">PFL Images</option>
+                <option value="white_background_images" id="white-background-images-option">White Background Images</option>
+                <option value="lifestyle_images" id="lifestyle-images-option">Lifestyle Images</option>
+                <option value="certificate_images" id="certificate-images-option">Certificate Images</option>
+                <option value="giftbox_images" id="giftbox-images-option">Giftbox Images</option>
+                <option value="diecut_images" id="diecut-images-option">Diecut Images</option>
+                <option value="aplus_content_images" id="aplus-content-images-option">A+ Content Images</option>
+                <option value="ads_images" id="ads-images-option">Ads Images</option>
+                <option value="unedited_images" id="unedited-images-option">Unedited Images</option>
               </select>
             </div>
 
@@ -837,8 +842,22 @@
       $($(this).children()[0]).children()[1].style.background = "#f6eeff";
 
       global_selected_product_pk = this.id.split("_")[1];
-      update_image_categories("main_images");
-      $("#image-categories-thumbnails-select").val("main_images");
+
+      $("#all-images-option").html("All Images ("+global_product_images_dict[global_selected_product_pk]["all_images"].length+")");
+      $("#main-images-option").html("Main Images ("+global_product_images_dict[global_selected_product_pk]["main_images"].length+")");
+      $("#sub-images-option").html("Sub Images ("+global_product_images_dict[global_selected_product_pk]["sub_images"].length+")");
+      $("#pfl-images-option").html("PFL Images ("+global_product_images_dict[global_selected_product_pk]["pfl_images"].length+")");
+      $("#white-background-images-option").html("White Background Images ("+global_product_images_dict[global_selected_product_pk]["white_background_images"].length+")");
+      $("#lifestyle-images-option").html("Lifestyle Images ("+global_product_images_dict[global_selected_product_pk]["lifestyle_images"].length+")");
+      $("#certificate-images-option").html("Certificate Images ("+global_product_images_dict[global_selected_product_pk]["certificate_images"].length+")");
+      $("#giftbox-images-option").html("Giftbox Images ("+global_product_images_dict[global_selected_product_pk]["giftbox_images"].length+")");
+      $("#diecut-images-option").html("Diecut Images ("+global_product_images_dict[global_selected_product_pk]["diecut_images"].length+")");
+      $("#aplus-content-images-option").html("A+ Content Images ("+global_product_images_dict[global_selected_product_pk]["aplus_content_images"].length+")");
+      $("#ads-images-option").html("Ads Images ("+global_product_images_dict[global_selected_product_pk]["ads_images"].length+")");
+      $("#unedited-images-option").html("Unedited Images ("+global_product_images_dict[global_selected_product_pk]["unedited_images"].length+")");
+
+      update_image_categories("all_images");
+      $("#image-categories-thumbnails-select").val("all_images");
       $("select").formSelect();
 
     });
@@ -879,6 +898,7 @@
       }
 
         $("#product-basket-list-div").html(html_string);
+        $($(".product-basket-card-btn")[0]).click();
     }
 
 

@@ -1430,6 +1430,8 @@ class FetchFlyerDetailsAPI(APIView):
                 images["unedited_images"] = create_response_images_flyer_pfl(
                     product_bucket_obj.unedited_images.all())
 
+                images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"]+images["certificate_images"]+images["giftbox_images"]+images["diecut_images"]+images["aplus_content_images"]+images["ads_images"]+images["unedited_images"]
+
                 images_dict[product_bucket_obj.pk] = images
 
                 product_bucket_list.append(temp_dict)
@@ -1727,6 +1729,8 @@ class AddProductFlyerBucketAPI(APIView):
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images_flyer_pfl(
                 product_obj.unedited_images.all())
+
+            images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"]+images["certificate_images"]+images["giftbox_images"]+images["diecut_images"]+images["aplus_content_images"]+images["ads_images"]+images["unedited_images"]
 
             response["images"] = images
             response["product_pk"] = product_obj.pk
