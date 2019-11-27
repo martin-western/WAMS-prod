@@ -219,12 +219,12 @@
           <div class="row white" style="margin-top:0.5em;padding-top:1em;">
 
             <div class="input-field col s6">
-              <input id="product-title-font-size" type="text" class="validate" value="0.7em">
+              <input id="product-title-font-size" type="text" class="validate" value="10px">
               <label for="product-title-font-size">Product Title Font Size</label>
             </div>
 
             <div class="input-field col s6">
-              <input id="product-price-font-size" type="text" class="validate" value="0.8em">
+              <input id="product-price-font-size" type="text" class="validate" value="10px">
               <label for="product-price-font-size">Product Price Font Size</label>
             </div>
             
@@ -647,7 +647,7 @@
                                     
                                     <div class="col s8 left" style="text-align:left;">
 
-                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;">`+global_template_data["data"][i][j]["product_title"]+`
+                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:10px;color:black;">`+global_template_data["data"][i][j]["product_title"]+`
                                       </p>
 
                                     </div>
@@ -658,7 +658,7 @@
                                       <p class="rotate product-price-span white-text" style="font-family:'AvenirNext-Flyer';font-size:0.6em;"> 
                                           AED
                                       </p>
-                                      <p class="product-price-span white-text center" id="productinfoprice-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;">`+global_template_data["data"][i][j]["price"]+`
+                                      <p class="product-price-span white-text center" id="productinfoprice-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:10px;color:black;">`+global_template_data["data"][i][j]["price"]+`
                                       </p>
                                       
                                     </div>
@@ -691,7 +691,7 @@
                                     
                                     <div class="col s8 left" style="text-align:left;">
 
-                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;">Add Title
+                                      <p class="product-name-p" id="productinfoname-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:10px;color:black;">Add Title
                                       </p>
 
                                     </div>
@@ -702,7 +702,7 @@
                                       <p class="rotate white-text" style="font-family:'AvenirNext-Flyer';font-size:0.6em;"> 
                                           AED
                                       </p>
-                                      <p class="product-price-span white-text center" id="productinfoprice-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:0.7em;color:black;">-
+                                      <p class="product-price-span white-text center" id="productinfoprice-`+cnt+`" style="font-family:'AvenirNextRegular';font-size:10px;color:black;">-
                                       </p>
                                       
                                     </div>
@@ -849,53 +849,8 @@
       var html_string = "";
       for(var i=0;i<global_product_bucket_list.length;i++)
       {
-        // html_string += `
-        // <div class="col s12 m12">
-        //   <a href="#!" class="product-basket-card-btn" id="basket_`+global_product_bucket_list[i]["product_bucket_pk"]+`"><div class="product-basket-card card" style="background-color:#E9E9E9">
-        //     <div class="card-content" style="padding-bottom:0em;">
-        //       <div class="row" style="margin-bottom:0;">
-        //         <div class="col s4 m4" style="margin-left:-1em;margin-top:-1em;">
-        //           <img src="`+global_product_bucket_list[i]["product_bucket_image_url"]+`" style="width:100%;height:8em;margin-left:0;object-fit: cover;">
-        //         </div>
-
-        //         <div class="col s8 m8" style="padding:0em;padding-left:1em;">
-        //           <div class="row white" style="margin-top:-0.5em;color:#717171;height:7em;">
-        //             <div class="col s12" style="color:black;font-family:AvenirNext-Flyer;">
-        //               `+global_product_bucket_list[i]["product_bucket_name"]+`
-        //             </div>
-        //           </div>
-        //         </div>
-        //       </div>
-        //     </div>
-        //   </div></a>
-        // </div>`;
-
-
-        // html_string += `
-        // <div class="col s12 m12 red" style="padding:1.5em;margin-bottom:0em;">
-        //   <a href="#!" class="product-basket-card-btn" id="basket_`+global_product_bucket_list[i]["product_bucket_pk"]+`" style="padding:0em;">
-        //     <div class="row blue" style="border: 2px solid #E9E9E9;margin-right:0em;">
-        //       <div class="col s4" style="padding-left:0em;margin-right:0em;padding-right:0em;">
-        //         <div class="img-box" style="border-right: 2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
-        //           <img src="`+global_product_bucket_list[i]["product_bucket_image_url"]+`" style="width:80%;max-height:5em;margin-left:0;object-fit: cover;object-position:center;">
-        //         </div>
-        //       </div>
-        //       <div class="col s8">
-        //         <div style="padding-left:0em;height:6em;">
-        //           <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;">`+
-        //           global_product_bucket_list[i]["product_bucket_name"]+`
-        //           </div>
-        //           <div style="padding-top:1em;font-family:'AvenirNextRegular';color:black;margin-top:-1em;font-size:0.8em;">`+
-        //           global_product_bucket_list[i]["seller_sku"]+`
-        //           </div>
-        //         </div>
-        //       </div>
-        //     </div>
-        //   </a>
-        // </div>`;
-
         var short_product_name = global_product_bucket_list[i]["product_bucket_name"];
-        var char_length = 25;
+        var char_length = 50;
         if(short_product_name.length>char_length)
         {
           short_product_name = short_product_name.substring(0, char_length) + "...";
@@ -911,7 +866,7 @@
               </div>
               <div class="product-basket-card col s8">
                 <div style="padding-left:0em;height:6em;">
-                  <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;">`+
+                  <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;" title="`+global_product_bucket_list[i]["product_bucket_name"]+`">`+
                   short_product_name+`
                   </div>
                   <div style="padding-top:1em;font-family:'AvenirNextRegular';color:black;margin-top:-1em;font-size:0.8em;">`+
