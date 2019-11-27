@@ -2601,6 +2601,10 @@ body {
         if(response["status"]==200)
         {
           M.toast({html:"Product saved successfully!"}); 
+        }
+        else if(response["status"]==409)
+        {
+          M.toast({html:"Product ID or Seller SKU is duplicated!"});
         } 
         else
         {

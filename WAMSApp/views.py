@@ -487,8 +487,9 @@ class SaveProductAPI(APIView):
 
             # Check for duplicate
             product_id = data["product_id"]
+            seller_sku = data["seller_sku"]
             prod_obj = Product.objects.get(pk=int(data["product_pk"]))
-            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count()==1:
+            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count()==1 or Product.objects.filter(seller_sku=seller_sku).exclude(pk=data["product_pk"]).count()==1:
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
                 return Response(data=response)
@@ -503,7 +504,6 @@ class SaveProductAPI(APIView):
             brand = data["brand"]
             manufacturer = data["manufacturer"]
             product_id_type = data["product_id_type"]
-            seller_sku = data["seller_sku"]
             manufacturer_part_number = data["manufacturer_part_number"]
             barcode_string = data["barcode_string"]
             condition_type = data["condition_type"]
