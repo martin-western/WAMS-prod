@@ -442,8 +442,10 @@
         }
       }
 
-      // if($("#brand-image-img").attr("src")!=)
-    
+      if($("#brand-image-img").attr("src")!="")
+      {
+        image_links.push({"key": "brand-image-img", "url": $("#brand-image-img").attr("src")});
+      }
 
       $.ajax({
         url: "/download-images-s3/",
