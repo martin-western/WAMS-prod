@@ -11,7 +11,10 @@ def create_response_images_flyer_pfl(images):
     temp_list = []
     for image in images:
         temp_dict = {}
-        temp_dict["url"] = image.image.url
+        try:
+            temp_dict["url"] = image.mid_image.url
+        except Exception as e:
+            temp_dict["url"] = image.image.url
         temp_dict["pk"] = image.pk
         temp_list.append(temp_dict)
     return temp_list
@@ -22,7 +25,10 @@ def create_response_images_flyer_pfl_main_sub(images):
     temp_list = []
     for image in images:
         temp_dict = {}
-        temp_dict["url"] = image.image.image.url
+        try:
+            temp_dict["url"] = image.image.mid_image.url
+        except Exception as e:
+            temp_dict["url"] = image.image.image.url
         temp_dict["pk"] = image.image.pk
         temp_list.append(temp_dict)
     return temp_list
