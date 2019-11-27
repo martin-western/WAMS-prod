@@ -444,7 +444,7 @@ ul.dropdown-content.select-dropdown li span {
     console.log(countchip);
     if(countchip == 0)
     {
-      $('input').attr("placeholder" , "Search by product name, product id or seller sku");
+      $($('input')[0]).attr("placeholder" , "Search by product name, product id or seller sku");
     }
   }
 
@@ -467,7 +467,7 @@ ul.dropdown-content.select-dropdown li span {
           }
           page = 1;
           fetch_product_list();
-          addDefault();
+          //addDefault();
     }
   });
 
