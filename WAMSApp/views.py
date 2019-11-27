@@ -1398,12 +1398,13 @@ class FetchFlyerDetailsAPI(APIView):
                     "product_bucket_name"] = product_bucket_obj.product_name_sap
                 temp_dict["product_bucket_pk"] = product_bucket_obj.pk
                 temp_dict["seller_sku"] = product_bucket_obj.seller_sku
-                main_image_url = None
+                main_image_url = Config.objects.all()[0].product_404_image.image.url
                 if product_bucket_obj.main_images.filter(is_main_image=True).count() > 0:
-                    main_image_url = product_bucket_obj.main_images.filter(is_main_image=True)[
-                        0].image.image.url
-                else:
-                    main_image_url = Config.objects.all()[0].product_404_image.image.url
+                    try:
+                        main_image_url = product_bucket_obj.main_images.filter(is_main_image=True)[
+                            0].image.mid_image.url
+                    except Exception as e:
+                        pass
                 temp_dict["product_bucket_image_url"] = main_image_url
 
                 images = {}
@@ -1703,8 +1704,11 @@ class AddProductFlyerBucketAPI(APIView):
 
             image_url = Config.objects.all()[0].product_404_image.image.url
             if product_obj.main_images.filter(is_main_image=True).exists():
-                image_url = product_obj.main_images.filter(
-                    is_main_image=True)[0].image.image.url
+                try:
+                    image_url = product_obj.main_images.filter(
+                        is_main_image=True)[0].image.mid_image.url
+                except Exception as e:
+                    pass
 
             images = {}
 
