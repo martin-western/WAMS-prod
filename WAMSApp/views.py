@@ -1698,7 +1698,7 @@ class AddProductFlyerBucketAPI(APIView):
             flyer_obj.product_bucket.add(product_obj)
             flyer_obj.save()
 
-            image_url = None
+            image_url = Config.objects.all()[0].product_404_image.image.url
             if product_obj.main_images.filter(is_main_image=True).exists():
                 image_url = product_obj.main_images.filter(
                     is_main_image=True)[0].image.image.url
