@@ -224,12 +224,12 @@
           <div class="row white" style="margin-top:0.5em;padding-top:1em;">
 
             <div class="input-field col s6">
-              <input id="product-title-font-size" type="text" class="validate" value="10px">
+              <input id="product-title-font-size" type="number" class="validate" value="10">
               <label for="product-title-font-size">Product Title Font Size</label>
             </div>
 
             <div class="input-field col s6">
-              <input id="product-price-font-size" type="text" class="validate" value="10px">
+              <input id="product-price-font-size" type="number" class="validate" value="10">
               <label for="product-price-font-size">Product Price Font Size</label>
             </div>
             
@@ -566,12 +566,12 @@
     })
 
 
-    $(document).on("keyup", "#product-title-font-size", function(){
-        $(".product-name-p").css("font-size", this.value);
+    $(document).on("change", "#product-title-font-size", function(){
+        $(".product-name-p").css("font-size", this.value+"px");
     });
 
-    $(document).on("keyup", "#product-price-font-size", function(){
-        $(".product-price-span").css("font-size", this.value);
+    $(document).on("change", "#product-price-font-size", function(){
+        $(".product-price-span").css("font-size", this.value+"px");
     });
 
 
