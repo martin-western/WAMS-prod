@@ -298,8 +298,8 @@ ul.dropdown-content.select-dropdown li span {
         </div>
 
         <div class="input-field col s12">
-          <input id="product-id" type="text" class="validate">
-          <label for="product-id" style="color:black;">Product ID<span style="color:#009051;">*</span></label>
+          <input id="seller-sku" type="text" class="validate">
+          <label for="seller-sku" style="color:black;">Seller SKU<span style="color:#009051;">*</span></label>
         </div>
       </div>
 
@@ -868,9 +868,9 @@ ul.dropdown-content.select-dropdown li span {
   function create_new_product()
   {
     var product_name = $("#product-name").val();
-    var product_id = $("#product-id").val();
+    var seller_sku = $("#seller-sku").val();
 
-    if(product_name=="" || product_id=="")
+    if(product_name=="" || seller_sku=="")
     {
       M.toast({html: "Please fill all the details before creating new product"});
       return;
@@ -884,13 +884,17 @@ ul.dropdown-content.select-dropdown li span {
         },
         data:{
           product_name: product_name,
-          product_id: product_id
+          seller_sku: seller_sku
         },
         success: function(response) {
           console.log("Success!", response);
           if(response["status"]==200)
           {
             window.location.href="/edit-product/"+response["product_pk"];
+          }
+          else if(response["status"]==409)
+          {
+            M.toast({html: "Duplicate product detected!"}); 
           }
         },
         error: function(xhr, textstatus, errorthrown) {

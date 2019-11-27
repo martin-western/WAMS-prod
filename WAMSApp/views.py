@@ -213,9 +213,9 @@ class CreateNewProductAPI(APIView):
                 data = json.loads(data)
 
             product_name = convert_to_ascii(data["product_name"])
-            product_id = convert_to_ascii(data["product_id"])
+            seller_sku = convert_to_ascii(data["seller_sku"])
 
-            if Product.objects.filter(product_id=product_id).exists():
+            if Product.objects.filter(seller_sku=seller_sku).exists():
                 # Duplicate product detected!
                 response["status"] = 409 
                 return Response(data=response)
@@ -225,7 +225,8 @@ class CreateNewProductAPI(APIView):
                                               product_name_amazon_uae=product_name,
                                               product_name_ebay=product_name,
                                               pfl_product_name=product_name,
-                                              product_id=product_id)
+                                              product_id=seller_sku,
+                                              seller_sku=seller_sku)
 
 
             response["product_pk"] = prod_obj.pk

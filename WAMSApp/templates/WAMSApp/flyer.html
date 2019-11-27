@@ -270,6 +270,28 @@
         </div>
 
 
+        <!-- Header Footer Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header/Footer Settings</span>
+          </span>
+          
+          <div class="row white" style="margin-top:0.5em;">
+            <div class="input-field col s6" style="margin-top: 0em !important;">
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Header Color</p>
+              <input id="header-color" type="color" value="#181818">  
+            </div>
+
+            <div class="input-field col s6" style="margin-top: 0em !important;">
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Footer Color</p>
+              <input id="footer-color" type="color" value="#181818">
+            </div>
+          </div>
+        </div>
+
+
         
 
 
@@ -305,7 +327,7 @@
         </div>
         <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;">
 
-          <div class="col s12" style="background-color: #181818;text-align: center;width: 210mm;padding-top: 4mm;position: absolute;height: 20mm;">
+          <div id="header-div" class="col s12" style="background-color: #181818;text-align: center;width: 210mm;padding-top: 4mm;position: absolute;height: 20mm;">
             <img id="brand-image-img" src="" style="max-width: 73.5mm;margin-left:130mm;max-height:15mm;position: relative;object-fit: scale-down;">
           </div>
 
@@ -315,7 +337,7 @@
           </div>
 
 
-          <div class="col s12" style="background-color:#181818;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
+          <div id="footer-div" class="col s12" style="background-color:#181818;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
             <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
               <p class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.geepas.com</p>
             </div>
@@ -419,6 +441,8 @@
           image_links.push({"key": "gridimg-" + i, "url": $("#gridimg-"+i).attr('src')});
         }
       }
+
+      // if($("#brand-image-img").attr("src")!=)
     
 
       $.ajax({
@@ -596,6 +620,18 @@
     $(document).on("change", "#product-price-bg-color", function(){
         $(".price-info-div").css("background-color", this.value);
     });
+
+
+    $(document).on("change", "#header-color", function(){
+        $("#header-div").css("background-color", this.value);
+    });
+
+
+    $(document).on("change", "#footer-color", function(){
+        $("#footer-div").css("background-color", this.value);
+    });
+
+
 
 
     $("#product-info-save-btn").click(function(){
