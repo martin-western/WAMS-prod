@@ -1192,8 +1192,23 @@ body {
       </i>
     </a>
 
+    <a href="#download-export-list-modal" class="modal-trigger right" style="background-color: transparent;">
+      <i class="material-icons greenn" title="Export Product Details" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+        file_download
+      </i> 
+    </a>
+
     {% if perms.WAMSApp.change_product %}
-      <a href="#!" id="save-btn" href="#import-modal" class="right" style="background-color: transparent;">
+      <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
         <i class="material-icons purplee" title="Save" style="
           background-color: #f7f7f7;
           padding: 8px;
@@ -1209,6 +1224,31 @@ body {
       </a>
     {% endif %}
   </div>   
+</div>
+
+
+<div id="download-export-list-modal" class="modal" style="border-radius: 5px;">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">EXPORT PRODUCT</h5>
+    <br>
+    <div class="row">
+      <div class="input-field col s6" style="padding-left: 0em !important;">
+        <select id="export-format">
+          <option value="Amazon UK" selected>Amazon UK</option>
+          <option value="Amazon UAE" >Amazon UAE</option>
+          <!-- <option value="Ebay" style="font-family: 'AvenirNextRegular';">Ebay</option>   -->
+        </select>
+        <label style="margin-left: 0em !important;">Export Format</label>
+      </div>
+
+      <div class="input-field col s6">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="margin-bottom: 15px">
+    <a href="#!" class="modal-close waves-effect btn-flat" style="margin-right: 20px;">Close</a>
+    <a id="download-product-btn" href="#!" class="waves-effect btn-flat white-text" style="margin-right: 20px;background-color: #521893 !important;">Download</a>
+  </div>
 </div>
  
 
@@ -1265,6 +1305,13 @@ body {
 <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
 <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
 <script type="text/javascript">
+
+  $('.tabs').tabs();
+  $('.chips').chips();
+  $('select').formSelect();
+  $('.modal').modal();
+  $('body').css('background-color', '#ebebeb');
+
   var global_verification_status = false;
   var global_delete_image_pk = null;
   
@@ -1290,6 +1337,34 @@ body {
   $('#close-btn').click(function(){
     preventDefault();
   })
+
+
+  $("#download-product-btn").click(function(){
+
+    var export_format = $("#export-format").val();
+
+    $.ajax({
+      url: "/download-product/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[2],
+        export_format: export_format
+      },
+      success: function(response) {
+        console.log("Success!", response);
+        $("#download-export-list-modal").modal("close");
+        var file_path = response["file_path"]
+        window.open(file_path);
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+
+  });
 
   window.addEventListener('beforeunload', function (e) {
     if(savecounter){
@@ -1425,11 +1500,6 @@ body {
   });
 
   // $('.pflspecific').hide(); 
-  $('.tabs').tabs();
-  $('.chips').chips();
-  $('select').formSelect();
-  $('.modal').modal();
-  $('body').css('background-color', '#ebebeb');
 
   $("#heading-title").html("PRODUCT FORM");
 

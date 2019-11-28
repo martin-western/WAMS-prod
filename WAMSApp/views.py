@@ -1074,6 +1074,41 @@ class DownloadExportListAPI(APIView):
         return Response(data=response)
 
 
+class DownloadProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DownloadProductAPI: %s", str(data))
+
+            export_format = data["export_format"]
+
+            products = Product.objects.filter(pk=int(data["product_pk"]))
+
+            if export_format == "Amazon UK":
+                export_amazon_uk(products)
+                response["file_path"] = "/files/csv/export-list-amazon-uk.xlsx"
+            elif export_format == "Amazon UAE":
+                export_amazon_uae(products)
+                response["file_path"] = "/files/csv/export-list-amazon-uae.csv"
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DownloadProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class ImportProductsAPI(APIView):
 
     authentication_classes = (
@@ -2592,3 +2627,5 @@ VerifyProduct = VerifyProductAPI.as_view()
 DeleteImage = DeleteImageAPI.as_view()
 
 RemoveProductFromExportList = RemoveProductFromExportListAPI.as_view()
+
+DownloadProduct = DownloadProductAPI.as_view()

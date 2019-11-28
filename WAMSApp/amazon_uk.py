@@ -15,6 +15,11 @@ logger = logging.getLogger(__name__)
 def export_amazon_uk(products):
     try:
 
+        try:
+            os.system("rm ./files/csv/export-list-amazon-uk.xlsx")
+        except Exception as e:
+            logger.warning("Delete old xlsx %s", str(e))
+
         workbook = xlsxwriter.Workbook('./files/csv/export-list-amazon-uk.xlsx')
         worksheet = workbook.add_worksheet()
 
