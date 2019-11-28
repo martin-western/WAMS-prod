@@ -567,12 +567,12 @@ ul.dropdown-content.select-dropdown li span {
          close
         </i>
       </a>
-              <img src="`+product_list[i]["product_image_url"]+`" style="height:8em;width:8em;object-fit:cover;"/>  
+              <a target="_blank" href="/edit-product/`+product_list[i]["product_pk"]+`" style="color:black;" title="`+product_list[i]["product_name_sap"]+`"><img src="`+product_list[i]["product_image_url"]+`" style="height:8em;width:8em;object-fit:cover;"/></a>  
 			</div>
-              <div class = "card-text" style = "padding: 2px 2px 2px 0px; transition: 0.15s padding ease-out">    
-                 <h6 style="text-align: left;margin-left:10px;color:#521893;font-size:14px;margin-top:0px;"><a target="_blank" href="/edit-product/`+product_list[i]["product_pk"]+`" style="color:black;" title="`+product_list[i]["product_name_sap"]+`">`+product_name +`</a></h6>   
-              </div>    
-            </div>    
+              <a target="_blank" href="/edit-product/`+product_list[i]["product_pk"]+`" style="color:black;" title="`+product_list[i]["product_name_sap"]+`"><div class = "card-text" style = "padding: 2px 2px 2px 0px; transition: 0.15s padding ease-out">    
+                 <h6 style="text-align: left;margin-left:10px;color:#521893;font-size:14px;margin-top:0px;">`+product_name +`</h6>   
+              </div></a>    
+            </div>
         </div>`
         }
         $("#export-details-tbody").html(html_string);

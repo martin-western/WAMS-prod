@@ -124,14 +124,13 @@
         for(var i=0;i<pfl_list.length;i++)
         {
             html_string += `<div class = "flex-inside">
+            <a href="/pfl/`+ pfl_list[i]["pfl_pk"] +`" target = "_blank">
             <div class="card center">
               <img src="`+pfl_list[i]["product_image_url"]+`" style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;"/>
-              <a href="/pfl/`+ pfl_list[i]["pfl_pk"] +`" target = "_blank">
               <div class = "card-text" style = "padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
                  <p style="text-align: left;margin-left:10px;color:#521893;font-size:14px;margin-top:0em;margin-bottom:0em;">`+ pfl_list[i]["pfl_name"] +`</p>
               </div>
-            </a>
-            </div>
+            </div></a>
         </div>`
         }
           $(".flex-container").html(html_string);
