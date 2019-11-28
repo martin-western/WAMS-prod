@@ -2798,6 +2798,17 @@ body {
       $('.tabs').tabs('updateTabIndicator');
     }, 100);
   });
+
+
+  $(window).keydown(function(event) {
+    console.log(event.which, event.keyCode, event.ctrlKey);
+    if(event.which == 83 && event.ctrlKey)
+    {
+      event.preventDefault();
+      save_product();
+      return false;
+    } 
+  });
 </script>
 
 {% endblock %}
