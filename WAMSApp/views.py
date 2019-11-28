@@ -397,11 +397,21 @@ class FetchProductDetailsAPI(APIView):
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
             repr_high_def_url = repr_image_url
             if prod_obj.main_images.filter(is_main_image=True).count()>0:
-                repr_image_url = prod_obj.main_images.filter(is_main_image=True)[0].image.mid_image.url
+                try:
+                    repr_image_url = prod_obj.main_images.filter(is_main_image=True)[0].image.mid_image.url
+                except Exception as e:
+                    repr_image_url = prod_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                        
                 repr_high_def_url = prod_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
             response["repr_image_url"] = repr_image_url
             response["repr_high_def_url"] = repr_high_def_url
+
+            try:
+                response["barcode_image_url"] = prod_obj.barcode.image.url
+            except Exception as e:
+                response["barcode_image_url"] = ""
+
 
             pfl_pk = None
             if PFL.objects.filter(product=prod_obj).exists() == False:
@@ -2527,7 +2537,7 @@ class RemoveProductFromExportListAPI(APIView):
         response['status'] = 500
         try:
 
-            if request.user.has_perm('WAMSApp.delete_exportlist') == False:
+            if request.user.has_perm('WAMSApp.change_exportlist') == False:
                 logger.warning("RemoveProductFromExportListAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)

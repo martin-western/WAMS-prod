@@ -585,6 +585,14 @@
             update_background_image_bucket();
             $("#add-new-bg-modal").modal("close");
           }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to add background images!"});
+          }
+          else
+          {
+            M.toast({html: "Error adding background images!"}); 
+          }
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -847,6 +855,14 @@
             global_product_bucket_list.push({"product_bucket_pk": response["product_pk"], "product_bucket_name":response["product_name"], "product_bucket_image_url": response["product_image_url"], "seller_sku": response["seller_sku"]});
             global_product_images_dict[response["product_pk"]] = response["images"];
             set_product_basket();
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to add products to flyer bucket!"});
+          }
+          else
+          {
+            M.toast({html: "Error adding product to flyer bucket!"}); 
           }
         },
         error: function(xhr, textstatus, errorthrown) {
@@ -1152,7 +1168,18 @@
         success: function(response) {
           console.log("Success!", response);
           $("#save-flyer-template-btn").removeAttr("disabled");
-          M.toast({html: "Flyer template saved successfully!"});
+          if(response["status"]==200)
+          {
+            M.toast({html: "Flyer template saved successfully!"});
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to save flyer!"}); 
+          }
+          else
+          {
+            M.toast({html: "Error saving flyer!"}); 
+          }
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);

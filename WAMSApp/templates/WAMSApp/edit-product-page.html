@@ -1252,11 +1252,11 @@ body {
 </div>
  
 
-<div id="pfl-div" class="row white" style="display:none;height: 297mm;width: 210mm;">
+<div id="pfl-div" class="row white" style="text-align: center;margin-left: auto;display:none;height: 297mm;width: 210mm;">
   <!-- Brand Image Preview -->
-  <div id="brand-image" class="col s6 offset-s6">
+  <div id="brand-image" class="col s6 right">
     <br>
-    <img id="brand-image-img" src="" style="width: 73.5mm;margin-left:23mm;display: none;position: absolute;">
+    <img id="brand-image-img" src="" style="width: 73.5mm;margin-left:-27mm;display: none;position: absolute;">
   </div>
   
   <!-- Product Image Preview -->
@@ -1281,7 +1281,7 @@ body {
     <span style="color:#521893;font-size: 1.4em;font-family: 'AvenirNext';padding-left: 1em;">Features</span>
   </div>
   <div class="col s12" style="margin-top: 215mm;">
-    <div id="features-preview-div" style="padding-left: 1.3em;">
+    <div id="features-preview-div" style="text-align: left; padding-left: 1.3em;">
     </div>
   </div>
 
@@ -1423,6 +1423,10 @@ body {
         else if(response["status"]==403)
         {
           M.toast({html:"You do not have access to update the status!"});
+        }
+        else
+        {
+          M.toast({html:"Error updating the status!"}); 
         }
       },
       error: function(xhr, textstatus, errorthrown) {
@@ -1626,6 +1630,66 @@ body {
 
   fetch_constant_values();
 
+
+  function fetch_product_images_details() 
+  {
+    $.ajax({
+      url: "/fetch-product-details/",
+      type: "POST",
+      headers:{
+        'X-CSRFToken':getCsrfToken()
+      },
+      data: {
+        pk: window.location.pathname.split("/")[2]
+      },
+      success: function(response) {
+        console.log("Success!", response);
+
+        if(response["status"]==200)
+        {
+          $('.material-placeholder').remove();
+          $('.main-image').append(`<img class = "preview-img materialboxed" src='`+response["repr_image_url"]+`' high_def_url="`+response["repr_high_def_url"]+`">`)
+          $('.materialboxed').materialbox();
+
+          global_images = response["images"];
+
+          $("#main-images-option").html("Main Images ("+global_images["main_images"].length+")");
+          $("#sub-images-option").html("Sub Images ("+global_images["sub_images"].length+")");
+          $("#pfl-images-option").html("PFL Images ("+global_images["pfl_images"].length+")");
+          $("#pfl-generated-images-option").html("PFL Generated Images ("+global_images["pfl_generated_images"].length+")");
+          $("#white-background-images-option").html("White Background Images ("+global_images["white_background_images"].length+")");
+          $("#lifestyle-images-option").html("Lifestyle Images ("+global_images["lifestyle_images"].length+")");
+          $("#certificate-images-option").html("Certificate Images ("+global_images["certificate_images"].length+")");
+          $("#giftbox-images-option").html("Giftbox Images ("+global_images["giftbox_images"].length+")");
+          $("#diecut-images-option").html("Diecut Images ("+global_images["diecut_images"].length+")");
+          $("#aplus-content-images-option").html("A+ Content Images ("+global_images["aplus_content_images"].length+")");
+          $("#ads-images-option").html("Ads Images ("+global_images["ads_images"].length+")");
+          $("#unedited-images-option").html("Unedited Images ("+global_images["unedited_images"].length+")");
+          
+          update_grid_images(global_image_key);
+
+          $('#brand-image-img').attr("src" , response["brand_logo"]);
+          if(global_images["main_images"].length>0)
+          {
+            $('#pfl-product-image-preview-img').attr("src" , global_images["main_images"][0]["main-url"]);
+          }  
+          $('#barcode-image-preview-img').attr("src" , response["barcode_image_url"]);
+
+          M.updateTextFields();
+          $('select').formSelect();
+        }
+        else
+        {
+          M.toast({html: "Error fetching images information"});
+        }
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      }
+    });
+  }
+
+
   $("#upload-image-btn").click(function(){
     
     $("#upload-image-btn").attr("disabled", "disabled");
@@ -1658,16 +1722,27 @@ body {
       data: fd,
       success: function(response) {
         console.log("Success!", response);
-        $("#upload-image-modal").modal("close");
-        $("#upload-image-btn").removeAttr("disabled");
         $("#upload-preloader").hide();
+        $("#upload-image-btn").removeAttr("disabled");
 
-        fetch_product_details();
+        if(response["status"]==200)
+        {
+          $("#upload-image-modal").modal("close");
+          M.toast({html: "Successfully uploaded images!"});
+          fetch_product_images_details();
+        }
+        else if(response["status"]==403)
+        {
+          M.toast({html: "You do not have permission to upload images!"});
+        }
+        else
+        {
+          M.toast({html: "Error uploading images!"});
+        }
       },
       error: function(xhr, textstatus, errorthrown) {
         console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
         $("#upload-preloader").hide();
-
       }
     });
   })
@@ -1865,14 +1940,12 @@ body {
         
         update_grid_images(global_image_key);
 
-        //forpfl
-        $('#brand-image-img').attr("src" , response["brand_logo"]); 
-        $('#product-id-preview-data').text(response["product_id_type"])
+        $('#brand-image-img').attr("src", response["brand_logo"]);
         if(global_images["main_images"].length>0)
         {
-          $('#pfl-product-image-preview-img').attr("src" , global_images["main_images"][0]["url"]);
+          $('#pfl-product-image-preview-img').attr("src" , global_images["main_images"][0]["main-url"]);
         }  
-        $('#barcode-image-preview-img').attr("src" , response["barcode"]);
+        $('#barcode-image-preview-img').attr("src" , response["barcode_image_url"]);
 
         $("#pfl-editor-link").attr("href", "/pfl/"+response["pfl_pk"]);
 
@@ -2062,14 +2135,18 @@ body {
         console.log("Success!", response);
         if(response["status"]==200)
         {
-          M.toast({html:"Image deleted!"}); 
-        } 
+          M.toast({html:"Image successfully deleted!"}); 
+          $("#delete-image-modal").modal("close");
+          fetch_product_images_details();
+        }
+        else if(response["status"]==403)
+        {
+          M.toast({html:"You do not have permission to delete images!"});
+        }
         else
         {
           M.toast({html:"Error deleting image!"});
         }
-        $("#delete-image-modal").modal("close");
-        fetch_product_details();
       },
       error: function(xhr, textstatus, errorthrown) {
         console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -2103,7 +2180,11 @@ body {
         if(response["status"]==200)
         {
           M.toast({html:"Main image updated successfully!"}); 
-        } 
+        }
+        else if(response["status"]==403)
+        {
+          M.toast({html:"You do not have permission to update main image!"});
+        }
         else
         {
           M.toast({html:"Error updating main image!"});
@@ -2188,11 +2269,15 @@ body {
         console.log("Success!", response);
         if(response["status"]==200)
         {
-          //M.toast({html:"Sub images updated successfully!"}); 
+          M.toast({html:"Sub images updated successfully!"}); 
+        }
+        else if(response["status"]==403)
+        {
+          M.toast({html:"You do not have permission to update sub images!"}); 
         } 
         else
         {
-          //M.toast({html:"Error updating sub images!"});
+          M.toast({html:"Error updating sub images!"});
         }
       },
       error: function(xhr, textstatus, errorthrown) {
@@ -2326,8 +2411,8 @@ body {
       $("#pfl-product-image-preview-img").attr("src", global_images["main_images"][0]["main-url"]);
     }
 
-    $("#brand-image-img").attr("src", "");
-    $("#barcode-image-preview-img").attr("src", "");
+    //$("#brand-image-img").attr("src", "");
+    //$("#barcode-image-preview-img").attr("src", "");
 
 
     if($("#pfl-product-image-preview-img").attr("src")!="")
@@ -2390,9 +2475,11 @@ body {
             }
             else if(local_links[i]["key"] == "brand_image"){
               $("#brand-image-img").attr("src", local_links[i]["url"]);
+              $("#brand-image-img").show();
             }
             else if(local_links[i]["key"] == "barcode_image"){
               $("#barcode-image-preview-img").attr("src", local_links[i]["url"]);
+              $("#barcode-image-preview-img").show();
             }
           }
 
@@ -2679,6 +2766,10 @@ body {
         else if(response["status"]==409)
         {
           M.toast({html:"Product ID or Seller SKU is duplicated!"});
+        }
+        else if(response["status"]==403)
+        {
+          M.toast({html:"You do not have permission for saving product!"});
         } 
         else
         {

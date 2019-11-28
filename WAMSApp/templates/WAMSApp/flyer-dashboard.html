@@ -207,14 +207,26 @@
 
   $("#create-new-flyer-btn").click(function(){
 
+    var flyer_name = $("#flyer-name").val();
+    var flyer_brand = $("#flyer-brand").val();
+    var flyer_row = $("#flyer-row").val();
+    var flyer_column = $("#flyer-column").val();
+
+
+    if(flyer_name=="" || flyer_brand==null || flyer_row=="" || flyer_column=="")
+    {
+      M.toast({html: "Please fill the details before creating a flyer"});
+      return;
+    }
+
 
     var import_file = document.getElementById("excel-file-input");
 
     var fd =  new FormData();
-    fd.append('name', $("#flyer-name").val());
-    fd.append('brand_pk', $("#flyer-brand").val());
-    fd.append('row', $("#flyer-row").val());
-    fd.append('column', $("#flyer-column").val());
+    fd.append('name', flyer_name);
+    fd.append('brand_pk', flyer_brand);
+    fd.append('row', flyer_row);
+    fd.append('column', flyer_column);
     fd.append('import_file', import_file.files[0]);
 
     $.ajax({
@@ -228,7 +240,18 @@
       data: fd,
       success: function(response) {
         console.log("Success!", response);
-        window.location.pathname = "/flyer/"+response["flyer_pk"];
+        if(response["status"]==200)
+        {
+          window.location.pathname = "/flyer/"+response["flyer_pk"];
+        }
+        else if(response["status"]==403)
+        {
+          M.toast({html: "You do not have permission to create flyers!"});
+        }
+        else
+        {
+          M.toast({html: "Error creating flyer!"});
+        }
       },
       error: function(xhr, textstatus, errorthrown) {
         console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);

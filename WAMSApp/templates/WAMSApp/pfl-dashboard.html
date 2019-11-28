@@ -153,6 +153,14 @@
 
   $("#create-new-pfl-btn").click(function(){
 
+    var pfl_name = $("#pfl-name").val();
+
+    if(pfl_name=="")
+    {
+      M.toast({html: "PFL name cannot be empty!"});
+      return;
+    }
+
     $.ajax({
       url: "/create-pfl/",
       type: "POST",
@@ -160,12 +168,22 @@
         'X-CSRFToken':getCsrfToken()
       },
       data: {
-        name: $("#pfl-name").val()
+        name: pfl_name
       },
       success: function(response) {
         console.log("Success!", response);
-        window.location.pathname = "/pfl/"+response["pfl_pk"];
-
+        if(response["status"]==200)
+        {
+          window.location.pathname = "/pfl/"+response["pfl_pk"];
+        }
+        else if(response["status"]==403)
+        {
+          M.toast({html: "You do not have permission to create PFLs!"});
+        }
+        else
+        {
+          M.toast({html: "Error creating PFL!"}); 
+        }
       },
       error: function(xhr, textstatus, errorthrown) {
         console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);

@@ -67,7 +67,7 @@
     }
 
     .spinner-layer{
-      border-color: #521893;  
+      border-color: white;  
     }
 
     body{
@@ -221,9 +221,9 @@
         <div id="pfl-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto;height: 297mm;width: 210mm;">
 
           <!-- Brand Image Preview -->
-          <div id="brand-image" class="col s6 offset-s6">
+          <div id="brand-image" class="col s6 right">
             <br>
-            <img id="brand-image-img" src="" style="width: 73.5mm;margin-left:23mm;display: none;position: absolute;">
+            <img id="brand-image-img" src="" style="width: 73.5mm;margin-left:-27mm;display: none;position: absolute;">
           </div>
           
           <!-- Product Image Preview -->
@@ -558,61 +558,25 @@
           if(response["status"]==200)
           {
             //Product Basket needs to be updated
-            var html_string = "";
+            // var html_string = "";
 
-            var image_url = response["image_url"];
-            var product_name = response["product_name"];
-            var product_pk = response["product_pk"];
-            var seller_sku = response["seller_sku"];
-            global_pfl_product_pk = product_pk;
+            // var image_url = response["image_url"];
+            // var product_name = response["product_name"];
+            // var product_pk = response["product_pk"];
+            // var seller_sku = response["seller_sku"];
+            // global_pfl_product_pk = product_pk;
 
-              // html_string += `
-              // <div class="col s12 m12">
-              //   <div class="card">
-              //     <div class="card-content" style="padding-bottom:0em;">
-              //       <div class="row" style="margin-bottom:0;">
-              //         <div class="col s4 m4" style="margin-left:-1em;margin-top:-1em;">
-              //           <img src="`+image_url+`" style="width:100%;height:8em;margin-left:0;object-fit: cover;">
-              //         </div>
-
-              //         <div class="col s8 m8" style="margin-bottom:-2em;">
-              //           <div class="row" style="margin-top:-0.5em;color:#717171;">
-              //             <div class="col s12" style="color:#512da8;font-family:AvenirNextBold;">
-              //               `+product_name+`
-              //             </div>
-              //           </div>
-              //         </div>
-              //       </div>
-              //     </div>
-              //   </div>
-              // </div>`
-
-
-
-              html_string += `
-        <div class="col s12 m12">
-            <div class="row white" style="border: 2px solid #E9E9E9;margin-right:0em;">
-              <div class="col s4" style="padding-left:0em;margin-right:0em;padding-right:0em;">
-                <div class="img-box" style="border-right: 2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
-                  <img src="`+image_url+`" style="width:80%;max-height:5em;margin-left:0;object-fit: cover;object-position:center;">
-                </div>
-              </div>
-              <div class="product-basket-card col s8">
-                <div style="padding-left:0em;height:6em;">
-                  <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;">`+
-                    product_name+`
-                  </div>
-                  <div style="padding-top:1em;font-family:'AvenirNextRegular';color:black;margin-top:-1em;font-size:0.8em;">`+
-                  seller_sku+`
-                  </div>
-                </div>
-              </div>
-            </div>
-            </div>`;
-
-            $("#product-basket-list-div").html(html_string);
+            // set_product_basket(image_url, product_name, seller_sku);
 
             fetch_pfl_details();
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to add products to PFL bucket!"});
+          }
+          else
+          {
+            M.toast({html: "Error adding product to PFL bucket!"}); 
           }
         },
         error: function(xhr, textstatus, errorthrown) {
@@ -709,61 +673,39 @@
     }
 
 
-    function set_product_basket(image_url, product_name, product_pk, seller_sku)
+    function set_product_basket(image_url, product_name, seller_sku)
     {
       //Product Basket needs to be updated
       var html_string = "";
+      var short_product_name = product_name
+      var char_length = 50;
+      if(product_name.length>char_length)
+      {
+        short_product_name = short_product_name.substring(0, char_length) + "...";
+      }
 
-        // html_string += `
-        // <div class="col s12 m12">
-        //   <div class="card">
-        //     <div class="card-content" style="padding-bottom:0em;">
-        //       <div class="row" style="margin-bottom:0;">
-        //         <div class="col s4 m4" style="margin-left:-1em;margin-top:-1em;">
-        //           <img src="`+image_url+`" style="width:100%;height:8em;margin-left:0;object-fit: cover;">
-        //         </div>
-
-        //         <div class="col s8 m8" style="margin-bottom:-2em;">
-        //           <div class="row" style="margin-top:-0.5em;color:#717171;">
-        //             <div class="col s12" style="color:#512da8;font-family:AvenirNextBold;">
-        //               `+product_name+`
-        //             </div>
-        //           </div>
-        //         </div>
-        //       </div>
-        //     </div>
-        //   </div>
-        // </div>`;
-
-        var short_product_name = product_name
-        var char_length = 50;
-        if(product_name.length>char_length)
-        {
-          short_product_name = short_product_name.substring(0, char_length) + "...";
-        }
-
-        html_string += `
-        <div class="col s12 m12">
-            <div class="row white" style="border: 2px solid #E9E9E9;margin-right:0em;">
-              <div class="col s4" style="padding-left:0em;margin-right:0em;padding-right:0em;">
-                <div class="img-box" style="border-right: 2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
-                  <img src="`+image_url+`" style="width:80%;max-height:5em;margin-left:0;object-fit: cover;object-position:center;">
-                </div>
+      html_string += `
+      <div class="col s12 m12">
+          <div class="row white" style="border: 2px solid #E9E9E9;margin-right:0em;">
+            <div class="col s4" style="padding-left:0em;margin-right:0em;padding-right:0em;">
+              <div class="img-box" style="border-right: 2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
+                <img src="`+image_url+`" style="width:80%;max-height:5em;margin-left:0;object-fit: cover;object-position:center;">
               </div>
-              <div class="product-basket-card col s8">
-                <div style="padding-left:0em;height:6em;">
-                  <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;" title="`+product_name+`">`+
-                    short_product_name+`
-                  </div>
-                  <div style="padding-top:1em;font-family:'AvenirNextRegular';color:black;margin-top:-1em;font-size:0.8em;">`+
-                  seller_sku+`
-                  </div>
+            </div>
+            <div class="product-basket-card col s8">
+              <div style="padding-left:0em;height:6em;">
+                <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;" title="`+product_name+`">`+
+                  short_product_name+`
+                </div>
+                <div style="padding-top:1em;font-family:'AvenirNextRegular';color:black;margin-top:-1em;font-size:0.8em;">`+
+                seller_sku+`
                 </div>
               </div>
             </div>
-            </div>`;
+          </div>
+          </div>`;
 
-        $("#product-basket-list-div").html(html_string);
+      $("#product-basket-list-div").html(html_string);
     }
 
 
@@ -875,7 +817,7 @@
           if(global_pfl_product_pk!=null)
           {
             $("#autocomplete-input").attr("disabled", "disabled");
-            set_product_basket(response["product_main_image_url"], response["product_name_sap"], response["product_pk"], response["seller_sku"]);
+            set_product_basket(response["product_main_image_url"], response["product_name_sap"], response["seller_sku"]);
           }
 
           set_brand_image(response["logo_image_url"]);
@@ -935,7 +877,18 @@
         success: function(response) {
           console.log("Success!", response);
           $("#save-pfl-template-btn").removeAttr("disabled");
-          M.toast({html: "PFL template saved successfully!"});
+          if(response["status"]==200)
+          {
+            M.toast({html: "PFL template saved successfully!"});
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to save PFL!"}); 
+          }
+          else
+          {
+            M.toast({html: "Error saving PFL!"}); 
+          }
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);

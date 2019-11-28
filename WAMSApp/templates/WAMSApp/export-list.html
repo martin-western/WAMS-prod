@@ -369,15 +369,19 @@ ul.dropdown-content.select-dropdown li span {
           console.log("Success!", response);
           if(response["status"]==200)
           {
-            M.toast({html:"Product removed from the list"}); 
-          } 
+            M.toast({html:"Product removed from the export list"}); 
+            $("#remove-product-modal").modal("close");
+            fetch_export_list();
+            fetch_export_product_list(global_selected_export_pk);
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html:"You do not have permission to remove product from export list!"});
+          }
           else
           {
-            M.toast({html:"Error removing product from the list!"});
+            M.toast({html:"Error removing product from the export list!"});
           }
-          $("#remove-product-modal").modal("close");
-          fetch_export_list();
-          fetch_export_product_list(global_selected_export_pk);
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);

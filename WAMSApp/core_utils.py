@@ -1,4 +1,7 @@
 from WAMSApp.models import *
+import logging
+
+logger = logging.getLogger(__name__)
 
 def convert_to_ascii(s):
     s = s.replace(u'\u2013', "-").replace(u'\u2019', "'").replace(u'\u2018', "'").replace(u'\u201d','"').replace(u'\u201c','"')
@@ -40,8 +43,18 @@ def create_response_images(images):
     for image in images:
         temp_dict = {}
         temp_dict["main-url"] = image.image.url
-        temp_dict["thumbnail-url"] = image.thumbnail.url
-        temp_dict["midimage-url"] = image.mid_image.url
+        try:
+            temp_dict["thumbnail-url"] = image.thumbnail.url
+        except Exception as e:
+            logger.warning("No thumbnail for image with pk %s", str(image.pk))
+            temp_dict["thumbnail-url"] = image.image.url
+
+        try:
+            temp_dict["midimage-url"] = image.mid_image.url
+        except Exception as e:
+            logger.warning("No mid_image for image with pk %s", str(image.pk))
+            temp_dict["midimage-url"] = image.image.url
+
         temp_dict["pk"] = image.pk
         temp_list.append(temp_dict)
     return temp_list
@@ -53,8 +66,19 @@ def create_response_images_main(images):
     for image in images:
         temp_dict = {}
         temp_dict["main-url"] = image.image.image.url
-        temp_dict["thumbnail-url"] = image.image.thumbnail.url
-        temp_dict["midimage-url"] = image.image.mid_image.url
+
+        try:
+            temp_dict["thumbnail-url"] = image.image.thumbnail.url
+        except Exception as e:
+            logger.warning("No thumbnail for main image with pk %s", str(image.pk))
+            temp_dict["thumbnail-url"] = image.image.image.url
+
+        try:
+            temp_dict["midimage-url"] = image.image.mid_image.url
+        except Exception as e:
+            logger.warning("No mid_image for main image with pk %s", str(image.pk))
+            temp_dict["midimage-url"] = image.image.image.url
+
         temp_dict["pk"] = image.pk
         temp_dict["is_main_image"] = image.is_main_image
         temp_list.append(temp_dict)
@@ -67,8 +91,19 @@ def create_response_images_sub(images):
     for image in images:
         temp_dict = {}
         temp_dict["main-url"] = image.image.image.url
-        temp_dict["thumbnail-url"] = image.image.thumbnail.url
-        temp_dict["midimage-url"] = image.image.mid_image.url
+
+        try:
+            temp_dict["thumbnail-url"] = image.image.thumbnail.url
+        except Exception as e:
+            logger.warning("No thumbnail for sub image with pk %s", str(image.pk))
+            temp_dict["thumbnail-url"] = image.image.image.url
+
+        try:
+            temp_dict["midimage-url"] = image.image.mid_image.url
+        except Exception as e:
+            logger.warning("No mid_image for sub image with pk %s", str(image.pk))
+            temp_dict["midimage-url"] = image.image.image.url
+
         temp_dict["pk"] = image.pk
         temp_dict["is_sub_image"] = image.is_sub_image
         temp_dict["sub_image_index"] = image.sub_image_index

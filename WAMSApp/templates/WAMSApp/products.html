@@ -568,7 +568,19 @@ ul.dropdown-content.select-dropdown li span {
         console.log("Success!", response);
         $("#export-modal").modal("close");
         $("#add-to-export-btn").removeAttr("disabled");
-        M.toast({html:"Products added to export list successfully!"});
+
+        if(response["status"]==200)
+        {
+          M.toast({html:"Products added to export list successfully!"});
+        }
+        else if(response["status"]==403)
+        {
+          M.toast({html:"You do not have permission to add products to export list!"});
+        }
+        else
+        {
+          M.toast({html:"Error adding products to export list!"}); 
+        }
       },
       error: function(xhr, textstatus, errorthrown) {
         console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -784,10 +796,20 @@ ul.dropdown-content.select-dropdown li span {
         success: function(response) {
           console.log("Success!", response);
           $("#import-upload-btn").removeAttr("disabled");
-          $("#import-modal").modal("close");
-          window.location.reload();
           $("#loader-bar").hide();
-          //fetch_product_list();
+          if(response["status"]==200)
+          {
+            $("#import-modal").modal("close");
+            window.location.reload();
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to import products!"});
+          }
+          else
+          {
+            M.toast({html: "Error importing products!"});
+          }
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -894,6 +916,14 @@ ul.dropdown-content.select-dropdown li span {
           else if(response["status"]==409)
           {
             M.toast({html: "Duplicate product detected!"}); 
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to create products!"}); 
+          }
+          else
+          {
+            M.toast({html: "Internal Server Error!"});  
           }
         },
         error: function(xhr, textstatus, errorthrown) {
