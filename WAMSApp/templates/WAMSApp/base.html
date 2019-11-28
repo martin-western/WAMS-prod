@@ -123,8 +123,8 @@
 
 
 
-  <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.jQueryUI.min.js' %}"></script>
+  <!-- <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.jQueryUI.min.js' %}"></script> -->
 
   <!-- <div class="navbar">
     <nav>
@@ -141,12 +141,12 @@
     </nav>
   </div> -->
 
-  <ul id="slide-out" class="sidenav" style="width: 50%;padding-left: 1em;">
+  <!-- <ul id="slide-out" class="sidenav" style="width: 50%;padding-left: 1em;">
       {% if request.user.is_authenticated %}
         <li>{{request.user}}</li>
         <li><a href="/logout" class="waves-effect left"><i class="material-icons" style="margin-left: -1.3em;">logout</i></a></li>
       {% endif %}
-  </ul>
+  </ul> -->
 
   {% block content %}
   {% endblock %}

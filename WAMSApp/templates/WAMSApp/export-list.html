@@ -150,8 +150,8 @@ ul.dropdown-content.select-dropdown li span {
           border-left: 1px solid rgba(28,110,164,0.21);   
           padding-left: 18px;   
           font-family: 'AvenirNext';    
-          text-transform: capitalize;">
-            {{request.user}}
+          text-transform: capitalize;" title="{{request.user.username}}">
+          {{request.user.username|slice:"0:10"}}
         </span>
 
       </div>
