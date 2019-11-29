@@ -1068,7 +1068,9 @@ class DownloadExportListAPI(APIView):
             products = export_obj.products.all()
 
             if export_format == "Amazon UK":
-                export_amazon_uk(products)
+                success_products = export_amazon_uk(products)
+                response["success_products"] = success_products
+                response["total_products"] = products.count()
                 response["file_path"] = "/files/csv/export-list-amazon-uk.xlsx"
             elif export_format == "Amazon UAE":
                 export_amazon_uae(products)

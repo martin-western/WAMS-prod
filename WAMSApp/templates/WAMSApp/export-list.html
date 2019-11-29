@@ -602,9 +602,17 @@ ul.dropdown-content.select-dropdown li span {
       },
       success: function(response) {
         console.log("Success!", response);
-	$("#download-export-list-modal").modal("close");
-        var file_path = response["file_path"]
-        window.open(file_path);
+        $("#download-export-list-modal").modal("close");
+        if(response["status"]==200)
+        {
+          M.toast({html: "Successfully exported products: "+response["success_products"]+"/"+response["total_products"]});
+          var file_path = response["file_path"];
+          window.open(file_path);
+        }
+        else
+        {
+          M.toast({html: "Error exporting products!"});
+        }
       },
       error: function(xhr, textstatus, errorthrown) {
         console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);

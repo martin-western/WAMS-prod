@@ -13,6 +13,7 @@ import xlsxwriter
 logger = logging.getLogger(__name__)
 
 def export_amazon_uk(products):
+    success_products = 0
     try:
 
         try:
@@ -39,108 +40,115 @@ def export_amazon_uk(products):
                 rownum += 1
         
         for product in products:
-            common_row = ["" for i in range(213)]
-            common_row[0] = product.seller_sku
-            common_row[1] = "" if product.brand==None else product.brand.name
-            common_row[2] = product.product_id
-            common_row[3] = product.product_id_type
-            common_row[4] = product.product_name_amazon_uk
-            common_row[5] = product.manufacturer
-            common_row[6] = product.recommended_browse_nodes
-            common_row[7] = "" if product.standard_price==None else str(product.standard_price)
-            common_row[8] = "" if product.quantity==None else str(product.quantity)
+            try:
+                common_row = ["" for i in range(213)]
+                common_row[0] = product.seller_sku
+                common_row[1] = "" if product.brand==None else product.brand.name
+                common_row[2] = product.product_id
+                common_row[3] = product.product_id_type
+                common_row[4] = product.product_name_amazon_uk
+                common_row[5] = product.manufacturer
+                common_row[6] = product.recommended_browse_nodes
+                common_row[7] = "" if product.standard_price==None else str(product.standard_price)
+                common_row[8] = "" if product.quantity==None else str(product.quantity)
 
-            common_row[19] = product.parentage
-            common_row[20] = product.parent_sku
-            common_row[21] = product.relationship_type
-            common_row[22] = product.variation_theme
-            common_row[23] = product.update_delete
-            
-            common_row[25] = product.manufacturer_part_number
-            common_row[26] = product.product_description_amazon_uk
-            common_row[27] = product.wattage_metric
-            key_product_features = json.loads(product.product_attribute_list_amazon_uk)
-            row_cnt = 0
-            if len(key_product_features) > 0:
-                for key_product_feature in key_product_features[:5]:
-                    common_row[31+row_cnt] = key_product_feature
-                    row_cnt += 1
+                common_row[19] = product.parentage
+                common_row[20] = product.parent_sku
+                common_row[21] = product.relationship_type
+                common_row[22] = product.variation_theme
+                common_row[23] = product.update_delete
+                
+                common_row[25] = product.manufacturer_part_number
+                common_row[26] = product.product_description_amazon_uk
+                common_row[27] = product.wattage_metric
+                key_product_features = json.loads(product.product_attribute_list_amazon_uk)
+                row_cnt = 0
+                if len(key_product_features) > 0:
+                    for key_product_feature in key_product_features[:5]:
+                        common_row[31+row_cnt] = key_product_feature
+                        row_cnt += 1
 
-            common_row[36] = product.search_terms
-            common_row[44] = "" if product.wattage==None else str(product.wattage)
-            common_row[45] = "" if product.color==None else str(product.color)
-            common_row[46] = "" if product.color_map==None else str(product.color_map)
-            common_row[49] = "" if product.material_type==None else str(product.material_type)
+                common_row[36] = product.search_terms
+                common_row[44] = "" if product.wattage==None else str(product.wattage)
+                common_row[45] = "" if product.color==None else str(product.color)
+                common_row[46] = "" if product.color_map==None else str(product.color_map)
+                common_row[49] = "" if product.material_type==None else str(product.material_type)
 
-            special_features = json.loads(product.special_features)
-            row_cnt = 0
-            if len(special_features) > 0:
-                for special_feature in special_features[:5]:
-                    common_row[50+row_cnt] = special_feature
-                    row_cnt += 1
+                special_features = json.loads(product.special_features)
+                row_cnt = 0
+                if len(special_features) > 0:
+                    for special_feature in special_features[:5]:
+                        common_row[50+row_cnt] = special_feature
+                        row_cnt += 1
 
-            common_row[83] = product.item_width_metric
-            common_row[84] = "" if product.item_width==None else str(product.item_width)
-            common_row[85] = "" if product.item_height==None else str(product.item_height)
-            common_row[88] = product.item_height_metric
-            common_row[90] = product.item_length_metric
-            common_row[91] = "" if product.item_length==None else str(product.item_length)
-            common_row[95] = "" if product.shipping_weight==None else str(product.shipping_weight)
-            common_row[96] = product.shipping_weight_metric
-            common_row[97] = "" if product.item_display_length==None else str(product.item_display_length)
-            common_row[98] = product.item_display_length_metric
-            common_row[99] = "" if product.item_display_width==None else str(product.item_display_width) 
-            common_row[100] = product.item_display_width_metric
-            common_row[101] = "" if product.item_display_height==None else str(product.item_display_height)
-            common_row[102] = product.item_display_height_metric
-            common_row[105] = "" if product.item_display_weight==None else str(product.item_display_weight)
-            common_row[106] = product.item_display_weight_metric
-            common_row[109] = "" if product.item_display_volume==None else str(product.item_display_volume)
-            common_row[110] = product.item_display_volume_metric
-            common_row[116] = product.package_weight_metric
-            common_row[117] = product.package_height_metric
-            common_row[118] = "" if product.package_weight==None else str(product.package_weight)
-            common_row[119] = "" if product.package_length==None else str(product.package_length)
-            common_row[120] = "" if product.package_width==None else str(product.package_width)
-            common_row[121] = "" if product.package_height==None else str(product.package_height)
+                common_row[83] = product.item_width_metric
+                common_row[84] = "" if product.item_width==None else str(product.item_width)
+                common_row[85] = "" if product.item_height==None else str(product.item_height)
+                common_row[88] = product.item_height_metric
+                common_row[90] = product.item_length_metric
+                common_row[91] = "" if product.item_length==None else str(product.item_length)
+                common_row[95] = "" if product.shipping_weight==None else str(product.shipping_weight)
+                common_row[96] = product.shipping_weight_metric
+                common_row[97] = "" if product.item_display_length==None else str(product.item_display_length)
+                common_row[98] = product.item_display_length_metric
+                common_row[99] = "" if product.item_display_width==None else str(product.item_display_width) 
+                common_row[100] = product.item_display_width_metric
+                common_row[101] = "" if product.item_display_height==None else str(product.item_display_height)
+                common_row[102] = product.item_display_height_metric
+                common_row[105] = "" if product.item_display_weight==None else str(product.item_display_weight)
+                common_row[106] = product.item_display_weight_metric
+                common_row[109] = "" if product.item_display_volume==None else str(product.item_display_volume)
+                common_row[110] = product.item_display_volume_metric
+                common_row[116] = product.package_weight_metric
+                common_row[117] = product.package_height_metric
+                common_row[118] = "" if product.package_weight==None else str(product.package_weight)
+                common_row[119] = "" if product.package_length==None else str(product.package_length)
+                common_row[120] = "" if product.package_width==None else str(product.package_width)
+                common_row[121] = "" if product.package_height==None else str(product.package_height)
 
-            common_row[164] = "" if product.item_weight==None else str(product.item_weight)
-            common_row[165] = product.item_weight_metric
-            common_row[186] = "" if product.sale_price==None else str(product.sale_price)
-            #common_row[187] = str(product.sale_from)
-            #common_row[188] = str(product.sale_end)
-            common_row[189] = product.condition_type
-
-
-
-            # Graphics Part
-            if product.main_images.filter(is_main_image=True).count()>0:
-                common_row[9] = str(product.main_images.filter(is_main_image=True)[0].image.image.url)
-            image_cnt = 10
-            for img in product.sub_images.filter(is_sub_image=True).order_by('sub_image_index')[:8]:
-                common_row[image_cnt] = str(img.image.image.url)
-                image_cnt += 1
+                common_row[164] = "" if product.item_weight==None else str(product.item_weight)
+                common_row[165] = product.item_weight_metric
+                common_row[186] = "" if product.sale_price==None else str(product.sale_price)
+                #common_row[187] = str(product.sale_from)
+                #common_row[188] = str(product.sale_end)
+                common_row[189] = product.condition_type
 
 
-            data_row_2 = []
-            for k in common_row:
-                if k==None:
-                    data_row_2.append("")
-                elif isinstance(k, int)==False:
-                    l = k.encode('utf-8').strip()
-                    data_row_2.append(l)
-                else:
-                    data_row_2.append(k)
 
-            colnum = 0
-            for k in data_row_2:
-                worksheet.write(rownum, colnum, k.encode("ascii", "ignore"))
-                colnum += 1
-            rownum += 1
+                # Graphics Part
+                if product.main_images.filter(is_main_image=True).count()>0:
+                    common_row[9] = str(product.main_images.filter(is_main_image=True)[0].image.image.url)
+                image_cnt = 10
+                for img in product.sub_images.filter(is_sub_image=True).order_by('sub_image_index')[:8]:
+                    common_row[image_cnt] = str(img.image.image.url)
+                    image_cnt += 1
+
+
+                data_row_2 = []
+                for k in common_row:
+                    if k==None:
+                        data_row_2.append("")
+                    elif isinstance(k, int)==False:
+                        l = k.encode('utf-8').strip()
+                        data_row_2.append(l)
+                    else:
+                        data_row_2.append(k)
+
+                colnum = 0
+                for k in data_row_2:
+                    worksheet.write(rownum, colnum, k.encode("ascii", "ignore"))
+                    colnum += 1
+                rownum += 1
+                success_products += 1
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Loop export_amazon_uk: %s at %s | Product PK: %s", e, str(exc_tb.tb_lineno), str(product.pk))
         workbook.close()
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("export_amazon_uk: %s at %s", e, str(exc_tb.tb_lineno))
+
+    return success_products
 
 
 def update_product_full_amazon_uk(product_obj, row):
