@@ -61,8 +61,6 @@ urlpatterns = [
     url(r'^flyer/(?P<pk>[\w-]+)/', views.FlyerPage),
     url(r'^flyer-dashboard/', views.FlyerDashboardPage),
     url(r'^fetch-flyer-list/', views.FetchFlyerList),
-    url(r'^fetch-flyer-search-list/', views.FetchFlyerSearchList),
-
 
     url(r'^upload-new-flyer-bg-image/', views.UploadNewFlyerBGImage),
     url(r'^download-images-s3/', views.DownloadImagesS3),

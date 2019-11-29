@@ -42,6 +42,13 @@
 
       </div>
     </div>
+
+
+    <div class="row" style = "margin : 20px 5px 0px 4px !important;">
+      <div class="col s6" style="position: relative;top: 20px;padding-left: 20px;font-family:'AvenirNext';">
+        <span id="total-results" style="font-family:'AvenirNext';"></span> Results   
+      </div>
+    </div>
   
   <div class="row" style = "margin : 20px 5px 0px 4px !important;">
 
@@ -51,6 +58,14 @@
 
   </div>
 
+
+  <div class="row">
+    <div class="col s12 center">
+      <br>
+      <a id="load-more-btn" href="#!" class="btn btn-small" style="display: none;background-color: #521893;">Load More</a>
+      <br><br>
+    </div>
+  </div>
  
 
 <div id="new-flyer-modal" class="scroll-style-1 modal" style="overflow-y: auto;">
@@ -107,6 +122,7 @@
 
 <script type="text/javascript">
 
+  var page = 1;
 
   $('.left-li').hover(function(){
       $($(this).find('span')).css('color','white').css('font-family','AvenirNextBold');
@@ -131,6 +147,9 @@
           for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
             chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
           }
+          $("#load-more-btn").hide();
+          $(".flex-container").html("");
+          page = 1;
           fetch_flyer_list();
 
     },
@@ -140,6 +159,9 @@
           for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
             chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
           }
+          $("#load-more-btn").hide();
+          $(".flex-container").html("");
+          page = 1;
           fetch_flyer_list();
 
     }
@@ -156,20 +178,16 @@
 
   function fetch_flyer_list()
   {
-     var url = "/fetch-flyer-list/";
-    var data = {};
-
-    if (chip_tags.length > 0 ){
-      url = "/fetch-flyer-search-list/"
-      data = {'tags': JSON.stringify(chip_tags)};
-    }
     $.ajax({
-      url: url,
+      url: /fetch-flyer-list/,
       type: "POST",
       headers:{
         'X-CSRFToken':getCsrfToken()
       },
-      data: data,
+      data: {
+        'tags': JSON.stringify(chip_tags),
+        'page': page
+      },
       success: function(response) {
         console.log("Success!", response);
 
@@ -188,13 +206,20 @@
             </div></a>
         </div>`
         }
-        $(".flex-container").html(html_string);
+        $(".flex-container").append(html_string);
         
         $('.card').mouseover(function(){
           $($(this).find(".card-text")).addClass("hovered");
         }).mouseout(function(){
           $($(this).find(".card-text")).removeClass("hovered");
         })
+
+        if(response["is_available"])
+        {
+          $("#load-more-btn").show();
+        }
+
+        $("#total-results").html(response["total_results"]);
       },
       error: function(xhr, textstatus, errorthrown) {
         console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -203,6 +228,13 @@
   }
 
   fetch_flyer_list();
+
+
+  $("#load-more-btn").click(function(){
+    $("#load-more-btn").hide();
+    page += 1;
+    fetch_flyer_list();
+  })
 
   $("#create-new-flyer-btn").click(function(){
 

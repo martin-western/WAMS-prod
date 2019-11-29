@@ -2092,13 +2092,21 @@ class FetchPFLListAPI(APIView):
 
             page = int(data["page"])
 
-            pfl_objs = PFL.objects.all()
+            all_pfl_objs = PFL.objects.all().exclude(product__pfl_product_features="[]")
+            pfl_objs = PFL.objects.all().exclude(product__pfl_product_features="[]")
+
+            for pfl_obj in all_pfl_objs:
+                try:
+                    if len(json.loads(pfl_obj.product.pfl_product_features))<3:
+                        pfl_objs = pfl_objs.exclude(pk=pfl_obj.pk)
+                except Exception as e:
+                    pass
 
             chip_data = json.loads(data["tags"])
             if len(chip_data)>0:
                 search_list_objs = []
                 for chip in chip_data:
-                    search = PFL.objects.filter(
+                    search = pfl_objs.filter(
                         Q(product__product_name_sap__icontains=chip.lower()) |
                         Q(name__icontains=chip.lower()) |
                         Q(product__product_name_amazon_uk__icontains=chip.lower()) |
@@ -2169,7 +2177,48 @@ class FetchFlyerListAPI(APIView):
             data = request.data
             logger.info("FetchFlyerListAPI: %s", str(data))
 
+            page = int(data["page"])
+
             flyer_objs = Flyer.objects.all()
+
+            chip_data = json.loads(data["tags"])
+
+            if len(chip_data)>0:
+                flyer_objs = Flyer.objects.all()
+                search_list_objs = []
+
+                for flyer_obj in flyer_objs:
+                    logger.info("flyer_obj %s", str(flyer_obj))
+                    flag = False
+                    for chip in chip_data:
+                        if chip.lower() in flyer_obj.name.lower():
+                            flag = True
+                            search_list_objs.append(flyer_obj)
+                            break
+
+                    if flag:
+                        continue
+
+                    for product in flyer_obj.product_bucket.all():
+                        for chip in chip_data:
+                            logger.info("Chip %s, product %s, flyer_obj %s", str(chip), str(product), str(flyer_obj))
+                            
+                            if (chip.lower() in product.product_name_sap.lower() or
+                                    chip.lower() in product.product_name_amazon_uk.lower() or
+                                    chip.lower() in product.product_name_amazon_uae.lower() or
+                                    chip.lower() in product.product_name_ebay.lower() or
+                                    chip.lower() in product.product_id.lower() or
+                                    chip.lower() in product.seller_sku.lower()):
+                                search_list_objs.append(flyer_obj)
+                                break
+                flyer_objs = list(set(search_list_objs))
+
+
+            total_results = len(flyer_objs)
+            paginator = Paginator(flyer_objs, 20)
+            flyer_objs = paginator.page(page)
+
+
             flyer_list = []
             for flyer_obj in flyer_objs:
                 temp_dict = {}
@@ -2182,64 +2231,20 @@ class FetchFlyerListAPI(APIView):
                     temp_dict["flyer_image"] = Config.objects.all()[0].product_404_image.image.url
                 flyer_list.append(temp_dict)
 
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_results"] = total_results
+
             response["flyer_list"] = flyer_list
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchFlyerListAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-class FetchFlyerSearchListAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchFlyerSearchListAPI: %s", str(data))
-
-            chip_data = json.loads(data["tags"])
-
-            flyer_objects = Flyer.objects.all()
-            search_list_objs = []
-
-            for flyer_object in flyer_objects:
-                for product in flyer_object.product_bucket.all():
-                    for chip in chip_data:
-                        if chip in flyer_object.name.lower():
-                            search_list_objs.append(flyer_object)
-                            break
-                        if (chip.lower() in product.product_name_sap.lower() or
-                                chip.lower() in product.product_name_amazon_uk.lower() or
-                                chip.lower() in product.product_name_amazon_uae.lower() or
-                                chip.lower() in product.product_name_ebay.lower() or
-                                chip.lower() in product.product_id.lower() or
-                                chip.lower() in product.seller_sku.lower()):
-                            search_list_objs.append(flyer_object)
-                            break
-            flyer_objs = search_list_objs
-            flyer_list = []
-            for flyer_obj in set(flyer_objs):
-                temp_dict = {}
-                temp_dict["flyer_name"] = flyer_obj.name
-                temp_dict["flyer_pk"] = flyer_obj.pk
-                flyer_list.append(temp_dict)
-
-            response["flyer_list"] = flyer_list
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchFlyerSearchListAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -2596,8 +2601,6 @@ UploadImageExternalBucketPFL = UploadImageExternalBucketPFLAPI.as_view()
 FetchPFLList = FetchPFLListAPI.as_view()
 
 FetchFlyerList = FetchFlyerListAPI.as_view()
-
-FetchFlyerSearchList = FetchFlyerSearchListAPI.as_view()
 
 UploadNewFlyerBGImage = UploadNewFlyerBGImageAPI.as_view()
 
