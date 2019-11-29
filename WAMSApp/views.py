@@ -1202,8 +1202,20 @@ class UploadProductImageAPI(APIView):
                         pass
                 
             elif data["image_category"] == "sub_images":
+                index = 0
+                sub_images = prod_obj.sub_images.all().order_by('-sub_image_index')
+                if sub_images.count()>0:
+                    index = sub_images[0].sub_image_index
                 for image_obj in image_objs:
-                    image_bucket_obj = ImageBucket.objects.create(image=image_obj)
+                    index += 1
+                    sub_image_index = 0
+                    is_sub_image = False
+                    if(index<=8):
+                        sub_image_index = index
+                        is_sub_image = True
+                    image_bucket_obj = ImageBucket.objects.create(image=image_obj, 
+                                                                  is_sub_image=is_sub_image, 
+                                                                  sub_image_index=sub_image_index)
                     prod_obj.sub_images.add(image_bucket_obj)
             elif data["image_category"] == "pfl_images":
                 for image_obj in image_objs:

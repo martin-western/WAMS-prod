@@ -941,44 +941,47 @@ body {
 
         <div class="tab-pane" id="attributes">
           <h4>Attributes</h4> 
-          <div class="row white" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
-            <div class="input-field col s12">
-              <input id="item-condition-note" type="text" >
-              <label for="item-condition-note">Item Condition Note</label>
-            </div>
-          </div>
-    
-          <div class="row white" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
-            <div class="input-field col s6">
-              <input id="max-order-quantity" type="text" >
-              <label for="max-order-quantity">Max Order Quantity</label>
-            </div>
+          <div class="row white" style="position: fixed; margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
+            <div class="col s12">
+              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
+                <div class="input-field col s12">
+                  <input id="item-condition-note" type="text" >
+                  <label for="item-condition-note">Item Condition Note</label>
+                </div>
+              </div>
+        
+              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
+                <div class="input-field col s6">
+                  <input id="max-order-quantity" type="text" >
+                  <label for="max-order-quantity">Max Order Quantity</label>
+                </div>
 
-            <div class="input-field col s6">
-              <input id="number-of-items" type="text" >
-              <label for="number-of-items">Number of Items</label>
-            </div>
-          </div>
+                <div class="input-field col s6">
+                  <input id="number-of-items" type="text" >
+                  <label for="number-of-items">Number of Items</label>
+                </div>
+              </div>
       
-          <div class="row white" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
-          
-            <div class="input-field col s4" style="padding: 0px 20px 0px 50px  !important;">
-               <input id="wattage" type="number" >
-              <label for="wattage">Wattage</label>
-            </div>
-          
-            <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-              <select id="wattage-metric">
-                <option selected value="">Unit</option>
-                <option value="volts">V</option>
-                <option value="Watts">W</option>
-                <option value="Kilowatts">KW</option>
-              </select>
-            </div>
+              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
+                <div class="input-field col s4" style="padding: 0px 20px 0px 50px  !important;">
+                   <input id="wattage" type="number" >
+                  <label for="wattage">Wattage</label>
+                </div>
+              
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                  <select id="wattage-metric">
+                    <option selected value="">Unit</option>
+                    <option value="volts">V</option>
+                    <option value="Watts">W</option>
+                    <option value="Kilowatts">KW</option>
+                  </select>
+                </div>
 
-            <div class="input-field col s6">
-              <input id="material-type" type="text" >
-              <label for="material-type">Material Type</label>
+                <div class="input-field col s6">
+                  <input id="material-type" type="text" >
+                  <label for="material-type">Material Type</label>
+                </div>
+              </div>
             </div>
           </div>  
         </div>
@@ -2209,8 +2212,12 @@ body {
         html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
       }
 
+      var sub_image_index = global_images[key][i]["sub_image_index"];
+      if(sub_image_index==0)
+        sub_image_index = "-"
+
       html_string += `<div class="" style="position:relative;">
-                        <a href="#delete-image-modal" id="delimg-`+global_images[key][i]["pk"]+`" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                        <a href="#delete-image-modal" id="delimg-`+global_images[key][i]["pk"]+`" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:4px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
                           <i class="material-icons redd" title="Delete Image" style="
                             background-color: transparent;
                             padding: 4px;
@@ -2225,7 +2232,7 @@ body {
                           </i>
                         </a>
                         <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" high_def_url="`+global_images[key][i]["main-url"]+`" style="width: 100%;object-fit:contain;">
-                        <input value="`+global_images[key][i]["sub_image_index"]+`" id="subcheck_`+global_images[key][i]["pk"]+`" type="text" >
+                        <input value="`+sub_image_index+`" id="subcheck_`+global_images[key][i]["pk"]+`" type="text">
                       </div>`;
 
       if(i%3==2 || i==global_images[key].length-1) {
@@ -2245,11 +2252,42 @@ body {
     var sub_image = [];
     var key = "sub_images";
 
+    // Check for condition
+    var unique_sub_index = [];
+    for(var i=0;i<global_images[key].length;i++)
+    {
+      var sub_image_index = $("#subcheck_"+global_images[key][i]["pk"]).val().trim();
+      if(sub_image_index!="-" && sub_image_index!="")
+      {
+        sub_image_index = parseInt(sub_image_index);
+        if(sub_image_index>=1 && sub_image_index<=8)
+        {
+          console.log("Key: ", sub_image_index);
+          if(unique_sub_index.includes(sub_image_index))
+          {
+            M.toast({html: "Sub Image indices must be unique"})
+            return;
+          }
+          
+          unique_sub_index.push(sub_image_index);
+        }
+        else
+        {
+          M.toast({html: "Sub Image indices must be between 1 to 8"})
+          return;
+        }
+      }
+    }
+
+
     for(var i=0;i<global_images[key].length;i++)
     {
       var temp_dict = {};
       temp_dict["pk"] = global_images[key][i]["pk"];
-      temp_dict["sub_image_index"] = $("#subcheck_"+global_images[key][i]["pk"]).val();
+      var sub_image_index = $("#subcheck_"+global_images[key][i]["pk"]).val();
+      if(sub_image_index=="" || sub_image_index=="-")
+        sub_image_index = "0"
+      temp_dict["sub_image_index"] = sub_image_index; 
       sub_image.push(temp_dict);
     }
 
@@ -2516,7 +2554,11 @@ body {
                       "midimage-url": response["midimage-url"],
                       "thumbnail-url": response["thumbnail-url"]
                     }];
-                    update_grid_images(global_image_key);
+                    if(global_image_key!="sub_images")
+                    {
+                      update_grid_images(global_image_key);
+                    }
+
                     if(global_image_key=="pfl_generated_images")
                     {
                       $($(".miniimage")[0]).click(); 

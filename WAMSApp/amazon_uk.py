@@ -23,6 +23,10 @@ def export_amazon_uk(products):
         workbook = xlsxwriter.Workbook('./files/csv/export-list-amazon-uk.xlsx')
         worksheet = workbook.add_worksheet()
 
+        cell_format = workbook.add_format({'bold': True})
+        cell_format.set_pattern(1)
+        cell_format.set_bg_color('yellow')
+
         rownum = 0
         colnum = 0
         with open('./WAMSApp/static/WAMSApp/csv/amazon_uk.csv','rt')as f:
@@ -30,7 +34,7 @@ def export_amazon_uk(products):
             for row in data:
                 colnum = 0
                 for rowdata in row:
-                    worksheet.write(rownum, colnum, rowdata.decode('utf-8'))
+                    worksheet.write(rownum, colnum, rowdata.decode('utf-8'), cell_format)
                     colnum += 1
                 rownum += 1
         
