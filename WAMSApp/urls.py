@@ -56,8 +56,6 @@ urlpatterns = [
     url(r'^pfl/(?P<pk>[\w-]+)/', views.PFLPage),
     url(r'^pfl-dashboard/', views.PFLDashboardPage),
     url(r'^fetch-pfl-list/', views.FetchPFLList),
-    url(r'^fetch-pfl-search-list/', views.FetchPFLSearchList),
-
 
 
     url(r'^flyer/(?P<pk>[\w-]+)/', views.FlyerPage),

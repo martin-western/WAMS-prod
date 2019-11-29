@@ -2090,7 +2090,31 @@ class FetchPFLListAPI(APIView):
             data = request.data
             logger.info("FetchPFLListAPI: %s", str(data))
 
+            page = int(data["page"])
+
             pfl_objs = PFL.objects.all()
+
+            chip_data = json.loads(data["tags"])
+            if len(chip_data)>0:
+                search_list_objs = []
+                for chip in chip_data:
+                    search = PFL.objects.filter(
+                        Q(product__product_name_sap__icontains=chip.lower()) |
+                        Q(name__icontains=chip.lower()) |
+                        Q(product__product_name_amazon_uk__icontains=chip.lower()) |
+                        Q(product__product_name_amazon_uae__icontains=chip.lower()) |
+                        Q(product__product_name_ebay__icontains=chip.lower()) |
+                        Q(product__product_id__icontains=chip.lower()) |
+                        Q(product__seller_sku__icontains=chip.lower())
+                    )
+                    for prod in search:
+                        search_list_objs.append(prod)
+                pfl_objs = list(set(search_list_objs))
+
+            total_results = len(pfl_objs)
+            paginator = Paginator(pfl_objs, 20)
+            pfl_objs = paginator.page(page)
+            
             pfl_list = []
             for pfl_obj in pfl_objs:
                 temp_dict = {}
@@ -2113,6 +2137,13 @@ class FetchPFLListAPI(APIView):
                         0].product_404_image.image.url
 
                 pfl_list.append(temp_dict)
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_results"] = total_results
 
             response["pfl_list"] = pfl_list
             response['status'] = 200
@@ -2120,72 +2151,6 @@ class FetchPFLListAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchPFLListAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-class FetchPFLSearchListAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchPFLSearchListAPI: %s", str(data))
-
-            chip_data = json.loads(data["tags"])
-
-            search_list_objs = []
-            for chip in chip_data:
-                search = PFL.objects.filter(
-                    Q(product__product_name_sap__icontains=chip) |
-                    Q(name__icontains=chip) |
-                    Q(product__product_name_amazon_uk__icontains=chip) |
-                    Q(product__product_name_amazon_uae__icontains=chip) |
-                    Q(product__product_name_ebay__icontains=chip) |
-                    Q(product__product_id__icontains=chip) |
-                    Q(product__seller_sku__icontains=chip)
-                )
-                for prod in search:
-                    search_list_objs.append(prod)
-
-            pfl_objs = search_list_objs
-
-            pfl_list = []
-            for pfl_obj in pfl_objs:
-                temp_dict = {}
-                temp_dict["pfl_name"] = pfl_obj.name
-                temp_dict["pfl_pk"] = pfl_obj.pk
-                temp_dict["product_name"] = ""
-                temp_dict["product_id"] = ""
-                if pfl_obj.product is not None:
-                    temp_dict["product_name"] = pfl_obj.product.product_name_sap
-                    temp_dict["product_id"] = pfl_obj.product.product_id
-
-                # Update this later
-                if pfl_obj.product is not None:
-                    if pfl_obj.product.pfl_generated_images.all().count()>0:
-                        temp_dict["product_image_url"] = pfl_obj.product.pfl_generated_images.all()[0].image.url
-                    else:
-                        temp_dict["product_image_url"] = Config.objects.all()[0].product_404_image.image.url
-                else:
-                    temp_dict["product_image_url"] = Config.objects.all()[
-                        0].product_404_image.image.url
-
-                pfl_list.append(temp_dict)
-
-            response["pfl_list"] = pfl_list
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchPFLSearchListAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -2629,8 +2594,6 @@ UploadImageExternalBucketFlyer = UploadImageExternalBucketFlyerAPI.as_view()
 UploadImageExternalBucketPFL = UploadImageExternalBucketPFLAPI.as_view()
 
 FetchPFLList = FetchPFLListAPI.as_view()
-
-FetchPFLSearchList = FetchPFLSearchListAPI.as_view()
 
 FetchFlyerList = FetchFlyerListAPI.as_view()
 
