@@ -1,5 +1,6 @@
 from WAMSApp.models import *
 import logging
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -7,6 +8,45 @@ def convert_to_ascii(s):
     s = s.replace(u'\u2013', "-").replace(u'\u2019', "'").replace(u'\u2018', "'").replace(u'\u201d','"').replace(u'\u201c','"')
     s = s.encode("ascii", "ignore")
     return s
+
+
+def custom_permission_filter_products(user):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        brands = permission_obj.brands.all()
+        product_objs = Product.objects.filter(brand__in=brands)
+        return product_objs
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_filter_products: %s at %s", e, str(exc_tb.tb_lineno))
+        return []
+
+
+def custom_permission_filter_brands(user):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        brands = permission_obj.brands.all()
+        return brands
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_filter_brands: %s at %s", e, str(exc_tb.tb_lineno))
+        return []
+
+
+def custom_permission_filter_pfls(user):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        brands = permission_obj.brands.all()
+        pfl_objs = PFL.objects.filter(product__brand__in=brands)
+        return pfl_objs
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_filter_pfls: %s at %s", e, str(exc_tb.tb_lineno))
+        return []
+
 
 
 def create_response_images_flyer_pfl(images):

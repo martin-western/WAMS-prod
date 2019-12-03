@@ -301,6 +301,11 @@ ul.dropdown-content.select-dropdown li span {
           <input id="seller-sku" type="text" class="validate">
           <label for="seller-sku" style="color:black;">Seller SKU<span style="color:#009051;">*</span></label>
         </div>
+
+        <div class="input-field col s12">
+          <input id="brand-name" type="text" class="validate">
+          <label for="brand-name" style="color:black;">Brand<span style="color:#009051;">*</span></label>
+        </div>
       </div>
 
     </div>
@@ -854,6 +859,17 @@ ul.dropdown-content.select-dropdown li span {
             }
             $("#brand-select").html(html_string);
             $("select").formSelect();
+
+            var autocomplete_data = {};
+            for(var i=0;i<brand_list.length;i++)
+            {
+              autocomplete_data[brand_list[i]["name"]] = null; 
+            }
+
+            $('#brand-name').autocomplete({
+              data: autocomplete_data
+            });
+
             fetch_product_list();
           }
         },
@@ -888,10 +904,11 @@ ul.dropdown-content.select-dropdown li span {
 
   function create_new_product()
   {
-    var product_name = $("#product-name").val();
-    var seller_sku = $("#seller-sku").val();
+    var product_name = $("#product-name").val().trim();
+    var seller_sku = $("#seller-sku").val().trim();
+    var brand_name = $("#brand-name").val().trim();
 
-    if(product_name=="" || seller_sku=="")
+    if(product_name=="" || seller_sku=="" || brand_name=="")
     {
       M.toast({html: "Please fill all the details before creating new product"});
       return;
@@ -905,7 +922,8 @@ ul.dropdown-content.select-dropdown li span {
         },
         data:{
           product_name: product_name,
-          seller_sku: seller_sku
+          seller_sku: seller_sku,
+          brand_name: brand_name
         },
         success: function(response) {
           console.log("Success!", response);

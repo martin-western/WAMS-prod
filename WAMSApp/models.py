@@ -397,6 +397,20 @@ class Config(models.Model):
 
 
 
+class CustomPermission(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    brands = models.ManyToManyField(Brand, blank=True)
+
+    class Meta:
+        verbose_name = "CustomPermission"
+        verbose_name_plural = "CustomPermissions"
+
+    def __str__(self):
+        return str(self.user)    
+
+
+
 @receiver(post_save, sender=Product, dispatch_uid="create_pfl")
 def update_stock(sender, instance, **kwargs):
     if PFL.objects.filter(product=instance).exists()==False:

@@ -2832,6 +2832,25 @@ body {
     if($("#product-name-sap").val()=="" || $("#product-id").val()=="" || $("#seller-sku").val()=="" || $("#brand-name").val()=="" || $("#product-name-sap").val()=="") {
      
     }
+
+    if($("#brand-name").val().trim()=="")
+    {
+      M.toast({html: "Brand name cannot be empty!"});
+      return;
+    }
+
+    if($("#product-id").val().trim()=="")
+    {
+      M.toast({html: "Product ID cannot be empty!"});
+      return;
+    }
+
+    if($("#seller-sku").val().trim()=="")
+    {
+      M.toast({html: "Seller SKU cannot be empty!"});
+      return;
+    }
+
     save_product();
   });
 

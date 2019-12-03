@@ -61,6 +61,12 @@ def Logout(request):
 
 @login_required(login_url='/login/')
 def EditProductPage(request, pk):
+
+    product_obj = Product.objects.get(pk=int(pk))
+    permissible_brands = custom_permission_filter_brands(request.user)
+    if product_obj.brand not in permissible_brands:
+        return HttpResponseRedirect('/products/')
+
     return render(request, 'WAMSApp/edit-product-page.html')
 
 
@@ -162,7 +168,7 @@ class FetchConstantValuesAPI(APIView):
                 material_list.append(temp_dict)
 
             brand_list = []
-            brand_objs = Brand.objects.all()
+            brand_objs = custom_permission_filter_brands(request.user)
             for brand_obj in brand_objs:
                 temp_dict = {}
                 temp_dict["name"] = brand_obj.name
@@ -214,6 +220,21 @@ class CreateNewProductAPI(APIView):
 
             product_name = convert_to_ascii(data["product_name"])
             seller_sku = convert_to_ascii(data["seller_sku"])
+            brand_name = convert_to_ascii(data["brand_name"])
+
+            # Checking brand permission
+            try:
+                permissible_brands = custom_permission_filter_brands(request.user)
+                brand_obj = Brand.objects.get(name=brand_name)
+                if brand_obj not in permissible_brands:
+                    logger.warning("CreateNewProductAPI Restricted Access Brand!")
+                    response['status'] = 403
+                    return Response(data=response)
+            except Exception as e:
+                logger.error("CreateNewProductAPI Restricted Access Brand!")
+                response['status'] = 403
+                return Response(data=response)
+
 
             if Product.objects.filter(seller_sku=seller_sku).exists():
                 # Duplicate product detected!
@@ -257,8 +278,14 @@ class FetchProductDetailsAPI(APIView):
                 data = json.loads(data)
 
             prod_obj = Product.objects.get(pk=data["pk"])
-
             brand_obj = prod_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchProductDetails Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
 
             response["pfl_product_name"] = prod_obj.pfl_product_name
             try:
@@ -502,6 +529,19 @@ class SaveProductAPI(APIView):
             if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count()==1 or Product.objects.filter(seller_sku=seller_sku).exclude(pk=data["product_pk"]).count()==1:
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
+                return Response(data=response)
+
+            # Checking brand permission
+            try:
+                permissible_brands = custom_permission_filter_brands(request.user)
+                brand_obj = Brand.objects.get(name=data["brand"])
+                if brand_obj not in permissible_brands:
+                    logger.warning("SaveProductAPI Restricted Access Brand!")
+                    response['status'] = 403
+                    return Response(data=response)
+            except Exception as e:
+                logger.error("SaveProductAPI Restricted Access Brand!")
+                response['status'] = 403
                 return Response(data=response)
 
 
@@ -759,12 +799,15 @@ class FetchProductListAPI(APIView):
 
             page = int(data['page'])
             search_list_objs = []
-            product_objs_list = []
+            #product_objs_list = []
+            product_objs_list = custom_permission_filter_products(request.user)
+
+
             if filter_parameters['verified']:
-                product_objs_list = Product.objects.filter(
+                product_objs_list = product_objs_list.filter(
                     verified=filter_parameters['verified']).order_by('-pk')
             else:
-                product_objs_list = Product.objects.all().order_by('-pk')
+                product_objs_list = product_objs_list.order_by('-pk')
 
             if filter_parameters["start_date"] != "" and filter_parameters["end_date"] != "":
                 start_date = datetime.datetime.strptime(
@@ -1687,7 +1730,7 @@ class FetchProductListFlyerPFLAPI(APIView):
             data = request.data
             logger.info("FetchProductListFlyerPFLAPI: %s", str(data))
 
-            product_objs = Product.objects.all()
+            product_objs = custom_permission_filter_products(request.user)
 
             try:
                 if "flyer_kp" in data:
@@ -2092,8 +2135,11 @@ class FetchPFLListAPI(APIView):
 
             page = int(data["page"])
 
-            all_pfl_objs = PFL.objects.all().exclude(product__pfl_product_features="[]")
-            pfl_objs = PFL.objects.all().exclude(product__pfl_product_features="[]")
+            all_pfl_objs = custom_permission_filter_pfls(request.user)
+            pfl_objs = custom_permission_filter_pfls(request.user)
+
+            all_pfl_objs = all_pfl_objs.exclude(product__pfl_product_features="[]")
+            pfl_objs = pfl_objs.exclude(product__pfl_product_features="[]")
 
             for pfl_obj in all_pfl_objs:
                 try:
@@ -2179,7 +2225,8 @@ class FetchFlyerListAPI(APIView):
 
             page = int(data["page"])
 
-            flyer_objs = Flyer.objects.all()
+            permissible_brands = custom_permission_filter_brands(request.user)
+            flyer_objs = Flyer.objects.filter(brand__in=permissible_brands)
 
             chip_data = json.loads(data["tags"])
 
@@ -2342,7 +2389,7 @@ class FetchBrandsAPI(APIView):
             data = request.data
             logger.info("FetchBrandsAPI: %s", str(data))
 
-            brand_objs = Brand.objects.all()
+            brand_objs = custom_permission_filter_brands(request.user)
             brand_list = []
             for brand_obj in brand_objs:
                 temp_dict = {}
