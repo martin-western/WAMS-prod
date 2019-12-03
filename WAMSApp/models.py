@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
+
 
 from PIL import Image as IMage
 import StringIO
@@ -182,7 +184,7 @@ class MaterialType(models.Model):
 class Product(models.Model):
 
     #MISC
-    created_date = models.DateTimeField(auto_now=True)
+    created_date = models.DateTimeField()
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
 
@@ -309,6 +311,12 @@ class Product(models.Model):
         return str(self.product_id)
 
 
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+        super(Product, self).save(*args, **kwargs)
+
+
 
 
 class Flyer(models.Model):
@@ -359,7 +367,7 @@ class ExportList(models.Model):
 
     title = models.CharField(default="SampleExportList", max_length=300)
     products = models.ManyToManyField(Product, blank=True)
-    created_date = models.DateTimeField(auto_now=True)
+    created_date = models.DateTimeField()
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
@@ -368,6 +376,11 @@ class ExportList(models.Model):
 
     def __str__(self):
         return str(self.title)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+        super(ExportList, self).save(*args, **kwargs)
 
 
 
