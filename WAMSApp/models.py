@@ -131,12 +131,24 @@ class ImageBucket(models.Model):
         #compress("."+self.image.image.url)
 
 
+class Organization(models.Model):
+
+    name = models.CharField(unique=True, max_length=100)
+
+    class Meta:
+        verbose_name = "Organization"
+        verbose_name_plural = "Organization"
+
+    def __str__(self):
+        return str(self.name)
+
 
 class Brand(models.Model):
 
     name = models.CharField(unique=True, max_length=100)
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
-
+    organization = models.ForeignKey(Organization, null=True, blank=True)
+ 
     class Meta:
         verbose_name = "Brand"
         verbose_name_plural = "Brands"
@@ -258,6 +270,8 @@ class Product(models.Model):
     item_display_width_metric = models.CharField(max_length=100, default="")
     item_display_height = models.FloatField(null=True, blank=True)
     item_display_height_metric = models.CharField(max_length=100, default="")
+    item_count = models.FloatField(null=True, blank=True)
+    item_count_metric = models.CharField(max_length=100, default="")
 
 
     #Attributes
