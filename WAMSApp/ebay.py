@@ -1,0 +1,108 @@
+from WAMSApp.models import *
+import csv
+import urllib
+import os
+import json
+from django.core.files import File
+from WAMSApp.core_utils import *
+
+import logging
+import sys
+import xlsxwriter
+
+logger = logging.getLogger(__name__)
+
+
+def export_ebay(products):
+    success_products = 0
+    try:
+        try:
+            os.system("rm ./files/csv/export-list-ebay.xlsx")
+        except Exception as e:
+            logger.warning("Delete old xlsx %s", str(e))
+
+        workbook = xlsxwriter.Workbook('./files/csv/export-list-ebay.xlsx')
+        worksheet = workbook.add_worksheet()
+
+        cell_format = workbook.add_format({'bold': True})
+        cell_format.set_pattern(1)
+        cell_format.set_bg_color('gray')
+
+        headers = ["*Action(SiteID=UK|Country=GB|Currency=GBP|Version=941)",
+                   "*Category",
+                   "*Title",
+                   "Subtitle",
+                   "*Description",
+                   "*ConditionID",
+                   "PicURL",
+                   "*Quantity",
+                   "*Format",
+                   "*StartPrice",
+                   "*Duration",
+                   "*Location",
+                   "StoreCategory",
+                   "*C:Brand",
+                   "*C:MPN",
+                   "Product:EAN",
+                   "CustomLabel",
+                   "ShippingProfileName",
+                   "ReturnProfileName",
+                   "PaymentProfileName"]
+
+        colnum = 0
+        for key in headers:
+            worksheet.write(0, colnum, key, cell_format)
+            colnum += 1
+
+        rownum = 1
+        for product in products:
+            try:
+                common_row = ["" for i in range(len(headers))]
+                common_row[0] = "Add"
+                common_row[1] = str(product.category)
+                common_row[2] = str(product.product_name_ebay)
+                common_row[3] = str(product.subtitle)
+                common_row[4] = str(product.product_description_ebay)
+                common_row[5] = "1000"
+                
+                common_row[7] = "" if product.quantity==None else str(product.quantity)
+                common_row[8] = "FixedPrice"
+                common_row[9] = "" if product.standard_price==None else str(product.standard_price)
+                common_row[10] = "GTC"
+                common_row[11] = "Birmingham"
+                common_row[12] = ""
+                common_row[13] = "" if product.brand==None else str(product.brand.name)
+                common_row[14] = str(product.manufacturer_part_number)
+                common_row[15] = str(product.product_id)
+                common_row[16] = str(product.seller_sku)
+                common_row[17] = "24 Hour Delivery Service"
+                common_row[18] = "Western International - Returns 30 days"
+                common_row[19] = "Western International - Paypal"
+
+                # Graphics Part
+                images_link = []
+                if product.main_images.filter(is_main_image=True).count() > 0:
+                    images_link.append(str(product.main_images.filter(is_main_image=True)[0].image.image.url))
+
+                for image in product.main_images.filter(is_sub_image=True).order_by('sub_image_index'):
+                    images_link.append(str(image.image.image.url))                    
+
+                pic_url = "|".join(images_link)
+                common_row[6] = pic_url
+
+                colnum = 0
+                for row in common_row:
+                    worksheet.write(rownum, colnum, row)
+                    colnum += 1
+                rownum += 1
+                success_products += 1
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Loop export_ebay: %s at %s | Product PK: %s", e, str(
+                    exc_tb.tb_lineno), str(product.pk))
+        workbook.close()
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("export_ebay: %s at %s", e, str(exc_tb.tb_lineno))
+
+    return success_products

@@ -419,7 +419,21 @@ class CustomPermission(models.Model):
         verbose_name_plural = "CustomPermissions"
 
     def __str__(self):
-        return str(self.user)    
+        return str(self.user)
+
+
+class EbayCategory(models.Model):
+
+    category_id = models.CharField(default="", max_length=100)
+    name = models.CharField(default="", max_length=300)
+
+    class Meta:
+        verbose_name = "EbayCategory"
+        verbose_name_plural = "EbayCategory"
+
+    def __str__(self):
+        return str(self.name)
+
 
 
 

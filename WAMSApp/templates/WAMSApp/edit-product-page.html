@@ -517,16 +517,13 @@ body {
 
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <select id="condition-type">
-                <option value="New" selected>New</option>
-                <option value="Old">Old</option>
-              </select>
-              <label for="condition-type">Condition Type</label>
+              <input id="feed-product-type" type="text">
+              <label for="feed-product-type">Feed Product Type</label>
             </div>
 
             <div class="input-field col s6">
-              <input id="feed-product-type" type="text">
-              <label for="feed-product-type">Feed Product Type</label>
+              <input id="parent-sku" type="text" >
+              <label for="parent-sku">Parent SKU</label>
             </div>
           </div>
 
@@ -550,11 +547,6 @@ body {
             <div class="input-field col s6">
               <input id="barcode-string" type="text" data-length="20">
               <label for="barcode-string">Barcode</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="parent-sku" type="text" >
-              <label for="parent-sku">Parent SKU</label>
             </div>
           </div>
         </div>
@@ -962,10 +954,11 @@ body {
         </div>
 
         <div class="tab-pane" id="attributes">
-          <h4>Attributes</h4> 
-          <div class="row white" style="position: fixed; margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
+          <h4>Attributes</h4>
+          <div class="row white" style="position:absolute;margin-bottom:0px !important;">
+            
             <div class="col s12">
-              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
+              <div class="row" style="padding-top:0em !important;margin-top:0em !important;margin-bottom:0px !important;padding-bottom: 0em !important;">
                 <div class="input-field col s12">
                   <input id="item-condition-note" type="text" >
                   <label for="item-condition-note">Item Condition Note</label>
@@ -1004,6 +997,18 @@ body {
                   <label for="material-type">Material Type</label>
                 </div>
               </div>
+
+
+              <div class="row" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
+                <div class="input-field col s6">
+                  <select id="condition-type">
+                    <option value="New" selected>New</option>
+                    <option value="Old">Old</option>
+                  </select>
+                  <label for="condition-type">Condition Type</label>
+                </div>
+              </div>
+
             </div>
           </div>  
         </div>
@@ -1261,6 +1266,7 @@ body {
         <select id="export-format">
           <option value="Amazon UK" selected>Amazon UK</option>
           <option value="Amazon UAE" >Amazon UAE</option>
+          <option value="Ebay" >Ebay</option>
           <!-- <option value="Ebay" style="font-family: 'AvenirNextRegular';">Ebay</option>   -->
         </select>
         <label style="margin-left: 0em !important;">Export Format</label>
@@ -1613,12 +1619,17 @@ body {
           });
 
           autocomplete_data = {};
-          var category_list = response["category_list"];
-          for(var i=0;i<category_list.length;i++) {
-            autocomplete_data[category_list[i]["name"]] = null;
+          var ebay_category_list = response["ebay_category_list"];
+          for(var i=0;i<ebay_category_list.length;i++) {
+            autocomplete_data[ebay_category_list[i]["name"]+"|"+ebay_category_list[i]["category_id"]] = null;
           }
           $('#category').autocomplete({
-            data: autocomplete_data
+            data: autocomplete_data,
+            onAutocomplete: function(val){
+              var category_id = val.split("|")
+              category_id = category_id[category_id.length-1];
+              $("#category").val(category_id);
+            }
           });
 
 
@@ -1638,6 +1649,10 @@ body {
           {
             html_string += `<option value="`+product_id_type_list[i]["name"]+`">`+product_id_type_list[i]["name"]+`</option>`
           }
+
+
+
+
           $("#product-id-type").html(html_string);
           $('select').formSelect();
         } 

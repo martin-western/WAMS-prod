@@ -183,7 +183,18 @@ class FetchConstantValuesAPI(APIView):
                 temp_dict["pk"] = product_id_type_obj.pk
                 product_id_type_list.append(temp_dict)
 
+
+            ebay_category_list = []
+            ebay_category_objs = EbayCategory.objects.all()
+            for ebay_category_obj in ebay_category_objs:
+                temp_dict = {}
+                temp_dict["name"] = ebay_category_obj.name
+                temp_dict["category_id"] = ebay_category_obj.category_id
+                temp_dict["pk"] = ebay_category_obj.pk
+                ebay_category_list.append(temp_dict)
+
             response["category_list"] = category_list
+            response["ebay_category_list"] = ebay_category_list
             response["material_list"] = material_list
             response["brand_list"] = brand_list
             response["product_id_type_list"] = product_id_type_list
@@ -1126,6 +1137,11 @@ class DownloadExportListAPI(APIView):
             elif export_format == "Amazon UAE":
                 export_amazon_uae(products)
                 response["file_path"] = "/files/csv/export-list-amazon-uae.csv"
+            elif export_format == "Ebay":
+                success_products = export_ebay(products)
+                response["success_products"] = success_products
+                response["total_products"] = products.count()
+                response["file_path"] = "/files/csv/export-list-ebay.xlsx"
 
             response['status'] = 200
 
@@ -1161,6 +1177,9 @@ class DownloadProductAPI(APIView):
             elif export_format == "Amazon UAE":
                 export_amazon_uae(products)
                 response["file_path"] = "/files/csv/export-list-amazon-uae.csv"
+            elif export_format == "Ebay":
+                export_ebay(products)
+                response["file_path"] = "/files/csv/export-list-ebay.xlsx"
 
             response['status'] = 200
 
