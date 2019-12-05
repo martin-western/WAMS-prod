@@ -6,6 +6,7 @@ import StringIO
 from WAMSApp.models import *
 from PIL import Image as IMage
 from django.core.files.uploadedfile import InMemoryUploadedFile
+import glob
 
 filename = "./scripts/Nesto.xlsx"
 dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
