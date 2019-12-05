@@ -375,6 +375,9 @@ class FetchProductDetailsAPI(APIView):
             response["item_display_height"] = "" if prod_obj.item_display_height==None else prod_obj.item_display_height
             response[
                 "item_display_height_metric"] = prod_obj.item_display_height_metric
+
+            response["item_count"] = "" if prod_obj.item_count==None else prod_obj.item_count
+            response["item_count_metric"] = prod_obj.item_count_metric
             
             response["item_condition_note"] = prod_obj.item_condition_note
             response["max_order_quantity"] = "" if prod_obj.max_order_quantity==None else prod_obj.max_order_quantity
@@ -625,6 +628,9 @@ class SaveProductAPI(APIView):
             item_display_height = None if data[
                 "item_display_height"] == "" else float(data["item_display_height"])
             item_display_height_metric = data["item_display_height_metric"]
+            item_count = None if data["item_count"] == "" else float(data["item_count"])
+            item_count_metric = data["item_count_metric"]
+
             item_condition_note = convert_to_ascii(data["item_condition_note"])
             max_order_quantity = None if data[
                 "max_order_quantity"] == "" else int(data["max_order_quantity"])
@@ -750,6 +756,8 @@ class SaveProductAPI(APIView):
             prod_obj.item_display_width_metric = item_display_width_metric
             prod_obj.item_display_height = item_display_height
             prod_obj.item_display_height_metric = item_display_height_metric
+            prod_obj.item_count = item_count
+            prod_obj.item_count_metric = item_count_metric
             prod_obj.item_condition_note = item_condition_note
             prod_obj.max_order_quantity = max_order_quantity
             prod_obj.number_of_items = number_of_items

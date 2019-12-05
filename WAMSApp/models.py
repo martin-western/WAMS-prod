@@ -79,10 +79,8 @@ class Image(models.Model):
             size = 128, 128
             thumb = IMage.open(self.image)
             thumb.thumbnail(size)
-            im_type = "JPEG"
             infile = self.image.file.name
-            if infile.split(".")[-1].lower()=="png":
-                im_type = "PNG" 
+            im_type = thumb.format 
             thumb_io = StringIO.StringIO()
             thumb.save(thumb_io, format=im_type)
 
