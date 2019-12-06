@@ -234,6 +234,7 @@ class CreateNewProductAPI(APIView):
             brand_name = convert_to_ascii(data["brand_name"])
 
             # Checking brand permission
+            brand_obj = None
             try:
                 permissible_brands = custom_permission_filter_brands(request.user)
                 brand_obj = Brand.objects.get(name=brand_name)
@@ -258,7 +259,8 @@ class CreateNewProductAPI(APIView):
                                               product_name_ebay=product_name,
                                               pfl_product_name=product_name,
                                               product_id=seller_sku,
-                                              seller_sku=seller_sku)
+                                              seller_sku=seller_sku,
+                                              brand=brand_obj)
 
 
             response["product_pk"] = prod_obj.pk
