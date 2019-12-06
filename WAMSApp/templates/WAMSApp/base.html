@@ -168,6 +168,13 @@
 
 
   <script type="text/javascript">
+
+    
+    //var dataLayer = [];
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({'userId': $("#user-id-hidden").html()});
+
+
     $('.sidenav').sidenav({
       "inDuration": 150,
       "outDuration": 150
@@ -183,18 +190,17 @@
     }
 
 
-    window.dataLayer = window.dataLayer || [];
+    // window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
+    // function gtag() {
+    //     dataLayer.push(arguments);
+    // }
     // gtag('js', new Date());
 
     // gtag('config', 'UA-153774713-1');
-    gtag('config', 'UA-153774713-1', {
-      'userId': $("#user-id-hidden").html()
-    });
-
+    // gtag('config', 'UA-153774713-1', {
+    //   'userId': $("#user-id-hidden").html()
+    // });
 
   </script>
 
