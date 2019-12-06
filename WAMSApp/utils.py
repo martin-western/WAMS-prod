@@ -7,3 +7,4 @@ from WAMSApp.core_utils import *
 from WAMSApp.amazon_uk import *
 from WAMSApp.amazon_uae import *
 from WAMSApp.ebay import *
+from WAMSApp.noon import *

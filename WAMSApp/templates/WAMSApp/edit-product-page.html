@@ -461,6 +461,11 @@ body {
               <input id="product-name-ebay" type="text">
               <label for="product-name-ebay">Product Title Ebay</label>
             </div>
+
+            <div class="input-field col s12">
+              <input id="product-name-noon" type="text">
+              <label for="product-name-noon">Product Title Noon</label>
+            </div>
           </div>
 
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
@@ -548,7 +553,34 @@ body {
               <input id="barcode-string" type="text" data-length="20">
               <label for="barcode-string">Barcode</label>
             </div>
+
+            <div class="input-field col s6">
+              <input id="noon-product-type" type="text">
+              <label for="noon-product-type">Noon Product Type</label>
+            </div>
           </div>
+
+          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
+            <div class="input-field col s6">
+              <input id="noon-product-subtype" type="text">
+              <label for="noon-product-subtype">Noon Product Subtype</label>
+            </div>
+
+            <div class="input-field col s6">
+              <input id="noon-model-number" type="text">
+              <label for="noon-model-number">Noon Model Number</label>
+            </div>
+          </div>
+
+
+          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
+            <div class="input-field col s6">
+              <input id="noon-model-name" type="text">
+              <label for="noon-model-name">Noon Model Name</label>
+            </div>
+          </div>
+
+
         </div>
 
 
@@ -559,9 +591,10 @@ body {
             <br>
             <div class="col s12">
               <ul class="tabs">
-                <li class="tab col s4"><a class="active" href="#amazon_uk_description_div">Amazon UK</a></li>
-                <li class="tab col s4"><a href="#amazon_uae_description_div">Amazon UAE</a></li>
-                <li class="tab col s4"><a href="#ebay_description_div">Ebay</a></li>
+                <li class="tab col s3"><a class="active" href="#amazon_uk_description_div">Amazon UK</a></li>
+                <li class="tab col s3"><a href="#amazon_uae_description_div">Amazon UAE</a></li>
+                <li class="tab col s3"><a href="#ebay_description_div">Ebay</a></li>
+                <li class="tab col s3"><a href="#noon_description_div">Noon</a></li>
               </ul>
             </div>
         
@@ -636,6 +669,34 @@ body {
               </div>
 
               <div id="product-attributes-ebay-div">
+              </div>
+            </div>
+
+
+
+            <div id="noon_description_div">
+
+              <div class="input-field col s12" style="text-align: left;">
+                <div class="document-editor">
+                  <div class="document-editor__toolbar clone4_toolbar"></div>
+                  <div class="document-editor__editable-container clone4_container">
+                    <div class="document-editor__editable clone4_editable">
+                    </div>
+                  </div>
+                </div>
+              </div>  
+
+
+              <div class="input-field col s9">
+                <input id="product-attribute-noon-1" type="text" >
+                <label for="product-attribute-noon-1">Product Attribute</label>
+              </div>
+
+              <div class="input-field col s1">
+                <a id="add-product-attribute-noon-btn" href="#!" class="btn-floating" style = "background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">add</i></a>
+              </div>
+
+              <div id="product-attributes-noon-div">
               </div>
             </div>
 
@@ -1044,29 +1105,43 @@ body {
             </div>
 
             <div class="input-field col s6">
-              <input id="quantity" type="number" >
-              <label for="quantity">Quantity</label>
+              <input id="sale-price" type="number" >
+              <label for="sale-price">Sale Price</label>
             </div>
           </div>
 
           <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="sale-price" type="number" >
-              <label for="sale-price">Sale Price</label>
-            </div>
-
             <div class="input-field col s6">
               <input id="sale-from" type="date" >
               <label for="sale-from">Sale From</label>
             </div>
-          </div>
 
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
             <div class="input-field col s6">
               <input id="sale-end" type="date" >
               <label for="sale-end">Sale End</label>
             </div>
           </div>
+
+          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
+            <div class="input-field col s6">
+              <input id="noon-msrp-ae" type="number" >
+              <label for="noon-msrp-ae">Noon MSRP AE</label>
+            </div>
+
+            <div class="input-field col s6">
+              <input id="noon-msrp-ae-unit" type="text" >
+              <label for="noon-msrp-ae-unit">Noon MSRP AE Unit</label>
+            </div>
+          </div>
+
+
+          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
+            <div class="input-field col s6">
+              <input id="quantity" type="number" >
+              <label for="quantity">Quantity</label>
+            </div>
+          </div>
+
         </div>
 
         <div class="tab-pane" id="pfl">
@@ -1267,6 +1342,7 @@ body {
           <option value="Amazon UK" selected>Amazon UK</option>
           <option value="Amazon UAE" >Amazon UAE</option>
           <option value="Ebay" >Ebay</option>
+          <option value="Noon" >Noon</option>
           <!-- <option value="Ebay" style="font-family: 'AvenirNextRegular';">Ebay</option>   -->
         </select>
         <label style="margin-left: 0em !important;">Export Format</label>
@@ -1588,6 +1664,27 @@ body {
       console.error( err );
   } );
 
+
+
+
+  DecoupledEditor
+  .create( document.querySelector( '.clone4_editable' ), {
+      cloudServices: {
+      }
+  } )
+  .then( editor => {
+      const toolbarContainer = document.querySelector( '.clone4_toolbar' );
+
+      toolbarContainer.appendChild( editor.ui.view.toolbar.element );
+      //editor.isReadOnly = !response['edit_access'];
+      window.editor.push(editor);
+  } )
+  .catch( err => {
+      console.error( err );
+  } );
+
+
+
   function getCsrfToken() {
     var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
     return CSRF_TOKEN;
@@ -1849,6 +1946,7 @@ body {
         $("#product-name-amazon-uae").val(response["product_name_amazon_uae"]);
         $("#product-name-sap").val(response["product_name_sap"]);
         $("#product-name-ebay").val(response["product_name_ebay"]);
+        $("#product-name-noon").val(response["product_name_noon"]);
         $("#category").val(response["category"]);
         $("#subtitle").val(response["subtitle"]);
         $("#brand-name").val(response["brand"]);
@@ -1858,6 +1956,11 @@ body {
     	  $("#seller-sku").val(response["seller_sku"]);
         $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
         $("#barcode-string").val(response["barcode_string"]);
+        $("#noon-product-type").val(response["noon_product_type"]);
+        $("#noon-product-subtype").val(response["noon_product_subtype"]);
+        $("#noon-model-name").val(response["noon_model_name"]);
+        $("#noon-model-number").val(response["noon_model_number"]);
+
         $("#condition-type").val(response["condition_type"]);
         $("#feed-product-type").val(response["feed_product_type"]);  
         $("#update-delete").val(response["update_delete"]);
@@ -1866,6 +1969,8 @@ body {
         window.editor[0].setData(response["product_description_amazon_uk"]);
         window.editor[1].setData(response["product_description_amazon_uae"]);
         window.editor[2].setData(response["product_description_ebay"]);
+        window.editor[3].setData(response["product_description_noon"]);
+
 
         var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];
         if(product_attribute_list_amazon_uk.length>0)
@@ -1898,6 +2003,17 @@ body {
         {
           $("#add-product-attribute-ebay-btn").click();  
           $("#product-attribute-ebay-"+(i+1)).val(product_attribute_list_ebay[i]);
+        }
+
+        var product_attribute_list_noon = response["product_attribute_list_noon"];
+        if(product_attribute_list_noon.length>0)
+        {
+          $("#product-attribute-noon-1").val(product_attribute_list_noon[0]);
+        }
+        for(var i=1;i<product_attribute_list_noon.length;i++)
+        {
+          $("#add-product-attribute-noon-btn").click();  
+          $("#product-attribute-noon-"+(i+1)).val(product_attribute_list_noon[i]);
         }
           
         $("#search-terms").val(response["search_terms"]);
@@ -1963,6 +2079,10 @@ body {
         $("#sale-price").val(response["sale_price"]);
         $("#sale-from").val(response["sale_from"]);
         $("#sale-end").val(response["sale_end"]);
+
+        $("#noon-msrp-ae").val(response["noon_msrp_ae"]);
+        $("#noon-msrp-ae-unit").val(response["noon_msrp_ae_unit"]);
+
 
 
         global_images = response["images"];
@@ -2063,6 +2183,31 @@ body {
   $(document).on("click", ".remove-product-attribute-ebay-btn", function(){
     $(this).parent().parent().remove();
   });
+
+
+
+
+  var product_attribute_noon_cnt = 1;
+  $("#add-product-attribute-noon-btn").click(function(){
+    product_attribute_noon_cnt++;
+
+    var html_string = `<div>
+                         <div class="input-field col s9">
+                           <input id="product-attribute-noon-`+product_attribute_noon_cnt+`" type="text" >
+                           <label for="product-attribute-noon-`+product_attribute_noon_cnt+`">Product Attribute</label>
+                         </div>
+                         <div class="input-field col s1">
+                           <a href="#!" class="remove-product-attribute-noon-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
+                         </div>
+                       </div>`
+    $("#product-attributes-noon-div").append(html_string);
+  });
+
+  $(document).on("click", ".remove-product-attribute-noon-btn", function(){
+    $(this).parent().parent().remove();
+  });
+
+
 
 
   var special_feature_cnt = 1;
@@ -2637,6 +2782,8 @@ body {
     var product_name_amazon_uae = $("#product-name-amazon-uae").val();
     var product_name_ebay = $("#product-name-ebay").val();
     var product_name_sap = $("#product-name-sap").val();
+    var product_name_noon = $("#product-name-noon").val();
+
     var category = $("#category").val();
     var subtitle = $("#subtitle").val();
     var brand = $("#brand-name").val();
@@ -2645,7 +2792,11 @@ body {
     var product_id_type = $("#product-id-type").val();
     var seller_sku = $("#seller-sku").val();
     var manufacturer_part_number = $("#manufacturer-part-number").val();
-    var barcode_string = $("#barcode-string").val()
+    var barcode_string = $("#barcode-string").val();
+    var noon_product_type = $("#noon-product-type").val();
+    var noon_product_subtype = $("#noon-product-subtype").val();
+    var noon_model_number = $("#noon-model-number").val();
+    var noon_model_name = $("#noon-model-name").val();
     var condition_type = $("#condition-type").val();
     var feed_product_type = $("#feed-product-type").val();  
     var update_delete = $("#update-delete").val();
@@ -2653,6 +2804,7 @@ body {
     var product_description_amazon_uk = window.editor[0].getData();
     var product_description_amazon_uae = window.editor[1].getData();
     var product_description_ebay = window.editor[2].getData();
+    var product_description_noon = window.editor[3].getData();
 
 
     var product_attribute_data_amazon_uk = [];
@@ -2686,6 +2838,18 @@ body {
       } 
     }
     product_attribute_data_ebay = JSON.stringify(product_attribute_data_ebay);
+
+
+
+    var product_attribute_data_noon = [];
+    for(var i=1;i<=product_attribute_noon_cnt;i++)
+    {
+      if($("#product-attribute-noon-"+i).val()!="")
+      {
+        product_attribute_data_noon.push($("#product-attribute-noon-"+i).val());
+      }
+    }
+    product_attribute_data_noon = JSON.stringify(product_attribute_data_noon);
 
 
     var search_terms = $("#search-terms").val();
@@ -2751,6 +2915,8 @@ body {
     var sale_price = $("#sale-price").val();
     var sale_from = $("#sale-from").val();
     var sale_end = $("#sale-end").val();
+    var noon_msrp_ae = $("#noon-msrp-ae").val();
+    var noon_msrp_ae_unit = $("#noon-msrp-ae-unit").val();
     var product_pk = window.location.pathname.split("/")[2];
 
     var fd = new FormData();
@@ -2762,6 +2928,7 @@ body {
     fd.append('product_name_amazon_uk', product_name_amazon_uk);
     fd.append('product_name_amazon_uae', product_name_amazon_uae);
     fd.append('product_name_ebay', product_name_ebay);
+    fd.append('product_name_noon', product_name_noon);
     fd.append('category', category);
     fd.append('subtitle', subtitle);
     fd.append('brand', brand);
@@ -2771,6 +2938,10 @@ body {
     fd.append('seller_sku',  seller_sku);
     fd.append('manufacturer_part_number', manufacturer_part_number);
     fd.append('barcode_string', barcode_string);
+    fd.append('noon_product_type', noon_product_type);
+    fd.append('noon_product_subtype', noon_product_subtype);
+    fd.append('noon_model_name', noon_model_name);
+    fd.append('noon_model_number', noon_model_number);
     fd.append('condition_type', condition_type);
     fd.append('feed_product_type', feed_product_type);
     fd.append('update_delete', update_delete);
@@ -2778,9 +2949,12 @@ body {
     fd.append('product_description_amazon_uk', product_description_amazon_uk);
     fd.append('product_description_amazon_uae', product_description_amazon_uae);
     fd.append('product_description_ebay', product_description_ebay);
+    fd.append('product_description_noon', product_description_noon);
+
     fd.append('product_attribute_list_amazon_uk', product_attribute_data_amazon_uk);
     fd.append('product_attribute_list_amazon_uae', product_attribute_data_amazon_uae);
     fd.append('product_attribute_list_ebay', product_attribute_data_ebay);
+    fd.append('product_attribute_list_noon', product_attribute_data_noon);
     fd.append('search_terms', search_terms);
     fd.append('color_map', color_map);
     fd.append('color', color);
@@ -2833,6 +3007,8 @@ body {
     fd.append('sale_price', sale_price);
     fd.append('sale_from', sale_from);
     fd.append('sale_end', sale_end);
+    fd.append('noon_msrp_ae', noon_msrp_ae);
+    fd.append('noon_msrp_ae_unit', noon_msrp_ae_unit);
 
     $.ajax({
       url: "/save-product/",

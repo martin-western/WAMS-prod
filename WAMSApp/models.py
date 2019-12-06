@@ -207,6 +207,7 @@ class Product(models.Model):
     product_name_amazon_uk = models.CharField(max_length=300, default="")
     product_name_amazon_uae = models.CharField(max_length=300, default="")
     product_name_ebay = models.CharField(max_length=300, default="")
+    product_name_noon = models.CharField(max_length=300, default="")
 
     product_id = models.CharField(max_length=100, unique=True)
     product_id_type = models.CharField(max_length=100, default="")
@@ -220,16 +221,26 @@ class Product(models.Model):
     feed_product_type = models.CharField(max_length=100, default="")
     update_delete = models.CharField(max_length=100, default="Update")
     recommended_browse_nodes = models.CharField(max_length=100, default="")
+    noon_product_type = models.CharField(default="", max_length=200)
+    noon_product_subtype = models.CharField(default="", max_length=200)
+    noon_model_number = models.CharField(default="", max_length=100)
+    noon_model_name = models.CharField(default="", max_length=300)
+
+
+    noon_msrp_ae = models.IntegerField(null=True, blank=True, default=None)
+    noon_msrp_ae_unit = models.CharField(max_length=100, default="")
 
 
     #Information
     product_description_amazon_uk = models.TextField(default="")
     product_description_amazon_uae = models.TextField(default="")
     product_description_ebay = models.TextField(default="")
+    product_description_noon = models.TextField(default="")
 
     product_attribute_list_amazon_uk = models.TextField(default="[]")
     product_attribute_list_amazon_uae = models.TextField(default="[]")
     product_attribute_list_ebay = models.TextField(default="[]")
+    product_attribute_list_noon = models.TextField(default="[]")
 
     search_terms = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")

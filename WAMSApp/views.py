@@ -314,11 +314,13 @@ class FetchProductDetailsAPI(APIView):
                 response["barcode_string"] = prod_obj.barcode_string
             except Exception as e:
                 response["barcode_string"] = ''
+
             
             response["product_name_amazon_uk"] = prod_obj.product_name_amazon_uk
             response["product_name_amazon_uae"] = prod_obj.product_name_amazon_uae
             response["product_name_ebay"] = prod_obj.product_name_ebay
             response["product_name_sap"] = prod_obj.product_name_sap
+            response["product_name_noon"] = prod_obj.product_name_noon
             response["category"] = prod_obj.category
             response["subtitle"] = prod_obj.subtitle
 
@@ -330,6 +332,13 @@ class FetchProductDetailsAPI(APIView):
             response["manufacturer"] = prod_obj.manufacturer
             response["product_id"] = prod_obj.product_id
             response["product_id_type"] = prod_obj.product_id_type
+
+            response["noon_product_type"] = prod_obj.noon_product_type
+            response["noon_product_subtype"] = prod_obj.noon_product_subtype
+            response["noon_model_number"] = prod_obj.noon_model_number
+            response["noon_model_name"] = prod_obj.noon_model_name
+
+
             response["seller_sku"] = prod_obj.seller_sku
             response["manufacturer_part_number"] = prod_obj.manufacturer_part_number
             response["condition_type"] = prod_obj.condition_type
@@ -339,12 +348,15 @@ class FetchProductDetailsAPI(APIView):
             response["product_description_amazon_uk"] = prod_obj.product_description_amazon_uk
             response["product_description_amazon_uae"] = prod_obj.product_description_amazon_uae
             response["product_description_ebay"] = prod_obj.product_description_ebay
+            response["product_description_noon"] = prod_obj.product_description_noon
             response["product_attribute_list_amazon_uk"] = json.loads(
                 prod_obj.product_attribute_list_amazon_uk)
             response["product_attribute_list_amazon_uae"] = json.loads(
                 prod_obj.product_attribute_list_amazon_uae)
             response["product_attribute_list_ebay"] = json.loads(
                 prod_obj.product_attribute_list_ebay)
+            response["product_attribute_list_noon"] = json.loads(
+                prod_obj.product_attribute_list_noon)
             response["search_terms"] = prod_obj.search_terms
             response["color_map"] = prod_obj.color_map
             response["color"] = prod_obj.color
@@ -405,6 +417,10 @@ class FetchProductDetailsAPI(APIView):
             response["sale_price"] = "" if prod_obj.sale_price==None else prod_obj.sale_price
             response["sale_from"] = "" if prod_obj.sale_from==None else prod_obj.sale_from
             response["sale_end"] = "" if prod_obj.sale_end==None else prod_obj.sale_end
+            response["sale_price"] = "" if prod_obj.sale_price==None else prod_obj.sale_price
+            response["noon_msrp_ae"] = "" if prod_obj.noon_msrp_ae==None else prod_obj.noon_msrp_ae
+            response["noon_msrp_ae_unit"] = str(prod_obj.noon_msrp_ae_unit)
+
 
             response["verified"] = prod_obj.verified
 
@@ -563,6 +579,8 @@ class SaveProductAPI(APIView):
             product_name_amazon_uae = convert_to_ascii(data["product_name_amazon_uae"])
             product_name_ebay = convert_to_ascii(data["product_name_ebay"])
             product_name_sap = convert_to_ascii(data["product_name_sap"])
+            product_name_noon = convert_to_ascii(data["product_name_noon"])
+
             category = data["category"]
             subtitle = convert_to_ascii(data["subtitle"])
             brand = data["brand"]
@@ -571,6 +589,12 @@ class SaveProductAPI(APIView):
             manufacturer_part_number = data["manufacturer_part_number"]
             barcode_string = data["barcode_string"]
             condition_type = data["condition_type"]
+
+            noon_product_type = data["noon_product_type"]
+            noon_product_subtype = data["noon_product_subtype"]
+            noon_model_number = data["noon_model_number"]
+            noon_model_name = data["noon_model_name"]
+
             feed_product_type = data["feed_product_type"]
             update_delete = data["update_delete"]
             recommended_browse_nodes = data["recommended_browse_nodes"]
@@ -586,11 +610,19 @@ class SaveProductAPI(APIView):
             if product_description_ebay=="<p>&nbsp;</p>":
                 product_description_ebay = ""
 
+
+            product_description_noon = convert_to_ascii(data["product_description_noon"])
+            if product_description_noon=="<p>&nbsp;</p>":
+                product_description_noon = ""
+
             product_attribute_list_amazon_uk = convert_to_ascii(data[
                 "product_attribute_list_amazon_uk"])
             product_attribute_list_amazon_uae = convert_to_ascii(data[
                 "product_attribute_list_amazon_uae"])
             product_attribute_list_ebay = convert_to_ascii(data["product_attribute_list_ebay"])
+
+            product_attribute_list_noon = convert_to_ascii(data["product_attribute_list_noon"])
+
             search_terms = data["search_terms"]
             color_map = data["color_map"]
             color = data["color"]
@@ -662,6 +694,9 @@ class SaveProductAPI(APIView):
             sale_from = None if data["sale_from"] == "" else data["sale_from"]
             sale_end = None if data["sale_end"] == "" else data["sale_end"]
 
+            noon_msrp_ae = None if data["noon_msrp_ae"]=="" else float(data["noon_msrp_ae"])
+            noon_msrp_ae_unit = str(data["noon_msrp_ae_unit"])
+
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = convert_to_ascii(data["pfl_product_features"])
 
@@ -715,6 +750,8 @@ class SaveProductAPI(APIView):
             prod_obj.product_name_amazon_uae = product_name_amazon_uae
             prod_obj.product_name_ebay = product_name_ebay
             prod_obj.product_name_sap = product_name_sap
+            prod_obj.product_name_noon = product_name_noon
+
 
             prod_obj.category = category
             prod_obj.subtitle = subtitle
@@ -725,14 +762,23 @@ class SaveProductAPI(APIView):
             prod_obj.manufacturer_part_number = manufacturer_part_number
             prod_obj.condition_type = condition_type
             prod_obj.feed_product_type = feed_product_type
+
+            prod_obj.noon_product_type = noon_product_type
+            prod_obj.noon_product_subtype = noon_product_subtype            
+            prod_obj.noon_model_number = noon_model_number
+            prod_obj.noon_model_name = noon_model_name
+
             prod_obj.update_delete = update_delete
             prod_obj.recommended_browse_nodes = recommended_browse_nodes
             prod_obj.product_description_amazon_uk = product_description_amazon_uk
             prod_obj.product_description_amazon_uae = product_description_amazon_uae
             prod_obj.product_description_ebay = product_description_ebay
+            prod_obj.product_description_noon = product_description_noon
+
             prod_obj.product_attribute_list_amazon_uk = product_attribute_list_amazon_uk
             prod_obj.product_attribute_list_amazon_uae = product_attribute_list_amazon_uae
             prod_obj.product_attribute_list_ebay = product_attribute_list_ebay
+            prod_obj.product_attribute_list_noon = product_attribute_list_noon
             prod_obj.search_terms = search_terms
             prod_obj.color_map = color_map
             prod_obj.color = color
@@ -784,6 +830,8 @@ class SaveProductAPI(APIView):
             prod_obj.sale_price = sale_price
             prod_obj.sale_from = sale_from
             prod_obj.sale_end = sale_end
+            prod_obj.noon_msrp_ae = noon_msrp_ae
+            prod_obj.noon_msrp_ae_unit = noon_msrp_ae_unit
 
             prod_obj.pfl_product_name = pfl_product_name
             prod_obj.pfl_product_features = pfl_product_features
@@ -1142,6 +1190,11 @@ class DownloadExportListAPI(APIView):
                 response["success_products"] = success_products
                 response["total_products"] = products.count()
                 response["file_path"] = "/files/csv/export-list-ebay.xlsx"
+            elif export_format == "Noon":
+                success_products = export_noon(products)
+                response["success_products"] = success_products
+                response["total_products"] = products.count()
+                response["file_path"] = "/files/csv/export-list-noon.xlsx"
 
             response['status'] = 200
 
@@ -1180,6 +1233,9 @@ class DownloadProductAPI(APIView):
             elif export_format == "Ebay":
                 export_ebay(products)
                 response["file_path"] = "/files/csv/export-list-ebay.xlsx"
+            elif export_format == "Noon":
+                export_noon(products)
+                response["file_path"] = "/files/csv/export-list-noon.xlsx"
 
             response['status'] = 200
 
