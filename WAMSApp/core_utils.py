@@ -100,6 +100,30 @@ def create_response_images(images):
     return temp_list
 
 
+def create_response_images_main_sub_delete(images):
+
+    temp_list = []
+    for image in images:
+        temp_dict = {}
+        temp_dict["main-url"] = image.image.image.url
+
+        try:
+            temp_dict["thumbnail-url"] = image.image.thumbnail.url
+        except Exception as e:
+            logger.warning("No thumbnail for image with pk %s", str(image.image.pk))
+            temp_dict["thumbnail-url"] = image.image.image.url
+
+        try:
+            temp_dict["midimage-url"] = image.image.mid_image.url
+        except Exception as e:
+            logger.warning("No mid_image for image with pk %s", str(image.image.pk))
+            temp_dict["midimage-url"] = image.image.image.url
+
+        temp_dict["pk"] = image.image.pk
+        temp_list.append(temp_dict)
+    return temp_list
+
+
 def create_response_images_main(images):
 
     temp_list = []

@@ -112,7 +112,7 @@ class Image(models.Model):
 class ImageBucket(models.Model):
 
     description = models.TextField(null=True, blank=True)
-    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
     is_main_image = models.BooleanField(default=False)
     is_sub_image = models.BooleanField(default=False)
     sub_image_index = models.IntegerField(default=0)

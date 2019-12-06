@@ -392,6 +392,7 @@ body {
           font-size: 14px !important;
           margin-left: 10px;">
           <select id="images-category">
+            <option value="All Images" id="all-images-option" >All Images</option>
             <option value="Main Images" id="main-images-option" >Main Images</option> 
             <option value="Sub Images" id="sub-images-option">Sub Images</option>
             <option value="PFL Images" id="pfl-images-option">PFL Images</option>
@@ -1691,7 +1692,7 @@ body {
   }
 
   var global_images = {};
-  var global_image_key = "main_images";
+  var global_image_key = "all_images";
 
   function fetch_constant_values()
   {
@@ -1790,6 +1791,7 @@ body {
 
           global_images = response["images"];
 
+          $("#all-images-option").html("All Images ("+global_images["all_images"].length+")");
           $("#main-images-option").html("Main Images ("+global_images["main_images"].length+")");
           $("#sub-images-option").html("Sub Images ("+global_images["sub_images"].length+")");
           $("#pfl-images-option").html("PFL Images ("+global_images["pfl_images"].length+")");
@@ -2087,6 +2089,7 @@ body {
 
         global_images = response["images"];
 
+        $("#all-images-option").html("All Images ("+global_images["all_images"].length+")");
         $("#main-images-option").html("Main Images ("+global_images["main_images"].length+")");
         $("#sub-images-option").html("Sub Images ("+global_images["sub_images"].length+")");
         $("#pfl-images-option").html("PFL Images ("+global_images["pfl_images"].length+")");
@@ -2511,6 +2514,15 @@ body {
 
   function update_grid_images(key)
   {
+    if(key=="all_images")
+    {
+      $("#import-btn").attr("class", "disabled");
+    }
+    else
+    {
+      $("#import-btn").attr("class", "modal-trigger"); 
+    }
+
     if(key=="main_images")
     {
       update_grid_images_main_images(key);
@@ -2555,8 +2567,12 @@ body {
 
 
   $("#images-category").change(function(){
-    
-    if($("#images-category").val()=="Main Images")
+    if($("#images-category").val()=="All Images")
+    {
+      update_grid_images("all_images"); 
+      global_image_key = "all_images";
+    }
+    else if($("#images-category").val()=="Main Images")
     {
       update_grid_images("main_images"); 
       global_image_key = "main_images";
