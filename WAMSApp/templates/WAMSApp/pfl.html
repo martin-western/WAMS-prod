@@ -5,7 +5,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   
-  <title>WAMS</title>
+  <title>OmnyComm</title>
 
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
   <link rel="stylesheet" href="{% static 'WAMSApp/css/materialize.min.css' %}">
@@ -218,7 +218,7 @@
             </a>
           </div>
         </div>
-        <div id="pfl-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto;height: 297mm;width: 210mm;">
+        <div id="pfl-div" class="row red" style="text-align: center;margin-left: auto;margin-right: auto;height: 297mm;width: 210mm;">
 
           <!-- Brand Image Preview -->
           <div id="brand-image" class="col s6 right">
@@ -300,7 +300,8 @@
   </div>
 
   <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
-  <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
+  <!-- <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script> -->
+  <script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script type="text/javascript">
     $('.sidenav').sidenav({
       "inDuration": 150,
@@ -388,20 +389,31 @@
                 $(".divgrid").css("border", "none");
               }
 
-              html2canvas($("#pfl-div"), {
-                logging: true,
-                dpi: 600,
-                scale: 3,
-                onrendered: function(canvas) {
+              
+              var scale = 5;
+              var div = document.getElementById('pfl-div');
+              var w = div.scrollWidth;
+              var h = div.scrollHeight;
+              var canvas = document.createElement('canvas');
+              canvas.width = scale*div.scrollWidth;
+              canvas.height = scale*div.scrollHeight;
+              canvas.style.width = w + 'px';
+              canvas.style.height = h + 'px';
+              var context = canvas.getContext('2d');
+              context.scale(scale, scale);
+              
+              window.scrollTo(0,0);
+              html2canvas(div, {canvas:canvas, scrollX:-13, scrollY:0}).then(function(canvas) {
 
                     $("#download-pfl-btn").removeAttr("disabled");
                     $("#loader-div").hide();
+
+                    $('body').append(canvas);
 
                     var a = document.createElement('a');
                     a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
                     a.download = 'pfl_image_'+(window.location.pathname.split("/")[2])+'.jpg';
                     a.click();
-
 
 
                     var image_data = canvas.toDataURL();
@@ -410,25 +422,24 @@
                     fd.append('image_data', image_data);
                     fd.append('pfl_pk', window.location.pathname.split("/")[2]);
 
-                    $.ajax({
-                      url: "/save-pfl-in-bucket/",
-                      type: "POST",
-                      headers:{
-                        'X-CSRFToken':getCsrfToken()
-                      },
-                      processData: false,
-                      contentType: false,
-                      data: fd,
-                      success: function(response) {
-                        console.log("Success!", response);
-                      },
-                      error: function(xhr, textstatus, errorthrown) {
-                        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-                      }
-                    });
+                    // $.ajax({
+                    //   url: "/save-pfl-in-bucket/",
+                    //   type: "POST",
+                    //   headers:{
+                    //     'X-CSRFToken':getCsrfToken()
+                    //   },
+                    //   processData: false,
+                    //   contentType: false,
+                    //   data: fd,
+                    //   success: function(response) {
+                    //     console.log("Success!", response);
+                    //   },
+                    //   error: function(xhr, textstatus, errorthrown) {
+                    //     console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+                    //   }
+                    // });
 
-                }
-              });
+                });
             }
         },
         error: function(xhr, textstatus, errorthrown) {
@@ -465,7 +476,7 @@
                   <input style="text-indent: 1em;" placeholder="Type features" type="text" class="feature-text validate">
                 </div>
                 <div class="input-field col s2">
-                  <a class="delete-feature-btn btn-floating red" style="margin-top:1em;height: 1.4em;width: 1.4em;"><i class="material-icons" style="font-size: 1em;position: absolute;margin-top: -0.7em;">remove</i></a>
+                  <a class="delete-feature-btn btn-floating" style="margin-top:1em;height: 1.4em;width: 1.4em;"><i class="material-icons" style="font-size: 1em;position: absolute;margin-top: -0.7em;">remove</i></a>
                 </div>
               </div>`;
         $("#feature-summary-editor-div").append(html_string);

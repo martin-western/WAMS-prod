@@ -446,6 +446,17 @@ class EbayCategory(models.Model):
         return str(self.name)
 
 
+class BackgroundImage(models.Model):
+
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Background Image"
+        verbose_name_plural = "Background Images"
+
+    def __str__(self):
+        return str(self.pk)
+
 
 
 @receiver(post_save, sender=Product, dispatch_uid="create_pfl")

@@ -87,18 +87,13 @@
     </div>
 
     <div class="row">
-      <div class="input-field col s2">
-        <input id="flyer-row" type="number" class="validate">
-        <label for="flyer-row">Row</label>
-      </div>
-
-      <div class="input-field col s2">
-        <input id="flyer-column" type="number" class="validate">
-        <label for="flyer-column">Column<label>
+      <div class="input-field col s4">
+        <input id="flyer-items" type="number" class="validate">
+        <label for="flyer-items">Number of Products</label>
       </div>
     </div>
 
-    <div class="row">
+    <!-- <div class="row">
       <div class="file-field input-field col s12">
         <div class="btn" style="background-color: #521893;">
           <span>Import Excel</span>
@@ -108,7 +103,7 @@
           <input class="file-path validate" type="text">
         </div>
       </div>
-    </div>
+    </div> -->
 
   </div>
   <div class="modal-footer">
@@ -240,25 +235,27 @@
 
     var flyer_name = $("#flyer-name").val();
     var flyer_brand = $("#flyer-brand").val();
-    var flyer_row = $("#flyer-row").val();
-    var flyer_column = $("#flyer-column").val();
+    var flyer_items = $("#flyer-items").val();
+    // var flyer_row = $("#flyer-row").val();
+    // var flyer_column = $("#flyer-column").val();
 
 
-    if(flyer_name=="" || flyer_brand==null || flyer_row=="" || flyer_column=="")
+    if(flyer_name=="" || flyer_brand==null || flyer_items=="")
     {
       M.toast({html: "Please fill the details before creating a flyer"});
       return;
     }
 
 
-    var import_file = document.getElementById("excel-file-input");
+    //var import_file = document.getElementById("excel-file-input");
 
     var fd =  new FormData();
     fd.append('name', flyer_name);
     fd.append('brand_pk', flyer_brand);
-    fd.append('row', flyer_row);
-    fd.append('column', flyer_column);
-    fd.append('import_file', import_file.files[0]);
+    fd.append('flyer_items', flyer_items);
+    //fd.append('row', flyer_row);
+    //fd.append('column', flyer_column);
+    //fd.append('import_file', import_file.files[0]);
 
     $.ajax({
       url: "/create-flyer/",

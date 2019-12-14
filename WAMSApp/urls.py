@@ -75,7 +75,8 @@ urlpatterns = [
 
     url(r'^remove-product-from-export-list/', views.RemoveProductFromExportList),
 
-    url(r'^download-product/', views.DownloadProduct)    
+    url(r'^download-product/', views.DownloadProduct),
+    url(r'^ecommerce-listing/(?P<pk>[\w-]+)/', views.EcommerceListingPage),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

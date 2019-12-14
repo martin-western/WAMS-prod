@@ -71,6 +71,17 @@ def EditProductPage(request, pk):
 
 
 @login_required(login_url='/login/')
+def EcommerceListingPage(request, pk):
+
+    product_obj = Product.objects.get(pk=int(pk))
+    permissible_brands = custom_permission_filter_brands(request.user)
+    if product_obj.brand not in permissible_brands:
+        return HttpResponseRedirect('/products/')
+
+    return render(request, 'WAMSApp/ecommerce-listing-page.html')
+
+
+@login_required(login_url='/login/')
 def Products(request):
     return render(request, 'WAMSApp/products.html')
 
@@ -1520,57 +1531,65 @@ class CreateFlyerAPI(APIView):
             data = request.data
             logger.info("CreateFlyerAPI: %s", str(data))
 
-            row = int(data["row"])
-            column = int(data["column"])
+            # row = int(data["row"])
+            # column = int(data["column"])
+            flyer_items = int(data["flyer_items"])
             brand_obj = Brand.objects.get(pk=int(data["brand_pk"]))
 
-            empty_grid = []
-            for k in range(row):
-                temp_list = [{"image_url": None, "image_pk": None,
-                              "product_title": None, "price": None} for l in range(column)]
-                empty_grid.append(temp_list)
+            template_data = []
 
-            template_data = {"row": row, "column": column, "data": empty_grid}
+            
+            for i in range(flyer_items):
+                temp_dict = {}
+                temp_dict["container"] = {
+                    "x": str((i*4)%12),
+                    "y": str(4*((i*3)/12)),
+                    "width": "3",
+                    "height": "3"
+                }
+                temp_dict["data"] = {
+                    "image-url": ""
+                }
+                template_data.append(temp_dict)
 
             flyer_obj = Flyer.objects.create(name=convert_to_ascii(data["name"]),
-                                             template_data=json.dumps(
-                                                 template_data),
+                                             template_data=json.dumps(template_data),
                                              brand=brand_obj)
 
-            # Read excel file and populate flyer
-            if data["import_file"] != "undefined" and data["import_file"] != None and data["import_file"] != "":
-                path = default_storage.save(
-                    'tmp/temp-flyer.csv', data["import_file"])
-                cnt = 1
-                with open('./files/' + path, 'rt') as fr:
-                    data = csv.reader(fr)
-                    for rowd in data:
-                        if cnt > 1:
-                            product_obj = Product.objects.get(
-                                product_id=rowd[0])
-                            flyer_obj.product_bucket.add(product_obj)
-                            main_image_obj = product_obj.main_images.filter(is_main_image=True)[
-                                0]
-                            product_title = rowd[1]
-                            if product_title == "":
-                                product_title = product_obj.product_name_amazon_uk
+            # # Read excel file and populate flyer
+            # if data["import_file"] != "undefined" and data["import_file"] != None and data["import_file"] != "":
+            #     path = default_storage.save(
+            #         'tmp/temp-flyer.csv', data["import_file"])
+            #     cnt = 1
+            #     with open('./files/' + path, 'rt') as fr:
+            #         data = csv.reader(fr)
+            #         for rowd in data:
+            #             if cnt > 1:
+            #                 product_obj = Product.objects.get(
+            #                     product_id=rowd[0])
+            #                 flyer_obj.product_bucket.add(product_obj)
+            #                 main_image_obj = product_obj.main_images.filter(is_main_image=True)[
+            #                     0]
+            #                 product_title = rowd[1]
+            #                 if product_title == "":
+            #                     product_title = product_obj.product_name_amazon_uk
 
-                            product_price = rowd[2]
-                            if product_price == "":
-                                product_price = product_obj.outdoor_price
+            #                 product_price = rowd[2]
+            #                 if product_price == "":
+            #                     product_price = product_obj.outdoor_price
 
-                            i = (cnt - 2) / column
-                            j = (cnt - 2) % column
+            #                 i = (cnt - 2) / column
+            #                 j = (cnt - 2) % column
 
-                            template_data["data"][i][j] = {
-                                "image_url": main_image_obj.image.image.url,
-                                "image_pk": main_image_obj.image.pk,
-                                "product_title": product_title,
-                                "price": product_price
-                            }
-                        cnt += 1
-                flyer_obj.template_data = json.dumps(template_data)
-                flyer_obj.save()
+            #                 template_data["data"][i][j] = {
+            #                     "image_url": main_image_obj.image.image.url,
+            #                     "image_pk": main_image_obj.image.pk,
+            #                     "product_title": product_title,
+            #                     "price": product_price
+            #                 }
+            #             cnt += 1
+            #     flyer_obj.template_data = json.dumps(template_data)
+            #     flyer_obj.save()
 
             response["flyer_pk"] = flyer_obj.pk
 
@@ -1655,8 +1674,8 @@ class FetchFlyerDetailsAPI(APIView):
 
             template_data = json.loads(flyer_obj.template_data)
 
-            background_images_bucket = create_response_images_flyer_pfl(
-                flyer_obj.background_images_bucket.all())
+            background_image_objs = BackgroundImage.objects.all()
+            background_images_bucket = create_response_images_flyer_pfl_main_sub(background_image_objs)
 
             external_images_bucket_list = []
             external_images_bucket_objs = flyer_obj.external_images_bucket.all()
@@ -1857,14 +1876,16 @@ class FetchProductListFlyerPFLAPI(APIView):
 
             product_list = []
             cnt = 1
+            char_len = 80
             for product_obj in product_objs:
                 try:
                     temp_dict = {}
                     temp_dict["product_pk"] = product_obj.pk
                     temp_dict["product_name"] = product_obj.product_name_sap
-
-                    temp_dict["product_name_autocomplete"] = str(
-                        product_obj.product_name_sap) + " | " + str(product_obj.product_id)
+                    short_product_name = str(product_obj.product_name_sap)
+                    if len(short_product_name)>char_len:
+                        short_product_name = short_product_name[:char_len] + "..."
+                    temp_dict["product_name_autocomplete"] = short_product_name + " | " + str(product_obj.product_id)
                     main_image_url = None
                     if product_obj.main_images.filter(is_main_image=True).count() > 0:
                         try:
@@ -2437,10 +2458,8 @@ class UploadNewFlyerBGImageAPI(APIView):
             data = request.data
             logger.info("UploadNewFlyerBGImageAPI: %s", str(data))
 
-            flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
             image_obj = Image.objects.create(image=data["bg_image"])
-            flyer_obj.background_images_bucket.add(image_obj)
-            flyer_obj.save()
+            BackgroundImage.objects.create(image=image_obj)
 
             response["bg_image_url"] = image_obj.image.url
             response["bg_image_pk"] = image_obj.pk
@@ -2478,13 +2497,19 @@ class DownloadImagesS3API(APIView):
 
             local_links = []
             for link in links:
-                filename = urllib2.unquote(link["url"]).split("/")[-1]
-                temp_dict = {}
-                temp_dict["key"] = link["key"]
-                temp_dict["url"] = "/files/images_s3/" + str(filename)
-                local_links.append(temp_dict)
-                s3.download_file(settings.AWS_STORAGE_BUCKET_NAME,
-                                 filename, "." + temp_dict["url"])
+                try:
+                    if "url" not in link or link["url"]=="":
+                        continue
+                    filename = urllib2.unquote(link["url"]).split("/")[-1]
+                    temp_dict = {}
+                    temp_dict["key"] = link["key"]
+                    temp_dict["url"] = "/files/images_s3/" + str(filename)
+                    local_links.append(temp_dict)
+                    logger.info("DownloadImagesS3API: url %s", str(temp_dict["url"]))
+                    s3.download_file(settings.AWS_STORAGE_BUCKET_NAME,
+                                     filename, "." + temp_dict["url"])
+                except Exception as e:
+                    pass
 
             response['local_links'] = local_links
             response['status'] = 200
