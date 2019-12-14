@@ -1022,17 +1022,18 @@
   
     $("#refresh-template-btn").click(function (){
 
-      for(var i=0;i<global_template_data.length;i++)
-      {
-        global_template_data[i]["data"] = {
-          "image-url": ""
-        }
-      }
+      // for(var i=0;i<global_template_data.length;i++)
+      // {
+      //   global_template_data[i]["data"] = {
+      //     "image-url": ""
+      //   }
+      // }
+      global_template_data = [];
 
       var grid = $('.grid-stack').data('gridstack');
 
       grid.destroy();
-      var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="12" data-gs-animate="yes"></div>`
+      var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">`
       $("#flyer-grid").html(html_string);
       create_flyer_grid();
     })
