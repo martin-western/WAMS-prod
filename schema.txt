@@ -98,6 +98,8 @@ ChannelProduct:
         product_attribute_list : TextField
         created_date : DateTimeField
         sale_price : FloatField
+        sale_from : DateField
+        sale_end :  DateField
 
     }
 
@@ -121,6 +123,14 @@ ChannelProduct:
         cover_material_type : CharField
         special_features : TextField
         sale_price : FloatField
+        sale_from : DateField
+        sale_end :  DateField
+        wattage : FloatField
+        wattage_metric : CharField
+        parentage : CharField
+        parent_sku : CharField
+        relationship_type : CharField
+        variation_theme : CharField
 
     }
 
@@ -131,6 +141,8 @@ ChannelProduct:
         product_attribute_list : TextField
         created_date : DateTimeField
         sale_price : FloatField
+        sale_from : DateField
+        sale_end :  DateField
     }
 
     + ebay_product_json : {
@@ -141,4 +153,7 @@ ChannelProduct:
         product_attribute_list : TextField
         created_date : DateTimeField
         sale_price : FloatField
+        sale_from : DateField
+        sale_end :  DateField
     }
+
