@@ -141,6 +141,18 @@ class Organization(models.Model):
         return str(self.name)
 
 
+class Channel(models.Model):
+    
+    name = models.CharField(unique=True,max_length=300)
+        
+    class Meta:
+        verbose_name = "Channel"
+        verbose_name_plural = "Channels"
+
+    def __str__(self):
+        return str(self.name)
+
+
 class Brand(models.Model):
 
     name = models.CharField(unique=True, max_length=100)
@@ -153,7 +165,6 @@ class Brand(models.Model):
 
     def __str__(self):
         return str(self.name)
-
 
 class Category(models.Model):
 
@@ -424,6 +435,7 @@ class CustomPermission(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     brands = models.ManyToManyField(Brand, blank=True)
+    channels = models.ManyToManyField(Channel, blank=True)
 
     class Meta:
         verbose_name = "CustomPermission"

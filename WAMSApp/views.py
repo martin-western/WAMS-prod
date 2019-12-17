@@ -608,10 +608,8 @@ class SaveProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            product_name_amazon_uk = convert_to_ascii(
-                data["product_name_amazon_uk"])
-            product_name_amazon_uae = convert_to_ascii(
-                data["product_name_amazon_uae"])
+            product_name_amazon_uk = convert_to_ascii(data["product_name_amazon_uk"])
+            product_name_amazon_uae = convert_to_ascii(data["product_name_amazon_uae"])
             product_name_ebay = convert_to_ascii(data["product_name_ebay"])
             product_name_sap = convert_to_ascii(data["product_name_sap"])
             product_name_noon = convert_to_ascii(data["product_name_noon"])
@@ -633,35 +631,27 @@ class SaveProductAPI(APIView):
             feed_product_type = data["feed_product_type"]
             update_delete = data["update_delete"]
             recommended_browse_nodes = data["recommended_browse_nodes"]
-            product_description_amazon_uk = convert_to_ascii(
-                data["product_description_amazon_uk"])
+            
+            product_description_amazon_uk = convert_to_ascii(data["product_description_amazon_uk"])
             if product_description_amazon_uk == "<p>&nbsp;</p>":
                 product_description_amazon_uk = ""
 
-            product_description_amazon_uae = convert_to_ascii(
-                data["product_description_amazon_uae"])
+            product_description_amazon_uae = convert_to_ascii(data["product_description_amazon_uae"])
             if product_description_amazon_uae == "<p>&nbsp;</p>":
                 product_description_amazon_uae = ""
 
-            product_description_ebay = convert_to_ascii(
-                data["product_description_ebay"])
+            product_description_ebay = convert_to_ascii(data["product_description_ebay"])
             if product_description_ebay == "<p>&nbsp;</p>":
                 product_description_ebay = ""
 
-            product_description_noon = convert_to_ascii(
-                data["product_description_noon"])
+            product_description_noon = convert_to_ascii(data["product_description_noon"])
             if product_description_noon == "<p>&nbsp;</p>":
                 product_description_noon = ""
 
-            product_attribute_list_amazon_uk = convert_to_ascii(data[
-                "product_attribute_list_amazon_uk"])
-            product_attribute_list_amazon_uae = convert_to_ascii(data[
-                "product_attribute_list_amazon_uae"])
-            product_attribute_list_ebay = convert_to_ascii(
-                data["product_attribute_list_ebay"])
-
-            product_attribute_list_noon = convert_to_ascii(
-                data["product_attribute_list_noon"])
+            product_attribute_list_amazon_uk = convert_to_ascii(data["product_attribute_list_amazon_uk"])
+            product_attribute_list_amazon_uae = convert_to_ascii(data["product_attribute_list_amazon_uae"])
+            product_attribute_list_ebay = convert_to_ascii(data["product_attribute_list_ebay"])
+            product_attribute_list_noon = convert_to_ascii(data["product_attribute_list_noon"])
 
             search_terms = data["search_terms"]
             color_map = data["color_map"]
@@ -669,57 +659,40 @@ class SaveProductAPI(APIView):
             enclosure_material = data["enclosure_material"]
             cover_material_type = data["cover_material_type"]
             special_features = convert_to_ascii(data["special_features"])
-            package_length = None if data[
-                "package_length"] == "" else float(data["package_length"])
+            package_length = None if data["package_length"] == "" else float(data["package_length"])
             package_length_metric = data["package_length_metric"]
-            package_width = None if data[
-                "package_width"] == "" else float(data["package_width"])
+            package_width = None if data["package_width"] == "" else float(data["package_width"])
             package_width_metric = data["package_width_metric"]
-            package_height = None if data[
-                "package_height"] == "" else float(data["package_height"])
+            package_height = None if data["package_height"] == "" else float(data["package_height"])
             package_height_metric = data["package_height_metric"]
-            package_weight = None if data[
-                "package_weight"] == "" else float(data["package_weight"])
+            package_weight = None if data["package_weight"] == "" else float(data["package_weight"])
             package_weight_metric = data["package_weight_metric"]
-            shipping_weight = None if data[
-                "shipping_weight"] == "" else float(data["shipping_weight"])
+            shipping_weight = None if data["shipping_weight"] == "" else float(data["shipping_weight"])
             shipping_weight_metric = data["shipping_weight_metric"]
-            item_display_weight = None if data[
-                "item_display_weight"] == "" else float(data["item_display_weight"])
+            item_display_weight = None if data["item_display_weight"] == "" else float(data["item_display_weight"])
             item_display_weight_metric = data["item_display_weight_metric"]
-            item_display_volume = None if data[
-                "item_display_volume"] == "" else float(data["item_display_volume"])
+            item_display_volume = None if data["item_display_volume"] == "" else float(data["item_display_volume"])
             item_display_volume_metric = data["item_display_volume_metric"]
-            item_display_length = None if data[
-                "item_display_length"] == "" else float(data["item_display_length"])
+            item_display_length = None if data["item_display_length"] == "" else float(data["item_display_length"])
             item_display_length_metric = data["item_display_length_metric"]
-            item_weight = None if data[
-                "item_weight"] == "" else float(data["item_weight"])
+            item_weight = None if data["item_weight"] == "" else float(data["item_weight"])
             item_weight_metric = data["item_weight_metric"]
-            item_length = None if data[
-                "item_length"] == "" else float(data["item_length"])
+            item_length = None if data["item_length"] == "" else float(data["item_length"])
             item_length_metric = data["item_length_metric"]
-            item_width = None if data[
-                "item_width"] == "" else float(data["item_width"])
+            item_width = None if data["item_width"] == "" else float(data["item_width"])
             item_width_metric = data["item_width_metric"]
-            item_height = None if data[
-                "item_height"] == "" else float(data["item_height"])
+            item_height = None if data["item_height"] == "" else float(data["item_height"])
             item_height_metric = data["item_height_metric"]
-            item_display_width = None if data[
-                "item_display_width"] == "" else float(data["item_display_width"])
+            item_display_width = None if data["item_display_width"] == "" else float(data["item_display_width"])
             item_display_width_metric = data["item_display_width_metric"]
-            item_display_height = None if data[
-                "item_display_height"] == "" else float(data["item_display_height"])
+            item_display_height = None if data["item_display_height"] == "" else float(data["item_display_height"])
             item_display_height_metric = data["item_display_height_metric"]
-            item_count = None if data["item_count"] == "" else float(
-                data["item_count"])
+            item_count = None if data["item_count"] == "" else float(data["item_count"])
             item_count_metric = data["item_count_metric"]
 
             item_condition_note = convert_to_ascii(data["item_condition_note"])
-            max_order_quantity = None if data[
-                "max_order_quantity"] == "" else int(data["max_order_quantity"])
-            number_of_items = None if data[
-                "number_of_items"] == "" else int(data["number_of_items"])
+            max_order_quantity = None if data["max_order_quantity"] == "" else int(data["max_order_quantity"])
+            number_of_items = None if data["number_of_items"] == "" else int(data["number_of_items"])
             wattage = None if data["wattage"] == "" else float(data["wattage"])
             wattage_metric = data["wattage_metric"]
             material_type = data["material_type"]
@@ -727,22 +700,17 @@ class SaveProductAPI(APIView):
             parent_sku = data["parent_sku"]
             relationship_type = data["relationship_type"]
             variation_theme = data["variation_theme"]
-            standard_price = None if data[
-                "standard_price"] == "" else float(data["standard_price"])
-            quantity = None if data["quantity"] == "" else int(
-                data["quantity"])
-            sale_price = None if data[
-                "sale_price"] == "" else float(data["sale_price"])
+            standard_price = None if data["standard_price"] == "" else float(data["standard_price"])
+            quantity = None if data["quantity"] == "" else int(data["quantity"])
+            sale_price = None if data["sale_price"] == "" else float(data["sale_price"])
             sale_from = None if data["sale_from"] == "" else data["sale_from"]
             sale_end = None if data["sale_end"] == "" else data["sale_end"]
 
-            noon_msrp_ae = None if data["noon_msrp_ae"] == "" else float(
-                data["noon_msrp_ae"])
+            noon_msrp_ae = None if data["noon_msrp_ae"] == "" else float(data["noon_msrp_ae"])
             noon_msrp_ae_unit = str(data["noon_msrp_ae_unit"])
 
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
-            pfl_product_features = convert_to_ascii(
-                data["pfl_product_features"])
+            pfl_product_features = convert_to_ascii(data["pfl_product_features"])
 
             brand_obj = None
             if brand != "":
@@ -752,17 +720,13 @@ class SaveProductAPI(APIView):
 
             try:
                 if prod_obj.barcode_string != barcode_string and barcode_string != "":
-                    EAN = barcode.ean.EuropeanArticleNumber13(
-                        str(barcode_string), writer=ImageWriter())
+                    EAN = barcode.ean.EuropeanArticleNumber13(str(barcode_string), writer=ImageWriter())
+                    
                     thumb = EAN.save('temp_image')
-
                     thumb = IMage.open(open(thumb, "rb"))
-
                     thumb_io = StringIO.StringIO()
                     thumb.save(thumb_io, format='PNG')
-
-                    thumb_file = InMemoryUploadedFile(
-                        thumb_io, None, 'barcode_' + prod_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
+                    thumb_file = InMemoryUploadedFile(thumb_io, None, 'barcode_' + prod_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
 
                     barcode_image = Image.objects.create(image=thumb_file)
                     prod_obj.barcode = barcode_image
