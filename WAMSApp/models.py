@@ -14,7 +14,7 @@ import json
 
 logger = logging.getLogger(__name__)
 
-###################################################
+####################################################
 
 def compress(image_path):
     try:
