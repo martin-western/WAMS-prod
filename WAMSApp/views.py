@@ -37,6 +37,7 @@ import datetime
 import boto3
 import urllib2
 import logging
+import pandas as pd
 
 from WAMSApp.models import Product
 
@@ -1508,68 +1509,92 @@ class CreateFlyerAPI(APIView):
             data = request.data
             logger.info("CreateFlyerAPI: %s", str(data))
 
-            # row = int(data["row"])
-            # column = int(data["column"])
-            flyer_items = int(data["flyer_items"])
             brand_obj = Brand.objects.get(pk=int(data["brand_pk"]))
 
-            template_data = []
-
-            
-            for i in range(flyer_items):
-                temp_dict = {}
-                temp_dict["container"] = {
-                    "x": str((i*4)%12),
-                    "y": str(4*((i*3)/12)),
-                    "width": "3",
-                    "height": "3"
-                }
-                temp_dict["data"] = {
-                    "image-url": ""
-                }
-                template_data.append(temp_dict)
-
             flyer_obj = Flyer.objects.create(name=convert_to_ascii(data["name"]),
-                                             template_data=json.dumps(template_data),
+                                             template_data="[]",
                                              brand=brand_obj)
 
-            # # Read excel file and populate flyer
-            # if data["import_file"] != "undefined" and data["import_file"] != None and data["import_file"] != "":
-            #     path = default_storage.save(
-            #         'tmp/temp-flyer.csv', data["import_file"])
-            #     cnt = 1
-            #     with open('./files/' + path, 'rt') as fr:
-            #         data = csv.reader(fr)
-            #         for rowd in data:
-            #             if cnt > 1:
-            #                 product_obj = Product.objects.get(
-            #                     product_id=rowd[0])
-            #                 flyer_obj.product_bucket.add(product_obj)
-            #                 main_image_obj = product_obj.main_images.filter(is_main_image=True)[
-            #                     0]
-            #                 product_title = rowd[1]
-            #                 if product_title == "":
-            #                     product_title = product_obj.product_name_amazon_uk
+            create_option = data["create_option"]
 
-            #                 product_price = rowd[2]
-            #                 if product_price == "":
-            #                     product_price = product_obj.outdoor_price
+            if create_option=="0":
+                try:
+                    template_data = []
+                    flyer_items = int(data["flyer_items"])
+                    col = 4
+                    width = int(24/col)
+                    for i in range(flyer_items):
+                        temp_dict = {}
+                        temp_dict["container"] = {
+                            "x": str((i*width)%24),
+                            "y": str(6*(i/col)),
+                            "width": str(width),
+                            "height": "6"
+                        }
+                        temp_dict["data"] = {
+                            "image-url": "",
+                            "price": "",
+                            "title": "",
+                            "description": ""
+                        }
+                        template_data.append(temp_dict)
+                    flyer_obj.template_data = json.dumps(template_data)
+                    flyer_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("CreateFlyerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            elif create_option=="1":
+                # Read excel file and populate flyer
+                try:
+                    if data["import_file"] != "undefined" and data["import_file"] != None and data["import_file"] != "":
+                        path = default_storage.save('tmp/temp-flyer.xlsx', data["import_file"])
+                        path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                        dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                        rows = len(dfs.iloc[:])
+                        template_data = []
 
-            #                 i = (cnt - 2) / column
-            #                 j = (cnt - 2) % column
+                        col = 4
+                        width = int(24/col)
 
-            #                 template_data["data"][i][j] = {
-            #                     "image_url": main_image_obj.image.image.url,
-            #                     "image_pk": main_image_obj.image.pk,
-            #                     "product_title": product_title,
-            #                     "price": product_price
-            #                 }
-            #             cnt += 1
-            #     flyer_obj.template_data = json.dumps(template_data)
-            #     flyer_obj.save()
+                        for i in range(rows):
+                            product_obj = Product.objects.get(product_id=dfs.iloc[i][0])
+                            flyer_obj.product_bucket.add(product_obj)
+                            main_image_obj = product_obj.main_images.filter(is_main_image=True)[0]
+                            product_title = str(dfs.iloc[i][1])
+                            if product_title == "nan":
+                                product_title = product_obj.product_name_amazon_uk
+
+                            product_description = str(dfs.iloc[i][2])
+                            if product_description=="nan":
+                                product_description = ""
+
+                            product_price = str(dfs.iloc[i][3])
+                            if product_price == "nan":
+                                product_price = ""
+
+                            temp_dict = {}
+
+                            temp_dict["container"] = {
+                                "x": str((i*width)%24),
+                                "y": str(6*(i/col)),
+                                "width": str(width),
+                                "height": "6"
+                            }
+                            temp_dict["data"] = {
+                                "image-url": main_image_obj.image.image.url,
+                                "price": str(product_price),
+                                "title": str(product_title),
+                                "description": str(product_description)
+                            }
+                            template_data.append(temp_dict)
+
+                        flyer_obj.template_data = json.dumps(template_data)
+                        flyer_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("CreateFlyerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["flyer_pk"] = flyer_obj.pk
-
             response['status'] = 200
 
         except Exception as e:
@@ -1677,6 +1702,7 @@ class FetchFlyerDetailsAPI(APIView):
             #response["external_images_bucket_list"] = external_images_bucket_list
             response["background_images_bucket"] = background_images_bucket
             response["brand_image_url"] = brand_image_url
+            response["brand-name"] = str(flyer_obj.brand)
 
             response['status'] = 200
 

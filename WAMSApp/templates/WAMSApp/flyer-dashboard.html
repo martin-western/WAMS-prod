@@ -86,15 +86,21 @@
       </div>
     </div>
 
+
     <div class="row">
-      <div class="input-field col s4">
+      <div class="input-field col s6">
+        <select id="create-option">
+          <option value="0" selected>Create Empty</option>
+          <option value="1">Upload Excel</option>
+        </select>
+      </div>
+
+      <div id="empty-option" class="input-field col s6">
         <input id="flyer-items" type="number" class="validate">
         <label for="flyer-items">Number of Products</label>
       </div>
-    </div>
 
-    <!-- <div class="row">
-      <div class="file-field input-field col s12">
+      <div id="excel-option" class="file-field input-field col s6" style="display: none;">
         <div class="btn" style="background-color: #521893;">
           <span>Import Excel</span>
           <input id="excel-file-input" type="file">
@@ -103,7 +109,7 @@
           <input class="file-path validate" type="text">
         </div>
       </div>
-    </div> -->
+    </div>
 
   </div>
   <div class="modal-footer">
@@ -238,16 +244,21 @@
     var flyer_items = $("#flyer-items").val();
     // var flyer_row = $("#flyer-row").val();
     // var flyer_column = $("#flyer-column").val();
+    var import_file = document.getElementById("excel-file-input");
 
-
-    if(flyer_name=="" || flyer_brand==null || flyer_items=="")
+    if(flyer_name=="" || flyer_brand==null)
     {
       M.toast({html: "Please fill the details before creating a flyer"});
       return;
     }
 
+    var create_option =  $("#create-option").val();
 
-    //var import_file = document.getElementById("excel-file-input");
+    if((create_option=="1" && import_file.files.length==0) || (create_option=="0" && flyer_items==""))
+    {
+      M.toast({html: "Please fill the details before creating a flyer"});
+      return; 
+    }
 
     var fd =  new FormData();
     fd.append('name', flyer_name);
@@ -255,7 +266,8 @@
     fd.append('flyer_items', flyer_items);
     //fd.append('row', flyer_row);
     //fd.append('column', flyer_column);
-    //fd.append('import_file', import_file.files[0]);
+    fd.append('import_file', import_file.files[0]);
+    fd.append('create_option', create_option);
 
     $.ajax({
       url: "/create-flyer/",
@@ -286,6 +298,21 @@
       }
     });
     
+  });
+
+
+  $("#create-option").change(function(){
+
+    if($("#create-option").val()=="0")
+    {
+      $("#excel-option").hide();
+      $("#empty-option").show();
+    }
+    else
+    {
+      $("#empty-option").hide();
+      $("#excel-option").show();
+    }
   });
 
   function fetch_brands()
