@@ -9,6 +9,7 @@ BaseProduct:
     + manufacturer -> CharField
     + manufacturer_part_number -> CharField
 
+
     #Dimensions
     + package_length -> FloatField
     + package_length_metric -> CharField
