@@ -97,9 +97,6 @@ ChannelProduct:
         product_description : TextField
         product_attribute_list : TextField
         created_date : DateTimeField
-        sale_price : FloatField
-        sale_from : DateField
-        sale_end :  DateField
 
     }
 
@@ -140,9 +137,7 @@ ChannelProduct:
         product_description : TextField
         product_attribute_list : TextField
         created_date : DateTimeField
-        sale_price : FloatField
-        sale_from : DateField
-        sale_end :  DateField
+        
     }
 
     + ebay_product_json : {
@@ -152,8 +147,6 @@ ChannelProduct:
         product_description : TextField
         product_attribute_list : TextField
         created_date : DateTimeField
-        sale_price : FloatField
-        sale_from : DateField
-        sale_end :  DateField
+        
     }
 

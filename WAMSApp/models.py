@@ -230,12 +230,7 @@ class BaseProduct(models.Model):
     item_display_width_metric = models.CharField(max_length=100, default="")
     item_display_height = models.FloatField(null=True, blank=True)
     item_display_height_metric = models.CharField(max_length=100, default="")
-    item_count = models.FloatField(null=True, blank=True)
-    item_count_metric = models.CharField(max_length=100, default="")
-    item_condition_note = models.TextField(default="")
     
-
-
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
@@ -252,6 +247,7 @@ class Product(models.Model):
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
+    condition_type = models.CharField(max_length=300,null=True)
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
     uuid = models.TextField()
@@ -283,6 +279,9 @@ class Product(models.Model):
     barcode_string = models.CharField(max_length=100, default="")
     outdoor_price = models.FloatField(null=True, blank=True)
 
+    item_count = models.FloatField(null=True, blank=True)
+    item_count_metric = models.CharField(max_length=100, default="")
+    item_condition_note = models.TextField(default="")
     max_order_quantity = models.IntegerField(null=True, blank=True)
     number_of_items = models.IntegerField(null=True, blank=True)
     

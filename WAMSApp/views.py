@@ -362,93 +362,99 @@ class FetchProductDetailsAPI(APIView):
             response["seller_sku"] = base_prod_obj.seller_sku
             response["manufacturer_part_number"] = base_prod_obj.manufacturer_part_number
             response["condition_type"] = prod_obj.condition_type
-            response["feed_product_type"] = prod_obj.feed_product_type
-            response["update_delete"] = prod_obj.update_delete
-            response["recommended_browse_nodes"] = prod_obj.recommended_browse_nodes
-            response["product_description_amazon_uk"] = prod_obj.product_description_amazon_uk
-            response["product_description_amazon_uae"] = prod_obj.product_description_amazon_uae
-            response["product_description_ebay"] = prod_obj.product_description_ebay
-            response["product_description_noon"] = prod_obj.product_description_noon
+            response["feed_product_type"] = amazon_uk_product_obj.feed_product_type
+            response["update_delete"] = amazon_uk_product_obj.update_delete
+            response["recommended_browse_nodes"] = amazon_uk_product_obj.recommended_browse_nodes
+            response["product_description_amazon_uk"] = amazon_uk_product_obj.product_description
+            response["product_description_amazon_uae"] = amazon_uae_product_obj.product_description
+            response["product_description_ebay"] = ebay_prod_obj.product_description
+            response["product_description_noon"] = noon_prod_obj.product_description
             response["product_attribute_list_amazon_uk"] = json.loads(
-                prod_obj.product_attribute_list_amazon_uk)
+                amazon_uk_product_obj.product_attribute_list)
             response["product_attribute_list_amazon_uae"] = json.loads(
-                prod_obj.product_attribute_list_amazon_uae)
+                amazon_uae_product_obj.product_attribute_list)
             response["product_attribute_list_ebay"] = json.loads(
-                prod_obj.product_attribute_list_ebay)
+                ebay_product_obj.product_attribute_list)
             response["product_attribute_list_noon"] = json.loads(
-                prod_obj.product_attribute_list_noon)
-            response["search_terms"] = prod_obj.search_terms
+                noon_product_obj.product_attribute_list)
+            response["search_terms"] = amazon_uk_product_obj.search_terms
             response["color_map"] = prod_obj.color_map
             response["color"] = prod_obj.color
-            response["enclosure_material"] = prod_obj.enclosure_material
-            response["cover_material_type"] = prod_obj.cover_material_type
+            response["enclosure_material"] = amazon_uk_product_obj.enclosure_material
+            response["cover_material_type"] = amazon_uk_product_obj.cover_material_type
             response["special_features"] = json.loads(
-                prod_obj.special_features)
+                amazon_uk_product_obj.special_features)
 
-            response["package_length"] = "" if prod_obj.package_length == None else prod_obj.package_length
-            response["package_length_metric"] = prod_obj.package_length_metric
-            response["package_width"] = "" if prod_obj.package_width == None else prod_obj.package_width
-            response["package_width_metric"] = prod_obj.package_width_metric
-            response["package_height"] = "" if prod_obj.package_height == None else prod_obj.package_height
-            response["package_height_metric"] = prod_obj.package_height_metric
-            response["package_weight"] = "" if prod_obj.package_weight == None else prod_obj.package_weight
-            response["package_weight_metric"] = prod_obj.package_weight_metric
-            response["shipping_weight"] = "" if prod_obj.shipping_weight == None else prod_obj.shipping_weight
-            response["shipping_weight_metric"] = prod_obj.shipping_weight_metric
-            response["item_display_weight"] = "" if prod_obj.item_display_weight == None else prod_obj.item_display_weight
-            response[
-                "item_display_weight_metric"] = prod_obj.item_display_weight_metric
-            response["item_display_volume"] = "" if prod_obj.item_display_volume == None else prod_obj.item_display_volume
-            response[
-                "item_display_volume_metric"] = prod_obj.item_display_volume_metric
-            response["item_display_length"] = "" if prod_obj.item_display_length == None else prod_obj.item_display_length
-            response[
-                "item_display_length_metric"] = prod_obj.item_display_length_metric
-            response["item_weight"] = "" if prod_obj.item_weight == None else prod_obj.item_weight
-            response["item_weight_metric"] = prod_obj.item_weight_metric
-            response["item_length"] = "" if prod_obj.item_length == None else prod_obj.item_length
-            response["item_length_metric"] = prod_obj.item_length_metric
-            response["item_width"] = "" if prod_obj.item_width == None else prod_obj.item_width
-            response["item_width_metric"] = prod_obj.item_width_metric
-            response["item_height"] = "" if prod_obj.item_height == None else prod_obj.item_height
-            response["item_height_metric"] = prod_obj.item_height_metric
-            response["item_display_width"] = "" if prod_obj.item_display_width == None else prod_obj.item_display_width
-            response[
-                "item_display_width_metric"] = prod_obj.item_display_width_metric
-            response["item_display_height"] = "" if prod_obj.item_display_height == None else prod_obj.item_display_height
-            response[
-                "item_display_height_metric"] = prod_obj.item_display_height_metric
+            response["package_length"] = "" if base_prod_obj.package_length == None else base_prod_obj.package_length
+            response["package_length_metric"] = base_prod_obj.package_length_metric
+            response["package_width"] = "" if base_prod_obj.package_width == None else base_prod_obj.package_width
+            response["package_width_metric"] = base_prod_obj.package_width_metric
+            response["package_height"] = "" if base_prod_obj.package_height == None else base_prod_obj.package_height
+            response["package_height_metric"] = base_prod_obj.package_height_metric
+            response["package_weight"] = "" if base_prod_obj.package_weight == None else base_prod_obj.package_weight
+            response["package_weight_metric"] = base_prod_obj.package_weight_metric
+            response["shipping_weight"] = "" if base_prod_obj.shipping_weight == None else base_prod_obj.shipping_weight
+            response["shipping_weight_metric"] = base_prod_obj.shipping_weight_metric
+            response["item_display_weight"] = "" if base_prod_obj.item_display_weight == None else base_prod_obj.item_display_weight
+            response["item_display_weight_metric"] = base_prod_obj.item_display_weight_metric
+            response["item_display_volume"] = "" if base_prod_obj.item_display_volume == None else base_prod_obj.item_display_volume
+            response["item_display_volume_metric"] = base_prod_obj.item_display_volume_metric
+            response["item_display_length"] = "" if base_prod_obj.item_display_length == None else base_prod_obj.item_display_length
+            response["item_display_length_metric"] = base_prod_obj.item_display_length_metric
+            response["item_weight"] = "" if base_prod_obj.item_weight == None else base_prod_obj.item_weight
+            response["item_weight_metric"] = base_prod_obj.item_weight_metric
+            response["item_length"] = "" if base_prod_obj.item_length == None else base_prod_obj.item_length
+            response["item_length_metric"] = base_prod_obj.item_length_metric
+            response["item_width"] = "" if base_prod_obj.item_width == None else base_prod_obj.item_width
+            response["item_width_metric"] = base_prod_obj.item_width_metric
+            response["item_height"] = "" if base_prod_obj.item_height == None else base_prod_obj.item_height
+            response["item_height_metric"] = base_prod_obj.item_height_metric
+            response["item_display_width"] = "" if base_prod_obj.item_display_width == None else base_prod_obj.item_display_width
+            response["item_display_width_metric"] = base_prod_obj.item_display_width_metric
+            response["item_display_height"] = "" if base_prod_obj.item_display_height == None else base_prod_obj.item_display_height
+            response["item_display_height_metric"] = base_prod_obj.item_display_height_metric
 
+            
             response["item_count"] = "" if prod_obj.item_count == None else prod_obj.item_count
             response["item_count_metric"] = prod_obj.item_count_metric
-
             response["item_condition_note"] = prod_obj.item_condition_note
             response["max_order_quantity"] = "" if prod_obj.max_order_quantity == None else prod_obj.max_order_quantity
             response["number_of_items"] = "" if prod_obj.number_of_items == None else prod_obj.number_of_items
-            response["wattage"] = "" if prod_obj.wattage == None else prod_obj.wattage
-            response["wattage_metric"] = prod_obj.wattage_metric
-            response["material_type"] = prod_obj.material_type
-            response["parentage"] = prod_obj.parentage
-            response["parent_sku"] = prod_obj.parent_sku
-            response["relationship_type"] = prod_obj.relationship_type
-            response["variation_theme"] = prod_obj.variation_theme
-            response["standard_price"] = "" if prod_obj.standard_price == None else prod_obj.standard_price
-            response["quantity"] = "" if prod_obj.quantity == None else prod_obj.quantity
-            response["sale_price"] = "" if prod_obj.sale_price == None else prod_obj.sale_price
-            response["sale_from"] = "" if prod_obj.sale_from == None else prod_obj.sale_from
-            response["sale_end"] = "" if prod_obj.sale_end == None else prod_obj.sale_end
-            response["sale_price"] = "" if prod_obj.sale_price == None else prod_obj.sale_price
-            response["noon_msrp_ae"] = "" if prod_obj.noon_msrp_ae == None else prod_obj.noon_msrp_ae
-            response["noon_msrp_ae_unit"] = str(prod_obj.noon_msrp_ae_unit)
+            
+            response["wattage"] = "" if amazon_uk_product_obj.wattage == None else amazon_uk_product_obj.wattage
+            response["wattage_metric"] = amazon_uk_product_obj.wattage_metric
+            response["material_type"] = amazon_uk_product_obj.material_type
+            response["parentage"] = amazon_uk_product_obj.parentage
+            response["parent_sku"] = amazon_uk_product_obj.parent_sku
+            response["relationship_type"] = amazon_uk_product_obj.relationship_type
+            response["variation_theme"] = amazon_uk_product_obj.variation_theme
+            response["standard_price"] = "" if amazon_uk_product_obj.standard_price == None else amazon_uk_product_obj.standard_price
+            response["quantity"] = "" if amazon_uk_product_obj.quantity == None else amazon_uk_product_obj.quantity
+            response["sale_price"] = "" if amazon_uk_product_obj.sale_price == None else amazon_uk_product_obj.sale_price
+            response["sale_from"] = "" if amazon_uk_product_obj.sale_from == None else amazon_uk_product_obj.sale_from
+            response["sale_end"] = "" if amazon_uk_product_obj.sale_end == None else amazon_uk_product_obj.sale_end
+            response["sale_price"] = "" if amazon_uk_product_obj.sale_price == None else amazon_uk_product_obj.sale_price
+            
+
+            response["noon_msrp_ae"] = "" if noon_product_obj.noon_msrp_ae == None else noon_product_obj.noon_msrp_ae
+            response["noon_msrp_ae_unit"] = str(noon_product_obj.noon_msrp_ae_unit)
 
             response["verified"] = prod_obj.verified
 
             images = {}
 
-            images["main_images"] = create_response_images_main(
-                prod_obj.main_images.all())
-            images["sub_images"] = create_response_images_sub(
-                prod_obj.sub_images.all())
+            main_images_list = []
+            main_images_objs = MainImages.objects.filter(product=prod_obj)
+            for main_images_obj in main_images_objs:
+                main_images_list+=main_images_obj.main_images.all()
+            images["main_images"] = create_response_images_main(main_images_list)
+            
+            sub_images_list = []
+            sub_images_objs = SubImages.objects.filter(product=prod_obj)
+            for sub_images_obj in sub_images_objs:
+                sub_images_list+=sub_images_obj.sub_images.all()
+            images["sub_images"] = create_response_images_main(sub_images_list)
+            
             images["pfl_images"] = create_response_images(
                 prod_obj.pfl_images.all())
             images["pfl_generated_images"] = create_response_images(
@@ -474,23 +480,20 @@ class FetchProductDetailsAPI(APIView):
                 images["white_background_images"] + images["lifestyle_images"] + \
                 images["certificate_images"] + images["giftbox_images"] + \
                 images["diecut_images"] + images["aplus_content_images"] + \
-                images["ads_images"] + images["unedited_images"] + create_response_images_main_sub_delete(prod_obj.main_images.all()) + create_response_images_main_sub_delete(prod_obj.sub_images.all())
+                images["ads_images"] + images["unedited_images"] + create_response_images_main_sub_delete(main_images_list) + create_response_images_main_sub_delete(sub_images_list)
 
 
-
-            repr_image_url = Config.objects.all(
-            )[0].product_404_image.image.url
+            repr_image_url = Config.objects.all()[0].product_404_image.image.url
             repr_high_def_url = repr_image_url
-            if prod_obj.main_images.filter(is_main_image=True).count() > 0:
+            
+            if main_images_list.filter(is_main_image=True).count() > 0:
                 try:
-                    repr_image_url = prod_obj.main_images.filter(
+                    repr_image_url = main_images_list.filter(
                         is_main_image=True)[0].image.mid_image.url
                 except Exception as e:
-                    repr_image_url = prod_obj.main_images.filter(is_main_image=True)[
-                        0].image.image.url
+                    repr_image_url = main_images_list.filter(is_main_image=True)[0].image.image.url
 
-                repr_high_def_url = prod_obj.main_images.filter(is_main_image=True)[
-                    0].image.image.url
+                repr_high_def_url = main_images_list.filter(is_main_image=True)[0].image.image.url
 
             response["repr_image_url"] = repr_image_url
             response["repr_high_def_url"] = repr_high_def_url
