@@ -264,12 +264,7 @@ class CreateNewProductAPI(APIView):
                 response["status"] = 409
                 return Response(data=response)
 
-            prod_obj = Product.objects.create(product_name_amazon_uk=product_name,
-                                              product_name_sap=product_name,
-                                              product_name_amazon_uae=product_name,
-                                              product_name_ebay=product_name,
-                                              pfl_product_name=product_name,
-                                              product_id=seller_sku,
+            prod_obj = BaseProduct.objects.create(base_product_name=product_name,
                                               seller_sku=seller_sku,
                                               brand=brand_obj)
 
