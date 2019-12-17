@@ -246,7 +246,10 @@ class BaseProduct(models.Model):
 class Product(models.Model):
 
     #MISC
+    base_product = models.ForeignKey(BaseProduct,null=True,blank=True,on_delete=models.SET_NULL)
     product_name = models.CharField(max_length=300,null=True)
+    product_id = models.CharField(max_length=300,null=True)
+    product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     status = models.CharField(default="Pending", max_length=100)

@@ -264,9 +264,15 @@ class CreateNewProductAPI(APIView):
                 response["status"] = 409
                 return Response(data=response)
 
-            prod_obj = BaseProduct.objects.create(base_product_name=product_name,
+            base_prod_obj = BaseProduct.objects.create(base_product_name=product_name,
                                               seller_sku=seller_sku,
-                                              brand=brand_obj)
+                                              brand=brand_obj,
+                                              created_date=timezone.now())
+
+
+            prod_obj = Product.objects.create(product_name=product_name,
+                                            pfl_product_name=product_name,
+                                            base_product=base_prod_obj)
 
             response["product_pk"] = prod_obj.pk
             response['status'] = 200
@@ -296,7 +302,16 @@ class FetchProductDetailsAPI(APIView):
                 data = json.loads(data)
 
             prod_obj = Product.objects.get(pk=data["pk"])
-            brand_obj = prod_obj.brand
+            base_prod_obj = product_obj.base_prod
+            channel_prod_obj = ChannelProduct.objects.get(product=product_obj)
+            noon_product_obj = json.loads(channel_prod_obj.noon_product_json)
+            amazon_uk_product_obj = json.loads(channel_prod_obj.noon_product_json)
+            amazon_uae_product_obj = json.loads(channel_prod_obj.noon_product_json)
+            ebay_product_obj = json.loads(channel_prod_obj.noon_product_json)
+            main_images = MainImages.objects.get(product=product_obj)
+            sub_images = SubImages.objects.get(product=product_obj)
+
+            brand_obj = base_prod_obj.brand
 
             permissible_brands = custom_permission_filter_brands(request.user)
 
@@ -322,30 +337,30 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["barcode_string"] = ''
 
-            response["product_name_amazon_uk"] = prod_obj.product_name_amazon_uk
-            response["product_name_amazon_uae"] = prod_obj.product_name_amazon_uae
-            response["product_name_ebay"] = prod_obj.product_name_ebay
+            response["product_name_amazon_uk"] = amazon_uk_product_obj.product_name
+            response["product_name_amazon_uae"] = amazon_uae_product_obj.product_name
+            response["product_name_ebay"] = ebay_product_obj.product_name
             response["product_name_sap"] = prod_obj.product_name_sap
-            response["product_name_noon"] = prod_obj.product_name_noon
-            response["category"] = prod_obj.category
-            response["subtitle"] = prod_obj.subtitle
+            response["product_name_noon"] = noon_product_obj.product_name
+            response["category"] = base_prod_obj.category
+            response["subtitle"] = base_prod_obj.subtitle
 
-            if prod_obj.brand == None:
+            if brand_obj == None:
                 response["brand"] = ""
             else:
-                response["brand"] = prod_obj.brand.name
+                response["brand"] = brand_obj.name
 
-            response["manufacturer"] = prod_obj.manufacturer
+            response["manufacturer"] = base_prod_obj.manufacturer
             response["product_id"] = prod_obj.product_id
             response["product_id_type"] = prod_obj.product_id_type
 
-            response["noon_product_type"] = prod_obj.noon_product_type
-            response["noon_product_subtype"] = prod_obj.noon_product_subtype
-            response["noon_model_number"] = prod_obj.noon_model_number
-            response["noon_model_name"] = prod_obj.noon_model_name
+            response["noon_product_type"] = noon_product_obj.product_type
+            response["noon_product_subtype"] = noon_product_obj.product_subtype
+            response["noon_model_number"] = noon_product_obj.model_number
+            response["noon_model_name"] = noon_product_obj.model_name
 
-            response["seller_sku"] = prod_obj.seller_sku
-            response["manufacturer_part_number"] = prod_obj.manufacturer_part_number
+            response["seller_sku"] = base_prod_obj.seller_sku
+            response["manufacturer_part_number"] = base_prod_obj.manufacturer_part_number
             response["condition_type"] = prod_obj.condition_type
             response["feed_product_type"] = prod_obj.feed_product_type
             response["update_delete"] = prod_obj.update_delete
