@@ -1544,15 +1544,16 @@ class CreateFlyerAPI(APIView):
                 try:
                     template_data = []
                     flyer_items = int(data["flyer_items"])
-                    col = 4
+                    col = int(data["columns_per_row"])
                     width = int(24/col)
+                    height = int(data["grid_item_height"])
                     for i in range(flyer_items):
                         temp_dict = {}
                         temp_dict["container"] = {
                             "x": str((i*width)%24),
-                            "y": str(6*(i/col)),
+                            "y": str(height*(i/col)),
                             "width": str(width),
-                            "height": "6"
+                            "height": str(height)
                         }
                         temp_dict["data"] = {
                             "image-url": "",
@@ -1576,8 +1577,9 @@ class CreateFlyerAPI(APIView):
                         rows = len(dfs.iloc[:])
                         template_data = []
 
-                        col = 4
+                        col = int(data["columns_per_row"])
                         width = int(24/col)
+                        height = int(data["grid_item_height"])
 
                         for i in range(rows):
                             product_obj = Product.objects.get(product_id=dfs.iloc[i][0])
@@ -1599,9 +1601,9 @@ class CreateFlyerAPI(APIView):
 
                             temp_dict["container"] = {
                                 "x": str((i*width)%24),
-                                "y": str(6*(i/col)),
+                                "y": str(height*(i/col)),
                                 "width": str(width),
-                                "height": "6"
+                                "height": str(height)
                             }
                             temp_dict["data"] = {
                                 "image-url": main_image_obj.image.image.url,
