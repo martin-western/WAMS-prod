@@ -372,6 +372,10 @@ body {
     border-bottom-color: #512da8!important;
   }
 
+  .scroll-style-2 > li > a {
+    padding: 0 17px !important;
+  }
+
 </style>
 
 
@@ -437,6 +441,7 @@ body {
         <li class="tab"><a href="#variation">VARIATION</a></li>
         <li class="tab"><a href="#offer">OFFER</a></li>
         <li class="tab"><a href="#pfl">PFL</a></li>
+        <li class="tab"><a href="#factoryNotes">FACTORY NOTES</a></li>
       </ul>
 
       <div class="scroll-style-1 tab-content">
@@ -1165,6 +1170,19 @@ body {
             </div>
           </div>
         </div>
+
+        <div class="tab-pane" id="factoryNotes">
+          <h4>FACTORY NOTES</h4> 
+          <div class="row white" style="margin-bottom:0px !important;">
+            <div class="input-field col s12">
+              <input id="factory-notes" type="text" >
+              <label for="">Factory Notes</label>
+            </div>
+
+            
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1845,7 +1863,7 @@ body {
     for(var i=0;i<product_image_input.files.length;i++)
     {
       fd.append('image_'+i, product_image_input.files[i]);
-    }	  
+    }   
   
   
     fd.append('image_category', global_image_key);
@@ -1952,10 +1970,10 @@ body {
         $("#category").val(response["category"]);
         $("#subtitle").val(response["subtitle"]);
         $("#brand-name").val(response["brand"]);
-    	  $("#manufacturer").val(response["manufacturer"]);
-    	  $("#product-id").val(response["product_id"]);
-    	  $("#product-id-type").val(response["product_id_type"]);
-    	  $("#seller-sku").val(response["seller_sku"]);
+        $("#manufacturer").val(response["manufacturer"]);
+        $("#product-id").val(response["product_id"]);
+        $("#product-id-type").val(response["product_id_type"]);
+        $("#seller-sku").val(response["seller_sku"]);
         $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
         $("#barcode-string").val(response["barcode_string"]);
         $("#noon-product-type").val(response["noon_product_type"]);
@@ -1967,6 +1985,7 @@ body {
         $("#feed-product-type").val(response["feed_product_type"]);  
         $("#update-delete").val(response["update_delete"]);
         $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
+
           
         window.editor[0].setData(response["product_description_amazon_uk"]);
         window.editor[1].setData(response["product_description_amazon_uae"]);
@@ -2085,6 +2104,7 @@ body {
         $("#noon-msrp-ae").val(response["noon_msrp_ae"]);
         $("#noon-msrp-ae-unit").val(response["noon_msrp_ae_unit"]);
 
+        $("#factory-notes").val(response["factory_notes"]);
 
 
         global_images = response["images"];
@@ -2935,6 +2955,8 @@ body {
     var noon_msrp_ae_unit = $("#noon-msrp-ae-unit").val();
     var product_pk = window.location.pathname.split("/")[2];
 
+    var factory_notes = $("#factory-notes").val();
+
     var fd = new FormData();
 
     fd.append('pfl_product_name' , pfl_product_name)
@@ -3025,6 +3047,7 @@ body {
     fd.append('sale_end', sale_end);
     fd.append('noon_msrp_ae', noon_msrp_ae);
     fd.append('noon_msrp_ae_unit', noon_msrp_ae_unit);
+    fd.append('factory_notes',factory_notes):
 
     $.ajax({
       url: "/save-product/",
