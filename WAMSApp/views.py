@@ -335,6 +335,8 @@ class FetchProductDetailsAPI(APIView):
             response["product_name_noon"] = prod_obj.product_name_noon
             response["category"] = prod_obj.category
             response["subtitle"] = prod_obj.subtitle
+            
+            response["factory_notes"] = prod_obj.factory_notes
 
             if prod_obj.brand == None:
                 response["brand"] = ""
@@ -732,9 +734,11 @@ class SaveProductAPI(APIView):
             pfl_product_features = convert_to_ascii(
                 data["pfl_product_features"])
 
+            factory_notes = convert_to_ascii(data["factory_notes"])
+
             brand_obj = None
             if brand != "":
-                brand_obj, created = Brand.objects.get_or_create(name=brand)
+                brand_obj, created = Brand.objects.prod_objget_or_create(name=brand)
 
             prod_obj.product_id = product_id
 
@@ -867,6 +871,7 @@ class SaveProductAPI(APIView):
             prod_obj.pfl_product_name = pfl_product_name
             prod_obj.pfl_product_features = pfl_product_features
 
+            prod_obj.factory_notes = factory_notes
             prod_obj.save()
 
             response['status'] = 200
