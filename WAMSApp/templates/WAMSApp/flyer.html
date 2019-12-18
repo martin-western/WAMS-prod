@@ -1053,7 +1053,6 @@
                     a.click();
                     $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
-
                     var image_data = canvas.toDataURL();
 
                     var fd = new FormData();
@@ -1272,12 +1271,12 @@
                 </div>
                 <div class="footer-bottom">
                   <div class="grid-item-footer-left">
-                      <input class="footer-bottom-left-input product-title-info font-to-avenir browser-default" type="text" name="description" placeholder="description" value="`+product_info+`">
-                      <input class=" font-to-avenir footer-bottom-left-input product-title-info browser-default" type="text" name="name" placeholder="product name" value="`+product_title+`">
+                      <input id="product-title-info-`+grid_id+`" class="footer-bottom-left-input product-title-info font-to-avenir browser-default" type="text" name="description" placeholder="description" value="`+product_info+`">
+                      <input id="product-title-info2-`+grid_id+`" class=" font-to-avenir footer-bottom-left-input product-title-info browser-default" type="text" name="name" placeholder="product name" value="`+product_title+`">
                   </div>
                   <div class="grid-item-footer-right">
-                      <input class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" >
-                      <input class="grid-item-text-3 footer-bottom-left-input product-price-info font-to-avenir browser-default" type="text" name="price" placeholder="price" value="`+price+`"">
+                      <input id="product-currency-info-`+grid_id+`" class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" >
+                      <input id="product-price-info-`+grid_id+`" class="grid-item-text-3 footer-bottom-left-input product-price-info font-to-avenir browser-default" type="text" name="price" placeholder="price" value="`+price+`">
                   </div>
                 </div>
               </div>
@@ -1344,7 +1343,6 @@
         $("#gridimg-"+(i+1)).attr("original-width", original_width);
         $("#gridimg-"+(i+1)).attr("original-height", original_height);
       }
-
     }
 
 
@@ -1432,34 +1430,49 @@
         border_style = "2px solid #E9E9E9";
       }
 
-      var html_string = `<div grid-id="`+(i+1)+`" class="grid-stack-item" data-gs-width=3 data-gs-height=3 data-gs-x=7 data-gs-y=7 style="text-align:center;">
-            <div class="grid-stack-item-content white" style="border: `+border_style+`;">
-            <div class="grid-item-img-container"> 
-              <a id="gridbox-`+(i+1)+`" href="#!" class="flyer-item-box" style="color:black;height:80%;max-width:100%;">
-                <div class="divgrid" id="divgrid-`+(i+1)+`" style="height:100%;text-align: center;background-color:white;display:flex;justify-content:center;align-item:center;">
-                    `+img_string+`
-                </div>
-              </a>
-            </div>
-            <div class="grid-item-footer-container" > 
-              <div className="footer-top">
-                <div>
-                  <p class="grid-item-text" style="text-align:left;">`+global_brand_name+`</p>
-                 </div>
-              </div>
-              <div class="footer-bottom">
-                <div class="grid-item-footer-left">
-                    <input class="footer-bottom-left-input  font-to-avenir browser-default" type="text" name="description" placeholder="description">
-                    <input class=" font-to-avenir footer-bottom-left-input browser-default" type="text" name="name" placeholder="product name">
-                </div>
-                <div class="grid-item-footer-right">
-                    <input class=" grid-item-text footer-bottom-left-input  font-to-avenir browser-default" type="text" name="currency" placeholder="currency" >
-                    <input class="grid-item-text-3 footer-bottom-left-input  font-to-avenir browser-default" type="text" name="price" placeholder="price">
-                </div>
-              </div>
-            </div>
-            </div>
-          </div>`;
+      var flyer_dict = {};
+
+      flyer_dict["grid-id"] = (i+1);
+      flyer_dict["product-title"] = "";
+      flyer_dict["product-info"] = "";
+      flyer_dict["price"] = "";
+      flyer_dict["currency"] = "";
+      flyer_dict["image-url"] = "";
+      flyer_dict["width"] = "3";
+      flyer_dict["height"] = "3";
+      flyer_dict["x"] = "7";
+      flyer_dict["y"] = "7";
+
+      var html_string = create_unit_flyer_html(flyer_dict);
+
+      // var html_string = `<div grid-id="`+(i+1)+`" class="grid-stack-item" data-gs-width=3 data-gs-height=3 data-gs-x=7 data-gs-y=7 style="text-align:center;">
+      //       <div class="grid-stack-item-content" style="border: `+border_style+`;">
+      //       <div class="grid-item-img-container"> 
+      //         <a id="gridbox-`+(i+1)+`" href="#!" class="flyer-item-box" style="color:black;height:80%;max-width:100%;">
+      //           <div class="divgrid" id="divgrid-`+(i+1)+`" style="height:100%;text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;">
+      //               `+img_string+`
+      //           </div>
+      //         </a>
+      //       </div>
+      //       <div class="grid-item-footer-container" > 
+      //           <div className="footer-top">
+      //             <div>
+      //               <p class="grid-item-text brand-text" style="text-align:left;"></p>
+      //              </div>
+      //           </div>
+      //           <div class="footer-bottom">
+      //             <div class="grid-item-footer-left">
+      //                 <input id="product-title-info-`+(i+1)+`" class="footer-bottom-left-input product-title-info font-to-avenir browser-default" type="text" name="description" placeholder="description" value="">
+      //                 <input id="product-title-info2-`+(i+1)+`" class=" font-to-avenir footer-bottom-left-input product-title-info browser-default" type="text" name="name" placeholder="product name" value="">
+      //             </div>
+      //             <div class="grid-item-footer-right">
+      //                 <input id="product-currency-info-`+(i+1)+`" class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" >
+      //                 <input id="product-price-info-`+(i+1)+`" class="grid-item-text-3 footer-bottom-left-input product-price-info font-to-avenir browser-default" type="text" name="price" placeholder="price" value="">
+      //             </div>
+      //           </div>
+      //         </div>
+      //       </div>
+      //     </div>`;
 
 
         $("#grid-stack-div").append(html_string);
@@ -1467,6 +1480,8 @@
         var grid = $('.grid-stack').data('gridstack');
         var el = $('.grid-stack').children()[$('.grid-stack').children().length-1];
         grid.addWidget(el, 0, 0, 3, 3, true);
+
+        $(".brand-text").html(global_brand_name);
     });
 
 
@@ -1828,9 +1843,9 @@
         var grid_id = $(grid_stack_items[i]).attr("grid-id");
 
         var image_url = $("#gridimg-"+grid_id).attr("src");
-        var product_title = $("#productinfoname-"+grid_id).html();
-        var price = $("#productinfoprice-"+grid_id).html()
-        var currency = $("#productinfocurrency-"+grid_id).html();
+        var product_title = $("#product-title-info-"+grid_id).val();
+        var description = $("#product-title-info2-"+grid_id).val();
+        var price = $("#product-price-info-"+grid_id).val();
 
         var temp_dict = {
           "container": {
@@ -1840,9 +1855,15 @@
             "y": y
           },
           "data": {
-            "image-url": image_url
+            "image-url": image_url,
+            "price": price,
+            "title": product_title,
+            "description": description,
+            "price": price
           }
         }
+
+        console.log(temp_dict);
 
         global_template_data.push(temp_dict);
       }
@@ -1871,7 +1892,7 @@
           }
           else
           {
-            M.toast({html: "Error saving flyer!"}); 
+            M.toast({html: "Error saving flyer!"});
           }
         },
         error: function(xhr, textstatus, errorthrown) {
