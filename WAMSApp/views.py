@@ -342,9 +342,12 @@ class FetchProductDetailsAPI(APIView):
             response["product_name_amazon_uae"] = amazon_uae_product_obj.product_name
             response["product_name_ebay"] = ebay_product_obj.product_name
             response["product_name_sap"] = prod_obj.product_name_sap
-            response["product_name_noon"] = noon_product_obj.product_name
-            response["category"] = base_prod_obj.category
-            response["subtitle"] = base_prod_obj.subtitle
+
+            response["product_name_noon"] = prod_obj.product_name_noon
+            response["category"] = prod_obj.category
+            response["subtitle"] = prod_obj.subtitle
+            
+            response["factory_notes"] = prod_obj.factory_notes
 
             if brand_obj == None:
                 response["brand"] = ""
@@ -713,9 +716,11 @@ class SaveProductAPI(APIView):
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = convert_to_ascii(data["pfl_product_features"])
 
+            factory_notes = convert_to_ascii(data["factory_notes"])
+
             brand_obj = None
             if brand != "":
-                brand_obj, created = Brand.objects.get_or_create(name=brand)
+                brand_obj, created = Brand.objects.prod_objget_or_create(name=brand)
 
             prod_obj.product_id = product_id
 
@@ -844,6 +849,7 @@ class SaveProductAPI(APIView):
             prod_obj.pfl_product_name = pfl_product_name
             prod_obj.pfl_product_features = pfl_product_features
 
+            prod_obj.factory_notes = factory_notes
             prod_obj.save()
 
             response['status'] = 200
@@ -1521,15 +1527,16 @@ class CreateFlyerAPI(APIView):
                 try:
                     template_data = []
                     flyer_items = int(data["flyer_items"])
-                    col = 4
+                    col = int(data["columns_per_row"])
                     width = int(24/col)
+                    height = int(data["grid_item_height"])
                     for i in range(flyer_items):
                         temp_dict = {}
                         temp_dict["container"] = {
                             "x": str((i*width)%24),
-                            "y": str(6*(i/col)),
+                            "y": str(height*(i/col)),
                             "width": str(width),
-                            "height": "6"
+                            "height": str(height)
                         }
                         temp_dict["data"] = {
                             "image-url": "",
@@ -1553,8 +1560,9 @@ class CreateFlyerAPI(APIView):
                         rows = len(dfs.iloc[:])
                         template_data = []
 
-                        col = 4
+                        col = int(data["columns_per_row"])
                         width = int(24/col)
+                        height = int(data["grid_item_height"])
 
                         for i in range(rows):
                             product_obj = Product.objects.get(product_id=dfs.iloc[i][0])
@@ -1576,9 +1584,9 @@ class CreateFlyerAPI(APIView):
 
                             temp_dict["container"] = {
                                 "x": str((i*width)%24),
-                                "y": str(6*(i/col)),
+                                "y": str(height*(i/col)),
                                 "width": str(width),
-                                "height": "6"
+                                "height": str(height)
                             }
                             temp_dict["data"] = {
                                 "image-url": main_image_obj.image.image.url,

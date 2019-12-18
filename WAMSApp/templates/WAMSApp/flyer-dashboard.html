@@ -111,6 +111,24 @@
       </div>
     </div>
 
+    <div class="row">
+      <div class="input-field col s6">
+        <select id="columns-per-row">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="6">6</option>
+          <option value="8">8</option>
+        </select>
+        <label>Columns per Row</label>
+      </div>
+
+      <div class="input-field col s6">
+        <input id="grid-item-height" type="number" class="validate" value="6">
+        <label for="grid-item-height">Grid Item Height</label>
+      </div>
+    </div>
   </div>
   <div class="modal-footer">
     <a href="#!" class="modal-close waves-effect btn-flat">Close</a>
@@ -246,7 +264,11 @@
     // var flyer_column = $("#flyer-column").val();
     var import_file = document.getElementById("excel-file-input");
 
-    if(flyer_name=="" || flyer_brand==null)
+
+    var grid_item_height = $("#grid-item-height").val();
+    var columns_per_row = $("#columns-per-row").val();
+
+    if(flyer_name=="" || flyer_brand==null || grid_item_height=="")
     {
       M.toast({html: "Please fill the details before creating a flyer"});
       return;
@@ -260,12 +282,13 @@
       return; 
     }
 
+
     var fd =  new FormData();
     fd.append('name', flyer_name);
     fd.append('brand_pk', flyer_brand);
     fd.append('flyer_items', flyer_items);
-    //fd.append('row', flyer_row);
-    //fd.append('column', flyer_column);
+    fd.append('columns_per_row', columns_per_row);
+    fd.append('grid_item_height', grid_item_height);
     fd.append('import_file', import_file.files[0]);
     fd.append('create_option', create_option);
 
