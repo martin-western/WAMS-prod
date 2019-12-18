@@ -326,6 +326,8 @@ class Product(models.Model):
     barcode_string = models.CharField(max_length=100, default="")
     outdoor_price = models.FloatField(null=True, blank=True)
 
+    factory_notes = models.TextField(default="[]")
+    
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
