@@ -510,11 +510,24 @@
       font-size: 18px;
       margin:0;
     }
-
     .grid-item-footer-left > input {
       background-color: transparent
     }
+    .grid-stack-item-content {
+      width: 100% !important;
+      height: 100%;
+    }
 
+    .custom-slider::-webkit-slider-thumb {
+      background-color: #63B050 !important;
+    }
+
+
+    .flyer-item-box {
+      display: flex;
+      align-items: center;
+    }
+    
   </style>
 
   {% csrf_token %}
@@ -805,9 +818,9 @@
             <a id="delete-grid-item-btn" class="btn" title="Delete Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 4em;"><i class="material-icons">delete</i></a>
             <a id="refresh-template-btn" class="btn " title="Reset Template" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 8em;"><i class="material-icons">refresh</i></a>
             <a id="hide-cursor-btn" cursor-status="on" class="btn " title="Hide cursor" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 12em;"><i class="material-icons">center_focus_strong</i></a>
-            <!-- <p class="range-field" style="position: absolute;margin-left: 20em;">
-              <input type="range" id="image-resizer" min="10" max="100" value="100" />
-            </p> -->
+            <p class="range-field" style="width:20em;position: absolute;margin-left: 20em;margin-top: 0em;">
+              <input class="custom-slider" type="range" id="image-resizer" min="10" max="100" value="100" />
+            </p>
 
             <a id="download-flyer-btn" class="btn green" style="width:10em;text-align: left;text-transform: none;margin-left: 172mm;position: relative;">Download<i class="material-icons right">file_download</i>
               <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
@@ -1017,7 +1030,7 @@
               var context = canvas.getContext('2d');
               context.scale(scale, scale);
 
-              $(".divgrid").css("border", "none");
+              $(".divgrid").parent().parent().css("border", "none");
               if($("#border-option").prop("checked"))
               {
                 //$(".divgrid").css("border-bottom", "2px solid #E9E9E9");
@@ -1025,7 +1038,7 @@
               }
               else
               {
-                $(".divgrid").css("border-bottom", "none");
+                $(".divgrid").parent().parent().css("border-bottom", "none");
                 $(".divgrid").parent().parent().parent().css("border", "none");
               }
 
@@ -1038,7 +1051,7 @@
                     a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
                     a.download = 'flyer_image_'+(window.location.pathname.split("/")[2])+'.jpg';
                     a.click();
-                    $("#divgrid-"+global_selected_grid_id).css("border", "0.14em dashed");
+                    $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
 
                     var image_data = canvas.toDataURL();
@@ -1082,13 +1095,13 @@
       if($("#border-option").prop("checked"))
       {
         //$(".divgrid").css("border-bottom", "2px solid #E9E9E9");
-        $("#divgrid-"+global_selected_grid_id).css("border", "0.14em dashed");
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
         $(".divgrid").parent().parent().parent().css("border", "2px solid #E9E9E9");
       }
       else
       {
-        $(".divgrid").css("border", "none");
-        $("#divgrid-"+global_selected_grid_id).css("border", "0.14em dashed");
+        $(".divgrid").parent().parent().css("border", "none");
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
         $(".divgrid").parent().parent().parent().css("border", "none");
       }
     });
@@ -1208,22 +1221,11 @@
 
 
 
-    $("#image-resizer").change(function(){
-      var original_width = $("#gridimg-"+global_selected_grid_id).attr("original-width").replace("px", "");
-      var original_height = $("#gridimg-"+global_selected_grid_id).attr("original-height").replace("px", "");
-
+    $("#image-resizer").change(function() {
+      console.log("Adasd");
       var R = $("#image-resizer").val();
 
-      var new_width = (parseFloat(R)/parseFloat("100"))*parseFloat(original_width);
-      var new_height = (parseFloat(R)/parseFloat("100"))*parseFloat(original_height);
-
-      console.log("original_width", original_width);
-      console.log("original_height", original_height);
-      console.log("new_width", new_width);
-      console.log("new_height", new_height);
-
-      $("#gridimg-"+global_selected_grid_id).css("width", new_width+"px");
-      $("#gridimg-"+global_selected_grid_id).css("height", new_height+"px");
+      $("#gridimg-"+global_selected_grid_id).css("max-width", R+"%");
       $("#gridimg-"+global_selected_grid_id).attr("resizer", R);
     });
 
@@ -1255,15 +1257,13 @@
       var html_string = 
           `<div grid-id="`+grid_id+`" class="grid-stack-item" data-gs-width=`+width+` data-gs-height=`+height+` data-gs-x=`+x+` data-gs-y=`+y+` style="text-align:center;padding:0em !important;">
             <div class="grid-stack-item-content" style="border: 2px solid #E9E9E9;background-color:transparent;">
-
               <div class="grid-item-img-container">
-                <a id="gridbox-`+grid_id+`" href="#!" class="flyer-item-box" style="color:black;max-height:100%;max-width:100%;">
-                  <div class="divgrid" id="divgrid-`+grid_id+`" style="text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;height:100%;">
-                      <img resizer="100" original-width="" original-height="" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:100%;max-height:100%;height:auto;"/>
+                <a id="gridbox-`+grid_id+`" href="#!" class="flyer-item-box" style="color:black;height:100%;width:100%;">
+                  <div class="divgrid" id="divgrid-`+grid_id+`" style="text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;height:auto;width:100%">
+                      <img resizer="100" original-width="" original-height="" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:100%;height:auto;"/>
                   </div>
                 </a>
               </div>
-
               <div class="grid-item-footer-container" > 
                 <div className="footer-top">
                   <div>
@@ -1281,7 +1281,6 @@
                   </div>
                 </div>
               </div>
-
             </div>
           </div>`
 
@@ -1293,7 +1292,7 @@
     {
       global_selected_grid_id = 1;
 
-      $("#divgrid-1").css("border", "0.14em dashed");
+      $("#divgrid-1").parent().parent().css("border", "0.14em dashed");
       // var original_width = $("#gridimg-1").css("width");
       // var original_height = $("#gridimg-1").css("height");
       // $("#gridimg-1").attr("original-width", original_width);
@@ -1364,53 +1363,53 @@
     })
 
 
-    $('.grid-stack').on('gsresizestop', function(event, elem) {
+    // $('.grid-stack').on('gsresizestop', function(event, elem) {
 
-      var grid_id = $(elem).attr("grid-id");
+    //   var grid_id = $(elem).attr("grid-id");
 
-      var original_width = $("#gridimg-"+grid_id).attr("original-width").replace("px", "");
-      var original_height = $("#gridimg-"+grid_id).attr("original-height").replace("px", "");
+    //   var original_width = $("#gridimg-"+grid_id).attr("original-width").replace("px", "");
+    //   var original_height = $("#gridimg-"+grid_id).attr("original-height").replace("px", "");
 
-      var curr_width = $("#gridimg-"+grid_id).css("width").replace("px", "");
-      var ideal_height = (parseFloat(original_height)/parseFloat(original_width))*parseFloat(curr_width);
+    //   var curr_width = $("#gridimg-"+grid_id).css("width").replace("px", "");
+    //   var ideal_height = (parseFloat(original_height)/parseFloat(original_width))*parseFloat(curr_width);
 
-      var curr_height = $("#gridimg-"+grid_id).css("height").replace("px", "");
-      if(curr_height>ideal_height)
-      {
-        $("#gridimg-"+grid_id).css("height", ideal_height+"px");
-      }
-      else
-      {
-        $("#gridimg-"+grid_id).css("height", "auto");
-      }
+    //   var curr_height = $("#gridimg-"+grid_id).css("height").replace("px", "");
+    //   if(curr_height>ideal_height)
+    //   {
+    //     $("#gridimg-"+grid_id).css("height", ideal_height+"px");
+    //   }
+    //   else
+    //   {
+    //     $("#gridimg-"+grid_id).css("height", "auto");
+    //   }
 
 
-      // //Update original-width and original-height
-      // var R = $("#image-resizer").val();
-      // curr_height = $("#gridimg-"+global_selected_grid_id).css("height");
-      // curr_width = $("#gridimg-"+global_selected_grid_id).css("width");
+    //   // //Update original-width and original-height
+    //   // var R = $("#image-resizer").val();
+    //   // curr_height = $("#gridimg-"+global_selected_grid_id).css("height");
+    //   // curr_width = $("#gridimg-"+global_selected_grid_id).css("width");
 
-    });
+    // });
 
     $("#hide-cursor-btn").click(function() {
 
       if($("#hide-cursor-btn").attr("cursor-status")=="on") //Make cursor invisible
       {
         $("#hide-cursor-btn").attr("cursor-status", "off");
-        $("#divgrid-"+global_selected_grid_id).css("border", "none");
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "none");
         if($("#border-option").prop("checked"))
         {
           //$("#divgrid-"+global_selected_grid_id).css("border-bottom", "2px solid #E9E9E9");
         }
         else
         {
-          $("#divgrid-"+global_selected_grid_id).css("border-bottom", "none");
+          $("#divgrid-"+global_selected_grid_id).parent().parent().css("border-bottom", "none");
         }
       }
       else  //Make cursor visible
       {
         $("#hide-cursor-btn").attr("cursor-status", "on");
-        $("#divgrid-"+global_selected_grid_id).css("border", "0.14em dashed");
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
       }
     });
 
@@ -1790,9 +1789,8 @@
 
 
     $(document).on("click", ".flyer-item-box", function(){
-        console.log("Asdasdas") ; 
         global_selected_grid_id = this.id.split("-")[1];
-        $(".divgrid").css("border", "none");
+        $(".divgrid").parent().parent().css("border", "none");
         if($("#border-option").prop("checked"))
         {
           //$(".divgrid").css("border-bottom", "2px solid #E9E9E9");
@@ -1801,11 +1799,11 @@
         }
         else
         {
-          $(".divgrid").css("border-bottom", "none");
+          $(".divgrid").parent().parent().css("border-bottom", "none");
           //$(".divgrid").parent().parent().css("border", "none");
         }
 
-        $("#divgrid-"+global_selected_grid_id).css("border", "0.14em dashed");
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
         console.log($("#gridimg-"+global_selected_grid_id).attr("resizer"));
         $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
