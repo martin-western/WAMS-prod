@@ -1175,7 +1175,7 @@ body {
           <h4>FACTORY NOTES</h4> 
           <div class="row white" style="margin-bottom:0px !important;">
             <div class="input-field col s12">
-              <input id="" type="text" >
+              <input id="factory-notes" type="text" >
               <label for="">Factory Notes</label>
             </div>
 
@@ -1985,6 +1985,7 @@ body {
         $("#feed-product-type").val(response["feed_product_type"]);  
         $("#update-delete").val(response["update_delete"]);
         $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
+
           
         window.editor[0].setData(response["product_description_amazon_uk"]);
         window.editor[1].setData(response["product_description_amazon_uae"]);
@@ -2103,6 +2104,7 @@ body {
         $("#noon-msrp-ae").val(response["noon_msrp_ae"]);
         $("#noon-msrp-ae-unit").val(response["noon_msrp_ae_unit"]);
 
+        $("#factory-notes").val(response["factory_notes"]);
 
 
         global_images = response["images"];
@@ -2953,6 +2955,8 @@ body {
     var noon_msrp_ae_unit = $("#noon-msrp-ae-unit").val();
     var product_pk = window.location.pathname.split("/")[2];
 
+    var factory_notes = $("#factory-notes").val();
+
     var fd = new FormData();
 
     fd.append('pfl_product_name' , pfl_product_name)
@@ -3043,6 +3047,7 @@ body {
     fd.append('sale_end', sale_end);
     fd.append('noon_msrp_ae', noon_msrp_ae);
     fd.append('noon_msrp_ae_unit', noon_msrp_ae_unit);
+    fd.append('factory_notes',factory_notes):
 
     $.ajax({
       url: "/save-product/",
