@@ -1948,7 +1948,7 @@ class FetchProductListFlyerPFLAPI(APIView):
             product_objs = custom_permission_filter_products(request.user)
 
             try:
-                if "flyer_kp" in data:
+                if "flyer_pk" in data:
                     brand_obj = Flyer.objects.get(
                         pk=int(data["flyer_pk"])).brand
                     product_objs = product_objs.filter(brand=brand_obj)
