@@ -488,6 +488,7 @@
     .grid-item-footer-right > input {
       text-align: right;
       background: yellow;
+      padding-right: 5px;
     }
     .footer-bottom-left-input {
       border: none;
@@ -516,10 +517,11 @@
     .grid-stack-item-content {
       /*width: 100% !important;
       height: 100%;*/
+      position: relative;
     }
 
     .custom-slider::-webkit-slider-thumb {
-      background-color: #63B050 !important;
+      background-color: #521893 !important;
     }
 
 
@@ -527,6 +529,69 @@
       display: flex;
       align-items: center;
     }
+
+
+
+    /* grid item sticker */ 
+    .grid-item-sticker {  
+      position: absolute; 
+      top: 0; 
+      left: 0;  
+        
+        
+    } 
+    .grid-item-sticker > img {  
+      height: 40px; 
+      width: 40px;  
+      border-radius: 0 0 50% 0; 
+    } 
+  .center-vertically {  
+    display: flex;  
+    align-items: center;  
+  } 
+  .center-horizontally {  
+    display: flex;  
+    justify-content: center;  
+  } 
+  .left-horizontally {  
+    display: flex;  
+    align-items: center;  
+    justify-content: flex-start;  
+  } 
+  .right-horizontally { 
+    display: flex;  
+    align-items: center;  
+    justify-content: flex-end;  
+  } 
+  .align-right {  
+    text-align: right;  
+  } 
+  .align-left { 
+    text-align: left; 
+  } 
+  .align-center { 
+    text-align: center; 
+  } 
+/* Checkbox */  
+  .checkbox-flyer[type="checkbox"].filled-in:checked + span:not(.lever):after   
+  { 
+      border: 2px solid #521893;    
+      background-color: #521893;  
+  } 
+    
+/* Radio button */  
+  [type="radio"]:checked + span:after,  
+  [type="radio"].with-gap:checked + span:before,  
+  [type="radio"].with-gap:checked + span:after {  
+   border: 2px solid #521893; 
+  } 
+  [type="radio"]:checked + span:after,  
+  [type="radio"].with-gap:checked + span:after {  
+    background-color: #521893;  
+  } 
+  input[type=range]+.thumb {  
+    background-color: #521893;  
+  }
     
   </style>
 
@@ -567,7 +632,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Basket</span>
           </span>
           
-          <div id="product-basket-list-div" class="scroll-style-1 row white" style="margin-top:0.5em;min-height:6em;max-height: 20em;overflow-y: auto;padding-left: 1.2em;padding-right: 0.4em;padding-top: 0.8em;">
+          <div id="product-basket-list-div" class="scroll-style-1 row white hoverable" style="margin-top:0.5em;min-height:6em;max-height: 20em;overflow-y: auto;padding-left: 1.2em;padding-right: 0.4em;padding-top: 0.8em;">
           </div>
         </div>
 
@@ -579,7 +644,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Categories</span>
           </span>
 
-          <div class="scroll-style-1 row white" style="margin-top:0.5em;">
+          <div class="scroll-style-1 row white hoverable" style="margin-top:0.5em;">
             <div class="input-field col s8" style="margin-top: 0em;">
               <select id="image-categories-thumbnails-select" style="font-size: 0.8em;">
                 <option value="all_images" id="all-images-option">All Images</option>
@@ -616,7 +681,7 @@
             </a>
           </span>
 
-          <div id="background-image-bucket-thumbnails-div" class="scroll-style-1 row white" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
+          <div id="background-image-bucket-thumbnails-div" class="scroll-style-1 row white hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
           </div>
         </div>
 
@@ -628,10 +693,10 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Other Settings</span>
           </span>
           
-          <div class="row white" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
             <div class="col s6" style="margin-top: 1em;">
               <label>
-                <input id="border-option" type="checkbox" checked />
+                <input id="border-option" class="filled-in checkbox-flyer" type="checkbox" checked />
                 <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Border Visible</span>
               </label>
             </div>
@@ -642,7 +707,98 @@
             </div>
 
           </div>
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Nav Logo Settings</span>
+          </span>
+          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12 style="margin: 8px 0"">
+              <label>
+                <input id="" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Superbrands</span>
+              </label>
+            </div>
+            <div class="col s12 style="margin: 8px 0"">
+              <label>
+                <input id="" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Iso</span>
+              </label>
+            </div>
+            <div class="col s12 style="margin: 8px 0"">
+              <label>
+                <input id="" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Appliances</span>
+              </label>
+            </div>
+          </div>
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Resizer</span>
+          </span>
+          <div class="row white  hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="100" value="100" />
+                </p>
+            </div>
+          </div>
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Sale Overlay Settings</span>
+          </span>
+          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+              <form action="#">
+                <p>
+                  <label>
+                    <input name="group1" type="radio" checked />
+                    <span>Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input name="group1" type="radio" />
+                    <span>Upcoming Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input name="group1" type="radio"  />
+                    <span>Christmas Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input name="group1" type="radio" />
+                    <span>New year Sale</span>
+                  </label>
+                </p>
+              </form>
+            </div>
+          </div>
+
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -656,7 +812,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Title Settings</span>
           </span>
           
-          <div class="row white" style="margin-top:0.5em;">
+          <div class="row white hoverable" style="margin-top:0.5em;padding:5px">
             <div class="input-field col s6" style="margin-top: 1em !important;">
               <input id="product-title-font-size" type="number" value="12">
               <label for="product-title-font-size">Font Size</label>  
@@ -698,7 +854,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Price Box Settings</span>
           </span>
           
-          <div class="row white" style="margin-top:0.5em;">
+          <div class="row white hoverable" style="margin-top:0.5em;">
             <!-- Font Size -->
             <div class="input-field col s6" style="margin-top: 1em !important;">
               <input id="product-price-font-size" type="number" value="18">
@@ -788,7 +944,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header/Footer Settings</span>
           </span>
           
-          <div class="row white" style="margin-top:0.5em;">
+          <div class="row white hoverable" style="margin-top:0.5em;padding:5px;">
             <div class="input-field col s6" style="margin-top: 0em !important;">
               <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Header Color</p>
               <input id="header-color" type="color" value="#181818">  
@@ -806,7 +962,7 @@
 
 
         <div class="col s12" style="width: 90%;margin-left: 5%;padding-right: 0em;">
-          <a id="save-flyer-template-btn" class="btn right" style="background-color: #521893;font-size: 14px;font-family: 'AvenirNext';">Save</a>
+          <a id="save-flyer-template-btn" class="btn right hoverable" style="background-color: #521893;font-size: 14px;font-family: 'AvenirNext';">Save</a>
         </div>
         
       </div>
@@ -825,11 +981,8 @@
             <a id="hide-cursor-btn" cursor-status="on" class="btn " title="Hide cursor" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 12em;"><i class="material-icons">center_focus_strong</i></a>
             <a id="increase-height-btn" class="btn " title="Increase Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 16em;"><i class="material-icons">keyboard_arrow_up</i></a>
             <a id="decrease-height-btn" class="btn " title="Decrease Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 20em;"><i class="material-icons">keyboard_arrow_down</i></a>
-            <p class="range-field" style="width:15em;position: absolute;margin-left: 28em;margin-top: 0em;">
-              <input class="custom-slider" type="range" id="image-resizer" min="10" max="100" value="100" />
-            </p>
 
-            <a id="download-flyer-btn" class="btn green" style="width:10em;text-align: left;text-transform: none;margin-left: 172mm;position: relative;">Download<i class="material-icons right">file_download</i>
+            <a id="download-flyer-btn" class="btn green hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 172mm;position: relative;">Download<i class="material-icons right">file_download</i>
               <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
                 <div class="spinner-layer spinner-green-only">
                   <div class="circle-clipper left">
@@ -852,12 +1005,23 @@
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0;">
         <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;margin-bottom: 0em;">
 
-          <div id="header-div" class="col s12" style="background-color: #181818;text-align: center;width: 210mm;padding-top: 4mm;position: absolute;height: 20mm;">
-            <img id="brand-image-img" src="" style="max-width: 73.5mm;margin-left:130mm;max-height:15mm;position: relative;object-fit: scale-down;">
+         <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 210mm;padding: 20px;">  
+            <div class="col s6 left-horizontally">  
+              <img id="" src="/files/super-brand.png" style="max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
+              <img id="" src="/files/iso.png" style="max-width: 73.5mm;max-height:15mm;margin-right:10px">  
+              <div> 
+                <p class="white-text">    
+                </p>  
+              </div>  
+                  
+            </div>  
+            <div class="col s6 right-horizontally" style="">  
+              <img id="brand-image-img" src="" style="max-width: 73.5mm;max-height:15mm;">  
+            </div>  
           </div>
 
 
-          <div id="flyer-grid" class="col s12" style="width: 210mm;margin-top:23mm;">
+          <div id="flyer-grid" class="col s12" style="width: 210mm;">
             <div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">
               
             </div>
@@ -944,6 +1108,9 @@
     $("select").formSelect();
     $('.modal').modal();
 
+
+    var elems  = document.querySelectorAll("input[type=range]");  
+    M.Range.init(elems);
 
 
     var global_product_bucket_list = [];
