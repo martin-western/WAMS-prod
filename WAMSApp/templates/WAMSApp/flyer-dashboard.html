@@ -125,8 +125,14 @@
       </div>
 
       <div class="input-field col s6">
-        <input id="grid-item-height" type="number" class="validate" value="6">
-        <label for="grid-item-height">Grid Item Height</label>
+        <select id="grid-item-height">
+          <option value="4">4 Very Small Size</option>
+          <option value="5">5 Small Size</option>
+          <option value="6" selected>6 Medium Size</option>
+          <option value="11">11 Long</option>
+          <option value="15">15 Very Long</option>
+        </select>
+        <label>Grid Item Height</label>
       </div>
     </div>
   </div>
@@ -257,6 +263,8 @@
 
   $("#create-new-flyer-btn").click(function(){
 
+    $("#create-new-flyer-btn").attr("disabled", "disabled");    
+
     var flyer_name = $("#flyer-name").val();
     var flyer_brand = $("#flyer-brand").val();
     var flyer_items = $("#flyer-items").val();
@@ -303,6 +311,7 @@
       data: fd,
       success: function(response) {
         console.log("Success!", response);
+        $("#create-new-flyer-btn").removeAttr("disabled");
         if(response["status"]==200)
         {
           window.location.pathname = "/flyer/"+response["flyer_pk"];

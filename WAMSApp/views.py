@@ -1624,7 +1624,13 @@ class CreateFlyerAPI(APIView):
                             product_price = ""
                             image_url = ""
                             try:
-                                product_obj = Product.objects.get(product_id=dfs.iloc[i][0])
+                                search_id = str(dfs.iloc[i][0]).strip()
+                                product_obj = None
+                                if Product.objects.filter(product_id=search_id).exists():
+                                    product_obj = Product.objects.filter(product_id=search_id)[0]
+                                elif Product.objects.filter(seller_sku=search_id).exists():
+                                    product_obj = Product.objects.filter(seller_sku=search_id)[0]
+
                                 flyer_obj.product_bucket.add(product_obj)
                                 try:
                                     main_image_obj = product_obj.main_images.filter(is_main_image=True)[0]
@@ -1632,11 +1638,11 @@ class CreateFlyerAPI(APIView):
                                 except Exception as e:
                                     logger.warning("Main image does not exist for product id %s", dfs.iloc[i][0])
 
-                                product_title = str(dfs.iloc[i][1])
+                                product_title = convert_to_ascii(dfs.iloc[i][1])
                                 if product_title == "nan":
                                     product_title = product_obj.product_name_amazon_uk
 
-                                product_description = str(dfs.iloc[i][2])
+                                product_description = convert_to_ascii(dfs.iloc[i][2])
                                 if product_description=="nan":
                                     product_description = ""
 
@@ -1665,6 +1671,8 @@ class CreateFlyerAPI(APIView):
                             item_data.append(temp_dict)
 
                         template_data["item-data"] = item_data
+
+                        logger.info("template_data: %s", str(template_data))
 
                         flyer_obj.template_data = json.dumps(template_data)
                         flyer_obj.save()

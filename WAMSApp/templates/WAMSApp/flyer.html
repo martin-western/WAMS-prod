@@ -457,7 +457,7 @@
       /* background-color: red; */
       margin:0;
       display: flex;
-      padding: 2%;
+      padding: 5px;
     }
     .grid-item-footer-container {
       display: flex;
@@ -483,7 +483,7 @@
       justify-content: flex-end  !important;
       text-align: right;
       /*background: yellow;*/
-      padding: 1%;
+      /*padding: 1%;*/
     }
     .grid-item-footer-right > input {
       text-align: right;
@@ -541,9 +541,9 @@
         
     } 
     .grid-item-sticker > img {  
-      height: 40px; 
+      height: auto; 
       width: 40px;  
-      border-radius: 0 0 50% 0; 
+      border-radius: 0 0 0 0; 
     } 
   .center-vertically {  
     display: flex;  
@@ -713,21 +713,21 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Nav Logo Settings</span>
           </span>
           <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12 style="margin: 8px 0"">
+            <div class="col s12" style="margin: 8px 0">
               <label>
-                <input id="" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <input id="super-brand-option" type="checkbox" class="filled-in checkbox-flyer" checked />
                 <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Superbrands</span>
               </label>
             </div>
-            <div class="col s12 style="margin: 8px 0"">
+            <div class="col s12" style="margin: 8px 0">
               <label>
-                <input id="" type="checkbox" class="filled-in checkbox-flyer" checked />
-                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Iso</span>
+                <input id="iso-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">ISO</span>
               </label>
             </div>
-            <div class="col s12 style="margin: 8px 0"">
+            <div class="col s12" style="margin: 8px 0">
               <label>
-                <input id="" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <input id="iso-option" type="checkbox" class="filled-in checkbox-flyer" checked />
                 <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Appliances</span>
               </label>
             </div>
@@ -739,10 +739,24 @@
           <div class="row white  hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
             <div class="col s12">
                 <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="100" value="100" />
+                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="100" />
                 </p>
             </div>
           </div>
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">All Image Resizer</span>
+          </span>
+          <div class="row white  hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="all-image-resizer" min="10" max="150" value="100" />
+                </p>
+            </div>
+          </div>
+
+
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Sale Overlay Settings</span>
@@ -752,25 +766,31 @@
               <form action="#">
                 <p>
                   <label>
-                    <input name="group1" type="radio" checked />
+                    <input value="None" name="group1" type="radio" checked />
+                    <span>None</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input value="Sale" name="group1" type="radio" checked />
                     <span>Sale</span>
                   </label>
                 </p>
                 <p>
                   <label>
-                    <input name="group1" type="radio" />
+                    <input value="Upcoming Sale" name="group1" type="radio" />
                     <span>Upcoming Sale</span>
                   </label>
                 </p>
                 <p>
                   <label>
-                    <input name="group1" type="radio"  />
+                    <input value="Christmas Sale" name="group1" type="radio"  />
                     <span>Christmas Sale</span>
                   </label>
                 </p>
                 <p>
                   <label>
-                    <input name="group1" type="radio" />
+                    <input value="New year Sale" name="group1" type="radio" />
                     <span>New year Sale</span>
                   </label>
                 </p>
@@ -1007,8 +1027,8 @@
 
          <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 210mm;padding: 20px;">  
             <div class="col s6 left-horizontally">  
-              <img id="" src="/files/super-brand.png" style="max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
-              <img id="" src="/files/iso.png" style="max-width: 73.5mm;max-height:15mm;margin-right:10px">  
+              <img id="super-brand-img" src="/files/super-brand.png" style="max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
+              <img id="iso-img" src="/files/iso.png" style="max-width: 73.5mm;max-height:15mm;margin-right:10px">  
               <div> 
                 <p class="white-text">    
                 </p>  
@@ -1108,6 +1128,41 @@
     $("select").formSelect();
     $('.modal').modal();
 
+    $(document).on("change", "#super-brand-option", function(){
+      if($("#super-brand-option").prop("checked"))
+      {
+        $("#super-brand-img").show();
+      }
+      else
+      {
+        $("#super-brand-img").hide();
+      }
+    });
+
+    $(document).on("change", "#iso-option", function(){
+      if($("#iso-option").prop("checked"))
+      {
+        $("#iso-img").show();
+      }
+      else
+      {
+        $("#iso-img").hide();
+      }
+    });
+
+
+    $('input[type=radio][name=group1]').change(function() {
+        if (this.value == "None") {
+            $(".banner-img").hide();
+        }
+        else if (this.value == "Sale") {
+            $(".banner-img").show();
+        }
+        else
+        {
+          $(".banner-img").hide();
+        }
+    });
 
     var elems  = document.querySelectorAll("input[type=range]");  
     M.Range.init(elems);
@@ -1200,34 +1255,7 @@
 
               e.preventDefault();
 
-
-              // var w = 800;
-              // var h = 1123;
-              // var scale = 5;
-              // var div = document.getElementById('flyer-div');
-              // var canvas = document.createElement('canvas');
-              // canvas.style.width = w + 'px';
-              // canvas.style.height = h + 'px';
-              // var context = canvas.getContext('2d');
-              // context.scale(5, 5);
-              // canvas.width = w*6.5;
-              // canvas.height = h*6;
-
-
-              // var scale = 6;
-              // var div = document.getElementById('flyer-div');
-              // var w = div.scrollWidth;
-              // var h = div.scrollHeight;
-              // var canvas = document.createElement('canvas');
-              // canvas.width = scale*div.scrollWidth;
-              // canvas.height = scale*div.scrollHeight;
-              // canvas.style.width = w + 'px';
-              // canvas.style.height = h + 'px';
-              // var context = canvas.getContext('2d');
-              // context.scale(4.5, 4.5);
-
-
-              var scale = 3;
+              var scale = 5;
               var div = document.getElementById('flyer-div');
               var canvas = document.createElement('canvas');
               var h = div.scrollHeight;
@@ -1255,22 +1283,39 @@
                 $(".divgrid").parent().parent().parent().css("border", "none");
               }
 
+              function dataURLtoBlob(dataurl) {
+                var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                while(n--){
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new Blob([u8arr], {type:mime});
+              }
+
               window.scrollTo(0,0);
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
                     console.log("Downloading it!!!");
+
       	            $("#download-flyer-btn").removeAttr("disabled");
                     $("#loader-div").hide();
+                    
+                    var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+
+                    var blob = dataURLtoBlob(dataURI);
+                    var objurl = URL.createObjectURL(blob);
+                    
                     var a = document.createElement('a');
-                    a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
                     a.download = 'flyer_image_'+(window.location.pathname.split("/")[2])+'.jpg';
+                    a.href = objurl;
                     a.click();
+
                     $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
-                    var image_data = canvas.toDataURL();
+                    // var image_data = canvas.toDataURL();
 
-                    var fd = new FormData();
-                    fd.append('image_data', image_data);
-                    fd.append('flyer_pk', window.location.pathname.split("/")[2]);
+                    // var fd = new FormData();
+                    // fd.append('image_data', image_data);
+                    // fd.append('flyer_pk', window.location.pathname.split("/")[2]);
 
                     // $.ajax({
                     //   url: "/save-flyer-in-bucket/",
@@ -1467,6 +1512,18 @@
       $("#gridimg-"+global_selected_grid_id).attr("resizer", R);
     });
 
+    $("#all-image-resizer").change(function() {
+      var R = $("#all-image-resizer").val();
+
+      var grid_images = $(".grid-images");
+      for(var i=0;i<grid_images.length;i++)
+      {
+        $(grid_images[i]).css("max-width", R+"%");
+        $(grid_images[i]).attr("resizer", R);
+      }
+      $("#image-resizer").val(R);
+    });
+
 
     $("#product-info-save-btn").click(function(){
 
@@ -1496,13 +1553,16 @@
 
       var html_string = 
           `<div grid-id="`+grid_id+`" class="grid-stack-item" data-gs-width=`+width+` data-gs-height=`+height+` data-gs-x=`+x+` data-gs-y=`+y+` style="text-align:center;padding:0em !important;">
-            <div class="grid-stack-item-content" style="border: 2px solid `+global_border_color+`;background-color:transparent;">
+            <div class="grid-stack-item-content hoverable" style="border: 2px solid `+global_border_color+`;background-color:transparent;">
               <div class="grid-item-img-container">
                 <a id="gridbox-`+grid_id+`" href="#!" class="flyer-item-box" style="color:black;height:100%;width:100%;">
                   <div class="divgrid" id="divgrid-`+grid_id+`" style="text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;height:auto;width:100%">
-                      <img resizer="`+image_resizer+`" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:`+image_resizer+`%;height:auto;"/>
+                      <img class="grid-images" resizer="`+image_resizer+`" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:`+image_resizer+`%;height:auto;"/>
                   </div>
                 </a>
+                <div class="grid-item-sticker">
+                  <img class="banner-img" id="banner-img-`+grid_id+`" src="/files/banner1.png" />
+                </div>
               </div>
               <div class="grid-item-footer-container" > 
                 <div className="footer-top">
