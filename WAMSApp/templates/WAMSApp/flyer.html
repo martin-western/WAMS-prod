@@ -785,7 +785,7 @@
                 </p>
                 <p>
                   <label>
-                    <input value="Sale" name="group1" type="radio" checked />
+                    <input value="Sale" name="group1" type="radio" />
                     <span>Sale</span>
                   </label>
                 </p>
@@ -1305,6 +1305,10 @@
                 return new Blob([u8arr], {type:mime});
               }
 
+
+              //Hide placeholder
+              $(".product-title-info").removeAttr("placeholder");
+
               window.scrollTo(0,0);
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
                     console.log("Downloading it!!!");
@@ -1323,6 +1327,9 @@
                     a.click();
 
                     $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
+
+                    $(".product-title-info-title").attr("placeholder", "product name");
+                    $(".product-title-info-description").attr("placeholder", "description");
 
                     // var image_data = canvas.toDataURL();
 
@@ -1581,7 +1588,7 @@
                   </div>
                 </a>
                 <div class="grid-item-sticker">
-                  <img class="banner-img" id="banner-img-`+grid_id+`" src="/files/banner1.png" />
+                  <img class="banner-img" style="display:none;" id="banner-img-`+grid_id+`" src="/files/banner1.png" />
                 </div>
               </div>
               <div class="grid-item-footer-container" > 
@@ -1592,8 +1599,8 @@
                 </div>
                 <div class="footer-bottom">
                   <div class="grid-item-footer-left">
-                      <input id="product-title-info-`+grid_id+`" class="footer-bottom-left-input product-title-info font-to-avenir browser-default" type="text" name="description" placeholder="description" value="`+product_info+`">
-                      <input id="product-title-info2-`+grid_id+`" class=" font-to-avenir footer-bottom-left-input product-title-info browser-default" type="text" name="name" placeholder="product name" value="`+product_title+`">
+                      <input id="product-title-info-`+grid_id+`" class="footer-bottom-left-input product-title-info product-title-info-description font-to-avenir browser-default" type="text" name="description" placeholder="description" value="`+product_info+`">
+                      <input id="product-title-info2-`+grid_id+`" class=" font-to-avenir footer-bottom-left-input product-title-info product-title-info-title browser-default" type="text" name="name" placeholder="product name" value="`+product_title+`">
                   </div>
                   <div class="grid-item-footer-right">
                       <input id="product-currency-info-`+grid_id+`" class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" >
