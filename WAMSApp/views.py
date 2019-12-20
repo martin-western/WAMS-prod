@@ -1638,17 +1638,27 @@ class CreateFlyerAPI(APIView):
                                 except Exception as e:
                                     logger.warning("Main image does not exist for product id %s", dfs.iloc[i][0])
 
-                                product_title = convert_to_ascii(dfs.iloc[i][1])
-                                if product_title == "nan":
-                                    product_title = product_obj.product_name_amazon_uk
+                                try:
+                                    product_title = convert_to_ascii(dfs.iloc[i][1])
+                                    if product_title == "nan":
+                                        product_title = product_obj.product_name_amazon_uk
+                                except Exception as e:
+                                    logger.warning("product_title error %s", str(e))
 
-                                product_description = convert_to_ascii(dfs.iloc[i][2])
-                                if product_description=="nan":
-                                    product_description = ""
+                                try:
+                                    product_description = convert_to_ascii(dfs.iloc[i][2])
+                                    if product_description=="nan":
+                                        product_description = ""
+                                except Exception as e:
+                                    logger.warning("product_description error %s", str(e))
 
-                                product_price = str(dfs.iloc[i][3])
-                                if product_price == "nan":
-                                    product_price = ""
+                                try:
+                                    product_price = str(dfs.iloc[i][3])
+                                    if product_price == "nan":
+                                        product_price = ""
+                                except Exception as e:
+                                    logger.warning("product_price error %s", str(e))
+
                             except Exception as e:
                                 logger.error("product_id: %s , error: %s", str(dfs.iloc[i][0]), str(e))
 
