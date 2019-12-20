@@ -34,6 +34,17 @@ def custom_permission_filter_brands(user):
         logger.error("custom_permission_filter_brands: %s at %s", e, str(exc_tb.tb_lineno))
         return []
 
+def custom_permission_filter_channels(user):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        channels = permission_obj.channels.all()
+        return channels
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_filter_channels: %s at %s", e, str(exc_tb.tb_lineno))
+        return []
+
 
 def custom_permission_filter_pfls(user):
 

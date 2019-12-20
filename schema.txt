@@ -1,0 +1,153 @@
+BaseProduct:
+
+    + base_product_name -> CharField
+    + product_name_sap -> CharField
+    + created_date -> DateTimeField
+
+    + seller_sku -> CharField
+    + brand -> ForeignKey <---> Brand
+    + manufacturer -> CharField
+    + manufacturer_part_number -> CharField
+
+
+    #Dimensions
+    + package_length -> FloatField
+    + package_length_metric -> CharField
+    + package_width -> FloatField
+    + package_width_metric = models.CharField(max_length=100, default="")
+    + package_height = models.FloatField(null=True, blank=True)
+    + package_height_metric = models.CharField(max_length=100, default="")
+    + package_weight = models.FloatField(null=True, blank=True)
+    + package_weight_metric = models.CharField(max_length=100, default="")
+    + shipping_weight = models.FloatField(null=True, blank=True)
+    + shipping_weight_metric = models.CharField(max_length=100, default="")
+    + item_display_weight = models.FloatField(null=True, blank=True)
+    + item_display_weight_metric = models.CharField(max_length=100, default="")
+    + item_display_volume = models.FloatField(null=True, blank=True)
+    + item_display_volume_metric = models.CharField(max_length=100, default="")
+    + item_display_length = models.FloatField(null=True, blank=True)
+    + item_display_length_metric = models.CharField(max_length=100, default="")
+    + item_weight = models.FloatField(null=True, blank=True)
+    + item_weight_metric = models.CharField(max_length=100, default="")
+    + item_length = models.FloatField(null=True, blank=True)
+    + item_length_metric = models.CharField(max_length=100, default="")
+    + item_width = models.FloatField(null=True, blank=True) 
+    + item_width_metric = models.CharField(max_length=100, default="")
+    + item_height = models.FloatField(null=True, blank=True)
+    + item_height_metric = models.CharField(max_length=100, default="")
+    + item_display_width = models.FloatField(null=True, blank=True)
+    + item_display_width_metric = models.CharField(max_length=100, default="")
+    + item_display_height = models.FloatField(null=True, blank=True)
+    + item_display_height_metric = models.CharField(max_length=100, default="")
+    + item_count = models.FloatField(null=True, blank=True)
+    + item_count_metric = models.CharField(max_length=100, default="")
+
+
+Product:
+
+    + uuid -> CharField
+    + product_name -> CharField
+    + pfl_product_name -> CharField
+    + pfl_product_features -> TextField
+    + base_product -> ForeignKey <---> BaseProduct
+    + material_type -> CharField
+    + product_id -> CharField
+    + standard_price -> FloatField
+    + status -> CharField
+    + verified -> BooleanField
+    + created_date -> DateTimeField
+    + modified_date -> DateTimeField
+    + condition_type -> CharField
+    + color_map -> CharField
+    + color -> CharField
+    + barcode -> ForeignKey <--> Image
+    + barcode_string -> CharField
+    + outdoor_price -> FloatField
+    + standard_price -> FloatField
+
+MainImages:
+
+    + product -> ForeignKey <-->  Product
+    + main_images -> ManyToManyField <--> ImageBucket
+    + noon_enabled -> BooleanField
+    + amazon_uk_enabled -> BooleanField
+    + amazon_uae_enabled -> BooleanField
+
+SubImages:
+
+    + product -> ForeignKey <-->  Product
+    + sub_images -> ManyToManyField <--> ImageBucket
+    + ebay_enabled -> BooleanField
+    + amazon_uk_enabled -> BooleanField
+    + amazon_uae_enabled -> BooleanField
+    + ebay_enabled -> BooleanField
+
+ChannelProduct:
+
+    + product -> ForeignKey <---> Product
+
+    + noon_product_json : {
+
+        product_name : CharField
+        product_type : CharField
+        product_subtype : CharField
+        model_number : CharField
+        model_name : CharField
+        msrp_ae : IntegerField
+        msrp_ae_unit : CharField
+        product_description : TextField
+        product_attribute_list : TextField
+        created_date : DateTimeField
+
+    }
+
+    + amazon_uk_product_json : {
+
+        product_id_type : CharField
+        parentage : CharField
+        parent_sku : CharField
+        relationship_type : CharField
+        variation_theme : CharField
+        product_name : CharField
+        product_description : TextField
+        product_attribute_list : TextField
+        created_date : DateTimeField
+        subtitle : CharField
+        feed_product_type : CharField
+        update_delete : CharField
+        recommended_browse_nodes : CharField
+        search_terms : CharField
+        enclosure_material : CharField
+        cover_material_type : CharField
+        special_features : TextField
+        sale_price : FloatField
+        sale_from : DateField
+        sale_end :  DateField
+        wattage : FloatField
+        wattage_metric : CharField
+        parentage : CharField
+        parent_sku : CharField
+        relationship_type : CharField
+        variation_theme : CharField
+
+    }
+
+    + amazon_uae_product_json : {
+
+        product_name : CharField
+        product_description : TextField
+        product_attribute_list : TextField
+        created_date : DateTimeField
+        
+    }
+
+    + ebay_product_json : {
+
+        category : CharField
+        product_name : CharField
+        product_description : TextField
+        product_attribute_list : TextField
+        created_date : DateTimeField
+        
+    }
+
