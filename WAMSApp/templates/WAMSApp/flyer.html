@@ -1658,7 +1658,10 @@
         removable: true,
         verticalMargin: 6,
         column: 24,
-        cellHeight: 30
+        cellHeight: 30,
+        resizable: {
+          handles: 'e, se, s, sw, w'
+        }
       });
 
       $(".brand-text").html(global_brand_name);
