@@ -1634,7 +1634,10 @@ class CreateFlyerAPI(APIView):
                                 flyer_obj.product_bucket.add(product_obj)
                                 try:
                                     main_image_obj = product_obj.main_images.filter(is_main_image=True)[0]
-                                    image_url = main_image_obj.image.image.url
+                                    try:
+                                        image_url = main_image_obj.image.mid_image.url
+                                    except Exception as e:
+                                        image_url = main_image_obj.image.image.url
                                 except Exception as e:
                                     logger.warning("Main image does not exist for product id %s", dfs.iloc[i][0])
 
