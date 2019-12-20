@@ -2611,7 +2611,9 @@ class DownloadImagesS3API(APIView):
                     s3.download_file(settings.AWS_STORAGE_BUCKET_NAME,
                                      filename, "." + temp_dict["url"])
                 except Exception as e:
-                    pass
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("DownloadImagesS3API: %s at %s",
+                                 e, str(exc_tb.tb_lineno))        
 
             response['local_links'] = local_links
             response['status'] = 200
