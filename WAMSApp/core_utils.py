@@ -12,6 +12,15 @@ def convert_to_ascii(s):
     s = s.encode("ascii", "ignore")
     return s
 
+def has_atleast_one_image(prod_obj):
+    
+    check = False
+    images_count = prod_obj.main_images.all().count() + prod_obj.sub_images.all().count()
+    images_count += prod_obj.white_background_images.all().count()
+    images_count += prod_obj.lifestyle_images.all().count()
+    if(images_count>0):
+        check=True
+    return check
 
 def custom_permission_filter_products(user):
 
