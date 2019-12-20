@@ -728,8 +728,14 @@
             </div>
             <div class="col s12" style="margin: 8px 0">
               <label>
-                <input id="iso-option" type="checkbox" class="filled-in checkbox-flyer" checked />
-                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Appliances</span>
+                <input id="consumer-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Tagline</span>
+              </label>
+            </div>
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="small-brand-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Brand (Container)</span>
               </label>
             </div>
           </div>
@@ -1043,10 +1049,11 @@
             <div class="col s6 left-horizontally">  
               <img id="super-brand-img" src="/files/super-brand.png" style="max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
               <img id="iso-img" src="/files/iso.png" style="max-width: 73.5mm;max-height:15mm;margin-right:10px">  
-              <div> 
+              <img id="consumer-img" src="/files/consumer.png" style="max-width: 73.5mm;max-height:15mm;margin-right:10px;max-height: 40px;">
+              <!-- <div> 
                 <p class="white-text">    
                 </p>  
-              </div>  
+              </div> -->  
                   
             </div>  
             <div class="col s6 right-horizontally" style="">  
@@ -1163,6 +1170,29 @@
         $("#iso-img").hide();
       }
     });
+
+    $(document).on("change", "#consumer-option", function(){
+      if($("#consumer-option").prop("checked"))
+      {
+        $("#consumer-img").show();
+      }
+      else
+      {
+        $("#consumer-img").hide();
+      }
+    });
+
+    $(document).on("change", "#small-brand-option", function(){
+      if($("#small-brand-option").prop("checked"))
+      {
+        $(".brand-text").show();
+      }
+      else
+      {
+        $(".brand-text").hide();
+      }
+    });
+
 
 
     $('input[type=radio][name=group1]').change(function() {
