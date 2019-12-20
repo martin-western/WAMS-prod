@@ -55,7 +55,7 @@ def create_response_images_flyer_pfl(images):
     for image in images:
         temp_dict = {}
         try:
-            temp_dict["url"] = image.image.url
+            temp_dict["url"] = image.mid_image.url
         except Exception as e:
             temp_dict["url"] = image.image.url
         temp_dict["pk"] = image.pk
@@ -69,7 +69,7 @@ def create_response_images_flyer_pfl_main_sub(images):
     for image in images:
         temp_dict = {}
         try:
-            temp_dict["url"] = image.image.image.url
+            temp_dict["url"] = image.image.mid_image.url
         except Exception as e:
             temp_dict["url"] = image.image.image.url
         temp_dict["pk"] = image.image.pk
