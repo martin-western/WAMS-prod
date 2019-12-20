@@ -1978,6 +1978,9 @@ class FetchProductListFlyerPFLAPI(APIView):
             char_len = 80
             for product_obj in product_objs:
                 try:
+                    if has_atleast_one_image(product_obj)==False:
+                        continue
+
                     temp_dict = {}
                     temp_dict["product_pk"] = product_obj.pk
                     temp_dict["product_name"] = product_obj.product_name_sap

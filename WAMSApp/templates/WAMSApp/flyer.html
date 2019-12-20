@@ -759,6 +759,19 @@
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Price Width</span>
+          </span>
+          <div class="row white  hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="price-resizer" min="10" max="150" value="80" />
+                </p>
+            </div>
+          </div>
+
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Sale Overlay Settings</span>
           </span>
           <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
@@ -1522,6 +1535,13 @@
         $(grid_images[i]).attr("resizer", R);
       }
       $("#image-resizer").val(R);
+    });
+
+
+    $("#price-resizer").change(function() {
+      var R = $("#price-resizer").val();
+
+      $(".grid-item-footer-right").css("max-width", R+"px")
     });
 
 
