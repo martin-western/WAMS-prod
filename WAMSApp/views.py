@@ -2602,7 +2602,8 @@ class DownloadImagesS3API(APIView):
                 try:
                     if "url" not in link or link["url"]=="":
                         continue
-                    filename = urllib2.unquote(link["url"]).split("/")[-1]
+                    filename = urllib2.unquote(link["url"])
+                    filename = "/".join(filename.split("/")[3:])
                     temp_dict = {}
                     temp_dict["key"] = link["key"]
                     temp_dict["url"] = "/files/images_s3/" + str(filename)
@@ -2613,7 +2614,7 @@ class DownloadImagesS3API(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("DownloadImagesS3API: %s at %s",
-                                 e, str(exc_tb.tb_lineno))        
+                                 e, str(exc_tb.tb_lineno))    
 
             response['local_links'] = local_links
             response['status'] = 200
