@@ -1518,14 +1518,42 @@ class CreateFlyerAPI(APIView):
             brand_obj = Brand.objects.get(pk=int(data["brand_pk"]))
 
             flyer_obj = Flyer.objects.create(name=convert_to_ascii(data["name"]),
-                                             template_data="[]",
+                                             template_data="{}",
                                              brand=brand_obj)
 
             create_option = data["create_option"]
 
+
+            common = {
+                "currency-unit":"AED",
+                "border-visible": True,
+                "border-color": "#E9E9E9",
+                "background-image-url":"none",
+                "product-title-font-size":"12",
+                "product-title-font-family":"AvenirNextRegular",
+                "product-title-font-weight":"normal",
+                "product-title-font-color":"#181818",
+                "price-font-size":"18",
+                "price-font-family":"AvenirNextRegular",
+                "price-font-weight":"normal",
+                "price-font-color":"#181818",
+                "currency-font-size":"8.5",
+                "currency-font-family":"AvenirNextRegular",
+                "currency-font-weight":"normal",
+                "currency-font-color":"#181818",
+                "price-box-bg-color":"#fbf00b",
+                "header-color":"#181818",
+                "footer-color":"#181818"
+            }
+
+            template_data = {
+                "item-data": [],
+                "common": common
+            }
+
             if create_option=="0":
                 try:
-                    template_data = []
+                    item_data = []
                     flyer_items = int(data["flyer_items"])
                     col = int(data["columns_per_row"])
                     width = int(24/col)
@@ -1540,11 +1568,14 @@ class CreateFlyerAPI(APIView):
                         }
                         temp_dict["data"] = {
                             "image-url": "",
+                            "image-resizer": "100",
                             "price": "",
                             "title": "",
-                            "description": ""
+                            "description": "",
+                            "image-resizer": "100"
                         }
-                        template_data.append(temp_dict)
+                        item_data.append(temp_dict)
+                    template_data["item-data"] = item_data
                     flyer_obj.template_data = json.dumps(template_data)
                     flyer_obj.save()
                 except Exception as e:
@@ -1558,27 +1589,46 @@ class CreateFlyerAPI(APIView):
                         path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
                         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
                         rows = len(dfs.iloc[:])
-                        template_data = []
+                        item_data = []
 
                         col = int(data["columns_per_row"])
                         width = int(24/col)
                         height = int(data["grid_item_height"])
 
                         for i in range(rows):
-                            product_obj = Product.objects.get(product_id=dfs.iloc[i][0])
-                            flyer_obj.product_bucket.add(product_obj)
-                            main_image_obj = product_obj.main_images.filter(is_main_image=True)[0]
-                            product_title = str(dfs.iloc[i][1])
-                            if product_title == "nan":
-                                product_title = product_obj.product_name_amazon_uk
 
-                            product_description = str(dfs.iloc[i][2])
-                            if product_description=="nan":
-                                product_description = ""
+                            product_title = ""
+                            product_description = ""
+                            product_price = ""
+                            image_url = ""
+                            try:
+                                search_id = str(dfs.iloc[i][0]).strip()
+                                product_obj = None
+                                if Product.objects.filter(product_id=search_id).exists():
+                                    product_obj = Product.objects.filter(product_id=search_id)[0]
+                                elif Product.objects.filter(seller_sku=search_id).exists():
+                                    product_obj = Product.objects.filter(seller_sku=search_id)[0]
 
-                            product_price = str(dfs.iloc[i][3])
-                            if product_price == "nan":
-                                product_price = ""
+                                flyer_obj.product_bucket.add(product_obj)
+                                try:
+                                    main_image_obj = product_obj.main_images.filter(is_main_image=True)[0]
+                                    image_url = main_image_obj.image.image.url
+                                except Exception as e:
+                                    logger.warning("Main image does not exist for product id %s", dfs.iloc[i][0])
+
+                                product_title = convert_to_ascii(dfs.iloc[i][1])
+                                if product_title == "nan":
+                                    product_title = product_obj.product_name_amazon_uk
+
+                                product_description = convert_to_ascii(dfs.iloc[i][2])
+                                if product_description=="nan":
+                                    product_description = ""
+
+                                product_price = str(dfs.iloc[i][3])
+                                if product_price == "nan":
+                                    product_price = ""
+                            except Exception as e:
+                                logger.error("product_id: %s , error: %s", str(dfs.iloc[i][0]), str(e))
 
                             temp_dict = {}
 
@@ -1589,12 +1639,18 @@ class CreateFlyerAPI(APIView):
                                 "height": str(height)
                             }
                             temp_dict["data"] = {
-                                "image-url": main_image_obj.image.image.url,
+                                "image-url": str(image_url),
+                                "image-resizer": "100",
                                 "price": str(product_price),
                                 "title": str(product_title),
-                                "description": str(product_description)
+                                "description": str(product_description),
+                                "image-resizer": "100"
                             }
-                            template_data.append(temp_dict)
+                            item_data.append(temp_dict)
+
+                        template_data["item-data"] = item_data
+
+                        logger.info("template_data: %s", str(template_data))
 
                         flyer_obj.template_data = json.dumps(template_data)
                         flyer_obj.save()
@@ -1878,7 +1934,7 @@ class FetchProductListFlyerPFLAPI(APIView):
             product_objs = custom_permission_filter_products(request.user)
 
             try:
-                if "flyer_kp" in data:
+                if "flyer_pk" in data:
                     brand_obj = Flyer.objects.get(
                         pk=int(data["flyer_pk"])).brand
                     product_objs = product_objs.filter(brand=brand_obj)

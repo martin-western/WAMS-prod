@@ -457,7 +457,7 @@
       /* background-color: red; */
       margin:0;
       display: flex;
-      padding: 2%;
+      padding: 5px;
     }
     .grid-item-footer-container {
       display: flex;
@@ -483,11 +483,12 @@
       justify-content: flex-end  !important;
       text-align: right;
       /*background: yellow;*/
-      padding: 1%;
+      /*padding: 1%;*/
     }
     .grid-item-footer-right > input {
       text-align: right;
       background: yellow;
+      padding-right: 5px;
     }
     .footer-bottom-left-input {
       border: none;
@@ -514,12 +515,13 @@
       background-color: transparent
     }
     .grid-stack-item-content {
-      width: 100% !important;
-      height: 100%;
+      /*width: 100% !important;
+      height: 100%;*/
+      position: relative;
     }
 
     .custom-slider::-webkit-slider-thumb {
-      background-color: #63B050 !important;
+      background-color: #521893 !important;
     }
 
 
@@ -527,6 +529,69 @@
       display: flex;
       align-items: center;
     }
+
+
+
+    /* grid item sticker */ 
+    .grid-item-sticker {  
+      position: absolute; 
+      top: 0; 
+      left: 0;  
+        
+        
+    } 
+    .grid-item-sticker > img {  
+      height: auto; 
+      width: 40px;  
+      border-radius: 0 0 0 0; 
+    } 
+  .center-vertically {  
+    display: flex;  
+    align-items: center;  
+  } 
+  .center-horizontally {  
+    display: flex;  
+    justify-content: center;  
+  } 
+  .left-horizontally {  
+    display: flex;  
+    align-items: center;  
+    justify-content: flex-start;  
+  } 
+  .right-horizontally { 
+    display: flex;  
+    align-items: center;  
+    justify-content: flex-end;  
+  } 
+  .align-right {  
+    text-align: right;  
+  } 
+  .align-left { 
+    text-align: left; 
+  } 
+  .align-center { 
+    text-align: center; 
+  } 
+/* Checkbox */  
+  .checkbox-flyer[type="checkbox"].filled-in:checked + span:not(.lever):after   
+  { 
+      border: 2px solid #521893;    
+      background-color: #521893;  
+  } 
+    
+/* Radio button */  
+  [type="radio"]:checked + span:after,  
+  [type="radio"].with-gap:checked + span:before,  
+  [type="radio"].with-gap:checked + span:after {  
+   border: 2px solid #521893; 
+  } 
+  [type="radio"]:checked + span:after,  
+  [type="radio"].with-gap:checked + span:after {  
+    background-color: #521893;  
+  } 
+  input[type=range]+.thumb {  
+    background-color: #521893;  
+  }
     
   </style>
 
@@ -567,7 +632,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Basket</span>
           </span>
           
-          <div id="product-basket-list-div" class="scroll-style-1 row white" style="margin-top:0.5em;min-height:6em;max-height: 20em;overflow-y: auto;padding-left: 1.2em;padding-right: 0.4em;padding-top: 0.8em;">
+          <div id="product-basket-list-div" class="scroll-style-1 row white hoverable" style="margin-top:0.5em;min-height:6em;max-height: 20em;overflow-y: auto;padding-left: 1.2em;padding-right: 0.4em;padding-top: 0.8em;">
           </div>
         </div>
 
@@ -579,7 +644,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Categories</span>
           </span>
 
-          <div class="scroll-style-1 row white" style="margin-top:0.5em;">
+          <div class="scroll-style-1 row white hoverable" style="margin-top:0.5em;">
             <div class="input-field col s8" style="margin-top: 0em;">
               <select id="image-categories-thumbnails-select" style="font-size: 0.8em;">
                 <option value="all_images" id="all-images-option">All Images</option>
@@ -616,7 +681,7 @@
             </a>
           </span>
 
-          <div id="background-image-bucket-thumbnails-div" class="scroll-style-1 row white" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
+          <div id="background-image-bucket-thumbnails-div" class="scroll-style-1 row white hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
           </div>
         </div>
 
@@ -628,16 +693,132 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Other Settings</span>
           </span>
           
-          <div class="row white" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s6">
+          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s6" style="margin-top: 1em;">
               <label>
-                <input id="border-option" type="checkbox" checked />
+                <input id="border-option" class="filled-in checkbox-flyer" type="checkbox" checked />
                 <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Border Visible</span>
               </label>
             </div>
 
+            <div class="input-field col s6">
+              <span>Border Color</span>
+              <input id="border-color" type="color" value="#EBEBEB"> 
+            </div>
+
           </div>
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Nav Logo Settings</span>
+          </span>
+          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="super-brand-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Superbrands</span>
+              </label>
+            </div>
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="iso-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">ISO</span>
+              </label>
+            </div>
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="iso-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Appliances</span>
+              </label>
+            </div>
+          </div>
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Resizer</span>
+          </span>
+          <div class="row white  hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="100" />
+                </p>
+            </div>
+          </div>
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">All Image Resizer</span>
+          </span>
+          <div class="row white  hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="all-image-resizer" min="10" max="150" value="100" />
+                </p>
+            </div>
+          </div>
+
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Sale Overlay Settings</span>
+          </span>
+          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+              <form action="#">
+                <p>
+                  <label>
+                    <input value="None" name="group1" type="radio" checked />
+                    <span>None</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input value="Sale" name="group1" type="radio" checked />
+                    <span>Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input value="Upcoming Sale" name="group1" type="radio" />
+                    <span>Upcoming Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input value="Christmas Sale" name="group1" type="radio"  />
+                    <span>Christmas Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input value="New year Sale" name="group1" type="radio" />
+                    <span>New year Sale</span>
+                  </label>
+                </p>
+              </form>
+            </div>
+          </div>
+
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -651,7 +832,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Title Settings</span>
           </span>
           
-          <div class="row white" style="margin-top:0.5em;">
+          <div class="row white hoverable" style="margin-top:0.5em;padding:5px">
             <div class="input-field col s6" style="margin-top: 1em !important;">
               <input id="product-title-font-size" type="number" value="12">
               <label for="product-title-font-size">Font Size</label>  
@@ -669,8 +850,8 @@
 
             <div class="input-field col s6" style="margin-bottom: 1em;">
               <select id="product-title-font-weight">
-                <option value="Normal">Normal</option> 
-                <option value="Bold">Bold</option>
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
               </select>
               <label>Font Weight</label>
             </div>  
@@ -693,7 +874,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Price Box Settings</span>
           </span>
           
-          <div class="row white" style="margin-top:0.5em;">
+          <div class="row white hoverable" style="margin-top:0.5em;">
             <!-- Font Size -->
             <div class="input-field col s6" style="margin-top: 1em !important;">
               <input id="product-price-font-size" type="number" value="18">
@@ -731,16 +912,16 @@
             <!-- Font Weight -->
             <div class="input-field col s6" style="margin-bottom: 1em;">
               <select id="product-price-font-weight">
-                <option value="Normal">Normal</option> 
-                <option value="Bold">Bold</option>
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
               </select>
               <label>Price Font Weight</label>
             </div>
 
             <div class="input-field col s6" style="margin-bottom: 1em;">
               <select id="currency-font-weight">
-                <option value="Normal">Normal</option> 
-                <option value="Bold">Bold</option>
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
               </select>
               <label>Currency Font Weight</label>
             </div>
@@ -766,7 +947,7 @@
 
             <div class="input-field col s6" style="margin-top: 2em !important;">
               <span>Box BG Color</span>
-              <input id="price-box-color" type="color" value="#FBF00B"> 
+              <input id="price-box-bg-color" type="color" value="#FBF00B"> 
             </div>
 
           </div>
@@ -783,7 +964,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header/Footer Settings</span>
           </span>
           
-          <div class="row white" style="margin-top:0.5em;">
+          <div class="row white hoverable" style="margin-top:0.5em;padding:5px;">
             <div class="input-field col s6" style="margin-top: 0em !important;">
               <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Header Color</p>
               <input id="header-color" type="color" value="#181818">  
@@ -801,7 +982,7 @@
 
 
         <div class="col s12" style="width: 90%;margin-left: 5%;padding-right: 0em;">
-          <a id="save-flyer-template-btn" class="btn right" style="background-color: #521893;font-size: 14px;font-family: 'AvenirNext';">Save</a>
+          <a id="save-flyer-template-btn" class="btn right hoverable" style="background-color: #521893;font-size: 14px;font-family: 'AvenirNext';">Save</a>
         </div>
         
       </div>
@@ -818,11 +999,10 @@
             <a id="delete-grid-item-btn" class="btn" title="Delete Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 4em;"><i class="material-icons">delete</i></a>
             <a id="refresh-template-btn" class="btn " title="Reset Template" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 8em;"><i class="material-icons">refresh</i></a>
             <a id="hide-cursor-btn" cursor-status="on" class="btn " title="Hide cursor" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 12em;"><i class="material-icons">center_focus_strong</i></a>
-            <p class="range-field" style="width:20em;position: absolute;margin-left: 20em;margin-top: 0em;">
-              <input class="custom-slider" type="range" id="image-resizer" min="10" max="100" value="100" />
-            </p>
+            <a id="increase-height-btn" class="btn " title="Increase Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 16em;"><i class="material-icons">keyboard_arrow_up</i></a>
+            <a id="decrease-height-btn" class="btn " title="Decrease Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 20em;"><i class="material-icons">keyboard_arrow_down</i></a>
 
-            <a id="download-flyer-btn" class="btn green" style="width:10em;text-align: left;text-transform: none;margin-left: 172mm;position: relative;">Download<i class="material-icons right">file_download</i>
+            <a id="download-flyer-btn" class="btn green hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 172mm;position: relative;">Download<i class="material-icons right">file_download</i>
               <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
                 <div class="spinner-layer spinner-green-only">
                   <div class="circle-clipper left">
@@ -845,12 +1025,23 @@
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0;">
         <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;margin-bottom: 0em;">
 
-          <div id="header-div" class="col s12" style="background-color: #181818;text-align: center;width: 210mm;padding-top: 4mm;position: absolute;height: 20mm;">
-            <img id="brand-image-img" src="" style="max-width: 73.5mm;margin-left:130mm;max-height:15mm;position: relative;object-fit: scale-down;">
+         <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 210mm;padding: 20px;">  
+            <div class="col s6 left-horizontally">  
+              <img id="super-brand-img" src="/files/super-brand.png" style="max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
+              <img id="iso-img" src="/files/iso.png" style="max-width: 73.5mm;max-height:15mm;margin-right:10px">  
+              <div> 
+                <p class="white-text">    
+                </p>  
+              </div>  
+                  
+            </div>  
+            <div class="col s6 right-horizontally" style="">  
+              <img id="brand-image-img" src="" style="max-width: 73.5mm;max-height:15mm;">  
+            </div>  
           </div>
 
 
-          <div id="flyer-grid" class="col s12" style="width: 210mm;margin-top:23mm;">
+          <div id="flyer-grid" class="col s12" style="width: 210mm;">
             <div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">
               
             </div>
@@ -937,17 +1128,77 @@
     $("select").formSelect();
     $('.modal').modal();
 
+    $(document).on("change", "#super-brand-option", function(){
+      if($("#super-brand-option").prop("checked"))
+      {
+        $("#super-brand-img").show();
+      }
+      else
+      {
+        $("#super-brand-img").hide();
+      }
+    });
+
+    $(document).on("change", "#iso-option", function(){
+      if($("#iso-option").prop("checked"))
+      {
+        $("#iso-img").show();
+      }
+      else
+      {
+        $("#iso-img").hide();
+      }
+    });
+
+
+    $('input[type=radio][name=group1]').change(function() {
+        if (this.value == "None") {
+            $(".banner-img").hide();
+        }
+        else if (this.value == "Sale") {
+            $(".banner-img").show();
+        }
+        else
+        {
+          $(".banner-img").hide();
+        }
+    });
+
+    var elems  = document.querySelectorAll("input[type=range]");  
+    M.Range.init(elems);
 
 
     var global_product_bucket_list = [];
     var global_selected_product_pk = "";
     var global_product_images_dict = {};
     var global_selected_grid_id = "";
-    var global_template_data = [];
+    var global_template_data = {};
     var global_selected_product_info_id = "";
     var global_background_images_bucket = [];
     var global_brand_name = "";
+    
     var global_currency_unit = "AED"
+    var global_border_visible = true;
+    var global_border_color = "#E9E9E9";
+    var global_background_image_url = "none";
+    var global_product_title_font_size = "12";
+    var global_product_title_font_family = "AvenirNextRegular";
+    var global_product_title_font_weight = "normal";
+    var global_product_title_font_color = "#181818";
+    var global_price_font_size = "12";
+    var global_price_font_family = "AvenirNextRegular";
+    var global_price_font_weight = "normal";
+    var global_price_font_color = "#181818";
+    var global_currency_font_size = "12";
+    var global_currency_font_family = "AvenirNextRegular";
+    var global_currency_font_weight = "normal";
+    var global_currency_font_color = "#181818";
+    var global_price_box_bg_color = "#fbf00b";
+    var global_header_color = "#181818";
+    var global_footer_color = "#181818";
+
+
+
 
     $("#download-flyer-btn").click(function(e){
 
@@ -1004,31 +1255,21 @@
 
               e.preventDefault();
 
-
-              // var w = 800;
-              // var h = 1123;
-              // var scale = 5;
-              // var div = document.getElementById('flyer-div');
-              // var canvas = document.createElement('canvas');
-              // canvas.style.width = w + 'px';
-              // canvas.style.height = h + 'px';
-              // var context = canvas.getContext('2d');
-              // context.scale(5, 5);
-              // canvas.width = w*6.5;
-              // canvas.height = h*6;
-
-
-              var scale = 4;
+              var scale = 5;
               var div = document.getElementById('flyer-div');
-              var w = div.scrollWidth;
-              var h = div.scrollHeight;
               var canvas = document.createElement('canvas');
-              canvas.width = 6*div.scrollWidth;
-              canvas.height = 6*div.scrollHeight;
+              var h = div.scrollHeight;
+              var ratio = canvas.width/canvas.height;
+              var w = h * ratio;
+              canvas.width = scale*window.devicePixelRatio*div.scrollWidth;
+              canvas.height = scale*window.devicePixelRatio*div.scrollHeight;
               canvas.style.width = w + 'px';
               canvas.style.height = h + 'px';
               var context = canvas.getContext('2d');
               context.scale(scale, scale);
+
+
+              
 
               $(".divgrid").parent().parent().css("border", "none");
               if($("#border-option").prop("checked"))
@@ -1042,22 +1283,39 @@
                 $(".divgrid").parent().parent().parent().css("border", "none");
               }
 
+              function dataURLtoBlob(dataurl) {
+                var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                while(n--){
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new Blob([u8arr], {type:mime});
+              }
+
               window.scrollTo(0,0);
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
                     console.log("Downloading it!!!");
+
       	            $("#download-flyer-btn").removeAttr("disabled");
                     $("#loader-div").hide();
+                    
+                    var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+
+                    var blob = dataURLtoBlob(dataURI);
+                    var objurl = URL.createObjectURL(blob);
+                    
                     var a = document.createElement('a');
-                    a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
                     a.download = 'flyer_image_'+(window.location.pathname.split("/")[2])+'.jpg';
+                    a.href = objurl;
                     a.click();
+
                     $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
-                    var image_data = canvas.toDataURL();
+                    // var image_data = canvas.toDataURL();
 
-                    var fd = new FormData();
-                    fd.append('image_data', image_data);
-                    fd.append('flyer_pk', window.location.pathname.split("/")[2]);
+                    // var fd = new FormData();
+                    // fd.append('image_data', image_data);
+                    // fd.append('flyer_pk', window.location.pathname.split("/")[2]);
 
                     // $.ajax({
                     //   url: "/save-flyer-in-bucket/",
@@ -1096,12 +1354,14 @@
         //$(".divgrid").css("border-bottom", "2px solid #E9E9E9");
         $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
         $(".divgrid").parent().parent().parent().css("border", "2px solid #E9E9E9");
+        global_border_visible  = true;
       }
       else
       {
         $(".divgrid").parent().parent().css("border", "none");
         $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
         $(".divgrid").parent().parent().parent().css("border", "none");
+        global_border_visible  = false;
       }
     });
 
@@ -1148,84 +1408,120 @@
 
     $(document).on("change", "#product-title-font-size", function(){
         $(".product-title-info").css("font-size", this.value+"px");
+        global_product_title_font_size = this.value;
     });
 
     $(document).on("change", "#product-price-font-size", function(){
         $(".product-price-info").css("font-size", this.value+"px");
+        global_price_font_size = this.value;
     });
 
     $(document).on("change", "#currency-font-size", function(){
         $(".product-currency-info").css("font-size", this.value+"px");
+        global_currency_font_size = this.value;
     });
 
 
     $(document).on("change", "#product-title-font-weight", function(){
         $(".product-title-info").css("font-weight", this.value);
+        global_product_title_font_weight = this.value;
     });
 
     $(document).on("change", "#product-price-font-weight", function(){
         $(".product-price-info").css("font-weight", this.value);
+        global_price_font_weight = this.value;
     });
 
     $(document).on("change", "#currency-font-weight", function(){
         $(".product-currency-info").css("font-weight", this.value);
+        global_currency_font_weight = this.value;
     });
 
 
 
     $(document).on("change", "#product-title-font-color", function(){
         $(".product-title-info").css("color", this.value);
+        global_product_title_font_color = this.value;
     });
 
     $(document).on("change", "#product-price-font-color", function(){
         $(".product-price-info").css("color", this.value);
+        global_price_font_color = this.value;
     });
 
     $(document).on("change", "#currency-font-color", function(){
         $(".product-currency-info").css("color", this.value);
+        global_currency_font_color = this.value;
     });
 
 
 
     $(document).on("change", "#product-title-font-family", function(){
         $(".product-title-info").css("font-family", this.value);
+        global_product_title_font_family = this.value;
     });
     $(document).on("change", "#product-price-font-family", function(){
         $(".product-price-info").css("font-family", this.value);
+        global_price_font_family = this.value;
     });
     $(document).on("change", "#currency-font-family", function(){
         $(".product-currency-info").css("font-family", this.value);
+        global_currency_font_family = this.value;
     });
 
 
     $(document).on("change", "#header-color", function(){
         $("#header-div").css("background-color", this.value);
+        global_header_color = this.value;
     });
 
 
     $(document).on("change", "#footer-color", function(){
         $("#footer-div").css("background-color", this.value);
+        global_footer_color = this.value;
     });
 
 
     $(document).on("keyup", "#currency-unit", function(){
-        console.log("Asdasd");
         $(".product-currency-info").val(this.value);
+        global_currency_unit = this.value;
     });
 
-    $(document).on("change", "#price-box-color", function(){
+    $(document).on("change", "#price-box-bg-color", function(){
       $(".grid-item-footer-right input").css("background", this.value);
+      global_price_box_bg_color = this.value;
     });
+
+
+    $(document).on("change", "#border-color", function(){
+      global_border_color = this.value;
+      if($("#border-option").prop("checked"))
+      {
+        $(".divgrid").parent().parent().parent().css("border", "2px solid "+this.value);
+      }
+    });
+
 
 
 
 
     $("#image-resizer").change(function() {
-      console.log("Adasd");
       var R = $("#image-resizer").val();
 
       $("#gridimg-"+global_selected_grid_id).css("max-width", R+"%");
       $("#gridimg-"+global_selected_grid_id).attr("resizer", R);
+    });
+
+    $("#all-image-resizer").change(function() {
+      var R = $("#all-image-resizer").val();
+
+      var grid_images = $(".grid-images");
+      for(var i=0;i<grid_images.length;i++)
+      {
+        $(grid_images[i]).css("max-width", R+"%");
+        $(grid_images[i]).attr("resizer", R);
+      }
+      $("#image-resizer").val(R);
     });
 
 
@@ -1248,20 +1544,25 @@
       var price = flyer_dict["price"];
       var currency = flyer_dict["currency"];
       var image_url = flyer_dict["image-url"];
+      var image_resizer = flyer_dict["image-resizer"];
       var width = flyer_dict["width"];
       var height = flyer_dict["height"];
       var x = flyer_dict["x"];
       var y = flyer_dict["y"];
       
+
       var html_string = 
           `<div grid-id="`+grid_id+`" class="grid-stack-item" data-gs-width=`+width+` data-gs-height=`+height+` data-gs-x=`+x+` data-gs-y=`+y+` style="text-align:center;padding:0em !important;">
-            <div class="grid-stack-item-content" style="border: 2px solid #E9E9E9;background-color:transparent;">
+            <div class="grid-stack-item-content hoverable" style="border: 2px solid `+global_border_color+`;background-color:transparent;">
               <div class="grid-item-img-container">
                 <a id="gridbox-`+grid_id+`" href="#!" class="flyer-item-box" style="color:black;height:100%;width:100%;">
                   <div class="divgrid" id="divgrid-`+grid_id+`" style="text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;height:auto;width:100%">
-                      <img resizer="100" original-width="" original-height="" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:100%;height:auto;"/>
+                      <img class="grid-images" resizer="`+image_resizer+`" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:`+image_resizer+`%;height:auto;"/>
                   </div>
                 </a>
+                <div class="grid-item-sticker">
+                  <img class="banner-img" id="banner-img-`+grid_id+`" src="/files/banner1.png" />
+                </div>
               </div>
               <div class="grid-item-footer-container" > 
                 <div className="footer-top">
@@ -1292,31 +1593,31 @@
       global_selected_grid_id = 1;
 
       $("#divgrid-1").parent().parent().css("border", "0.14em dashed");
-      // var original_width = $("#gridimg-1").css("width");
-      // var original_height = $("#gridimg-1").css("height");
-      // $("#gridimg-1").attr("original-width", original_width);
-      // $("#gridimg-1").attr("original-height", original_height);
+
+      $("#image-resizer").val($("#gridimg-1").attr("resizer"));
     }
 
     var grid_cnt = 0;
 
     function create_flyer_grid()
     {
-      grid_cnt = global_template_data.length+1;
+      var item_data = global_template_data["item-data"];
+
+      grid_cnt = item_data.length+1;
       var html_string = '';
-      for(var i=0; i< global_template_data.length; i ++)
+      for(var i=0; i< item_data.length; i ++)
       {
         var flyer_dict = {}
         flyer_dict["grid-id"] = i+1;
-        flyer_dict["product-title"] = global_template_data[i]["data"]["title"];
-        flyer_dict["product-info"] = global_template_data[i]["data"]["description"];
-        flyer_dict["price"] = global_template_data[i]["data"]["price"];
-        flyer_dict["currency"] = 
-        flyer_dict["image-url"] = global_template_data[i]["data"]["image-url"];
-        flyer_dict["width"] = global_template_data[i]["container"]["width"];
-        flyer_dict["height"] = global_template_data[i]["container"]["height"];
-        flyer_dict["x"] = global_template_data[i]["container"]["x"];
-        flyer_dict["y"] = global_template_data[i]["container"]["y"];
+        flyer_dict["product-title"] = item_data[i]["data"]["title"];
+        flyer_dict["product-info"] = item_data[i]["data"]["description"];
+        flyer_dict["price"] = item_data[i]["data"]["price"];
+        flyer_dict["image-url"] = item_data[i]["data"]["image-url"];
+        flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
+        flyer_dict["width"] = item_data[i]["container"]["width"];
+        flyer_dict["height"] = item_data[i]["container"]["height"];
+        flyer_dict["x"] = item_data[i]["container"]["x"];
+        flyer_dict["y"] = item_data[i]["container"]["y"];
 
 
         var temp_html = create_unit_flyer_html(flyer_dict);
@@ -1336,13 +1637,6 @@
       $(".product-currency-info").val(global_currency_unit)
 
       select_cell(1);
-      for(var i=0;i<global_template_data.length;i++)
-      {
-        var original_width = $("#gridimg-"+(i+1)).css("width");
-        var original_height = $("#gridimg-"+(i+1)).css("height");
-        $("#gridimg-"+(i+1)).attr("original-width", original_width);
-        $("#gridimg-"+(i+1)).attr("original-height", original_height);
-      }
     }
 
 
@@ -1350,7 +1644,30 @@
   
     $("#refresh-template-btn").click(function (){
 
-      global_template_data = [];
+      global_template_data = {
+        "item-data": [],
+        "common": {
+          "currency-unit":"AED",
+          "border-visible": true,
+          "border-color": "#E9E9E9",
+          "background-image-url":"none",
+          "product-title-font-size":"12",
+          "product-title-font-family":"AvenirNextRegular",
+          "product-title-font-weight":"normal",
+          "product-title-font-color":"#181818",
+          "price-font-size":"18",
+          "price-font-family":"AvenirNextRegular",
+          "price-font-weight":"normal",
+          "price-font-color":"#181818",
+          "currency-font-size":"8.5",
+          "currency-font-family":"AvenirNextRegular",
+          "currency-font-weight":"normal",
+          "currency-font-color":"#181818",
+          "price-box-bg-color":"#fbf00b",
+          "header-color":"#181818",
+          "footer-color":"#181818"
+        }
+      };
 
       var grid = $('.grid-stack').data('gridstack');
 
@@ -1412,6 +1729,37 @@
     });
 
 
+    $("#increase-height-btn").click(function(){
+      var grid_items = $(".grid-stack-item");
+      var grid = $('.grid-stack').data('gridstack');
+      for(var i=0;i<grid_items.length;i++)
+      {
+        var old_height = $(grid_items[i]).attr("data-gs-height");
+        var old_width = $(grid_items[i]).attr("data-gs-width");
+        var new_height = parseInt(old_height)+1;
+
+        el = $(grid_items[i]);
+        console.log(el);
+        grid.resize(el, old_width, new_height);
+      }
+    });
+
+    $("#decrease-height-btn").click(function(){
+      var grid_items = $(".grid-stack-item");
+      var grid = $('.grid-stack').data('gridstack');
+      for(var i=0;i<grid_items.length;i++)
+      {
+        var old_height = $(grid_items[i]).attr("data-gs-height");
+        var old_width = $(grid_items[i]).attr("data-gs-width");
+        var new_height = parseInt(old_height)-1;
+
+        el = $(grid_items[i]);
+        console.log(el);
+        grid.resize(el, old_width, new_height);
+      }
+    });    
+
+
 
     $("#add-grid-item-btn").click(function(){
 
@@ -1419,15 +1767,12 @@
       grid_cnt += 1;
       console.log(i);
 
-      var currency = $("#currency-unit").val();
-
-      var img_string = `<img resizer="100" original-width="" original-height="" id="gridimg-`+(i+1)+`" src="" style="padding:0em;display:none;max-width:100% !important;max-height:100%;height:auto;"/>`;
-
+      var currency = global_currency_unit;
       var border_style = "none";
 
       if($("#border-option").prop("checked")==true)
       {
-        border_style = "2px solid #E9E9E9";
+        border_style = "2px solid "+global_border_color;
       }
 
       var flyer_dict = {};
@@ -1482,6 +1827,16 @@
         grid.addWidget(el, 0, 0, 3, 3, true);
 
         $(".brand-text").html(global_brand_name);
+        $(".grid-item-text").css("font-size", global_currency_font_size+"px");
+        $(".grid-item-text-2").css("font-size", global_product_title_font_size+"px");
+        $(".grid-item-text-3").css("font-size", global_price_font_size+"px");
+        $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
+        $("#header-div").css("background-color", global_header_color);
+        $("#footer-div").css("background-color", global_footer_color);
+        $(".grid-item-text").css("font-weight", global_currency_font_weight);
+        $(".grid-item-text-2").css("font-weight", global_product_title_font_weight);
+        $(".grid-item-text-3").css("font-weight", global_price_font_weight);
+
     });
 
 
@@ -1730,7 +2085,8 @@
     $(document).on('click', '.bgimgselect', function(){
         var image_pk = this.id.split("_")[1];
         var image_url = $(this).children()[0].src
-          
+        global_background_image_url = image_url;
+
         $("#flyer-div").css("background-image", "url("+image_url+")");
         $("#flyer-div").css("background-position", "center");
         $("#flyer-div").css("background-size", "100% 297mm");
@@ -1790,7 +2146,77 @@
           global_background_images_bucket = response["background_images_bucket"];
           global_brand_name = response["brand-name"];
 
+          var common = global_template_data["common"];
+
+          console.log("Fetched Common", common);
+
+          global_currency_unit = common["currency-unit"];
+          global_border_visible = common["border-visible"];
+          global_border_color = common["border-color"];
+          global_background_image_url = common["background-image-url"]
+          global_product_title_font_size = common["product-title-font-size"];
+          global_product_title_font_family = common["product-title-font-family"];
+          global_product_title_font_weight = common["product-title-font-weight"];
+          global_product_title_font_color = common["product-title-font-color"];
+          global_price_font_size = common["price-font-size"];
+          global_price_font_family = common["price-font-family"];
+          global_price_font_weight = common["price-font-weight"];
+          global_price_font_color = common["price-font-color"];
+          global_currency_font_size = common["currency-font-size"];
+          global_currency_font_family = common["currency-font-family"];
+          global_currency_font_weight = common["currency-font-weight"];
+          global_currency_font_color = common["currency-font-color"];
+          global_price_box_bg_color = common["price-box-bg-color"]
+          global_header_color = common["header-color"];
+          global_footer_color = common["footer-color"];
+
+
+          console.log("curr font size", global_currency_font_size);
+
+          $("#currency-unit").val(global_currency_unit);
+          $("#border-option").val(global_border_visible);
+          $("#border-color").val(global_border_color);
+
+          $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
+          $("#flyer-div").css("background-position", "center");
+          $("#flyer-div").css("background-size", "100% 297mm");
+          
+          $("#product-title-font-size").val(global_product_title_font_size);
+          $("#product-title-font-family").val(global_product_title_font_family);
+          $("#product-title-font-weight").val(global_product_title_font_weight);
+          $("#product-title-font-color").val(global_product_title_font_color);
+          $("#price-font-size").val(global_price_font_size);
+          $("#price-font-family").val(global_price_font_family);
+          $("#price-font-weight").val(global_price_font_weight);
+          $("#price-font-color").val(global_price_font_color);
+          $("#currency-font-size").val(global_currency_font_size);
+          $("#currency-font-family").val(global_currency_font_family);
+          $("#currency-font-weight").val(global_currency_font_weight);
+          $("#currency-font-color").val(global_currency_font_color);
+          $("#price-box-bg-color").val(global_price_box_bg_color);
+          $("#header-color").val(global_header_color);
+          $("#footer-color").val(global_footer_color);
+
+          $("select").formSelect();
+
+          // .grid-item-text-2 {
+          //   font-size: 12px;
+          //   margin:0;
+          // }
+          // .grid-item-text-3 {
+          //   font-size: 18px;
+          //   margin:0;
+          // }
+
           create_flyer_grid();
+
+          $(".grid-item-text").css("font-size", global_currency_font_size+"px");
+          $(".grid-item-text-2").css("font-size", global_product_title_font_size+"px");
+          $(".grid-item-text-3").css("font-size", global_price_font_size+"px");
+          $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
+          $("#header-div").css("background-color", global_header_color);
+          $("#footer-div").css("background-color", global_footer_color);
+
           set_product_basket();
           update_background_image_bucket();
           set_brand_image(response["brand_image_url"]);
@@ -1832,7 +2258,8 @@
       $("#save-flyer-template-btn").attr("disabled", "disabled");
 
       var grid_stack_items = $(".grid-stack-item");
-      global_template_data = [];
+      global_template_data = {};
+      var item_data = [];
       for(var i=0;i<grid_stack_items.length;i++)
       {
         var width = $(grid_stack_items[i]).attr("data-gs-width");
@@ -1843,6 +2270,7 @@
         var grid_id = $(grid_stack_items[i]).attr("grid-id");
 
         var image_url = $("#gridimg-"+grid_id).attr("src");
+        var image_resizer = $("#gridimg-"+grid_id).attr("resizer");
         var product_title = $("#product-title-info-"+grid_id).val();
         var description = $("#product-title-info2-"+grid_id).val();
         var price = $("#product-price-info-"+grid_id).val();
@@ -1856,6 +2284,7 @@
           },
           "data": {
             "image-url": image_url,
+            "image-resizer": image_resizer,
             "price": price,
             "title": product_title,
             "description": description,
@@ -1865,9 +2294,34 @@
 
         console.log(temp_dict);
 
-        global_template_data.push(temp_dict);
+        item_data.push(temp_dict);
       }
+      global_template_data["item-data"] = item_data;
+      var common = {
+        "currency-unit": global_currency_unit,
+        "border-visible": global_border_visible,
+        "border-color": global_border_color,
+        "background-image-url": global_background_image_url,
+        "product-title-font-size": global_product_title_font_size,
+        "product-title-font-family": global_product_title_font_family,
+        "product-title-font-weight": global_product_title_font_weight,
+        "product-title-font-color": global_product_title_font_color,
+        "price-font-size": global_price_font_size,
+        "price-font-family": global_price_font_family,
+        "price-font-weight": global_price_font_weight,
+        "price-font-color": global_price_font_color,
+        "currency-font-size": global_currency_font_size,
+        "currency-font-family": global_currency_font_family,
+        "currency-font-weight": global_currency_font_weight,
+        "currency-font-color": global_currency_font_color,
+        "price-box-bg-color": global_price_box_bg_color,
+        "header-color": global_header_color,
+        "footer-color": global_footer_color
+      };
 
+      global_template_data["common"] = common;
+
+      console.log("Saving TEMPLATE: ", global_template_data);
 
       $.ajax({
         url: "/save-flyer-template/",
