@@ -310,6 +310,7 @@ class Product(models.Model):
     condition_type = models.CharField(max_length=300,null=True)
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
+    uuid = models.TextField(null=True,blank=True)
 
     #PFL
     pfl_product_name = models.CharField(max_length=250, default="")

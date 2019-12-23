@@ -263,16 +263,17 @@ class CreateNewProductAPI(APIView):
                 return Response(data=response)
 
             base_prod_obj = BaseProduct.objects.create(base_product_name=product_name,
+                                              product_name_sap=product_name,
                                               seller_sku=seller_sku,
                                               brand=brand_obj,
                                               created_date=timezone.now())
 
 
-            prod_obj = Product.objects.create(product_name=product_name,
+            prod_obj = Product.objects.create(product_name_sap=product_name,
                                             pfl_product_name=product_name,
                                             base_product=base_prod_obj)
 
-            channel_prod_obj = ChannelProduct.objects.create(product=prod_objget_or_create)
+            channel_prod_obj = ChannelProduct.objects.create(product=prod_obj)
 
             response["product_pk"] = prod_obj.pk
             response['status'] = 200
