@@ -337,10 +337,10 @@ class SubImages(models.Model):
 class ChannelProduct(models.Product):
     
     product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
-    noon_product_json = models.TextField(null=True, blank=True)
-    amazon_uk_product_json = models.TextField(null=True, blank=True)
-    amazon_uae_product_json = models.TextField(null=True, blank=True)
-    ebay_product_json = models.TextField(null=True, blank=True)
+    noon_product_json = models.TextField(blank=True,default="{}")
+    amazon_uk_product_json = models.TextField(blank=True,default="{}")
+    amazon_uae_product_json = models.TextField(blank=True,default="{}")
+    ebay_product_json = models.TextField(blank=True,default="{}")
 
     class Meta:
         verbose_name = "ChannelProduct"

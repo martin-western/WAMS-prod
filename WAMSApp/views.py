@@ -1,6 +1,5 @@
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-import sys
 
 from WAMSApp.models import *
 from WAMSApp.utils import *
@@ -14,7 +13,6 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
-from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -36,7 +34,6 @@ import csv
 import datetime
 import boto3
 import urllib2
-import logging
 import pandas as pd
 
 from WAMSApp.models import Product
@@ -274,6 +271,8 @@ class CreateNewProductAPI(APIView):
             prod_obj = Product.objects.create(product_name=product_name,
                                             pfl_product_name=product_name,
                                             base_product=base_prod_obj)
+
+            channel_prod_obj = ChannelProduct.objects.create(product=prod_objget_or_create)
 
             response["product_pk"] = prod_obj.pk
             response['status'] = 200
@@ -526,46 +525,6 @@ class FetchProductDetailsAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
-
-def decode_base64_file(data):
-
-    def get_file_extension(file_name, decoded_file):
-        import imghdr
-
-        extension = imghdr.what(file_name, decoded_file)
-        extension = "jpg" if extension == "jpeg" else extension
-
-        return extension
-
-    from django.core.files.base import ContentFile
-    import base64
-    import six
-    import uuid
-
-    # Check if this is a base64 string
-    if isinstance(data, six.string_types):
-        # Check if the base64 string is in the "data:" format
-        if 'data:' in data and ';base64,' in data:
-            # Break out the header from the base64 content
-            header, data = data.split(';base64,')
-
-        # Try to decode the file. Return validation error if it fails.
-        try:
-            decoded_file = base64.b64decode(data)
-        except TypeError:
-            TypeError('invalid_image')
-
-        # Generate file name:
-        # 12 characters are more than enough.
-        file_name = str(uuid.uuid4())[:12]
-        # Get the file name extension:
-        file_extension = get_file_extension(file_name, decoded_file)
-
-        complete_file_name = "%s.%s" % (file_name, file_extension, )
-
-        return ContentFile(decoded_file, name=complete_file_name)
-
 
 class SaveProductAPI(APIView):
 
