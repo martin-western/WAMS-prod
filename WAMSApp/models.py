@@ -157,9 +157,7 @@ class Image(models.Model):
             logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
-        #compress("."+self.image.url)
-
-
+    
 
 class ImageBucket(models.Model):
 
@@ -178,8 +176,7 @@ class ImageBucket(models.Model):
 
     def save(self, *args, **kwargs):
         super(ImageBucket, self).save(*args, **kwargs)
-        #compress("."+self.image.image.url)
-
+        
 
 class Organization(models.Model):
 
@@ -256,9 +253,9 @@ class MaterialType(models.Model):
 
 class BaseProduct(models.Model):
 
-    base_product_name = models.CharField(max_length=100)
-    created_date = models.DateTimeField()
-    seller_sku = models.CharField(max_length=100, default="")
+    base_product_name = models.CharField(max_length=300)
+    created_date = models.DateTimeField(default=timezone.now())
+    seller_sku = models.CharField(max_length=300, default="")
     category = models.CharField(max_length=300, default="")
     subtitle = models.CharField(max_length=300, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
@@ -295,8 +292,8 @@ class BaseProduct(models.Model):
     item_display_height_metric = models.CharField(max_length=100, default="")
     
     class Meta:
-        verbose_name = "Product"
-        verbose_name_plural = "Products"
+        verbose_name = "BaseProduct"
+        verbose_name_plural = "BaseProducts"
 
     def __str__(self):
         return str(self.base_product_name)
@@ -308,12 +305,11 @@ class Product(models.Model):
     product_name = models.CharField(max_length=300,null=True)
     product_id = models.CharField(max_length=300,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
-    created_date = models.DateTimeField()
+    created_date = models.DateTimeField(default=timezone.now())
     modified_date = models.DateTimeField()
     condition_type = models.CharField(max_length=300,null=True)
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
-    uuid = models.TextField()
 
     #PFL
     pfl_product_name = models.CharField(max_length=250, default="")
@@ -322,7 +318,7 @@ class Product(models.Model):
     product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
     color = models.CharField(max_length=100, default="")
-    material_type = models.CharField(max_length=100, default="")
+    material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
     quantity = models.IntegerField(null=True, blank=True)
 
@@ -342,14 +338,14 @@ class Product(models.Model):
     barcode_string = models.CharField(max_length=100, default="")
     outdoor_price = models.FloatField(null=True, blank=True)
 
-    factory_notes = models.TextField(default="[]")
+    factory_notes = models.TextField(null=True,blank=True)
     
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
 
     def __str__(self):
-        return str(self.product_id)
+        return str(self.product_name)
 
 
     def save(self, *args, **kwargs):
@@ -406,16 +402,6 @@ class Flyer(models.Model):
     name = models.CharField(default="SampleFlyer", max_length=300)
     product_bucket = models.ManyToManyField(Product, blank=True)
     template_data = models.TextField(null=True, blank=True)
-    """
-    {
-        "row": 4,
-        "column": 3,
-        "data": [
-            [{"image_pk":2, "product_title": "Geepas Juicer", "price":100}, {}, {}],
-            [{}, {}, {}]
-        ]
-    }
-    """
     external_images_bucket = models.ManyToManyField(Image, blank=True)
     flyer_image = models.ForeignKey(Image, null=True, blank=True, related_name="flyer_images", on_delete=models.SET_NULL)
     background_images_bucket = models.ManyToManyField(Image, blank=True, related_name="background_images_bucket")
