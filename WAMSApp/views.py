@@ -1612,7 +1612,10 @@ class CreateFlyerAPI(APIView):
                                 flyer_obj.product_bucket.add(product_obj)
                                 try:
                                     main_image_obj = product_obj.main_images.filter(is_main_image=True)[0]
-                                    image_url = main_image_obj.image.image.url
+                                    try:
+                                        image_url = main_image_obj.image.mid_image.url
+                                    except Exception as e:
+                                        image_url = main_image_obj.image.image.url
                                 except Exception as e:
                                     logger.warning("Main image does not exist for product id %s", dfs.iloc[i][0])
 
@@ -1956,6 +1959,9 @@ class FetchProductListFlyerPFLAPI(APIView):
             char_len = 80
             for product_obj in product_objs:
                 try:
+                    if has_atleast_one_image(product_obj)==False:
+                        continue
+
                     temp_dict = {}
                     temp_dict["product_pk"] = product_obj.pk
                     temp_dict["product_name"] = product_obj.product_name_sap
@@ -2577,7 +2583,8 @@ class DownloadImagesS3API(APIView):
                 try:
                     if "url" not in link or link["url"]=="":
                         continue
-                    filename = urllib2.unquote(link["url"]).split("/")[-1]
+                    filename = urllib2.unquote(link["url"])
+                    filename = "/".join(filename.split("/")[3:])
                     temp_dict = {}
                     temp_dict["key"] = link["key"]
                     temp_dict["url"] = "/files/images_s3/" + str(filename)
@@ -2586,7 +2593,9 @@ class DownloadImagesS3API(APIView):
                     s3.download_file(settings.AWS_STORAGE_BUCKET_NAME,
                                      filename, "." + temp_dict["url"])
                 except Exception as e:
-                    pass
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("DownloadImagesS3API: %s at %s",
+                                 e, str(exc_tb.tb_lineno))    
 
             response['local_links'] = local_links
             response['status'] = 200
