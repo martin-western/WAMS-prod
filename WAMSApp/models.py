@@ -5,16 +5,15 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from WAMSApp.utils import *
 
-from PIL import Image as IMage
+from PIL import Image as IMAGE
 import StringIO
 import logging
 import sys
 import json
 
 logger = logging.getLogger(__name__)
-
-####################################################
 
 noon_product_json = {
     
@@ -85,18 +84,6 @@ amazon_uk_product_json = json.dumps(amazon_uk_product_json)
 amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 
-def compress(image_path):
-    try:
-        im = IMage.open(image_path)
-        basewidth = 1024
-        wpercent = (basewidth / float(im.size[0]))
-        hsize = int((float(im.size[1]) * float(wpercent)))
-        im = im.resize((basewidth, hsize), IMage.ANTIALIAS)
-        im.save(image_path, optimize=True, quality=100)
-    except Exception as e:
-        print("Error", str(e))
-###################################################
-
 
 class ContentManager(User):
 
@@ -128,7 +115,6 @@ class ContentExecutive(User):
         verbose_name_plural = "ContentExecutives"
 
 
-
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -146,7 +132,7 @@ class Image(models.Model):
     def save(self, *args, **kwargs):
         try:  
             size = 128, 128
-            thumb = IMage.open(self.image)
+            thumb = IMAGE.open(self.image)
             thumb.thumbnail(size)
             infile = self.image.file.name
             im_type = thumb.format 
@@ -158,7 +144,7 @@ class Image(models.Model):
             self.thumbnail = thumb_file
 
             size2 = 512, 512
-            thumb2 = IMage.open(self.image)
+            thumb2 = IMAGE.open(self.image)
             thumb2.thumbnail(size2)
             thumb_io2 = StringIO.StringIO()
             thumb2.save(thumb_io2, format=im_type)

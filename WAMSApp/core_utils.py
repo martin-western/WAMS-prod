@@ -11,6 +11,19 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
+def compress(image_path):
+    
+    try:
+        im = IMage.open(image_path)
+        basewidth = 1024
+        wpercent = (basewidth / float(im.size[0]))
+        hsize = int((float(im.size[1]) * float(wpercent)))
+        im = im.resize((basewidth, hsize), IMage.ANTIALIAS)
+        im.save(image_path, optimize=True, quality=100)
+    
+    except Exception as e:
+        print("Error", str(e))
+
 def convert_to_ascii(s):
     s = s.replace(u'\u2013', "-").replace(u'\u2019', "'").replace(u'\u2018', "'").replace(u'\u201d','"').replace(u'\u201c','"')
     s = s.encode("ascii", "ignore")
