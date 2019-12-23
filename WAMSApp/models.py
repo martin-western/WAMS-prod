@@ -16,6 +16,75 @@ logger = logging.getLogger(__name__)
 
 ####################################################
 
+noon_product_json = {
+    
+    product_name : "",
+    product_type : "",
+    product_subtype : "",
+    model_number : "",
+    model_name : "",
+    msrp_ae : "",
+    msrp_ae_unit : "",
+    product_description : "",
+    product_attribute_list : "",
+    created_date : ""
+}
+
+amazon_uk_product_json : {
+
+        product_id_type : "",
+        parentage : "",
+        parent_sku : "",
+        relationship_type : "",
+        variation_theme : "",
+        product_name : "",
+        product_description : "",
+        product_attribute_list : "",
+        created_date : "",
+        subtitle : "",
+        feed_product_type : "",
+        update_delete : "",
+        recommended_browse_nodes : "",
+        search_terms : "",
+        enclosure_material : "",
+        cover_material_type : "",
+        special_features : "",
+        sale_price : "",
+        sale_from : "",
+        sale_end :  "",
+        wattage : "",
+        wattage_metric : "",
+        parentage : "",
+        parent_sku : "",
+        relationship_type : "",
+        variation_theme : ""
+
+    }
+
+amazon_uae_product_json : {
+
+        product_name : "",
+        product_description : "",
+        product_attribute_list : "",
+        created_date : ""
+  
+    }
+
+ebay_product_json : {
+
+        category : "",
+        product_name : "",
+        product_description : "",
+        product_attribute_list : "",
+        created_date : ""
+        
+    }
+
+noon_product_json  = json.dumps(noon_product_json)
+amazon_uk_product_json = json.dumps(amazon_uk_product_json)
+amazon_uae_product_json = json.dumps(amazon_uae_product_json)
+ebay_product_json = json.dumps(ebay_product_json)
+
 def compress(image_path):
     try:
         im = IMage.open(image_path)
@@ -87,9 +156,6 @@ class Image(models.Model):
             thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
 
             self.thumbnail = thumb_file
-
-
-
 
             size2 = 512, 512
             thumb2 = IMage.open(self.image)
@@ -337,10 +403,10 @@ class SubImages(models.Model):
 class ChannelProduct(models.Product):
     
     product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
-    noon_product_json = models.TextField(blank=True,default="{}")
-    amazon_uk_product_json = models.TextField(blank=True,default="{}")
-    amazon_uae_product_json = models.TextField(blank=True,default="{}")
-    ebay_product_json = models.TextField(blank=True,default="{}")
+    noon_product_json = models.TextField(blank=True,default=noon_product_json)
+    amazon_uk_product_json = models.TextField(blank=True,default=amazon_uk_product_json)
+    amazon_uae_product_json = models.TextField(blank=True,default=amazon_uae_product_json)
+    ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
 
     class Meta:
         verbose_name = "ChannelProduct"
