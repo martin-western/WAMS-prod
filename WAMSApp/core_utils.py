@@ -4,11 +4,23 @@ import sys
 
 logger = logging.getLogger(__name__)
 
+
+
+
 def convert_to_ascii(s):
     s = s.replace(u'\u2013', "-").replace(u'\u2019', "'").replace(u'\u2018', "'").replace(u'\u201d','"').replace(u'\u201c','"')
     s = s.encode("ascii", "ignore")
     return s
 
+def has_atleast_one_image(prod_obj):
+    
+    check = False
+    images_count = prod_obj.main_images.all().count() + prod_obj.sub_images.all().count()
+    images_count += prod_obj.white_background_images.all().count()
+    images_count += prod_obj.lifestyle_images.all().count()
+    if(images_count>0):
+        check=True
+    return check
 
 def custom_permission_filter_products(user):
 
@@ -66,7 +78,7 @@ def create_response_images_flyer_pfl(images):
     for image in images:
         temp_dict = {}
         try:
-            temp_dict["url"] = image.image.url
+            temp_dict["url"] = image.mid_image.url
         except Exception as e:
             temp_dict["url"] = image.image.url
         temp_dict["pk"] = image.pk
@@ -80,7 +92,7 @@ def create_response_images_flyer_pfl_main_sub(images):
     for image in images:
         temp_dict = {}
         try:
-            temp_dict["url"] = image.image.image.url
+            temp_dict["url"] = image.image.mid_image.url
         except Exception as e:
             temp_dict["url"] = image.image.image.url
         temp_dict["pk"] = image.image.pk
