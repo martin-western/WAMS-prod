@@ -1515,6 +1515,9 @@
 
               //Hide placeholder
               $(".product-title-info").removeAttr("placeholder");
+              $(".product-title-info-description").removeAttr("placeholder");
+              $(".product-price-info").removeAttr("placeholder");
+              $(".product-strikeprice-info").removeAttr("placeholder");
 
               window.scrollTo(0,0);
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
@@ -1537,6 +1540,9 @@
 
                     $(".product-title-info-title").attr("placeholder", "product name");
                     $(".product-title-info-description").attr("placeholder", "description");
+                    $(".product-price-info").attr("placeholder", "price");
+                    $(".product-strikeprice-info").attr("placeholder", "strikeprice");
+
 
                     // var image_data = canvas.toDataURL();
 

@@ -1636,6 +1636,7 @@ class CreateFlyerAPI(APIView):
                             product_title = ""
                             product_description = ""
                             product_price = ""
+                            product_strikeprice = ""
                             image_url = ""
                             try:
                                 search_id = str(dfs.iloc[i][0]).strip()
@@ -1669,8 +1670,21 @@ class CreateFlyerAPI(APIView):
                                 except Exception as e:
                                     logger.warning("product_description error %s", str(e))
 
+
                                 try:
-                                    product_price = convert_to_ascii(dfs.iloc[i][3])
+                                    product_strikeprice = convert_to_ascii(dfs.iloc[i][3])
+                                    if product_strikeprice == "nan":
+                                        product_strikeprice = ""
+                                    try:
+                                        product_strikeprice = product_strikeprice.strip()
+                                    except Exception as e:
+                                        pass
+                                except Exception as e:
+                                    logger.warning("product_strikeprice error %s", str(e))
+
+
+                                try:
+                                    product_price = convert_to_ascii(dfs.iloc[i][4])
                                     if product_price == "nan":
                                         product_price = ""
                                     try:
@@ -1679,6 +1693,7 @@ class CreateFlyerAPI(APIView):
                                         pass
                                 except Exception as e:
                                     logger.warning("product_price error %s", str(e))
+                                
 
                             except Exception as e:
                                 logger.error("product_id: %s , error: %s", str(dfs.iloc[i][0]), str(e))
@@ -1696,7 +1711,7 @@ class CreateFlyerAPI(APIView):
                                 "banner-img": "",
                                 "image-resizer": "100",
                                 "price": str(product_price),
-                                "strikeprice": "",  
+                                "strikeprice": str(product_strikeprice),
                                 "title": str(product_title),
                                 "description": str(product_description),
                                 "image-resizer": "100"
