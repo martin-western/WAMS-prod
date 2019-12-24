@@ -105,7 +105,11 @@ def PFLDashboardPage(request):
 
 @login_required(login_url='/login/')
 def FlyerPage(request, pk):
-    return render(request, 'WAMSApp/flyer.html')
+    flyer_obj = Flyer.objects.get(pk=int(pk))
+    if flyer_obj.mode=="A4 Portrait":
+        return render(request, 'WAMSApp/flyer.html')
+    elif flyer_obj.mode=="A4 Landscape":
+        return render(request, 'WAMSApp/flyer-landscape.html')
 
 
 @login_required(login_url='/login/')
@@ -1451,9 +1455,12 @@ class CreateFlyerAPI(APIView):
 
             brand_obj = Brand.objects.get(pk=int(data["brand_pk"]))
 
+            mode = data["mode"]
+
             flyer_obj = Flyer.objects.create(name=convert_to_ascii(data["name"]),
                                              template_data="{}",
-                                             brand=brand_obj)
+                                             brand=brand_obj,
+                                             mode=mode)
 
             create_option = data["create_option"]
 
@@ -1510,7 +1517,7 @@ class CreateFlyerAPI(APIView):
                             "banner-img": "",
                             "image-resizer": "100",
                             "price": "",
-                            "strikeprice": "",
+                            "strikeprice": "strikeprice",
                             "title": "",
                             "description": "",
                             "image-resizer": "100"
@@ -1541,6 +1548,7 @@ class CreateFlyerAPI(APIView):
                             product_title = ""
                             product_description = ""
                             product_price = ""
+                            product_strikeprice = ""
                             image_url = ""
                             try:
                                 search_id = str(dfs.iloc[i][0]).strip()
@@ -1574,8 +1582,21 @@ class CreateFlyerAPI(APIView):
                                 except Exception as e:
                                     logger.warning("product_description error %s", str(e))
 
+
                                 try:
-                                    product_price = convert_to_ascii(dfs.iloc[i][3])
+                                    product_strikeprice = convert_to_ascii(dfs.iloc[i][3])
+                                    if product_strikeprice == "nan":
+                                        product_strikeprice = ""
+                                    try:
+                                        product_strikeprice = product_strikeprice.strip()
+                                    except Exception as e:
+                                        pass
+                                except Exception as e:
+                                    logger.warning("product_strikeprice error %s", str(e))
+
+
+                                try:
+                                    product_price = convert_to_ascii(dfs.iloc[i][4])
                                     if product_price == "nan":
                                         product_price = ""
                                     try:
@@ -1584,6 +1605,7 @@ class CreateFlyerAPI(APIView):
                                         pass
                                 except Exception as e:
                                     logger.warning("product_price error %s", str(e))
+                                
 
                             except Exception as e:
                                 logger.error("product_id: %s , error: %s", str(dfs.iloc[i][0]), str(e))
@@ -1601,7 +1623,7 @@ class CreateFlyerAPI(APIView):
                                 "banner-img": "",
                                 "image-resizer": "100",
                                 "price": str(product_price),
-                                "strikeprice": "",  
+                                "strikeprice": str(product_strikeprice),
                                 "title": str(product_title),
                                 "description": str(product_description),
                                 "image-resizer": "100"

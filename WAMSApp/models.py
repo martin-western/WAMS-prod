@@ -413,6 +413,7 @@ class Flyer(models.Model):
     flyer_image = models.ForeignKey(Image, null=True, blank=True, related_name="flyer_images", on_delete=models.SET_NULL)
     background_images_bucket = models.ManyToManyField(Image, blank=True, related_name="background_images_bucket")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
+    mode = models.CharField(max_length=100, default="A4 Portrait")
 
     class Meta:
         verbose_name = "Flyer"
