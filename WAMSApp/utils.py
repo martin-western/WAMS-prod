@@ -32,9 +32,19 @@ def convert_to_ascii(s):
 def has_atleast_one_image(prod_obj):
     
     check = False
-    images_count = prod_obj.main_images.all().count() + prod_obj.sub_images.all().count()
+    images_count = 0
+
+    main_images_objs = MainImaes.objects.get(product=prod_obj)
+    for main_images_obj in main_images_objs:
+        images_count += main_images_obj.main_images.all().count()
+
+    sub_images_objs = SubImaes.objects.get(product=prod_obj)
+    for sub_images_obj in sub_images_objs:
+        images_count += sub_images_obj.sub_images.all().count()
+
     images_count += prod_obj.white_background_images.all().count()
     images_count += prod_obj.lifestyle_images.all().count()
+    
     if(images_count>0):
         check=True
     return check

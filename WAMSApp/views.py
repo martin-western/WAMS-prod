@@ -309,9 +309,6 @@ class FetchProductDetailsAPI(APIView):
             amazon_uk_product_obj = json.loads(channel_prod_obj.noon_product_json)
             amazon_uae_product_obj = json.loads(channel_prod_obj.noon_product_json)
             ebay_product_obj = json.loads(channel_prod_obj.noon_product_json)
-            main_images = MainImages.objects.get(product=product_obj)
-            sub_images = SubImages.objects.get(product=product_obj)
-
             brand_obj = base_prod_obj.brand
 
             permissible_brands = custom_permission_filter_brands(request.user)
@@ -878,56 +875,20 @@ class FetchProductListAPI(APIView):
                     standard_price__lte=int(filter_parameters["max_price"]))
 
             if filter_parameters["has_image"] == "1":
-                product_objs_list = product_objs_list.annotate(
-                    num_main_images=Count('main_images'),
-                    num_pfl_images=Count('pfl_images'),
-                    num_sub_images=Count('sub_images'),
-                    num_white_background_images=Count(
-                        'white_background_images'),
-                    num_lifestyle_images=Count('lifestyle_images'),
-                    num_certificate_images=Count('certificate_images'),
-                    num_giftbox_images=Count('giftbox_images'),
-                    num_diecut_images=Count('diecut_images'),
-                    num_aplus_content_images=Count('aplus_content_images'),
-                    num_ads_images=Count('ads_images'),
-                    num_unedited_images=Count('unedited_images'),
-                    num_pfl_generated_images=Count('pfl_generated_images')).exclude(num_main_images=0,
-                                                                                    num_pfl_images=0,
-                                                                                    num_sub_images=0,
-                                                                                    num_white_background_images=0,
-                                                                                    num_lifestyle_images=0,
-                                                                                    num_certificate_images=0,
-                                                                                    num_giftbox_images=0,
-                                                                                    num_diecut_images=0,
-                                                                                    num_aplus_content_images=0,
-                                                                                    num_ads_images=0,
-                                                                                    num_unedited_images=0,
-                                                                                    num_pfl_generated_images=0)
-            if filter_parameters["has_image"] == "2":
-                product_objs_list = product_objs_list.annotate(
-                    num_main_images=Count('main_images'),
-                    num_pfl_images=Count('pfl_images'),
-                    num_sub_images=Count('sub_images'),
-                    num_white_background_images=Count(
-                        'white_background_images'),
-                    num_lifestyle_images=Count('lifestyle_images'),
-                    num_certificate_images=Count('certificate_images'),
-                    num_giftbox_images=Count('giftbox_images'),
-                    num_diecut_images=Count('diecut_images'),
-                    num_aplus_content_images=Count('aplus_content_images'),
-                    num_ads_images=Count('ads_images'),
-                    num_unedited_images=Count('unedited_images'),
-                    num_pfl_generated_images=Count('pfl_generated_images')).exclude(num_main_images__gt=0).exclude(num_pfl_images__gt=0).exclude(num_sub_images__gt=0).exclude(num_white_background_images__gt=0).exclude(num_lifestyle_images__gt=0).exclude(num_certificate_images__gt=0).exclude(num_giftbox_images__gt=0).exclude(num_diecut_images__gt=0).exclude(num_aplus_content_images__gt=0).exclude(num_ads_images__gt=0).exclude(num_unedited_images__gt=0).exclude(num_pfl_generated_images__gt=0)
+                for prod_obj in product_objs_list:
+                    if has_atleast_one_image(prod_obj)==False:
+                        product_objs_list.remove(prod_obj)
+            elif filter_parameters["has_image"] == "0":
+                for prod_obj in product_objs_list:
+                    if has_atleast_one_image(prod_obj)==True:
+                        product_objs_list.remove(prod_obj)
 
             if len(chip_data) == 0:
                 search_list_objs = product_objs_list
             else:
                 for tag in chip_data:
                     search = product_objs_list.filter(
-                        Q(product_name_sap__icontains=tag) |
-                        Q(product_name_amazon_uk__icontains=tag) |
-                        Q(product_name_amazon_uae__icontains=tag) |
-                        Q(product_name_ebay__icontains=tag) |
+                        Q(product_name_icontains=tag) |
                         Q(product_id__icontains=tag) |
                         Q(seller_sku__icontains=tag)
                     )
@@ -940,7 +901,7 @@ class FetchProductListAPI(APIView):
             products = []
             for product_obj in product_objs:
                 temp_dict = {}
-                temp_dict["product_name_amazon_uk"] = product_obj.product_name_amazon_uk
+                # temp_dict["product_name_amazon_uk"] = product_obj.product_name_amazon_uk
                 temp_dict["product_id"] = product_obj.product_id
                 temp_dict["seller_sku"] = product_obj.seller_sku
                 temp_dict["created_date"] = str(
@@ -948,9 +909,14 @@ class FetchProductListAPI(APIView):
                 temp_dict["status"] = product_obj.status
                 temp_dict["product_pk"] = product_obj.pk
 
-                if product_obj.main_images.filter(is_main_image=True).count() > 0:
+                main_images_list = []
+                main_images_objs = MainImages.objects.filter(product=product_obj)
+                for main_images_obj in main_images_objs:
+                    main_images_list+=main_images_obj.main_images.all()
+                
+                if main_images_list.filter(is_main_image=True).count() > 0:
                     try:
-                        temp_dict["main_image"] = product_obj.main_images.filter(is_main_image=True)[
+                        temp_dict["main_image"] = main_images_list.filter(is_main_image=True)[
                             0].image.thumbnail.url
                     except Exception as e:
                         temp_dict["main_image"] = Config.objects.all()[
