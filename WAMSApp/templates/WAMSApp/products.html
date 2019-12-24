@@ -231,7 +231,7 @@ ul.dropdown-content.select-dropdown li span {
             </label>
           </div>    
           
-          <div class = "col s5" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Product Name</div>    
+          <div class = "col s4" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Product Name</div>    
           <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Brand</div>   
           <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Date Created</div>   
           <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;padding-right: 15px;">Status</div>   
@@ -727,8 +727,8 @@ ul.dropdown-content.select-dropdown li span {
               img_tag = `<img src="`+products[i]["main_image"]+`" style="height:3em;width:3em;">`;
             }
 
-            var product_name = products[i]["product_name_amazon_uk"].substring(0, 35);
-            if(products[i]["product_name_amazon_uk"].length>35)
+            var product_name = products[i]["product_name_amazon_uk"].substring(0, 30);
+            if(products[i]["product_name_amazon_uk"].length>30)
             {
               product_name += "...";
             }

@@ -511,6 +511,11 @@
       font-size: 18px;
       margin:0;
     }
+    .grid-item-text-4 {
+      font-size: 8.5px;
+      margin:0;
+    }
+
     .grid-item-footer-left > input {
       background-color: transparent
     }
@@ -535,10 +540,8 @@
     /* grid item sticker */ 
     .grid-item-sticker {  
       position: absolute; 
-      top: 0; 
-      left: 0;  
-        
-        
+      top: 10px; 
+      left: 10px;  
     } 
     .grid-item-sticker > img {  
       height: auto; 
@@ -591,6 +594,31 @@
   } 
   input[type=range]+.thumb {  
     background-color: #521893;  
+  }
+
+
+
+
+  /* strikethrough code */
+  .strikethrough {
+    text-decoration:line-through;
+  }
+  .footer-top {
+    display: flex; 
+    flex-direction: row;
+  }
+  .footer-top-left {
+    width: 50%;
+  }
+  .footer-top-right {
+    width: 50%;
+  }
+  .footer-top-right > input {
+    font-size: 8.5px;
+    border: none;
+    width: 100%;
+    text-align: right;
+    background: transparent;
   }
     
   </style>
@@ -781,42 +809,86 @@
             <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">book</i>
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Promotional Tags</span>
           </span>
-          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
+          <div class="row white hoverable" style="margin-top:0.5em;padding: 1em;">
+            <div class="col s6">
+              <span style="font-family: 'AvenirNext';color:#717171;">
+                <span style="font-size: 14px;font-weight: bold;">Apply to All</span>
+              </span>
               <form action="#">
                 <p>
                   <label>
-                    <input value="None" name="group1" type="radio" checked />
+                    <input id="global-none" value="None" name="group1" type="radio" checked />
                     <span>None</span>
                   </label>
                 </p>
                 <p>
                   <label>
-                    <input value="Sale" name="group1" type="radio" />
+                    <input id="global-sale" value="Sale" name="group1" type="radio" />
                     <span>Sale</span>
                   </label>
                 </p>
                 <p>
                   <label>
-                    <input value="Upcoming Sale" name="group1" type="radio" />
-                    <span>Upcoming Sale</span>
+                    <input id="global-combo" value="Combo Offers" name="group1" type="radio" />
+                    <span>Combo Offers</span>
                   </label>
                 </p>
                 <p>
                   <label>
-                    <input value="Christmas Sale" name="group1" type="radio"  />
-                    <span>Christmas Sale</span>
+                    <input id="global-wow" value="Wow" name="group1" type="radio"  />
+                    <span>Wow</span>
+                  </label>
+                </p>
+              </form>
+            </div>
+            <div class="col s6">
+              <span style="font-family: 'AvenirNext';color:#717171;">
+                <span style="font-size: 14px;font-weight: bold;">Apply to One</span>
+              </span>
+              <form action="#">
+                <p>
+                  <label>
+                    <input id="local-none" value="None" name="group2" type="radio" checked />
+                    <span>None</span>
                   </label>
                 </p>
                 <p>
                   <label>
-                    <input value="New year Sale" name="group1" type="radio" />
-                    <span>New year Sale</span>
+                    <input id="local-sale" value="Sale" name="group2" type="radio" />
+                    <span>Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-combo" value="Combo Offers" name="group2" type="radio" />
+                    <span>Combo Offers</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-wow" value="Wow" name="group2" type="radio"  />
+                    <span>Wow</span>
                   </label>
                 </p>
               </form>
             </div>
           </div>
+
+
+
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize Promotional Tags</span>
+          </span>
+          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="promo-resizer" min="10" max="80" value="40" />
+                </p>
+            </div>
+          </div>
+
 
         </div>
 
@@ -896,12 +968,12 @@
           
           <div class="row white hoverable" style="margin-top:0.5em;">
             <!-- Font Size -->
-            <div class="input-field col s6" style="margin-top: 1em !important;">
+            <div class="input-field col s6" style="margin-top: 2em !important;">
               <input id="product-price-font-size" type="number" value="18">
               <label for="product-price-font-size">Price Font Size</label>
             </div>
 
-            <div class="input-field col s6" style="margin-top: 1em !important;">
+            <div class="input-field col s6" style="margin-top: 2em !important;">
               <input id="currency-font-size" type="number" value="8.5">
               <label for="currency-font-size">Currency Font Size</label>  
             </div>
@@ -972,6 +1044,65 @@
 
           </div>
         </div>
+
+
+
+        <!-- Strike Price Settings -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Strike Price Settings</span>
+          </span>
+          
+          <div class="row white hoverable" style="margin-top:0.5em;">
+
+            <!-- Font Size -->
+            <div class="input-field col s6" style="margin-top: 2em;">
+              <input id="product-strikeprice-font-size" type="number" value="8.5">
+              <label for="product-strikeprice-font-size">Price Font Size</label>
+            </div>
+
+            <!-- Font Family -->
+            <div class="input-field col s6" style="margin-top: 2em">
+              <select id="product-strikeprice-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="AvenirNextRegular" selected>AvenirNextRegular</option>
+              </select>
+              <label>Price Font Family</label>
+            </div>
+
+
+            <!-- Font Weight -->
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="product-strikeprice-font-weight">
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
+              </select>
+              <label>Price Font Weight</label>
+            </div>
+
+
+            <!-- Font Color -->
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <span>Price Font Color</span>
+              <input id="product-strikeprice-font-color" type="color" value="#181818"> 
+            </div>
+
+            <!-- Show/Hide -->
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="strikeprice-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Strike Price Visible</span>
+              </label>
+            </div>
+
+
+          </div>
+        </div>
+
 
 
 
@@ -1197,16 +1328,55 @@
 
     $('input[type=radio][name=group1]').change(function() {
         if (this.value == "None") {
+            $("#local-none").click();
+            $(".banner-img").attr("src", "");
             $(".banner-img").hide();
         }
         else if (this.value == "Sale") {
+            $("#local-sale").click();
+            $(".banner-img").attr("src", "/files/banner1.png");
             $(".banner-img").show();
         }
-        else
+        else if(this.value == "Combo Offers")
         {
-          $(".banner-img").hide();
+            $("#local-combo").click();
+            $(".banner-img").attr("src", "/files/combo.jpg");
+            $(".banner-img").show();
+        }
+        else if(this.value == "Wow")
+        {
+            $("#local-wow").click();
+            $(".banner-img").attr("src", "/files/wow.png");
+            $(".banner-img").show();
         }
     });
+
+
+    $('input[type=radio][name=group2]').change(function() {
+        if (this.value == "None") {
+            $("#banner-img-"+global_selected_grid_id).attr("src", "");
+            $("#banner-img-"+global_selected_grid_id).hide();
+        }
+        else if (this.value == "Sale") {
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/banner1.png");
+            $("#banner-img-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "Combo Offers")
+        {
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/combo.jpg");
+            $("#banner-img-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "Wow")
+        { 
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/wow.png");
+            $("#banner-img-"+global_selected_grid_id).show();
+        }
+    });
+
+
+    
+
+
 
     var elems  = document.querySelectorAll("input[type=range]");  
     M.Range.init(elems);
@@ -1233,6 +1403,10 @@
     var global_price_font_family = "AvenirNextRegular";
     var global_price_font_weight = "normal";
     var global_price_font_color = "#181818";
+    var global_strikeprice_font_size = "12";
+    var global_strikeprice_font_family = "AvenirNextRegular";
+    var global_strikeprice_font_weight = "normal";
+    var global_strikeprice_font_color = "#181818";
     var global_currency_font_size = "12";
     var global_currency_font_family = "AvenirNextRegular";
     var global_currency_font_weight = "normal";
@@ -1240,6 +1414,7 @@
     var global_price_box_bg_color = "#fbf00b";
     var global_header_color = "#181818";
     var global_footer_color = "#181818";
+    var global_promo_resizer = "40";
 
 
 
@@ -1256,10 +1431,11 @@
         image_links.push({"key": "background_image", "url": $("#flyer-div").css("background-image").split("\"")[1]});
       }
 
-      for (var i = 1; i <=total_grids; i++){
-        if($("#gridimg-"+i).attr('src')!="null")
+      for (var i = 0; i <total_grids; i++){
+        var grid_id = $($(".grid-stack-item")[i]).attr("grid-id");
+        if($("#gridimg-"+grid_id).attr('src')!="null")
         {
-          image_links.push({"key": "gridimg-" + i, "url": $("#gridimg-"+i).attr('src')});
+          image_links.push({"key": "gridimg-" + grid_id, "url": $("#gridimg-"+grid_id).attr('src')});
         }
       }
 
@@ -1472,6 +1648,11 @@
         global_currency_font_size = this.value;
     });
 
+    $(document).on("change", "#product-strikeprice-font-size", function(){
+        $(".footer-top-right input").css("font-size", this.value+"px");
+        global_strikeprice_font_size = this.value;
+    });
+
 
     $(document).on("change", "#product-title-font-weight", function(){
         $(".product-title-info").css("font-weight", this.value);
@@ -1486,6 +1667,11 @@
     $(document).on("change", "#currency-font-weight", function(){
         $(".product-currency-info").css("font-weight", this.value);
         global_currency_font_weight = this.value;
+    });
+
+    $(document).on("change", "#product-strikeprice-font-weight", function(){
+        $(".footer-top-right input").css("font-weight", this.value);
+        global_strikeprice_font_weight = this.value;
     });
 
 
@@ -1505,6 +1691,10 @@
         global_currency_font_color = this.value;
     });
 
+    $(document).on("change", "#product-strikeprice-font-color", function(){
+        $(".footer-top-right input").css("color", this.value);
+        global_strikeprice_font_color = this.value;
+    });
 
 
     $(document).on("change", "#product-title-font-family", function(){
@@ -1518,6 +1708,10 @@
     $(document).on("change", "#currency-font-family", function(){
         $(".product-currency-info").css("font-family", this.value);
         global_currency_font_family = this.value;
+    });
+    $(document).on("change", "#product-strikeprice-font-family", function(){
+        $(".footer-top-right input").css("font-family", this.value);
+        global_strikeprice_font_family = this.value;
     });
 
 
@@ -1553,6 +1747,17 @@
     });
 
 
+    $(document).on("change", "#strikeprice-option", function(){
+      if($("#strikeprice-option").prop("checked"))
+      {
+        $(".footer-top-right").show();
+      }
+      else
+      {
+        $(".footer-top-right").hide();
+      }
+    });
+
 
 
 
@@ -1583,6 +1788,13 @@
     });
 
 
+    $("#promo-resizer").change(function() {
+      var R = $("#promo-resizer").val();
+      global_promo_resizer = R;
+      $(".grid-item-sticker img").css("width", R+"px");
+    });    
+
+
     $("#product-info-save-btn").click(function(){
 
         var product_name = $("#product-info-name").val();
@@ -1600,8 +1812,10 @@
       var product_title = flyer_dict["product-title"];
       var product_info = flyer_dict["product-info"];
       var price = flyer_dict["price"];
+      var strikeprice = flyer_dict["strikeprice"];
       var currency = flyer_dict["currency"];
       var image_url = flyer_dict["image-url"];
+      var banner_img = flyer_dict["banner-img"];
       var image_resizer = flyer_dict["image-resizer"];
       var width = flyer_dict["width"];
       var height = flyer_dict["height"];
@@ -1619,14 +1833,17 @@
                   </div>
                 </a>
                 <div class="grid-item-sticker">
-                  <img class="banner-img" style="display:none;" id="banner-img-`+grid_id+`" src="/files/banner1.png" />
+                  <img class="banner-img" id="banner-img-`+grid_id+`" src="`+banner_img+`" />
                 </div>
               </div>
               <div class="grid-item-footer-container" > 
-                <div className="footer-top">
-                  <div>
+                <div class="footer-top">
+                  <div class="footer-top-left valign-wrapper">
                     <p class="grid-item-text brand-text" style="text-align:left;"></p>
-                   </div>
+                  </div>
+                  <div class="footer-top-right">
+                    <input id="product-strikeprice-info-`+grid_id+`" class="grid-item-text-4 strikethrough product-strikeprice-info browser-default" type="text" placeholder="strikeprice" value="`+strikeprice+`">
+                  </div>
                 </div>
                 <div class="footer-bottom">
                   <div class="grid-item-footer-left">
@@ -1653,6 +1870,24 @@
       $("#divgrid-1").parent().parent().css("border", "0.14em dashed");
 
       $("#image-resizer").val($("#gridimg-1").attr("resizer"));
+
+      var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
+      if(banner_img=="")
+      {
+        $("#local-none").click();
+      } 
+      else if(banner_img=="/files/combo.jpg")
+      {
+        $("#local-combo").click();
+      }
+      else if(banner_img=="/files/banner1.png")
+      {
+        $("#local-sale").click();
+      }
+      else if(banner_img=="/files/wow.png")
+      {
+        $("#local-wow").click();
+      }
     }
 
     var grid_cnt = 0;
@@ -1670,7 +1905,9 @@
         flyer_dict["product-title"] = item_data[i]["data"]["title"];
         flyer_dict["product-info"] = item_data[i]["data"]["description"];
         flyer_dict["price"] = item_data[i]["data"]["price"];
+        flyer_dict["strikeprice"] = item_data[i]["data"]["strikeprice"];
         flyer_dict["image-url"] = item_data[i]["data"]["image-url"];
+        flyer_dict["banner-img"] = item_data[i]["data"]["banner-img"];
         flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
         flyer_dict["width"] = item_data[i]["container"]["width"];
         flyer_dict["height"] = item_data[i]["container"]["height"];
@@ -1726,7 +1963,8 @@
           "currency-font-color":"#181818",
           "price-box-bg-color":"#fbf00b",
           "header-color":"#181818",
-          "footer-color":"#181818"
+          "footer-color":"#181818",
+          "promo-resizer": "40"
         }
       };
 
@@ -1736,7 +1974,7 @@
       var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">`
       $("#flyer-grid").html(html_string);
       create_flyer_grid();
-    })
+    });
 
 
     // $('.grid-stack').on('gsresizestop', function(event, elem) {
@@ -1842,8 +2080,10 @@
       flyer_dict["product-title"] = "";
       flyer_dict["product-info"] = "";
       flyer_dict["price"] = "";
+      flyer_dict["strikeprice"] = "";
       flyer_dict["currency"] = "";
       flyer_dict["image-url"] = "";
+      flyer_dict["banner-img"] = "";
       flyer_dict["width"] = "3";
       flyer_dict["height"] = "3";
       flyer_dict["x"] = "7";
@@ -1891,13 +2131,15 @@
         $(".grid-item-text").css("font-size", global_currency_font_size+"px");
         $(".grid-item-text-2").css("font-size", global_product_title_font_size+"px");
         $(".grid-item-text-3").css("font-size", global_price_font_size+"px");
+        $(".grid-item-text-4").css("font-size", global_strikeprice_font_size+"px");
+
         $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
         $("#header-div").css("background-color", global_header_color);
         $("#footer-div").css("background-color", global_footer_color);
         $(".grid-item-text").css("font-weight", global_currency_font_weight);
         $(".grid-item-text-2").css("font-weight", global_product_title_font_weight);
         $(".grid-item-text-3").css("font-weight", global_price_font_weight);
-
+        $(".grid-item-text-4").css("font-weight", global_strikeprice_font_weight);
     });
 
 
@@ -2223,6 +2465,10 @@
           global_price_font_family = common["price-font-family"];
           global_price_font_weight = common["price-font-weight"];
           global_price_font_color = common["price-font-color"];
+          global_strikeprice_font_size = common["strikeprice-font-size"];
+          global_strikeprice_font_family = common["strikeprice-font-family"];
+          global_strikeprice_font_weight = common["strikeprice-font-weight"];
+          global_strikeprice_font_color = common["strikeprice-font-color"];
           global_currency_font_size = common["currency-font-size"];
           global_currency_font_family = common["currency-font-family"];
           global_currency_font_weight = common["currency-font-weight"];
@@ -2230,7 +2476,7 @@
           global_price_box_bg_color = common["price-box-bg-color"]
           global_header_color = common["header-color"];
           global_footer_color = common["footer-color"];
-
+          global_promo_resizer = common["promo-resizer"];
 
           console.log("curr font size", global_currency_font_size);
 
@@ -2246,10 +2492,16 @@
           $("#product-title-font-family").val(global_product_title_font_family);
           $("#product-title-font-weight").val(global_product_title_font_weight);
           $("#product-title-font-color").val(global_product_title_font_color);
-          $("#price-font-size").val(global_price_font_size);
-          $("#price-font-family").val(global_price_font_family);
-          $("#price-font-weight").val(global_price_font_weight);
-          $("#price-font-color").val(global_price_font_color);
+          $("#product-price-font-size").val(global_price_font_size);
+          $("#product-price-font-family").val(global_price_font_family);
+          $("#product-price-font-weight").val(global_price_font_weight);
+          $("#product-price-font-color").val(global_price_font_color);
+
+          $("#product-strikeprice-font-size").val(global_strikeprice_font_size);
+          $("#product-strikeprice-font-family").val(global_strikeprice_font_family);
+          $("#product-strikeprice-font-weight").val(global_strikeprice_font_weight);
+          $("#product-strikeprice-font-color").val(global_strikeprice_font_color);
+
           $("#currency-font-size").val(global_currency_font_size);
           $("#currency-font-family").val(global_currency_font_family);
           $("#currency-font-weight").val(global_currency_font_weight);
@@ -2257,6 +2509,7 @@
           $("#price-box-bg-color").val(global_price_box_bg_color);
           $("#header-color").val(global_header_color);
           $("#footer-color").val(global_footer_color);
+          $("#promo-resizer").val(global_promo_resizer);
 
           $("select").formSelect();
 
@@ -2272,11 +2525,30 @@
           create_flyer_grid();
 
           $(".grid-item-text").css("font-size", global_currency_font_size+"px");
+          $(".grid-item-text").css("font-weight", global_currency_font_weight);
+          $(".grid-item-text").css("color", global_currency_font_color);
+          $(".grid-item-text").css("font-family", global_currency_font_family);
+
           $(".grid-item-text-2").css("font-size", global_product_title_font_size+"px");
+          $(".grid-item-text-2").css("font-weight", global_product_title_font_weight);
+          $(".grid-item-text-2").css("color", global_product_title_font_color);
+          $(".grid-item-text-2").css("font-family", global_product_title_font_family);
+          
           $(".grid-item-text-3").css("font-size", global_price_font_size+"px");
+          $(".grid-item-text-3").css("font-weight", global_price_font_weight);
+          $(".grid-item-text-3").css("color", global_price_font_color);
+          $(".grid-item-text-3").css("font-family", global_price_font_family);
+          
+          $(".grid-item-text-4").css("font-size", global_strikeprice_font_size+"px");
+          $(".grid-item-text-4").css("font-weight", global_strikeprice_font_weight);
+          $(".grid-item-text-4").css("color", global_strikeprice_font_color);
+          $(".grid-item-text-4").css("font-family", global_strikeprice_font_family);
+
           $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
           $("#header-div").css("background-color", global_header_color);
           $("#footer-div").css("background-color", global_footer_color);
+
+          $(".grid-item-sticker img").css("width", global_promo_resizer+"px");
 
           set_product_basket();
           update_background_image_bucket();
@@ -2309,6 +2581,24 @@
 
         console.log($("#gridimg-"+global_selected_grid_id).attr("resizer"));
         $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
+
+        var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
+        if(banner_img=="")
+        {
+          $("#local-none").click();
+        } 
+        else if(banner_img=="/files/combo.jpg")
+        {
+          $("#local-combo").click();
+        }
+        else if(banner_img=="/files/banner1.png")
+        {
+          $("#local-sale").click();
+        }
+        else if(banner_img=="/files/wow.png")
+        {
+          $("#local-wow").click();
+        }
     });
 
     fetch_flyer_details();
@@ -2331,10 +2621,12 @@
         var grid_id = $(grid_stack_items[i]).attr("grid-id");
 
         var image_url = $("#gridimg-"+grid_id).attr("src");
+        var banner_img = $("#banner-img-"+grid_id).attr("src");
         var image_resizer = $("#gridimg-"+grid_id).attr("resizer");
         var product_title = $("#product-title-info-"+grid_id).val();
         var description = $("#product-title-info2-"+grid_id).val();
         var price = $("#product-price-info-"+grid_id).val();
+        var strikeprice = $("#product-strikeprice-info-"+grid_id).val();
 
         var temp_dict = {
           "container": {
@@ -2345,8 +2637,10 @@
           },
           "data": {
             "image-url": image_url,
+            "banner-img": banner_img,
             "image-resizer": image_resizer,
             "price": price,
+            "strikeprice": strikeprice,
             "title": product_title,
             "description": description,
             "price": price
@@ -2371,13 +2665,18 @@
         "price-font-family": global_price_font_family,
         "price-font-weight": global_price_font_weight,
         "price-font-color": global_price_font_color,
+        "strikeprice-font-size": global_strikeprice_font_size,
+        "strikeprice-font-family": global_strikeprice_font_family,
+        "strikeprice-font-weight": global_strikeprice_font_weight,
+        "strikeprice-font-color": global_strikeprice_font_color,
         "currency-font-size": global_currency_font_size,
         "currency-font-family": global_currency_font_family,
         "currency-font-weight": global_currency_font_weight,
         "currency-font-color": global_currency_font_color,
         "price-box-bg-color": global_price_box_bg_color,
         "header-color": global_header_color,
-        "footer-color": global_footer_color
+        "footer-color": global_footer_color,
+        "promo-resizer": global_promo_resizer
       };
 
       global_template_data["common"] = common;
