@@ -535,8 +535,8 @@
     /* grid item sticker */ 
     .grid-item-sticker {  
       position: absolute; 
-      top: 0; 
-      left: 0;  
+      top: 10px; 
+      left: 10px;  
         
         
     } 
@@ -782,7 +782,7 @@
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Promotional Tags</span>
           </span>
           <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
+            <div class="col s6">
               <form action="#">
                 <p>
                   <label>
@@ -816,6 +816,43 @@
                 </p>
               </form>
             </div>
+
+
+            <!-- <div class="col s6">
+              <form action="#">
+                <p>
+                  <label>
+                    <input value="None" name="group2" type="radio" checked />
+                    <span>None</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input value="Sale" name="group2" type="radio" />
+                    <span>Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input value="Upcoming Sale" name="group2" type="radio" />
+                    <span>Upcoming Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input value="Christmas Sale" name="group2" type="radio"  />
+                    <span>Christmas Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input value="New year Sale" name="group2" type="radio" />
+                    <span>New year Sale</span>
+                  </label>
+                </p>
+              </form>
+            </div> -->
+
           </div>
 
         </div>
@@ -1256,10 +1293,11 @@
         image_links.push({"key": "background_image", "url": $("#flyer-div").css("background-image").split("\"")[1]});
       }
 
-      for (var i = 1; i <=total_grids; i++){
-        if($("#gridimg-"+i).attr('src')!="null")
+      for (var i = 0; i <total_grids; i++){
+        var grid_id = $($(".grid-stack-item")[i]).attr("grid-id");
+        if($("#gridimg-"+grid_id).attr('src')!="null")
         {
-          image_links.push({"key": "gridimg-" + i, "url": $("#gridimg-"+i).attr('src')});
+          image_links.push({"key": "gridimg-" + grid_id, "url": $("#gridimg-"+grid_id).attr('src')});
         }
       }
 

@@ -1593,9 +1593,13 @@ class CreateFlyerAPI(APIView):
                                     logger.warning("product_description error %s", str(e))
 
                                 try:
-                                    product_price = str(dfs.iloc[i][3])
+                                    product_price = convert_to_ascii(dfs.iloc[i][3])
                                     if product_price == "nan":
                                         product_price = ""
+                                    try:
+                                        product_price = product_price.strip()
+                                    except Exception as e:
+                                        pass
                                 except Exception as e:
                                     logger.warning("product_price error %s", str(e))
 
