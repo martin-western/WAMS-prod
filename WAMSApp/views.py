@@ -108,7 +108,11 @@ def PFLDashboardPage(request):
 
 @login_required(login_url='/login/')
 def FlyerPage(request, pk):
-    return render(request, 'WAMSApp/flyer.html')
+    flyer_obj = Flyer.objects.get(pk=int(pk))
+    if flyer_obj.mode=="A4 Portrait":
+        return render(request, 'WAMSApp/flyer.html')
+    elif flyer_obj.mode=="A4 Landscape":
+        return render(request, 'WAMSApp/flyer-landscape.html')
 
 
 @login_required(login_url='/login/')
@@ -1539,9 +1543,12 @@ class CreateFlyerAPI(APIView):
 
             brand_obj = Brand.objects.get(pk=int(data["brand_pk"]))
 
+            mode = data["mode"]
+
             flyer_obj = Flyer.objects.create(name=convert_to_ascii(data["name"]),
                                              template_data="{}",
-                                             brand=brand_obj)
+                                             brand=brand_obj,
+                                             mode=mode)
 
             create_option = data["create_option"]
 

@@ -642,7 +642,7 @@
   
   <div class="row" style="margin-bottom: 0em;">
 
-    <div class="scroll-style-1 col m4" style="position: fixed;height: 100vh;overflow-y: scroll;background-color: #EAEAEA;">
+    <div class="scroll-style-1 col m3" style="position: fixed;height: 100vh;overflow-y: scroll;background-color: #EAEAEA;z-index: 99;">
       <div class="row white" style="margin-bottom: 0em;">
         <div class="col s1" style="margin-top: 0.4em;">
           <i class="material-icons" style="position: absolute;margin-top: 0.5em;margin-left: 0.5em;color: #717171;">search</i>
@@ -1141,10 +1141,10 @@
     </div>
 
 
-    <div class="col m8 offset-m4" style="background-color: #393939;">
+    <div class="col m9 offset-m3" style="background-color: #393939;width:100%;">
       <div>
-        <div class="row" style="margin-left: auto;margin-right: auto;">
-          <div class="col s12 center" style="padding-left: 0em;padding-right: 0em;">
+        <div class="row" style="margin-left: auto;">
+          <div class="col s12 left" style="padding-left: 2em;padding-right: 0em;">
             <br>
             <a id="add-grid-item-btn" class="btn" title="Add Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 0em;"><i class="material-icons">add</i></a>
             <a id="delete-grid-item-btn" class="btn" title="Delete Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 4em;"><i class="material-icons">delete</i></a>
@@ -1153,7 +1153,7 @@
             <a id="increase-height-btn" class="btn " title="Increase Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 16em;"><i class="material-icons">keyboard_arrow_up</i></a>
             <a id="decrease-height-btn" class="btn " title="Decrease Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 20em;"><i class="material-icons">keyboard_arrow_down</i></a>
 
-            <a id="download-flyer-btn" class="btn green hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 172mm;position: relative;">Download<i class="material-icons right">file_download</i>
+            <a id="download-flyer-btn" class="btn green hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 258mm;position: relative;">Download<i class="material-icons right">file_download</i>
               <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
                 <div class="spinner-layer spinner-green-only">
                   <div class="circle-clipper left">
@@ -1174,9 +1174,9 @@
           <p style="color: silver;" class="a4-text">A4</p>
         </div>
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0;">
-        <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;margin-bottom: 0em;">
+        <div id="flyer-div" class="row white" style="text-align: center;margin-left:25px;margin-right:0px; height: 210mm;width: 297mm;margin-bottom: 0em;">
 
-         <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 210mm;padding: 20px;">  
+         <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 297mm;padding: 20px;">  
             <div class="col s6 left-horizontally">  
               <img id="super-brand-img" src="/files/super-brand.png" style="max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
               <img id="iso-img" src="/files/iso.png" style="max-width: 73.5mm;max-height:15mm;margin-right:10px">  
@@ -1193,14 +1193,14 @@
           </div>
 
 
-          <div id="flyer-grid" class="col s12" style="width: 210mm;">
-            <div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">
+          <div id="flyer-grid" class="col s12" style="width: 297mm;">
+            <div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 210mm;">
               
             </div>
           </div>
 
 
-          <div id="footer-div" class="col s12" style="background-color:#181818;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
+          <div id="footer-div" class="col s12" style="background-color:#181818;position: absolute;margin-top: 200mm;width:297mm;height: 10mm;">
             <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
               <p class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.geepas.com</p>
             </div>
@@ -2392,7 +2392,7 @@
 
         $("#flyer-div").css("background-image", "url("+image_url+")");
         $("#flyer-div").css("background-position", "center");
-        $("#flyer-div").css("background-size", "100% 297mm");
+        $("#flyer-div").css("background-size", "100% 210mm");
     });
 
 
@@ -2486,7 +2486,7 @@
 
           $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
           $("#flyer-div").css("background-position", "center");
-          $("#flyer-div").css("background-size", "100% 297mm");
+          $("#flyer-div").css("background-size", "100% 210mm");
           
           $("#product-title-font-size").val(global_product_title_font_size);
           $("#product-title-font-family").val(global_product_title_font_family);
