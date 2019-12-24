@@ -1605,7 +1605,7 @@ class CreateFlyerAPI(APIView):
                             "banner-img": "",
                             "image-resizer": "100",
                             "price": "",
-                            "strikeprice": "",
+                            "strikeprice": "strikeprice",
                             "title": "",
                             "description": "",
                             "image-resizer": "100"

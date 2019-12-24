@@ -602,6 +602,7 @@
   /* strikethrough code */
   .strikethrough {
     text-decoration:line-through;
+    text-align: right;
   }
   .footer-top {
     display: flex; 
@@ -1517,7 +1518,7 @@
               $(".product-title-info").removeAttr("placeholder");
               $(".product-title-info-description").removeAttr("placeholder");
               $(".product-price-info").removeAttr("placeholder");
-              $(".product-strikeprice-info").removeAttr("placeholder");
+              //$(".product-strikeprice-info").removeAttr("placeholder");
 
               window.scrollTo(0,0);
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
@@ -1541,7 +1542,7 @@
                     $(".product-title-info-title").attr("placeholder", "product name");
                     $(".product-title-info-description").attr("placeholder", "description");
                     $(".product-price-info").attr("placeholder", "price");
-                    $(".product-strikeprice-info").attr("placeholder", "strikeprice");
+                    //$(".product-strikeprice-info").attr("placeholder", "strikeprice");
 
                     // var image_data = canvas.toDataURL();
 
@@ -1654,7 +1655,7 @@
     });
 
     $(document).on("change", "#product-strikeprice-font-size", function(){
-        $(".footer-top-right input").css("font-size", this.value+"px");
+        $(".product-strikeprice-info").css("font-size", this.value+"px");
         global_strikeprice_font_size = this.value;
     });
 
@@ -1675,7 +1676,7 @@
     });
 
     $(document).on("change", "#product-strikeprice-font-weight", function(){
-        $(".footer-top-right input").css("font-weight", this.value);
+        $(".product-strikeprice-info").css("font-weight", this.value);
         global_strikeprice_font_weight = this.value;
     });
 
@@ -1697,7 +1698,7 @@
     });
 
     $(document).on("change", "#product-strikeprice-font-color", function(){
-        $(".footer-top-right input").css("color", this.value);
+        $(".product-strikeprice-info").css("color", this.value);
         global_strikeprice_font_color = this.value;
     });
 
@@ -1715,7 +1716,7 @@
         global_currency_font_family = this.value;
     });
     $(document).on("change", "#product-strikeprice-font-family", function(){
-        $(".footer-top-right input").css("font-family", this.value);
+        $(".product-strikeprice-info").css("font-family", this.value);
         global_strikeprice_font_family = this.value;
     });
 
@@ -1847,7 +1848,7 @@
                     <p class="grid-item-text brand-text" style="text-align:left;"></p>
                   </div>
                   <div class="footer-top-right">
-                    <input id="product-strikeprice-info-`+grid_id+`" class="grid-item-text-4 strikethrough product-strikeprice-info browser-default" type="text" placeholder="strikeprice" value="`+strikeprice+`">
+                    <p id="product-strikeprice-info-`+grid_id+`" class="grid-item-text-4 strikethrough product-strikeprice-info browser-default" type="text" contenteditable="true">`+strikeprice+`</p>
                   </div>
                 </div>
                 <div class="footer-bottom">
@@ -2631,7 +2632,7 @@
         var product_title = $("#product-title-info-"+grid_id).val();
         var description = $("#product-title-info2-"+grid_id).val();
         var price = $("#product-price-info-"+grid_id).val();
-        var strikeprice = $("#product-strikeprice-info-"+grid_id).val();
+        var strikeprice = $("#product-strikeprice-info-"+grid_id).html();
 
         var temp_dict = {
           "container": {
