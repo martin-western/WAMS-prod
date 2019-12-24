@@ -889,6 +889,7 @@ class FetchProductListAPI(APIView):
                 for tag in chip_data:
                     search = product_objs_list.filter(
                         Q(product_name_icontains=tag) |
+                        Q(product_name_sap_icontains=tag) |
                         Q(product_id__icontains=tag) |
                         Q(seller_sku__icontains=tag)
                     )
@@ -989,9 +990,7 @@ class FetchExportListAPI(APIView):
                                 flag = 1
                                 break
                             if (chip.lower() in product.product_name_sap.lower() or
-                                    chip.lower() in product.product_name_amazon_uk.lower() or
-                                    chip.lower() in product.product_name_amazon_uae.lower() or
-                                    chip.lower() in product.product_name_ebay.lower() or
+                                    chip.lower() in product.product_name.lower()
                                     chip.lower() in product.product_id.lower() or
                                     chip.lower() in product.seller_sku.lower()):
                                 search_list_objs.append(export_list)
@@ -1087,6 +1086,7 @@ class FetchExportProductListAPI(APIView):
             product_list = []
             for product in products:
                 temp_dict = {}
+                temp_dict["product_name"] = product.product_name
                 temp_dict["product_name_sap"] = product.product_name_sap
                 temp_dict["product_id"] = product.product_id
                 temp_dict["product_pk"] = product.pk
