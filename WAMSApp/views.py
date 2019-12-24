@@ -1559,13 +1559,18 @@ class CreateFlyerAPI(APIView):
                 "price-font-family":"AvenirNextRegular",
                 "price-font-weight":"normal",
                 "price-font-color":"#181818",
+                "strikeprice-font-size":"8.5",
+                "strikeprice-font-family":"AvenirNextRegular",
+                "strikeprice-font-weight":"normal",
+                "strikeprice-font-color":"#181818",
                 "currency-font-size":"8.5",
                 "currency-font-family":"AvenirNextRegular",
                 "currency-font-weight":"normal",
                 "currency-font-color":"#181818",
                 "price-box-bg-color":"#fbf00b",
                 "header-color":"#181818",
-                "footer-color":"#181818"
+                "footer-color":"#181818",
+                "promo-resizer": "40"
             }
 
             template_data = {
@@ -1590,8 +1595,10 @@ class CreateFlyerAPI(APIView):
                         }
                         temp_dict["data"] = {
                             "image-url": "",
+                            "banner-img": "",
                             "image-resizer": "100",
                             "price": "",
+                            "strikeprice": "",
                             "title": "",
                             "description": "",
                             "image-resizer": "100"
@@ -1679,8 +1686,10 @@ class CreateFlyerAPI(APIView):
                             }
                             temp_dict["data"] = {
                                 "image-url": str(image_url),
+                                "banner-img": "",
                                 "image-resizer": "100",
                                 "price": str(product_price),
+                                "strikeprice": "",  
                                 "title": str(product_title),
                                 "description": str(product_description),
                                 "image-resizer": "100"
