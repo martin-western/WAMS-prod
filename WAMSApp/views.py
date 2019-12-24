@@ -258,7 +258,7 @@ class CreateNewProductAPI(APIView):
                 return Response(data=response)
 
             if Product.objects.filter(seller_sku=seller_sku).exists():
-                # Duplicate product detected!
+                logger.warning("CreateNewProductAPI Duplicate product detected!")
                 response["status"] = 409
                 return Response(data=response)
 
@@ -552,16 +552,18 @@ class SaveProductAPI(APIView):
             # Check for duplicate
             product_id = data["product_id"]
             seller_sku = data["seller_sku"]
+
             prod_obj = Product.objects.get(pk=int(data["product_pk"]))
-            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() == 1 or Product.objects.filter(seller_sku=seller_sku).exclude(pk=data["product_pk"]).count() == 1:
+            base_prod_obj = Product.base_product
+
+            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1 or Product.objects.filter(seller_sku=seller_sku).exclude(pk=data["product_pk"]).count() >= 1:
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
                 return Response(data=response)
 
             # Checking brand permission
             try:
-                permissible_brands = custom_permission_filter_brands(
-                    request.user)
+                permissible_brands = custom_permission_filter_brands(request.user)
                 brand_obj = Brand.objects.get(name=data["brand"])
                 if brand_obj not in permissible_brands:
                     logger.warning("SaveProductAPI Restricted Access Brand!")
@@ -572,11 +574,11 @@ class SaveProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            product_name_amazon_uk = convert_to_ascii(data["product_name_amazon_uk"])
-            product_name_amazon_uae = convert_to_ascii(data["product_name_amazon_uae"])
-            product_name_ebay = convert_to_ascii(data["product_name_ebay"])
+            # product_name_amazon_uk = convert_to_ascii(data["product_name_amazon_uk"])
+            # product_name_amazon_uae = convert_to_ascii(data["product_name_amazon_uae"])
+            # product_name_ebay = convert_to_ascii(data["product_name_ebay"])
+            # product_name_noon = convert_to_ascii(data["product_name_noon"])
             product_name_sap = convert_to_ascii(data["product_name_sap"])
-            product_name_noon = convert_to_ascii(data["product_name_noon"])
 
             category = data["category"]
             subtitle = convert_to_ascii(data["subtitle"])
@@ -585,42 +587,42 @@ class SaveProductAPI(APIView):
             product_id_type = data["product_id_type"]
             manufacturer_part_number = data["manufacturer_part_number"]
             barcode_string = data["barcode_string"]
-            condition_type = data["condition_type"]
+            # condition_type = data["condition_type"]
 
-            noon_product_type = data["noon_product_type"]
-            noon_product_subtype = data["noon_product_subtype"]
-            noon_model_number = data["noon_model_number"]
-            noon_model_name = data["noon_model_name"]
+            # noon_product_type = data["noon_product_type"]
+            # noon_product_subtype = data["noon_product_subtype"]
+            # noon_model_number = data["noon_model_number"]
+            # noon_model_name = data["noon_model_name"]
 
-            feed_product_type = data["feed_product_type"]
-            update_delete = data["update_delete"]
-            recommended_browse_nodes = data["recommended_browse_nodes"]
+            # feed_product_type = data["feed_product_type"]
+            # update_delete = data["update_delete"]
+            # recommended_browse_nodes = data["recommended_browse_nodes"]
             
-            product_description_amazon_uk = convert_to_ascii(data["product_description_amazon_uk"])
-            if product_description_amazon_uk == "<p>&nbsp;</p>":
-                product_description_amazon_uk = ""
+            # product_description_amazon_uk = convert_to_ascii(data["product_description_amazon_uk"])
+            # if product_description_amazon_uk == "<p>&nbsp;</p>":
+            #     product_description_amazon_uk = ""
 
-            product_description_amazon_uae = convert_to_ascii(data["product_description_amazon_uae"])
-            if product_description_amazon_uae == "<p>&nbsp;</p>":
-                product_description_amazon_uae = ""
+            # product_description_amazon_uae = convert_to_ascii(data["product_description_amazon_uae"])
+            # if product_description_amazon_uae == "<p>&nbsp;</p>":
+            #     product_description_amazon_uae = ""
 
-            product_description_ebay = convert_to_ascii(data["product_description_ebay"])
-            if product_description_ebay == "<p>&nbsp;</p>":
-                product_description_ebay = ""
+            # product_description_ebay = convert_to_ascii(data["product_description_ebay"])
+            # if product_description_ebay == "<p>&nbsp;</p>":
+            #     product_description_ebay = ""
 
-            product_description_noon = convert_to_ascii(data["product_description_noon"])
-            if product_description_noon == "<p>&nbsp;</p>":
-                product_description_noon = ""
+            # product_description_noon = convert_to_ascii(data["product_description_noon"])
+            # if product_description_noon == "<p>&nbsp;</p>":
+            #     product_description_noon = ""
 
-            product_attribute_list_amazon_uk = convert_to_ascii(data["product_attribute_list_amazon_uk"])
-            product_attribute_list_amazon_uae = convert_to_ascii(data["product_attribute_list_amazon_uae"])
-            product_attribute_list_ebay = convert_to_ascii(data["product_attribute_list_ebay"])
-            product_attribute_list_noon = convert_to_ascii(data["product_attribute_list_noon"])
+            # product_attribute_list_amazon_uk = convert_to_ascii(data["product_attribute_list_amazon_uk"])
+            # product_attribute_list_amazon_uae = convert_to_ascii(data["product_attribute_list_amazon_uae"])
+            # product_attribute_list_ebay = convert_to_ascii(data["product_attribute_list_ebay"])
+            # product_attribute_list_noon = convert_to_ascii(data["product_attribute_list_noon"])
 
-            search_terms = data["search_terms"]
+            # search_terms = data["search_terms"]
             color_map = data["color_map"]
             color = data["color"]
-            enclosure_material = data["enclosure_material"]
+            # enclosure_material = data["enclosure_material"]
             cover_material_type = data["cover_material_type"]
             special_features = convert_to_ascii(data["special_features"])
             package_length = None if data["package_length"] == "" else float(data["package_length"])
@@ -657,21 +659,21 @@ class SaveProductAPI(APIView):
             item_condition_note = convert_to_ascii(data["item_condition_note"])
             max_order_quantity = None if data["max_order_quantity"] == "" else int(data["max_order_quantity"])
             number_of_items = None if data["number_of_items"] == "" else int(data["number_of_items"])
-            wattage = None if data["wattage"] == "" else float(data["wattage"])
-            wattage_metric = data["wattage_metric"]
+            # wattage = None if data["wattage"] == "" else float(data["wattage"])
+            # wattage_metric = data["wattage_metric"]
             material_type = data["material_type"]
-            parentage = data["parentage"]
-            parent_sku = data["parent_sku"]
-            relationship_type = data["relationship_type"]
-            variation_theme = data["variation_theme"]
+            # parentage = data["parentage"]
+            # parent_sku = data["parent_sku"]
+            # relationship_type = data["relationship_type"]
+            # variation_theme = data["variation_theme"]
             standard_price = None if data["standard_price"] == "" else float(data["standard_price"])
             quantity = None if data["quantity"] == "" else int(data["quantity"])
-            sale_price = None if data["sale_price"] == "" else float(data["sale_price"])
-            sale_from = None if data["sale_from"] == "" else data["sale_from"]
-            sale_end = None if data["sale_end"] == "" else data["sale_end"]
+            # sale_price = None if data["sale_price"] == "" else float(data["sale_price"])
+            # sale_from = None if data["sale_from"] == "" else data["sale_from"]
+            # sale_end = None if data["sale_end"] == "" else data["sale_end"]
 
-            noon_msrp_ae = None if data["noon_msrp_ae"] == "" else float(data["noon_msrp_ae"])
-            noon_msrp_ae_unit = str(data["noon_msrp_ae_unit"])
+            # noon_msrp_ae = None if data["noon_msrp_ae"] == "" else float(data["noon_msrp_ae"])
+            # noon_msrp_ae_unit = str(data["noon_msrp_ae_unit"])
 
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = convert_to_ascii(data["pfl_product_features"])
@@ -720,91 +722,97 @@ class SaveProductAPI(APIView):
             #     exc_type, exc_obj, exc_tb = sys.exc_info()
             #     logger.error("SaveProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-            prod_obj.product_name_amazon_uk = product_name_amazon_uk
-            prod_obj.product_name_amazon_uae = product_name_amazon_uae
-            prod_obj.product_name_ebay = product_name_ebay
+            # prod_obj.product_name_amazon_uk = product_name_amazon_uk
+            # prod_obj.product_name_amazon_uae = product_name_amazon_uae
+            # prod_obj.product_name_ebay = product_name_ebay
+            # prod_obj.product_name_noon = product_name_noon
             prod_obj.product_name_sap = product_name_sap
-            prod_obj.product_name_noon = product_name_noon
 
-            prod_obj.category = category
-            prod_obj.subtitle = subtitle
-            prod_obj.brand = brand_obj
-            prod_obj.manufacturer = manufacturer
-            prod_obj.product_id_type = product_id_type
-            prod_obj.seller_sku = seller_sku
-            prod_obj.manufacturer_part_number = manufacturer_part_number
-            prod_obj.condition_type = condition_type
-            prod_obj.feed_product_type = feed_product_type
+            base_prod_obj.category = category
+            base_prod_obj.subtitle = subtitle
+            base_prod_obj.brand = brand_obj
+            base_prod_obj.manufacturer = manufacturer
+            base_prod_obj.seller_sku = seller_sku
+            base_prod_obj.manufacturer_part_number = manufacturer_part_number
+            # prod_obj.condition_type = condition_type
+            # prod_obj.feed_product_type = feed_product_type
 
-            prod_obj.noon_product_type = noon_product_type
-            prod_obj.noon_product_subtype = noon_product_subtype
-            prod_obj.noon_model_number = noon_model_number
-            prod_obj.noon_model_name = noon_model_name
+            product_id_type_obj = ProductIDType.objects.get_or_create(name=product_id_type)
+            prod_obj.product_id_type = product_id_type_obj
 
-            prod_obj.update_delete = update_delete
-            prod_obj.recommended_browse_nodes = recommended_browse_nodes
-            prod_obj.product_description_amazon_uk = product_description_amazon_uk
-            prod_obj.product_description_amazon_uae = product_description_amazon_uae
-            prod_obj.product_description_ebay = product_description_ebay
-            prod_obj.product_description_noon = product_description_noon
+            # prod_obj.noon_product_type = noon_product_type
+            # prod_obj.noon_product_subtype = noon_product_subtype
+            # prod_obj.noon_model_number = noon_model_number
+            # prod_obj.noon_model_name = noon_model_name
 
-            prod_obj.product_attribute_list_amazon_uk = product_attribute_list_amazon_uk
-            prod_obj.product_attribute_list_amazon_uae = product_attribute_list_amazon_uae
-            prod_obj.product_attribute_list_ebay = product_attribute_list_ebay
-            prod_obj.product_attribute_list_noon = product_attribute_list_noon
-            prod_obj.search_terms = search_terms
+            # prod_obj.update_delete = update_delete
+            # prod_obj.recommended_browse_nodes = recommended_browse_nodes
+            # prod_obj.product_description_amazon_uk = product_description_amazon_uk
+            # prod_obj.product_description_amazon_uae = product_description_amazon_uae
+            # prod_obj.product_description_ebay = product_description_ebay
+            # prod_obj.product_description_noon = product_description_noon
+
+            # prod_obj.product_attribute_list_amazon_uk = product_attribute_list_amazon_uk
+            # prod_obj.product_attribute_list_amazon_uae = product_attribute_list_amazon_uae
+            # prod_obj.product_attribute_list_ebay = product_attribute_list_ebay
+            # prod_obj.product_attribute_list_noon = product_attribute_list_noon
+            # prod_obj.search_terms = search_terms
             prod_obj.color_map = color_map
             prod_obj.color = color
-            prod_obj.enclosure_material = enclosure_material
-            prod_obj.cover_material_type = cover_material_type
-            prod_obj.special_features = special_features
-            prod_obj.package_length = package_length
-            prod_obj.package_length_metric = package_length_metric
-            prod_obj.package_width = package_width
-            prod_obj.package_width_metric = package_width_metric
-            prod_obj.package_height = package_height
-            prod_obj.package_height_metric = package_height_metric
-            prod_obj.package_weight = package_weight
-            prod_obj.package_weight_metric = package_weight_metric
-            prod_obj.shipping_weight = shipping_weight
-            prod_obj.shipping_weight_metric = shipping_weight_metric
-            prod_obj.item_display_weight = item_display_weight
-            prod_obj.item_display_weight_metric = item_display_weight_metric
-            prod_obj.item_display_volume = item_display_volume
-            prod_obj.item_display_volume_metric = item_display_volume_metric
-            prod_obj.item_display_length = item_display_length
-            prod_obj.item_display_length_metric = item_display_length_metric
-            prod_obj.item_weight = item_weight
-            prod_obj.item_weight_metric = item_weight_metric
-            prod_obj.item_length = item_length
-            prod_obj.item_length_metric = item_length_metric
-            prod_obj.item_width = item_width
-            prod_obj.item_width_metric = item_width_metric
-            prod_obj.item_height = item_height
-            prod_obj.item_height_metric = item_height_metric
-            prod_obj.item_display_width = item_display_width
-            prod_obj.item_display_width_metric = item_display_width_metric
-            prod_obj.item_display_height = item_display_height
-            prod_obj.item_display_height_metric = item_display_height_metric
-            prod_obj.item_count = item_count
-            prod_obj.item_count_metric = item_count_metric
-            prod_obj.item_condition_note = item_condition_note
-            prod_obj.max_order_quantity = max_order_quantity
-            prod_obj.number_of_items = number_of_items
-            prod_obj.wattage = wattage
-            prod_obj.wattage_metric = wattage_metric
-            prod_obj.material_type = material_type
-            prod_obj.parentage = parentage
-            prod_obj.parent_sku = parent_sku
-            prod_obj.relationship_type = relationship_type
-            prod_obj.variation_theme = variation_theme
+            # prod_obj.enclosure_material = enclosure_material
+            # prod_obj.cover_material_type = cover_material_type
+            # prod_obj.special_features = special_features
+            
+            base_prod_obj.package_length = package_length
+            base_prod_obj.package_length_metric = package_length_metric
+            base_prod_obj.package_width = package_width
+            base_prod_obj.package_width_metric = package_width_metric
+            base_prod_obj.package_height = package_height
+            base_prod_obj.package_height_metric = package_height_metric
+            base_prod_obj.package_weight = package_weight
+            base_prod_obj.package_weight_metric = package_weight_metric
+            base_prod_obj.shipping_weight = shipping_weight
+            base_prod_obj.shipping_weight_metric = shipping_weight_metric
+            base_prod_obj.item_display_weight = item_display_weight
+            base_prod_obj.item_display_weight_metric = item_display_weight_metric
+            base_prod_obj.item_display_volume = item_display_volume
+            base_prod_obj.item_display_volume_metric = item_display_volume_metric
+            base_prod_obj.item_display_length = item_display_length
+            base_prod_obj.item_display_length_metric = item_display_length_metric
+            base_prod_obj.item_weight = item_weight
+            base_prod_obj.item_weight_metric = item_weight_metric
+            base_prod_obj.item_length = item_length
+            base_prod_obj.item_length_metric = item_length_metric
+            base_prod_obj.item_width = item_width
+            base_prod_obj.item_width_metric = item_width_metric
+            base_prod_obj.item_height = item_height
+            base_prod_obj.item_height_metric = item_height_metric
+            base_prod_obj.item_display_width = item_display_width
+            base_prod_obj.item_display_width_metric = item_display_width_metric
+            base_prod_obj.item_display_height = item_display_height
+            base_prod_obj.item_display_height_metric = item_display_height_metric
+            
+
+            # prod_obj.item_count = item_count
+            # prod_obj.item_count_metric = item_count_metric
+            # prod_obj.item_condition_note = item_condition_note
+            # prod_obj.max_order_quantity = max_order_quantity
+            # prod_obj.number_of_items = number_of_items
+            # prod_obj.wattage = wattage
+            # prod_obj.wattage_metric = wattage_metric
+            material_type_obj = MaterialType.objects.get_or_create(name=material_type)
+            prod_obj.material_type = material_type_obj
+            # prod_obj.parentage = parentage
+            # prod_obj.parent_sku = parent_sku
+            # prod_obj.relationship_type = relationship_type
+            # prod_obj.variation_theme = variation_theme
             prod_obj.standard_price = standard_price
             prod_obj.quantity = quantity
-            prod_obj.sale_price = sale_price
-            prod_obj.sale_from = sale_from
-            prod_obj.sale_end = sale_end
-            prod_obj.noon_msrp_ae = noon_msrp_ae
-            prod_obj.noon_msrp_ae_unit = noon_msrp_ae_unit
+            # prod_obj.sale_price = sale_price
+            # prod_obj.sale_from = sale_from
+            # prod_obj.sale_end = sale_end
+            # prod_obj.noon_msrp_ae = noon_msrp_ae
+            # prod_obj.noon_msrp_ae_unit = noon_msrp_ae_unit
 
             prod_obj.pfl_product_name = pfl_product_name
             prod_obj.pfl_product_features = pfl_product_features
