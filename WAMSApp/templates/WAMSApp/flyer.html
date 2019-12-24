@@ -542,8 +542,6 @@
       position: absolute; 
       top: 10px; 
       left: 10px;  
-        
-        
     } 
     .grid-item-sticker > img {  
       height: auto; 
@@ -1416,6 +1414,7 @@
     var global_price_box_bg_color = "#fbf00b";
     var global_header_color = "#181818";
     var global_footer_color = "#181818";
+    var global_promo_resizer = "40";
 
 
 
@@ -1791,7 +1790,7 @@
 
     $("#promo-resizer").change(function() {
       var R = $("#promo-resizer").val();
-
+      global_promo_resizer = R;
       $(".grid-item-sticker img").css("width", R+"px");
     });    
 
@@ -1964,7 +1963,8 @@
           "currency-font-color":"#181818",
           "price-box-bg-color":"#fbf00b",
           "header-color":"#181818",
-          "footer-color":"#181818"
+          "footer-color":"#181818",
+          "promo-resizer": "40"
         }
       };
 
@@ -2476,7 +2476,7 @@
           global_price_box_bg_color = common["price-box-bg-color"]
           global_header_color = common["header-color"];
           global_footer_color = common["footer-color"];
-
+          global_promo_resizer = common["promo-resizer"];
 
           console.log("curr font size", global_currency_font_size);
 
@@ -2509,6 +2509,7 @@
           $("#price-box-bg-color").val(global_price_box_bg_color);
           $("#header-color").val(global_header_color);
           $("#footer-color").val(global_footer_color);
+          $("#promo-resizer").val(global_promo_resizer);
 
           $("select").formSelect();
 
@@ -2546,6 +2547,8 @@
           $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
           $("#header-div").css("background-color", global_header_color);
           $("#footer-div").css("background-color", global_footer_color);
+
+          $(".grid-item-sticker img").css("width", global_promo_resizer+"px");
 
           set_product_basket();
           update_background_image_bucket();
@@ -2672,7 +2675,8 @@
         "currency-font-color": global_currency_font_color,
         "price-box-bg-color": global_price_box_bg_color,
         "header-color": global_header_color,
-        "footer-color": global_footer_color
+        "footer-color": global_footer_color,
+        "promo-resizer": global_promo_resizer
       };
 
       global_template_data["common"] = common;

@@ -1569,7 +1569,8 @@ class CreateFlyerAPI(APIView):
                 "currency-font-color":"#181818",
                 "price-box-bg-color":"#fbf00b",
                 "header-color":"#181818",
-                "footer-color":"#181818"
+                "footer-color":"#181818",
+                "promo-resizer": "40"
             }
 
             template_data = {
