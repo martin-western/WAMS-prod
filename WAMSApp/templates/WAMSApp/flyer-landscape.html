@@ -1147,12 +1147,13 @@
         <div class="row" style="margin-left: auto;">
           <div class="col s12 left" style="padding-left: 2em;padding-right: 0em;">
             <br>
-            <a id="add-grid-item-btn" class="btn" title="Add Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 0em;"><i class="material-icons">add</i></a>
-            <a id="delete-grid-item-btn" class="btn" title="Delete Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 4em;"><i class="material-icons">delete</i></a>
-            <a id="refresh-template-btn" class="btn " title="Reset Template" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 8em;"><i class="material-icons">refresh</i></a>
-            <a id="hide-cursor-btn" cursor-status="on" class="btn " title="Hide cursor" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 12em;"><i class="material-icons">center_focus_strong</i></a>
-            <a id="increase-height-btn" class="btn " title="Increase Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 16em;"><i class="material-icons">keyboard_arrow_up</i></a>
-            <a id="decrease-height-btn" class="btn " title="Decrease Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 20em;"><i class="material-icons">keyboard_arrow_down</i></a>
+            <a class="btn" href="/flyer-dashboard" title="Home" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 0em;"><i class="material-icons">home</i></a>
+            <a id="add-grid-item-btn" class="btn" title="Add Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 4em;"><i class="material-icons">add</i></a>
+            <a id="delete-grid-item-btn" class="btn" title="Delete Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 8em;"><i class="material-icons">delete</i></a>
+            <a id="refresh-template-btn" class="btn " title="Reset Template" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 12em;"><i class="material-icons">refresh</i></a>
+            <a id="hide-cursor-btn" cursor-status="on" class="btn " title="Hide cursor" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 16em;"><i class="material-icons">center_focus_strong</i></a>
+            <a id="increase-height-btn" class="btn " title="Increase Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 20em;"><i class="material-icons">keyboard_arrow_up</i></a>
+            <a id="decrease-height-btn" class="btn " title="Decrease Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 24em;"><i class="material-icons">keyboard_arrow_down</i></a>
 
             <a id="download-flyer-btn" class="btn green hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 258mm;position: relative;">Download<i class="material-icons right">file_download</i>
               <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
@@ -1854,8 +1855,8 @@
                 </div>
                 <div class="footer-bottom">
                   <div class="grid-item-footer-left">
-                      <input id="product-title-info-`+grid_id+`" class="footer-bottom-left-input product-title-info product-title-info-description font-to-avenir browser-default" type="text" name="description" placeholder="description" value="`+product_info+`">
                       <input id="product-title-info2-`+grid_id+`" class=" font-to-avenir footer-bottom-left-input product-title-info product-title-info-title browser-default" type="text" name="name" placeholder="product name" value="`+product_title+`">
+                      <input id="product-title-info-`+grid_id+`" class="footer-bottom-left-input product-title-info product-title-info-description font-to-avenir browser-default" type="text" name="description" placeholder="description" value="`+product_info+`">
                   </div>
                   <div class="grid-item-footer-right">
                       <input id="product-currency-info-`+grid_id+`" class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" >
@@ -2727,6 +2728,29 @@
     $(document).on(".remove-product-btn", "click", function(){
       
     })
+
+
+    $(window).keydown(function(event) {
+      console.log(event.which, event.keyCode, event.ctrlKey);
+      if(event.which == 83 && event.ctrlKey)
+      {
+        event.preventDefault();
+        $("#save-flyer-template-btn").click();
+        return false;
+      }
+      else if(event.which == 78 && event.shiftKey)
+      {
+        event.preventDefault();
+        $("#add-grid-item-btn").click();
+        return false;
+      }
+      else if(event.which == 46 && event.shiftKey)
+      {
+        event.preventDefault();
+        $("#delete-grid-item-btn").click();
+        return false;
+      }
+    });
 
   </script>
 

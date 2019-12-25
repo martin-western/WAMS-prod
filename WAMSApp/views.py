@@ -1672,7 +1672,11 @@ class CreateFlyerAPI(APIView):
 
 
                                 try:
-                                    product_strikeprice = convert_to_ascii(dfs.iloc[i][3])
+                                    try:
+                                        product_strikeprice = str(dfs.iloc[i][3])    
+                                    except Exception as e:
+                                        product_strikeprice = convert_to_ascii(dfs.iloc[i][3])
+
                                     if product_strikeprice == "nan":
                                         product_strikeprice = ""
                                     try:
@@ -1684,7 +1688,11 @@ class CreateFlyerAPI(APIView):
 
 
                                 try:
-                                    product_price = convert_to_ascii(dfs.iloc[i][4])
+                                    try:
+                                        product_price = str(dfs.iloc[i][4])
+                                    except Exception as e:
+                                        product_price = convert_to_ascii(dfs.iloc[i][4])
+                                    
                                     if product_price == "nan":
                                         product_price = ""
                                     try:
