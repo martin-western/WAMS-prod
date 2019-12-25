@@ -113,6 +113,10 @@ def FlyerPage(request, pk):
         return render(request, 'WAMSApp/flyer.html')
     elif flyer_obj.mode=="A4 Landscape":
         return render(request, 'WAMSApp/flyer-landscape.html')
+    elif flyer_obj.mode=="A5 Portrait":
+        return render(request, 'WAMSApp/flyer-a5-portrait.html')
+    elif flyer_obj.mode=="A5 Landscape":
+        return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
 @login_required(login_url='/login/')
