@@ -452,12 +452,14 @@ class FetchProductDetailsAPI(APIView):
             main_images_objs = MainImages.objects.filter(product=prod_obj)
             for main_images_obj in main_images_objs:
                 main_images_list+=main_images_obj.main_images.all()
+            main_images_list = set(main_images_list)
             images["main_images"] = create_response_images_main(main_images_list)
             
             sub_images_list = []
             sub_images_objs = SubImages.objects.filter(product=prod_obj)
             for sub_images_obj in sub_images_objs:
                 sub_images_list+=sub_images_obj.sub_images.all()
+            sub_images_list = set(sub_images_list)
             images["sub_images"] = create_response_images_main(sub_images_list)
             
             images["pfl_images"] = create_response_images(
@@ -1272,6 +1274,7 @@ class UploadProductImageAPI(APIView):
                 for image_obj in image_objs:
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
+                    main_images_obj = MainImages.objects.get_or_create(product=prod_obj)
                     prod_obj.main_images.add(image_bucket_obj)
 
                 if prod_obj.main_images.all().count() == image_count:
@@ -1555,8 +1558,9 @@ class CreateFlyerAPI(APIView):
                                 product_obj = None
                                 if Product.objects.filter(product_id=search_id).exists():
                                     product_obj = Product.objects.filter(product_id=search_id)[0]
-                                elif Product.objects.filter(seller_sku=search_id).exists():
-                                    product_obj = Product.objects.filter(seller_sku=search_id)[0]
+                                elif BaseProduct.objects.filter(seller_sku=search_id).exists():
+                                    base_prod_obj = BaseProduct.objects.get(seller_sku=search_id)
+                                    product_obj = Product.objects.filter(base_product=base_prod_obj)[0]
 
                                 flyer_obj.product_bucket.add(product_obj)
                                 try:

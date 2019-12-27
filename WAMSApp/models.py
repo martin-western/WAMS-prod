@@ -363,11 +363,9 @@ class Product(models.Model):
 
 class MainImages(models.Model):
 
-    product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
+    product = models.ForeignKey(Product,null=True, blank=True, on_delete=models.SET_NULL)
     main_images = models.ManyToManyField(ImageBucket, related_name="main_images", blank=True)
-    noon_enabled = models.BooleanField(default=False)
-    amazon_uk_enabled = models.BooleanField(default=False)
-    amazon_uae_enabled = models.BooleanField(default=False)
+    channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "MainImages"
