@@ -1,7 +1,6 @@
 BaseProduct:
 
     + base_product_name -> CharField
-    + product_name_sap -> CharField
     + created_date -> DateTimeField
 
     + seller_sku -> CharField
@@ -45,7 +44,6 @@ BaseProduct:
 
 Product:
 
-    + uuid -> CharField
     + product_name -> CharField
     + pfl_product_name -> CharField
     + pfl_product_features -> TextField

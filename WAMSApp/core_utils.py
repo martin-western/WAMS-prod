@@ -1,26 +1,17 @@
 from WAMSApp.models import *
+
+from django.core.files.base import ContentFile
+
+from PIL import Image as IMAGE
+
 import logging
 import sys
+import imghdr
+import base64
+import six
+import uuid   
 
 logger = logging.getLogger(__name__)
-
-
-
-
-def convert_to_ascii(s):
-    s = s.replace(u'\u2013', "-").replace(u'\u2019', "'").replace(u'\u2018', "'").replace(u'\u201d','"').replace(u'\u201c','"')
-    s = s.encode("ascii", "ignore")
-    return s
-
-def has_atleast_one_image(prod_obj):
-    
-    check = False
-    images_count = prod_obj.main_images.all().count() + prod_obj.sub_images.all().count()
-    images_count += prod_obj.white_background_images.all().count()
-    images_count += prod_obj.lifestyle_images.all().count()
-    if(images_count>0):
-        check=True
-    return check
 
 def custom_permission_filter_products(user):
 
@@ -29,6 +20,7 @@ def custom_permission_filter_products(user):
         brands = permission_obj.brands.all()
         product_objs = Product.objects.filter(brand__in=brands)
         return product_objs
+    
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("custom_permission_filter_products: %s at %s", e, str(exc_tb.tb_lineno))
@@ -41,6 +33,7 @@ def custom_permission_filter_brands(user):
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
         return brands
+    
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("custom_permission_filter_brands: %s at %s", e, str(exc_tb.tb_lineno))
@@ -52,6 +45,7 @@ def custom_permission_filter_channels(user):
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         channels = permission_obj.channels.all()
         return channels
+    
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("custom_permission_filter_channels: %s at %s", e, str(exc_tb.tb_lineno))
@@ -65,12 +59,11 @@ def custom_permission_filter_pfls(user):
         brands = permission_obj.brands.all()
         pfl_objs = PFL.objects.filter(product__brand__in=brands)
         return pfl_objs
+    
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("custom_permission_filter_pfls: %s at %s", e, str(exc_tb.tb_lineno))
         return []
-
-
 
 def create_response_images_flyer_pfl(images):
 
@@ -199,8 +192,9 @@ def create_response_images_sub(images):
     
 
 def partial_overwrite(old_value, new_value, data_type):
-    if new_value=="":
-        return old_value 
+    
+    if new_value=="" or new_value==None:
+        return old_value
 
     if data_type=="str":
         return str(new_value)
@@ -215,7 +209,7 @@ def fill_missing(old_value, new_value, data_type):
     if old_value!="" and old_value!=None:
         return old_value
 
-    if new_value=="":
+    if new_value=="" or new_value == None:
         return old_value
 
     if data_type=="str":
@@ -227,6 +221,7 @@ def fill_missing(old_value, new_value, data_type):
 
 
 def save_subimage(product_obj, image_url, index):
+    
     try:
         if image_url!="":
             filename = image_url.split("/")[-1]
@@ -235,21 +230,20 @@ def save_subimage(product_obj, image_url, index):
             image_bucket_obj = ImageBucket.objects.create(image=image_obj, is_sub_image=True, sub_image_index=index)
             product_obj.sub_images.add(image_bucket_obj)
             os.system("rm "+result[0])              # Remove temporary file
-        product_obj.save()
+            product_obj.save()
+    
     except Exception as e:
-        import sys
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        print("Error save_subimage", str(e), str(exc_tb.tb_lineno))
-
-
+        logger.error("Error save_subimage: %s at %s", e, str(exc_tb.tb_lineno))
+        
 def reset_sub_images(product_obj):
     for img in product_obj.sub_images.filter(is_sub_image=True):
         img.is_sub_image = False
         img.sub_image_index = 0
         img.save()
 
-
 def reset_main_images(product_obj):
     for img in product_obj.main_images.filter(is_main_image=True):
         img.is_main_image = False
         img.save()
+

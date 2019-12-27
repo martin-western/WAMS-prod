@@ -5,8 +5,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from WAMSApp.utils import *
 
-from PIL import Image as IMage
+from PIL import Image as IMAGE
 import StringIO
 import logging
 import sys
@@ -14,19 +15,79 @@ import json
 
 logger = logging.getLogger(__name__)
 
-####################################################
+noon_product_json = {
+    
+    product_name : "",
+    product_type : "",
+    product_subtype : "",
+    model_number : "",
+    model_name : "",
+    msrp_ae : "",
+    msrp_ae_unit : "",
+    product_description : "",
+    product_attribute_list : "",
+    created_date : ""
+}
 
-def compress(image_path):
-    try:
-        im = IMage.open(image_path)
-        basewidth = 1024
-        wpercent = (basewidth / float(im.size[0]))
-        hsize = int((float(im.size[1]) * float(wpercent)))
-        im = im.resize((basewidth, hsize), IMage.ANTIALIAS)
-        im.save(image_path, optimize=True, quality=100)
-    except Exception as e:
-        print("Error", str(e))
-###################################################
+amazon_uk_product_json : {
+
+    product_id_type : "",
+    parentage : "",
+    parent_sku : "",
+    relationship_type : "",
+    variation_theme : "",
+    product_name : "",
+    product_description : "",
+    product_attribute_list : "",
+    created_date : "",
+    subtitle : "",
+    feed_product_type : "",
+    update_delete : "",
+    recommended_browse_nodes : "",
+    search_terms : "",
+    enclosure_material : "",
+    cover_material_type : "",
+    special_features : "",
+    sale_price : "",
+    sale_from : "",
+    sale_end :  "",
+    wattage : "",
+    wattage_metric : "",
+    parentage : "",
+    parent_sku : "",
+    relationship_type : "",
+    variation_theme : "",
+    item_count : "",
+    item_count_metric : "",
+    item_condition_note : "",
+    max_order_quantity : "",
+    number_of_items : "",
+
+}
+
+amazon_uae_product_json : {
+
+    product_name : "",
+    product_description : "",
+    product_attribute_list : "",
+    created_date : ""
+  
+}
+
+ebay_product_json : {
+
+    category : "",
+    product_name : "",
+    product_description : "",
+    product_attribute_list : "",
+    created_date : ""
+        
+}
+
+noon_product_json  = json.dumps(noon_product_json)
+amazon_uk_product_json = json.dumps(amazon_uk_product_json)
+amazon_uae_product_json = json.dumps(amazon_uae_product_json)
+ebay_product_json = json.dumps(ebay_product_json)
 
 
 class ContentManager(User):
@@ -59,7 +120,6 @@ class ContentExecutive(User):
         verbose_name_plural = "ContentExecutives"
 
 
-
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -77,7 +137,7 @@ class Image(models.Model):
     def save(self, *args, **kwargs):
         try:  
             size = 128, 128
-            thumb = IMage.open(self.image)
+            thumb = IMAGE.open(self.image)
             thumb.thumbnail(size)
             infile = self.image.file.name
             im_type = thumb.format 
@@ -88,11 +148,8 @@ class Image(models.Model):
 
             self.thumbnail = thumb_file
 
-
-
-
             size2 = 512, 512
-            thumb2 = IMage.open(self.image)
+            thumb2 = IMAGE.open(self.image)
             thumb2.thumbnail(size2)
             thumb_io2 = StringIO.StringIO()
             thumb2.save(thumb_io2, format=im_type)
@@ -105,9 +162,7 @@ class Image(models.Model):
             logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
-        #compress("."+self.image.url)
-
-
+    
 
 class ImageBucket(models.Model):
 
@@ -126,8 +181,7 @@ class ImageBucket(models.Model):
 
     def save(self, *args, **kwargs):
         super(ImageBucket, self).save(*args, **kwargs)
-        #compress("."+self.image.image.url)
-
+        
 
 class Organization(models.Model):
 
@@ -204,9 +258,9 @@ class MaterialType(models.Model):
 
 class BaseProduct(models.Model):
 
-    base_product_name = models.CharField(max_length=100)
-    created_date = models.DateTimeField()
-    seller_sku = models.CharField(max_length=100, default="")
+    base_product_name = models.CharField(max_length=300)
+    created_date = models.DateTimeField(default=timezone.now())
+    seller_sku = models.CharField(max_length=300, default="")
     category = models.CharField(max_length=300, default="")
     subtitle = models.CharField(max_length=300, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
@@ -243,8 +297,8 @@ class BaseProduct(models.Model):
     item_display_height_metric = models.CharField(max_length=100, default="")
     
     class Meta:
-        verbose_name = "Product"
-        verbose_name_plural = "Products"
+        verbose_name = "BaseProduct"
+        verbose_name_plural = "BaseProducts"
 
     def __str__(self):
         return str(self.base_product_name)
@@ -256,12 +310,12 @@ class Product(models.Model):
     product_name = models.CharField(max_length=300,null=True)
     product_id = models.CharField(max_length=300,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
-    created_date = models.DateTimeField()
+    created_date = models.DateTimeField(default=timezone.now())
     modified_date = models.DateTimeField()
     condition_type = models.CharField(max_length=300,null=True)
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
-    uuid = models.TextField()
+    uuid = models.TextField(null=True,blank=True)
 
     #PFL
     pfl_product_name = models.CharField(max_length=250, default="")
@@ -270,7 +324,7 @@ class Product(models.Model):
     product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
     color = models.CharField(max_length=100, default="")
-    material_type = models.CharField(max_length=100, default="")
+    material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
     quantity = models.IntegerField(null=True, blank=True)
 
@@ -290,14 +344,15 @@ class Product(models.Model):
     barcode_string = models.CharField(max_length=100, default="")
     outdoor_price = models.FloatField(null=True, blank=True)
 
-    factory_notes = models.TextField(default="[]")
+
+    factory_notes = models.TextField(null=True,blank=True)
     
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
 
     def __str__(self):
-        return str(self.product_id)
+        return str(self.product_name)
 
 
     def save(self, *args, **kwargs):
@@ -308,11 +363,9 @@ class Product(models.Model):
 
 class MainImages(models.Model):
 
-    product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
+    product = models.ForeignKey(Product,null=True, blank=True, on_delete=models.SET_NULL)
     main_images = models.ManyToManyField(ImageBucket, related_name="main_images", blank=True)
-    noon_enabled = models.BooleanField(default=False)
-    amazon_uk_enabled = models.BooleanField(default=False)
-    amazon_uae_enabled = models.BooleanField(default=False)
+    channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "MainImages"
@@ -337,10 +390,10 @@ class SubImages(models.Model):
 class ChannelProduct(models.Product):
     
     product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
-    noon_product_json = models.TextField(null=True, blank=True)
-    amazon_uk_product_json = models.TextField(null=True, blank=True)
-    amazon_uae_product_json = models.TextField(null=True, blank=True)
-    ebay_product_json = models.TextField(null=True, blank=True)
+    noon_product_json = models.TextField(blank=True,default=noon_product_json)
+    amazon_uk_product_json = models.TextField(blank=True,default=amazon_uk_product_json)
+    amazon_uae_product_json = models.TextField(blank=True,default=amazon_uae_product_json)
+    ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
 
     class Meta:
         verbose_name = "ChannelProduct"
@@ -354,20 +407,11 @@ class Flyer(models.Model):
     name = models.CharField(default="SampleFlyer", max_length=300)
     product_bucket = models.ManyToManyField(Product, blank=True)
     template_data = models.TextField(null=True, blank=True)
-    """
-    {
-        "row": 4,
-        "column": 3,
-        "data": [
-            [{"image_pk":2, "product_title": "Geepas Juicer", "price":100}, {}, {}],
-            [{}, {}, {}]
-        ]
-    }
-    """
     external_images_bucket = models.ManyToManyField(Image, blank=True)
     flyer_image = models.ForeignKey(Image, null=True, blank=True, related_name="flyer_images", on_delete=models.SET_NULL)
     background_images_bucket = models.ManyToManyField(Image, blank=True, related_name="background_images_bucket")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
+    mode = models.CharField(max_length=100, default="A4 Portrait")
 
     class Meta:
         verbose_name = "Flyer"
