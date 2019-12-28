@@ -767,6 +767,12 @@
                 <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Brand (Container)</span>
               </label>
             </div>
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="white-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">White (Container)</span>
+              </label>
+            </div>
           </div>
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">camera_font</i>
@@ -1326,6 +1332,17 @@
       }
     });
 
+    $(document).on("change", "#white-option", function(){
+      if($("#white-option").prop("checked"))
+      {
+        $(".grid-stack-item-content").css("background-color", "white");
+      }
+      else
+      {
+        $(".grid-stack-item-content").css("background-color", "transparent");
+      }
+    });
+
 
 
     $('input[type=radio][name=group1]').change(function() {
@@ -1830,10 +1847,15 @@
       var x = flyer_dict["x"];
       var y = flyer_dict["y"];
       
+      var background_color = "background-color: transparent";
+      if( $("#white-option").prop("checked"))
+      {
+        background_color = "background-color: white";
+      }
 
       var html_string = 
           `<div grid-id="`+grid_id+`" class="grid-stack-item" data-gs-width=`+width+` data-gs-height=`+height+` data-gs-x=`+x+` data-gs-y=`+y+` style="text-align:center;padding:0em !important;">
-            <div class="grid-stack-item-content hoverable" style="border: 2px solid `+global_border_color+`;background-color:transparent;">
+            <div class="grid-stack-item-content hoverable" style="border: 2px solid `+global_border_color+`;`+background_color+`">
               <div class="grid-item-img-container">
                 <a id="gridbox-`+grid_id+`" href="#!" class="flyer-item-box" style="color:black;height:100%;width:100%;">
                   <div class="divgrid" id="divgrid-`+grid_id+`" style="text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;height:auto;width:100%">
