@@ -269,15 +269,13 @@ class CreateNewProductAPI(APIView):
             base_prod_obj = BaseProduct.objects.create(base_product_name=product_name,
                                               product_name_sap=product_name,
                                               seller_sku=seller_sku,
-                                              brand=brand_obj,
-                                              created_date=timezone.now())
+                                              brand=brand_obj)
 
 
-            prod_obj = Product.objects.create(product_name_sap=product_name,
+            prod_obj = Product.objects.create(product_name = product_name,
+                                            product_name_sap=product_name,
                                             pfl_product_name=product_name,
                                             base_product=base_prod_obj)
-
-            channel_prod_obj = ChannelProduct.objects.create(product=prod_obj)
 
             response["product_pk"] = prod_obj.pk
             response['status'] = 200
@@ -308,7 +306,7 @@ class FetchProductDetailsAPI(APIView):
 
             prod_obj = Product.objects.get(pk=data["pk"])
             base_prod_obj = product_obj.base_prod
-            channel_prod_obj = ChannelProduct.objects.get(product=product_obj)
+            channel_prod_obj = product_obj.channel_product
             noon_product_obj = json.loads(channel_prod_obj.noon_product_json)
             amazon_uk_product_obj = json.loads(channel_prod_obj.noon_product_json)
             amazon_uae_product_obj = json.loads(channel_prod_obj.noon_product_json)
@@ -920,6 +918,8 @@ class FetchProductListAPI(APIView):
                 main_images_objs = MainImages.objects.filter(product=product_obj)
                 for main_images_obj in main_images_objs:
                     main_images_list+=main_images_obj.main_images.all()
+
+                main_images_list = set(main_images_list)
                 
                 if main_images_list.filter(is_main_image=True).count() > 0:
                     try:

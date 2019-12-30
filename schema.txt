@@ -150,36 +150,69 @@ ChannelProduct:
     }
 
 
-##########################################################
 
-Queries
 
-##########################################################
 
-Terminology
 
-1. MainImages = Bucket of main images
-2. SubImages = Bucket of sub images
-3. Channel = E-Commerce website
-4. BaseProduct = Duster (Seller SKU Unique)
-5. Product = Red Duster, Green Duster (PID Unique)
 
-Q1. Will MainImages be different accross channels?
 
-Q2. Can two MainImages of a same product be common between two channels?
 
-Q3. Will anyone acess all the MainImages of a single product?
 
-Q4. Can someone add a main image at a product level?
 
-Q5. If Yes in Q4, in which MainImage Bucket will it go?
 
-Q6. Can a single main image be part of two different MainImages
 
-Q7. If someone searches a product by the seller sku, then which product should he get? (Red Duster and Green Duster will have same seller sku)
 
-Q8. If there are multiple MainImages of a single product, which one will be the representative for the portal?
 
-Q9 - Q15. Same Question as Q1 to Q7 for SubImages.
 
-Transperent Images
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

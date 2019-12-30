@@ -260,7 +260,7 @@ class MaterialType(models.Model):
 class BaseProduct(models.Model):
 
     base_product_name = models.CharField(max_length=300)
-    created_date = models.DateTimeField(default=timezone.now)
+    created_date = models.DateTimeField()
     seller_sku = models.CharField(max_length=300, unique=True)
     category = models.CharField(max_length=300, default="")
     subtitle = models.CharField(max_length=300, default="")
@@ -304,6 +304,11 @@ class BaseProduct(models.Model):
     def __str__(self):
         return str(self.base_product_name)
 
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now
+        super(BaseProduct, self).save(*args, **kwargs)
+
 class Product(models.Model):
 
     #MISC
@@ -311,7 +316,7 @@ class Product(models.Model):
     product_name = models.CharField(max_length=300,null=True)
     product_id = models.CharField(max_length=300,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
-    created_date = models.DateTimeField(default=timezone.now)
+    created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     condition_type = models.CharField(max_length=300,null=True)
     status = models.CharField(default="Pending", max_length=100)
@@ -473,7 +478,6 @@ class Config(models.Model):
 
     def __str__(self):
         return "Configuration"
-
 
 
 class CustomPermission(models.Model):
