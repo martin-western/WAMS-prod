@@ -17,70 +17,70 @@ logger = logging.getLogger(__name__)
 
 noon_product_json = {
     
-    product_name : "",
-    product_type : "",
-    product_subtype : "",
-    model_number : "",
-    model_name : "",
-    msrp_ae : "",
-    msrp_ae_unit : "",
-    product_description : "",
-    product_attribute_list : "",
-    created_date : ""
+    "product_name" : "",
+    "product_type" : "",
+    "product_subtype" : "",
+    "model_number" : "",
+    "model_name" : "",
+    "msrp_ae" : "",
+    "msrp_ae_unit" : "",
+    "product_description" : "",
+    "product_attribute_list" : "",
+    "created_date" : ""
 }
 
 amazon_uk_product_json : {
 
-    product_id_type : "",
-    parentage : "",
-    parent_sku : "",
-    relationship_type : "",
-    variation_theme : "",
-    product_name : "",
-    product_description : "",
-    product_attribute_list : "",
-    created_date : "",
-    subtitle : "",
-    feed_product_type : "",
-    update_delete : "",
-    recommended_browse_nodes : "",
-    search_terms : "",
-    enclosure_material : "",
-    cover_material_type : "",
-    special_features : "",
-    sale_price : "",
-    sale_from : "",
-    sale_end :  "",
-    wattage : "",
-    wattage_metric : "",
-    parentage : "",
-    parent_sku : "",
-    relationship_type : "",
-    variation_theme : "",
-    item_count : "",
-    item_count_metric : "",
-    item_condition_note : "",
-    max_order_quantity : "",
-    number_of_items : "",
+    "product_id_type" : "",
+    "parentage" : "",
+    "parent_sku" : "",
+    "relationship_type" : "",
+    "variation_theme" : "",
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : "",
+    "created_date" : "",
+    "subtitle" : "",
+    "feed_product_type" : "",
+    "update_delete" : "",
+    "recommended_browse_nodes" : "",
+    "search_terms" : "",
+    "enclosure_material" : "",
+    "cover_material_type" : "",
+    "special_features" : "",
+    "sale_price" : "",
+    "sale_from" : "",
+    "sale_end" :  "",
+    "wattage" : "",
+    "wattage_metric" : "",
+    "parentage" : "",
+    "parent_sku" : "",
+    "relationship_type" : "",
+    "variation_theme" : "",
+    "item_count" : "",
+    "item_count_metric" : "",
+    "item_condition_note" : "",
+    "max_order_quantity" : "",
+    "number_of_items" : "",
 
 }
 
 amazon_uae_product_json : {
 
-    product_name : "",
-    product_description : "",
-    product_attribute_list : "",
-    created_date : ""
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : "",
+    "created_date" : ""
   
 }
 
 ebay_product_json : {
 
-    category : "",
-    product_name : "",
-    product_description : "",
-    product_attribute_list : "",
-    created_date : ""
+    "category" : "",
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : "",
+    "created_date" : ""
         
 }
 
