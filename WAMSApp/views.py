@@ -124,6 +124,10 @@ def FlyerDashboardPage(request):
     return render(request, 'WAMSApp/flyer-dashboard.html')
 
 
+@login_required(login_url='/login/')
+def ChannelProductPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-page.html')
+
 class LoginSubmitAPI(APIView):
 
     authentication_classes = (
