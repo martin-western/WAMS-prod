@@ -228,22 +228,38 @@ def save_subimage(product_obj, image_url, index):
             result = urllib.urlretrieve(image_url, filename)
             image_obj = Image.objects.create(image=File(open(result[0])))
             image_bucket_obj = ImageBucket.objects.create(image=image_obj, is_sub_image=True, sub_image_index=index)
-            product_obj.sub_images.add(image_bucket_obj)
+            sub_images_obj = SubImages.objects.get(product=product_obj,is_sourced=True)
+            sub_images_obj.sub_images.add(image_bucket_obj)
             os.system("rm "+result[0])              # Remove temporary file
-            product_obj.save()
+            sub_images_obj.save()
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error save_subimage: %s at %s", e, str(exc_tb.tb_lineno))
         
 def reset_sub_images(product_obj):
-    for img in product_obj.sub_images.filter(is_sub_image=True):
+    sub_images_objs = SubImages.objects.get(product=product_obj)
+    
+    sub_images_list = []
+    for sub_images_obj in sub_images_objs:
+        sub_images_list += sub_images_list.sub_images.filter(is_sub_image=True)
+    
+    sub_images_list = set(sub_images_list)
+    
+    for img in sub_images_list:
         img.is_sub_image = False
-        img.sub_image_index = 0
         img.save()
 
 def reset_main_images(product_obj):
-    for img in product_obj.main_images.filter(is_main_image=True):
+    main_images_objs = MainImages.objects.get(product=product_obj)
+    
+    main_images_list = []
+    for main_images_obj in main_images_objs:
+        main_images_list += main_images_obj.main_images.filter(is_main_image=True)
+    
+    main_images_list = set(main_images_list)
+    
+    for img in main_images_list:
         img.is_main_image = False
         img.save()
 

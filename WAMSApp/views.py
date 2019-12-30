@@ -1274,11 +1274,16 @@ class UploadProductImageAPI(APIView):
                 for image_obj in image_objs:
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
-                    main_images_obj = MainImages.objects.get_or_create(product=prod_obj)
-                    prod_obj.main_images.add(image_bucket_obj)
+                    if data["channel"] == None:
+                        main_images_obj = MainImages.objects.get_or_create(product=prod_obj,is_sourced=True)
+                    else:
+                        channel_obj = Channel.objects.get(name=channel_obj)
+                        main_images_obj = MainImages.objects.get_or_create(product=prod_obj,channel=channel_obj)
+                    
+                    main_images_obj.main_images.add(image_bucket_obj)
 
-                if prod_obj.main_images.all().count() == image_count:
-                    image_bucket_obj = prod_obj.main_images.all()[0]
+                if main_images_obj.main_images.all().count() == image_count:
+                    image_bucket_obj = main_images_obj.main_images.all()[0]
                     image_bucket_obj.is_main_image = True
                     image_bucket_obj.save()
                     try:
@@ -1291,7 +1296,13 @@ class UploadProductImageAPI(APIView):
 
             elif data["image_category"] == "sub_images":
                 index = 0
-                sub_images = prod_obj.sub_images.all().order_by('-sub_image_index')
+                if data["channel"] == None:
+                    sub_images_obj = SubImages.objects.get_or_create(product=prod_obj,is_sourced=True)
+                else:
+                    channel_obj = Channel.objects.get(name=channel_obj)
+                    sub_images_obj = SubImages.objects.get_or_create(product=prod_obj,channel=channel_obj)
+                    
+                sub_images = sub_images_obj.sub_images.all().order_by('-sub_image_index')
                 if sub_images.count() > 0:
                     index = sub_images[0].sub_image_index
                 for image_obj in image_objs:
@@ -1304,7 +1315,7 @@ class UploadProductImageAPI(APIView):
                     image_bucket_obj = ImageBucket.objects.create(image=image_obj,
                                                                   is_sub_image=is_sub_image,
                                                                   sub_image_index=sub_image_index)
-                    prod_obj.sub_images.add(image_bucket_obj)
+                    sub_images_obj.sub_images.add(image_bucket_obj)
             elif data["image_category"] == "pfl_images":
                 for image_obj in image_objs:
                     prod_obj.pfl_images.add(image_obj)

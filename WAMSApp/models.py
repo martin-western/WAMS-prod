@@ -376,7 +376,7 @@ class MainImages(models.Model):
     product = models.ForeignKey(Product,null=True, blank=True, on_delete=models.SET_NULL)
     main_images = models.ManyToManyField(ImageBucket, related_name="main_images", blank=True)
     channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
-    is_sourcing_info = models.BooleanField(default=False)
+    is_sourced = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "MainImages"
@@ -389,7 +389,7 @@ class SubImages(models.Model):
     product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
     sub_images = models.ManyToManyField(ImageBucket, related_name="sub_images", blank=True)
     channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
-    is_sourcing_info = models.BooleanField(default=False)
+    is_sourced = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "SubImages"
