@@ -12,6 +12,7 @@ import StringIO
 import logging
 import sys
 import json
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -259,8 +260,8 @@ class MaterialType(models.Model):
 class BaseProduct(models.Model):
 
     base_product_name = models.CharField(max_length=300)
-    created_date = models.DateTimeField(default=timezone.now())
-    seller_sku = models.CharField(max_length=300, default="")
+    created_date = models.DateTimeField(default=timezone.now)
+    seller_sku = models.CharField(max_length=300, unique=True)
     category = models.CharField(max_length=300, default="")
     subtitle = models.CharField(max_length=300, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
@@ -310,12 +311,12 @@ class Product(models.Model):
     product_name = models.CharField(max_length=300,null=True)
     product_id = models.CharField(max_length=300,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
-    created_date = models.DateTimeField(default=timezone.now())
+    created_date = models.DateTimeField(default=timezone.now)
     modified_date = models.DateTimeField()
     condition_type = models.CharField(max_length=300,null=True)
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
-    uuid = models.TextField(null=True,blank=True)
+    uuid = models.CharField(null=True,max_length=300)
 
     #PFL
     pfl_product_name = models.CharField(max_length=250, default="")
@@ -344,7 +345,7 @@ class Product(models.Model):
     barcode_string = models.CharField(max_length=100, default="")
     outdoor_price = models.FloatField(null=True, blank=True)
 
-
+    channel_product = models.ForeignKey(ChannelProduct, null=True, blank=True, on_delete=models.SET_NULL)
     factory_notes = models.TextField(null=True,blank=True)
     
     class Meta:
@@ -356,8 +357,12 @@ class Product(models.Model):
 
 
     def save(self, *args, **kwargs):
-        if self.pk == None:
-            self.modified_date = timezone.now()
+        if self.pk != None:
+            self.modified_date = timezone.now
+        else:
+            self.created_date = timezone.now
+        if self.uuid == None:
+            self.uuid = uuid.uuid4()
         super(Product, self).save(*args, **kwargs)
 
 
@@ -366,6 +371,7 @@ class MainImages(models.Model):
     product = models.ForeignKey(Product,null=True, blank=True, on_delete=models.SET_NULL)
     main_images = models.ManyToManyField(ImageBucket, related_name="main_images", blank=True)
     channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
+    is_sourcing_info = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "MainImages"
@@ -377,9 +383,8 @@ class SubImages(models.Model):
 
     product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
     sub_images = models.ManyToManyField(ImageBucket, related_name="sub_images", blank=True)
-    noon_enabled = models.BooleanField(default=False)
-    amazon_uk_enabled = models.BooleanField(default=False)
-    amazon_uae_enabled = models.BooleanField(default=False)
+    channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
+    is_sourcing_info = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "SubImages"
@@ -389,7 +394,7 @@ class SubImages(models.Model):
     
 class ChannelProduct(models.Product):
     
-    product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
+    # product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
     noon_product_json = models.TextField(blank=True,default=noon_product_json)
     amazon_uk_product_json = models.TextField(blank=True,default=amazon_uk_product_json)
     amazon_uae_product_json = models.TextField(blank=True,default=amazon_uae_product_json)
@@ -453,7 +458,7 @@ class ExportList(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk == None:
-            self.created_date = timezone.now()
+            self.created_date = timezone.now
         super(ExportList, self).save(*args, **kwargs)
 
 
