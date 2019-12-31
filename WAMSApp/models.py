@@ -30,7 +30,7 @@ noon_product_json = {
     "created_date" : ""
 }
 
-amazon_uk_product_json : {
+amazon_uk_product_json = {
 
     "product_id_type" : "",
     "parentage" : "",
@@ -66,7 +66,7 @@ amazon_uk_product_json : {
 
 }
 
-amazon_uae_product_json : {
+amazon_uae_product_json = {
 
     "product_name" : "",
     "product_description" : "",
@@ -75,7 +75,7 @@ amazon_uae_product_json : {
   
 }
 
-ebay_product_json : {
+ebay_product_json = {
 
     "category" : "",
     "product_name" : "",
