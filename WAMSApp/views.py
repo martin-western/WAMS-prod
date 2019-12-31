@@ -1689,56 +1689,75 @@ class FetchFlyerDetailsAPI(APIView):
             flyer_obj = Flyer.objects.get(pk=int(data["pk"]))
 
             name = flyer_obj.name
-            product_bucket_objs = flyer_obj.product_bucket.all()
-            product_bucket_list = []
+            product_objs = flyer_obj.product_bucket.all()
+            product_list = []
             images_dict = {}
-            for product_bucket_obj in product_bucket_objs:
+            for product_obj in product_objs:
                 temp_dict = {}
-                temp_dict[
-                    "product_bucket_name"] = product_bucket_obj.product_name_sap
-                temp_dict["product_bucket_pk"] = product_bucket_obj.pk
-                temp_dict["seller_sku"] = product_bucket_obj.seller_sku
-                main_image_url = Config.objects.all(
-                )[0].product_404_image.image.url
-                if product_bucket_obj.main_images.filter(is_main_image=True).count() > 0:
-                    try:
-                        main_image_url = product_bucket_obj.main_images.filter(is_main_image=True)[
-                            0].image.mid_image.url
-                    except Exception as e:
-                        pass
+                temp_dict["product_bucket_name"] = product_obj.product_name_sap
+                temp_dict["product_bucket_pk"] = product_obj.pk
+                temp_dict["seller_sku"] = product_obj.seller_sku
+                main_image_url = Config.objects.all()[0].product_404_image.image.url
+                
+                try:
+
+                    main_images_objs = MainImages.objects.filter(product = product_obj)
+                    main_images_list = []
+                    for main_images_obj in main_images_objs:
+                        main_images_list += main_images_obj.main_images.all()
+                        if main_images_obj.main_image.filter(is_main_image=True).count() > 0:
+                            break
+
+                    main_images_list = set(main_images_list)
+                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                    
+                    main_image_url = main_image_obj.image.mid_image.url
+                
+                except Exception as e:
+                    
+                    pass
+                
+                sub_images_objs = SubImages.objects.filter(product = product_obj)
+                
+                sub_images_list = []
+                for sub_images_obj in sub_images_objs:
+                    sub_images_list += sub_images_obj.sub_images.all()
+
+                sub_images_list = set(sub_images_list)
+                
                 temp_dict["product_bucket_image_url"] = main_image_url
 
                 images = {}
 
                 images["main_images"] = create_response_images_flyer_pfl_main_sub(
-                    product_bucket_obj.main_images.all())
+                    main_images_list)
                 images["sub_images"] = create_response_images_flyer_pfl_main_sub(
-                    product_bucket_obj.sub_images.all())
+                    sub_images_list)
                 images["pfl_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.pfl_images.all())
+                    product_obj.pfl_images.all())
                 images["white_background_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.white_background_images.all())
+                    product_obj.white_background_images.all())
                 images["lifestyle_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.lifestyle_images.all())
+                    product_obj.lifestyle_images.all())
                 images["certificate_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.certificate_images.all())
+                    product_obj.certificate_images.all())
                 images["giftbox_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.giftbox_images.all())
+                    product_obj.giftbox_images.all())
                 images["diecut_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.diecut_images.all())
+                    product_obj.diecut_images.all())
                 images["aplus_content_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.aplus_content_images.all())
+                    product_obj.aplus_content_images.all())
                 images["ads_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.ads_images.all())
+                    product_obj.ads_images.all())
                 images["unedited_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.unedited_images.all())
+                    product_obj.unedited_images.all())
 
                 images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
                     images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
                     images["aplus_content_images"] + \
                     images["ads_images"]+images["unedited_images"]
 
-                images_dict[product_bucket_obj.pk] = images
+                images_dict[product_obj.pk] = images
 
                 product_bucket_list.append(temp_dict)
 
@@ -1886,13 +1905,21 @@ class FetchPFLDetailsAPI(APIView):
 
                 product_id = pfl_obj.product.product_id
                 product_pk = pfl_obj.product.pk
+                
+                try:
 
-                if pfl_obj.product.main_images.filter(is_main_image=True).count() > 0:
-                    product_main_image_url = pfl_obj.product.main_images.filter(is_main_image=True)[
-                        0].image.image.url
-                else:
-                    product_main_image_url = Config.objects.all()[
-                        0].product_404_image.image.url
+                    main_images_objs = MainImages.objects.filter(product = pfl_obj.product)
+                    for main_images_obj in main_images_objs:
+                        if main_images_obj.main_image.filter(is_main_image=True).count() > 0:
+                            break
+
+                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                    
+                    product_main_image_url = main_image_obj.image.image.url
+                
+                except Exception as e:
+
+                    product_main_image_url = Config.objects.all()[0].product_404_image.image.url
 
                 product_name_sap = pfl_obj.product.product_name_sap
                 seller_sku = pfl_obj.product.seller_sku
