@@ -996,7 +996,7 @@ class FetchExportListAPI(APIView):
                                 flag = 1
                                 break
                             if (chip.lower() in product.product_name_sap.lower() or
-                                    chip.lower() in product.product_name.lower()
+                                    chip.lower() in product.product_name.lower() or
                                     chip.lower() in product.product_id.lower() or
                                     chip.lower() in product.seller_sku.lower()):
                                 search_list_objs.append(export_list)

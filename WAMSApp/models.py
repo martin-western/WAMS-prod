@@ -198,7 +198,7 @@ class Organization(models.Model):
 
 class Channel(models.Model):
     
-    name = models.CharField(unique=True,max_length=300)
+    name = models.CharField(unique=True,max_length=200)
         
     class Meta:
         verbose_name = "Channel"
@@ -259,11 +259,11 @@ class MaterialType(models.Model):
 
 class BaseProduct(models.Model):
 
-    base_product_name = models.CharField(max_length=300)
+    base_product_name = models.CharField(max_length=200)
     created_date = models.DateTimeField()
-    seller_sku = models.CharField(max_length=300, unique=True)
-    category = models.CharField(max_length=300, default="")
-    subtitle = models.CharField(max_length=300, default="")
+    seller_sku = models.CharField(max_length=200, unique=True)
+    category = models.CharField(max_length=200, default="")
+    subtitle = models.CharField(max_length=200, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
@@ -309,8 +309,8 @@ class BaseProduct(models.Model):
             self.created_date = timezone.now
         super(BaseProduct, self).save(*args, **kwargs)
 
-        
-class ChannelProduct(models.Product):
+
+class ChannelProduct(models.Model):
     
     # product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
     noon_product_json = models.TextField(blank=True,default=noon_product_json)
@@ -329,21 +329,21 @@ class Product(models.Model):
 
     #MISC
     base_product = models.ForeignKey(BaseProduct,null=True,blank=True,on_delete=models.SET_NULL)
-    product_name = models.CharField(max_length=300,null=True)
-    product_id = models.CharField(max_length=300,null=True)
+    product_name = models.CharField(max_length=200,null=True)
+    product_id = models.CharField(max_length=200,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
-    condition_type = models.CharField(max_length=300,null=True)
+    condition_type = models.CharField(max_length=200,null=True)
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
-    uuid = models.CharField(null=True,max_length=300)
+    uuid = models.CharField(null=True,max_length=200)
 
     #PFL
     pfl_product_name = models.CharField(max_length=250, default="")
     pfl_product_features = models.TextField(default="[]")
 
-    product_name_sap = models.CharField(max_length=300, default="")
+    product_name_sap = models.CharField(max_length=200, default="")
     color_map = models.CharField(max_length=100, default="")
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
@@ -416,7 +416,7 @@ class SubImages(models.Model):
 
 class Flyer(models.Model):
 
-    name = models.CharField(default="SampleFlyer", max_length=300)
+    name = models.CharField(default="SampleFlyer", max_length=200)
     product_bucket = models.ManyToManyField(Product, blank=True)
     template_data = models.TextField(null=True, blank=True)
     external_images_bucket = models.ManyToManyField(Image, blank=True)
@@ -435,7 +435,7 @@ class Flyer(models.Model):
 
 class PFL(models.Model):
 
-    name = models.CharField(default="SamplePFL", max_length=300)
+    name = models.CharField(default="SamplePFL", max_length=200)
     product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
     product_image = models.ForeignKey(Image, null=True, blank=True, related_name="product_images", on_delete=models.SET_NULL)
    
@@ -451,7 +451,7 @@ class PFL(models.Model):
 
 class ExportList(models.Model):
 
-    title = models.CharField(default="SampleExportList", max_length=300)
+    title = models.CharField(default="SampleExportList", max_length=200)
     products = models.ManyToManyField(Product, blank=True)
     created_date = models.DateTimeField()
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
@@ -499,7 +499,7 @@ class CustomPermission(models.Model):
 class EbayCategory(models.Model):
 
     category_id = models.CharField(default="", max_length=100)
-    name = models.CharField(default="", max_length=300)
+    name = models.CharField(default="", max_length=200)
 
     class Meta:
         verbose_name = "EbayCategory"
