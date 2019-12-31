@@ -195,6 +195,30 @@
     display: flex;
     align-items: center;
   }
+
+  .base-product-modal-label {
+    color: black;
+  }
+
+  .base-product-modal-label span {
+    color: #009051;
+  }
+
+  .width-50 {
+    width: 50%;
+  }
+
+  .width-100 {
+    width: 100%;
+  }
+
+  .flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .flex-inside {}
 </style>
 
 <div class="row" style="margin-bottom: 0em;background-color: white !important;">
@@ -418,6 +442,110 @@
         <input id="brand-name" type="text" class="validate">
         <label for="brand-name" style="color:black;">Brand<span style="color:#009051;">*</span></label>
       </div>
+    </div>
+
+  </div>
+  <div class="modal-footer" style="margin-bottom: 20px;">
+    <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+    <a id="create-new-product-btn" href="#!" class="waves-effect btn-flat white-text"
+      style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Create</a>
+  </div>
+</div>
+
+<div id="edit-base-product-modal" class="modal" style="border-radius:5px;">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">Edit Base Product</h5>
+    <br>
+    <div class="row">
+
+      <div class="input-field col s6">
+        <input id="product-name" type="text" class="validate">
+        <label class="base-product-modal-label" for="product-name">Product Name<span>*</span></label>
+      </div>
+
+      <div class="input-field col s6">
+        <input id="seller-sku" type="text" class="validate">
+        <label class="base-product-modal-label" for="seller-sku">Seller SKU<span>*</span></label
+          class="base-product-modal-label">
+      </div>
+
+      <div class="input-field col s6">
+        <select>
+          <option value="" disabled selected>Choose your option</option>
+          <option value="1">Option 1</option>
+          <option value="2">Option 2</option>
+          <option value="3">Option 3</option>
+        </select>
+      </div>
+
+      <div class="input-field col s6">
+        <input id="product-name" type="text" class="validate">
+        <label class="base-product-modal-label" for="product-name">Manufacturer<span>*</span></label>
+      </div>
+
+      <div class="input-field col s12">
+        <input id="seller-sku" type="text" class="validate width-50">
+        <label class="base-product-modal-label" for="seller-sku">Part Name<span>*</span></label
+          class="base-product-modal-label">
+      </div>
+
+      <div class="col s12 margin-zero">
+        <div class="flex-container">
+          <div class="flex-inside">
+            <a href="/flyer/1" target="_blank">
+              <div class="card center">
+                <img src="https://wig-wams-s3-bucket.s3.amazonaws.com/default_image.jpeg"
+                  style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;">
+                <div class="card-text" style="padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
+                  <p
+                    style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">
+                    test-flyer</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="flex-inside">
+            <a href="/flyer/1" target="_blank">
+              <div class="card center">
+                <img src="https://wig-wams-s3-bucket.s3.amazonaws.com/default_image.jpeg"
+                  style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;">
+                <div class="card-text" style="padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
+                  <p
+                    style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">
+                    test-flyer</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="flex-inside">
+            <a href="/flyer/1" target="_blank">
+              <div class="card center">
+                <img src="https://wig-wams-s3-bucket.s3.amazonaws.com/default_image.jpeg"
+                  style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;">
+                <div class="card-text" style="padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
+                  <p
+                    style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">
+                    test-flyer</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="flex-inside">
+            <a href="/flyer/1" target="_blank">
+              <div class="card center">
+                <img src="https://wig-wams-s3-bucket.s3.amazonaws.com/default_image.jpeg"
+                  style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;">
+                <div class="card-text" style="padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
+                  <p
+                    style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">
+                    test-flyer</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -867,7 +995,9 @@
                         `+ products[i]["created_date"] + `
                       </div>
                       <div class="col s3  center-align">
-                        <i class="material-icons edit-icon">edit</i>
+                        <a href="#edit-base-product-modal" class="modal-trigger">
+                          <i class="material-icons edit-icon">edit</i>
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -902,7 +1032,7 @@
                       <div class="row margin-zero collapsible-body-row">
                         <div class="col s1 avenir-next avenir-next-regular center-align">
                           <p>
-                            02
+                            01
                           </p>
                         </div>
                         <div class="col s3 avenir-next avenir-next-regular center-align">
@@ -929,7 +1059,7 @@
                       <div class="row margin-zero collapsible-body-row">
                         <div class="col s1 avenir-next avenir-next-regular center-align">
                           <p>
-                            01
+                            02
                           </p>
                         </div>
                         <div class="col s3 avenir-next avenir-next-regular center-align">
@@ -944,7 +1074,7 @@
                         </div>
                         <div class="col s3 avenir-next avenir-next-regular center-align">
                           <p>
-                            Amazon UAE
+                            Amazon UK
                           </p>
                         </div>
                         <div class="col s2 center-align">
