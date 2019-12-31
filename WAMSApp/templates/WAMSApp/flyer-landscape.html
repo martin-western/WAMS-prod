@@ -846,6 +846,12 @@
                     <span>Wow</span>
                   </label>
                 </p>
+                <p>
+                  <label>
+                    <input id="global-warranty" value="Warranty" name="group1" type="radio"  />
+                    <span>Warranty</span>
+                  </label>
+                </p>
               </form>
             </div>
             <div class="col s6">
@@ -877,10 +883,15 @@
                     <span>Wow</span>
                   </label>
                 </p>
+                <p>
+                  <label>
+                    <input id="local-warranty" value="Warranty" name="group2" type="radio"  />
+                    <span>Warranty</span>
+                  </label>
+                </p>
               </form>
             </div>
           </div>
-
 
 
 
@@ -895,6 +906,20 @@
                 </p>
             </div>
           </div>
+
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Promotional Tags</span>
+          </span>
+          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="all-promo-resizer" min="10" max="80" value="40" />
+                </p>
+            </div>
+          </div>
+
 
 
         </div>
@@ -941,8 +966,8 @@
               <select id="product-title-font-family">
                 <option value="Arial">Arial</option> 
                 <option value="Impact">Impact</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="AvenirNextRegular" selected>AvenirNextRegular</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
               </select>
               <label>Font Family</label>
             </div>
@@ -991,8 +1016,8 @@
               <select id="product-price-font-family">
                 <option value="Arial">Arial</option> 
                 <option value="Impact">Impact</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="AvenirNextRegular" selected>AvenirNextRegular</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
               </select>
               <label>Price Font Family</label>
             </div>
@@ -1001,8 +1026,8 @@
               <select id="currency-font-family">
                 <option value="Arial">Arial</option> 
                 <option value="Impact">Impact</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="AvenirNextRegular" selected>AvenirNextRegular</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
               </select>
               <label>Currency Font Family</label>
             </div>
@@ -1075,8 +1100,8 @@
               <select id="product-strikeprice-font-family">
                 <option value="Arial">Arial</option> 
                 <option value="Impact">Impact</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="AvenirNextRegular" selected>AvenirNextRegular</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
               </select>
               <label>Price Font Family</label>
             </div>
@@ -1186,9 +1211,9 @@
 
          <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 297mm;padding: 20px;">  
             <div class="col s6 left-horizontally">  
-              <img id="super-brand-img" src="/files/super-brand.png" style="max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
-              <img id="iso-img" src="/files/iso.png" style="max-width: 73.5mm;max-height:15mm;margin-right:10px">  
-              <img id="consumer-img" src="/files/consumer.png" style="max-width: 73.5mm;max-height:15mm;margin-right:10px;max-height: 40px;">
+              <img id="super-brand-img" src="/files/super-brand.png" style="display:none;max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
+              <img id="iso-img" src="/files/iso.png" style="display:none;max-width: 73.5mm;max-height:15mm;margin-right:10px">  
+              <img id="consumer-img" src="/files/consumer.png" style="display:none;max-width: 73.5mm;max-height:15mm;margin-right:10px;max-height: 40px;">
               <!-- <div> 
                 <p class="white-text">    
                 </p>  
@@ -1292,10 +1317,12 @@
       if($("#super-brand-option").prop("checked"))
       {
         $("#super-brand-img").show();
+        global_super_brand_logo = true;
       }
       else
       {
         $("#super-brand-img").hide();
+        global_super_brand_logo = false;
       }
     });
 
@@ -1303,10 +1330,12 @@
       if($("#iso-option").prop("checked"))
       {
         $("#iso-img").show();
+        global_iso_logo = true;
       }
       else
       {
         $("#iso-img").hide();
+        global_iso_logo = false;
       }
     });
 
@@ -1314,10 +1343,12 @@
       if($("#consumer-option").prop("checked"))
       {
         $("#consumer-img").show();
+        global_consumer_logo = true;
       }
       else
       {
         $("#consumer-img").hide();
+        global_consumer_logo = false;
       }
     });
 
@@ -1325,10 +1356,12 @@
       if($("#small-brand-option").prop("checked"))
       {
         $(".brand-text").show();
+        global_brand_name_visible = true;
       }
       else
       {
         $(".brand-text").hide();
+        global_brand_name_visible = false;
       }
     });
 
@@ -1336,10 +1369,12 @@
       if($("#white-option").prop("checked"))
       {
         $(".grid-stack-item-content").css("background-color", "white");
+        global_white_container = true;
       }
       else
       {
         $(".grid-stack-item-content").css("background-color", "transparent");
+        global_white_container = false;
       }
     });
 
@@ -1359,13 +1394,19 @@
         else if(this.value == "Combo Offers")
         {
             $("#local-combo").click();
-            $(".banner-img").attr("src", "/files/combo.jpg");
+            $(".banner-img").attr("src", "/files/combo.png");
             $(".banner-img").show();
         }
         else if(this.value == "Wow")
         {
             $("#local-wow").click();
             $(".banner-img").attr("src", "/files/wow.png");
+            $(".banner-img").show();
+        }
+        else if(this.value == "Warranty")
+        {
+            $("#local-warranty").click();
+            $(".banner-img").attr("src", "/files/warranty.png");
             $(".banner-img").show();
         }
     });
@@ -1382,12 +1423,17 @@
         }
         else if(this.value == "Combo Offers")
         {
-            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/combo.jpg");
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/combo.png");
             $("#banner-img-"+global_selected_grid_id).show();
         }
         else if(this.value == "Wow")
         { 
             $("#banner-img-"+global_selected_grid_id).attr("src", "/files/wow.png");
+            $("#banner-img-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "Warranty")
+        { 
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/warranty.png");
             $("#banner-img-"+global_selected_grid_id).show();
         }
     });
@@ -1403,6 +1449,7 @@
 
     var global_product_bucket_list = [];
     var global_selected_product_pk = "";
+    var global_selected_product_name = "";
     var global_product_images_dict = {};
     var global_selected_grid_id = "";
     var global_template_data = {};
@@ -1433,8 +1480,15 @@
     var global_price_box_bg_color = "#fbf00b";
     var global_header_color = "#181818";
     var global_footer_color = "#181818";
-    var global_promo_resizer = "40";
-
+    var global_all_promo_resizer = "40";
+    var global_all_image_resizer = "100";
+    var global_super_brand_logo = false;
+    var global_iso_logo = false;
+    var global_consumer_logo = false;
+    var global_brand_name_visible = false;
+    var global_white_container = false;
+    var global_price_resizer = "100";
+    var global_strikeprice_visible = false;
 
 
 
@@ -1445,9 +1499,10 @@
 
       var total_grids = $(".grid-stack-item").length;
       var image_links = [];
-      
+      var original_bg_image_url = "none";
       if ($("#flyer-div").css("background-image")!="none" ){
         image_links.push({"key": "background_image", "url": $("#flyer-div").css("background-image").split("\"")[1]});
+        original_bg_image_url = $("#flyer-div").css("background-image").split("\"")[1];
       }
 
       for (var i = 0; i <total_grids; i++){
@@ -1542,7 +1597,7 @@
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
                     console.log("Downloading it!!!");
 
-      	            $("#download-flyer-btn").removeAttr("disabled");
+                    $("#download-flyer-btn").removeAttr("disabled");
                     $("#loader-div").hide();
                     
                     var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
@@ -1560,8 +1615,10 @@
                     $(".product-title-info-title").attr("placeholder", "product name");
                     $(".product-title-info-description").attr("placeholder", "description");
                     $(".product-price-info").attr("placeholder", "price");
-                    //$(".product-strikeprice-info").attr("placeholder", "strikeprice");
 
+
+                    $("#flyer-div").css("background-image", "url('" +original_bg_image_url+ "')");
+                    //$(".product-strikeprice-info").attr("placeholder", "strikeprice");
 
                     // var image_data = canvas.toDataURL();
 
@@ -1602,19 +1659,10 @@
 
     $(document).on("change", "#border-option", function(){
       if($("#border-option").prop("checked"))
-      {
-        //$(".divgrid").css("border-bottom", "2px solid #E9E9E9");
-        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
-        $(".divgrid").parent().parent().parent().css("border", "2px solid #E9E9E9");
         global_border_visible  = true;
-      }
       else
-      {
-        $(".divgrid").parent().parent().css("border", "none");
-        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
-        $(".divgrid").parent().parent().parent().css("border", "none");
         global_border_visible  = false;
-      }
+      set_border_style();
     });
 
     $("#upload-new-bg-image-btn").click(function(){
@@ -1776,10 +1824,12 @@
       if($("#strikeprice-option").prop("checked"))
       {
         $(".footer-top-right").show();
+        global_strikeprice_visible = true;
       }
       else
       {
         $(".footer-top-right").hide();
+        global_strikeprice_visible = false;
       }
     });
 
@@ -1803,20 +1853,29 @@
         $(grid_images[i]).attr("resizer", R);
       }
       $("#image-resizer").val(R);
+      global_all_image_resizer = R;
     });
 
 
     $("#price-resizer").change(function() {
       var R = $("#price-resizer").val();
-
-      $(".grid-item-footer-right").css("max-width", R+"px")
+      $(".grid-item-footer-right").css("max-width", R+"px");
+      global_price_resizer = R;
     });
 
 
+    $("#all-promo-resizer").change(function() {
+      var R = $("#all-promo-resizer").val();
+      global_all_promo_resizer = R;
+      $(".grid-item-sticker img").css("width", R+"px");
+      $("#promo-resizer").val(R);    
+      $(".grid-item-sticker img").attr("resizer", R);
+    });
+
     $("#promo-resizer").change(function() {
       var R = $("#promo-resizer").val();
-      global_promo_resizer = R;
-      $(".grid-item-sticker img").css("width", R+"px");
+      $("#banner-img-"+global_selected_grid_id).css("width", R+"px");
+      $("#banner-img-"+global_selected_grid_id).attr("resizer", R);
     });    
 
 
@@ -1842,6 +1901,7 @@
       var image_url = flyer_dict["image-url"];
       var banner_img = flyer_dict["banner-img"];
       var image_resizer = flyer_dict["image-resizer"];
+      var promo_resizer = flyer_dict["promo-resizer"];
       var width = flyer_dict["width"];
       var height = flyer_dict["height"];
       var x = flyer_dict["x"];
@@ -1852,7 +1912,6 @@
       {
         background_color = "background-color: white";
       }
-      
 
       var html_string = 
           `<div grid-id="`+grid_id+`" class="grid-stack-item" data-gs-width=`+width+` data-gs-height=`+height+` data-gs-x=`+x+` data-gs-y=`+y+` style="text-align:center;padding:0em !important;">
@@ -1864,7 +1923,7 @@
                   </div>
                 </a>
                 <div class="grid-item-sticker">
-                  <img class="banner-img" id="banner-img-`+grid_id+`" src="`+banner_img+`" />
+                  <img class="banner-img" id="banner-img-`+grid_id+`" src="`+banner_img+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
                 </div>
               </div>
               <div class="grid-item-footer-container" > 
@@ -1882,7 +1941,7 @@
                       <input id="product-title-info-`+grid_id+`" class="footer-bottom-left-input product-title-info product-title-info-description font-to-avenir browser-default" type="text" name="description" placeholder="description" value="`+product_info+`">
                   </div>
                   <div class="grid-item-footer-right">
-                      <input id="product-currency-info-`+grid_id+`" class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" >
+                      <input id="product-currency-info-`+grid_id+`" class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" value="`+currency+`" >
                       <input id="product-price-info-`+grid_id+`" class="grid-item-text-3 footer-bottom-left-input product-price-info font-to-avenir browser-default" type="text" name="price" placeholder="price" value="`+price+`">
                   </div>
                 </div>
@@ -1896,18 +1955,19 @@
 
     function select_cell(grid_id)
     {
-      global_selected_grid_id = 1;
+      global_selected_grid_id = grid_id;
 
       $("#divgrid-1").parent().parent().css("border", "0.14em dashed");
 
-      $("#image-resizer").val($("#gridimg-1").attr("resizer"));
+      $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
+      $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
 
       var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
       if(banner_img=="")
       {
         $("#local-none").click();
       } 
-      else if(banner_img=="/files/combo.jpg")
+      else if(banner_img=="/files/combo.png")
       {
         $("#local-combo").click();
       }
@@ -1918,6 +1978,10 @@
       else if(banner_img=="/files/wow.png")
       {
         $("#local-wow").click();
+      }
+      else if(banner_img=="/files/warranty.png")
+      {
+        $("#local-warranty").click();
       }
     }
 
@@ -1940,6 +2004,7 @@
         flyer_dict["image-url"] = item_data[i]["data"]["image-url"];
         flyer_dict["banner-img"] = item_data[i]["data"]["banner-img"];
         flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
+        flyer_dict["promo-resizer"] = item_data[i]["data"]["promo-resizer"];
         flyer_dict["width"] = item_data[i]["container"]["width"];
         flyer_dict["height"] = item_data[i]["container"]["height"];
         flyer_dict["x"] = item_data[i]["container"]["x"];
@@ -1973,68 +2038,40 @@
   
     $("#refresh-template-btn").click(function (){
 
-      global_template_data = {
-        "item-data": [],
-        "common": {
-          "currency-unit":"AED",
-          "border-visible": true,
-          "border-color": "#E9E9E9",
-          "background-image-url":"none",
-          "product-title-font-size":"12",
-          "product-title-font-family":"AvenirNextRegular",
-          "product-title-font-weight":"normal",
-          "product-title-font-color":"#181818",
-          "price-font-size":"18",
-          "price-font-family":"AvenirNextRegular",
-          "price-font-weight":"normal",
-          "price-font-color":"#181818",
-          "currency-font-size":"8.5",
-          "currency-font-family":"AvenirNextRegular",
-          "currency-font-weight":"normal",
-          "currency-font-color":"#181818",
-          "price-box-bg-color":"#fbf00b",
-          "header-color":"#181818",
-          "footer-color":"#181818",
-          "promo-resizer": "40"
-        }
-      };
+      // global_template_data = {
+      //   "item-data": [],
+      //   "common": {
+      //     "currency-unit":"AED",
+      //     "border-visible": true,
+      //     "border-color": "#E9E9E9",
+      //     "background-image-url":"none",
+      //     "product-title-font-size":"12",
+      //     "product-title-font-family":"AvenirNextRegular",
+      //     "product-title-font-weight":"normal",
+      //     "product-title-font-color":"#181818",
+      //     "price-font-size":"18",
+      //     "price-font-family":"AvenirNextRegular",
+      //     "price-font-weight":"normal",
+      //     "price-font-color":"#181818",
+      //     "currency-font-size":"8.5",
+      //     "currency-font-family":"AvenirNextRegular",
+      //     "currency-font-weight":"normal",
+      //     "currency-font-color":"#181818",
+      //     "price-box-bg-color":"#fbf00b",
+      //     "header-color":"#181818",
+      //     "footer-color":"#181818",
+      //     "promo-resizer": "40"
+      //   }
+      // };
 
-      var grid = $('.grid-stack').data('gridstack');
+      // var grid = $('.grid-stack').data('gridstack');
 
-      grid.destroy();
-      var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">`
-      $("#flyer-grid").html(html_string);
-      create_flyer_grid();
+      // grid.destroy();
+      // var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">`
+      // $("#flyer-grid").html(html_string);
+      // create_flyer_grid();
     });
 
-
-    // $('.grid-stack').on('gsresizestop', function(event, elem) {
-
-    //   var grid_id = $(elem).attr("grid-id");
-
-    //   var original_width = $("#gridimg-"+grid_id).attr("original-width").replace("px", "");
-    //   var original_height = $("#gridimg-"+grid_id).attr("original-height").replace("px", "");
-
-    //   var curr_width = $("#gridimg-"+grid_id).css("width").replace("px", "");
-    //   var ideal_height = (parseFloat(original_height)/parseFloat(original_width))*parseFloat(curr_width);
-
-    //   var curr_height = $("#gridimg-"+grid_id).css("height").replace("px", "");
-    //   if(curr_height>ideal_height)
-    //   {
-    //     $("#gridimg-"+grid_id).css("height", ideal_height+"px");
-    //   }
-    //   else
-    //   {
-    //     $("#gridimg-"+grid_id).css("height", "auto");
-    //   }
-
-
-    //   // //Update original-width and original-height
-    //   // var R = $("#image-resizer").val();
-    //   // curr_height = $("#gridimg-"+global_selected_grid_id).css("height");
-    //   // curr_width = $("#gridimg-"+global_selected_grid_id).css("width");
-
-    // });
 
     $("#hide-cursor-btn").click(function() {
 
@@ -2097,23 +2134,17 @@
       grid_cnt += 1;
       console.log(i);
 
-      var currency = global_currency_unit;
-      var border_style = "none";
-
-      if($("#border-option").prop("checked")==true)
-      {
-        border_style = "2px solid "+global_border_color;
-      }
-
       var flyer_dict = {};
 
       flyer_dict["grid-id"] = (i+1);
       flyer_dict["product-title"] = "";
       flyer_dict["product-info"] = "";
       flyer_dict["price"] = "";
-      flyer_dict["strikeprice"] = "";
-      flyer_dict["currency"] = "";
+      flyer_dict["strikeprice"] = "strikeprice";
+      flyer_dict["currency"] = global_currency_unit;
       flyer_dict["image-url"] = "";
+      flyer_dict["image-resizer"] = global_all_image_resizer;
+      flyer_dict["promo-resizer"] = global_all_promo_resizer;
       flyer_dict["banner-img"] = "";
       flyer_dict["width"] = "3";
       flyer_dict["height"] = "3";
@@ -2122,55 +2153,14 @@
 
       var html_string = create_unit_flyer_html(flyer_dict);
 
-      // var html_string = `<div grid-id="`+(i+1)+`" class="grid-stack-item" data-gs-width=3 data-gs-height=3 data-gs-x=7 data-gs-y=7 style="text-align:center;">
-      //       <div class="grid-stack-item-content" style="border: `+border_style+`;">
-      //       <div class="grid-item-img-container"> 
-      //         <a id="gridbox-`+(i+1)+`" href="#!" class="flyer-item-box" style="color:black;height:80%;max-width:100%;">
-      //           <div class="divgrid" id="divgrid-`+(i+1)+`" style="height:100%;text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;">
-      //               `+img_string+`
-      //           </div>
-      //         </a>
-      //       </div>
-      //       <div class="grid-item-footer-container" > 
-      //           <div className="footer-top">
-      //             <div>
-      //               <p class="grid-item-text brand-text" style="text-align:left;"></p>
-      //              </div>
-      //           </div>
-      //           <div class="footer-bottom">
-      //             <div class="grid-item-footer-left">
-      //                 <input id="product-title-info-`+(i+1)+`" class="footer-bottom-left-input product-title-info font-to-avenir browser-default" type="text" name="description" placeholder="description" value="">
-      //                 <input id="product-title-info2-`+(i+1)+`" class=" font-to-avenir footer-bottom-left-input product-title-info browser-default" type="text" name="name" placeholder="product name" value="">
-      //             </div>
-      //             <div class="grid-item-footer-right">
-      //                 <input id="product-currency-info-`+(i+1)+`" class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" >
-      //                 <input id="product-price-info-`+(i+1)+`" class="grid-item-text-3 footer-bottom-left-input product-price-info font-to-avenir browser-default" type="text" name="price" placeholder="price" value="">
-      //             </div>
-      //           </div>
-      //         </div>
-      //       </div>
-      //     </div>`;
 
+      $("#grid-stack-div").append(html_string);
 
-        $("#grid-stack-div").append(html_string);
+      var grid = $('.grid-stack').data('gridstack');
+      var el = $('.grid-stack').children()[$('.grid-stack').children().length-1];
+      grid.addWidget(el, 0, 0, 3, 3, true);
 
-        var grid = $('.grid-stack').data('gridstack');
-        var el = $('.grid-stack').children()[$('.grid-stack').children().length-1];
-        grid.addWidget(el, 0, 0, 3, 3, true);
-
-        $(".brand-text").html(global_brand_name);
-        $(".grid-item-text").css("font-size", global_currency_font_size+"px");
-        $(".grid-item-text-2").css("font-size", global_product_title_font_size+"px");
-        $(".grid-item-text-3").css("font-size", global_price_font_size+"px");
-        $(".grid-item-text-4").css("font-size", global_strikeprice_font_size+"px");
-
-        $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
-        $("#header-div").css("background-color", global_header_color);
-        $("#footer-div").css("background-color", global_footer_color);
-        $(".grid-item-text").css("font-weight", global_currency_font_weight);
-        $(".grid-item-text-2").css("font-weight", global_product_title_font_weight);
-        $(".grid-item-text-3").css("font-weight", global_price_font_weight);
-        $(".grid-item-text-4").css("font-weight", global_strikeprice_font_weight);
+      set_editor_style();
     });
 
 
@@ -2296,6 +2286,7 @@
       $($(this).children()[0]).children()[1].style.background = "#f6eeff";
 
       global_selected_product_pk = this.id.split("_")[1];
+      global_selected_product_name = $("#product-basket-card-name-"+global_selected_product_pk).attr("title");
 
       $("#all-images-option").html("All Images ("+global_product_images_dict[global_selected_product_pk]["all_images"].length+")");
       $("#main-images-option").html("Main Images ("+global_product_images_dict[global_selected_product_pk]["main_images"].length+")");
@@ -2339,7 +2330,7 @@
               </div>
               <div class="product-basket-card col s8">
                 <div style="padding-left:0em;height:6em;">
-                  <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;" title="`+global_product_bucket_list[i]["product_bucket_name"]+`">`+
+                  <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;" title="`+global_product_bucket_list[i]["product_bucket_name"]+`" id="product-basket-card-name-`+global_product_bucket_list[i]["product_bucket_pk"]+`">`+
                   short_product_name+`
                   </div>
                   <div style="padding-top:1em;font-family:'AvenirNextRegular';color:black;margin-top:-1em;font-size:0.8em;">`+
@@ -2366,7 +2357,7 @@
       {
         html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
           <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
-            <a class="imgselect" id="imgselect_`+images[i]["pk"]+`" href="#!"><img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;"></a>
+            <a class="imgselect" id="imgselect_`+images[i]["pk"]+`" href="#!"><img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;" high-res-url="`+images[i]["high-res-url"]+`"></a>
           </div>
         </div>`;
       }
@@ -2407,9 +2398,12 @@
     $(document).on('click', '.imgselect', function(){
 
         var image_pk = this.id.split("_")[1];
-        var image_url = $(this).children()[0].src
+        //var image_url = $(this).children()[0].src;
+        var image_url = $($(this).children()[0]).attr("high-res-url");
         console.log(image_pk, image_url, global_selected_grid_id);
         $("#gridimg-"+global_selected_grid_id).attr("src", image_url);
+        //if($("#product-title-info2-"+global_selected_grid_id).val()=="")
+        $("#product-title-info2-"+global_selected_grid_id).val(global_selected_product_name);
         $("#default404-"+global_selected_grid_id).hide();
         $("#gridimg-"+global_selected_grid_id).show();
         $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
@@ -2432,28 +2426,6 @@
       update_image_categories($("#image-categories-thumbnails-select").val());
     });
 
-
-    // function fetch_product_details_flyer_pfl()
-    // {
-    //   $.ajax({
-    //     url: "/fetch-product-details-flyer-pfl/",
-    //     type: "POST",
-    //     headers:{
-    //       'X-CSRFToken':getCsrfToken()
-    //     },
-    //     data: {
-    //       product_pk: 
-    //     },
-    //     success: function(response) {
-    //       console.log("Success!", response);
-    //       global_product_images_dict = response["images"];
-    //       update_image_categories("main_images");
-    //     },
-    //     error: function(xhr, textstatus, errorthrown) {
-    //       console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-    //     }
-    //   });
-    // }
 
     function set_brand_image(url)
     {
@@ -2482,12 +2454,16 @@
 
           var common = global_template_data["common"];
 
-          console.log("Fetched Common", common);
 
-          global_currency_unit = common["currency-unit"];
+          global_background_image_url = common["background-image-url"]
           global_border_visible = common["border-visible"];
           global_border_color = common["border-color"];
-          global_background_image_url = common["background-image-url"]
+          global_super_brand_logo = common["super-brand-logo"];
+          global_iso_logo = common["iso-logo"];
+          global_consumer_logo = common["consumer-logo"];
+          global_brand_name_visible = common["brand-name-visible"];
+          global_white_container = common["white-container"];
+          global_price_resizer = common["price-resizer"];
           global_product_title_font_size = common["product-title-font-size"];
           global_product_title_font_family = common["product-title-font-family"];
           global_product_title_font_weight = common["product-title-font-weight"];
@@ -2496,90 +2472,26 @@
           global_price_font_family = common["price-font-family"];
           global_price_font_weight = common["price-font-weight"];
           global_price_font_color = common["price-font-color"];
-          global_strikeprice_font_size = common["strikeprice-font-size"];
-          global_strikeprice_font_family = common["strikeprice-font-family"];
-          global_strikeprice_font_weight = common["strikeprice-font-weight"];
-          global_strikeprice_font_color = common["strikeprice-font-color"];
           global_currency_font_size = common["currency-font-size"];
           global_currency_font_family = common["currency-font-family"];
           global_currency_font_weight = common["currency-font-weight"];
           global_currency_font_color = common["currency-font-color"];
-          global_price_box_bg_color = common["price-box-bg-color"]
+          global_currency_unit = common["currency-unit"];
+          global_price_box_bg_color = common["price-box-bg-color"];
+          global_strikeprice_font_size = common["strikeprice-font-size"];
+          global_strikeprice_font_family = common["strikeprice-font-family"];
+          global_strikeprice_font_weight = common["strikeprice-font-weight"];
+          global_strikeprice_font_color = common["strikeprice-font-color"];
+          global_strikeprice_visible = common["strikeprice-visible"]   
           global_header_color = common["header-color"];
           global_footer_color = common["footer-color"];
-          global_promo_resizer = common["promo-resizer"];
+          global_all_promo_resizer = common["all-promo-resizer"]
+          global_all_image_resizer = common["all-image-resizer"]
 
-          console.log("curr font size", global_currency_font_size);
-
-          $("#currency-unit").val(global_currency_unit);
-          $("#border-option").val(global_border_visible);
-          $("#border-color").val(global_border_color);
-
-          $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
-          $("#flyer-div").css("background-position", "center");
-          $("#flyer-div").css("background-size", "100% 210mm");
-          
-          $("#product-title-font-size").val(global_product_title_font_size);
-          $("#product-title-font-family").val(global_product_title_font_family);
-          $("#product-title-font-weight").val(global_product_title_font_weight);
-          $("#product-title-font-color").val(global_product_title_font_color);
-          $("#product-price-font-size").val(global_price_font_size);
-          $("#product-price-font-family").val(global_price_font_family);
-          $("#product-price-font-weight").val(global_price_font_weight);
-          $("#product-price-font-color").val(global_price_font_color);
-
-          $("#product-strikeprice-font-size").val(global_strikeprice_font_size);
-          $("#product-strikeprice-font-family").val(global_strikeprice_font_family);
-          $("#product-strikeprice-font-weight").val(global_strikeprice_font_weight);
-          $("#product-strikeprice-font-color").val(global_strikeprice_font_color);
-
-          $("#currency-font-size").val(global_currency_font_size);
-          $("#currency-font-family").val(global_currency_font_family);
-          $("#currency-font-weight").val(global_currency_font_weight);
-          $("#currency-font-color").val(global_currency_font_color);
-          $("#price-box-bg-color").val(global_price_box_bg_color);
-          $("#header-color").val(global_header_color);
-          $("#footer-color").val(global_footer_color);
-          $("#promo-resizer").val(global_promo_resizer);
-
-          $("select").formSelect();
-
-          // .grid-item-text-2 {
-          //   font-size: 12px;
-          //   margin:0;
-          // }
-          // .grid-item-text-3 {
-          //   font-size: 18px;
-          //   margin:0;
-          // }
-
+          update_editor_settings();
           create_flyer_grid();
+          set_editor_style();
 
-          $(".grid-item-text").css("font-size", global_currency_font_size+"px");
-          $(".grid-item-text").css("font-weight", global_currency_font_weight);
-          $(".grid-item-text").css("color", global_currency_font_color);
-          $(".grid-item-text").css("font-family", global_currency_font_family);
-
-          $(".grid-item-text-2").css("font-size", global_product_title_font_size+"px");
-          $(".grid-item-text-2").css("font-weight", global_product_title_font_weight);
-          $(".grid-item-text-2").css("color", global_product_title_font_color);
-          $(".grid-item-text-2").css("font-family", global_product_title_font_family);
-          
-          $(".grid-item-text-3").css("font-size", global_price_font_size+"px");
-          $(".grid-item-text-3").css("font-weight", global_price_font_weight);
-          $(".grid-item-text-3").css("color", global_price_font_color);
-          $(".grid-item-text-3").css("font-family", global_price_font_family);
-          
-          $(".grid-item-text-4").css("font-size", global_strikeprice_font_size+"px");
-          $(".grid-item-text-4").css("font-weight", global_strikeprice_font_weight);
-          $(".grid-item-text-4").css("color", global_strikeprice_font_color);
-          $(".grid-item-text-4").css("font-family", global_strikeprice_font_family);
-
-          $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
-          $("#header-div").css("background-color", global_header_color);
-          $("#footer-div").css("background-color", global_footer_color);
-
-          $(".grid-item-sticker img").css("width", global_promo_resizer+"px");
 
           set_product_basket();
           update_background_image_bucket();
@@ -2610,15 +2522,15 @@
 
         $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
-        console.log($("#gridimg-"+global_selected_grid_id).attr("resizer"));
         $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
+        $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
 
         var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
         if(banner_img=="")
         {
           $("#local-none").click();
         } 
-        else if(banner_img=="/files/combo.jpg")
+        else if(banner_img=="/files/combo.png")
         {
           $("#local-combo").click();
         }
@@ -2630,6 +2542,11 @@
         {
           $("#local-wow").click();
         }
+        else if(banner_img=="/files/warranty.png")
+        {
+          $("#local-warranty").click();
+        }
+
     });
 
     fetch_flyer_details();
@@ -2654,8 +2571,9 @@
         var image_url = $("#gridimg-"+grid_id).attr("src");
         var banner_img = $("#banner-img-"+grid_id).attr("src");
         var image_resizer = $("#gridimg-"+grid_id).attr("resizer");
-        var product_title = $("#product-title-info-"+grid_id).val();
-        var description = $("#product-title-info2-"+grid_id).val();
+        var promo_resizer = $("#banner-img-"+grid_id).attr("resizer");
+        var product_title = $("#product-title-info2-"+grid_id).val();
+        var description = $("#product-title-info-"+grid_id).val();
         var price = $("#product-price-info-"+grid_id).val();
         var strikeprice = $("#product-strikeprice-info-"+grid_id).html();
 
@@ -2670,6 +2588,7 @@
             "image-url": image_url,
             "banner-img": banner_img,
             "image-resizer": image_resizer,
+            "promo-resizer": promo_resizer,
             "price": price,
             "strikeprice": strikeprice,
             "title": product_title,
@@ -2683,11 +2602,17 @@
         item_data.push(temp_dict);
       }
       global_template_data["item-data"] = item_data;
+
       var common = {
-        "currency-unit": global_currency_unit,
+        "background-image-url": global_background_image_url,
         "border-visible": global_border_visible,
         "border-color": global_border_color,
-        "background-image-url": global_background_image_url,
+        "super-brand-logo": global_super_brand_logo,
+        "iso-logo": global_iso_logo,
+        "consumer-logo": global_consumer_logo,
+        "brand-name-visible": global_brand_name_visible,
+        "white-container": global_white_container,
+        "price-resizer": global_price_resizer,
         "product-title-font-size": global_product_title_font_size,
         "product-title-font-family": global_product_title_font_family,
         "product-title-font-weight": global_product_title_font_weight,
@@ -2696,23 +2621,24 @@
         "price-font-family": global_price_font_family,
         "price-font-weight": global_price_font_weight,
         "price-font-color": global_price_font_color,
-        "strikeprice-font-size": global_strikeprice_font_size,
-        "strikeprice-font-family": global_strikeprice_font_family,
-        "strikeprice-font-weight": global_strikeprice_font_weight,
-        "strikeprice-font-color": global_strikeprice_font_color,
         "currency-font-size": global_currency_font_size,
         "currency-font-family": global_currency_font_family,
         "currency-font-weight": global_currency_font_weight,
         "currency-font-color": global_currency_font_color,
+        "currency-unit": global_currency_unit,
         "price-box-bg-color": global_price_box_bg_color,
+        "strikeprice-font-size": global_strikeprice_font_size,
+        "strikeprice-font-family": global_strikeprice_font_family,
+        "strikeprice-font-weight": global_strikeprice_font_weight,
+        "strikeprice-font-color": global_strikeprice_font_color,
+        "strikeprice-visible": global_strikeprice_visible,
         "header-color": global_header_color,
         "footer-color": global_footer_color,
-        "promo-resizer": global_promo_resizer
+        "all-promo-resizer": global_all_promo_resizer,
+        "all-image-resizer": global_all_image_resizer
       };
 
       global_template_data["common"] = common;
-
-      console.log("Saving TEMPLATE: ", global_template_data);
 
       $.ajax({
         url: "/save-flyer-template/",
@@ -2752,7 +2678,6 @@
       
     })
 
-
     $(window).keydown(function(event) {
       console.log(event.which, event.keyCode, event.ctrlKey);
       if(event.which == 83 && event.ctrlKey)
@@ -2761,19 +2686,200 @@
         $("#save-flyer-template-btn").click();
         return false;
       }
-      else if(event.which == 78 && event.shiftKey)
-      {
-        event.preventDefault();
-        $("#add-grid-item-btn").click();
-        return false;
-      }
-      else if(event.which == 46 && event.shiftKey)
-      {
-        event.preventDefault();
-        $("#delete-grid-item-btn").click();
-        return false;
-      }
     });
+
+
+
+
+
+
+
+
+    function set_background_image()
+    {
+      $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
+      $("#flyer-div").css("background-position", "center");
+      $("#flyer-div").css("background-size", "100% 210mm");
+    }
+
+    function set_border_style()
+    {
+      if(global_border_visible)
+      {
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
+        $(".divgrid").parent().parent().parent().css("border", "2px solid "+global_border_color);
+      }
+      else
+      {
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
+        $(".divgrid").parent().parent().parent().css("border", "none");
+      } 
+    }
+
+    function set_header_logos()
+    {
+      if(global_super_brand_logo)
+        $("#super-brand-img").show();
+      else
+        $("#super-brand-img").hide();
+
+
+      if(global_iso_logo)
+        $("#iso-img").show();
+      else
+        $("#iso-img").hide();
+
+      if(global_consumer_logo)
+        $("#consumer-img").show();
+      else
+        $("#consumer-img").hide();
+    }
+
+    function set_product_title_style()
+    {
+      $(".product-title-info").css("font-size", global_product_title_font_size+"px");
+      $(".product-title-info").css("font-family", global_product_title_font_family);
+      $(".product-title-info").css("font-weight", global_product_title_font_weight);
+      $(".product-title-info").css("color", global_product_title_font_color);
+    }
+
+    function set_price_box_style()
+    {
+      //Actual Price
+      $(".product-price-info").css("font-size", global_price_font_size+"px");
+      $(".product-price-info").css("font-family", global_price_font_family);
+      $(".product-price-info").css("font-weight", global_price_font_weight);
+      $(".product-price-info").css("color", global_price_font_color);
+
+      //currency
+      $(".product-currency-info").css("font-size", global_currency_font_size+"px");
+      $(".product-currency-info").css("font-family", global_currency_font_family);
+      $(".product-currency-info").css("font-weight", global_currency_font_weight);
+      $(".product-currency-info").css("color", global_currency_font_color);
+      $(".product-currency-info").html(global_currency_unit);
+
+      $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
+      $(".grid-item-footer-right").css("max-width", global_price_resizer+"px");
+    }
+
+    function set_strike_price_style()
+    {
+      //strikeprice
+      $(".product-strikeprice-info").css("font-size", global_strikeprice_font_size+"px");
+      $(".product-strikeprice-info").css("font-family", global_strikeprice_font_family);
+      $(".product-strikeprice-info").css("font-weight", global_strikeprice_font_weight);
+      $(".product-strikeprice-info").css("color", global_strikeprice_font_color);
+
+      if(global_strikeprice_visible)
+        $(".footer-top-right").show();
+      else
+        $(".footer-top-right").hide();
+    }
+
+    function set_header_style()
+    {
+      $("#header-div").css("background-color", global_header_color);
+    }
+
+    function set_footer_style()
+    {
+      $("#footer-div").css("background-color", global_footer_color);
+    }
+
+
+
+    // Updates the editor // One time call
+    function update_editor_settings()
+    {
+
+      //Border Settings
+      $("#border-option").prop("checked", global_border_visible);
+      $("#border-color").val(global_border_color);
+
+
+      //Header Logos
+      $("#super-brand-option").prop("checked", global_super_brand_logo);
+      $("#iso-option").prop("checked", global_iso_logo);
+      $("#consumer-option").prop("checked", global_consumer_logo)
+      $("#small-brand-option").prop("checked", global_brand_name_visible);
+      $("#white-option").prop("checked", global_white_container)
+
+      //Price Resizer
+      $("#price-resizer").val(global_price_resizer);
+
+      //Image Resizer
+      $("#all-image-resizer").val(global_all_image_resizer);
+
+      //Promo Resizer
+      $("#all-promo-resizer").val(global_all_promo_resizer);
+
+
+      // Product Title Settings
+      $("#product-title-font-size").val(global_product_title_font_size);
+      $("#product-title-font-family").val(global_product_title_font_family);
+      $("#product-title-font-weight").val(global_product_title_font_weight);
+      $("#product-title-font-color").val(global_product_title_font_color);
+
+
+
+      //Price Box
+      $("#product-price-font-size").val(global_price_font_size);
+      $("#product-price-font-family").val(global_price_font_family);
+      $("#product-price-font-weight").val(global_price_font_weight);
+      $("#product-price-font-color").val(global_price_font_color);
+
+      $("#currency-font-size").val(global_currency_font_size);
+      $("#currency-font-family").val(global_currency_font_family);
+      $("#currency-font-weight").val(global_currency_font_weight);
+      $("#currency-font-color").val(global_currency_font_color);
+      
+      $("#currency-unit").val(global_currency_unit);
+      $("#price-box-bg-color").val(global_price_box_bg_color);
+      
+
+      //Strikeprice settings
+      $("#product-strikeprice-font-size").val(global_strikeprice_font_size);
+      $("#product-strikeprice-font-family").val(global_strikeprice_font_family);
+      $("#product-strikeprice-font-weight").val(global_strikeprice_font_weight);
+      $("#product-strikeprice-font-color").val(global_strikeprice_font_color);
+      
+      if(global_strikeprice_visible)
+        $("#strikeprice-option").prop("checked", true);
+      else
+        $("#strikeprice-option").prop("checked", false);
+      
+      //Header/Footer settings
+      $("#header-color").val(global_header_color);
+      $("#footer-color").val(global_footer_color);
+      
+      $("select").formSelect();
+    }
+
+    // Sets the current global editor styles to all elements
+    function set_editor_style()
+    {
+      //Background Image
+      set_background_image();
+
+      //Border Settings
+      set_border_style();
+
+      //Header Logos
+      set_header_logos();
+
+      //Product Title Settings
+      set_product_title_style();
+
+      //Price Box Settings
+      set_price_box_style()
+
+      //Strike Price Settings
+      set_strike_price_style();
+
+      //Header/Footer Settings
+      set_header_style();
+      set_footer_style();
+    }
 
   </script>
 
