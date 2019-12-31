@@ -51,6 +51,21 @@
       src: url("{% static 'WAMSApp/fonts/Helvetica/Helvetica.ttf' %}");
     }
 
+    @font-face {
+      font-family: BebasNeueRegular;
+      src: url("{% static 'WAMSApp/fonts/general/BebasNeueRegular.otf' %}");
+    }
+
+    @font-face {
+      font-family: GothamBookRegular;
+      src: url("{% static 'WAMSApp/fonts/general/GothamBookRegular.otf' %}");
+    }
+
+    @font-face {
+      font-family: FrankRegular;
+      src: url("{% static 'WAMSApp/fonts/general/FrankRegular.otf' %}");
+    }
+
     .spinner-layer {
       border-color: white;  
     }
@@ -968,6 +983,9 @@
                 <option value="Impact">Impact</option>
                 <option value="Helvetica" selected>Helvetica</option>
                 <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
               </select>
               <label>Font Family</label>
             </div>
@@ -1018,6 +1036,9 @@
                 <option value="Impact">Impact</option>
                 <option value="Helvetica" selected>Helvetica</option>
                 <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
               </select>
               <label>Price Font Family</label>
             </div>
@@ -1028,6 +1049,9 @@
                 <option value="Impact">Impact</option>
                 <option value="Helvetica" selected>Helvetica</option>
                 <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
               </select>
               <label>Currency Font Family</label>
             </div>
@@ -1102,6 +1126,9 @@
                 <option value="Impact">Impact</option>
                 <option value="Helvetica" selected>Helvetica</option>
                 <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
               </select>
               <label>Price Font Family</label>
             </div>
@@ -2710,6 +2737,11 @@
         $("#consumer-img").show();
       else
         $("#consumer-img").hide();
+
+      if(global_brand_name_visible)
+        $(".brand-text").show();
+      else
+        $(".brand-text").hide();
     }
 
     function set_product_title_style()
