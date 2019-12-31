@@ -2447,9 +2447,7 @@ class FetchPFLListAPI(APIView):
                     search = pfl_objs.filter(
                         Q(product__product_name_sap__icontains=chip.lower()) |
                         Q(name__icontains=chip.lower()) |
-                        Q(product__product_name_amazon_uk__icontains=chip.lower()) |
-                        Q(product__product_name_amazon_uae__icontains=chip.lower()) |
-                        Q(product__product_name_ebay__icontains=chip.lower()) |
+                        Q(product__product_name_icontains=chip.lower()) |
                         Q(product__product_id__icontains=chip.lower()) |
                         Q(product__seller_sku__icontains=chip.lower())
                     )
@@ -2546,9 +2544,7 @@ class FetchFlyerListAPI(APIView):
                                 chip), str(product), str(flyer_obj))
 
                             if (chip.lower() in product.product_name_sap.lower() or
-                                    chip.lower() in product.product_name_amazon_uk.lower() or
-                                    chip.lower() in product.product_name_amazon_uae.lower() or
-                                    chip.lower() in product.product_name_ebay.lower() or
+                                    chip.lower() in product.product_name.lower() or
                                     chip.lower() in product.product_id.lower() or
                                     chip.lower() in product.seller_sku.lower()):
                                 search_list_objs.append(flyer_obj)
@@ -2703,6 +2699,37 @@ class FetchBrandsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchBrandsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchChannelsAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchChannelsAPI: %s", str(data))
+
+            channel_objs = custom_permission_filter_channels(request.user)
+            channel_list = []
+            for channel_obj in channel_objs:
+                temp_dict = {}
+                temp_dict["name"] = channel_obj.name
+                temp_dict["pk"] = channel_obj.pk
+                channel_list.append(temp_dict)
+
+            response["channel_list"] = channel_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchChannelsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
