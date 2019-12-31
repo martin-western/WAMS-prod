@@ -2038,38 +2038,15 @@
   
     $("#refresh-template-btn").click(function (){
 
-      // global_template_data = {
-      //   "item-data": [],
-      //   "common": {
-      //     "currency-unit":"AED",
-      //     "border-visible": true,
-      //     "border-color": "#E9E9E9",
-      //     "background-image-url":"none",
-      //     "product-title-font-size":"12",
-      //     "product-title-font-family":"AvenirNextRegular",
-      //     "product-title-font-weight":"normal",
-      //     "product-title-font-color":"#181818",
-      //     "price-font-size":"18",
-      //     "price-font-family":"AvenirNextRegular",
-      //     "price-font-weight":"normal",
-      //     "price-font-color":"#181818",
-      //     "currency-font-size":"8.5",
-      //     "currency-font-family":"AvenirNextRegular",
-      //     "currency-font-weight":"normal",
-      //     "currency-font-color":"#181818",
-      //     "price-box-bg-color":"#fbf00b",
-      //     "header-color":"#181818",
-      //     "footer-color":"#181818",
-      //     "promo-resizer": "40"
-      //   }
-      // };
+      global_template_data["item-data"] = [];
 
-      // var grid = $('.grid-stack').data('gridstack');
+      var grid = $('.grid-stack').data('gridstack');
 
-      // grid.destroy();
-      // var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">`
-      // $("#flyer-grid").html(html_string);
-      // create_flyer_grid();
+      grid.destroy();
+      var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">`
+      $("#flyer-grid").html(html_string);
+      create_flyer_grid();
+      set_editor_style();
     });
 
 
