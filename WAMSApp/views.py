@@ -1575,7 +1575,14 @@ class CreateFlyerAPI(APIView):
 
                                 flyer_obj.product_bucket.add(product_obj)
                                 try:
-                                    main_image_obj = product_obj.main_images.filter(is_main_image=True)[0]
+                                    main_images_objs = MainImages.objects.filter(product = product_obj)
+                                    
+                                    for main_images_obj in main_images_objs:
+                                        if main_images_obj.main_image.filter(is_main_image=True).count() > 0:
+                                            break
+
+                                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                                    
                                     try:
                                         image_url = main_image_obj.image.mid_image.url
                                     except Exception as e:
@@ -1586,7 +1593,7 @@ class CreateFlyerAPI(APIView):
                                 try:
                                     product_title = convert_to_ascii(dfs.iloc[i][1])
                                     if product_title == "nan":
-                                        product_title = product_obj.product_name_amazon_uk
+                                        product_title = product_obj.product_name
                                 except Exception as e:
                                     logger.warning("product_title error %s", str(e))
 
