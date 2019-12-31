@@ -1708,10 +1708,10 @@ class FetchFlyerDetailsAPI(APIView):
                     for main_images_obj in main_images_objs:
                         main_images_list += main_images_obj.main_images.all()
                         if main_images_obj.main_image.filter(is_main_image=True).count() > 0 and flag==0:
+                            main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                             flag = 1
 
                     main_images_list = set(main_images_list)
-                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                     
                     main_image_url = main_image_obj.image.mid_image.url
                 
@@ -2061,10 +2061,10 @@ class AddProductFlyerBucketAPI(APIView):
                 for main_images_obj in main_images_objs:
                     main_images_list += main_images_obj.main_images.all()
                     if main_images_obj.main_image.filter(is_main_image=True).count() > 0 and flag==0:
+                        main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                         flag=1
 
                 main_images_list = set(main_images_list)
-                main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                 
                 image_url = main_image_obj.image.image.urlrl
             
@@ -2153,9 +2153,14 @@ class AddProductPFLBucketAPI(APIView):
 
             seller_sku = product_obj.seller_sku
             image_url = None
-            if product_obj.main_images.filter(is_main_image=True).count() > 0:
-                image_url = product_obj.main_images.filter(
-                    is_main_image=True)[0].image.image.url
+
+            main_images_objs = MainImages.objects.filter(product = product_obj)
+            
+            for main_images_obj in main_images_objs:
+                if main_images_obj.main_image.filter(is_main_image=True).count() > 0:
+                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                    image_url = main_image_obj.image.image.url
+                    break
 
             response["product_name"] = product_obj.product_name_sap
             response["product_pk"] = product_obj.pk
@@ -2194,10 +2199,26 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
 
             images = {}
 
+            main_images_objs = MainImages.objects.filter(product = product_obj)
+            
+            main_images_list = []
+            for main_images_obj in main_images_objs:
+                main_images_list += main_images_obj.main_images.all()
+
+            main_images_list = set(main_images_list)
+
+            sub_images_objs = SubImages.objects.filter(product = product_obj)
+            
+            sub_images_list = []
+            for sub_images_obj in sub_images_objs:
+                sub_images_list += sub_images_obj.sub_images.all()
+
+            sub_images_list = set(sub_images_list)
+
             images["main_images"] = create_response_images_flyer_pfl_main_sub(
-                product_obj.main_images.all())
+                main_images_list)
             images["sub_images"] = create_response_images_flyer_pfl_main_sub(
-                product_obj.sub_images.all())
+                sub_images_list)
             images["pfl_images"] = create_response_images_flyer_pfl(
                 product_obj.pfl_images.all())
             images["white_background_images"] = create_response_images_flyer_pfl(
