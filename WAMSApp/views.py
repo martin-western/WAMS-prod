@@ -746,7 +746,7 @@ class SaveProductAPI(APIView):
 
             brand_obj = None
             if brand != "":
-                brand_obj, created = Brand.objects.prod_objget_or_create(name=brand)
+                brand_obj, created = Brand.objects.get_or_create(name=brand)
 
             prod_obj.product_id = product_id
 
@@ -1558,30 +1558,38 @@ class CreateFlyerAPI(APIView):
 
 
             common = {
-                "currency-unit":"AED",
+                "background-image-url": "none",
                 "border-visible": True,
-                "border-color": "#E9E9E9",
-                "background-image-url":"none",
-                "product-title-font-size":"12",
-                "product-title-font-family":"AvenirNextRegular",
-                "product-title-font-weight":"normal",
-                "product-title-font-color":"#181818",
-                "price-font-size":"18",
-                "price-font-family":"AvenirNextRegular",
-                "price-font-weight":"normal",
-                "price-font-color":"#181818",
-                "strikeprice-font-size":"8.5",
-                "strikeprice-font-family":"AvenirNextRegular",
-                "strikeprice-font-weight":"normal",
-                "strikeprice-font-color":"#181818",
-                "currency-font-size":"8.5",
-                "currency-font-family":"AvenirNextRegular",
-                "currency-font-weight":"normal",
-                "currency-font-color":"#181818",
-                "price-box-bg-color":"#fbf00b",
-                "header-color":"#181818",
-                "footer-color":"#181818",
-                "promo-resizer": "40"
+                "border-color": "#EBEBEB",
+                "super-brand-logo": False,
+                "iso-logo": False,
+                "consumer-logo": False,
+                "brand-name-visible": True,
+                "white-container": True,
+                "price-resizer": "100",
+                "product-title-font-size": "12",
+                "product-title-font-family": "Helvetica",
+                "product-title-font-weight": "bold",
+                "product-title-font-color": "#181818",
+                "price-font-size": "18",
+                "price-font-family": "Helvetica",
+                "price-font-weight": "bold",
+                "price-font-color": "#181818",
+                "currency-font-size": "8.5",
+                "currency-font-family": "Helvetica",
+                "currency-font-weight": "bold",
+                "currency-font-color": "#181818",
+                "currency-unit": "AED",
+                "price-box-bg-color": "#FBF00B",
+                "strikeprice-font-size": "12",
+                "strikeprice-font-family": "Helvetica",
+                "strikeprice-font-weight": "bold",
+                "strikeprice-font-color": "#181818",
+                "strikeprice-visible": True,
+                "header-color": "#181818",
+                "footer-color": "#181818",
+                "all-promo-resizer": "40",
+                "all-image-resizer": "100"
             }
 
             template_data = {
@@ -1608,12 +1616,13 @@ class CreateFlyerAPI(APIView):
                             "image-url": "",
                             "banner-img": "",
                             "image-resizer": "100",
+                            "promo-resizer": "40",
                             "price": "",
                             "strikeprice": "strikeprice",
                             "title": "",
-                            "description": "",
-                            "image-resizer": "100"
+                            "description": ""
                         }
+
                         item_data.append(temp_dict)
                     template_data["item-data"] = item_data
                     flyer_obj.template_data = json.dumps(template_data)
@@ -1722,11 +1731,11 @@ class CreateFlyerAPI(APIView):
                                 "image-url": str(image_url),
                                 "banner-img": "",
                                 "image-resizer": "100",
+                                "promo-resizer": "40",
                                 "price": str(product_price),
                                 "strikeprice": str(product_strikeprice),
                                 "title": str(product_title),
-                                "description": str(product_description),
-                                "image-resizer": "100"
+                                "description": str(product_description)
                             }
                             item_data.append(temp_dict)
 
