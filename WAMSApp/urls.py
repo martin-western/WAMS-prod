@@ -84,4 +84,5 @@ urlpatterns = [
 
     url(r'^channel-product/(?P<pk>[\w-]+)/', views.ChannelProductPage),
 
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

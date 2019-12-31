@@ -378,7 +378,135 @@
 
 <br>
 <div>
-  <div class="row" style="margin:0px;margin-left: 100px;">
+  <div class="row" style="margin: 0 27px 0 100px;">
+    <div class="toolbar"
+      style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
+      <a class="right" href="#!" onclick="window.close()"
+        style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons redd" title="Close" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+          close
+        </i>
+      </a>
+      </br>
+
+      <a class="right" href="/products" style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons homee" title="Products" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+          select_all
+        </i>
+      </a>
+
+      <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
+        <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
+          <i class="material-icons maroonn" title="PFL Editor" style="
+        color: gray;
+        background-color: #f7f7f7;
+        padding: 8px;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;margin-bottom: 10px;">
+            vertical_split
+          </i>
+        </a>
+
+        <a href="#!" class=" right" style="background-color: transparent;display: block;">
+          <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+            timer
+          </i>
+        </a>
+
+        <a href="#!" class=" right" style="background-color: transparent;display: block;">
+          <i id="verified-icon" class="material-icons greenn" title="Verified" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+            verified_user
+          </i>
+        </a>
+
+        <a href="#!" id="main-image-select-save-btn" class="right"
+          style="background-color: transparent;display: block;">
+          <i class="material-icons bluee" title="Set Cover Image" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+            burst_mode
+          </i>
+        </a>
+
+        <a href="#download-export-list-modal" class="modal-trigger right" style="background-color: transparent;">
+          <i class="material-icons greenn" title="Export Product Details" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+            file_download
+          </i>
+        </a>
+
+        {% if perms.WAMSApp.change_product %}
+        <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
+          <i class="material-icons purplee" title="Save" style="
+          background-color: #f7f7f7;
+          padding: 8px;
+          color: gray;
+          border-radius: 5px;
+          margin-left: 8px;
+          font-size: 20px;
+          margin-right: 9px;
+          display: block;
+          margin-bottom: 10px;">
+            save
+          </i>
+        </a>
+        {% endif %}
+      </div>
+    </div>
     <div class="col s4 image-section" style="height: 90vh;">
       <div class="main-image" style="position: relative;">
         <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
@@ -1204,6 +1332,28 @@
         </div>
 
       </div>
+    </div>
+    <div class="toolbar"
+      style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
+      <a class="right" href="#!" onclick="window.close()"
+        style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons redd" title="Close" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+          menu
+        </i>
+      </a>
+      </br>
+
+
+
     </div>
   </div>
 </div>
