@@ -309,6 +309,22 @@ class BaseProduct(models.Model):
             self.created_date = timezone.now
         super(BaseProduct, self).save(*args, **kwargs)
 
+        
+class ChannelProduct(models.Product):
+    
+    # product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
+    noon_product_json = models.TextField(blank=True,default=noon_product_json)
+    amazon_uk_product_json = models.TextField(blank=True,default=amazon_uk_product_json)
+    amazon_uae_product_json = models.TextField(blank=True,default=amazon_uae_product_json)
+    ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
+
+    class Meta:
+        verbose_name = "ChannelProduct"
+        verbose_name_plural = "ChannelProducts"
+
+    def __str__(self):
+        return str(self.pk)
+
 class Product(models.Model):
 
     #MISC
@@ -397,20 +413,6 @@ class SubImages(models.Model):
     def __str__(self):
         return str(self.pk)
     
-class ChannelProduct(models.Product):
-    
-    # product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
-    noon_product_json = models.TextField(blank=True,default=noon_product_json)
-    amazon_uk_product_json = models.TextField(blank=True,default=amazon_uk_product_json)
-    amazon_uae_product_json = models.TextField(blank=True,default=amazon_uae_product_json)
-    ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
-
-    class Meta:
-        verbose_name = "ChannelProduct"
-        verbose_name_plural = "ChannelProducts"
-
-    def __str__(self):
-        return str(self.pk)
 
 class Flyer(models.Model):
 
