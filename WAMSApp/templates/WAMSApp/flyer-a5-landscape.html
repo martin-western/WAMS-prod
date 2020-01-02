@@ -704,6 +704,7 @@
                 <option value="aplus_content_images" id="aplus-content-images-option">A+ Content Images</option>
                 <option value="ads_images" id="ads-images-option">Ads Images</option>
                 <option value="unedited_images" id="unedited-images-option">Unedited Images</option>
+                <option value="transparent_images" id="transparent-images-option">Transparent Images</option>
               </select>
             </div>
 
@@ -2304,6 +2305,7 @@
       $("#aplus-content-images-option").html("A+ Content Images ("+global_product_images_dict[global_selected_product_pk]["aplus_content_images"].length+")");
       $("#ads-images-option").html("Ads Images ("+global_product_images_dict[global_selected_product_pk]["ads_images"].length+")");
       $("#unedited-images-option").html("Unedited Images ("+global_product_images_dict[global_selected_product_pk]["unedited_images"].length+")");
+      $("#transparent-images-option").html("Transparent Images ("+global_product_images_dict[global_selected_product_pk]["transparent_images"].length+")");
 
       update_image_categories("all_images");
       $("#image-categories-thumbnails-select").val("all_images");
