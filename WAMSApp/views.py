@@ -308,9 +308,9 @@ class FetchProductDetailsAPI(APIView):
             base_product_obj = product_obj.base_product
             channel_product_obj = product_obj.channel_product
             noon_product_dict = json.loads(channel_product_obj.noon_product_json)
-            amazon_uk_product_dict = json.loads(channel_product_obj.noon_product_json)
-            amazon_uae_product_dict = json.loads(channel_product_obj.noon_product_json)
-            ebay_product_dict = json.loads(channel_product_obj.noon_product_json)
+            amazon_uk_product_dict = json.loads(channel_product_obj.amazon_uk_product_json)
+            amazon_uae_product_dict = json.loads(channel_product_obj.amazon_uae_product_json)
+            ebay_product_dict = json.loads(channel_product_obj.ebay_product_json)
             brand_obj = base_product_obj.brand
 
             permissible_brands = custom_permission_filter_brands(request.user)
@@ -338,13 +338,13 @@ class FetchProductDetailsAPI(APIView):
                 response["barcode_string"] = ''
             logger.info("%s",amazon_uk_product_dict)
             response["product_name_amazon_uk"] = amazon_uk_product_dict["product_name"]
-            response["product_name_amazon_uae"] = amazon_uae_product_dict.product_name
-            response["product_name_ebay"] = ebay_product_dict.product_name
-            response["product_name_sap"] = product_obj.product_name_sap
+            response["product_name_amazon_uae"] = amazon_uae_product_dict["product_name"]
+            response["product_name_ebay"] = ebay_product_dict["product_name"]
+            response["product_name_noon"] = noon_product_dict["product_name"]
 
-            response["product_name_noon"] = product_obj.product_name_noon
-            response["category"] = product_obj.category
-            response["subtitle"] = product_obj.subtitle
+            response["product_name_sap"] = product_obj.product_name_sap
+            response["category"] = base_product_obj.category
+            response["subtitle"] = base_product_obj.subtitle
             
             response["factory_notes"] = product_obj.factory_notes
 
@@ -357,36 +357,32 @@ class FetchProductDetailsAPI(APIView):
             response["product_id"] = product_obj.product_id
             response["product_id_type"] = product_obj.product_id_type
 
-            response["noon_product_type"] = noon_product_dict.product_type
-            response["noon_product_subtype"] = noon_product_dict.product_subtype
-            response["noon_model_number"] = noon_product_dict.model_number
-            response["noon_model_name"] = noon_product_dict.model_name
+            response["noon_product_type"] = noon_product_dict["product_type"]
+            response["noon_product_subtype"] = noon_product_dict["product_subtype"]
+            response["noon_model_number"] = noon_product_dict["model_number"]
+            response["noon_model_name"] = noon_product_dict["model_name"]
 
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
-            response["condition_type"] = product_obj.condition_type
-            response["feed_product_type"] = amazon_uk_product_dict.feed_product_type
-            response["update_delete"] = amazon_uk_product_dict.update_delete
-            response["recommended_browse_nodes"] = amazon_uk_product_dict.recommended_browse_nodes
-            response["product_description_amazon_uk"] = amazon_uk_product_dict.product_description
-            response["product_description_amazon_uae"] = amazon_uae_product_dict.product_description
-            response["product_description_ebay"] = ebay_product_dict.product_description
-            response["product_description_noon"] = noon_product_dict.product_description
-            response["product_attribute_list_amazon_uk"] = json.loads(
-                amazon_uk_product_dict.product_attribute_list)
-            response["product_attribute_list_amazon_uae"] = json.loads(
-                amazon_uae_product_dict.product_attribute_list)
-            response["product_attribute_list_ebay"] = json.loads(
-                ebay_product_dict.product_attribute_list)
-            response["product_attribute_list_noon"] = json.loads(
-                noon_product_dict.product_attribute_list)
-            response["search_terms"] = amazon_uk_product_dict.search_terms
+            
+            response["condition_type"] = amazon_uk_product_dict["condition_type"]
+            response["feed_product_type"] = amazon_uk_product_dict["feed_product_type"]
+            response["update_delete"] = amazon_uk_product_dict["update_delete"]
+            response["recommended_browse_nodes"] = amazon_uk_product_dict["recommended_browse_nodes"]
+            response["product_description_amazon_uk"] = amazon_uk_product_dict["product_description"]
+            response["product_description_amazon_uae"] = amazon_uae_product_dict["product_description"]
+            response["product_description_ebay"] = ebay_product_dict["product_description"]
+            response["product_description_noon"] = noon_product_dict["product_description"]
+            response["product_attribute_list_amazon_uk"] = amazon_uk_product_dict["product_attribute_list"]
+            response["product_attribute_list_amazon_uae"] = amazon_uae_product_dict["product_attribute_list"]
+            response["product_attribute_list_ebay"] = ebay_product_dict["product_attribute_list"]
+            response["product_attribute_list_noon"] = noon_product_dict["product_attribute_list"]
+            response["search_terms"] = amazon_uk_product_dict["search_terms"]
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
-            response["enclosure_material"] = amazon_uk_product_dict.enclosure_material
-            response["cover_material_type"] = amazon_uk_product_dict.cover_material_type
-            response["special_features"] = json.loads(
-                amazon_uk_product_dict.special_features)
+            response["enclosure_material"] = amazon_uk_product_dict["enclosure_material"]
+            response["cover_material_type"] = amazon_uk_product_dict["cover_material_type"]
+            response["special_features"] = amazon_uk_product_dict["special_features"]
 
             response["package_length"] = "" if base_product_obj.package_length == None else base_product_obj.package_length
             response["package_length_metric"] = base_product_obj.package_length_metric
@@ -418,46 +414,46 @@ class FetchProductDetailsAPI(APIView):
             response["item_display_height_metric"] = base_product_obj.item_display_height_metric
 
             
-            response["item_count"] = "" if product_obj.item_count == None else product_obj.item_count
-            response["item_count_metric"] = product_obj.item_count_metric
-            response["item_condition_note"] = product_obj.item_condition_note
-            response["max_order_quantity"] = "" if product_obj.max_order_quantity == None else product_obj.max_order_quantity
-            response["number_of_items"] = "" if product_obj.number_of_items == None else product_obj.number_of_items
+            response["item_count"] = "" if amazon_uk_product_dict["item_count"] == None else amazon_uk_product_dict["item_count"]
+            response["item_count_metric"] = amazon_uk_product_dict["item_count_metric"]
+            response["item_condition_note"] = amazon_uk_product_dict["item_condition_note"]
+            response["max_order_quantity"] = "" if amazon_uk_product_dict["max_order_quantity"] == None else amazon_uk_product_dict["max_order_quantity"]
+            response["number_of_items"] = "" if amazon_uk_product_dict["number_of_items"] == None else amazon_uk_product_dict["number_of_items"]
             
-            response["wattage"] = "" if amazon_uk_product_dict.wattage == None else amazon_uk_product_dict.wattage
-            response["wattage_metric"] = amazon_uk_product_dict.wattage_metric
-            response["material_type"] = amazon_uk_product_dict.material_type
-            response["parentage"] = amazon_uk_product_dict.parentage
-            response["parent_sku"] = amazon_uk_product_dict.parent_sku
-            response["relationship_type"] = amazon_uk_product_dict.relationship_type
-            response["variation_theme"] = amazon_uk_product_dict.variation_theme
-            response["standard_price"] = "" if amazon_uk_product_dict.standard_price == None else amazon_uk_product_dict.standard_price
-            response["quantity"] = "" if amazon_uk_product_dict.quantity == None else amazon_uk_product_dict.quantity
-            response["sale_price"] = "" if amazon_uk_product_dict.sale_price == None else amazon_uk_product_dict.sale_price
-            response["sale_from"] = "" if amazon_uk_product_dict.sale_from == None else amazon_uk_product_dict.sale_from
-            response["sale_end"] = "" if amazon_uk_product_dict.sale_end == None else amazon_uk_product_dict.sale_end
-            response["sale_price"] = "" if amazon_uk_product_dict.sale_price == None else amazon_uk_product_dict.sale_price
+            response["wattage"] = "" if amazon_uk_product_dict["wattage"] == None else amazon_uk_product_dict["wattage"]
+            response["wattage_metric"] = amazon_uk_product_dict["wattage_metric"]
+            response["material_type"] = amazon_uk_product_dict["material_type"]
+            response["parentage"] = amazon_uk_product_dict["parentage"]
+            response["parent_sku"] = amazon_uk_product_dict["parent_sku"]
+            response["relationship_type"] = amazon_uk_product_dict["relationship_type"]
+            response["variation_theme"] = amazon_uk_product_dict["variation_theme"]
+            response["standard_price"] = "" if product_obj.standard_price == None else product_obj.standard_price
+            response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
+            response["sale_price"] = "" if amazon_uk_product_dict["sale_price"] == None else amazon_uk_product_dict["sale_price"]
+            response["sale_from"] = "" if amazon_uk_product_dict["sale_from"] == None else amazon_uk_product_dict["sale_from"]
+            response["sale_end"] = "" if amazon_uk_product_dict["sale_end"] == None else amazon_uk_product_dict["sale_end"]
+            response["sale_price"] = "" if amazon_uk_product_dict["sale_price"] == None else amazon_uk_product_dict["sale_price"]
             
 
-            response["noon_msrp_ae"] = "" if noon_product_dict.noon_msrp_ae == None else noon_product_dict.noon_msrp_ae
-            response["noon_msrp_ae_unit"] = str(noon_product_dict.noon_msrp_ae_unit)
+            response["noon_msrp_ae"] = "" if noon_product_dict["msrp_ae"] == None else noon_product_dict["msrp_ae"]
+            response["noon_msrp_ae_unit"] = str(noon_product_dict["msrp_ae_unit"])
 
             response["verified"] = product_obj.verified
 
             images = {}
 
-            main_images_list = []
+            main_images_list = ImageBucket.objects.none()
             main_images_objs = MainImages.objects.filter(product=product_obj)
             for main_images_obj in main_images_objs:
-                main_images_list+=main_images_obj.main_images.all()
-            main_images_list = set(main_images_list)
+                main_images_list|=main_images_obj.main_images.all()
+            main_images_list = main_images_list.distinct()
             images["main_images"] = create_response_images_main(main_images_list)
             
-            sub_images_list = []
+            sub_images_list = ImageBucket.objects.none()
             sub_images_objs = SubImages.objects.filter(product=product_obj)
             for sub_images_obj in sub_images_objs:
-                sub_images_list+=sub_images_obj.sub_images.all()
-            sub_images_list = set(sub_images_list)
+                sub_images_list|=sub_images_obj.sub_images.all()
+            sub_images_list = sub_images_list.distinct()
             images["sub_images"] = create_response_images_main(sub_images_list)
             
             images["pfl_images"] = create_response_images(

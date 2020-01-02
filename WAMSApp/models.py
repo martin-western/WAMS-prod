@@ -26,7 +26,7 @@ noon_product_json = {
     "msrp_ae" : "",
     "msrp_ae_unit" : "",
     "product_description" : "",
-    "product_attribute_list" : "",
+    "product_attribute_list" : [],
     "created_date" : ""
 }
 
@@ -39,7 +39,7 @@ amazon_uk_product_json = {
     "variation_theme" : "",
     "product_name" : "",
     "product_description" : "",
-    "product_attribute_list" : "",
+    "product_attribute_list" : [],
     "created_date" : "",
     "subtitle" : "",
     "feed_product_type" : "",
@@ -48,7 +48,7 @@ amazon_uk_product_json = {
     "search_terms" : "",
     "enclosure_material" : "",
     "cover_material_type" : "",
-    "special_features" : "",
+    "special_features" : [],
     "sale_price" : "",
     "sale_from" : "",
     "sale_end" :  "",
@@ -63,14 +63,15 @@ amazon_uk_product_json = {
     "item_condition_note" : "",
     "max_order_quantity" : "",
     "number_of_items" : "",
-
+    "material_type" : "",
+    "condition_type" : "",
 }
 
 amazon_uae_product_json = {
 
     "product_name" : "",
     "product_description" : "",
-    "product_attribute_list" : "",
+    "product_attribute_list" : [],
     "created_date" : ""
   
 }
@@ -80,7 +81,7 @@ ebay_product_json = {
     "category" : "",
     "product_name" : "",
     "product_description" : "",
-    "product_attribute_list" : "",
+    "product_attribute_list" : [],
     "created_date" : ""
         
 }
@@ -334,7 +335,7 @@ class Product(models.Model):
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
-    condition_type = models.CharField(max_length=200,null=True)
+    
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
