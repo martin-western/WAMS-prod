@@ -864,7 +864,7 @@ class FetchProductListAPI(APIView):
 
             if filter_parameters["brand_pk"] != "":
                 brand_obj = Brand.objects.get(pk=filter_parameters["brand_pk"])
-                product_objs_list = product_objs_list.filter(brand=brand_obj)
+                product_objs_list = product_objs_list.filter(base_product__brand=brand_obj)
 
             if filter_parameters["min_price"] != "":
                 product_objs_list = product_objs_list.filter(
@@ -877,21 +877,21 @@ class FetchProductListAPI(APIView):
             if filter_parameters["has_image"] == "1":
                 for product_obj in product_objs_list:
                     if has_atleast_one_image(product_obj)==False:
-                        product_objs_list.remove(product_obj)
+                        product_objs_list.exclude(pk=product_obj.pk)
             elif filter_parameters["has_image"] == "0":
                 for product_obj in product_objs_list:
                     if has_atleast_one_image(product_obj)==True:
-                        product_objs_list.remove(product_obj)
+                        product_objs_list.exclude(pk=product_obj.pk)
 
             if len(chip_data) == 0:
                 search_list_objs = product_objs_list
             else:
                 for tag in chip_data:
                     search = product_objs_list.filter(
-                        Q(product_name_icontains=tag) |
-                        Q(product_name_sap_icontains=tag) |
+                        Q(product_name__icontains=tag) |
+                        Q(product_name_sap__icontains=tag) |
                         Q(product_id__icontains=tag) |
-                        Q(seller_sku__icontains=tag)
+                        Q(base_product__seller_sku__icontains=tag)
                     )
                     for prod in search:
                         search_list_objs.append(prod)
@@ -1757,7 +1757,7 @@ class FetchFlyerDetailsAPI(APIView):
 
                 images_dict[product_obj.pk] = images
 
-                product_bucket_list.append(temp_dict)
+                product_list.append(temp_dict)
 
             template_data = json.loads(flyer_obj.template_data)
 
@@ -1781,7 +1781,7 @@ class FetchFlyerDetailsAPI(APIView):
                                e, str(exc_tb.tb_lineno))
 
             response["flyer_name"] = name
-            response["product_bucket_list"] = product_bucket_list
+            response["product_bucket_list"] = product_list
             response["template_data"] = template_data
             response["images"] = images_dict
             #response["external_images_bucket_list"] = external_images_bucket_list
@@ -1966,7 +1966,7 @@ class FetchProductListFlyerPFLAPI(APIView):
                 if "flyer_pk" in data:
                     brand_obj = Flyer.objects.get(
                         pk=int(data["flyer_pk"])).brand
-                    product_objs = product_objs.filter(brand=brand_obj)
+                    product_objs = product_objs.filter(base_product__brand=brand_obj)
             except Exception as e:
                 logger.warning("Issue with filtering brands %s", str(e))
 
