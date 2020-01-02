@@ -409,6 +409,7 @@ body {
             <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
             <option value="Ads Images" id="ads-images-option">Ads Images</option>
             <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
+            <option value="Transparent Images" id="transparent-images-option">Transparent Images</option>
           </select>
         </div>
 
@@ -1822,6 +1823,7 @@ body {
           $("#aplus-content-images-option").html("A+ Content Images ("+global_images["aplus_content_images"].length+")");
           $("#ads-images-option").html("Ads Images ("+global_images["ads_images"].length+")");
           $("#unedited-images-option").html("Unedited Images ("+global_images["unedited_images"].length+")");
+          $("#transparent-images-option").html("Transparent Images ("+global_images["transparent_images"].length+")");
           
           update_grid_images(global_image_key);
 
@@ -2122,6 +2124,7 @@ body {
         $("#aplus-content-images-option").html("A+ Content Images ("+global_images["aplus_content_images"].length+")");
         $("#ads-images-option").html("Ads Images ("+global_images["ads_images"].length+")");
         $("#unedited-images-option").html("Unedited Images ("+global_images["unedited_images"].length+")");
+        $("#transparent-images-option").html("Transparent Images ("+global_images["transparent_images"].length+")");
         
         update_grid_images(global_image_key);
 
@@ -2651,6 +2654,11 @@ body {
     {
        update_grid_images("unedited_images");
       global_image_key = "unedited_images";
+    }
+    else if($("#images-category").val()=="Transparent Images")
+    {
+       update_grid_images("transparent_images");
+      global_image_key = "transparent_images";
     }
   });
 

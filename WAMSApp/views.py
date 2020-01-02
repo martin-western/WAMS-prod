@@ -470,12 +470,14 @@ class FetchProductDetailsAPI(APIView):
                 prod_obj.ads_images.all())
             images["unedited_images"] = create_response_images(
                 prod_obj.unedited_images.all())
+            images["transparent_images"] = create_response_images(
+                prod_obj.transparent_images.all())
 
             images["all_images"] = images["pfl_images"] + images["pfl_generated_images"] + \
                 images["white_background_images"] + images["lifestyle_images"] + \
                 images["certificate_images"] + images["giftbox_images"] + \
                 images["diecut_images"] + images["aplus_content_images"] + \
-                images["ads_images"] + images["unedited_images"] + create_response_images_main_sub_delete(prod_obj.main_images.all()) + create_response_images_main_sub_delete(prod_obj.sub_images.all())
+                images["ads_images"] + images["unedited_images"] + images["transparent_images"] + create_response_images_main_sub_delete(prod_obj.main_images.all()) + create_response_images_main_sub_delete(prod_obj.sub_images.all())
 
 
 
@@ -953,6 +955,7 @@ class FetchProductListAPI(APIView):
                     num_aplus_content_images=Count('aplus_content_images'),
                     num_ads_images=Count('ads_images'),
                     num_unedited_images=Count('unedited_images'),
+                    num_transparent_images=Count('transparent_images'),
                     num_pfl_generated_images=Count('pfl_generated_images')).exclude(num_main_images=0,
                                                                                     num_pfl_images=0,
                                                                                     num_sub_images=0,
@@ -964,6 +967,7 @@ class FetchProductListAPI(APIView):
                                                                                     num_aplus_content_images=0,
                                                                                     num_ads_images=0,
                                                                                     num_unedited_images=0,
+                                                                                    num_transparent_images=0,
                                                                                     num_pfl_generated_images=0)
             if filter_parameters["has_image"] == "2":
                 product_objs_list = product_objs_list.annotate(
@@ -979,7 +983,8 @@ class FetchProductListAPI(APIView):
                     num_aplus_content_images=Count('aplus_content_images'),
                     num_ads_images=Count('ads_images'),
                     num_unedited_images=Count('unedited_images'),
-                    num_pfl_generated_images=Count('pfl_generated_images')).exclude(num_main_images__gt=0).exclude(num_pfl_images__gt=0).exclude(num_sub_images__gt=0).exclude(num_white_background_images__gt=0).exclude(num_lifestyle_images__gt=0).exclude(num_certificate_images__gt=0).exclude(num_giftbox_images__gt=0).exclude(num_diecut_images__gt=0).exclude(num_aplus_content_images__gt=0).exclude(num_ads_images__gt=0).exclude(num_unedited_images__gt=0).exclude(num_pfl_generated_images__gt=0)
+                    num_transparent_images=Count('transparent_images'),
+                    num_pfl_generated_images=Count('pfl_generated_images')).exclude(num_main_images__gt=0).exclude(num_pfl_images__gt=0).exclude(num_sub_images__gt=0).exclude(num_white_background_images__gt=0).exclude(num_lifestyle_images__gt=0).exclude(num_certificate_images__gt=0).exclude(num_giftbox_images__gt=0).exclude(num_diecut_images__gt=0).exclude(num_aplus_content_images__gt=0).exclude(num_ads_images__gt=0).exclude(num_unedited_images__gt=0).exclude(num_transparent_images__gt=0).exclude(num_pfl_generated_images__gt=0)
 
             if len(chip_data) == 0:
                 search_list_objs = product_objs_list
@@ -1421,6 +1426,9 @@ class UploadProductImageAPI(APIView):
             elif data["image_category"] == "unedited_images":
                 for image_obj in image_objs:
                     prod_obj.unedited_images.add(image_obj)
+            elif data["image_category"] == "transparent_images":
+                for image_obj in image_objs:
+                    prod_obj.transparent_images.add(image_obj)
 
             prod_obj.save()
 
@@ -1819,11 +1827,14 @@ class FetchFlyerDetailsAPI(APIView):
                     product_bucket_obj.ads_images.all())
                 images["unedited_images"] = create_response_images_flyer_pfl(
                     product_bucket_obj.unedited_images.all())
+                images["transparent_images"] = create_response_images_flyer_pfl(
+                    product_bucket_obj.transparent_images.all())
+
 
                 images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
                     images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
                     images["aplus_content_images"] + \
-                    images["ads_images"]+images["unedited_images"]
+                    images["ads_images"]+images["unedited_images"]+images["transparent_images"]
 
                 images_dict[product_bucket_obj.pk] = images
 
@@ -2135,11 +2146,13 @@ class AddProductFlyerBucketAPI(APIView):
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images_flyer_pfl(
                 product_obj.unedited_images.all())
+            images["transparent_images"] = create_response_images_flyer_pfl(
+                product_obj.transparent_images.all())
 
             images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
                 images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
                 images["aplus_content_images"] + \
-                images["ads_images"]+images["unedited_images"]
+                images["ads_images"]+images["unedited_images"]+images["transparent_images"]
 
             response["images"] = images
             response["product_pk"] = product_obj.pk
@@ -2248,6 +2261,8 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images_flyer_pfl(
                 product_obj.unedited_images.all())
+            images["transparent_images"] = create_response_images_flyer_pfl(
+                product_obj.transparent_images.all())
             images["pfl_generated_images"] = create_response_images_flyer_pfl(
                 product_obj.pfl_generated_images.all())
             images["external_images"] = create_response_images_flyer_pfl(
