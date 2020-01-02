@@ -72,7 +72,10 @@ amazon_uae_product_json = {
     "product_name" : "",
     "product_description" : "",
     "product_attribute_list" : [],
-    "created_date" : ""
+    "created_date" : "",
+    "feed_product_type" : "",
+    "recommended_browse_nodes" : "",
+    "update_delete" : ""
   
 }
 
@@ -277,6 +280,7 @@ class BaseProduct(models.Model):
     package_height_metric = models.CharField(max_length=100, default="")
     package_weight = models.FloatField(null=True, blank=True)
     package_weight_metric = models.CharField(max_length=100, default="")
+    package_quantity = models.CharField(max_length=100, default="")
     shipping_weight = models.FloatField(null=True, blank=True)
     shipping_weight_metric = models.CharField(max_length=100, default="")
     item_display_weight = models.FloatField(null=True, blank=True)
