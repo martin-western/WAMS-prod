@@ -385,6 +385,10 @@ class Product(models.Model):
             self.modified_date = timezone.now()
         if self.uuid == None:
             self.uuid = uuid.uuid4()
+
+        if self.channel_product == None:
+            channel_product_obj = ChannelProduct.objects.create()
+            self.channel_product = channel_product_obj
         super(Product, self).save(*args, **kwargs)
 
 
