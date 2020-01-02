@@ -556,7 +556,7 @@
     .grid-item-sticker {  
       position: absolute; 
       top: 10px; 
-      left: 10px;  
+      left: 10px;
     } 
     .grid-item-sticker > img {  
       height: auto; 
@@ -1407,6 +1407,22 @@
     });
 
 
+    function update_promo_position()
+    {
+      var banner_imgs = $(".banner-img");
+      for(var i=0;i<banner_imgs.length;i++)
+      {
+        if(banner_imgs[i].src.includes("warranty.png"))
+        {
+          $(banner_imgs[i]).parent().css({"position": "absolute", "left":"10px", "top":"10px", "text-align": "left"});
+        }
+        else
+        {
+          $(banner_imgs[i]).parent().css({"position": "absolute", "right":"10px", "top":"10px", "text-align":"right"});
+        }
+      }
+    }
+
 
     $('input[type=radio][name=group1]').change(function() {
         if (this.value == "None") {
@@ -1437,6 +1453,8 @@
             $(".banner-img").attr("src", "/files/warranty.png");
             $(".banner-img").show();
         }
+
+        update_promo_position();
     });
 
 
@@ -1464,6 +1482,7 @@
             $("#banner-img-"+global_selected_grid_id).attr("src", "/files/warranty.png");
             $("#banner-img-"+global_selected_grid_id).show();
         }
+        update_promo_position();
     });
 
 
