@@ -553,7 +553,7 @@ class SaveProductAPI(APIView):
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             base_product_obj = Product.base_product
 
-            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1 or Product.objects.filter(seller_sku=seller_sku).exclude(pk=data["product_pk"]).count() >= 1:
+            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1 or Product.objects.filter(base_product__seller_sku=seller_sku).exclude(pk=data["product_pk"]).count() >= 1:
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
                 return Response(data=response)
@@ -679,7 +679,7 @@ class SaveProductAPI(APIView):
 
             brand_obj = None
             if brand != "":
-                brand_obj, created = Brand.objects.product_objget_or_create(name=brand)
+                brand_obj, created = Brand.objects.get_or_create(name=brand)
 
             product_obj.product_id = product_id
 
@@ -1254,7 +1254,7 @@ class UploadProductImageAPI(APIView):
                 return Response(data=response)
 
             data = request.data
-            #logger.info("UploadProductImageAPI: %s", str(data))
+            logger.info("UploadProductImageAPI: %s", str(data))
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
 
@@ -1270,11 +1270,11 @@ class UploadProductImageAPI(APIView):
                 for image_obj in image_objs:
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
-                    if data["channel"] == None:
-                        main_images_obj = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                    if data["channel"] == "" or data["channel"] == None:
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
                     else:
-                        channel_obj = Channel.objects.get(name=channel_obj)
-                        main_images_obj = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        channel_obj = Channel.objects.get(name=data["channel"])
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
                     
                     main_images_obj.main_images.add(image_bucket_obj)
 
@@ -1292,11 +1292,11 @@ class UploadProductImageAPI(APIView):
 
             elif data["image_category"] == "sub_images":
                 index = 0
-                if data["channel"] == None:
-                    sub_images_obj = SubImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                if data["channel"] == "" or data["channel"] == None:
+                    sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,is_sourced=True)
                 else:
-                    channel_obj = Channel.objects.get(name=channel_obj)
-                    sub_images_obj = SubImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                    channel_obj = Channel.objects.get(name=data["channel"])
+                    sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,channel=channel_obj)
                     
                 sub_images = sub_images_obj.sub_images.all().order_by('-sub_image_index')
                 if sub_images.count() > 0:
@@ -1967,6 +1967,7 @@ class FetchProductListFlyerPFLAPI(APIView):
                     brand_obj = Flyer.objects.get(
                         pk=int(data["flyer_pk"])).brand
                     product_objs = product_objs.filter(base_product__brand=brand_obj)
+                    logger.info("Product Objects in FetchProductListFlyerPFLApi : %s", product_objs)
             except Exception as e:
                 logger.warning("Issue with filtering brands %s", str(e))
 

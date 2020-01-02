@@ -21,11 +21,14 @@ def export_amazon_uae(products):
                 writer.writerow(row)
 
         for product in products:
+            base_product = product.base_product
+            channel_product = product.channel_product
+            amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
             common_row = ["" for i in range(25)]
             common_row[0] = "UAE"
-            common_row[1] = product.feed_product_type
-            common_row[2] = product.seller_sku
-            common_row[3] = "" if product.brand==None else product.brand.name
+            common_row[1] = amazon_uae_product["feed_product_type"]
+            common_row[2] = base_product.seller_sku
+            common_row[3] = "" if base_product.brand==None else base_product.brand.name
             common_row[4] = product.product_id
             common_row[5] = product.product_id_type
             common_row[6] = product.product_name_amazon_uae
