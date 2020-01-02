@@ -378,7 +378,7 @@
 
 <br>
 <div>
-  <div class="row" style="margin: 0 27px 0 100px;">
+  <div class="row" style="margin: 0 52px 0 60px;">
     <div class="toolbar"
       style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
       <a class="right" href="#!" onclick="window.close()"
@@ -559,7 +559,7 @@
       </div>
     </div>
 
-    <div class="col s8 center" style="position: relative; right: 30px;">
+    <div id="collapse-div" class="col s8 center" style="padding: 0;transition: width 0.5s;">
       <ul class="scroll-style-2 tabs">
         <li class="active tab"><a href="#vital">VITAL</a></li>
         <li class="tab"><a id="information-tab" href="#information">INFORMATION</a></li>
@@ -1332,31 +1332,31 @@
         </div>
 
       </div>
+
+
     </div>
+
+    <div id="sidebar2" class="col s4" style="display: none;">
+      Hello
+    </div>
+
     <div class="toolbar"
       style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
-      <a class="right" href="#!" onclick="window.close()"
-        style="background-color: transparent;display: block;cursor: pointer;">
-        <i class="material-icons redd" title="Close" style="
-      background-color: #f7f7f7;
-      padding: 8px;
-      color: gray;
-      border-radius: 5px;
-      margin-left: 8px;
-      font-size: 20px;
-      margin-right: 9px;
-      display: block;
-      margin-bottom: 10px;">
-          menu
-        </i>
+      <a id="open-it-btn" visible="no" href="#" class="button-collapse show-on-large">
+        <i class="material-icons">add</i>
       </a>
-      </br>
+
 
 
 
     </div>
+
+    <!-- <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a> -->
+
+
   </div>
 </div>
+
 
 
 <div id="upload-image-modal" class="modal">
@@ -1610,15 +1610,54 @@
 </div>
 
 
+<ul id="slide-out" class="sidenav">
+  <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
+  <li><a href="#!">Second Link</a></li>
+  <li>
+    <div class="divider"></div>
+  </li>
+  <li><a class="subheader">Subheader</a></li>
+  <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+</ul>
+
+
 <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
 <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
 <script type="text/javascript">
+
+
 
   $('.tabs').tabs();
   $('.chips').chips();
   $('select').formSelect();
   $('.modal').modal();
   $('body').css('background-color', '#ebebeb');
+  $('.sidenav').sidenav({ edge: 'left' });
+
+
+  $("#open-it-btn").click(function () {
+    if ($(this).attr("visible") == "no") {
+      $(this).attr("visible", "yes");
+      $("#sidebar2").show();
+      $("#collapse-div").attr("class", "col s4 center");
+    }
+    else {
+      $(this).attr("visible", "no");
+      $("#sidebar2").hide();
+      $("#collapse-div").attr("class", "col s8 center");
+    }
+  })
+
+  // $('.button-collapse').sidenav({
+  //   menuWidth: 300, // Default is 240
+  //   edge: 'right', // Choose the horizontal origin
+  //   closeOnClick: true,
+  //   isFixed: true,
+  //   // Closes side-nav on <a> clicks, useful for Angular/Meteor
+  // }
+  // );
+
+
 
   var global_verification_status = false;
   var global_delete_image_pk = null;
