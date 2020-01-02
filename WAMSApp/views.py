@@ -36,8 +36,6 @@ import boto3
 import urllib2
 import pandas as pd
 
-from WAMSApp.models import Product
-
 logger = logging.getLogger(__name__)
 
 
@@ -251,6 +249,7 @@ class CreateNewProductAPI(APIView):
                 permissible_brands = custom_permission_filter_brands(
                     request.user)
                 brand_obj = Brand.objects.get(name=brand_name)
+                logger.info("Brand Obj is %s", str(brand_obj))
                 if brand_obj not in permissible_brands:
                     logger.warning(
                         "CreateNewProductAPI Restricted Access Brand!")
@@ -261,13 +260,12 @@ class CreateNewProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            if Product.objects.filter(seller_sku=seller_sku).exists():
+            if BaseProduct.objects.filter(seller_sku=seller_sku).exists():
                 logger.warning("CreateNewProductAPI Duplicate product detected!")
                 response["status"] = 409
                 return Response(data=response)
 
             base_prod_obj = BaseProduct.objects.create(base_product_name=product_name,
-                                              product_name_sap=product_name,
                                               seller_sku=seller_sku,
                                               brand=brand_obj)
 
@@ -906,20 +904,20 @@ class FetchProductListAPI(APIView):
             products = []
             for product_obj in product_objs:
                 temp_dict = {}
-                # temp_dict["product_name_amazon_uk"] = product_obj.product_name_amazon_uk
+                temp_dict["product_name"] = product_obj.product_name
                 temp_dict["product_id"] = product_obj.product_id
-                temp_dict["seller_sku"] = product_obj.seller_sku
+                temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                 temp_dict["created_date"] = str(
                     product_obj.created_date.strftime("%d %b, %Y"))
                 temp_dict["status"] = product_obj.status
                 temp_dict["product_pk"] = product_obj.pk
 
-                main_images_list = []
+                main_images_list = ImageBucket.objects.none()
                 main_images_objs = MainImages.objects.filter(product=product_obj)
                 for main_images_obj in main_images_objs:
-                    main_images_list+=main_images_obj.main_images.all()
+                    main_images_list |= main_images_obj.main_images.all()
 
-                main_images_list = set(main_images_list)
+                main_images_list = main_images_list.distinct()
                 
                 if main_images_list.filter(is_main_image=True).count() > 0:
                     try:
@@ -932,8 +930,8 @@ class FetchProductListAPI(APIView):
                     temp_dict["main_image"] = Config.objects.all()[
                         0].product_404_image.image.url
 
-                if product_obj.brand != None:
-                    temp_dict["brand"] = product_obj.brand.name
+                if product_obj.base_product.brand != None:
+                    temp_dict["brand"] = product_obj.base_product.brand.name
                 else:
                     temp_dict["brand"] = "-"
 

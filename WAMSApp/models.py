@@ -5,7 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from WAMSApp.utils import *
+#from WAMSApp.utils import *
 
 from PIL import Image as IMAGE
 import StringIO
@@ -306,7 +306,7 @@ class BaseProduct(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk == None:
-            self.created_date = timezone.now
+            self.created_date = timezone.now()
         super(BaseProduct, self).save(*args, **kwargs)
 
 
@@ -379,9 +379,10 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk != None:
-            self.modified_date = timezone.now
+            self.modified_date = timezone.now()
         else:
-            self.created_date = timezone.now
+            self.created_date = timezone.now()
+            self.modified_date = timezone.now()
         if self.uuid == None:
             self.uuid = uuid.uuid4()
         super(Product, self).save(*args, **kwargs)

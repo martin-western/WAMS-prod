@@ -727,8 +727,8 @@ ul.dropdown-content.select-dropdown li span {
               img_tag = `<img src="`+products[i]["main_image"]+`" style="height:3em;width:3em;">`;
             }
 
-            var product_name = products[i]["product_name_amazon_uk"].substring(0, 30);
-            if(products[i]["product_name_amazon_uk"].length>30)
+            var product_name = products[i]["product_name"].substring(0, 30);
+            if(products[i]["product_name"].length>30)
             {
               product_name += "...";
             }
@@ -751,7 +751,7 @@ ul.dropdown-content.select-dropdown li span {
                     <div style="position: absolute;top: 50%;transform: translateY(-18%);">
                     `+img_tag+`
                     </div>
-                    <div style="position: absolute;left: 4rem;font-family:'AvenirNext';letter-spacing: 0.5px;font-weight: 100;color:black;" title="`+products[i]["product_name_amazon_uk"]+`">
+                    <div style="position: absolute;left: 4rem;font-family:'AvenirNext';letter-spacing: 0.5px;font-weight: 100;color:black;" title="`+products[i]["product_name"]+`">
                       `+product_name+`
                     </div>
                     <div style="position: absolute;font-family: 'AvenirNextRegular';left: 4rem;font-size: 12px;top: 1.2rem;color: gray;letter-spacing: 1px;">

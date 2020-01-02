@@ -1,5 +1,3 @@
-from WAMSApp.models import *
-
 from django.core.files.base import ContentFile
 
 from PIL import Image as IMAGE
@@ -9,7 +7,9 @@ import sys
 import imghdr
 import base64
 import six
-import uuid   
+import uuid
+
+from WAMSApp.models import *
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +18,14 @@ def custom_permission_filter_products(user):
     try:
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
-        product_objs = Product.objects.filter(brand__in=brands)
-        return product_objs
+        base_product_objs = BaseProduct.objects.filter(brand__in=brands)
+        
+        product_objs_list = Product.objects.none()
+        
+        for base_product_obj in base_product_objs:
+            product_objs_list |= Product.objects.filter(base_product=base_product_obj)
+            
+        return product_objs_list
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -30,6 +36,7 @@ def custom_permission_filter_products(user):
 def custom_permission_filter_brands(user):
 
     try:
+        from WAMSApp.models import *
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
         return brands
