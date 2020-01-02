@@ -78,5 +78,7 @@ urlpatterns = [
     url(r'^download-product/', views.DownloadProduct),
     url(r'^ecommerce-listing/(?P<pk>[\w-]+)/', views.EcommerceListingPage),
 
+    url(r'^upload-flyer-external-images/', views.UploadFlyerExternalImages),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

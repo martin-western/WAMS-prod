@@ -556,7 +556,7 @@
     .grid-item-sticker {  
       position: absolute; 
       top: 10px; 
-      left: 10px;
+      right: 10px;
     } 
     .grid-item-sticker > img {  
       height: auto; 
@@ -716,6 +716,34 @@
         </div>
 
 
+        <!-- External Image Categories -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">External Image Categories</span>
+            <!-- <a href="#upload-image-modal" id="import-btn" class="disabled" style="position: absolute;">  
+              <i class="material-icons" title="Add Image" style="
+                color: gray;
+                padding: 8px;
+                margin-top: -10px;">
+                add_photo_alternate
+              </i>
+            </a> -->
+            <a href="#upload-image-modal" id="import-btn" class="modal-trigger" style="position: absolute;margin-left: 0.5em;margin-top: -0.2em;">
+              <i class="material-icons" style="font-size: 1.5em;color:#717171;">add_photo_alternate</i>
+            </a>
+          </span>
+          <!-- <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i> -->
+
+          <div class="scroll-style-1 row white hoverable" style="margin-top:0.5em;">
+            <div class="col s12">
+              <div id="external-image-categories-thumbnails-div" class="scroll-style-1 row" style="min-height:3em;max-height: 10em;overflow-y:auto;margin-bottom: 0em;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+
 
         <!-- Background Image Bucket -->
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
@@ -864,7 +892,7 @@
                 </p>
                 <p>
                   <label>
-                    <input id="global-warranty" value="Warranty" name="group1" type="radio"  />
+                    <input id="global-warranty" type="checkbox" class="filled-in checkbox-flyer" />
                     <span>Warranty</span>
                   </label>
                 </p>
@@ -901,7 +929,7 @@
                 </p>
                 <p>
                   <label>
-                    <input id="local-warranty" value="Warranty" name="group2" type="radio"  />
+                    <input id="local-warranty" type="checkbox" class="filled-in checkbox-flyer" />
                     <span>Warranty</span>
                   </label>
                 </p>
@@ -1302,6 +1330,28 @@
 
 
 
+<div id="upload-image-modal" class="modal">
+  <div class="modal-content">
+    <h4 style="font-family:'AvenirNext';font-size:18px;">Upload Image</h4>
+    <div class="file-field input-field">
+      <div class="btn" style = "background-color: #512da8">
+        <span style="font-size:14px;">File</span>
+        <input id="product-image-input" type="file" multiple>
+      </div>
+      <div class="file-path-wrapper">
+        <input class="file-path validate" type="text">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    <a id="upload-image-btn" href="#!" class="waves-effect waves-green btn-flat blue white-text" style="background-color:#009051 !important ;">Upload</a>
+    <div class="progress" id = "upload-preloader" style = "display:none;margin: 0px !important;background-color: white !important;">
+      <div class="indeterminate" style = "background-color: #512de8;"></div>
+    </div>
+  </div>
+</div>
+
 
   <div id="add-new-bg-modal" class="modal">
     <div class="modal-content">
@@ -1407,24 +1457,8 @@
     });
 
 
-    function update_promo_position()
-    {
-      var banner_imgs = $(".banner-img");
-      for(var i=0;i<banner_imgs.length;i++)
-      {
-        if(banner_imgs[i].src.includes("warranty.png"))
-        {
-          $(banner_imgs[i]).parent().css({"position": "absolute", "left":"10px", "top":"10px", "text-align": "left"});
-        }
-        else
-        {
-          $(banner_imgs[i]).parent().css({"position": "absolute", "right":"10px", "top":"10px", "text-align":"right"});
-        }
-      }
-    }
-
-
     $('input[type=radio][name=group1]').change(function() {
+
         if (this.value == "None") {
             $("#local-none").click();
             $(".banner-img").attr("src", "");
@@ -1447,14 +1481,19 @@
             $(".banner-img").attr("src", "/files/wow.png");
             $(".banner-img").show();
         }
-        else if(this.value == "Warranty")
-        {
-            $("#local-warranty").click();
-            $(".banner-img").attr("src", "/files/warranty.png");
-            $(".banner-img").show();
-        }
+    });
 
-        update_promo_position();
+    $("#global-warranty").change(function(){
+      if($("#global-warranty").prop("checked")==true)
+      {
+        $(".banner-img-left").attr("src", "/files/warranty.png");
+        $("#local-warranty").prop("checked", true);
+      }
+      else
+      {
+        $(".banner-img-left").attr("src", "");
+        $("#local-warranty").prop("checked", false);
+      }
     });
 
 
@@ -1477,12 +1516,18 @@
             $("#banner-img-"+global_selected_grid_id).attr("src", "/files/wow.png");
             $("#banner-img-"+global_selected_grid_id).show();
         }
-        else if(this.value == "Warranty")
-        { 
-            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/warranty.png");
-            $("#banner-img-"+global_selected_grid_id).show();
-        }
-        update_promo_position();
+    });
+
+
+    $("#local-warranty").change(function(){
+      if($("#local-warranty").prop("checked"))
+      {
+        $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/warranty.png");
+      }
+      else
+      {
+        $("#banner-img-left-"+global_selected_grid_id).attr("src", "");
+      }
     });
 
 
@@ -1503,6 +1548,7 @@
     var global_selected_product_info_id = "";
     var global_background_images_bucket = [];
     var global_brand_name = "";
+    var global_external_image_bucket = [];
     
     var global_currency_unit = "AED"
     var global_border_visible = true;
@@ -1917,12 +1963,17 @@
       $(".grid-item-sticker img").css("width", R+"px");
       $("#promo-resizer").val(R);    
       $(".grid-item-sticker img").attr("resizer", R);
+      $(".banner-img-left").css("width", R+"px");
+      $(".banner-img-left").attr("resizer", R);
     });
 
     $("#promo-resizer").change(function() {
       var R = $("#promo-resizer").val();
       $("#banner-img-"+global_selected_grid_id).css("width", R+"px");
       $("#banner-img-"+global_selected_grid_id).attr("resizer", R);
+
+      $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
+      $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);      
     });    
 
 
@@ -1953,12 +2004,22 @@
       var height = flyer_dict["height"];
       var x = flyer_dict["x"];
       var y = flyer_dict["y"];
+      var warranty_display = flyer_dict["warranty-display"];
 
       var background_color = "background-color: transparent";
       if( $("#white-option").prop("checked"))
       {
         background_color = "background-color: white";
       }
+
+      var warranty_display_url = "";
+      if(warranty_display)
+      {
+        warranty_display_url = "/files/warranty.png";
+      }
+
+
+      console.log(flyer_dict);
 
       var html_string = 
           `<div grid-id="`+grid_id+`" class="grid-stack-item" data-gs-width=`+width+` data-gs-height=`+height+` data-gs-x=`+x+` data-gs-y=`+y+` style="text-align:center;padding:0em !important;">
@@ -1971,6 +2032,9 @@
                 </a>
                 <div class="grid-item-sticker">
                   <img class="banner-img" id="banner-img-`+grid_id+`" src="`+banner_img+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
+                </div>
+                <div style="position: absolute;left:10px;top:10px;">
+                  <img class="banner-img-left" id="banner-img-left-`+grid_id+`" src="`+warranty_display_url+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
                 </div>
               </div>
               <div class="grid-item-footer-container" > 
@@ -2026,9 +2090,15 @@
       {
         $("#local-wow").click();
       }
-      else if(banner_img=="/files/warranty.png")
+
+      var banner_img_url = $("#banner-img-left-"+global_selected_grid_id).attr("src");
+      if(banner_img_url!="")
       {
-        $("#local-warranty").click();
+        $("#local-warranty").prop("checked", true);
+      }
+      else
+      {
+        $("#local-warranty").prop("checked", false);
       }
     }
 
@@ -2056,7 +2126,7 @@
         flyer_dict["height"] = item_data[i]["container"]["height"];
         flyer_dict["x"] = item_data[i]["container"]["x"];
         flyer_dict["y"] = item_data[i]["container"]["y"];
-
+        flyer_dict["warranty-display"] = item_data[i]["data"]["warranty-display"];
 
         var temp_html = create_unit_flyer_html(flyer_dict);
         html_string += temp_html;
@@ -2174,6 +2244,7 @@
       flyer_dict["height"] = "3";
       flyer_dict["x"] = "7";
       flyer_dict["y"] = "7";
+      flyer_dict["warranty-display"] = $("#global-warranty").prop("checked");
 
       var html_string = create_unit_flyer_html(flyer_dict);
 
@@ -2411,6 +2482,25 @@
       $("#background-image-bucket-thumbnails-div").html(html_string);
     }
 
+    function update_external_image_bucket()
+    {
+      var html_string = "";
+
+      var images = global_external_image_bucket;
+      for(var i=0;i<images.length;i++)
+      {
+        html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
+          <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.4em;">
+            <a class="imgselect2" href="#!">
+              <img src="`+images[i]["url"]+`" high-res-url="`+images[i]["high-res-url"]+`" style="width:90%;height:3em;object-fit:cover;">
+            </a>
+          </div>
+        </div>`;
+      }
+
+      $("#external-image-categories-thumbnails-div").html(html_string); 
+    }
+
 
     function set_product_name()
     {
@@ -2429,7 +2519,18 @@
         $("#gridimg-"+global_selected_grid_id).attr("src", image_url);
         //if($("#product-title-info2-"+global_selected_grid_id).val()=="")
         $("#product-title-info2-"+global_selected_grid_id).val(global_selected_product_name);
-        $("#default404-"+global_selected_grid_id).hide();
+        $("#gridimg-"+global_selected_grid_id).show();
+        $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
+    });
+
+
+    $(document).on('click', '.imgselect2', function(){
+
+        var image_pk = this.id.split("_")[1];
+        //var image_url = $(this).children()[0].src;
+        var image_url = $($(this).children()[0]).attr("high-res-url");
+        console.log(image_pk, image_url, global_selected_grid_id);
+        $("#gridimg-"+global_selected_grid_id).attr("src", image_url);
         $("#gridimg-"+global_selected_grid_id).show();
         $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
     });
@@ -2475,6 +2576,7 @@
           global_product_images_dict = response['images'];
           global_template_data = response["template_data"];
           global_background_images_bucket = response["background_images_bucket"];
+          global_external_image_bucket = response["external_images_bucket_list"];
           global_brand_name = response["brand-name"];
 
           var common = global_template_data["common"];
@@ -2520,6 +2622,7 @@
 
           set_product_basket();
           update_background_image_bucket();
+          update_external_image_bucket();
           set_brand_image(response["brand_image_url"]);
         },
         error: function(xhr, textstatus, errorthrown) {
@@ -2567,11 +2670,16 @@
         {
           $("#local-wow").click();
         }
-        else if(banner_img=="/files/warranty.png")
-        {
-          $("#local-warranty").click();
-        }
 
+        var banner_img_url = $("#banner-img-left-"+global_selected_grid_id).attr("src");
+        if(banner_img_url!="")
+        {
+          $("#local-warranty").prop("checked", true);
+        }
+        else
+        {
+          $("#local-warranty").prop("checked", false);
+        }
     });
 
     fetch_flyer_details();
@@ -2595,6 +2703,11 @@
 
         var image_url = $("#gridimg-"+grid_id).attr("src");
         var banner_img = $("#banner-img-"+grid_id).attr("src");
+
+        var warranty_display = false;
+        if($("#banner-img-left-"+grid_id).attr("src")!="")
+          warranty_display = true;
+
         var image_resizer = $("#gridimg-"+grid_id).attr("resizer");
         var promo_resizer = $("#banner-img-"+grid_id).attr("resizer");
         var product_title = $("#product-title-info2-"+grid_id).val();
@@ -2612,6 +2725,7 @@
           "data": {
             "image-url": image_url,
             "banner-img": banner_img,
+            "warranty-display": warranty_display,
             "image-resizer": image_resizer,
             "promo-resizer": promo_resizer,
             "price": price,
@@ -2910,6 +3024,63 @@
       set_header_style();
       set_footer_style();
     }
+
+    $("#upload-image-btn").click(function(){
+
+      var fd = new FormData();
+      fd.append("flyer_pk", window.location.pathname.split("/")[2]);
+
+      var product_image_input = document.getElementById("product-image-input");
+
+      fd.append("image_count", product_image_input.files.length);
+      for(var i=0;i<product_image_input.files.length;i++)
+      {
+        fd.append("image_"+i, product_image_input.files[i]);
+      }
+      $("#upload-preloader").show();
+      $("#upload-image-btn").attr("disabled", "disabled");
+
+      $.ajax({
+        url: "/upload-flyer-external-images/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        processData: false,
+        contentType: false,
+        data: fd,
+        success: function(response) {
+          console.log("Success!", response);
+          $("#upload-preloader").hide();
+          $("#upload-image-btn").removeAttr("disabled");
+
+          if(response["status"]==200)
+          {
+            $("#upload-image-modal").modal("close");
+            M.toast({html: "Successfully uploaded images!"});
+
+            var images = response["external_images_bucket_list"];
+            for(var i=0;i<images.length;i++)
+            {
+              global_external_image_bucket.push({"url":images[i]["url"], "high-res-url":images[i]["high-res-url"]});
+            }
+            update_external_image_bucket();
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to upload images!"});
+          }
+          else
+          {
+            M.toast({html: "Error uploading images!"});
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+          $("#upload-preloader").hide();
+        }
+      });
+    });
 
   </script>
 

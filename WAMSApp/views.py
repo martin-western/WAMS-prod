@@ -1623,6 +1623,7 @@ class CreateFlyerAPI(APIView):
                         temp_dict["data"] = {
                             "image-url": "",
                             "banner-img": "",
+                            "warranty-display": False,
                             "image-resizer": "100",
                             "promo-resizer": "40",
                             "price": "",
@@ -1738,6 +1739,7 @@ class CreateFlyerAPI(APIView):
                             temp_dict["data"] = {
                                 "image-url": str(image_url),
                                 "banner-img": "",
+                                "warranty-display": False,
                                 "image-resizer": "100",
                                 "promo-resizer": "40",
                                 "price": str(product_price),
@@ -1848,10 +1850,14 @@ class FetchFlyerDetailsAPI(APIView):
             external_images_bucket_list = []
             external_images_bucket_objs = flyer_obj.external_images_bucket.all()
             for external_images_bucket_obj in external_images_bucket_objs:
-                temp_dict = {}
-                temp_dict["image_url"] = external_images_bucket_obj.image.url
-                temp_dict["image_pk"] = external_images_bucket_obj.pk
-                external_images_bucket_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["url"] = external_images_bucket_obj.mid_image.url
+                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["image_pk"] = external_images_bucket_obj.pk
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
 
             brand_image_url = None
             try:
@@ -1865,7 +1871,7 @@ class FetchFlyerDetailsAPI(APIView):
             response["product_bucket_list"] = product_bucket_list
             response["template_data"] = template_data
             response["images"] = images_dict
-            #response["external_images_bucket_list"] = external_images_bucket_list
+            response["external_images_bucket_list"] = external_images_bucket_list
             response["background_images_bucket"] = background_images_bucket
             response["brand_image_url"] = brand_image_url
             response["brand-name"] = str(flyer_obj.brand)
@@ -2925,6 +2931,54 @@ class RemoveProductFromExportListAPI(APIView):
         return Response(data=response)
 
 
+class UploadFlyerExternalImagesAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm("WAMSApp.add_image") == False:
+                logger.warning("UploadProductImageAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            #logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
+
+            flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
+
+            image_count = int(data["image_count"])
+            external_images_bucket_list = []
+            for i in range(image_count):
+                try:
+                    image_obj = Image.objects.create(image=data["image_"+str(i)])
+                    flyer_obj.external_images_bucket.add(image_obj)
+                    temp_dict = {}
+                    temp_dict["url"] = image_obj.mid_image.url
+                    temp_dict["high-res-url"] = image_obj.image.url
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            flyer_obj.save()
+
+            response["external_images_bucket_list"] = external_images_bucket_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFlyerExternalImagesAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+
 LoginSubmit = LoginSubmitAPI.as_view()
 
 FetchConstantValues = FetchConstantValuesAPI.as_view()
@@ -2998,3 +3052,5 @@ DeleteImage = DeleteImageAPI.as_view()
 RemoveProductFromExportList = RemoveProductFromExportListAPI.as_view()
 
 DownloadProduct = DownloadProductAPI.as_view()
+
+UploadFlyerExternalImages = UploadFlyerExternalImagesAPI.as_view()
