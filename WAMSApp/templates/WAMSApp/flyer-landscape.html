@@ -556,7 +556,7 @@
     .grid-item-sticker {  
       position: absolute; 
       top: 10px; 
-      left: 10px;  
+      right: 10px;  
     } 
     .grid-item-sticker > img {  
       height: auto; 
@@ -864,7 +864,7 @@
                 </p>
                 <p>
                   <label>
-                    <input id="global-warranty" value="Warranty" name="group1" type="radio"  />
+                    <input id="global-warranty" type="checkbox" class="filled-in checkbox-flyer" />
                     <span>Warranty</span>
                   </label>
                 </p>
@@ -901,7 +901,7 @@
                 </p>
                 <p>
                   <label>
-                    <input id="local-warranty" value="Warranty" name="group2" type="radio"  />
+                    <input id="local-warranty" type="checkbox" class="filled-in checkbox-flyer" />
                     <span>Warranty</span>
                   </label>
                 </p>
@@ -1407,22 +1407,6 @@
     });
 
 
-    function update_promo_position()
-    {
-      var banner_imgs = $(".banner-img");
-      for(var i=0;i<banner_imgs.length;i++)
-      {
-        if(banner_imgs[i].src.includes("warranty.png"))
-        {
-          $(banner_imgs[i]).parent().css({"position": "absolute", "left":"10px", "top":"10px", "text-align": "left"});
-        }
-        else
-        {
-          $(banner_imgs[i]).parent().css({"position": "absolute", "right":"10px", "top":"10px", "text-align":"right"});
-        }
-      }
-    }
-
     $('input[type=radio][name=group1]').change(function() {
         if (this.value == "None") {
             $("#local-none").click();
@@ -1446,16 +1430,20 @@
             $(".banner-img").attr("src", "/files/wow.png");
             $(".banner-img").show();
         }
-        else if(this.value == "Warranty")
-        {
-            $("#local-warranty").click();
-            $(".banner-img").attr("src", "/files/warranty.png");
-            $(".banner-img").show();
-        }
-
-        update_promo_position();
     });
 
+    $("#global-warranty").change(function(){
+      if($("#global-warranty").prop("checked")==true)
+      {
+        $(".banner-img-left").attr("src", "/files/warranty.png");
+        $("#local-warranty").prop("checked", true);
+      }
+      else
+      {
+        $(".banner-img-left").attr("src", "");
+        $("#local-warranty").prop("checked", false);
+      }
+    });
 
     $('input[type=radio][name=group2]').change(function() {
         if (this.value == "None") {
@@ -1476,16 +1464,18 @@
             $("#banner-img-"+global_selected_grid_id).attr("src", "/files/wow.png");
             $("#banner-img-"+global_selected_grid_id).show();
         }
-        else if(this.value == "Warranty")
-        { 
-            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/warranty.png");
-            $("#banner-img-"+global_selected_grid_id).show();
-        }
-
-        update_promo_position();
     });
 
-
+    $("#local-warranty").change(function(){
+      if($("#local-warranty").prop("checked"))
+      {
+        $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/warranty.png");
+      }
+      else
+      {
+        $("#banner-img-left-"+global_selected_grid_id).attr("src", "");
+      }
+    });
     
 
 
@@ -1917,13 +1907,18 @@
       $(".grid-item-sticker img").css("width", R+"px");
       $("#promo-resizer").val(R);    
       $(".grid-item-sticker img").attr("resizer", R);
+      $(".banner-img-left").css("width", R+"px");
+      $(".banner-img-left").attr("resizer", R);
     });
 
     $("#promo-resizer").change(function() {
       var R = $("#promo-resizer").val();
       $("#banner-img-"+global_selected_grid_id).css("width", R+"px");
       $("#banner-img-"+global_selected_grid_id).attr("resizer", R);
-    });    
+
+      $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
+      $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);      
+    });      
 
 
     $("#product-info-save-btn").click(function(){
@@ -1953,11 +1948,18 @@
       var height = flyer_dict["height"];
       var x = flyer_dict["x"];
       var y = flyer_dict["y"];
+      var warranty_display = flyer_dict["warranty-display"];
 
       var background_color = "background-color: transparent";
       if( $("#white-option").prop("checked"))
       {
         background_color = "background-color: white";
+      }
+
+      var warranty_display_url = "";
+      if(warranty_display)
+      {
+        warranty_display_url = "/files/warranty.png";
       }
 
       var html_string = 
@@ -1971,6 +1973,9 @@
                 </a>
                 <div class="grid-item-sticker">
                   <img class="banner-img" id="banner-img-`+grid_id+`" src="`+banner_img+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
+                </div>
+                <div style="position: absolute;left:10px;top:10px;">
+                  <img class="banner-img-left" id="banner-img-left-`+grid_id+`" src="`+warranty_display_url+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
                 </div>
               </div>
               <div class="grid-item-footer-container" > 
@@ -2026,9 +2031,15 @@
       {
         $("#local-wow").click();
       }
-      else if(banner_img=="/files/warranty.png")
+      
+      var banner_img_url = $("#banner-img-left-"+global_selected_grid_id).attr("src");
+      if(banner_img_url!="")
       {
-        $("#local-warranty").click();
+        $("#local-warranty").prop("checked", true);
+      }
+      else
+      {
+        $("#local-warranty").prop("checked", false);
       }
     }
 
@@ -2056,7 +2067,7 @@
         flyer_dict["height"] = item_data[i]["container"]["height"];
         flyer_dict["x"] = item_data[i]["container"]["x"];
         flyer_dict["y"] = item_data[i]["container"]["y"];
-
+        flyer_dict["warranty-display"] = item_data[i]["data"]["warranty-display"];
 
         var temp_html = create_unit_flyer_html(flyer_dict);
         html_string += temp_html;
@@ -2174,6 +2185,7 @@
       flyer_dict["height"] = "3";
       flyer_dict["x"] = "7";
       flyer_dict["y"] = "7";
+      flyer_dict["warranty-display"] = $("#global-warranty").prop("checked");
 
       var html_string = create_unit_flyer_html(flyer_dict);
 
@@ -2567,9 +2579,15 @@
         {
           $("#local-wow").click();
         }
-        else if(banner_img=="/files/warranty.png")
+        
+        var banner_img_url = $("#banner-img-left-"+global_selected_grid_id).attr("src");
+        if(banner_img_url!="")
         {
-          $("#local-warranty").click();
+          $("#local-warranty").prop("checked", true);
+        }
+        else
+        {
+          $("#local-warranty").prop("checked", false);
         }
 
     });
@@ -2602,6 +2620,10 @@
         var price = $("#product-price-info-"+grid_id).val();
         var strikeprice = $("#product-strikeprice-info-"+grid_id).html();
 
+        var warranty_display = false;
+        if($("#banner-img-left-"+grid_id).attr("src")!="")
+          warranty_display = true;
+
         var temp_dict = {
           "container": {
             "width": width,
@@ -2612,6 +2634,7 @@
           "data": {
             "image-url": image_url,
             "banner-img": banner_img,
+            "warranty-display": warranty_display,
             "image-resizer": image_resizer,
             "promo-resizer": promo_resizer,
             "price": price,
