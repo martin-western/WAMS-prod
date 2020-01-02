@@ -716,6 +716,34 @@
         </div>
 
 
+        <!-- External Image Categories -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">External Image Categories</span>
+            <!-- <a href="#upload-image-modal" id="import-btn" class="disabled" style="position: absolute;">  
+              <i class="material-icons" title="Add Image" style="
+                color: gray;
+                padding: 8px;
+                margin-top: -10px;">
+                add_photo_alternate
+              </i>
+            </a> -->
+            <a href="#upload-image-modal" id="import-btn" class="modal-trigger" style="position: absolute;margin-left: 0.5em;margin-top: -0.2em;">
+              <i class="material-icons" style="font-size: 1.5em;color:#717171;">add_photo_alternate</i>
+            </a>
+          </span>
+          <!-- <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i> -->
+
+          <div class="scroll-style-1 row white hoverable" style="margin-top:0.5em;">
+            <div class="col s12">
+              <div id="external-image-categories-thumbnails-div" class="scroll-style-1 row" style="min-height:3em;max-height: 10em;overflow-y:auto;margin-bottom: 0em;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+
 
         <!-- Background Image Bucket -->
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
@@ -1301,6 +1329,28 @@
   </div>
 
 
+<div id="upload-image-modal" class="modal">
+  <div class="modal-content">
+    <h4 style="font-family:'AvenirNext';font-size:18px;">Upload Image</h4>
+    <div class="file-field input-field">
+      <div class="btn" style = "background-color: #512da8">
+        <span style="font-size:14px;">File</span>
+        <input id="product-image-input" type="file" multiple>
+      </div>
+      <div class="file-path-wrapper">
+        <input class="file-path validate" type="text">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    <a id="upload-image-btn" href="#!" class="waves-effect waves-green btn-flat blue white-text" style="background-color:#009051 !important ;">Upload</a>
+    <div class="progress" id = "upload-preloader" style = "display:none;margin: 0px !important;background-color: white !important;">
+      <div class="indeterminate" style = "background-color: #512de8;"></div>
+    </div>
+  </div>
+</div>
+
 
 
   <div id="add-new-bg-modal" class="modal">
@@ -1493,6 +1543,7 @@
     var global_selected_product_info_id = "";
     var global_background_images_bucket = [];
     var global_brand_name = "";
+    var global_external_image_bucket = [];
     
     var global_currency_unit = "AED"
     var global_border_visible = true;
@@ -2424,6 +2475,25 @@
     }
 
 
+    function update_external_image_bucket()
+    {
+      var html_string = "";
+
+      var images = global_external_image_bucket;
+      for(var i=0;i<images.length;i++)
+      {
+        html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
+          <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.4em;">
+            <a class="imgselect2" href="#!">
+              <img src="`+images[i]["url"]+`" high-res-url="`+images[i]["high-res-url"]+`" style="width:90%;height:3em;object-fit:cover;">
+            </a>
+          </div>
+        </div>`;
+      }
+
+      $("#external-image-categories-thumbnails-div").html(html_string); 
+    }
+
     function set_product_name()
     {
       $("#product-name-preview").html(global_product_name);
@@ -2442,6 +2512,17 @@
         //if($("#product-title-info2-"+global_selected_grid_id).val()=="")
         $("#product-title-info2-"+global_selected_grid_id).val(global_selected_product_name);
         $("#default404-"+global_selected_grid_id).hide();
+        $("#gridimg-"+global_selected_grid_id).show();
+        $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
+    });
+
+    $(document).on('click', '.imgselect2', function(){
+
+        var image_pk = this.id.split("_")[1];
+        //var image_url = $(this).children()[0].src;
+        var image_url = $($(this).children()[0]).attr("high-res-url");
+        console.log(image_pk, image_url, global_selected_grid_id);
+        $("#gridimg-"+global_selected_grid_id).attr("src", image_url);
         $("#gridimg-"+global_selected_grid_id).show();
         $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
     });
@@ -2487,6 +2568,7 @@
           global_product_images_dict = response['images'];
           global_template_data = response["template_data"];
           global_background_images_bucket = response["background_images_bucket"];
+          global_external_image_bucket = response["external_images_bucket_list"];
           global_brand_name = response["brand-name"];
 
           var common = global_template_data["common"];
@@ -2532,6 +2614,7 @@
 
           set_product_basket();
           update_background_image_bucket();
+          update_external_image_bucket();
           set_brand_image(response["brand_image_url"]);
         },
         error: function(xhr, textstatus, errorthrown) {
@@ -2933,6 +3016,64 @@
       set_header_style();
       set_footer_style();
     }
+
+
+    $("#upload-image-btn").click(function(){
+
+      var fd = new FormData();
+      fd.append("flyer_pk", window.location.pathname.split("/")[2]);
+
+      var product_image_input = document.getElementById("product-image-input");
+
+      fd.append("image_count", product_image_input.files.length);
+      for(var i=0;i<product_image_input.files.length;i++)
+      {
+        fd.append("image_"+i, product_image_input.files[i]);
+      }
+      $("#upload-preloader").show();
+      $("#upload-image-btn").attr("disabled", "disabled");
+
+      $.ajax({
+        url: "/upload-flyer-external-images/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        processData: false,
+        contentType: false,
+        data: fd,
+        success: function(response) {
+          console.log("Success!", response);
+          $("#upload-preloader").hide();
+          $("#upload-image-btn").removeAttr("disabled");
+
+          if(response["status"]==200)
+          {
+            $("#upload-image-modal").modal("close");
+            M.toast({html: "Successfully uploaded images!"});
+
+            var images = response["external_images_bucket_list"];
+            for(var i=0;i<images.length;i++)
+            {
+              global_external_image_bucket.push({"url":images[i]["url"], "high-res-url":images[i]["high-res-url"]});
+            }
+            update_external_image_bucket();
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to upload images!"});
+          }
+          else
+          {
+            M.toast({html: "Error uploading images!"});
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+          $("#upload-preloader").hide();
+        }
+      });
+    });
 
   </script>
 
