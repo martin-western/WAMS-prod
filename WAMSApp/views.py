@@ -1958,10 +1958,14 @@ class FetchPFLDetailsAPI(APIView):
             external_images_bucket_list = []
             external_images_bucket_objs = pfl_obj.external_images_bucket.all()
             for external_images_bucket_obj in external_images_bucket_objs:
-                temp_dict = {}
-                temp_dict["image_url"] = external_images_bucket_obj.image.url
-                temp_dict["image_pk"] = external_images_bucket_obj.pk
-                external_images_bucket_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["url"] = external_images_bucket_obj.mid_image.url
+                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["image_pk"] = external_images_bucket_obj.pk
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
 
             logo_image_url = None
             barcode_image_url = None
@@ -2001,12 +2005,29 @@ class FetchPFLDetailsAPI(APIView):
                 product_name_sap = pfl_obj.product.product_name_sap
                 seller_sku = pfl_obj.product.seller_sku
 
+            template_data = {
+                "container": {
+                    "width": 24,
+                    "height": 15,
+                    "x": 0,
+                    "y": 0
+                },
+                "common": {
+                  "image-resizer": 100
+                }
+            }
+            try:
+                template_data = json.loads(pfl_obj.template_data)
+            except Exception as e:
+                pass
+
             response["pfl_name"] = pfl_name
             response["product_name"] = pfl_product_name
             response["product_name_sap"] = product_name_sap
             response["product_image"] = product_image
             response["pfl_product_features"] = pfl_product_features
             response["external_images_bucket_list"] = external_images_bucket_list
+            response["template_data"] = template_data
             response["logo_image_url"] = logo_image_url
             response["brand_name"] = brand_name
             response["barcode_image_url"] = barcode_image_url
@@ -2274,6 +2295,11 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
             images["external_images"] = create_response_images_flyer_pfl(
                 pfl_obj.external_images_bucket.all())
 
+            images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
+                    images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
+                    images["aplus_content_images"] + \
+                    images["ads_images"]+images["unedited_images"]+images["transparent_images"]
+
             barcode_image_url = None
             if product_obj.barcode != None:
                 barcode_image_url = product_obj.barcode.image.url
@@ -2363,12 +2389,15 @@ class SavePFLTemplateAPI(APIView):
                 image_obj = Image.objects.get(pk=data["image_pk"])
                 pfl_obj.product_image = image_obj
 
+            template_data = data["template_data"]
+
             product_name = convert_to_ascii(data["product_name"])
             product_features = convert_to_ascii(data["product_features"])
 
             pfl_obj.product.pfl_product_name = product_name
             pfl_obj.product.pfl_product_features = product_features
             pfl_obj.product.save()
+            pfl_obj.template_data = template_data
             pfl_obj.save()
 
             response['status'] = 200
@@ -2977,6 +3006,52 @@ class UploadFlyerExternalImagesAPI(APIView):
         return Response(data=response)
 
 
+class UploadPFLExternalImagesAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm("WAMSApp.add_image") == False:
+                logger.warning("UploadProductImageAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            #logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
+
+            pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
+
+            image_count = int(data["image_count"])
+            external_images_bucket_list = []
+            for i in range(image_count):
+                try:
+                    image_obj = Image.objects.create(image=data["image_"+str(i)])
+                    pfl_obj.external_images_bucket.add(image_obj)
+                    temp_dict = {}
+                    temp_dict["url"] = image_obj.mid_image.url
+                    temp_dict["high-res-url"] = image_obj.image.url
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            pfl_obj.save()
+
+            response["external_images_bucket_list"] = external_images_bucket_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFlyerExternalImagesAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 
 
 LoginSubmit = LoginSubmitAPI.as_view()
@@ -3054,3 +3129,5 @@ RemoveProductFromExportList = RemoveProductFromExportListAPI.as_view()
 DownloadProduct = DownloadProductAPI.as_view()
 
 UploadFlyerExternalImages = UploadFlyerExternalImagesAPI.as_view()
+
+UploadPFLExternalImages = UploadPFLExternalImagesAPI.as_view()
