@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^login/', views.Login),
     url(r'^login-submit/', views.LoginSubmit),
     url(r'^logout/', views.Logout),
-    
+
     url(r'^fetch-constant-values/', views.FetchConstantValues),
     url(r'^create-new-product/', views.CreateNewProduct),
 
@@ -46,11 +46,14 @@ urlpatterns = [
     url(r'^fetch-product-list-flyer-pfl/', views.FetchProductListFlyerPFL),
     url(r'^add-product-flyer-bucket/', views.AddProductFlyerBucket),
     url(r'^add-product-pfl-bucket/', views.AddProductPFLBucket),
-    url(r'^fetch-product-details-flyer-pfl/', views.FetchProductDetailsFlyerPFL),   
+    url(r'^fetch-product-details-flyer-pfl/',
+        views.FetchProductDetailsFlyerPFL),
     url(r'^save-flyer-template/', views.SaveFlyerTemplate),
     url(r'^save-pfl-template/', views.SavePFLTemplate),
-    url(r'^upload-image-external-bucket-flyer/', views.UploadImageExternalBucketFlyer),
-    url(r'^upload-image-external-bucket-pfl/', views.UploadImageExternalBucketPFL),
+    url(r'^upload-image-external-bucket-flyer/',
+        views.UploadImageExternalBucketFlyer),
+    url(r'^upload-image-external-bucket-pfl/',
+        views.UploadImageExternalBucketPFL),
 
 
     url(r'^pfl/(?P<pk>[\w-]+)/', views.PFLPage),
@@ -64,19 +67,31 @@ urlpatterns = [
 
     url(r'^upload-new-flyer-bg-image/', views.UploadNewFlyerBGImage),
     url(r'^download-images-s3/', views.DownloadImagesS3),
-    url(r'^fetch-brands/', views.FetchBrands),      
+    url(r'^fetch-brands/', views.FetchBrands),
 
-    url(r'^save-pfl-in-bucket/', views.SavePFLInBucket),            
-    url(r'^save-flyer-in-bucket/', views.SaveFlyerInBucket),            
+    url(r'^save-pfl-in-bucket/', views.SavePFLInBucket),
+    url(r'^save-flyer-in-bucket/', views.SaveFlyerInBucket),
 
     url(r'^verify-product/', views.VerifyProduct),
 
     url(r'^delete-image/', views.DeleteImage),
 
-    url(r'^remove-product-from-export-list/', views.RemoveProductFromExportList),
+    url(r'^remove-product-from-export-list/',
+        views.RemoveProductFromExportList),
 
     url(r'^download-product/', views.DownloadProduct),
     url(r'^ecommerce-listing/(?P<pk>[\w-]+)/', views.EcommerceListingPage),
 
-]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    url(r'^upload-flyer-external-images/', views.UploadFlyerExternalImages),
+    url(r'^upload-pfl-external-images/', views.UploadPFLExternalImages),
 
+    url(r'^channel-product/amazon-uk/(?P<pk>[\w-]+)/',
+        views.ChannelProductAmazonUKPage),
+    url(r'^channel-product/amazon-uae/(?P<pk>[\w-]+)/',
+        views.ChannelProductAmazonUAEPage),
+    url(r'^channel-product/ebay/(?P<pk>[\w-]+)/',
+        views.ChannelProductEbayPage),
+    url(r'^channel-product/noon/(?P<pk>[\w-]+)/',
+        views.ChannelProductNoonPage),
+
+]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

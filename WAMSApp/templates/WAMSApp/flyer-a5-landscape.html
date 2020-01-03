@@ -743,8 +743,6 @@
           </div>
         </div>
 
-
-
         <!-- Background Image Bucket -->
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
           <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
@@ -1242,7 +1240,7 @@
             <a id="increase-height-btn" class="btn " title="Increase Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 20em;"><i class="material-icons">keyboard_arrow_up</i></a>
             <a id="decrease-height-btn" class="btn " title="Decrease Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 24em;"><i class="material-icons">keyboard_arrow_down</i></a>
 
-            <a id="download-flyer-btn" class="btn green hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 258mm;position: relative;">Download<i class="material-icons right">file_download</i>
+            <a id="download-flyer-btn" class="btn green hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 170mm;position: relative;">Download<i class="material-icons right">file_download</i>
               <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
                 <div class="spinner-layer spinner-green-only">
                   <div class="circle-clipper left">
@@ -1260,12 +1258,12 @@
 
 
         <div class="a4-container">
-          <p style="color: silver;" class="a4-text">A4</p>
+          <p style="color: silver;" class="a4-text">A5</p>
         </div>
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0;">
-        <div id="flyer-div" class="row white" style="text-align: center;margin-left:25px;margin-right:0px; height: 210mm;width: 297mm;margin-bottom: 0em;">
+        <div id="flyer-div" class="row white" style="text-align: center;margin-left:25px;margin-right:0px; height: 148mm;width: 210mm;margin-bottom: 0em;">
 
-         <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 297mm;padding: 20px;">  
+         <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 210mm;padding: 20px;">  
             <div class="col s6 left-horizontally">  
               <img id="super-brand-img" src="/files/super-brand.png" style="display:none;max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
               <img id="iso-img" src="/files/iso.png" style="display:none;max-width: 73.5mm;max-height:15mm;margin-right:10px">  
@@ -1282,14 +1280,14 @@
           </div>
 
 
-          <div id="flyer-grid" class="col s12" style="width: 297mm;">
-            <div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 210mm;">
+          <div id="flyer-grid" class="col s12" style="width: 210mm;">
+            <div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 148mm;">
               
             </div>
           </div>
 
 
-          <div id="footer-div" class="col s12" style="background-color:#181818;position: absolute;margin-top: 200mm;width:297mm;height: 10mm;">
+          <div id="footer-div" class="col s12" style="background-color:#181818;position: absolute;margin-top: 138mm;width:210mm;height: 10mm;">
             <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
               <p class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.geepas.com</p>
             </div>
@@ -1299,7 +1297,7 @@
         </div>
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0">
         <div class="a4-container-bottom">
-          <p style="color: silver;" class="a4-text-bottom">A4</p>
+          <p style="color: silver;" class="a4-text-bottom">A5</p>
         </div>
 
       </div>
@@ -1350,7 +1348,6 @@
     </div>
   </div>
 </div>
-
 
 
   <div id="add-new-bg-modal" class="modal">
@@ -1526,9 +1523,8 @@
         $("#banner-img-left-"+global_selected_grid_id).attr("src", "");
       }
     });
+
     
-
-
 
     var elems  = document.querySelectorAll("input[type=range]");  
     M.Range.init(elems);
@@ -1969,7 +1965,7 @@
 
       $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
       $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);      
-    });      
+    });    
 
 
     $("#product-info-save-btn").click(function(){
@@ -2535,7 +2531,7 @@
 
         $("#flyer-div").css("background-image", "url("+image_url+")");
         $("#flyer-div").css("background-position", "center");
-        $("#flyer-div").css("background-size", "100% 210mm");
+        $("#flyer-div").css("background-size", "100% 148mm");
     });
 
 
@@ -2663,6 +2659,7 @@
           $("#local-wow").click();
         }
         
+
         var banner_img_url = $("#banner-img-left-"+global_selected_grid_id).attr("src");
         if(banner_img_url!="")
         {
@@ -3016,7 +3013,6 @@
       set_header_style();
       set_footer_style();
     }
-
 
     $("#upload-image-btn").click(function(){
 

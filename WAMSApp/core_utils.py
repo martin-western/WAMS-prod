@@ -1,5 +1,3 @@
-from WAMSApp.models import *
-
 from django.core.files.base import ContentFile
 
 from PIL import Image as IMAGE
@@ -9,7 +7,9 @@ import sys
 import imghdr
 import base64
 import six
-import uuid   
+import uuid
+
+from WAMSApp.models import *
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +18,14 @@ def custom_permission_filter_products(user):
     try:
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
-        product_objs = Product.objects.filter(brand__in=brands)
-        return product_objs
+        base_product_objs = BaseProduct.objects.filter(brand__in=brands)
+        
+        product_objs_list = Product.objects.none()
+        
+        for base_product_obj in base_product_objs:
+            product_objs_list |= Product.objects.filter(base_product=base_product_obj)
+            
+        return product_objs_list
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -30,6 +36,7 @@ def custom_permission_filter_products(user):
 def custom_permission_filter_brands(user):
 
     try:
+        from WAMSApp.models import *
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
         return brands
@@ -72,8 +79,10 @@ def create_response_images_flyer_pfl(images):
         temp_dict = {}
         try:
             temp_dict["url"] = image.mid_image.url
+            temp_dict["high-res-url"] = image.image.url
         except Exception as e:
             temp_dict["url"] = image.image.url
+            temp_dict["high-res-url"] = image.image.url
         temp_dict["pk"] = image.pk
         temp_list.append(temp_dict)
     return temp_list
@@ -86,8 +95,10 @@ def create_response_images_flyer_pfl_main_sub(images):
         temp_dict = {}
         try:
             temp_dict["url"] = image.image.mid_image.url
+            temp_dict["high-res-url"] = image.image.image.url
         except Exception as e:
             temp_dict["url"] = image.image.image.url
+            temp_dict["high-res-url"] = image.image.image.url
         temp_dict["pk"] = image.image.pk
         temp_list.append(temp_dict)
     return temp_list
@@ -220,7 +231,7 @@ def fill_missing(old_value, new_value, data_type):
         return int(new_value)
 
 
-def save_subimage(product_obj, image_url, index):
+def save_subimage(product_obj, image_url, index, channel):
     
     try:
         if image_url!="":
@@ -228,22 +239,44 @@ def save_subimage(product_obj, image_url, index):
             result = urllib.urlretrieve(image_url, filename)
             image_obj = Image.objects.create(image=File(open(result[0])))
             image_bucket_obj = ImageBucket.objects.create(image=image_obj, is_sub_image=True, sub_image_index=index)
-            product_obj.sub_images.add(image_bucket_obj)
+            
+            if channel==None:
+                sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,is_sourced=True)
+            else:
+                channel_obj = Channel.objects.get(name=channel)
+                sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+            
+            sub_images_obj.sub_images.add(image_bucket_obj)
             os.system("rm "+result[0])              # Remove temporary file
-            product_obj.save()
+            sub_images_obj.save()
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error save_subimage: %s at %s", e, str(exc_tb.tb_lineno))
         
 def reset_sub_images(product_obj):
-    for img in product_obj.sub_images.filter(is_sub_image=True):
+    sub_images_objs = SubImages.objects.get(product=product_obj)
+    
+    sub_images_list = []
+    for sub_images_obj in sub_images_objs:
+        sub_images_list += sub_images_list.sub_images.filter(is_sub_image=True)
+    
+    sub_images_list = set(sub_images_list)
+    
+    for img in sub_images_list:
         img.is_sub_image = False
-        img.sub_image_index = 0
         img.save()
 
 def reset_main_images(product_obj):
-    for img in product_obj.main_images.filter(is_main_image=True):
+    main_images_objs = MainImages.objects.get(product=product_obj)
+    
+    main_images_list = []
+    for main_images_obj in main_images_objs:
+        main_images_list += main_images_obj.main_images.filter(is_main_image=True)
+    
+    main_images_list = set(main_images_list)
+    
+    for img in main_images_list:
         img.is_main_image = False
         img.save()
 

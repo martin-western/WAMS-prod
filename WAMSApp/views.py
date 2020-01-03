@@ -36,8 +36,6 @@ import boto3
 import urllib2
 import pandas as pd
 
-from WAMSApp.models import Product
-
 logger = logging.getLogger(__name__)
 
 
@@ -61,8 +59,9 @@ def Logout(request):
 def EditProductPage(request, pk):
 
     product_obj = Product.objects.get(pk=int(pk))
+    base_product_obj = product_obj.base_product
     permissible_brands = custom_permission_filter_brands(request.user)
-    if product_obj.brand not in permissible_brands:
+    if base_product_obj.brand not in permissible_brands:
         return HttpResponseRedirect('/products/')
 
     return render(request, 'WAMSApp/edit-product-page.html')
@@ -72,8 +71,9 @@ def EditProductPage(request, pk):
 def EcommerceListingPage(request, pk):
 
     product_obj = Product.objects.get(pk=int(pk))
+    base_product_obj = product_obj.base_product
     permissible_brands = custom_permission_filter_brands(request.user)
-    if product_obj.brand not in permissible_brands:
+    if base_product_obj.brand not in permissible_brands:
         return HttpResponseRedirect('/products/')
 
     return render(request, 'WAMSApp/ecommerce-listing-page.html')
@@ -110,12 +110,32 @@ def FlyerPage(request, pk):
         return render(request, 'WAMSApp/flyer.html')
     elif flyer_obj.mode=="A4 Landscape":
         return render(request, 'WAMSApp/flyer-landscape.html')
+    elif flyer_obj.mode=="A5 Portrait":
+        return render(request, 'WAMSApp/flyer-a5-portrait.html')
+    elif flyer_obj.mode=="A5 Landscape":
+        return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
 @login_required(login_url='/login/')
 def FlyerDashboardPage(request):
     return render(request, 'WAMSApp/flyer-dashboard.html')
 
+
+@login_required(login_url='/login/')
+def ChannelProductAmazonUKPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-amazon-uk-page.html')
+
+@login_required(login_url='/login/')
+def ChannelProductAmazonUAEPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-amazon-uae-page.html')
+
+@login_required(login_url='/login/')
+def ChannelProductEbayPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-ebay-page.html')
+
+@login_required(login_url='/login/')
+def ChannelProductNoonPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-noon-page.html')
 
 class LoginSubmitAPI(APIView):
 
@@ -251,6 +271,7 @@ class CreateNewProductAPI(APIView):
                 permissible_brands = custom_permission_filter_brands(
                     request.user)
                 brand_obj = Brand.objects.get(name=brand_name)
+                logger.info("Brand Obj is %s", str(brand_obj))
                 if brand_obj not in permissible_brands:
                     logger.warning(
                         "CreateNewProductAPI Restricted Access Brand!")
@@ -261,25 +282,22 @@ class CreateNewProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            if Product.objects.filter(seller_sku=seller_sku).exists():
+            if BaseProduct.objects.filter(seller_sku=seller_sku).exists():
                 logger.warning("CreateNewProductAPI Duplicate product detected!")
                 response["status"] = 409
                 return Response(data=response)
 
-            base_prod_obj = BaseProduct.objects.create(base_product_name=product_name,
-                                              product_name_sap=product_name,
+            base_product_obj = BaseProduct.objects.create(base_product_name=product_name,
                                               seller_sku=seller_sku,
-                                              brand=brand_obj,
-                                              created_date=timezone.now())
+                                              brand=brand_obj)
 
 
-            prod_obj = Product.objects.create(product_name_sap=product_name,
+            product_obj = Product.objects.create(product_name = product_name,
+                                            product_name_sap=product_name,
                                             pfl_product_name=product_name,
-                                            base_product=base_prod_obj)
+                                            base_product=base_product_obj)
 
-            channel_prod_obj = ChannelProduct.objects.create(product=prod_obj)
-
-            response["product_pk"] = prod_obj.pk
+            response["product_pk"] = product_obj.pk
             response['status'] = 200
 
         except Exception as e:
@@ -306,14 +324,14 @@ class FetchProductDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            prod_obj = Product.objects.get(pk=data["pk"])
-            base_prod_obj = product_obj.base_prod
-            channel_prod_obj = ChannelProduct.objects.get(product=product_obj)
-            noon_product_obj = json.loads(channel_prod_obj.noon_product_json)
-            amazon_uk_product_obj = json.loads(channel_prod_obj.noon_product_json)
-            amazon_uae_product_obj = json.loads(channel_prod_obj.noon_product_json)
-            ebay_product_obj = json.loads(channel_prod_obj.noon_product_json)
-            brand_obj = base_prod_obj.brand
+            product_obj = Product.objects.get(pk=data["pk"])
+            base_product_obj = product_obj.base_product
+            channel_product_obj = product_obj.channel_product
+            noon_product_dict = json.loads(channel_product_obj.noon_product_json)
+            amazon_uk_product_dict = json.loads(channel_product_obj.amazon_uk_product_json)
+            amazon_uae_product_dict = json.loads(channel_product_obj.amazon_uae_product_json)
+            ebay_product_dict = json.loads(channel_product_obj.ebay_product_json)
+            brand_obj = base_product_obj.brand
 
             permissible_brands = custom_permission_filter_brands(request.user)
 
@@ -322,10 +340,10 @@ class FetchProductDetailsAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            response["pfl_product_name"] = prod_obj.pfl_product_name
+            response["pfl_product_name"] = product_obj.pfl_product_name
             try:
                 response["pfl_product_features"] = json.loads(
-                    prod_obj.pfl_product_features)
+                    product_obj.pfl_product_features)
             except Exception as e:
                 response["pfl_product_features"] = []
 
@@ -335,159 +353,160 @@ class FetchProductDetailsAPI(APIView):
                 response["brand_logo"] = ''
 
             try:
-                response["barcode_string"] = prod_obj.barcode_string
+                response["barcode_string"] = product_obj.barcode_string
             except Exception as e:
                 response["barcode_string"] = ''
+            logger.info("%s",amazon_uk_product_dict)
+            response["product_name_amazon_uk"] = amazon_uk_product_dict["product_name"]
+            response["product_name_amazon_uae"] = amazon_uae_product_dict["product_name"]
+            response["product_name_ebay"] = ebay_product_dict["product_name"]
+            response["product_name_noon"] = noon_product_dict["product_name"]
 
-            response["product_name_amazon_uk"] = amazon_uk_product_obj.product_name
-            response["product_name_amazon_uae"] = amazon_uae_product_obj.product_name
-            response["product_name_ebay"] = ebay_product_obj.product_name
-            response["product_name_sap"] = prod_obj.product_name_sap
-
-            response["product_name_noon"] = prod_obj.product_name_noon
-            response["category"] = prod_obj.category
-            response["subtitle"] = prod_obj.subtitle
+            response["product_name_sap"] = product_obj.product_name_sap
+            response["category"] = base_product_obj.category
+            response["subtitle"] = base_product_obj.subtitle
             
-            response["factory_notes"] = prod_obj.factory_notes
+            response["factory_notes"] = product_obj.factory_notes
 
             if brand_obj == None:
                 response["brand"] = ""
             else:
                 response["brand"] = brand_obj.name
 
-            response["manufacturer"] = base_prod_obj.manufacturer
-            response["product_id"] = prod_obj.product_id
-            response["product_id_type"] = prod_obj.product_id_type
+            response["manufacturer"] = base_product_obj.manufacturer
+            response["product_id"] = product_obj.product_id
+            response["product_id_type"] = product_obj.product_id_type
 
-            response["noon_product_type"] = noon_product_obj.product_type
-            response["noon_product_subtype"] = noon_product_obj.product_subtype
-            response["noon_model_number"] = noon_product_obj.model_number
-            response["noon_model_name"] = noon_product_obj.model_name
+            response["noon_product_type"] = noon_product_dict["product_type"]
+            response["noon_product_subtype"] = noon_product_dict["product_subtype"]
+            response["noon_model_number"] = noon_product_dict["model_number"]
+            response["noon_model_name"] = noon_product_dict["model_name"]
 
-            response["seller_sku"] = base_prod_obj.seller_sku
-            response["manufacturer_part_number"] = base_prod_obj.manufacturer_part_number
-            response["condition_type"] = prod_obj.condition_type
-            response["feed_product_type"] = amazon_uk_product_obj.feed_product_type
-            response["update_delete"] = amazon_uk_product_obj.update_delete
-            response["recommended_browse_nodes"] = amazon_uk_product_obj.recommended_browse_nodes
-            response["product_description_amazon_uk"] = amazon_uk_product_obj.product_description
-            response["product_description_amazon_uae"] = amazon_uae_product_obj.product_description
-            response["product_description_ebay"] = ebay_prod_obj.product_description
-            response["product_description_noon"] = noon_prod_obj.product_description
-            response["product_attribute_list_amazon_uk"] = json.loads(
-                amazon_uk_product_obj.product_attribute_list)
-            response["product_attribute_list_amazon_uae"] = json.loads(
-                amazon_uae_product_obj.product_attribute_list)
-            response["product_attribute_list_ebay"] = json.loads(
-                ebay_product_obj.product_attribute_list)
-            response["product_attribute_list_noon"] = json.loads(
-                noon_product_obj.product_attribute_list)
-            response["search_terms"] = amazon_uk_product_obj.search_terms
-            response["color_map"] = prod_obj.color_map
-            response["color"] = prod_obj.color
-            response["enclosure_material"] = amazon_uk_product_obj.enclosure_material
-            response["cover_material_type"] = amazon_uk_product_obj.cover_material_type
-            response["special_features"] = json.loads(
-                amazon_uk_product_obj.special_features)
+            response["seller_sku"] = base_product_obj.seller_sku
+            response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
+            
+            response["condition_type"] = amazon_uk_product_dict["condition_type"]
+            response["feed_product_type"] = amazon_uk_product_dict["feed_product_type"]
+            response["update_delete"] = amazon_uk_product_dict["update_delete"]
+            response["recommended_browse_nodes"] = amazon_uk_product_dict["recommended_browse_nodes"]
+            response["product_description_amazon_uk"] = amazon_uk_product_dict["product_description"]
+            response["product_description_amazon_uae"] = amazon_uae_product_dict["product_description"]
+            response["product_description_ebay"] = ebay_product_dict["product_description"]
+            response["product_description_noon"] = noon_product_dict["product_description"]
+            response["product_attribute_list_amazon_uk"] = amazon_uk_product_dict["product_attribute_list"]
+            response["product_attribute_list_amazon_uae"] = amazon_uae_product_dict["product_attribute_list"]
+            response["product_attribute_list_ebay"] = ebay_product_dict["product_attribute_list"]
+            response["product_attribute_list_noon"] = noon_product_dict["product_attribute_list"]
+            response["search_terms"] = amazon_uk_product_dict["search_terms"]
+            response["color_map"] = product_obj.color_map
+            response["color"] = product_obj.color
+            response["enclosure_material"] = amazon_uk_product_dict["enclosure_material"]
+            response["cover_material_type"] = amazon_uk_product_dict["cover_material_type"]
+            response["special_features"] = amazon_uk_product_dict["special_features"]
 
-            response["package_length"] = "" if base_prod_obj.package_length == None else base_prod_obj.package_length
-            response["package_length_metric"] = base_prod_obj.package_length_metric
-            response["package_width"] = "" if base_prod_obj.package_width == None else base_prod_obj.package_width
-            response["package_width_metric"] = base_prod_obj.package_width_metric
-            response["package_height"] = "" if base_prod_obj.package_height == None else base_prod_obj.package_height
-            response["package_height_metric"] = base_prod_obj.package_height_metric
-            response["package_weight"] = "" if base_prod_obj.package_weight == None else base_prod_obj.package_weight
-            response["package_weight_metric"] = base_prod_obj.package_weight_metric
-            response["shipping_weight"] = "" if base_prod_obj.shipping_weight == None else base_prod_obj.shipping_weight
-            response["shipping_weight_metric"] = base_prod_obj.shipping_weight_metric
-            response["item_display_weight"] = "" if base_prod_obj.item_display_weight == None else base_prod_obj.item_display_weight
-            response["item_display_weight_metric"] = base_prod_obj.item_display_weight_metric
-            response["item_display_volume"] = "" if base_prod_obj.item_display_volume == None else base_prod_obj.item_display_volume
-            response["item_display_volume_metric"] = base_prod_obj.item_display_volume_metric
-            response["item_display_length"] = "" if base_prod_obj.item_display_length == None else base_prod_obj.item_display_length
-            response["item_display_length_metric"] = base_prod_obj.item_display_length_metric
-            response["item_weight"] = "" if base_prod_obj.item_weight == None else base_prod_obj.item_weight
-            response["item_weight_metric"] = base_prod_obj.item_weight_metric
-            response["item_length"] = "" if base_prod_obj.item_length == None else base_prod_obj.item_length
-            response["item_length_metric"] = base_prod_obj.item_length_metric
-            response["item_width"] = "" if base_prod_obj.item_width == None else base_prod_obj.item_width
-            response["item_width_metric"] = base_prod_obj.item_width_metric
-            response["item_height"] = "" if base_prod_obj.item_height == None else base_prod_obj.item_height
-            response["item_height_metric"] = base_prod_obj.item_height_metric
-            response["item_display_width"] = "" if base_prod_obj.item_display_width == None else base_prod_obj.item_display_width
-            response["item_display_width_metric"] = base_prod_obj.item_display_width_metric
-            response["item_display_height"] = "" if base_prod_obj.item_display_height == None else base_prod_obj.item_display_height
-            response["item_display_height_metric"] = base_prod_obj.item_display_height_metric
+            response["package_length"] = "" if base_product_obj.package_length == None else base_product_obj.package_length
+            response["package_length_metric"] = base_product_obj.package_length_metric
+            response["package_width"] = "" if base_product_obj.package_width == None else base_product_obj.package_width
+            response["package_width_metric"] = base_product_obj.package_width_metric
+            response["package_height"] = "" if base_product_obj.package_height == None else base_product_obj.package_height
+            response["package_height_metric"] = base_product_obj.package_height_metric
+            response["package_weight"] = "" if base_product_obj.package_weight == None else base_product_obj.package_weight
+            response["package_weight_metric"] = base_product_obj.package_weight_metric
+            response["shipping_weight"] = "" if base_product_obj.shipping_weight == None else base_product_obj.shipping_weight
+            response["shipping_weight_metric"] = base_product_obj.shipping_weight_metric
+            response["item_display_weight"] = "" if base_product_obj.item_display_weight == None else base_product_obj.item_display_weight
+            response["item_display_weight_metric"] = base_product_obj.item_display_weight_metric
+            response["item_display_volume"] = "" if base_product_obj.item_display_volume == None else base_product_obj.item_display_volume
+            response["item_display_volume_metric"] = base_product_obj.item_display_volume_metric
+            response["item_display_length"] = "" if base_product_obj.item_display_length == None else base_product_obj.item_display_length
+            response["item_display_length_metric"] = base_product_obj.item_display_length_metric
+            response["item_weight"] = "" if base_product_obj.item_weight == None else base_product_obj.item_weight
+            response["item_weight_metric"] = base_product_obj.item_weight_metric
+            response["item_length"] = "" if base_product_obj.item_length == None else base_product_obj.item_length
+            response["item_length_metric"] = base_product_obj.item_length_metric
+            response["item_width"] = "" if base_product_obj.item_width == None else base_product_obj.item_width
+            response["item_width_metric"] = base_product_obj.item_width_metric
+            response["item_height"] = "" if base_product_obj.item_height == None else base_product_obj.item_height
+            response["item_height_metric"] = base_product_obj.item_height_metric
+            response["item_display_width"] = "" if base_product_obj.item_display_width == None else base_product_obj.item_display_width
+            response["item_display_width_metric"] = base_product_obj.item_display_width_metric
+            response["item_display_height"] = "" if base_product_obj.item_display_height == None else base_product_obj.item_display_height
+            response["item_display_height_metric"] = base_product_obj.item_display_height_metric
 
             
-            response["item_count"] = "" if prod_obj.item_count == None else prod_obj.item_count
-            response["item_count_metric"] = prod_obj.item_count_metric
-            response["item_condition_note"] = prod_obj.item_condition_note
-            response["max_order_quantity"] = "" if prod_obj.max_order_quantity == None else prod_obj.max_order_quantity
-            response["number_of_items"] = "" if prod_obj.number_of_items == None else prod_obj.number_of_items
+            response["item_count"] = "" if amazon_uk_product_dict["item_count"] == None else amazon_uk_product_dict["item_count"]
+            response["item_count_metric"] = amazon_uk_product_dict["item_count_metric"]
+            response["item_condition_note"] = amazon_uk_product_dict["item_condition_note"]
+            response["max_order_quantity"] = "" if amazon_uk_product_dict["max_order_quantity"] == None else amazon_uk_product_dict["max_order_quantity"]
+            response["number_of_items"] = "" if amazon_uk_product_dict["number_of_items"] == None else amazon_uk_product_dict["number_of_items"]
             
-            response["wattage"] = "" if amazon_uk_product_obj.wattage == None else amazon_uk_product_obj.wattage
-            response["wattage_metric"] = amazon_uk_product_obj.wattage_metric
-            response["material_type"] = amazon_uk_product_obj.material_type
-            response["parentage"] = amazon_uk_product_obj.parentage
-            response["parent_sku"] = amazon_uk_product_obj.parent_sku
-            response["relationship_type"] = amazon_uk_product_obj.relationship_type
-            response["variation_theme"] = amazon_uk_product_obj.variation_theme
-            response["standard_price"] = "" if amazon_uk_product_obj.standard_price == None else amazon_uk_product_obj.standard_price
-            response["quantity"] = "" if amazon_uk_product_obj.quantity == None else amazon_uk_product_obj.quantity
-            response["sale_price"] = "" if amazon_uk_product_obj.sale_price == None else amazon_uk_product_obj.sale_price
-            response["sale_from"] = "" if amazon_uk_product_obj.sale_from == None else amazon_uk_product_obj.sale_from
-            response["sale_end"] = "" if amazon_uk_product_obj.sale_end == None else amazon_uk_product_obj.sale_end
-            response["sale_price"] = "" if amazon_uk_product_obj.sale_price == None else amazon_uk_product_obj.sale_price
+            response["wattage"] = "" if amazon_uk_product_dict["wattage"] == None else amazon_uk_product_dict["wattage"]
+            response["wattage_metric"] = amazon_uk_product_dict["wattage_metric"]
+            if product_obj.material_type != None:
+                response["material_type"] = product_obj.material_type.name
+            else:
+                response["material_type"] = ""
+            response["parentage"] = amazon_uk_product_dict["parentage"]
+            response["parent_sku"] = amazon_uk_product_dict["parent_sku"]
+            response["relationship_type"] = amazon_uk_product_dict["relationship_type"]
+            response["variation_theme"] = amazon_uk_product_dict["variation_theme"]
+            response["standard_price"] = "" if product_obj.standard_price == None else product_obj.standard_price
+            response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
+            response["sale_price"] = "" if amazon_uk_product_dict["sale_price"] == None else amazon_uk_product_dict["sale_price"]
+            response["sale_from"] = "" if amazon_uk_product_dict["sale_from"] == None else amazon_uk_product_dict["sale_from"]
+            response["sale_end"] = "" if amazon_uk_product_dict["sale_end"] == None else amazon_uk_product_dict["sale_end"]
+            response["sale_price"] = "" if amazon_uk_product_dict["sale_price"] == None else amazon_uk_product_dict["sale_price"]
             
 
-            response["noon_msrp_ae"] = "" if noon_product_obj.noon_msrp_ae == None else noon_product_obj.noon_msrp_ae
-            response["noon_msrp_ae_unit"] = str(noon_product_obj.noon_msrp_ae_unit)
+            response["noon_msrp_ae"] = "" if noon_product_dict["msrp_ae"] == None else noon_product_dict["msrp_ae"]
+            response["noon_msrp_ae_unit"] = str(noon_product_dict["msrp_ae_unit"])
 
-            response["verified"] = prod_obj.verified
+            response["verified"] = product_obj.verified
 
             images = {}
 
-            main_images_list = []
-            main_images_objs = MainImages.objects.filter(product=prod_obj)
+            main_images_list = ImageBucket.objects.none()
+            main_images_objs = MainImages.objects.filter(product=product_obj)
             for main_images_obj in main_images_objs:
-                main_images_list+=main_images_obj.main_images.all()
-            main_images_list = set(main_images_list)
+                main_images_list|=main_images_obj.main_images.all()
+            main_images_list = main_images_list.distinct()
             images["main_images"] = create_response_images_main(main_images_list)
             
-            sub_images_list = []
-            sub_images_objs = SubImages.objects.filter(product=prod_obj)
+            sub_images_list = ImageBucket.objects.none()
+            sub_images_objs = SubImages.objects.filter(product=product_obj)
             for sub_images_obj in sub_images_objs:
-                sub_images_list+=sub_images_obj.sub_images.all()
-            sub_images_list = set(sub_images_list)
+                sub_images_list|=sub_images_obj.sub_images.all()
+            sub_images_list = sub_images_list.distinct()
             images["sub_images"] = create_response_images_main(sub_images_list)
             
             images["pfl_images"] = create_response_images(
-                prod_obj.pfl_images.all())
+                product_obj.pfl_images.all())
             images["pfl_generated_images"] = create_response_images(
-                prod_obj.pfl_generated_images.all())
+                product_obj.pfl_generated_images.all())
             images["white_background_images"] = create_response_images(
-                prod_obj.white_background_images.all())
+                product_obj.white_background_images.all())
             images["lifestyle_images"] = create_response_images(
-                prod_obj.lifestyle_images.all())
+                product_obj.lifestyle_images.all())
             images["certificate_images"] = create_response_images(
-                prod_obj.certificate_images.all())
+                product_obj.certificate_images.all())
             images["giftbox_images"] = create_response_images(
-                prod_obj.giftbox_images.all())
+                product_obj.giftbox_images.all())
             images["diecut_images"] = create_response_images(
-                prod_obj.diecut_images.all())
+                product_obj.diecut_images.all())
             images["aplus_content_images"] = create_response_images(
-                prod_obj.aplus_content_images.all())
+                product_obj.aplus_content_images.all())
             images["ads_images"] = create_response_images(
-                prod_obj.ads_images.all())
+                product_obj.ads_images.all())
             images["unedited_images"] = create_response_images(
-                prod_obj.unedited_images.all())
+                product_obj.unedited_images.all())
+            images["transparent_images"] = create_response_images(
+                product_obj.transparent_images.all())
 
             images["all_images"] = images["pfl_images"] + images["pfl_generated_images"] + \
                 images["white_background_images"] + images["lifestyle_images"] + \
                 images["certificate_images"] + images["giftbox_images"] + \
                 images["diecut_images"] + images["aplus_content_images"] + \
-                images["ads_images"] + images["unedited_images"] + create_response_images_main_sub_delete(main_images_list) + create_response_images_main_sub_delete(sub_images_list)
+                images["ads_images"] + images["unedited_images"] + images["transparent_images"] + create_response_images_main_sub_delete(prod_obj.main_images.all()) + create_response_images_main_sub_delete(prod_obj.sub_images.all())
 
 
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
@@ -506,16 +525,16 @@ class FetchProductDetailsAPI(APIView):
             response["repr_high_def_url"] = repr_high_def_url
 
             try:
-                response["barcode_image_url"] = prod_obj.barcode.image.url
+                response["barcode_image_url"] = product_obj.barcode.image.url
             except Exception as e:
                 response["barcode_image_url"] = ""
 
             pfl_pk = None
-            if PFL.objects.filter(product=prod_obj).exists() == False:
-                pfl_obj = PFL.objects.create(product=prod_obj)
+            if PFL.objects.filter(product=product_obj).exists() == False:
+                pfl_obj = PFL.objects.create(product=product_obj)
                 pfl_pk = pfl_obj.pk
             else:
-                pfl_obj = PFL.objects.filter(product=prod_obj)[0]
+                pfl_obj = PFL.objects.filter(product=product_obj)[0]
                 pfl_pk = pfl_obj.pk
 
             response["pfl_pk"] = pfl_pk
@@ -556,10 +575,10 @@ class SaveProductAPI(APIView):
             product_id = data["product_id"]
             seller_sku = data["seller_sku"]
 
-            prod_obj = Product.objects.get(pk=int(data["product_pk"]))
-            base_prod_obj = Product.base_product
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+            base_product_obj = Product.base_product
 
-            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1 or Product.objects.filter(seller_sku=seller_sku).exclude(pk=data["product_pk"]).count() >= 1:
+            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1 or Product.objects.filter(base_product__seller_sku=seller_sku).exclude(pk=data["product_pk"]).count() >= 1:
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
                 return Response(data=response)
@@ -685,23 +704,23 @@ class SaveProductAPI(APIView):
 
             brand_obj = None
             if brand != "":
-                brand_obj, created = Brand.objects.prod_objget_or_create(name=brand)
+                brand_obj, created = Brand.objects.get_or_create(name=brand)
 
-            prod_obj.product_id = product_id
+            product_obj.product_id = product_id
 
             try:
-                if prod_obj.barcode_string != barcode_string and barcode_string != "":
+                if product_obj.barcode_string != barcode_string and barcode_string != "":
                     EAN = barcode.ean.EuropeanArticleNumber13(str(barcode_string), writer=ImageWriter())
                     
                     thumb = EAN.save('temp_image')
                     thumb = IMage.open(open(thumb, "rb"))
                     thumb_io = StringIO.StringIO()
                     thumb.save(thumb_io, format='PNG')
-                    thumb_file = InMemoryUploadedFile(thumb_io, None, 'barcode_' + prod_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
+                    thumb_file = InMemoryUploadedFile(thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
 
                     barcode_image = Image.objects.create(image=thumb_file)
-                    prod_obj.barcode = barcode_image
-                    prod_obj.barcode_string = barcode_string
+                    product_obj.barcode = barcode_image
+                    product_obj.barcode_string = barcode_string
 
                     try:
                         import os
@@ -719,109 +738,111 @@ class SaveProductAPI(APIView):
             # try:
             #     image_decoded = decode_base64_file(data["image_data"])
             #     image_obj = Image.objects.create(image=image_decoded)
-            #     prod_obj.pfl_generated_images.clear()
-            #     prod_obj.pfl_generated_images.add(image_obj)
+            #     product_obj.pfl_generated_images.clear()
+            #     product_obj.pfl_generated_images.add(image_obj)
             # except Exception as e:
             #     exc_type, exc_obj, exc_tb = sys.exc_info()
             #     logger.error("SaveProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-            # prod_obj.product_name_amazon_uk = product_name_amazon_uk
-            # prod_obj.product_name_amazon_uae = product_name_amazon_uae
-            # prod_obj.product_name_ebay = product_name_ebay
-            # prod_obj.product_name_noon = product_name_noon
-            prod_obj.product_name_sap = product_name_sap
+            # product_obj.product_name_amazon_uk = product_name_amazon_uk
+            # product_obj.product_name_amazon_uae = product_name_amazon_uae
+            # product_obj.product_name_ebay = product_name_ebay
+            # product_obj.product_name_noon = product_name_noon
+            product_obj.product_name_sap = product_name_sap
 
-            base_prod_obj.category = category
-            base_prod_obj.subtitle = subtitle
-            base_prod_obj.brand = brand_obj
-            base_prod_obj.manufacturer = manufacturer
-            base_prod_obj.seller_sku = seller_sku
-            base_prod_obj.manufacturer_part_number = manufacturer_part_number
-            # prod_obj.condition_type = condition_type
-            # prod_obj.feed_product_type = feed_product_type
+            base_product_obj.category = category
+            base_product_obj.subtitle = subtitle
+            base_product_obj.brand = brand_obj
+            base_product_obj.manufacturer = manufacturer
+            base_product_obj.seller_sku = seller_sku
+            base_product_obj.manufacturer_part_number = manufacturer_part_number
+            # product_obj.condition_type = condition_type
+            # product_obj.feed_product_type = feed_product_type
 
             product_id_type_obj = ProductIDType.objects.get_or_create(name=product_id_type)
-            prod_obj.product_id_type = product_id_type_obj
+            product_obj.product_id_type = product_id_type_obj
 
-            # prod_obj.noon_product_type = noon_product_type
-            # prod_obj.noon_product_subtype = noon_product_subtype
-            # prod_obj.noon_model_number = noon_model_number
-            # prod_obj.noon_model_name = noon_model_name
+            # product_obj.noon_product_type = noon_product_type
+            # product_obj.noon_product_subtype = noon_product_subtype
+            # product_obj.noon_model_number = noon_model_number
+            # product_obj.noon_model_name = noon_model_name
 
-            # prod_obj.update_delete = update_delete
-            # prod_obj.recommended_browse_nodes = recommended_browse_nodes
-            # prod_obj.product_description_amazon_uk = product_description_amazon_uk
-            # prod_obj.product_description_amazon_uae = product_description_amazon_uae
-            # prod_obj.product_description_ebay = product_description_ebay
-            # prod_obj.product_description_noon = product_description_noon
+            # product_obj.update_delete = update_delete
+            # product_obj.recommended_browse_nodes = recommended_browse_nodes
+            # product_obj.product_description_amazon_uk = product_description_amazon_uk
+            # product_obj.product_description_amazon_uae = product_description_amazon_uae
+            # product_obj.product_description_ebay = product_description_ebay
+            # product_obj.product_description_noon = product_description_noon
 
-            # prod_obj.product_attribute_list_amazon_uk = product_attribute_list_amazon_uk
-            # prod_obj.product_attribute_list_amazon_uae = product_attribute_list_amazon_uae
-            # prod_obj.product_attribute_list_ebay = product_attribute_list_ebay
-            # prod_obj.product_attribute_list_noon = product_attribute_list_noon
-            # prod_obj.search_terms = search_terms
-            prod_obj.color_map = color_map
-            prod_obj.color = color
-            # prod_obj.enclosure_material = enclosure_material
-            # prod_obj.cover_material_type = cover_material_type
-            # prod_obj.special_features = special_features
+            # product_obj.product_attribute_list_amazon_uk = product_attribute_list_amazon_uk
+            # product_obj.product_attribute_list_amazon_uae = product_attribute_list_amazon_uae
+            # product_obj.product_attribute_list_ebay = product_attribute_list_ebay
+            # product_obj.product_attribute_list_noon = product_attribute_list_noon
+            # product_obj.search_terms = search_terms
+            product_obj.color_map = color_map
+            product_obj.color = color
+            # product_obj.enclosure_material = enclosure_material
+            # product_obj.cover_material_type = cover_material_type
+            # product_obj.special_features = special_features
             
-            base_prod_obj.package_length = package_length
-            base_prod_obj.package_length_metric = package_length_metric
-            base_prod_obj.package_width = package_width
-            base_prod_obj.package_width_metric = package_width_metric
-            base_prod_obj.package_height = package_height
-            base_prod_obj.package_height_metric = package_height_metric
-            base_prod_obj.package_weight = package_weight
-            base_prod_obj.package_weight_metric = package_weight_metric
-            base_prod_obj.shipping_weight = shipping_weight
-            base_prod_obj.shipping_weight_metric = shipping_weight_metric
-            base_prod_obj.item_display_weight = item_display_weight
-            base_prod_obj.item_display_weight_metric = item_display_weight_metric
-            base_prod_obj.item_display_volume = item_display_volume
-            base_prod_obj.item_display_volume_metric = item_display_volume_metric
-            base_prod_obj.item_display_length = item_display_length
-            base_prod_obj.item_display_length_metric = item_display_length_metric
-            base_prod_obj.item_weight = item_weight
-            base_prod_obj.item_weight_metric = item_weight_metric
-            base_prod_obj.item_length = item_length
-            base_prod_obj.item_length_metric = item_length_metric
-            base_prod_obj.item_width = item_width
-            base_prod_obj.item_width_metric = item_width_metric
-            base_prod_obj.item_height = item_height
-            base_prod_obj.item_height_metric = item_height_metric
-            base_prod_obj.item_display_width = item_display_width
-            base_prod_obj.item_display_width_metric = item_display_width_metric
-            base_prod_obj.item_display_height = item_display_height
-            base_prod_obj.item_display_height_metric = item_display_height_metric
+            base_product_obj.package_length = package_length
+            base_product_obj.package_length_metric = package_length_metric
+            base_product_obj.package_width = package_width
+            base_product_obj.package_width_metric = package_width_metric
+            base_product_obj.package_height = package_height
+            base_product_obj.package_height_metric = package_height_metric
+            base_product_obj.package_weight = package_weight
+            base_product_obj.package_weight_metric = package_weight_metric
+            base_product_obj.shipping_weight = shipping_weight
+            base_product_obj.shipping_weight_metric = shipping_weight_metric
+            base_product_obj.item_display_weight = item_display_weight
+            base_product_obj.item_display_weight_metric = item_display_weight_metric
+            base_product_obj.item_display_volume = item_display_volume
+            base_product_obj.item_display_volume_metric = item_display_volume_metric
+            base_product_obj.item_display_length = item_display_length
+            base_product_obj.item_display_length_metric = item_display_length_metric
+            base_product_obj.item_weight = item_weight
+            base_product_obj.item_weight_metric = item_weight_metric
+            base_product_obj.item_length = item_length
+            base_product_obj.item_length_metric = item_length_metric
+            base_product_obj.item_width = item_width
+            base_product_obj.item_width_metric = item_width_metric
+            base_product_obj.item_height = item_height
+            base_product_obj.item_height_metric = item_height_metric
+            base_product_obj.item_display_width = item_display_width
+            base_product_obj.item_display_width_metric = item_display_width_metric
+            base_product_obj.item_display_height = item_display_height
+            base_product_obj.item_display_height_metric = item_display_height_metric
             
 
-            # prod_obj.item_count = item_count
-            # prod_obj.item_count_metric = item_count_metric
-            # prod_obj.item_condition_note = item_condition_note
-            # prod_obj.max_order_quantity = max_order_quantity
-            # prod_obj.number_of_items = number_of_items
-            # prod_obj.wattage = wattage
-            # prod_obj.wattage_metric = wattage_metric
+            # product_obj.item_count = item_count
+            # product_obj.item_count_metric = item_count_metric
+            # product_obj.item_condition_note = item_condition_note
+            # product_obj.max_order_quantity = max_order_quantity
+            # product_obj.number_of_items = number_of_items
+            # product_obj.wattage = wattage
+            # product_obj.wattage_metric = wattage_metric
             material_type_obj = MaterialType.objects.get_or_create(name=material_type)
-            prod_obj.material_type = material_type_obj
-            # prod_obj.parentage = parentage
-            # prod_obj.parent_sku = parent_sku
-            # prod_obj.relationship_type = relationship_type
-            # prod_obj.variation_theme = variation_theme
-            prod_obj.standard_price = standard_price
-            prod_obj.quantity = quantity
-            # prod_obj.sale_price = sale_price
-            # prod_obj.sale_from = sale_from
-            # prod_obj.sale_end = sale_end
-            # prod_obj.noon_msrp_ae = noon_msrp_ae
-            # prod_obj.noon_msrp_ae_unit = noon_msrp_ae_unit
+            product_obj.material_type = material_type_obj
+            # product_obj.parentage = parentage
+            # product_obj.parent_sku = parent_sku
+            # product_obj.relationship_type = relationship_type
+            # product_obj.variation_theme = variation_theme
+            product_obj.standard_price = standard_price
+            product_obj.quantity = quantity
+            # product_obj.sale_price = sale_price
+            # product_obj.sale_from = sale_from
+            # product_obj.sale_end = sale_end
+            # product_obj.noon_msrp_ae = noon_msrp_ae
+            # product_obj.noon_msrp_ae_unit = noon_msrp_ae_unit
 
-            prod_obj.pfl_product_name = pfl_product_name
-            prod_obj.pfl_product_features = pfl_product_features
+            product_obj.pfl_product_name = pfl_product_name
+            product_obj.pfl_product_features = pfl_product_features
 
-            prod_obj.factory_notes = factory_notes
-            prod_obj.save()
+            product_obj.factory_notes = factory_notes
+            
+            base_product_obj.save()
+            product_obj.save()
 
             response['status'] = 200
 
@@ -870,7 +891,7 @@ class FetchProductListAPI(APIView):
 
             if filter_parameters["brand_pk"] != "":
                 brand_obj = Brand.objects.get(pk=filter_parameters["brand_pk"])
-                product_objs_list = product_objs_list.filter(brand=brand_obj)
+                product_objs_list = product_objs_list.filter(base_product__brand=brand_obj)
 
             if filter_parameters["min_price"] != "":
                 product_objs_list = product_objs_list.filter(
@@ -881,23 +902,23 @@ class FetchProductListAPI(APIView):
                     standard_price__lte=int(filter_parameters["max_price"]))
 
             if filter_parameters["has_image"] == "1":
-                for prod_obj in product_objs_list:
-                    if has_atleast_one_image(prod_obj)==False:
-                        product_objs_list.remove(prod_obj)
+                for product_obj in product_objs_list:
+                    if has_atleast_one_image(product_obj)==False:
+                        product_objs_list.exclude(pk=product_obj.pk)
             elif filter_parameters["has_image"] == "0":
-                for prod_obj in product_objs_list:
-                    if has_atleast_one_image(prod_obj)==True:
-                        product_objs_list.remove(prod_obj)
+                for product_obj in product_objs_list:
+                    if has_atleast_one_image(product_obj)==True:
+                        product_objs_list.exclude(pk=product_obj.pk)
 
             if len(chip_data) == 0:
                 search_list_objs = product_objs_list
             else:
                 for tag in chip_data:
                     search = product_objs_list.filter(
-                        Q(product_name_icontains=tag) |
-                        Q(product_name_sap_icontains=tag) |
+                        Q(product_name__icontains=tag) |
+                        Q(product_name_sap__icontains=tag) |
                         Q(product_id__icontains=tag) |
-                        Q(seller_sku__icontains=tag)
+                        Q(base_product__seller_sku__icontains=tag)
                     )
                     for prod in search:
                         search_list_objs.append(prod)
@@ -908,18 +929,20 @@ class FetchProductListAPI(APIView):
             products = []
             for product_obj in product_objs:
                 temp_dict = {}
-                # temp_dict["product_name_amazon_uk"] = product_obj.product_name_amazon_uk
+                temp_dict["product_name"] = product_obj.product_name
                 temp_dict["product_id"] = product_obj.product_id
-                temp_dict["seller_sku"] = product_obj.seller_sku
+                temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                 temp_dict["created_date"] = str(
                     product_obj.created_date.strftime("%d %b, %Y"))
                 temp_dict["status"] = product_obj.status
                 temp_dict["product_pk"] = product_obj.pk
 
-                main_images_list = []
+                main_images_list = ImageBucket.objects.none()
                 main_images_objs = MainImages.objects.filter(product=product_obj)
                 for main_images_obj in main_images_objs:
-                    main_images_list+=main_images_obj.main_images.all()
+                    main_images_list |= main_images_obj.main_images.all()
+
+                main_images_list = main_images_list.distinct()
                 
                 if main_images_list.filter(is_main_image=True).count() > 0:
                     try:
@@ -932,8 +955,8 @@ class FetchProductListAPI(APIView):
                     temp_dict["main_image"] = Config.objects.all()[
                         0].product_404_image.image.url
 
-                if product_obj.brand != None:
-                    temp_dict["brand"] = product_obj.brand.name
+                if product_obj.base_product.brand != None:
+                    temp_dict["brand"] = product_obj.base_product.brand.name
                 else:
                     temp_dict["brand"] = "-"
 
@@ -996,7 +1019,7 @@ class FetchExportListAPI(APIView):
                                 flag = 1
                                 break
                             if (chip.lower() in product.product_name_sap.lower() or
-                                    chip.lower() in product.product_name.lower()
+                                    chip.lower() in product.product_name.lower() or
                                     chip.lower() in product.product_id.lower() or
                                     chip.lower() in product.seller_sku.lower()):
                                 search_list_objs.append(export_list)
@@ -1258,9 +1281,9 @@ class UploadProductImageAPI(APIView):
                 return Response(data=response)
 
             data = request.data
-            #logger.info("UploadProductImageAPI: %s", str(data))
+            logger.info("UploadProductImageAPI: %s", str(data))
 
-            prod_obj = Product.objects.get(pk=int(data["product_pk"]))
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
 
             image_objs = []
 
@@ -1274,15 +1297,21 @@ class UploadProductImageAPI(APIView):
                 for image_obj in image_objs:
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
-                    main_images_obj = MainImages.objects.get_or_create(product=prod_obj)
-                    prod_obj.main_images.add(image_bucket_obj)
+                    if data["channel"] == "" or data["channel"] == None:
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                    else:
+                        channel_obj = Channel.objects.get(name=data["channel"])
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                    
+                    main_images_obj.main_images.add(image_bucket_obj)
+                    main_images_obj.save()
 
-                if prod_obj.main_images.all().count() == image_count:
-                    image_bucket_obj = prod_obj.main_images.all()[0]
+                if main_images_obj.main_images.all().count() == image_count:
+                    image_bucket_obj = main_images_obj.main_images.all()[0]
                     image_bucket_obj.is_main_image = True
                     image_bucket_obj.save()
                     try:
-                        pfl_obj = PFL.objects.filter(product=prod_obj)[0]
+                        pfl_obj = PFL.objects.filter(product=product_obj)[0]
                         if pfl_obj.product_image == None:
                             pfl_obj.product_image = image_objs[0]
                             pfl_obj.save()
@@ -1291,7 +1320,13 @@ class UploadProductImageAPI(APIView):
 
             elif data["image_category"] == "sub_images":
                 index = 0
-                sub_images = prod_obj.sub_images.all().order_by('-sub_image_index')
+                if data["channel"] == "" or data["channel"] == None:
+                    sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                else:
+                    channel_obj = Channel.objects.get(name=data["channel"])
+                    sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                    
+                sub_images = sub_images_obj.sub_images.all().order_by('-sub_image_index')
                 if sub_images.count() > 0:
                     index = sub_images[0].sub_image_index
                 for image_obj in image_objs:
@@ -1304,36 +1339,39 @@ class UploadProductImageAPI(APIView):
                     image_bucket_obj = ImageBucket.objects.create(image=image_obj,
                                                                   is_sub_image=is_sub_image,
                                                                   sub_image_index=sub_image_index)
-                    prod_obj.sub_images.add(image_bucket_obj)
+                    sub_images_obj.sub_images.add(image_bucket_obj)
             elif data["image_category"] == "pfl_images":
                 for image_obj in image_objs:
-                    prod_obj.pfl_images.add(image_obj)
+                    product_obj.pfl_images.add(image_obj)
             elif data["image_category"] == "white_background_images":
                 for image_obj in image_objs:
-                    prod_obj.white_background_images.add(image_obj)
+                    product_obj.white_background_images.add(image_obj)
             elif data["image_category"] == "lifestyle_images":
                 for image_obj in image_objs:
-                    prod_obj.lifestyle_images.add(image_obj)
+                    product_obj.lifestyle_images.add(image_obj)
             elif data["image_category"] == "certificate_images":
                 for image_obj in image_objs:
-                    prod_obj.certificate_images.add(image_obj)
+                    product_obj.certificate_images.add(image_obj)
             elif data["image_category"] == "giftbox_images":
                 for image_obj in image_objs:
-                    prod_obj.giftbox_images.add(image_obj)
+                    product_obj.giftbox_images.add(image_obj)
             elif data["image_category"] == "diecut_images":
                 for image_obj in image_objs:
-                    prod_obj.diecut_images.add(image_obj)
+                    product_obj.diecut_images.add(image_obj)
             elif data["image_category"] == "aplus_content_images":
                 for image_obj in image_objs:
-                    prod_obj.aplus_content_images.add(image_obj)
+                    product_obj.aplus_content_images.add(image_obj)
             elif data["image_category"] == "ads_images":
                 for image_obj in image_objs:
-                    prod_obj.ads_images.add(image_obj)
+                    product_obj.ads_images.add(image_obj)
             elif data["image_category"] == "unedited_images":
                 for image_obj in image_objs:
-                    prod_obj.unedited_images.add(image_obj)
+                    product_obj.unedited_images.add(image_obj)
+            elif data["image_category"] == "transparent_images":
+                for image_obj in image_objs:
+                    product_obj.transparent_images.add(image_obj)
 
-            prod_obj.save()
+            product_obj.save()
 
             response['status'] = 200
 
@@ -1469,30 +1507,38 @@ class CreateFlyerAPI(APIView):
 
 
             common = {
-                "currency-unit":"AED",
+                "background-image-url": "none",
                 "border-visible": True,
-                "border-color": "#E9E9E9",
-                "background-image-url":"none",
-                "product-title-font-size":"12",
-                "product-title-font-family":"AvenirNextRegular",
-                "product-title-font-weight":"normal",
-                "product-title-font-color":"#181818",
-                "price-font-size":"18",
-                "price-font-family":"AvenirNextRegular",
-                "price-font-weight":"normal",
-                "price-font-color":"#181818",
-                "strikeprice-font-size":"8.5",
-                "strikeprice-font-family":"AvenirNextRegular",
-                "strikeprice-font-weight":"normal",
-                "strikeprice-font-color":"#181818",
-                "currency-font-size":"8.5",
-                "currency-font-family":"AvenirNextRegular",
-                "currency-font-weight":"normal",
-                "currency-font-color":"#181818",
-                "price-box-bg-color":"#fbf00b",
-                "header-color":"#181818",
-                "footer-color":"#181818",
-                "promo-resizer": "40"
+                "border-color": "#EBEBEB",
+                "super-brand-logo": False,
+                "iso-logo": False,
+                "consumer-logo": False,
+                "brand-name-visible": True,
+                "white-container": True,
+                "price-resizer": "100",
+                "product-title-font-size": "12",
+                "product-title-font-family": "Helvetica",
+                "product-title-font-weight": "bold",
+                "product-title-font-color": "#181818",
+                "price-font-size": "18",
+                "price-font-family": "Helvetica",
+                "price-font-weight": "bold",
+                "price-font-color": "#181818",
+                "currency-font-size": "8.5",
+                "currency-font-family": "Helvetica",
+                "currency-font-weight": "bold",
+                "currency-font-color": "#181818",
+                "currency-unit": "AED",
+                "price-box-bg-color": "#FBF00B",
+                "strikeprice-font-size": "12",
+                "strikeprice-font-family": "Helvetica",
+                "strikeprice-font-weight": "bold",
+                "strikeprice-font-color": "#181818",
+                "strikeprice-visible": True,
+                "header-color": "#181818",
+                "footer-color": "#181818",
+                "all-promo-resizer": "40",
+                "all-image-resizer": "100"
             }
 
             template_data = {
@@ -1518,13 +1564,15 @@ class CreateFlyerAPI(APIView):
                         temp_dict["data"] = {
                             "image-url": "",
                             "banner-img": "",
+                            "warranty-display": False,
                             "image-resizer": "100",
+                            "promo-resizer": "40",
                             "price": "",
                             "strikeprice": "strikeprice",
                             "title": "",
-                            "description": "",
-                            "image-resizer": "100"
+                            "description": ""
                         }
+
                         item_data.append(temp_dict)
                     template_data["item-data"] = item_data
                     flyer_obj.template_data = json.dumps(template_data)
@@ -1559,12 +1607,19 @@ class CreateFlyerAPI(APIView):
                                 if Product.objects.filter(product_id=search_id).exists():
                                     product_obj = Product.objects.filter(product_id=search_id)[0]
                                 elif BaseProduct.objects.filter(seller_sku=search_id).exists():
-                                    base_prod_obj = BaseProduct.objects.get(seller_sku=search_id)
-                                    product_obj = Product.objects.filter(base_product=base_prod_obj)[0]
+                                    base_product_obj = BaseProduct.objects.get(seller_sku=search_id)
+                                    product_obj = Product.objects.filter(base_product=base_product_obj)[0]
 
                                 flyer_obj.product_bucket.add(product_obj)
                                 try:
-                                    main_image_obj = product_obj.main_images.filter(is_main_image=True)[0]
+                                    main_images_objs = MainImages.objects.filter(product = product_obj)
+                                    
+                                    for main_images_obj in main_images_objs:
+                                        if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                                            break
+
+                                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                                    
                                     try:
                                         image_url = main_image_obj.image.mid_image.url
                                     except Exception as e:
@@ -1575,7 +1630,7 @@ class CreateFlyerAPI(APIView):
                                 try:
                                     product_title = convert_to_ascii(dfs.iloc[i][1])
                                     if product_title == "nan":
-                                        product_title = product_obj.product_name_amazon_uk
+                                        product_title = product_obj.product_name
                                 except Exception as e:
                                     logger.warning("product_title error %s", str(e))
 
@@ -1588,7 +1643,11 @@ class CreateFlyerAPI(APIView):
 
 
                                 try:
-                                    product_strikeprice = convert_to_ascii(dfs.iloc[i][3])
+                                    try:
+                                        product_strikeprice = str(dfs.iloc[i][3])    
+                                    except Exception as e:
+                                        product_strikeprice = convert_to_ascii(dfs.iloc[i][3])
+
                                     if product_strikeprice == "nan":
                                         product_strikeprice = ""
                                     try:
@@ -1600,7 +1659,11 @@ class CreateFlyerAPI(APIView):
 
 
                                 try:
-                                    product_price = convert_to_ascii(dfs.iloc[i][4])
+                                    try:
+                                        product_price = str(dfs.iloc[i][4])
+                                    except Exception as e:
+                                        product_price = convert_to_ascii(dfs.iloc[i][4])
+                                    
                                     if product_price == "nan":
                                         product_price = ""
                                     try:
@@ -1625,12 +1688,13 @@ class CreateFlyerAPI(APIView):
                             temp_dict["data"] = {
                                 "image-url": str(image_url),
                                 "banner-img": "",
+                                "warranty-display": False,
                                 "image-resizer": "100",
+                                "promo-resizer": "40",
                                 "price": str(product_price),
                                 "strikeprice": str(product_strikeprice),
                                 "title": str(product_title),
-                                "description": str(product_description),
-                                "image-resizer": "100"
+                                "description": str(product_description)
                             }
                             item_data.append(temp_dict)
 
@@ -1671,58 +1735,81 @@ class FetchFlyerDetailsAPI(APIView):
             flyer_obj = Flyer.objects.get(pk=int(data["pk"]))
 
             name = flyer_obj.name
-            product_bucket_objs = flyer_obj.product_bucket.all()
-            product_bucket_list = []
+            product_objs = flyer_obj.product_bucket.all()
+            product_list = []
             images_dict = {}
-            for product_bucket_obj in product_bucket_objs:
+            for product_obj in product_objs:
                 temp_dict = {}
-                temp_dict[
-                    "product_bucket_name"] = product_bucket_obj.product_name_sap
-                temp_dict["product_bucket_pk"] = product_bucket_obj.pk
-                temp_dict["seller_sku"] = product_bucket_obj.seller_sku
-                main_image_url = Config.objects.all(
-                )[0].product_404_image.image.url
-                if product_bucket_obj.main_images.filter(is_main_image=True).count() > 0:
-                    try:
-                        main_image_url = product_bucket_obj.main_images.filter(is_main_image=True)[
-                            0].image.mid_image.url
-                    except Exception as e:
-                        pass
+                temp_dict["product_bucket_name"] = product_obj.product_name_sap
+                temp_dict["product_bucket_pk"] = product_obj.pk
+                temp_dict["seller_sku"] = product_obj.seller_sku
+                main_image_url = Config.objects.all()[0].product_404_image.image.url
+                
+                try:
+
+                    main_images_objs = MainImages.objects.filter(product = product_obj)
+                    main_images_list = []
+
+                    flag=0
+                    for main_images_obj in main_images_objs:
+                        main_images_list += main_images_obj.main_images.all()
+                        if main_images_obj.main_images.filter(is_main_image=True).count() > 0 and flag==0:
+                            main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                            flag = 1
+
+                    main_images_list = set(main_images_list)
+                    
+                    main_image_url = main_image_obj.image.mid_image.url
+                
+                except Exception as e:
+                    
+                    pass
+                
+                sub_images_objs = SubImages.objects.filter(product = product_obj)
+                
+                sub_images_list = []
+                for sub_images_obj in sub_images_objs:
+                    sub_images_list += sub_images_obj.sub_images.all()
+
+                sub_images_list = set(sub_images_list)
+                
                 temp_dict["product_bucket_image_url"] = main_image_url
 
                 images = {}
 
                 images["main_images"] = create_response_images_flyer_pfl_main_sub(
-                    product_bucket_obj.main_images.all())
+                    main_images_list)
                 images["sub_images"] = create_response_images_flyer_pfl_main_sub(
-                    product_bucket_obj.sub_images.all())
+                    sub_images_list)
                 images["pfl_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.pfl_images.all())
+                    product_obj.pfl_images.all())
                 images["white_background_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.white_background_images.all())
+                    product_obj.white_background_images.all())
                 images["lifestyle_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.lifestyle_images.all())
+                    product_obj.lifestyle_images.all())
                 images["certificate_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.certificate_images.all())
+                    product_obj.certificate_images.all())
                 images["giftbox_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.giftbox_images.all())
+                    product_obj.giftbox_images.all())
                 images["diecut_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.diecut_images.all())
+                    product_obj.diecut_images.all())
                 images["aplus_content_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.aplus_content_images.all())
+                    product_obj.aplus_content_images.all())
                 images["ads_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.ads_images.all())
+                    product_obj.ads_images.all())
                 images["unedited_images"] = create_response_images_flyer_pfl(
-                    product_bucket_obj.unedited_images.all())
+                    product_obj.unedited_images.all())
+                images["transparent_images"] = create_response_images_flyer_pfl(
+                    product_obj.transparent_images.all())
 
                 images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
                     images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
                     images["aplus_content_images"] + \
-                    images["ads_images"]+images["unedited_images"]
+                    images["ads_images"]+images["unedited_images"]+images["transparent_images"]
 
-                images_dict[product_bucket_obj.pk] = images
+                images_dict[product_obj.pk] = images
 
-                product_bucket_list.append(temp_dict)
+                product_list.append(temp_dict)
 
             template_data = json.loads(flyer_obj.template_data)
 
@@ -1732,10 +1819,14 @@ class FetchFlyerDetailsAPI(APIView):
             external_images_bucket_list = []
             external_images_bucket_objs = flyer_obj.external_images_bucket.all()
             for external_images_bucket_obj in external_images_bucket_objs:
-                temp_dict = {}
-                temp_dict["image_url"] = external_images_bucket_obj.image.url
-                temp_dict["image_pk"] = external_images_bucket_obj.pk
-                external_images_bucket_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["url"] = external_images_bucket_obj.mid_image.url
+                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["image_pk"] = external_images_bucket_obj.pk
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
 
             brand_image_url = None
             try:
@@ -1746,10 +1837,10 @@ class FetchFlyerDetailsAPI(APIView):
                                e, str(exc_tb.tb_lineno))
 
             response["flyer_name"] = name
-            response["product_bucket_list"] = product_bucket_list
+            response["product_bucket_list"] = product_list
             response["template_data"] = template_data
             response["images"] = images_dict
-            #response["external_images_bucket_list"] = external_images_bucket_list
+            response["external_images_bucket_list"] = external_images_bucket_list
             response["background_images_bucket"] = background_images_bucket
             response["brand_image_url"] = brand_image_url
             response["brand-name"] = str(flyer_obj.brand)
@@ -1836,10 +1927,14 @@ class FetchPFLDetailsAPI(APIView):
             external_images_bucket_list = []
             external_images_bucket_objs = pfl_obj.external_images_bucket.all()
             for external_images_bucket_obj in external_images_bucket_objs:
-                temp_dict = {}
-                temp_dict["image_url"] = external_images_bucket_obj.image.url
-                temp_dict["image_pk"] = external_images_bucket_obj.pk
-                external_images_bucket_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["url"] = external_images_bucket_obj.mid_image.url
+                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["image_pk"] = external_images_bucket_obj.pk
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
 
             logo_image_url = None
             barcode_image_url = None
@@ -1851,7 +1946,7 @@ class FetchPFLDetailsAPI(APIView):
             seller_sku = ""
             if pfl_obj.product != None:
                 try:
-                    brand_obj = pfl_obj.product.brand
+                    brand_obj = pfl_obj.product.base_product.brand
                     brand_name = brand_obj.name
                     logo_image_url = brand_obj.logo.image.url
                 except Exception as e:
@@ -1868,16 +1963,40 @@ class FetchPFLDetailsAPI(APIView):
 
                 product_id = pfl_obj.product.product_id
                 product_pk = pfl_obj.product.pk
+                
+                try:
 
-                if pfl_obj.product.main_images.filter(is_main_image=True).count() > 0:
-                    product_main_image_url = pfl_obj.product.main_images.filter(is_main_image=True)[
-                        0].image.image.url
-                else:
-                    product_main_image_url = Config.objects.all()[
-                        0].product_404_image.image.url
+                    main_images_objs = MainImages.objects.filter(product = pfl_obj.product)
+                    for main_images_obj in main_images_objs:
+                        if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                            break
+
+                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                    
+                    product_main_image_url = main_image_obj.image.image.url
+                
+                except Exception as e:
+
+                    product_main_image_url = Config.objects.all()[0].product_404_image.image.url
 
                 product_name_sap = pfl_obj.product.product_name_sap
                 seller_sku = pfl_obj.product.seller_sku
+
+            template_data = {
+                "container": {
+                    "width": 24,
+                    "height": 15,
+                    "x": 0,
+                    "y": 0
+                },
+                "common": {
+                  "image-resizer": 100
+                }
+            }
+            try:
+                template_data = json.loads(pfl_obj.template_data)
+            except Exception as e:
+                pass
 
             response["pfl_name"] = pfl_name
             response["product_name"] = pfl_product_name
@@ -1885,6 +2004,7 @@ class FetchPFLDetailsAPI(APIView):
             response["product_image"] = product_image
             response["pfl_product_features"] = pfl_product_features
             response["external_images_bucket_list"] = external_images_bucket_list
+            response["template_data"] = template_data
             response["logo_image_url"] = logo_image_url
             response["brand_name"] = brand_name
             response["barcode_image_url"] = barcode_image_url
@@ -1923,7 +2043,8 @@ class FetchProductListFlyerPFLAPI(APIView):
                 if "flyer_pk" in data:
                     brand_obj = Flyer.objects.get(
                         pk=int(data["flyer_pk"])).brand
-                    product_objs = product_objs.filter(brand=brand_obj)
+                    product_objs = product_objs.filter(base_product__brand=brand_obj)
+                    logger.info("Product Objects in FetchProductListFlyerPFLApi : %s", product_objs)
             except Exception as e:
                 logger.warning("Issue with filtering brands %s", str(e))
 
@@ -1943,16 +2064,21 @@ class FetchProductListFlyerPFLAPI(APIView):
                         short_product_name = short_product_name[:char_len] + "..."
                     temp_dict["product_name_autocomplete"] = short_product_name + " | " + str(product_obj.product_id)
                     main_image_url = None
-                    if product_obj.main_images.filter(is_main_image=True).count() > 0:
-                        try:
-                            main_image_url = product_obj.main_images.filter(is_main_image=True)[
-                                0].image.thumbnail.url
-                        except Exception as e:
-                            main_image_url = Config.objects.all(
-                            )[0].product_404_image.image.url
-                    else:
-                        main_image_url = Config.objects.all(
-                        )[0].product_404_image.image.url
+                    
+                    try:
+
+                        main_images_objs = MainImages.objects.filter(product = product_obj)
+                        for main_images_obj in main_images_objs:
+                            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                                break
+
+                        main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                        
+                        main_image_url = main_image_obj.image.image.url
+                    
+                    except Exception as e:
+
+                        main_image_url = Config.objects.all()[0].product_404_image.image.url
 
                     temp_dict["main_image_url"] = main_image_url
                     product_list.append(temp_dict)
@@ -1999,19 +2125,40 @@ class AddProductFlyerBucketAPI(APIView):
             flyer_obj.save()
 
             image_url = Config.objects.all()[0].product_404_image.image.url
-            if product_obj.main_images.filter(is_main_image=True).exists():
-                try:
-                    image_url = product_obj.main_images.filter(
-                        is_main_image=True)[0].image.mid_image.url
-                except Exception as e:
-                    pass
+            
+            try:
+
+                main_images_objs = MainImages.objects.filter(product = product_obj)
+                
+                main_images_list = []
+                flag=0
+                for main_images_obj in main_images_objs:
+                    main_images_list += main_images_obj.main_images.all()
+                    if main_images_obj.main_images.filter(is_main_image=True).count() > 0 and flag==0:
+                        main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                        flag=1
+
+                main_images_list = set(main_images_list)
+                
+                image_url = main_image_obj.image.image.urlrl
+            
+            except Exception as e:
+                pass
+
+            sub_images_list = []
+            sub_images_objs = SubImages.objects.filter(product=product_obj)
+            
+            for sub_images_obj in sub_images_objs:
+                sub_images_list+=sub_images_obj.sub_images.all()
+            
+            sub_images_list = set(sub_images_list)
 
             images = {}
 
             images["main_images"] = create_response_images_flyer_pfl_main_sub(
-                product_obj.main_images.all())
+                main_images_list)
             images["sub_images"] = create_response_images_flyer_pfl_main_sub(
-                product_obj.sub_images.all())
+                sub_images_list)
             images["pfl_images"] = create_response_images_flyer_pfl(
                 product_obj.pfl_images.all())
             images["white_background_images"] = create_response_images_flyer_pfl(
@@ -2030,11 +2177,13 @@ class AddProductFlyerBucketAPI(APIView):
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images_flyer_pfl(
                 product_obj.unedited_images.all())
+            images["transparent_images"] = create_response_images_flyer_pfl(
+                product_obj.transparent_images.all())
 
             images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
                 images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
                 images["aplus_content_images"] + \
-                images["ads_images"]+images["unedited_images"]
+                images["ads_images"]+images["unedited_images"]+images["transparent_images"]
 
             response["images"] = images
             response["product_pk"] = product_obj.pk
@@ -2080,9 +2229,14 @@ class AddProductPFLBucketAPI(APIView):
 
             seller_sku = product_obj.seller_sku
             image_url = None
-            if product_obj.main_images.filter(is_main_image=True).count() > 0:
-                image_url = product_obj.main_images.filter(
-                    is_main_image=True)[0].image.image.url
+
+            main_images_objs = MainImages.objects.filter(product = product_obj)
+            
+            for main_images_obj in main_images_objs:
+                if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                    image_url = main_image_obj.image.image.url
+                    break
 
             response["product_name"] = product_obj.product_name_sap
             response["product_pk"] = product_obj.pk
@@ -2121,10 +2275,26 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
 
             images = {}
 
+            main_images_objs = MainImages.objects.filter(product = product_obj)
+            
+            main_images_list = []
+            for main_images_obj in main_images_objs:
+                main_images_list += main_images_obj.main_images.all()
+
+            main_images_list = set(main_images_list)
+
+            sub_images_objs = SubImages.objects.filter(product = product_obj)
+            
+            sub_images_list = []
+            for sub_images_obj in sub_images_objs:
+                sub_images_list += sub_images_obj.sub_images.all()
+
+            sub_images_list = set(sub_images_list)
+
             images["main_images"] = create_response_images_flyer_pfl_main_sub(
-                product_obj.main_images.all())
+                main_images_list)
             images["sub_images"] = create_response_images_flyer_pfl_main_sub(
-                product_obj.sub_images.all())
+                sub_images_list)
             images["pfl_images"] = create_response_images_flyer_pfl(
                 product_obj.pfl_images.all())
             images["white_background_images"] = create_response_images_flyer_pfl(
@@ -2143,16 +2313,23 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images_flyer_pfl(
                 product_obj.unedited_images.all())
+            images["transparent_images"] = create_response_images_flyer_pfl(
+                product_obj.transparent_images.all())
             images["pfl_generated_images"] = create_response_images_flyer_pfl(
                 product_obj.pfl_generated_images.all())
             images["external_images"] = create_response_images_flyer_pfl(
                 pfl_obj.external_images_bucket.all())
 
+            images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
+                    images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
+                    images["aplus_content_images"] + \
+                    images["ads_images"]+images["unedited_images"]+images["transparent_images"]
+
             barcode_image_url = None
             if product_obj.barcode != None:
                 barcode_image_url = product_obj.barcode.image.url
 
-            brand_obj = product_obj.brand
+            brand_obj = product_obj.base_product.brand
             brand_name = "" if brand_obj == None else brand_obj.name
             logo_image_url = ''
             logo_image_url = None
@@ -2237,12 +2414,15 @@ class SavePFLTemplateAPI(APIView):
                 image_obj = Image.objects.get(pk=data["image_pk"])
                 pfl_obj.product_image = image_obj
 
+            template_data = data["template_data"]
+
             product_name = convert_to_ascii(data["product_name"])
             product_features = convert_to_ascii(data["product_features"])
 
             pfl_obj.product.pfl_product_name = product_name
             pfl_obj.product.pfl_product_features = product_features
             pfl_obj.product.save()
+            pfl_obj.template_data = template_data
             pfl_obj.save()
 
             response['status'] = 200
@@ -2353,9 +2533,7 @@ class FetchPFLListAPI(APIView):
                     search = pfl_objs.filter(
                         Q(product__product_name_sap__icontains=chip.lower()) |
                         Q(name__icontains=chip.lower()) |
-                        Q(product__product_name_amazon_uk__icontains=chip.lower()) |
-                        Q(product__product_name_amazon_uae__icontains=chip.lower()) |
-                        Q(product__product_name_ebay__icontains=chip.lower()) |
+                        Q(product__product_name_icontains=chip.lower()) |
                         Q(product__product_id__icontains=chip.lower()) |
                         Q(product__seller_sku__icontains=chip.lower())
                     )
@@ -2452,9 +2630,7 @@ class FetchFlyerListAPI(APIView):
                                 chip), str(product), str(flyer_obj))
 
                             if (chip.lower() in product.product_name_sap.lower() or
-                                    chip.lower() in product.product_name_amazon_uk.lower() or
-                                    chip.lower() in product.product_name_amazon_uae.lower() or
-                                    chip.lower() in product.product_name_ebay.lower() or
+                                    chip.lower() in product.product_name.lower() or
                                     chip.lower() in product.product_id.lower() or
                                     chip.lower() in product.seller_sku.lower()):
                                 search_list_objs.append(flyer_obj)
@@ -2612,6 +2788,37 @@ class FetchBrandsAPI(APIView):
 
         return Response(data=response)
 
+class FetchChannelsAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchChannelsAPI: %s", str(data))
+
+            channel_objs = custom_permission_filter_channels(request.user)
+            channel_list = []
+            for channel_obj in channel_objs:
+                temp_dict = {}
+                temp_dict["name"] = channel_obj.name
+                temp_dict["pk"] = channel_obj.pk
+                channel_list.append(temp_dict)
+
+            response["channel_list"] = channel_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchChannelsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class SavePFLInBucketAPI(APIView):
 
@@ -2630,21 +2837,21 @@ class SavePFLInBucketAPI(APIView):
             image_obj = None
 
             if "product_pk" in data:
-                prod_obj = Product.objects.get(pk=int(data["product_pk"]))
+                product_obj = Product.objects.get(pk=int(data["product_pk"]))
 
                 image_decoded = decode_base64_file(data["image_data"])
                 image_obj = Image.objects.create(image=image_decoded)
-                prod_obj.pfl_generated_images.clear()
-                prod_obj.pfl_generated_images.add(image_obj)
-                prod_obj.save()
+                product_obj.pfl_generated_images.clear()
+                product_obj.pfl_generated_images.add(image_obj)
+                product_obj.save()
             elif "pfl_pk" in data:
                 image_decoded = decode_base64_file(data["image_data"])
                 image_obj = Image.objects.create(image=image_decoded)
                 pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
-                prod_obj = pfl_obj.product
-                prod_obj.pfl_generated_images.clear()
-                prod_obj.pfl_generated_images.add(image_obj)
-                prod_obj.save()
+                product_obj = pfl_obj.product
+                product_obj.pfl_generated_images.clear()
+                product_obj.pfl_generated_images.add(image_obj)
+                product_obj.save()
 
             response["main-url"] = image_obj.image.url
             response["midimage-url"] = image_obj.mid_image.url
@@ -2805,6 +3012,100 @@ class RemoveProductFromExportListAPI(APIView):
         return Response(data=response)
 
 
+class UploadFlyerExternalImagesAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm("WAMSApp.add_image") == False:
+                logger.warning("UploadProductImageAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            #logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
+
+            flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
+
+            image_count = int(data["image_count"])
+            external_images_bucket_list = []
+            for i in range(image_count):
+                try:
+                    image_obj = Image.objects.create(image=data["image_"+str(i)])
+                    flyer_obj.external_images_bucket.add(image_obj)
+                    temp_dict = {}
+                    temp_dict["url"] = image_obj.mid_image.url
+                    temp_dict["high-res-url"] = image_obj.image.url
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            flyer_obj.save()
+
+            response["external_images_bucket_list"] = external_images_bucket_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFlyerExternalImagesAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadPFLExternalImagesAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm("WAMSApp.add_image") == False:
+                logger.warning("UploadProductImageAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            #logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
+
+            pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
+
+            image_count = int(data["image_count"])
+            external_images_bucket_list = []
+            for i in range(image_count):
+                try:
+                    image_obj = Image.objects.create(image=data["image_"+str(i)])
+                    pfl_obj.external_images_bucket.add(image_obj)
+                    temp_dict = {}
+                    temp_dict["url"] = image_obj.mid_image.url
+                    temp_dict["high-res-url"] = image_obj.image.url
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            pfl_obj.save()
+
+            response["external_images_bucket_list"] = external_images_bucket_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFlyerExternalImagesAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+
 LoginSubmit = LoginSubmitAPI.as_view()
 
 FetchConstantValues = FetchConstantValuesAPI.as_view()
@@ -2878,3 +3179,7 @@ DeleteImage = DeleteImageAPI.as_view()
 RemoveProductFromExportList = RemoveProductFromExportListAPI.as_view()
 
 DownloadProduct = DownloadProductAPI.as_view()
+
+UploadFlyerExternalImages = UploadFlyerExternalImagesAPI.as_view()
+
+UploadPFLExternalImages = UploadPFLExternalImagesAPI.as_view()

@@ -5,82 +5,86 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from WAMSApp.utils import *
+#from WAMSApp.utils import *
 
 from PIL import Image as IMAGE
 import StringIO
 import logging
 import sys
 import json
+import uuid
 
 logger = logging.getLogger(__name__)
 
 noon_product_json = {
     
-    product_name : "",
-    product_type : "",
-    product_subtype : "",
-    model_number : "",
-    model_name : "",
-    msrp_ae : "",
-    msrp_ae_unit : "",
-    product_description : "",
-    product_attribute_list : "",
-    created_date : ""
+    "product_name" : "",
+    "product_type" : "",
+    "product_subtype" : "",
+    "model_number" : "",
+    "model_name" : "",
+    "msrp_ae" : "",
+    "msrp_ae_unit" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : ""
 }
 
-amazon_uk_product_json : {
+amazon_uk_product_json = {
 
-    product_id_type : "",
-    parentage : "",
-    parent_sku : "",
-    relationship_type : "",
-    variation_theme : "",
-    product_name : "",
-    product_description : "",
-    product_attribute_list : "",
-    created_date : "",
-    subtitle : "",
-    feed_product_type : "",
-    update_delete : "",
-    recommended_browse_nodes : "",
-    search_terms : "",
-    enclosure_material : "",
-    cover_material_type : "",
-    special_features : "",
-    sale_price : "",
-    sale_from : "",
-    sale_end :  "",
-    wattage : "",
-    wattage_metric : "",
-    parentage : "",
-    parent_sku : "",
-    relationship_type : "",
-    variation_theme : "",
-    item_count : "",
-    item_count_metric : "",
-    item_condition_note : "",
-    max_order_quantity : "",
-    number_of_items : "",
-
+    "product_id_type" : "",
+    "parentage" : "",
+    "parent_sku" : "",
+    "relationship_type" : "",
+    "variation_theme" : "",
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : "",
+    "subtitle" : "",
+    "feed_product_type" : "",
+    "update_delete" : "",
+    "recommended_browse_nodes" : "",
+    "search_terms" : "",
+    "enclosure_material" : "",
+    "cover_material_type" : "",
+    "special_features" : [],
+    "sale_price" : "",
+    "sale_from" : "",
+    "sale_end" :  "",
+    "wattage" : "",
+    "wattage_metric" : "",
+    "parentage" : "",
+    "parent_sku" : "",
+    "relationship_type" : "",
+    "variation_theme" : "",
+    "item_count" : "",
+    "item_count_metric" : "",
+    "item_condition_note" : "",
+    "max_order_quantity" : "",
+    "number_of_items" : "",
+    "condition_type" : "",
 }
 
-amazon_uae_product_json : {
+amazon_uae_product_json = {
 
-    product_name : "",
-    product_description : "",
-    product_attribute_list : "",
-    created_date : ""
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : "",
+    "feed_product_type" : "",
+    "recommended_browse_nodes" : "",
+    "update_delete" : ""
   
 }
 
-ebay_product_json : {
+ebay_product_json = {
 
-    category : "",
-    product_name : "",
-    product_description : "",
-    product_attribute_list : "",
-    created_date : ""
+    "category" : "",
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : ""
         
 }
 
@@ -197,7 +201,7 @@ class Organization(models.Model):
 
 class Channel(models.Model):
     
-    name = models.CharField(unique=True,max_length=300)
+    name = models.CharField(unique=True,max_length=200)
         
     class Meta:
         verbose_name = "Channel"
@@ -258,11 +262,11 @@ class MaterialType(models.Model):
 
 class BaseProduct(models.Model):
 
-    base_product_name = models.CharField(max_length=300)
-    created_date = models.DateTimeField(default=timezone.now())
-    seller_sku = models.CharField(max_length=300, default="")
-    category = models.CharField(max_length=300, default="")
-    subtitle = models.CharField(max_length=300, default="")
+    base_product_name = models.CharField(max_length=200)
+    created_date = models.DateTimeField()
+    seller_sku = models.CharField(max_length=200, unique=True)
+    category = models.CharField(max_length=200, default="")
+    subtitle = models.CharField(max_length=200, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
@@ -275,6 +279,7 @@ class BaseProduct(models.Model):
     package_height_metric = models.CharField(max_length=100, default="")
     package_weight = models.FloatField(null=True, blank=True)
     package_weight_metric = models.CharField(max_length=100, default="")
+    package_quantity = models.CharField(max_length=100, default="")
     shipping_weight = models.FloatField(null=True, blank=True)
     shipping_weight_metric = models.CharField(max_length=100, default="")
     item_display_weight = models.FloatField(null=True, blank=True)
@@ -303,25 +308,46 @@ class BaseProduct(models.Model):
     def __str__(self):
         return str(self.base_product_name)
 
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+        super(BaseProduct, self).save(*args, **kwargs)
+
+
+class ChannelProduct(models.Model):
+    
+    # product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
+    noon_product_json = models.TextField(blank=True,default=noon_product_json)
+    amazon_uk_product_json = models.TextField(blank=True,default=amazon_uk_product_json)
+    amazon_uae_product_json = models.TextField(blank=True,default=amazon_uae_product_json)
+    ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
+
+    class Meta:
+        verbose_name = "ChannelProduct"
+        verbose_name_plural = "ChannelProducts"
+
+    def __str__(self):
+        return str(self.pk)
+
 class Product(models.Model):
 
     #MISC
     base_product = models.ForeignKey(BaseProduct,null=True,blank=True,on_delete=models.SET_NULL)
-    product_name = models.CharField(max_length=300,null=True)
-    product_id = models.CharField(max_length=300,null=True)
+    product_name = models.CharField(max_length=200,null=True)
+    product_id = models.CharField(max_length=200,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
-    created_date = models.DateTimeField(default=timezone.now())
+    created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
-    condition_type = models.CharField(max_length=300,null=True)
+    
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
-    uuid = models.TextField(null=True,blank=True)
+    uuid = models.CharField(null=True,max_length=200)
 
     #PFL
     pfl_product_name = models.CharField(max_length=250, default="")
     pfl_product_features = models.TextField(default="[]")
 
-    product_name_sap = models.CharField(max_length=300, default="")
+    product_name_sap = models.CharField(max_length=200, default="")
     color_map = models.CharField(max_length=100, default="")
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
@@ -337,14 +363,16 @@ class Product(models.Model):
     aplus_content_images = models.ManyToManyField(Image, related_name="aplus_content_images", blank=True)
     ads_images = models.ManyToManyField(Image, related_name="ads_images", blank=True)
     unedited_images = models.ManyToManyField(Image, related_name="unedited_images", blank=True)
-    pfl_generated_images = models.ManyToManyField(Image , related_name="pfl_generated_images" , blank = True) 
+    pfl_generated_images = models.ManyToManyField(Image , related_name="pfl_generated_images" , blank = True)
+    transparent_images = models.ManyToManyField(Image , related_name="transparent_images" , blank = True)
+
 
     # Other info
     barcode = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     barcode_string = models.CharField(max_length=100, default="")
     outdoor_price = models.FloatField(null=True, blank=True)
 
-
+    channel_product = models.ForeignKey(ChannelProduct, null=True, blank=True, on_delete=models.SET_NULL)
     factory_notes = models.TextField(null=True,blank=True)
     
     class Meta:
@@ -356,8 +384,17 @@ class Product(models.Model):
 
 
     def save(self, *args, **kwargs):
-        if self.pk == None:
+        if self.pk != None:
             self.modified_date = timezone.now()
+        else:
+            self.created_date = timezone.now()
+            self.modified_date = timezone.now()
+        if self.uuid == None:
+            self.uuid = uuid.uuid4()
+
+        if self.channel_product == None:
+            channel_product_obj = ChannelProduct.objects.create()
+            self.channel_product = channel_product_obj
         super(Product, self).save(*args, **kwargs)
 
 
@@ -366,6 +403,7 @@ class MainImages(models.Model):
     product = models.ForeignKey(Product,null=True, blank=True, on_delete=models.SET_NULL)
     main_images = models.ManyToManyField(ImageBucket, related_name="main_images", blank=True)
     channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
+    is_sourced = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "MainImages"
@@ -377,9 +415,8 @@ class SubImages(models.Model):
 
     product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
     sub_images = models.ManyToManyField(ImageBucket, related_name="sub_images", blank=True)
-    noon_enabled = models.BooleanField(default=False)
-    amazon_uk_enabled = models.BooleanField(default=False)
-    amazon_uae_enabled = models.BooleanField(default=False)
+    channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
+    is_sourced = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "SubImages"
@@ -387,24 +424,10 @@ class SubImages(models.Model):
     def __str__(self):
         return str(self.pk)
     
-class ChannelProduct(models.Product):
-    
-    product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
-    noon_product_json = models.TextField(blank=True,default=noon_product_json)
-    amazon_uk_product_json = models.TextField(blank=True,default=amazon_uk_product_json)
-    amazon_uae_product_json = models.TextField(blank=True,default=amazon_uae_product_json)
-    ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
-
-    class Meta:
-        verbose_name = "ChannelProduct"
-        verbose_name_plural = "ChannelProducts"
-
-    def __str__(self):
-        return str(self.pk)
 
 class Flyer(models.Model):
 
-    name = models.CharField(default="SampleFlyer", max_length=300)
+    name = models.CharField(default="SampleFlyer", max_length=200)
     product_bucket = models.ManyToManyField(Product, blank=True)
     template_data = models.TextField(null=True, blank=True)
     external_images_bucket = models.ManyToManyField(Image, blank=True)
@@ -423,10 +446,10 @@ class Flyer(models.Model):
 
 class PFL(models.Model):
 
-    name = models.CharField(default="SamplePFL", max_length=300)
+    name = models.CharField(default="SamplePFL", max_length=200)
     product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
     product_image = models.ForeignKey(Image, null=True, blank=True, related_name="product_images", on_delete=models.SET_NULL)
-   
+    template_data = models.TextField(null=True, blank=True)
     external_images_bucket = models.ManyToManyField(Image, blank=True)
 
     class Meta:
@@ -439,7 +462,7 @@ class PFL(models.Model):
 
 class ExportList(models.Model):
 
-    title = models.CharField(default="SampleExportList", max_length=300)
+    title = models.CharField(default="SampleExportList", max_length=200)
     products = models.ManyToManyField(Product, blank=True)
     created_date = models.DateTimeField()
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
@@ -453,7 +476,7 @@ class ExportList(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk == None:
-            self.created_date = timezone.now()
+            self.created_date = timezone.now
         super(ExportList, self).save(*args, **kwargs)
 
 
@@ -468,7 +491,6 @@ class Config(models.Model):
 
     def __str__(self):
         return "Configuration"
-
 
 
 class CustomPermission(models.Model):
@@ -488,7 +510,7 @@ class CustomPermission(models.Model):
 class EbayCategory(models.Model):
 
     category_id = models.CharField(default="", max_length=100)
-    name = models.CharField(default="", max_length=300)
+    name = models.CharField(default="", max_length=200)
 
     class Meta:
         verbose_name = "EbayCategory"
