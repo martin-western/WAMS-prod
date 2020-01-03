@@ -63,7 +63,6 @@ amazon_uk_product_json = {
     "item_condition_note" : "",
     "max_order_quantity" : "",
     "number_of_items" : "",
-    "material_type" : "",
     "condition_type" : "",
 }
 

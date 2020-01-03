@@ -422,7 +422,10 @@ class FetchProductDetailsAPI(APIView):
             
             response["wattage"] = "" if amazon_uk_product_dict["wattage"] == None else amazon_uk_product_dict["wattage"]
             response["wattage_metric"] = amazon_uk_product_dict["wattage_metric"]
-            response["material_type"] = amazon_uk_product_dict["material_type"]
+            if product_obj.material_type != None:
+                response["material_type"] = product_obj.material_type.name
+            else:
+                response["material_type"] = ""
             response["parentage"] = amazon_uk_product_dict["parentage"]
             response["parent_sku"] = amazon_uk_product_dict["parent_sku"]
             response["relationship_type"] = amazon_uk_product_dict["relationship_type"]
@@ -1277,6 +1280,7 @@ class UploadProductImageAPI(APIView):
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
                     
                     main_images_obj.main_images.add(image_bucket_obj)
+                    main_images_obj.save()
 
                 if main_images_obj.main_images.all().count() == image_count:
                     image_bucket_obj = main_images_obj.main_images.all()[0]
@@ -1574,7 +1578,7 @@ class CreateFlyerAPI(APIView):
                                     main_images_objs = MainImages.objects.filter(product = product_obj)
                                     
                                     for main_images_obj in main_images_objs:
-                                        if main_images_obj.main_image.filter(is_main_image=True).count() > 0:
+                                        if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                             break
 
                                     main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
@@ -1703,7 +1707,7 @@ class FetchFlyerDetailsAPI(APIView):
                     flag=0
                     for main_images_obj in main_images_objs:
                         main_images_list += main_images_obj.main_images.all()
-                        if main_images_obj.main_image.filter(is_main_image=True).count() > 0 and flag==0:
+                        if main_images_obj.main_images.filter(is_main_image=True).count() > 0 and flag==0:
                             main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                             flag = 1
 
@@ -1908,7 +1912,7 @@ class FetchPFLDetailsAPI(APIView):
 
                     main_images_objs = MainImages.objects.filter(product = pfl_obj.product)
                     for main_images_obj in main_images_objs:
-                        if main_images_obj.main_image.filter(is_main_image=True).count() > 0:
+                        if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                             break
 
                     main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
@@ -1992,7 +1996,7 @@ class FetchProductListFlyerPFLAPI(APIView):
 
                         main_images_objs = MainImages.objects.filter(product = product_obj)
                         for main_images_obj in main_images_objs:
-                            if main_images_obj.main_image.filter(is_main_image=True).count() > 0:
+                            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 break
 
                         main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
@@ -2057,7 +2061,7 @@ class AddProductFlyerBucketAPI(APIView):
                 flag=0
                 for main_images_obj in main_images_objs:
                     main_images_list += main_images_obj.main_images.all()
-                    if main_images_obj.main_image.filter(is_main_image=True).count() > 0 and flag==0:
+                    if main_images_obj.main_images.filter(is_main_image=True).count() > 0 and flag==0:
                         main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                         flag=1
 
@@ -2154,7 +2158,7 @@ class AddProductPFLBucketAPI(APIView):
             main_images_objs = MainImages.objects.filter(product = product_obj)
             
             for main_images_obj in main_images_objs:
-                if main_images_obj.main_image.filter(is_main_image=True).count() > 0:
+                if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                     main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                     image_url = main_image_obj.image.image.url
                     break

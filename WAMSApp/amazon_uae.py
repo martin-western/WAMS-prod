@@ -65,10 +65,10 @@ def export_amazon_uae(products):
 
             # Graphics Part
             main_image_url = None
-            main_images_objs = MainImages.objects.filter(product = product)
+            main_images_objs = MainImages.objects.filter(product = product,is_sourced=True)
             
             for main_images_obj in main_images_objs:
-                if main_images_obj.main_image.filter(is_main_image=True).count() > 0:
+                if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                     main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                     main_image_url = main_image_obj.image.image.url
                     break
