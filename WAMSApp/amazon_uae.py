@@ -65,16 +65,13 @@ def export_amazon_uae(products):
 
             # Graphics Part
             main_image_url = None
-            main_images_objs = MainImages.objects.filter(product = product,is_sourced=True)
+            main_images_obj = MainImages.objects.get(product = product, channel="Amazon UAE")
             
-            for main_images_obj in main_images_objs:
-                if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                    main_image_url = main_image_obj.image.image.url
-                    break
-
+            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                main_image_url = main_image_obj.image.image.url
+                   
             common_row[15] = str(main_image_url)
-
 
             data_row_2 = []
             #logger.info("common_row: %s", str(common_row))

@@ -43,37 +43,37 @@ def export_amazon_uk(products):
             try:
                 base_product = product.base_product
                 channel_product = product.channel_product
-                amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
+                amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
 
                 common_row = ["" for i in range(213)]
                 common_row[0] = base_product.seller_sku
                 common_row[1] = "" if base_product.brand==None else base_product.brand.name
                 common_row[2] = product.product_id
                 common_row[3] = product.product_id_type.name
-                common_row[4] = amazon_uae_product["product_name"]
+                common_row[4] = amazon_uk_product["product_name"]
                 common_row[5] = base_product.manufacturer
-                common_row[6] = amazon_uae_product["recommended_browse_nodes"]
+                common_row[6] = amazon_uk_product["recommended_browse_nodes"]
                 common_row[7] = "" if product.standard_price==None else str(product.standard_price)
                 common_row[8] = "" if product.quantity==None else str(product.quantity)
 
-                common_row[19] = amazon_uae_product["parentage"]
-                common_row[20] = amazon_uae_product["parent_sku"]
-                common_row[21] = amazon_uae_product["relationship_type"]
-                common_row[22] = amazon_uae_product["variation_theme"]
-                common_row[23] = amazon_uae_product["update_delete"]
+                common_row[19] = amazon_uk_product["parentage"]
+                common_row[20] = amazon_uk_product["parent_sku"]
+                common_row[21] = amazon_uk_product["relationship_type"]
+                common_row[22] = amazon_uk_product["variation_theme"]
+                common_row[23] = amazon_uk_product["update_delete"]
                 
                 common_row[25] = base_product.manufacturer_part_number
-                common_row[26] = amazon_uae_product["product_description"]
-                common_row[27] = amazon_uae_product["wattage_metric"]
-                key_product_features = amazon_uae_product["product_attribute_list"]
+                common_row[26] = amazon_uk_product["product_description"]
+                common_row[27] = amazon_uk_product["wattage_metric"]
+                key_product_features = amazon_uk_product["product_attribute_list"]
                 row_cnt = 0
                 if len(key_product_features) > 0:
                     for key_product_feature in key_product_features[:5]:
                         common_row[31+row_cnt] = key_product_feature
                         row_cnt += 1
 
-                common_row[36] = amazon_uae_product["search_terms"]
-                common_row[44] = "" if amazon_uae_product["wattage"]==None else str(amazon_uae_product["wattage"])
+                common_row[36] = amazon_uk_product["search_terms"]
+                common_row[44] = "" if amazon_uk_product["wattage"]==None else str(amazon_uk_product["wattage"])
                 common_row[45] = "" if product.color==None else str(product.color)
                 common_row[46] = "" if product.color_map==None else str(product.color_map)
                 common_row[49] = "" if product.material_type==None else str(product.material_type.name)
@@ -112,23 +112,21 @@ def export_amazon_uk(products):
 
                 common_row[164] = "" if base_product.item_weight==None else str(base_product.item_weight)
                 common_row[165] = base_product.item_weight_metric
-                common_row[186] = "" if amazon_uae_product["sale_price"]==None else str(amazon_uae_product["sale_price"])
-                common_row[187] = str(amazon_uae_product["sale_from"])
-                common_row[188] = str(amazon_uae_product["sale_end"])
-                common_row[189] = amazon_uae_product["condition_type"]
+                common_row[186] = "" if amazon_uk_product["sale_price"]==None else str(amazon_uk_product["sale_price"])
+                common_row[187] = str(amazon_uk_product["sale_from"])
+                common_row[188] = str(amazon_uk_product["sale_end"])
+                common_row[189] = amazon_uk_product["condition_type"]
 
 
 
                 # Graphics Part
                 main_image_url = None
-                main_images_objs = MainImages.objects.filter(product = product, is_sourced=True)
+                main_images_obj = MainImages.objects.get(product = product, channel="Amazon UK")
                 
-                for main_images_obj in main_images_objs:
-                    if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                        main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                        main_image_url = main_image_obj.image.image.url
-                        break
-
+                if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                    main_image_url = main_image_obj.image.image.url
+        
                 common_row[9] = str(main_image_url)
                 
                 image_cnt = 10
@@ -169,6 +167,10 @@ def export_amazon_uk(products):
 
 def update_product_full_amazon_uk(product_obj, row):
     
+    base_product = product_obj.base_product
+    channel_product = product_obj.channel_product
+    amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
+
     product_obj.feed_product_type = row[0]
     product_obj.seller_sku = row[1]
     if row[2]!="":
@@ -497,7 +499,7 @@ def create_new_product_amazon_uk(row):
         product_obj.brand = brand_obj
     product_obj.product_id_type = row[4]
     product_obj.product_name_amazon_uk = row[5]
-    product_obj.product_name_amazon_uae = row[5]
+    product_obj.product_name_amazon_uk = row[5]
     product_obj.product_name_ebay = row[5]
     product_obj.product_name_sap = row[5]
     product_obj.manufacturer = row[6]
