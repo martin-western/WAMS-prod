@@ -10,6 +10,7 @@
     list-style-type: inherit;
   }
 
+
   .ck.ck-content ul {
     padding-left: 40px;
   }
@@ -231,7 +232,10 @@
     top: -300px !important;
   }
 
-  .material-placeholder {}
+  .material-placeholder {
+    width: 25vw;
+    height: 25vw;
+  }
 
   .preview-img {
     height: 100% !important;
@@ -239,105 +243,116 @@
     object-fit: contain;
   }
 
-  .image-section {
-    padding: 0 !important;
-  }
-
-  .margin-zero {
-    margin: 0 !important;
-  }
-
-  .padding-zero {
-    padding: 0 !important;
-  }
-
-  .graphics-section {
-    padding: 10px 0 !important;
-    margin: 0;
-  }
-
-  .feature-container>p {
-    display: flex;
-    align-items: center;
-  }
-
-  .feature-container ul {
-    margin: 10px 0;
-  }
-
-  .feature-list {
-    color: grey;
-    font-size: 12px;
-  }
-
-  .product-info-parent {
-
-    padding: 0 20px;
-  }
-
-  .product-info {
-    font-size: 14px;
-    color: grey;
-  }
-
-  .product-info-tab>li>a {
-    font-size: 14px !important;
-    color: #512ea8;
-  }
-
-  .product-info-tab>li>.active {
-    background-color: #80808091 !important;
-    color: white !important;
-  }
-
-
-  .product-info-tab {
-    display: flex;
-    flex-direction: column !important;
-    width: 100%;
-    height: auto;
-  }
-
-  .product-info-tab .tab>a {
-    text-align: left;
-    color: #512da8;
-    font-size: 14px !important;
-  }
-
-  .product-info-container {}
-
-  .product-info {
-    padding: 20px;
-  }
-
-  .right-container {
-    padding: 0 30px !important;
-  }
-
-  .right-container h5 {
-    color: #512da8;
-    font-size: 20px;
-  }
-
-  .feature-title {
-    color: #512da8;
-    font-size: 14px;
-  }
-
-  .sku-info {
-    color: grey;
-    font-size: 12px;
-  }
-
-
-  /* disable bottom border from tabs */
-  li.indicator {
-    display: none;
+  body {
+    z-index: 100;
   }
 </style>
 
 
+
+<script src="https://cdn.ckeditor.com/ckeditor5/11.0.1/decoupled-document/ckeditor.js"></script>
+
 <style type="text/css">
+  .document-editor {
+    border: 1px solid var(--ck-color-base-border);
+    border-radius: var(--ck-border-radius);
+    max-height: 40em;
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  .document-editor__toolbar {
+    z-index: 1;
+    box-shadow: 0 0 5px hsla(0, 0%, 0%, .2);
+    border-bottom: 1px solid var(--ck-color-toolbar-border);
+  }
+
+  .document-editor__toolbar .ck-toolbar {
+    border: 0;
+    border-radius: 0;
+  }
+
+
+  .document-editor__editable-container {
+    padding: calc(2 * var(--ck-spacing-large));
+    background: var(--ck-color-base-foreground);
+    overflow-y: scroll;
+  }
+
+  .document-editor__editable-container .ck-editor__editable {
+    width: 15.8cm;
+    min-height: 21cm;
+    padding: 1cm 2cm 2cm;
+    border: 1px hsl(0, 0%, 82.7%) solid;
+    border-radius: var(--ck-border-radius);
+    background: white;
+    box-shadow: 0 0 5px hsla(0, 0%, 0%, .1);
+    margin: 0 auto;
+  }
+
+  .document-editor .ck-content,
+  .document-editor .ck-heading-dropdown .ck-list .ck-button__label {
+    font: 16px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  .document-editor .ck-heading-dropdown .ck-list .ck-button__label {
+    line-height: calc(1.7 * var(--ck-line-height-base) * var(--ck-font-size-base));
+    min-width: 6em;
+  }
+
+  .document-editor .ck-heading-dropdown .ck-list .ck-button:not(.ck-heading_paragraph) .ck-button__label {
+    transform: scale(0.8);
+    transform-origin: left;
+  }
+
+  .document-editor .ck-content h2,
+  .document-editor .ck-heading-dropdown .ck-heading_heading1 .ck-button__label {
+    font-size: 2.18em;
+    font-weight: normal;
+  }
+
+  .document-editor .ck-content h2 {
+    line-height: 1.37em;
+    padding-top: .342em;
+    margin-bottom: .142em;
+  }
+
+  .document-editor .ck-content h3,
+  .document-editor .ck-heading-dropdown .ck-heading_heading2 .ck-button__label {
+    font-size: 1.75em;
+    font-weight: normal;
+    color: hsl(203, 100%, 50%);
+  }
+
+  .document-editor .ck-heading-dropdown .ck-heading_heading2.ck-on .ck-button__label {
+    color: var(--ck-color-list-button-on-text);
+  }
+
+  .document-editor .ck-content h3 {
+    line-height: 1.86em;
+    padding-top: .171em;
+    margin-bottom: .357em;
+  }
+
+  .document-editor .ck-content h4,
+  .document-editor .ck-heading-dropdown .ck-heading_heading3 .ck-button__label {
+    font-size: 1.31em;
+    font-weight: bold;
+  }
+
+  .document-editor .ck-content h4 {
+    line-height: 1.24em;
+    padding-top: .286em;
+    margin-bottom: .952em;
+  }
+
+  .document-editor .ck-content p {
+    font-size: 1em;
+    line-height: 1.63em;
+    padding-top: .5em;
+    margin-bottom: 1.13em;
+  }
+
   .image-section-dropdown .select-wrapper input.select-dropdown {
     border: none !important;
     bottom: 2px !important;
@@ -345,90 +360,684 @@
     font-size: 14px !important;
   }
 
+  .document-editor .ck-content blockquote {
+    font-family: Georgia, serif;
+    margin-left: calc(2 * var(--ck-spacing-large));
+    margin-right: calc(2 * var(--ck-spacing-large));
+  }
+
   input.active {
     border-bottom-color: #512da8 !important;
+  }
+
+  .scroll-style-2>li>a {
+    padding: 0 17px !important;
+  }
+
+  .margin-zero {
+    margin: 0 !important;
+  }
+
+  .sidebar2 {
+    padding-left: 0 !important;
+  }
+
+  .sidebar2 .row {
+    height: 100vh;
+    background-color: white;
+
+  }
+
+  .collapse-div-row-container {
+    height: 100vh;
+    background-color: white !important;
+  }
+
+  .collapse-div-container {
+    padding: 0 5px 0 0;
+  }
+
+  .collapse-div {
+    display: inline-block;
+    background-color: white;
+    padding-right: 5px;
+    height: 100vh;
+    overflow-y: auto;
   }
 </style>
 
 
-<div>
-  <div class="row" style="margin:0px; padding: 20px;">
 
-    <div class="col s4 image-section" style="">
-      <div class="main-image" ">
-       
+<div>
+  <div class="row" style="margin: 10px 35px 0 60px;">
+    <div class="toolbar"
+      style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
+      <a class="right" href="#!" onclick="window.close()"
+        style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons redd" title="Close" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+          close
+        </i>
+      </a>
+      </br>
+
+      <a class="right" href="/products" style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons homee" title="Products" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+          select_all
+        </i>
+      </a>
+
+      <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
+        <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
+          <i class="material-icons maroonn" title="PFL Editor" style="
+        color: gray;
+        background-color: #f7f7f7;
+        padding: 8px;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;margin-bottom: 10px;">
+            vertical_split
+          </i>
+        </a>
+
+        <a href="#!" class=" right" style="background-color: transparent;display: block;">
+          <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+            timer
+          </i>
+        </a>
+
+        <a href="#!" class=" right" style="background-color: transparent;display: block;">
+          <i id="verified-icon" class="material-icons greenn" title="Verified" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+            verified_user
+          </i>
+        </a>
+
+        <a href="#!" id="main-image-select-save-btn" class="right"
+          style="background-color: transparent;display: block;">
+          <i class="material-icons bluee" title="Set Cover Image" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+            burst_mode
+          </i>
+        </a>
+
+        <a href="#download-export-list-modal" class="modal-trigger right" style="background-color: transparent;">
+          <i class="material-icons greenn" title="Export Product Details" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+            file_download
+          </i>
+        </a>
+
+        {% if perms.WAMSApp.change_product %}
+        <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
+          <i class="material-icons purplee" title="Save" style="
+          background-color: #f7f7f7;
+          padding: 8px;
+          color: gray;
+          border-radius: 5px;
+          margin-left: 8px;
+          font-size: 20px;
+          margin-right: 9px;
+          display: block;
+          margin-bottom: 10px;">
+            save
+          </i>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col s4 image-section" style="height: 90vh;">
+      <div class="main-image" style="position: relative;">
+        <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
+          style="position:absolute;right:5em;top:0em;z-index: 100;"><i class="material-icons"
+            style="color: #521893;">file_download</i></a>
       </div>
 
+      <div class="row image-section-dropdown" style="margin-bottom: 0px;">
+        <div class="input-field left-section col s7" style="
+          width: 21vw;
+          border: none; 
+          background-color: 
+          white;height: 40px; 
+          font-size: 14px !important;
+          margin-left: 10px;">
+          <select id="images-category">
+            <option value="All Images" id="all-images-option">All Images</option>
+            <option value="Main Images" id="main-images-option">Main Images</option>
+            <option value="Sub Images" id="sub-images-option">Sub Images</option>
+            <option value="PFL Images" id="pfl-images-option">PFL Images</option>
+            <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
+            </option>
+            <option value="White Background Images" id="white-background-images-option">White Background
+              Images</option>
+            <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
+            <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
+            <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
+            <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
+            <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
+            <option value="Ads Images" id="ads-images-option">Ads Images</option>
+            <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
+          </select>
+        </div>
 
+        <div class="col s3">
+          <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
+            <i class="material-icons" title="Add Image" style="
+              color: gray;
+              background-color: white;
+              padding: 8px;
+              margin-top: 15px;">
+              add_photo_alternate
+            </i>
+          </a>
+        </div>
+      </div>
 
-      <div class=" row margin-zero left-container">
-        <div id="graphics-section" class="col s12 row graphics-section">
+      <div class="row" style="position: relative;bottom: 15px;right: 5px;">
+        <div id="graphics-section" class="col s12" style="width: 94%;padding-top: 1.11em;">
 
         </div>
       </div>
     </div>
 
-    <div class="col s8 right-container">
-      <h5 class="title">
-        Hanger- 6Pcs/Set 1X48
-      </h5>
-      <h6 class="sku-info"> SKU: 17635KU</h6 c>
-      <div class="feature-container">
-        <h6 class="feature-title">
-          Special Features:
-        </h6>
-        <ul>
-          <li class="feature-list"> <i class="tiny material-icons ">check</i>
-            Feature 1
-          </li>
-          <li class="feature-list"> <i class="tiny material-icons ">check</i>
-            Feature 2
-          </li>
-          <li class="feature-list"> <i class="tiny material-icons ">check</i>
-            Feature 3
-          </li>
-          <li class="feature-list"> <i class="tiny material-icons ">check</i>
-            Feature 4
-          </li>
+    <div id="collapse-div" class="col s8 center collapse-div-container"
+      style="display: inline-block;transition: width 0.5s;">
 
-        </ul>
-      </div>
-    </div>
-  </div>
+      <div class="collapse-div">
+        <div class="scroll-style-1 ">
+          <h6 style="color: #521893;">Amazon UK</h6>
+          <div class="row margin-zero collapse-div-row-container">
+            <div class="input-field col s6">
+              <input id="product-name" type="text">
+              <label for="product-name">Product Name</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-type" type="text">
+              <label for="product-type">Product Type</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-subtype" type="text">
+              <label for="product-subtype">Product Subtype</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-id" type="text">
+              <label for="product-id">Product ID</label>
+            </div>
 
-  <div class="row product-info-parent">
-    <div class="col s3 padding-zero">
-      <ul class="tabs product-info-tab">
-        <li class="tab "><a href="#test1">DESCRIPTION</a></li>
-        <li class="tab "><a class="active" href="#test2">TECH SPECIFICATIONS</a></li>
-        <li class="tab "><a href="#test3">DIMENSIONS</a></li>
-        <li class="tab "><a href="#test4">BRAND NAME</a></li>
-      </ul>
+            <div class="input-field col s6">
+              <select id="product-id-type">
+              </select>
+              <label for="product-id-type">Product ID Type</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="model-no" type="text">
+              <label for="product-model-no">Model No.</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="model-name" type="text">
+              <label for="product-model-name">Model Name</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="model-name" type="text">
+              <label for="product-msrp">MRP</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-description" type="text">
+              <label for="product-description">Description</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-relation-type" type="text">
+              <label for="product-relation-type">Relation Type</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-variation-theme" type="text">
+              <label for="product-variation-theme">Variation Theme</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-variation-theme" type="text">
+              <label for="product-variation-theme">Variation Theme</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="created-date" type="date">
+              <label for="created-date">Created Date</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-subtitle" type="text">
+              <label for="product-subtitle">Subtitle</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-subtitle" type="text">
+              <label for="product-subtitle">Subtitle</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="feed-product-type" type="text">
+              <label for="feed-product-type">Feed Product Type</label>
+            </div>
+            <div class="input-field col s6">
+              <select id="update-delete">
+                <option value="Update" selected>Update</option>
+                <option value="Delete">Delete</option>
+              </select>
+              <label for="update-delete">Update Delete</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="recommended-browse-nodes" type="text">
+              <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="search-terms" type="text">
+              <label for="search-terms">Search Terms</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="enclosure-material" type="text">
+              <label for="enclosure-material">Enclosure Material</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="cover-material-type" type="text">
+              <label for="cover-material-type">Cover Material Type</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="sale-price" type="number">
+              <label for="sale-price">Sale Price</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="sale-from" type="date">
+              <label for="sale-from">Sale From</label>
+            </div>
+
+            <div class="input-field col s6">
+              <input id="sale-end" type="date">
+              <label for="sale-end">Sale End</label>
+            </div>
+            <div class="row margin-zero">
+              <div class="input-field col s9">
+                <input id="special-feature-1" type="text">
+                <label for="special-feature-1">Special Feature</label>
+              </div>
+
+              <div class="input-field col s1">
+                <a id="add-special-feature-btn" href="#!" class="btn-floating blue"
+                  style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                    class="material-icons">add</i></a>
+              </div>
+
+              <div id="special-features-div">
+              </div>
+            </div>
+            <div class="row margin-zero">
+              <div class="input-field col s4" style="padding: 0px 20px 0px 50px  !important;">
+                <input id="wattage" type="number">
+                <label for="wattage">Wattage</label>
+              </div>
+
+              <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                <select id="wattage-metric">
+                  <option selected value="">Unit</option>
+                  <option value="volts">V</option>
+                  <option value="Watts">W</option>
+                  <option value="Kilowatts">KW</option>
+                </select>
+              </div>
+
+              <div class="input-field col s6">
+                <input id="material-type" type="text">
+                <label for="material-type">Material Type</label>
+              </div>
+            </div>
+            <div class="input-field col s6">
+              <input id="parentage" type="text">
+              <label for="parentage">Parentage</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="parent-sku" type="text">
+              <label for="parent-sku">Parent SKU</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="relationship-type" type="text">
+              <label for="relationship-type">Relationship Type</label>
+            </div>
+            <div class="row margin-zero">
+              <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
+                <input id="item-count" type="number">
+                <label for="item-count">Item Count</label>
+              </div>
+
+              <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                <select id="item-count-metric">
+                  <option selected value="">Unit</option>
+                  <option value="Bag">Bag</option>
+                  <option value="Box">Box</option>
+                  <option value="Dzn">Dzn</option>
+                  <option value="Mah">Mah</option>
+                  <option value="Pieces">Pieces</option>
+                  <option value="Packet">Packet</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-field col s6">
+              <input id="item-condition-note" type="text">
+              <label for="item-condition-note">Item Condition Note</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="max-order-quantity" type="text">
+              <label for="max-order-quantity">Max Order Quantity</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="number-of-items" type="text">
+              <label for="number-of-items">Number of Items</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="material-type" type="text">
+              <label for="material-type">Material Type</label>
+            </div>
+            <div class="input-field col s6">
+              <select id="condition-type">
+                <option value="New" selected>New</option>
+                <option value="Old">Old</option>
+              </select>
+              <label for="condition-type">Condition Type</label>
+            </div>
+            <div class="col s12">
+              <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;">Product Description</h6>
+              <div class="input-field" style="text-align: left;">
+                <div class="document-editor">
+                  <div class="document-editor__toolbar"></div>
+                  <div class="document-editor__editable-container">
+                    <div class="document-editor__editable">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+
+          </div>
+        </div>
+
+      </div>
     </div>
-    <div class="col s9  padding-zero product-info-container">
-      <div id="test1" class="product-info">
-        The tabs structure consists of an unordered list of tabs that have hashes corresponding to tab ids. Then when
-        you click on each tab, only the container with the corresponding
-      </div>
-      <div id="test2" class="product-info">
-        Because jQuery is no longer a dependency, all the methods are called on the plugin instance. You can get the
-        plugin instance like this
-      </div>
-      <div id="test3" class="product-info">
-        By default, Materialize tabs will ignore their default anchor behaviour. To force a tab to behave as a regular
-        hyperlink, just specify the target property of that link! A list of
-      </div>
-      <div id="test4" class="product-info">
-        touch enabled devices to switch tabs. Make sure you keep the tab content divs in the same wrapping container.
-        You can also set the responsiveThreshold option to a screen width in pixels where the swipeable functionality w
+
+    <div id="sidebar2" class="col s4 sidebar2" style="display: none;">
+      <div class="row margin-zero">
+        <div class="input-field col s12">
+          <select id="flyer-brand">
+            <option value="" selected>Select Channel</option>
+            <option value="">Amazon UK</option>
+            <option value="">Amazon UAE</option>
+            <option value="">Ebay</option>
+            <option value="">Noon</option>
+          </select>
+          <label>Channels</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-product-name" type="text">
+          <label for="product-name">Product Name</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-product-type" type="text">
+          <label for="product-type">Product Type</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-product-subtype" type="text">
+          <label for="product-subtype">Product Subtype</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-model-no" type="text">
+          <label for="product-model-no">Model No.</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-model-name" type="text">
+          <label for="product-model-name">Model Name</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-model-name" type="text">
+          <label for="product-msrp">MRP</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-product-description" type="text">
+          <label for="sidenav-product-description">Description</label>
+        </div>
+
       </div>
     </div>
+
+    <div class="toolbar"
+      style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
+      <a id="open-it-btn" visible="no" href="#" class="button-collapse show-on-large">
+        <i class="material-icons">keyboard_arrow_left</i>
+      </a>
+
+
+
+
+    </div>
+
+    <!-- <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a> -->
+
+
   </div>
 </div>
 
 
 
+<div id="upload-image-modal" class="modal">
+  <div class="modal-content">
+    <h4 style="font-family:'AvenirNext';font-size:18px;">Upload Image</h4>
+    <div class="file-field input-field">
+      <div class="btn" style="background-color: #512da8">
+        <span style="font-size:14px;">File</span>
+        <input id="product-image-input" type="file" multiple>
+      </div>
+      <div class="file-path-wrapper">
+        <input class="file-path validate" type="text">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    <a id="upload-image-btn" href="#!" class="waves-effect waves-green btn-flat blue white-text"
+      style="background-color:#009051 !important ;">Upload</a>
+    <div class="progress" id="upload-preloader"
+      style="display:none;margin: 0px !important;background-color: white !important;">
+      <div class="indeterminate" style="background-color: #512de8;"></div>
+    </div>
+  </div>
+</div>
 
+
+<div id="delete-image-modal" class="modal">
+  <div class="modal-content">
+    <h4 style="font-family:'AvenirNext';font-size:18px;">Are you sure you want to delete the image?</h4>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    <a id="delete-image-btn" href="#!" class="red waves-effect waves-red btn-flat white-text">Delete</a>
+  </div>
+</div>
+
+
+
+<div class="toolbar"
+  style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
+  <a class="right" href="#!" onclick="window.close()"
+    style="background-color: transparent;display: block;cursor: pointer;">
+    <i class="material-icons redd" title="Close" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+      close
+    </i>
+  </a>
+  </br>
+
+  <a class="right" href="/products" style="background-color: transparent;display: block;cursor: pointer;">
+    <i class="material-icons homee" title="Products" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+      select_all
+    </i>
+  </a>
+
+  <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
+    <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
+      <i class="material-icons maroonn" title="PFL Editor" style="
+        color: gray;
+        background-color: #f7f7f7;
+        padding: 8px;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;margin-bottom: 10px;">
+        vertical_split
+      </i>
+    </a>
+
+    <a href="#!" class=" right" style="background-color: transparent;display: block;">
+      <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+        timer
+      </i>
+    </a>
+
+    <a href="#!" class=" right" style="background-color: transparent;display: block;">
+      <i id="verified-icon" class="material-icons greenn" title="Verified" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+        verified_user
+      </i>
+    </a>
+
+    <a href="#!" id="main-image-select-save-btn" class="right" style="background-color: transparent;display: block;">
+      <i class="material-icons bluee" title="Set Cover Image" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+        burst_mode
+      </i>
+    </a>
+
+    <a href="#download-export-list-modal" class="modal-trigger right" style="background-color: transparent;">
+      <i class="material-icons greenn" title="Export Product Details" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+        file_download
+      </i>
+    </a>
+
+    {% if perms.WAMSApp.change_product %}
+    <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
+      <i class="material-icons purplee" title="Save" style="
+          background-color: #f7f7f7;
+          padding: 8px;
+          color: gray;
+          border-radius: 5px;
+          margin-left: 8px;
+          font-size: 20px;
+          margin-right: 9px;
+          display: block;
+          margin-bottom: 10px;">
+        save
+      </i>
+    </a>
+    {% endif %}
+  </div>
+</div>
 
 
 <div id="download-export-list-modal" class="modal" style="border-radius: 5px;">
@@ -459,14 +1068,113 @@
 </div>
 
 
+<div id="pfl-div" class="row white"
+  style="text-align: center;margin-left: auto;display:none;height: 297mm;width: 210mm;">
+  <!-- Brand Image Preview -->
+  <div id="brand-image" class="col s6 right">
+    <br>
+    <img id="brand-image-img" src="" style="width: 73.5mm;margin-left:-27mm;display: none;position: absolute;">
+  </div>
+
+  <!-- Product Image Preview -->
+  <div class="col s12" style="text-align: center; position: absolute;width: 210mm;margin-top: 40mm;">
+    <img id="pfl-product-image-preview-img"
+      style="max-width: 90%;max-height: 130mm;object-fit: scale-down;display: none;background-size: 100% 100%;">
+    <br>
+  </div>
+
+  <!-- Product Name Preview -->
+  <div class="col s12"
+    style="background-color:#521893;text-align: center;width: 210mm;padding-bottom: 1em;position: absolute;margin-top: 190mm;width:210mm;height: 20mm;">
+    <div id="product-name-preview" class="white-text left"
+      style="padding-left: 1em;text-transform: uppercase;margin-top: 6.4mm;font-size: 1.7em;font-family:'AvenirNextRegular';">
+    </div>
+  </div>
+
+  <!-- Seller SKU Preview -->
+  <div class="col s12"
+    style="background-color:white;position: absolute;margin-top: 192.5mm;width:45mm;height: 15mm;margin-left: 156mm;text-align: center;">
+    <span id="seller-sku-preview"
+      style="font-size: 1.4em;font-family:'AvenirNextRegular'; line-height: 16mm;color:#521893;"></span>
+  </div>
+
+  <!-- Features Preview -->
+  <div class="col s12" style="position: absolute;margin-top: 218mm;width: 10mm;">
+    <span style="color:#521893;font-size: 1.4em;font-family: 'AvenirNext';padding-left: 1em;">Features</span>
+  </div>
+  <div class="col s12" style="margin-top: 215mm;">
+    <div id="features-preview-div" style="text-align: left; padding-left: 1.3em;">
+    </div>
+  </div>
+
+
+  <!-- Barcode Preview -->
+  <div class="col s3" style="position: absolute;margin-top: 240mm;width:45mm;margin-left:152mm;">
+    <br><br>
+    <img id="barcode-image-preview-img" src="" style="display:none;width: 100%;">
+  </div>
+
+  <!-- Footer -->
+  <div class="col s12" style="background-color:#521893;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
+    <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
+      <p class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For
+        more
+        information, please visit www.royalford.com</p>
+    </div>
+  </div>
+
+</div>
+
+
+<ul id="slide-out" class="sidenav">
+  <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
+  <li><a href="#!">Second Link</a></li>
+  <li>
+    <div class="divider"></div>
+  </li>
+  <li><a class="subheader">Subheader</a></li>
+  <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+</ul>
+
+
+<script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
+<script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
 <script type="text/javascript">
+
+
 
   $('.tabs').tabs();
   $('.chips').chips();
   $('select').formSelect();
   $('.modal').modal();
   $('body').css('background-color', '#ebebeb');
-  $('.tabs').tabs();
+  $('.sidenav').sidenav({ edge: 'left' });
+
+
+  $("#open-it-btn").click(function () {
+    if ($(this).attr("visible") == "no") {
+      $(this).attr("visible", "yes");
+      $("#collapse-div").attr("class", "col s4 center");
+      $("#sidebar2").show(600);
+
+    }
+    else {
+      $(this).attr("visible", "no");
+      $("#sidebar2").hide();
+      $("#collapse-div").attr("class", "col s8 center");
+    }
+  })
+
+  // $('.button-collapse').sidenav({
+  //   menuWidth: 300, // Default is 240
+  //   edge: 'right', // Choose the horizontal origin
+  //   closeOnClick: true,
+  //   isFixed: true,
+  //   // Closes side-nav on <a> clicks, useful for Angular/Meteor
+  // }
+  // );
+
+
 
   var global_verification_status = false;
   var global_delete_image_pk = null;
@@ -506,7 +1214,7 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        product_pk: window.location.pathname.split("/")[2],
+        product_pk: window.location.pathname.split("/")[3],
         export_format: export_format
       },
       success: function (response) {
@@ -545,7 +1253,7 @@
 
   function call_verify_api(verify) {
     var fd = new FormData()
-    fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("product_pk", window.location.pathname.split("/")[3]);
     fd.append("verify", verify);
 
     $.ajax({
@@ -655,6 +1363,75 @@
 
   $("#heading-title").html("PRODUCT FORM");
 
+  window.editor = []
+
+  DecoupledEditor
+    .create(document.querySelector('.document-editor__editable'), {
+      cloudServices: {
+      }
+    })
+    .then(editor => {
+      const toolbarContainer = document.querySelector('.document-editor__toolbar');
+
+      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+      //editor.isReadOnly = !response['edit_access'];
+      window.editor.push(editor);
+    })
+    .catch(err => {
+      console.error(err);
+    });
+
+  DecoupledEditor
+    .create(document.querySelector('.clone2_editable'), {
+      cloudServices: {
+      }
+    })
+    .then(editor => {
+      const toolbarContainer = document.querySelector('.clone2_toolbar');
+
+      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+      //editor.isReadOnly = !response['edit_access'];
+      window.editor.push(editor);
+    })
+    .catch(err => {
+      console.error(err);
+    });
+
+  DecoupledEditor
+    .create(document.querySelector('.clone3_editable'), {
+      cloudServices: {
+      }
+    })
+    .then(editor => {
+      const toolbarContainer = document.querySelector('.clone3_toolbar');
+
+      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+      //editor.isReadOnly = !response['edit_access'];
+      window.editor.push(editor);
+    })
+    .catch(err => {
+      console.error(err);
+    });
+
+
+
+
+  DecoupledEditor
+    .create(document.querySelector('.clone4_editable'), {
+      cloudServices: {
+      }
+    })
+    .then(editor => {
+      const toolbarContainer = document.querySelector('.clone4_toolbar');
+
+      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+      //editor.isReadOnly = !response['edit_access'];
+      window.editor.push(editor);
+    })
+    .catch(err => {
+      console.error(err);
+    });
+
 
 
   function getCsrfToken() {
@@ -711,7 +1488,7 @@
 
 
           var product_id_type_list = response["product_id_type_list"];
-          var html_string = `<option value="" selected>Choose Product ID Type</option>`;
+          var html_string = `<option value="" selected>Product ID Type</option>`;
           for (var i = 0; i < product_id_type_list.length; i++) {
             html_string += `<option value="` + product_id_type_list[i]["name"] + `">` + product_id_type_list[i]["name"] + `</option>`
           }
@@ -744,7 +1521,7 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        pk: window.location.pathname.split("/")[2]
+        pk: window.location.pathname.split("/")[3]
       },
       success: function (response) {
         console.log("Success!", response);
@@ -797,7 +1574,7 @@
     $("#upload-image-btn").attr("disabled", "disabled");
     $("#upload-preloader").show();
 
-    product_pk = window.location.pathname.split("/")[2];
+    product_pk = window.location.pathname.split("/")[3];
 
     var fd = new FormData();
 
@@ -868,7 +1645,7 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        pk: window.location.pathname.split("/")[2]
+        pk: window.location.pathname.split("/")[3]
       },
       success: function (response) {
         console.log("Success!", response);
@@ -919,6 +1696,11 @@
         $("#update-delete").val(response["update_delete"]);
         $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
 
+
+        window.editor[0].setData(response["product_description_amazon_uk"]);
+        window.editor[1].setData(response["product_description_amazon_uae"]);
+        window.editor[2].setData(response["product_description_ebay"]);
+        window.editor[3].setData(response["product_description_noon"]);
 
 
         var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];
@@ -1022,6 +1804,7 @@
         $("#noon-msrp-ae").val(response["noon_msrp_ae"]);
         $("#noon-msrp-ae-unit").val(response["noon_msrp_ae_unit"]);
 
+        $("#factory-notes").val(response["factory_notes"]);
 
 
         global_images = response["images"];
@@ -1179,7 +1962,7 @@
         checked = "checked";
       }
 
-      if (i % 4 == 0) {
+      if (i % 3 == 0) {
         html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
       }
 
@@ -1282,7 +2065,7 @@
 
     var checked_pk = $("input[name=group1]:checked").val();
     fd.append("checked_pk", checked_pk);
-    fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("product_pk", window.location.pathname.split("/")[3]);
 
     $.ajax({
       url: "/update-main-image/",
@@ -1320,7 +2103,7 @@
         checked = "checked";
       }
 
-      if (i % 4 == 0) {
+      if (i % 3 == 0) {
         html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
       }
 
@@ -1397,7 +2180,7 @@
     }
 
     fd.append("sub_images", JSON.stringify(sub_image));
-    fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("product_pk", window.location.pathname.split("/")[3]);
 
     $.ajax({
       url: "/update-sub-images/",
@@ -1449,13 +2232,25 @@
 
     var html_string = "";
     for (var i = 0; i < global_images[key].length; i++) {
-      html_string += `<div class="col s3" style="margin:0; padding:0">
-                        <div style="">
-                          
+      html_string += `<div class="col s4" style="padding:1em;">
+                        <div style="position:relative;">
+                          <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                            <i class="material-icons redd" title="Delete Image" style="
+                              background-color: transparent;
+                              padding: 4px;
+                              color: gray;
+                              border-radius: 2px;
+                              margin-left: 4px;
+                              font-size: 10px;
+                              margin-right: 4px;
+                              display: block;
+                              margin-bottom: 5px;">
+                              close
+                            </i> 
+                          </a> 
                           <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
                         </div>
-                      </div>
-                      `;
+                      </div>`;
     }
 
     $("#graphics-section").html(html_string);
@@ -1611,7 +2406,7 @@
 
               var fd = new FormData();
               fd.append('image_data', image_data);
-              fd.append('product_pk', window.location.pathname.split("/")[2]);
+              fd.append('product_pk', window.location.pathname.split("/")[3]);
 
               $.ajax({
                 url: "/save-pfl-in-bucket/",
@@ -1658,7 +2453,7 @@
 
     $("#save-btn").attr("disabled", "disabled");
 
-    var product_pk = window.location.pathname.split("/")[2];
+    var product_pk = window.location.pathname.split("/")[3];
 
     var pfl_product_name = $("#pfl-product-name").val();
     var pfl_product_features = [];
@@ -1689,6 +2484,10 @@
     var feed_product_type = $("#feed-product-type").val();
     var update_delete = $("#update-delete").val();
     var recommended_browse_nodes = $("#recommended-browse-nodes").val();
+    var product_description_amazon_uk = window.editor[0].getData();
+    var product_description_amazon_uae = window.editor[1].getData();
+    var product_description_ebay = window.editor[2].getData();
+    var product_description_noon = window.editor[3].getData();
 
 
     var product_attribute_data_amazon_uk = [];
@@ -1791,7 +2590,9 @@
     var sale_end = $("#sale-end").val();
     var noon_msrp_ae = $("#noon-msrp-ae").val();
     var noon_msrp_ae_unit = $("#noon-msrp-ae-unit").val();
-    var product_pk = window.location.pathname.split("/")[2];
+    var product_pk = window.location.pathname.split("/")[3];
+
+    var factory_notes = $("#factory-notes").val();
 
     var fd = new FormData();
 
@@ -1883,6 +2684,7 @@
     fd.append('sale_end', sale_end);
     fd.append('noon_msrp_ae', noon_msrp_ae);
     fd.append('noon_msrp_ae_unit', noon_msrp_ae_unit);
+    fd.append('factory_notes', factory_notes);
 
     $.ajax({
       url: "/save-product/",

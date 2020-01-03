@@ -134,7 +134,7 @@ def export_amazon_uk(products):
                 
                 for sub_images_obj in sub_images_objs:
                     if sub_images_obj.sub_images.filter(is_sub_image=True).count() > 0:
-                        for img in sub_images_obj.sub_images.filter(is_sub_image=True).order_by('sub_image_index')[:8]
+                        for img in sub_images_obj.sub_images.filter(is_sub_image=True).order_by('sub_image_index')[:8]:
                             common_row[image_cnt] = str(img.image.image.url)
                             image_cnt += 1
 
@@ -209,7 +209,7 @@ def update_product_full_amazon_uk(product_obj, row):
     product_obj.color = row[46]
     product_obj.color_map = row[47]
 
-    if row[50]!=""
+    if row[50]!="":
         material_type_obj , created= MaterialType.objects.get_or_create(name=row[50])
         product_obj.material_type = material_type_obj
 

@@ -363,7 +363,9 @@ class Product(models.Model):
     aplus_content_images = models.ManyToManyField(Image, related_name="aplus_content_images", blank=True)
     ads_images = models.ManyToManyField(Image, related_name="ads_images", blank=True)
     unedited_images = models.ManyToManyField(Image, related_name="unedited_images", blank=True)
-    pfl_generated_images = models.ManyToManyField(Image , related_name="pfl_generated_images" , blank = True) 
+    pfl_generated_images = models.ManyToManyField(Image , related_name="pfl_generated_images" , blank = True)
+    transparent_images = models.ManyToManyField(Image , related_name="transparent_images" , blank = True)
+
 
     # Other info
     barcode = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
@@ -447,7 +449,7 @@ class PFL(models.Model):
     name = models.CharField(default="SamplePFL", max_length=200)
     product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
     product_image = models.ForeignKey(Image, null=True, blank=True, related_name="product_images", on_delete=models.SET_NULL)
-   
+    template_data = models.TextField(null=True, blank=True)
     external_images_bucket = models.ManyToManyField(Image, blank=True)
 
     class Meta:

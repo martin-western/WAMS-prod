@@ -5,3 +5,4 @@ log/*
 files/*
 static/*
 WAMSApp/migrations/*
+WAMS/settings.py

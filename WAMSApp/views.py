@@ -110,12 +110,32 @@ def FlyerPage(request, pk):
         return render(request, 'WAMSApp/flyer.html')
     elif flyer_obj.mode=="A4 Landscape":
         return render(request, 'WAMSApp/flyer-landscape.html')
+    elif flyer_obj.mode=="A5 Portrait":
+        return render(request, 'WAMSApp/flyer-a5-portrait.html')
+    elif flyer_obj.mode=="A5 Landscape":
+        return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
 @login_required(login_url='/login/')
 def FlyerDashboardPage(request):
     return render(request, 'WAMSApp/flyer-dashboard.html')
 
+
+@login_required(login_url='/login/')
+def ChannelProductAmazonUKPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-amazon-uk-page.html')
+
+@login_required(login_url='/login/')
+def ChannelProductAmazonUAEPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-amazon-uae-page.html')
+
+@login_required(login_url='/login/')
+def ChannelProductEbayPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-ebay-page.html')
+
+@login_required(login_url='/login/')
+def ChannelProductNoonPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-noon-page.html')
 
 class LoginSubmitAPI(APIView):
 
@@ -479,12 +499,14 @@ class FetchProductDetailsAPI(APIView):
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images(
                 product_obj.unedited_images.all())
+            images["transparent_images"] = create_response_images(
+                product_obj.transparent_images.all())
 
             images["all_images"] = images["pfl_images"] + images["pfl_generated_images"] + \
                 images["white_background_images"] + images["lifestyle_images"] + \
                 images["certificate_images"] + images["giftbox_images"] + \
                 images["diecut_images"] + images["aplus_content_images"] + \
-                images["ads_images"] + images["unedited_images"] + create_response_images_main_sub_delete(main_images_list) + create_response_images_main_sub_delete(sub_images_list)
+                images["ads_images"] + images["unedited_images"] + images["transparent_images"] + create_response_images_main_sub_delete(prod_obj.main_images.all()) + create_response_images_main_sub_delete(prod_obj.sub_images.all())
 
 
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
@@ -1345,6 +1367,9 @@ class UploadProductImageAPI(APIView):
             elif data["image_category"] == "unedited_images":
                 for image_obj in image_objs:
                     product_obj.unedited_images.add(image_obj)
+            elif data["image_category"] == "transparent_images":
+                for image_obj in image_objs:
+                    product_obj.transparent_images.add(image_obj)
 
             product_obj.save()
 
@@ -1482,30 +1507,38 @@ class CreateFlyerAPI(APIView):
 
 
             common = {
-                "currency-unit":"AED",
+                "background-image-url": "none",
                 "border-visible": True,
-                "border-color": "#E9E9E9",
-                "background-image-url":"none",
-                "product-title-font-size":"12",
-                "product-title-font-family":"AvenirNextRegular",
-                "product-title-font-weight":"normal",
-                "product-title-font-color":"#181818",
-                "price-font-size":"18",
-                "price-font-family":"AvenirNextRegular",
-                "price-font-weight":"normal",
-                "price-font-color":"#181818",
-                "strikeprice-font-size":"8.5",
-                "strikeprice-font-family":"AvenirNextRegular",
-                "strikeprice-font-weight":"normal",
-                "strikeprice-font-color":"#181818",
-                "currency-font-size":"8.5",
-                "currency-font-family":"AvenirNextRegular",
-                "currency-font-weight":"normal",
-                "currency-font-color":"#181818",
-                "price-box-bg-color":"#fbf00b",
-                "header-color":"#181818",
-                "footer-color":"#181818",
-                "promo-resizer": "40"
+                "border-color": "#EBEBEB",
+                "super-brand-logo": False,
+                "iso-logo": False,
+                "consumer-logo": False,
+                "brand-name-visible": True,
+                "white-container": True,
+                "price-resizer": "100",
+                "product-title-font-size": "12",
+                "product-title-font-family": "Helvetica",
+                "product-title-font-weight": "bold",
+                "product-title-font-color": "#181818",
+                "price-font-size": "18",
+                "price-font-family": "Helvetica",
+                "price-font-weight": "bold",
+                "price-font-color": "#181818",
+                "currency-font-size": "8.5",
+                "currency-font-family": "Helvetica",
+                "currency-font-weight": "bold",
+                "currency-font-color": "#181818",
+                "currency-unit": "AED",
+                "price-box-bg-color": "#FBF00B",
+                "strikeprice-font-size": "12",
+                "strikeprice-font-family": "Helvetica",
+                "strikeprice-font-weight": "bold",
+                "strikeprice-font-color": "#181818",
+                "strikeprice-visible": True,
+                "header-color": "#181818",
+                "footer-color": "#181818",
+                "all-promo-resizer": "40",
+                "all-image-resizer": "100"
             }
 
             template_data = {
@@ -1531,13 +1564,15 @@ class CreateFlyerAPI(APIView):
                         temp_dict["data"] = {
                             "image-url": "",
                             "banner-img": "",
+                            "warranty-display": False,
                             "image-resizer": "100",
+                            "promo-resizer": "40",
                             "price": "",
                             "strikeprice": "strikeprice",
                             "title": "",
-                            "description": "",
-                            "image-resizer": "100"
+                            "description": ""
                         }
+
                         item_data.append(temp_dict)
                     template_data["item-data"] = item_data
                     flyer_obj.template_data = json.dumps(template_data)
@@ -1608,7 +1643,11 @@ class CreateFlyerAPI(APIView):
 
 
                                 try:
-                                    product_strikeprice = convert_to_ascii(dfs.iloc[i][3])
+                                    try:
+                                        product_strikeprice = str(dfs.iloc[i][3])    
+                                    except Exception as e:
+                                        product_strikeprice = convert_to_ascii(dfs.iloc[i][3])
+
                                     if product_strikeprice == "nan":
                                         product_strikeprice = ""
                                     try:
@@ -1620,7 +1659,11 @@ class CreateFlyerAPI(APIView):
 
 
                                 try:
-                                    product_price = convert_to_ascii(dfs.iloc[i][4])
+                                    try:
+                                        product_price = str(dfs.iloc[i][4])
+                                    except Exception as e:
+                                        product_price = convert_to_ascii(dfs.iloc[i][4])
+                                    
                                     if product_price == "nan":
                                         product_price = ""
                                     try:
@@ -1645,12 +1688,13 @@ class CreateFlyerAPI(APIView):
                             temp_dict["data"] = {
                                 "image-url": str(image_url),
                                 "banner-img": "",
+                                "warranty-display": False,
                                 "image-resizer": "100",
+                                "promo-resizer": "40",
                                 "price": str(product_price),
                                 "strikeprice": str(product_strikeprice),
                                 "title": str(product_title),
-                                "description": str(product_description),
-                                "image-resizer": "100"
+                                "description": str(product_description)
                             }
                             item_data.append(temp_dict)
 
@@ -1755,11 +1799,13 @@ class FetchFlyerDetailsAPI(APIView):
                     product_obj.ads_images.all())
                 images["unedited_images"] = create_response_images_flyer_pfl(
                     product_obj.unedited_images.all())
+                images["transparent_images"] = create_response_images_flyer_pfl(
+                    product_obj.transparent_images.all())
 
                 images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
                     images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
                     images["aplus_content_images"] + \
-                    images["ads_images"]+images["unedited_images"]
+                    images["ads_images"]+images["unedited_images"]+images["transparent_images"]
 
                 images_dict[product_obj.pk] = images
 
@@ -1773,10 +1819,14 @@ class FetchFlyerDetailsAPI(APIView):
             external_images_bucket_list = []
             external_images_bucket_objs = flyer_obj.external_images_bucket.all()
             for external_images_bucket_obj in external_images_bucket_objs:
-                temp_dict = {}
-                temp_dict["image_url"] = external_images_bucket_obj.image.url
-                temp_dict["image_pk"] = external_images_bucket_obj.pk
-                external_images_bucket_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["url"] = external_images_bucket_obj.mid_image.url
+                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["image_pk"] = external_images_bucket_obj.pk
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
 
             brand_image_url = None
             try:
@@ -1790,7 +1840,7 @@ class FetchFlyerDetailsAPI(APIView):
             response["product_bucket_list"] = product_list
             response["template_data"] = template_data
             response["images"] = images_dict
-            #response["external_images_bucket_list"] = external_images_bucket_list
+            response["external_images_bucket_list"] = external_images_bucket_list
             response["background_images_bucket"] = background_images_bucket
             response["brand_image_url"] = brand_image_url
             response["brand-name"] = str(flyer_obj.brand)
@@ -1877,10 +1927,14 @@ class FetchPFLDetailsAPI(APIView):
             external_images_bucket_list = []
             external_images_bucket_objs = pfl_obj.external_images_bucket.all()
             for external_images_bucket_obj in external_images_bucket_objs:
-                temp_dict = {}
-                temp_dict["image_url"] = external_images_bucket_obj.image.url
-                temp_dict["image_pk"] = external_images_bucket_obj.pk
-                external_images_bucket_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["url"] = external_images_bucket_obj.mid_image.url
+                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["image_pk"] = external_images_bucket_obj.pk
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
 
             logo_image_url = None
             barcode_image_url = None
@@ -1928,12 +1982,29 @@ class FetchPFLDetailsAPI(APIView):
                 product_name_sap = pfl_obj.product.product_name_sap
                 seller_sku = pfl_obj.product.seller_sku
 
+            template_data = {
+                "container": {
+                    "width": 24,
+                    "height": 15,
+                    "x": 0,
+                    "y": 0
+                },
+                "common": {
+                  "image-resizer": 100
+                }
+            }
+            try:
+                template_data = json.loads(pfl_obj.template_data)
+            except Exception as e:
+                pass
+
             response["pfl_name"] = pfl_name
             response["product_name"] = pfl_product_name
             response["product_name_sap"] = product_name_sap
             response["product_image"] = product_image
             response["pfl_product_features"] = pfl_product_features
             response["external_images_bucket_list"] = external_images_bucket_list
+            response["template_data"] = template_data
             response["logo_image_url"] = logo_image_url
             response["brand_name"] = brand_name
             response["barcode_image_url"] = barcode_image_url
@@ -2106,11 +2177,13 @@ class AddProductFlyerBucketAPI(APIView):
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images_flyer_pfl(
                 product_obj.unedited_images.all())
+            images["transparent_images"] = create_response_images_flyer_pfl(
+                product_obj.transparent_images.all())
 
             images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
                 images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
                 images["aplus_content_images"] + \
-                images["ads_images"]+images["unedited_images"]
+                images["ads_images"]+images["unedited_images"]+images["transparent_images"]
 
             response["images"] = images
             response["product_pk"] = product_obj.pk
@@ -2240,10 +2313,17 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images_flyer_pfl(
                 product_obj.unedited_images.all())
+            images["transparent_images"] = create_response_images_flyer_pfl(
+                product_obj.transparent_images.all())
             images["pfl_generated_images"] = create_response_images_flyer_pfl(
                 product_obj.pfl_generated_images.all())
             images["external_images"] = create_response_images_flyer_pfl(
                 pfl_obj.external_images_bucket.all())
+
+            images["all_images"] = images["main_images"]+images["sub_images"]+images["pfl_images"]+images["white_background_images"]+images["lifestyle_images"] + \
+                    images["certificate_images"]+images["giftbox_images"]+images["diecut_images"] + \
+                    images["aplus_content_images"] + \
+                    images["ads_images"]+images["unedited_images"]+images["transparent_images"]
 
             barcode_image_url = None
             if product_obj.barcode != None:
@@ -2334,12 +2414,15 @@ class SavePFLTemplateAPI(APIView):
                 image_obj = Image.objects.get(pk=data["image_pk"])
                 pfl_obj.product_image = image_obj
 
+            template_data = data["template_data"]
+
             product_name = convert_to_ascii(data["product_name"])
             product_features = convert_to_ascii(data["product_features"])
 
             pfl_obj.product.pfl_product_name = product_name
             pfl_obj.product.pfl_product_features = product_features
             pfl_obj.product.save()
+            pfl_obj.template_data = template_data
             pfl_obj.save()
 
             response['status'] = 200
@@ -2929,6 +3012,100 @@ class RemoveProductFromExportListAPI(APIView):
         return Response(data=response)
 
 
+class UploadFlyerExternalImagesAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm("WAMSApp.add_image") == False:
+                logger.warning("UploadProductImageAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            #logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
+
+            flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
+
+            image_count = int(data["image_count"])
+            external_images_bucket_list = []
+            for i in range(image_count):
+                try:
+                    image_obj = Image.objects.create(image=data["image_"+str(i)])
+                    flyer_obj.external_images_bucket.add(image_obj)
+                    temp_dict = {}
+                    temp_dict["url"] = image_obj.mid_image.url
+                    temp_dict["high-res-url"] = image_obj.image.url
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            flyer_obj.save()
+
+            response["external_images_bucket_list"] = external_images_bucket_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFlyerExternalImagesAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadPFLExternalImagesAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm("WAMSApp.add_image") == False:
+                logger.warning("UploadProductImageAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            #logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
+
+            pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
+
+            image_count = int(data["image_count"])
+            external_images_bucket_list = []
+            for i in range(image_count):
+                try:
+                    image_obj = Image.objects.create(image=data["image_"+str(i)])
+                    pfl_obj.external_images_bucket.add(image_obj)
+                    temp_dict = {}
+                    temp_dict["url"] = image_obj.mid_image.url
+                    temp_dict["high-res-url"] = image_obj.image.url
+                    external_images_bucket_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            pfl_obj.save()
+
+            response["external_images_bucket_list"] = external_images_bucket_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFlyerExternalImagesAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+
 LoginSubmit = LoginSubmitAPI.as_view()
 
 FetchConstantValues = FetchConstantValuesAPI.as_view()
@@ -3002,3 +3179,7 @@ DeleteImage = DeleteImageAPI.as_view()
 RemoveProductFromExportList = RemoveProductFromExportListAPI.as_view()
 
 DownloadProduct = DownloadProductAPI.as_view()
+
+UploadFlyerExternalImages = UploadFlyerExternalImagesAPI.as_view()
+
+UploadPFLExternalImages = UploadPFLExternalImagesAPI.as_view()

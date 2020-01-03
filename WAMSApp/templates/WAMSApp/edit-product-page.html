@@ -5,247 +5,246 @@
 {% load static %}
 
 <style type="text/css">
+  .ck.ck-content ul,
+  .ck.ck-content ul li {
+    list-style-type: inherit;
+  }
 
-.ck.ck-content ul,
-.ck.ck-content ul li{
-  list-style-type: inherit;
-}
-.ck.ck-content ul {
-  padding-left: 40px;
-}
+  .ck.ck-content ul {
+    padding-left: 40px;
+  }
 
-.ck.ck-content strong {
-  font-weight:bold;
-}
+  .ck.ck-content strong {
+    font-weight: bold;
+  }
 
-.flex-container-space-btw {
-  display: flex;
-  justify-content: space-between;
-}
+  .flex-container-space-btw {
+    display: flex;
+    justify-content: space-between;
+  }
 
-.flex-container-space-btw > div{
-  margin-top: 15px;
-  width: 7vw;
-}
-
-
-.img-wrapper {
-  position: relative;
-}
-
-.img-responsive {
-  width: 100%;
-  height: auto;
-}
-
-.img-overlay {
-  position: absolute;
-  top: 1em;
-  bottom: 0;
-  right: 1em;
-  text-align: center;
-}
-
-.redd:hover {
-  background-color: red !important;
-  color:white !important;
-}
-
-.greenn:hover {
-  background-color: #009051 !important;
-  color:white !important;
-}
-
-.bluee:hover {
-  background-color: blue !important;
-  color:white !important;  
-}
-
-.yelloww:hover {
-  background-color: orange !important;
-  color:white !important;
-}
-
-.purplee:hover {
-  background-color: #512de8 !important;
-  color:white !important;
-}
-
-.maroonn:hover {
-  background-color: maroon !important;
-  color: white !important;
-}
-
-.homee:hover {
-  background-color: #521893 !important;
-  color: white !important;
-}
-
-.miniimage + input {
-  width: 50% !important;
-  display: block;
-}
-
-input[type = "checkbox"].filled-in:checked + span:before {
-  background-color: #512de8 !important
-}
-
-input[type = "checkbox"].filled-in:checked + span:after {
-  background-color: #512de8 !important
-}
-
-.img-overlay:before {
-  content: ' ';
-  display: block;
-  height: 10%;
-}
+  .flex-container-space-btw>div {
+    margin-top: 15px;
+    width: 7vw;
+  }
 
 
-a .active {
-  background-color: #512da8 !important;
-}
+  .img-wrapper {
+    position: relative;
+  }
+
+  .img-responsive {
+    width: 100%;
+    height: auto;
+  }
+
+  .img-overlay {
+    position: absolute;
+    top: 1em;
+    bottom: 0;
+    right: 1em;
+    text-align: center;
+  }
+
+  .redd:hover {
+    background-color: red !important;
+    color: white !important;
+  }
+
+  .greenn:hover {
+    background-color: #009051 !important;
+    color: white !important;
+  }
+
+  .bluee:hover {
+    background-color: blue !important;
+    color: white !important;
+  }
+
+  .yelloww:hover {
+    background-color: orange !important;
+    color: white !important;
+  }
+
+  .purplee:hover {
+    background-color: #512de8 !important;
+    color: white !important;
+  }
+
+  .maroonn:hover {
+    background-color: maroon !important;
+    color: white !important;
+  }
+
+  .homee:hover {
+    background-color: #521893 !important;
+    color: white !important;
+  }
+
+  .miniimage+input {
+    width: 50% !important;
+    display: block;
+  }
+
+  input[type="checkbox"].filled-in:checked+span:before {
+    background-color: #512de8 !important
+  }
+
+  input[type="checkbox"].filled-in:checked+span:after {
+    background-color: #512de8 !important
+  }
+
+  .img-overlay:before {
+    content: ' ';
+    display: block;
+    height: 10%;
+  }
 
 
-/*tabs*/
+  a .active {
+    background-color: #512da8 !important;
+  }
 
-.tab-content {
-  margin-top: 20px;
-  max-height: 80vh;
-  overflow: auto;
-  overflow-x: hidden; 
-}
 
-input:focus {
-  border-color: #512da8 !important;  
-}
+  /*tabs*/
 
-input:select {
-  border-color: #512da8 !important;  
-}
+  .tab-content {
+    margin-top: 20px;
+    max-height: 80vh;
+    overflow: auto;
+    overflow-x: hidden;
+  }
 
-.tab-pane div.row {
-  padding: 20px !important;
-}
+  input:focus {
+    border-color: #512da8 !important;
+  }
 
-.savebtn {
-  position: fixed;
-  top: 20px;
-  left: 50px;
-  background-color: #512da8;
-}
+  input:select {
+    border-color: #512da8 !important;
+  }
 
-li span {
-  color: black !important;
-}
+  .tab-pane div.row {
+    padding: 20px !important;
+  }
 
-img.materialboxed {
-  width: 100px;
-  height: 100px;
-  background-color: white;
-}
+  .savebtn {
+    position: fixed;
+    top: 20px;
+    left: 50px;
+    background-color: #512da8;
+  }
 
-.tab-pane h4 {
-  display: none;
-}
+  li span {
+    color: black !important;
+  }
 
-.miniimage {
-  display: block;
-  height: 80px;
-}
+  img.materialboxed {
+    width: 100px;
+    height: 100px;
+    background-color: white;
+  }
 
-.image-section {
-  overflow-y: scroll;
-  overflow-x: hidden;
-}
+  .tab-pane h4 {
+    display: none;
+  }
 
-::-webkit-scrollbar {
+  .miniimage {
+    display: block;
+    height: 80px;
+  }
+
+  .image-section {
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar {
     width: 0px;
-    background: transparent; 
-}
+    background: transparent;
+  }
 
-::-webkit-scrollbar-thumb {
+  ::-webkit-scrollbar-thumb {
     background: gray;
-}
+  }
 
 
-.input-field:not(.left-section) {
-  padding : 0px 50px 0px 50px !important;
-  margin-top: 20px !important;  
-}
+  .input-field:not(.left-section) {
+    padding: 0px 50px 0px 50px !important;
+    margin-top: 20px !important;
+  }
 
 
-input:not([type]),
-input[type=text],
-input[type=password],
-input[type=email],
-input[type=url],
-input[type=time],
-input[type=date],
-input[type=datetime],
-input[type=datetime-local],
-input[type=tel],
-input[type=number],
-input[type=search],
-textarea.materialize-textarea {
-  border: none !important;
-  border-bottom: 2px solid #f7f7f7 !important; 
-  padding-left: 10px !important;
-  font-family: 'AvenirNext' !important;
-  font-weight: 
-}
+  input:not([type]),
+  input[type=text],
+  input[type=password],
+  input[type=email],
+  input[type=url],
+  input[type=time],
+  input[type=date],
+  input[type=datetime],
+  input[type=datetime-local],
+  input[type=tel],
+  input[type=number],
+  input[type=search],
+  textarea.materialize-textarea {
+    border: none !important;
+    border-bottom: 2px solid #f7f7f7 !important;
+    padding-left: 10px !important;
+    font-family: 'AvenirNext' !important;
+    font-weight:
+  }
 
-input:not([type]):focus:not([readonly]),
-input[type=text]:focus:not([readonly]),
-input[type=password]:focus:not([readonly]),
-input[type=email]:focus:not([readonly]),
-input[type=url]:focus:not([readonly]),
-input[type=time]:focus:not([readonly]),
-input[type=date]:focus:not([readonly]),
-input[type=datetime]:focus:not([readonly]),
-input[type=datetime-local]:focus:not([readonly]),
-input[type=tel]:focus:not([readonly]),
-input[type=number]:focus:not([readonly]),
-input[type=search]:focus:not([readonly]),
-textarea.materialize-textarea:focus:not([readonly]) > label {
-  border-bottom: 1px solid #512ea8 !important;
-  box-shadow: 0 1px 0 0 #f00 !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
-}
+  input:not([type]):focus:not([readonly]),
+  input[type=text]:focus:not([readonly]),
+  input[type=password]:focus:not([readonly]),
+  input[type=email]:focus:not([readonly]),
+  input[type=url]:focus:not([readonly]),
+  input[type=time]:focus:not([readonly]),
+  input[type=date]:focus:not([readonly]),
+  input[type=datetime]:focus:not([readonly]),
+  input[type=datetime-local]:focus:not([readonly]),
+  input[type=tel]:focus:not([readonly]),
+  input[type=number]:focus:not([readonly]),
+  input[type=search]:focus:not([readonly]),
+  textarea.materialize-textarea:focus:not([readonly])>label {
+    border-bottom: 1px solid #512ea8 !important;
+    box-shadow: 0 1px 0 0 #f00 !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+  }
 
-label {
-  margin-left: 50px !important; 
-}
+  label {
+    margin-left: 50px !important;
+  }
 
-.input-field:not(.left-section) input:focus + label {
-  color: #512ea8 !important;
-}
+  .input-field:not(.left-section) input:focus+label {
+    color: #512ea8 !important;
+  }
 
-.row .input-field:not(.left-section) input:focus {
-  border-bottom: 1px solid #512ea8 !important;
-  box-shadow: 0 1px 0 0 #512ea8 !important
-}
+  .row .input-field:not(.left-section) input:focus {
+    border-bottom: 1px solid #512ea8 !important;
+    box-shadow: 0 1px 0 0 #512ea8 !important
+  }
 
-.left-section .select-wrapper ul {
-  position: relative;
-  top: -300px !important;
-}
+  .left-section .select-wrapper ul {
+    position: relative;
+    top: -300px !important;
+  }
 
-.material-placeholder {
-  width: 25vw;
-  height: 25vw;
-}
+  .material-placeholder {
+    width: 25vw;
+    height: 25vw;
+  }
 
-.preview-img{
-  height: 100% !important;
-  width:  100% !important;
-  object-fit: contain;
-}
+  .preview-img {
+    height: 100% !important;
+    width: 100% !important;
+    object-fit: contain;
+  }
 
-body {
-  z-index: 100; 
-}
-
+  body {
+    z-index: 100;
+  }
 </style>
 
 
@@ -263,7 +262,7 @@ body {
 
   .document-editor__toolbar {
     z-index: 1;
-    box-shadow: 0 0 5px hsla( 0,0%,0%,.2 );
+    box-shadow: 0 0 5px hsla(0, 0%, 0%, .2);
     border-bottom: 1px solid var(--ck-color-toolbar-border);
   }
 
@@ -274,7 +273,7 @@ body {
 
 
   .document-editor__editable-container {
-    padding: calc( 2 * var(--ck-spacing-large) );
+    padding: calc(2 * var(--ck-spacing-large));
     background: var(--ck-color-base-foreground);
     overflow-y: scroll;
   }
@@ -283,10 +282,10 @@ body {
     width: 15.8cm;
     min-height: 21cm;
     padding: 1cm 2cm 2cm;
-    border: 1px hsl( 0,0%,82.7% ) solid;
+    border: 1px hsl(0, 0%, 82.7%) solid;
     border-radius: var(--ck-border-radius);
     background: white;
-    box-shadow: 0 0 5px hsla( 0,0%,0%,.1 );
+    box-shadow: 0 0 5px hsla(0, 0%, 0%, .1);
     margin: 0 auto;
   }
 
@@ -296,7 +295,7 @@ body {
   }
 
   .document-editor .ck-heading-dropdown .ck-list .ck-button__label {
-    line-height: calc( 1.7 * var(--ck-line-height-base) * var(--ck-font-size-base) );
+    line-height: calc(1.7 * var(--ck-line-height-base) * var(--ck-font-size-base));
     min-width: 6em;
   }
 
@@ -321,7 +320,7 @@ body {
   .document-editor .ck-heading-dropdown .ck-heading_heading2 .ck-button__label {
     font-size: 1.75em;
     font-weight: normal;
-    color: hsl( 203, 100%, 50% );
+    color: hsl(203, 100%, 50%);
   }
 
   .document-editor .ck-heading-dropdown .ck-heading_heading2.ck-on .ck-button__label {
@@ -353,10 +352,8 @@ body {
     margin-bottom: 1.13em;
   }
 
-  .image-section-dropdown
-  .select-wrapper
-  input.select-dropdown {
-    border : none !important;
+  .image-section-dropdown .select-wrapper input.select-dropdown {
+    border: none !important;
     bottom: 2px !important;
     margin-bottom: 0px !important;
     font-size: 14px !important;
@@ -364,18 +361,17 @@ body {
 
   .document-editor .ck-content blockquote {
     font-family: Georgia, serif;
-    margin-left: calc( 2 * var(--ck-spacing-large) );
-    margin-right: calc( 2 * var(--ck-spacing-large) );
+    margin-left: calc(2 * var(--ck-spacing-large));
+    margin-right: calc(2 * var(--ck-spacing-large));
   }
 
   input.active {
-    border-bottom-color: #512da8!important;
+    border-bottom-color: #512da8 !important;
   }
 
-  .scroll-style-2 > li > a {
+  .scroll-style-2>li>a {
     padding: 0 17px !important;
   }
-
 </style>
 
 
@@ -383,10 +379,12 @@ body {
 <div>
   <div class="row" style="margin:0px;margin-left: 100px;">
     <div class="col s4 image-section" style="height: 90vh;">
-      <div class = "main-image" style="position: relative;">
-        <a id="download-image-btn" href="#!" class="right btn-floating btn-small white" style="position:absolute;right:5em;top:0em;z-index: 100;"><i class="material-icons" style="color: #521893;">file_download</i></a>
+      <div class="main-image" style="position: relative;">
+        <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
+          style="position:absolute;right:5em;top:0em;z-index: 100;"><i class="material-icons"
+            style="color: #521893;">file_download</i></a>
       </div>
-        
+
       <div class="row image-section-dropdown" style="margin-bottom: 0px;">
         <div class="input-field left-section col s7" style="
           width: 21vw;
@@ -396,8 +394,8 @@ body {
           font-size: 14px !important;
           margin-left: 10px;">
           <select id="images-category">
-            <option value="All Images" id="all-images-option" >All Images</option>
-            <option value="Main Images" id="main-images-option" >Main Images</option> 
+            <option value="All Images" id="all-images-option">All Images</option>
+            <option value="Main Images" id="main-images-option">Main Images</option>
             <option value="Sub Images" id="sub-images-option">Sub Images</option>
             <option value="PFL Images" id="pfl-images-option">PFL Images</option>
             <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images</option>
@@ -409,11 +407,12 @@ body {
             <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
             <option value="Ads Images" id="ads-images-option">Ads Images</option>
             <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
+            <option value="Transparent Images" id="transparent-images-option">Transparent Images</option>
           </select>
         </div>
 
         <div class="col s3">
-          <a href="#upload-image-modal" id="import-btn" class="modal-trigger">  
+          <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
             <i class="material-icons" title="Add Image" style="
               color: gray;
               background-color: white;
@@ -423,11 +422,11 @@ body {
             </i>
           </a>
         </div>
-      </div> 
+      </div>
 
       <div class="row" style="position: relative;bottom: 15px;right: 5px;">
         <div id="graphics-section" class="col s12" style="width: 94%;padding-top: 1.11em;">
-        
+
         </div>
       </div>
     </div>
@@ -435,51 +434,27 @@ body {
     <div class="col s8 center" style="position: relative; right: 30px;">
       <ul class="scroll-style-2 tabs">
         <li class="active tab"><a href="#vital">VITAL</a></li>
-        <li class="tab"><a id="information-tab" href="#information">INFORMATION</a></li>
         <li class="tab"><a href="#dimensions">DIMENSIONS</a></li>
         <li class="tab"><a href="#attributes">ATTRIBUTES</a></li>
-        <li class="tab"><a href="#variation">VARIATION</a></li>
-        <li class="tab"><a href="#offer">OFFER</a></li>
         <li class="tab"><a href="#pfl">PFL</a></li>
-        <li class="tab"><a href="#factoryNotes">FACTORY NOTES</a></li>
+
       </ul>
 
       <div class="scroll-style-1 tab-content">
         <div class="tab-pane active" id="vital">
-          <h4>VITAL</h4> 
+          <h4>VITAL</h4>
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s12" style="margin-top:40px !important;">
               <input id="product-name-sap" type="text">
-               <label for="product-name-sap">Product Title SAP</label>
-            </div>
-
-            <div class="input-field col s12">
-              <input id="product-name-amazon-uk" type="text">
-              <label for="product-name-amazon-uk">Product Title Amazon UK</label>
-            </div>
-
-            <div class="input-field col s12">
-              <input id="product-name-amazon-uae" type="text">
-              <label for="product-name-amazon-uae">Product Title Amazon UAE</label>
-            </div>
-
-            <div class="input-field col s12">
-              <input id="product-name-ebay" type="text">
-              <label for="product-name-ebay">Product Title Ebay</label>
-            </div>
-
-            <div class="input-field col s12">
-              <input id="product-name-noon" type="text">
-              <label for="product-name-noon">Product Title Noon</label>
+              <label for="product-name-sap">Product Title SAP</label>
             </div>
           </div>
-
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
               <input id="category" type="text">
               <label for="category">Category</label>
             </div>
-          
+
             <div class="input-field col s6">
               <input id="subtitle" type="text">
               <label for="subtitle">Subtitle</label>
@@ -488,19 +463,19 @@ body {
 
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <input id="brand-name" type="text" >
+              <input id="brand-name" type="text">
               <label for="brand-name">Brand Name</label>
             </div>
 
             <div class="input-field col s6">
-              <input id="manufacturer" type="text" >
+              <input id="manufacturer" type="text">
               <label for="manufacturer">Manufacturer</label>
             </div>
           </div>
 
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <input id="product-id" type="text" >
+              <input id="product-id" type="text">
               <label for="product-id">Product ID</label>
             </div>
 
@@ -508,10 +483,10 @@ body {
               <select id="product-id-type">
               </select>
               <label for="product-id-type">Product ID Type</label>
-            </div>    
+            </div>
           </div>
 
-          
+
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
               <input id="seller-sku" type="text">
@@ -519,250 +494,35 @@ body {
             </div>
 
             <div class="input-field col s6">
-              <input id="manufacturer-part-number" type="text" >
+              <input id="manufacturer-part-number" type="text">
               <label for="manufacturer-part-number">Manufacturer Part Number</label>
             </div>
           </div>
 
-
-
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <input id="feed-product-type" type="text">
-              <label for="feed-product-type">Feed Product Type</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="parent-sku" type="text" >
-              <label for="parent-sku">Parent SKU</label>
-            </div>
-          </div>
-
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s6">
-              <select id="update-delete">
-                <option value="Update" selected>Update</option>
-                <option value="Delete">Delete</option>
-              </select>
-              <label for="update-delete">Update Delete</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="recommended-browse-nodes" type="text" >
+              <input id="recommended-browse-nodes" type="text">
               <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
             </div>
-          </div>
-          
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
               <input id="barcode-string" type="text" data-length="20">
               <label for="barcode-string">Barcode</label>
             </div>
-
-            <div class="input-field col s6">
-              <input id="noon-product-type" type="text">
-              <label for="noon-product-type">Noon Product Type</label>
-            </div>
           </div>
 
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s6">
-              <input id="noon-product-subtype" type="text">
-              <label for="noon-product-subtype">Noon Product Subtype</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="noon-model-number" type="text">
-              <label for="noon-model-number">Noon Model Number</label>
-            </div>
-          </div>
-
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s6">
-              <input id="noon-model-name" type="text">
-              <label for="noon-model-name">Noon Model Name</label>
-            </div>
-          </div>
-
-
-        </div>
-
-
-        <div class="tab-pane" id="information">
-          <h4>Information</h4> 
-          <div class="row white" style="position: relative;padding-bottom:0em !important;margin-bottom: 0em;">
-            <span style="position: absolute;top: 20px;left: 30px;color: gray;">Product Description - HTML Editor</span>
-            <br>
-            <div class="col s12">
-              <ul class="tabs">
-                <li class="tab col s3"><a class="active" href="#amazon_uk_description_div">Amazon UK</a></li>
-                <li class="tab col s3"><a href="#amazon_uae_description_div">Amazon UAE</a></li>
-                <li class="tab col s3"><a href="#ebay_description_div">Ebay</a></li>
-                <li class="tab col s3"><a href="#noon_description_div">Noon</a></li>
-              </ul>
-            </div>
-        
-            <div id="amazon_uk_description_div">
-              <div class="input-field col s12" style="text-align: left;">
-                <div class="document-editor">
-                  <div class="document-editor__toolbar"></div>
-                  <div class="document-editor__editable-container">
-                    <div class="document-editor__editable">
-                    </div>
-                  </div>
-                </div>
-              </div>  
-
-              <div class="input-field col s9">
-                <input id="product-attribute-amazon-uk-1" type="text" >
-                <label for="product-attribute-amazon-uk-1">Product Attribute</label>
-              </div>
-
-              <div class="input-field col s1">
-                <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue" style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">add</i></a>
-              </div>
-
-              <div id="product-attributes-amazon-uk-div"> 
-              </div>  
-            </div>
-
-            <div id="amazon_uae_description_div">
-              <div class="input-field col s12" style="text-align: left;">
-                <div class="document-editor">
-                  <div class="document-editor__toolbar clone2_toolbar"></div>
-                  <div class="document-editor__editable-container clone2_container">
-                    <div class="document-editor__editable clone2_editable">
-                    </div>
-                  </div>
-                </div>
-              </div>  
-
-              <div class="input-field col s9">
-                <input id="product-attribute-amazon-uae-1" type="text" >
-                <label for="product-attribute-amazon-uae-1">Product Attribute</label>
-              </div>
-
-              <div class="input-field col s1">
-                <a id="add-product-attribute-amazon-uae-btn" href="#!" class="btn-floating blue" style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">add</i></a>
-              </div>
-
-              <div id="product-attributes-amazon-uae-div">
-              </div>
-            </div>
-
-            <div id="ebay_description_div">
-
-              <div class="input-field col s12" style="text-align: left;">
-                <div class="document-editor">
-                  <div class="document-editor__toolbar clone3_toolbar"></div>
-                  <div class="document-editor__editable-container clone3_container">
-                    <div class="document-editor__editable clone3_editable">
-                    </div>
-                  </div>
-                </div>
-              </div>  
-
-
-              <div class="input-field col s9">
-                <input id="product-attribute-ebay-1" type="text" >
-                <label for="product-attribute-ebay-1">Product Attribute</label>
-              </div>
-
-              <div class="input-field col s1">
-                <a id="add-product-attribute-ebay-btn" href="#!" class="btn-floating" style = "background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">add</i></a>
-              </div>
-
-              <div id="product-attributes-ebay-div">
-              </div>
-            </div>
-
-
-
-            <div id="noon_description_div">
-
-              <div class="input-field col s12" style="text-align: left;">
-                <div class="document-editor">
-                  <div class="document-editor__toolbar clone4_toolbar"></div>
-                  <div class="document-editor__editable-container clone4_container">
-                    <div class="document-editor__editable clone4_editable">
-                    </div>
-                  </div>
-                </div>
-              </div>  
-
-
-              <div class="input-field col s9">
-                <input id="product-attribute-noon-1" type="text" >
-                <label for="product-attribute-noon-1">Product Attribute</label>
-              </div>
-
-              <div class="input-field col s1">
-                <a id="add-product-attribute-noon-btn" href="#!" class="btn-floating" style = "background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">add</i></a>
-              </div>
-
-              <div id="product-attributes-noon-div">
-              </div>
-            </div>
-
-            <div class="input-field col s12">
-              <input id="search-terms" type="text" >
-              <label for="search-terms">Search Terms</label>
-            </div>    
-          </div>
-
-          <div class="row white" style="margin-top: 0em;margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-
-            <div class="input-field col s6">
-              <input id="color-map" type="text" >
-              <label for="color-map">Color Map</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="color" type="text" >
-              <label for="color">Color</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s6">
-              <input id="enclosure-material" type="text" >
-              <label for="enclosure-material">Enclosure Material</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="cover-material-type" type="text" >
-              <label for="cover-material-type">Cover Material Type</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s9">
-              <input id="special-feature-1" type="text" >
-              <label for="special-feature-1">Special Feature</label>
-            </div>
-
-            <div class="input-field col s1">
-              <a id="add-special-feature-btn" href="#!" class="btn-floating blue" style = "background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">add</i></a>
-            </div>
-
-            <div id="special-features-div">
-            </div>
-          </div>
         </div>
 
         <div class="tab-pane" id="dimensions">
-          <h4>Dimensions</h4> 
+          <h4>Dimensions</h4>
           <div class="row white" style="margin-bottom:0px !important;">
-            
+
             <div class="col s12">
               <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="package-length" type="number" >
+                  <input id="package-length" type="number">
                   <label for="package-length">Package Length</label>
                 </div>
-                
+
                 <div class="input-field  col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="package-length-metric">
                     <option selected value="">Unit</option>
@@ -775,7 +535,7 @@ body {
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="package-width" type="number" >
+                  <input id="package-width" type="number">
                   <label for="package-width">Package Width</label>
                 </div>
 
@@ -791,9 +551,10 @@ body {
                 </div>
               </div>
 
-              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+              <div class="row"
+                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="package-height" type="number" >
+                  <input id="package-height" type="number">
                   <label for="package-height">Package Height</label>
                 </div>
 
@@ -809,11 +570,11 @@ body {
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="package-weight" type="number" >
+                  <input id="package-weight" type="number">
                   <label for="package-weight">Package Weight</label>
                 </div>
 
-                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="package-weight-metric">
                     <option selected value="">Unit</option>
                     <option value="KG">KG</option>
@@ -825,12 +586,13 @@ body {
                 </div>
               </div>
 
-              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+              <div class="row"
+                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="shipping-weight" type="number" >
+                  <input id="shipping-weight" type="number">
                   <label for="shipping-weight">Shipping Weight</label>
                 </div>
-                
+
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="shipping-weight-metric">
                     <option selected value="">Unit</option>
@@ -844,11 +606,11 @@ body {
 
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-display-weight" type="number" >
+                  <input id="item-display-weight" type="number">
                   <label for="item-display-weight">Item Display Weight</label>
                 </div>
-                
-                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="item-display-weight-metric">
                     <option selected value="">Unit</option>
                     <option value="KG">KG</option>
@@ -860,12 +622,13 @@ body {
                 </div>
               </div>
 
-              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+              <div class="row"
+                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-display-volume" type="number" >
+                  <input id="item-display-volume" type="number">
                   <label for="item-display-volume">Item Display Volume</label>
                 </div>
-                
+
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="item-display-volume-metric">
                     <option selected value="">Unit</option>
@@ -877,11 +640,11 @@ body {
 
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-display-length" type="number" >
+                  <input id="item-display-length" type="number">
                   <label for="item-display-length">Item Display Length</label>
                 </div>
-                
-                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="item-display-length-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
@@ -893,12 +656,13 @@ body {
                 </div>
               </div>
 
-              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+              <div class="row"
+                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-weight" type="number" >
+                  <input id="item-weight" type="number">
                   <label for="item-weight">Item Weight</label>
                 </div>
-                
+
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="item-weight-metric">
                     <option selected value="">Unit</option>
@@ -911,11 +675,11 @@ body {
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-length" type="number" >
+                  <input id="item-length" type="number">
                   <label for="item-length">Item Length</label>
                 </div>
-                
-                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="item-length-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
@@ -927,9 +691,10 @@ body {
                 </div>
               </div>
 
-              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+              <div class="row"
+                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-width" type="number" >
+                  <input id="item-width" type="number">
                   <label for="item-width">Item Width</label>
                 </div>
 
@@ -945,11 +710,11 @@ body {
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-height" type="number" >
+                  <input id="item-height" type="number">
                   <label for="item-height">Item Height</label>
                 </div>
-        
-                <div class="input-field col s2 "  style="padding: 0px 40px 0px 10px !important;">
+
+                <div class="input-field col s2 " style="padding: 0px 40px 0px 10px !important;">
                   <select id="item-height-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
@@ -961,12 +726,13 @@ body {
                 </div>
               </div>
 
-              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+              <div class="row"
+                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-display-width" type="number" >
+                  <input id="item-display-width" type="number">
                   <label for="item-display-width">Item Display Width</label>
                 </div>
-                
+
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="item-display-width-metric">
                     <option selected value="">Unit</option>
@@ -979,11 +745,11 @@ body {
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-display-height" type="number" >
+                  <input id="item-display-height" type="number">
                   <label for="item-display-height">Item Display Height</label>
                 </div>
-                
-                <div class="input-field col s2"  style="padding: 0px 40px 0px 10px !important;">
+
+                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="item-display-height-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
@@ -997,12 +763,13 @@ body {
 
 
 
-              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
+              <div class="row"
+                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-count" type="number" >
+                  <input id="item-count" type="number">
                   <label for="item-count">Item Count</label>
                 </div>
-                
+
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="item-count-metric">
                     <option selected value="">Unit</option>
@@ -1014,6 +781,12 @@ body {
                     <option value="Packet">Packet</option>
                   </select>
                 </div>
+
+                <div class="input-field col s6" style="padding: 0px 20px 0px 40px  !important;">
+                  <input id="package-qty" type="number">
+                  <label for="package-qty">Package Quantity</label>
+                </div>
+
               </div>
 
             </div>
@@ -1022,34 +795,39 @@ body {
 
         <div class="tab-pane" id="attributes">
           <h4>Attributes</h4>
-          <div class="row white" style="position:absolute;margin-bottom:0px !important;">
-            
+          <div class="row white" style="margin-bottom:0px !important;">
             <div class="col s12">
-              <div class="row" style="padding-top:0em !important;margin-top:0em !important;margin-bottom:0px !important;padding-bottom: 0em !important;">
-                <div class="input-field col s12">
-                  <input id="item-condition-note" type="text" >
-                  <label for="item-condition-note">Item Condition Note</label>
-                </div>
-              </div>
-        
               <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
                 <div class="input-field col s6">
-                  <input id="max-order-quantity" type="text" >
+                  <input id="max-order-quantity" type="text">
                   <label for="max-order-quantity">Max Order Quantity</label>
                 </div>
 
                 <div class="input-field col s6">
-                  <input id="number-of-items" type="text" >
+                  <input id="number-of-items" type="text">
                   <label for="number-of-items">Number of Items</label>
                 </div>
               </div>
-      
+
+              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
+                <div class="input-field col s9">
+                  <input id="product-attribute" type="text">
+                  <label for="product-attribute">Product Attribute</label>
+                </div>
+
+                <div class="input-field col s1">
+                  <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
+                    style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                      class="material-icons">add</i></a>
+                </div>
+              </div>
+
               <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 50px  !important;">
-                   <input id="wattage" type="number" >
+                  <input id="wattage" type="number">
                   <label for="wattage">Wattage</label>
                 </div>
-              
+
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
                   <select id="wattage-metric">
                     <option selected value="">Unit</option>
@@ -1058,11 +836,13 @@ body {
                     <option value="Kilowatts">KW</option>
                   </select>
                 </div>
-
                 <div class="input-field col s6">
-                  <input id="material-type" type="text" >
-                  <label for="material-type">Material Type</label>
+                  <input id="color-map" type="text">
+                  <label for="color-map">Color Map</label>
                 </div>
+
+
+
               </div>
 
 
@@ -1074,114 +854,45 @@ body {
                   </select>
                   <label for="condition-type">Condition Type</label>
                 </div>
+                <div class="input-field col s6">
+                  <input id="color" type="text">
+                  <label for="color">Color</label>
+                </div>
+
+                <div class="input-field col s6">
+                  <input id="factory-notes" type="text">
+                  <label for="">Factory Notes</label>
+                </div>
               </div>
 
             </div>
-          </div>  
-        </div>
-
-        <div class="tab-pane" id="variation">
-          <h4>Variation</h4> 
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="parentage" type="text" >
-              <label for="parentage">Parentage</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="variation-theme" type="text" >
-              <label for="variation-theme">Variation Theme</label>
-            </div>
           </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="relationship-type" type="text" >
-              <label for="relationship-type">Relationship Type</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-pane" id="offer">
-          <h4>Offer</h4> 
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="standard-price" type="number" >
-              <label for="standard-price">Standard Price</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="sale-price" type="number" >
-              <label for="sale-price">Sale Price</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="sale-from" type="date" >
-              <label for="sale-from">Sale From</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="sale-end" type="date" >
-              <label for="sale-end">Sale End</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="noon-msrp-ae" type="number" >
-              <label for="noon-msrp-ae">Noon MSRP AE</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="noon-msrp-ae-unit" type="text" >
-              <label for="noon-msrp-ae-unit">Noon MSRP AE Unit</label>
-            </div>
-          </div>
-
-
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="quantity" type="number" >
-              <label for="quantity">Quantity</label>
-            </div>
-          </div>
-
         </div>
 
         <div class="tab-pane" id="pfl">
-          <h4>PFL</h4> 
+          <h4>PFL</h4>
           <div class="row white" style="margin-bottom:0px !important;">
             <div class="input-field col s12">
-              <input id="pfl-product-name" type="text" >
+              <input id="pfl-product-name" type="text">
               <label for="pfl-product-name">PFL Product Name</label>
             </div>
 
             <div id="feature-summary-editor-div" class="row">
               <div class="input-field col s9">
-                <input class="feature-text" id="pfl-feature-1" type="text" >
+                <input class="feature-text" id="pfl-feature-1" type="text">
                 <label for="pfl-feature-1">Feature</label>
               </div>
 
               <div class="input-field col s1">
-                <a id="add-feature-btn" href="#!" class="btn-floating blue" style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">add</i></a>
+                <a id="add-feature-btn" href="#!" class="btn-floating blue"
+                  style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                    class="material-icons">add</i></a>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="tab-pane" id="factoryNotes">
-          <h4>FACTORY NOTES</h4> 
-          <div class="row white" style="margin-bottom:0px !important;">
-            <div class="input-field col s12">
-              <input id="factory-notes" type="text" >
-              <label for="">Factory Notes</label>
-            </div>
 
-            
-          </div>
-        </div>
 
       </div>
     </div>
@@ -1193,7 +904,7 @@ body {
   <div class="modal-content">
     <h4 style="font-family:'AvenirNext';font-size:18px;">Upload Image</h4>
     <div class="file-field input-field">
-      <div class="btn" style = "background-color: #512da8">
+      <div class="btn" style="background-color: #512da8">
         <span style="font-size:14px;">File</span>
         <input id="product-image-input" type="file" multiple>
       </div>
@@ -1204,9 +915,11 @@ body {
   </div>
   <div class="modal-footer">
     <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
-    <a id="upload-image-btn" href="#!" class="waves-effect waves-green btn-flat blue white-text" style="background-color:#009051 !important ;">Upload</a>
-    <div class="progress" id = "upload-preloader" style = "display:none;margin: 0px !important;background-color: white !important;">
-      <div class="indeterminate" style = "background-color: #512de8;"></div>
+    <a id="upload-image-btn" href="#!" class="waves-effect waves-green btn-flat blue white-text"
+      style="background-color:#009051 !important ;">Upload</a>
+    <div class="progress" id="upload-preloader"
+      style="display:none;margin: 0px !important;background-color: white !important;">
+      <div class="indeterminate" style="background-color: #512de8;"></div>
     </div>
   </div>
 </div>
@@ -1224,8 +937,10 @@ body {
 
 
 
-<div class="toolbar" style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
-  <a class="right" href = "#!" onclick="window.close()" style="background-color: transparent;display: block;cursor: pointer;">
+<div class="toolbar"
+  style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
+  <a class="right" href="#!" onclick="window.close()"
+    style="background-color: transparent;display: block;cursor: pointer;">
     <i class="material-icons redd" title="Close" style="
       background-color: #f7f7f7;
       padding: 8px;
@@ -1237,11 +952,11 @@ body {
       display: block;
       margin-bottom: 10px;">
       close
-    </i> 
+    </i>
   </a>
   </br>
 
-  <a class="right" href = "/products" style="background-color: transparent;display: block;cursor: pointer;">
+  <a class="right" href="/products" style="background-color: transparent;display: block;cursor: pointer;">
     <i class="material-icons homee" title="Products" style="
       background-color: #f7f7f7;
       padding: 8px;
@@ -1253,11 +968,11 @@ body {
       display: block;
       margin-bottom: 10px;">
       select_all
-    </i> 
-  </a> 
+    </i>
+  </a>
 
   <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-    <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">    
+    <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
       <i class="material-icons maroonn" title="PFL Editor" style="
         color: gray;
         background-color: #f7f7f7;
@@ -1268,8 +983,8 @@ body {
         margin-right: 9px;
         display: block;margin-bottom: 10px;">
         vertical_split
-      </i> 
-    </a> 
+      </i>
+    </a>
 
     <a href="#!" class=" right" style="background-color: transparent;display: block;">
       <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
@@ -1284,7 +999,7 @@ body {
         margin-bottom: 10px;">
         timer
       </i>
-    </a> 
+    </a>
 
     <a href="#!" class=" right" style="background-color: transparent;display: block;">
       <i id="verified-icon" class="material-icons greenn" title="Verified" style="
@@ -1299,7 +1014,7 @@ body {
         margin-bottom: 10px;">
         verified_user
       </i>
-    </a> 
+    </a>
 
     <a href="#!" id="main-image-select-save-btn" class="right" style="background-color: transparent;display: block;">
       <i class="material-icons bluee" title="Set Cover Image" style="
@@ -1328,12 +1043,12 @@ body {
         display: block;
         margin-bottom: 10px;">
         file_download
-      </i> 
+      </i>
     </a>
 
     {% if perms.WAMSApp.change_product %}
-      <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
-        <i class="material-icons purplee" title="Save" style="
+    <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
+      <i class="material-icons purplee" title="Save" style="
           background-color: #f7f7f7;
           padding: 8px;
           color: gray;
@@ -1343,11 +1058,11 @@ body {
           margin-right: 9px;
           display: block;
           margin-bottom: 10px;">
-          save
-        </i> 
-      </a>
+        save
+      </i>
+    </a>
     {% endif %}
-  </div>   
+  </div>
 </div>
 
 
@@ -1359,9 +1074,9 @@ body {
       <div class="input-field col s6" style="padding-left: 0em !important;">
         <select id="export-format">
           <option value="Amazon UK" selected>Amazon UK</option>
-          <option value="Amazon UAE" >Amazon UAE</option>
-          <option value="Ebay" >Ebay</option>
-          <option value="Noon" >Noon</option>
+          <option value="Amazon UAE">Amazon UAE</option>
+          <option value="Ebay">Ebay</option>
+          <option value="Noon">Noon</option>
           <!-- <option value="Ebay" style="font-family: 'AvenirNextRegular';">Ebay</option>   -->
         </select>
         <label style="margin-left: 0em !important;">Export Format</label>
@@ -1373,33 +1088,40 @@ body {
   </div>
   <div class="modal-footer" style="margin-bottom: 15px">
     <a href="#!" class="modal-close waves-effect btn-flat" style="margin-right: 20px;">Close</a>
-    <a id="download-product-btn" href="#!" class="waves-effect btn-flat white-text" style="margin-right: 20px;background-color: #521893 !important;">Download</a>
+    <a id="download-product-btn" href="#!" class="waves-effect btn-flat white-text"
+      style="margin-right: 20px;background-color: #521893 !important;">Download</a>
   </div>
 </div>
- 
 
-<div id="pfl-div" class="row white" style="text-align: center;margin-left: auto;display:none;height: 297mm;width: 210mm;">
+
+<div id="pfl-div" class="row white"
+  style="text-align: center;margin-left: auto;display:none;height: 297mm;width: 210mm;">
   <!-- Brand Image Preview -->
   <div id="brand-image" class="col s6 right">
     <br>
     <img id="brand-image-img" src="" style="width: 73.5mm;margin-left:-27mm;display: none;position: absolute;">
   </div>
-  
+
   <!-- Product Image Preview -->
   <div class="col s12" style="text-align: center; position: absolute;width: 210mm;margin-top: 40mm;">
-    <img id="pfl-product-image-preview-img" style="max-width: 90%;max-height: 130mm;object-fit: scale-down;display: none;background-size: 100% 100%;">
+    <img id="pfl-product-image-preview-img"
+      style="max-width: 90%;max-height: 130mm;object-fit: scale-down;display: none;background-size: 100% 100%;">
     <br>
   </div>
 
   <!-- Product Name Preview -->
-  <div class="col s12" style="background-color:#521893;text-align: center;width: 210mm;padding-bottom: 1em;position: absolute;margin-top: 190mm;width:210mm;height: 20mm;">
-    <div id="product-name-preview" class="white-text left" style="padding-left: 1em;text-transform: uppercase;margin-top: 6.4mm;font-size: 1.7em;font-family:'AvenirNextRegular';">
+  <div class="col s12"
+    style="background-color:#521893;text-align: center;width: 210mm;padding-bottom: 1em;position: absolute;margin-top: 190mm;width:210mm;height: 20mm;">
+    <div id="product-name-preview" class="white-text left"
+      style="padding-left: 1em;text-transform: uppercase;margin-top: 6.4mm;font-size: 1.7em;font-family:'AvenirNextRegular';">
     </div>
   </div>
 
   <!-- Seller SKU Preview -->
-  <div class="col s12" style="background-color:white;position: absolute;margin-top: 192.5mm;width:45mm;height: 15mm;margin-left: 156mm;text-align: center;">
-    <span id="seller-sku-preview" style="font-size: 1.4em;font-family:'AvenirNextRegular'; line-height: 16mm;color:#521893;"></span>
+  <div class="col s12"
+    style="background-color:white;position: absolute;margin-top: 192.5mm;width:45mm;height: 15mm;margin-left: 156mm;text-align: center;">
+    <span id="seller-sku-preview"
+      style="font-size: 1.4em;font-family:'AvenirNextRegular'; line-height: 16mm;color:#521893;"></span>
   </div>
 
   <!-- Features Preview -->
@@ -1417,11 +1139,12 @@ body {
     <br><br>
     <img id="barcode-image-preview-img" src="" style="display:none;width: 100%;">
   </div>
-  
+
   <!-- Footer -->
   <div class="col s12" style="background-color:#521893;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
     <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
-      <p class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.royalford.com</p>
+      <p class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more
+        information, please visit www.royalford.com</p>
     </div>
   </div>
 
@@ -1440,19 +1163,19 @@ body {
 
   var global_verification_status = false;
   var global_delete_image_pk = null;
-  
+
   //Page reload prevent logic
   let savecounter = false;
-  $('#save-btn').click(()=>{
+  $('#save-btn').click(() => {
     savecounter = false;
   })
 
-  $('input').click(function(){
+  $('input').click(function () {
     savecounter = true;
   })
 
-  function preventDefault(){
-    if(savecounter) {
+  function preventDefault() {
+    if (savecounter) {
       alert('Please save the details before refreshing!');
     }
     else {
@@ -1460,40 +1183,40 @@ body {
     }
   }
 
-  $('#close-btn').click(function(){
+  $('#close-btn').click(function () {
     preventDefault();
   })
 
 
-  $("#download-product-btn").click(function(){
+  $("#download-product-btn").click(function () {
 
     var export_format = $("#export-format").val();
 
     $.ajax({
       url: "/download-product/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       data: {
         product_pk: window.location.pathname.split("/")[2],
         export_format: export_format
       },
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
         $("#download-export-list-modal").modal("close");
         var file_path = response["file_path"]
         window.open(file_path);
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
 
   });
 
   window.addEventListener('beforeunload', function (e) {
-    if(savecounter){
+    if (savecounter) {
       e.preventDefault();
       e.returnValue = '';
     }
@@ -1501,73 +1224,66 @@ body {
       window.close();
   });
 
-  $("#pending-icon").click(function(){
-    if(global_verification_status) {
+  $("#pending-icon").click(function () {
+    if (global_verification_status) {
       call_verify_api(0);
     }
   });
 
-  $("#verified-icon").click(function(){
-    if(!global_verification_status)
-    {
+  $("#verified-icon").click(function () {
+    if (!global_verification_status) {
       call_verify_api(1);
     }
   });
 
-  function call_verify_api(verify)
-  {
+  function call_verify_api(verify) {
     var fd = new FormData()
     fd.append("product_pk", window.location.pathname.split("/")[2]);
     fd.append("verify", verify);
-    
+
     $.ajax({
       url: "/verify-product/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       processData: false,
       contentType: false,
       data: fd,
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
-        if(response["status"]==200)
-        {
-          if(verify==1)
-          {
+        if (response["status"] == 200) {
+          if (verify == 1) {
             set_verify(true);
             global_verification_status = true;
-            M.toast({html: "Product status changed to verified"});
+            M.toast({ html: "Product status changed to verified" });
           }
-          else
-          {
+          else {
             set_verify(false);
             global_verification_status = false;
-            M.toast({html: "Product status changed to pending"});
+            M.toast({ html: "Product status changed to pending" });
           }
         }
-        else if(response["status"]==403)
-        {
-          M.toast({html:"You do not have access to update the status!"});
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have access to update the status!" });
         }
-        else
-        {
-          M.toast({html:"Error updating the status!"}); 
+        else {
+          M.toast({ html: "Error updating the status!" });
         }
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   }
 
-  $(document).ready(function(){
+  $(document).ready(function () {
     $('.tabs').tabs();
   });
-        
+
   $('#barcode-string').characterCounter();
 
-  $("#download-image-btn").click(function(){
+  $("#download-image-btn").click(function () {
 
     $("#download-image-btn").attr("disabled", "disabled");
     var high_def_url = $($(".preview-img")[0]).attr("high_def_url");
@@ -1580,40 +1296,39 @@ body {
     $.ajax({
       url: "/download-images-s3/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
-      data: { 
-        links : JSON.stringify(image_links)
+      data: {
+        links: JSON.stringify(image_links)
       },
-      success: function(response) {
+      success: function (response) {
         console.log("Success! ", response);
         $("#download-image-btn").removeAttr("disabled");
-        if(response["status"]==200)
-        {
+        if (response["status"] == 200) {
           var local_link = response["local_links"][0]["url"];
 
           var a = document.createElement('a');
           a.href = local_link;
-          var filename = high_def_url.split("/")[high_def_url.split("/").length-1];
+          var filename = high_def_url.split("/")[high_def_url.split("/").length - 1];
           a.download = filename;
           a.click();
         }
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
         $("#download-image-btn").removeAttr("disabled");
       }
     });
   });
-  
+
   var pfl_feature_cnt = 2;
-  
-  $("#add-feature-btn").click(function(){
+
+  $("#add-feature-btn").click(function () {
     var html_string = `<div class="feature-div">
                          <div class="input-field col s9">
-                           <input class="feature-text" id="pfl-feature-`+pfl_feature_cnt+`" type="text" >
-                           <label for="pfl-feature-`+pfl_feature_cnt+`">Feature</label>
+                           <input class="feature-text" id="pfl-feature-`+ pfl_feature_cnt + `" type="text" >
+                           <label for="pfl-feature-`+ pfl_feature_cnt + `">Feature</label>
                          </div>
 
                         <div class="input-field col s1">
@@ -1625,7 +1340,7 @@ body {
   });
 
 
-  $(document).on('click', ".delete-feature-btn", function(){
+  $(document).on('click', ".delete-feature-btn", function () {
     $(this).parent().parent().remove();
   });
 
@@ -1636,71 +1351,71 @@ body {
   window.editor = []
 
   DecoupledEditor
-  .create( document.querySelector( '.document-editor__editable' ), {
+    .create(document.querySelector('.document-editor__editable'), {
       cloudServices: {
       }
-  } )
-  .then( editor => {
-      const toolbarContainer = document.querySelector( '.document-editor__toolbar' );
+    })
+    .then(editor => {
+      const toolbarContainer = document.querySelector('.document-editor__toolbar');
 
-      toolbarContainer.appendChild( editor.ui.view.toolbar.element );
+      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
       //editor.isReadOnly = !response['edit_access'];
       window.editor.push(editor);
-  } )
-  .catch( err => {
-      console.error( err );
-  } );
+    })
+    .catch(err => {
+      console.error(err);
+    });
 
-   DecoupledEditor
-  .create( document.querySelector( '.clone2_editable' ), {
+  DecoupledEditor
+    .create(document.querySelector('.clone2_editable'), {
       cloudServices: {
       }
-  } )
-  .then( editor => {
-      const toolbarContainer = document.querySelector( '.clone2_toolbar' );
+    })
+    .then(editor => {
+      const toolbarContainer = document.querySelector('.clone2_toolbar');
 
-      toolbarContainer.appendChild( editor.ui.view.toolbar.element );
+      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
       //editor.isReadOnly = !response['edit_access'];
       window.editor.push(editor);
-  } )
-  .catch( err => {
-      console.error( err );
-  } );
+    })
+    .catch(err => {
+      console.error(err);
+    });
 
-   DecoupledEditor
-  .create( document.querySelector( '.clone3_editable' ), {
+  DecoupledEditor
+    .create(document.querySelector('.clone3_editable'), {
       cloudServices: {
       }
-  } )
-  .then( editor => {
-      const toolbarContainer = document.querySelector( '.clone3_toolbar' );
+    })
+    .then(editor => {
+      const toolbarContainer = document.querySelector('.clone3_toolbar');
 
-      toolbarContainer.appendChild( editor.ui.view.toolbar.element );
+      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
       //editor.isReadOnly = !response['edit_access'];
       window.editor.push(editor);
-  } )
-  .catch( err => {
-      console.error( err );
-  } );
+    })
+    .catch(err => {
+      console.error(err);
+    });
 
 
 
 
   DecoupledEditor
-  .create( document.querySelector( '.clone4_editable' ), {
+    .create(document.querySelector('.clone4_editable'), {
       cloudServices: {
       }
-  } )
-  .then( editor => {
-      const toolbarContainer = document.querySelector( '.clone4_toolbar' );
+    })
+    .then(editor => {
+      const toolbarContainer = document.querySelector('.clone4_toolbar');
 
-      toolbarContainer.appendChild( editor.ui.view.toolbar.element );
+      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
       //editor.isReadOnly = !response['edit_access'];
       window.editor.push(editor);
-  } )
-  .catch( err => {
-      console.error( err );
-  } );
+    })
+    .catch(err => {
+      console.error(err);
+    });
 
 
 
@@ -1712,22 +1427,20 @@ body {
   var global_images = {};
   var global_image_key = "all_images";
 
-  function fetch_constant_values()
-  {
+  function fetch_constant_values() {
     $.ajax({
       url: "/fetch-constant-values/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       data: {},
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
-        if(response["status"]==200)
-        {
+        if (response["status"] == 200) {
           var autocomplete_data = {}
           var material_list = response["material_list"];
-          for(var i=0;i<material_list.length;i++) {
+          for (var i = 0; i < material_list.length; i++) {
             autocomplete_data[material_list[i]["name"]] = null;
           }
           $('#material-type').autocomplete({
@@ -1736,14 +1449,14 @@ body {
 
           autocomplete_data = {};
           var ebay_category_list = response["ebay_category_list"];
-          for(var i=0;i<ebay_category_list.length;i++) {
-            autocomplete_data[ebay_category_list[i]["name"]+"|"+ebay_category_list[i]["category_id"]] = null;
+          for (var i = 0; i < ebay_category_list.length; i++) {
+            autocomplete_data[ebay_category_list[i]["name"] + "|" + ebay_category_list[i]["category_id"]] = null;
           }
           $('#category').autocomplete({
             data: autocomplete_data,
-            onAutocomplete: function(val){
+            onAutocomplete: function (val) {
               var category_id = val.split("|")
-              category_id = category_id[category_id.length-1];
+              category_id = category_id[category_id.length - 1];
               $("#category").val(category_id);
             }
           });
@@ -1751,7 +1464,7 @@ body {
 
           autocomplete_data = {};
           var brand_list = response["brand_list"];
-          for(var i=0;i<brand_list.length;i++) {
+          for (var i = 0; i < brand_list.length; i++) {
             autocomplete_data[brand_list[i]["name"]] = null;
           }
           $('#brand-name').autocomplete({
@@ -1761,9 +1474,8 @@ body {
 
           var product_id_type_list = response["product_id_type_list"];
           var html_string = `<option value="" selected>Choose Product ID Type</option>`;
-          for(var i=0;i<product_id_type_list.length;i++)
-          {
-            html_string += `<option value="`+product_id_type_list[i]["name"]+`">`+product_id_type_list[i]["name"]+`</option>`
+          for (var i = 0; i < product_id_type_list.length; i++) {
+            html_string += `<option value="` + product_id_type_list[i]["name"] + `">` + product_id_type_list[i]["name"] + `</option>`
           }
 
 
@@ -1771,15 +1483,14 @@ body {
 
           $("#product-id-type").html(html_string);
           $('select').formSelect();
-        } 
-        else
-        {
+        }
+        else {
           //M.toast({html:"Duplicate product detected!"});
         }
         //$("#save-btn").removeAttr("disabled");
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   }
@@ -1787,24 +1498,22 @@ body {
   fetch_constant_values();
 
 
-  function fetch_product_images_details() 
-  {
+  function fetch_product_images_details() {
     $.ajax({
       url: "/fetch-product-details/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       data: {
         pk: window.location.pathname.split("/")[2]
       },
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
 
-        if(response["status"]==200)
-        {
+        if (response["status"] == 200) {
           $('.material-placeholder').remove();
-          $('.main-image').append(`<img class = "preview-img materialboxed" src='`+response["repr_image_url"]+`' high_def_url="`+response["repr_high_def_url"]+`">`)
+          $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
           $('.materialboxed').materialbox();
 
           global_images = response["images"];
@@ -1822,33 +1531,32 @@ body {
           $("#aplus-content-images-option").html("A+ Content Images ("+global_images["aplus_content_images"].length+")");
           $("#ads-images-option").html("Ads Images ("+global_images["ads_images"].length+")");
           $("#unedited-images-option").html("Unedited Images ("+global_images["unedited_images"].length+")");
+          $("#transparent-images-option").html("Transparent Images ("+global_images["transparent_images"].length+")");
           
           update_grid_images(global_image_key);
 
-          $('#brand-image-img').attr("src" , response["brand_logo"]);
-          if(global_images["main_images"].length>0)
-          {
-            $('#pfl-product-image-preview-img').attr("src" , global_images["main_images"][0]["main-url"]);
-          }  
-          $('#barcode-image-preview-img').attr("src" , response["barcode_image_url"]);
+          $('#brand-image-img').attr("src", response["brand_logo"]);
+          if (global_images["main_images"].length > 0) {
+            $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
+          }
+          $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
 
           M.updateTextFields();
           $('select').formSelect();
         }
-        else
-        {
-          M.toast({html: "Error fetching images information"});
+        else {
+          M.toast({ html: "Error fetching images information" });
         }
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   }
 
 
-  $("#upload-image-btn").click(function(){
-    
+  $("#upload-image-btn").click(function () {
+
     $("#upload-image-btn").attr("disabled", "disabled");
     $("#upload-preloader").show();
 
@@ -1858,107 +1566,95 @@ body {
 
     fd.append("product_pk", product_pk);
     var product_image_input = document.getElementById("product-image-input");
-    
+
     fd.append('image_count', product_image_input.files.length);
-    for(var i=0;i<product_image_input.files.length;i++)
-    {
-      fd.append('image_'+i, product_image_input.files[i]);
-    }   
-  
-  
+    for (var i = 0; i < product_image_input.files.length; i++) {
+      fd.append('image_' + i, product_image_input.files[i]);
+    }
+
+
     fd.append('image_category', global_image_key);
     fd.append('channel',"");
 
     $.ajax({
       url: "/upload-product-image/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       processData: false,
       contentType: false,
       data: fd,
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
         $("#upload-preloader").hide();
         $("#upload-image-btn").removeAttr("disabled");
 
-        if(response["status"]==200)
-        {
+        if (response["status"] == 200) {
           $("#upload-image-modal").modal("close");
-          M.toast({html: "Successfully uploaded images!"});
+          M.toast({ html: "Successfully uploaded images!" });
           fetch_product_images_details();
         }
-        else if(response["status"]==403)
-        {
-          M.toast({html: "You do not have permission to upload images!"});
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to upload images!" });
         }
-        else
-        {
-          M.toast({html: "Error uploading images!"});
+        else {
+          M.toast({ html: "Error uploading images!" });
         }
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
         $("#upload-preloader").hide();
       }
     });
   })
 
-  function set_verify(verified)
-  {
-    if(verified==true)
-    {
+  function set_verify(verified) {
+    if (verified == true) {
       $("#pending-icon").css("background-color", "#f7f7f7");
       $("#pending-icon").css("color", "gray");
       $("#verified-icon").css("background-color", "#009051");
-      $("#verified-icon").css("color", "white"); 
+      $("#verified-icon").css("color", "white");
     }
-    else
-    {
+    else {
       $("#verified-icon").css("background-color", "#f7f7f7");
-      $("#verified-icon").css("color", "gray"); 
+      $("#verified-icon").css("color", "gray");
       $("#pending-icon").css("background-color", "orange");
       $("#pending-icon").css("color", "white");
     }
   }
 
-  function fetch_product_details()
-  {
+  function fetch_product_details() {
     $.ajax({
       url: "/fetch-product-details/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       data: {
         pk: window.location.pathname.split("/")[2]
       },
-      success: function(response) {
-        console.log("Hey Success!", response);
+      success: function (response) {
+        console.log("Success!", response);
 
         global_verification_status = response["verified"];
 
-        if(response["verified"]==true)
-        {
+        if (response["verified"] == true) {
           set_verify(true);
         }
-        else
-        {
+        else {
           set_verify(false);
         }
 
         $("#pfl-product-name").val(response["pfl_product_name"])
         var pfl_product_features = response["pfl_product_features"]
         $('.material-placeholder').remove();
-        $('.main-image').append(`<img class = "preview-img materialboxed" src='`+response["repr_image_url"]+`' high_def_url="`+response["repr_high_def_url"]+`">`)
+        $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
         $('.materialboxed').materialbox();
 
-        for(var i = 0;i<pfl_product_features.length;i++)
-        {
-          $("#pfl-feature-"+(i+1)).val(pfl_product_features[i]);
-          if((i+1)!=pfl_product_features.length)
-          {
+        for (var i = 0; i < pfl_product_features.length; i++) {
+          $("#pfl-feature-" + (i + 1)).val(pfl_product_features[i]);
+          if ((i + 1) != pfl_product_features.length) {
             $("#add-feature-btn").click();
           }
         }
@@ -1983,11 +1679,11 @@ body {
         $("#noon-model-number").val(response["noon_model_number"]);
 
         $("#condition-type").val(response["condition_type"]);
-        $("#feed-product-type").val(response["feed_product_type"]);  
+        $("#feed-product-type").val(response["feed_product_type"]);
         $("#update-delete").val(response["update_delete"]);
         $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
 
-          
+
         window.editor[0].setData(response["product_description_amazon_uk"]);
         window.editor[1].setData(response["product_description_amazon_uae"]);
         window.editor[2].setData(response["product_description_ebay"]);
@@ -1995,49 +1691,41 @@ body {
 
 
         var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];
-        if(product_attribute_list_amazon_uk.length>0)
-        {
+        if (product_attribute_list_amazon_uk.length > 0) {
           $("#product-attribute-amazon-uk-1").val(product_attribute_list_amazon_uk[0]);
         }
-        for(var i=1;i<product_attribute_list_amazon_uk.length;i++)
-        {
-          $("#add-product-attribute-amazon-uk-btn").click();  
-          $("#product-attribute-amazon-uk-"+(i+1)).val(product_attribute_list_amazon_uk[i]);
+        for (var i = 1; i < product_attribute_list_amazon_uk.length; i++) {
+          $("#add-product-attribute-amazon-uk-btn").click();
+          $("#product-attribute-amazon-uk-" + (i + 1)).val(product_attribute_list_amazon_uk[i]);
         }
 
         var product_attribute_list_amazon_uae = response["product_attribute_list_amazon_uae"];
-        if(product_attribute_list_amazon_uae.length>0)
-        {
+        if (product_attribute_list_amazon_uae.length > 0) {
           $("#product-attribute-amazon-uae-1").val(product_attribute_list_amazon_uae[0]);
         }
-        for(var i=1;i<product_attribute_list_amazon_uae.length;i++)
-        {
-          $("#add-product-attribute-amazon-uae-btn").click();  
-          $("#product-attribute-amazon-uae-"+(i+1)).val(product_attribute_list_amazon_uae[i]);
+        for (var i = 1; i < product_attribute_list_amazon_uae.length; i++) {
+          $("#add-product-attribute-amazon-uae-btn").click();
+          $("#product-attribute-amazon-uae-" + (i + 1)).val(product_attribute_list_amazon_uae[i]);
         }
 
         var product_attribute_list_ebay = response["product_attribute_list_ebay"];
-        if(product_attribute_list_ebay.length>0)
-        {
+        if (product_attribute_list_ebay.length > 0) {
           $("#product-attribute-ebay-1").val(product_attribute_list_ebay[0]);
         }
-        for(var i=1;i<product_attribute_list_ebay.length;i++)
-        {
-          $("#add-product-attribute-ebay-btn").click();  
-          $("#product-attribute-ebay-"+(i+1)).val(product_attribute_list_ebay[i]);
+        for (var i = 1; i < product_attribute_list_ebay.length; i++) {
+          $("#add-product-attribute-ebay-btn").click();
+          $("#product-attribute-ebay-" + (i + 1)).val(product_attribute_list_ebay[i]);
         }
 
         var product_attribute_list_noon = response["product_attribute_list_noon"];
-        if(product_attribute_list_noon.length>0)
-        {
+        if (product_attribute_list_noon.length > 0) {
           $("#product-attribute-noon-1").val(product_attribute_list_noon[0]);
         }
-        for(var i=1;i<product_attribute_list_noon.length;i++)
-        {
-          $("#add-product-attribute-noon-btn").click();  
-          $("#product-attribute-noon-"+(i+1)).val(product_attribute_list_noon[i]);
+        for (var i = 1; i < product_attribute_list_noon.length; i++) {
+          $("#add-product-attribute-noon-btn").click();
+          $("#product-attribute-noon-" + (i + 1)).val(product_attribute_list_noon[i]);
         }
-          
+
         $("#search-terms").val(response["search_terms"]);
         $("#color-map").val(response["color_map"]);
         $("#color").val(response["color"]);
@@ -2045,14 +1733,12 @@ body {
         $("#cover-material-type").val(response["cover_material_type"]);
 
         var special_features = response["special_features"];
-        if(special_features.length>0)
-        {
+        if (special_features.length > 0) {
           $("#special-feature-1").val(special_features[0]);
         }
-        for(var i=1;i<special_features.length;i++)
-        {
-          $("#add-special-feature-btn").click();  
-          $("#special-feature-"+(i+1)).val(special_features[i]);
+        for (var i = 1; i < special_features.length; i++) {
+          $("#add-special-feature-btn").click();
+          $("#special-feature-" + (i + 1)).val(special_features[i]);
         }
 
         $("#special-feature").val(response["special_features"]);
@@ -2089,7 +1775,7 @@ body {
         $("#item-condition-note").val(response["item_condition_note"]);
         $("#max-order-quantity").val(response["max_order_quantity"]);
         $("#number-of-items").val(response["number_of_items"]);
-        $("#wattage").val(response["wattage"]); 
+        $("#wattage").val(response["wattage"]);
         $("#wattage-metric").val(response["wattage_metric"]);
         $("#material-type").val(response["material_type"]);
         $("#parentage").val(response["parentage"]);
@@ -2123,23 +1809,24 @@ body {
         $("#aplus-content-images-option").html("A+ Content Images ("+global_images["aplus_content_images"].length+")");
         $("#ads-images-option").html("Ads Images ("+global_images["ads_images"].length+")");
         $("#unedited-images-option").html("Unedited Images ("+global_images["unedited_images"].length+")");
+        $("#transparent-images-option").html("Transparent Images ("+global_images["transparent_images"].length+")");
         
+
         update_grid_images(global_image_key);
 
         $('#brand-image-img').attr("src", response["brand_logo"]);
-        if(global_images["main_images"].length>0)
-        {
-          $('#pfl-product-image-preview-img').attr("src" , global_images["main_images"][0]["main-url"]);
-        }  
-        $('#barcode-image-preview-img').attr("src" , response["barcode_image_url"]);
+        if (global_images["main_images"].length > 0) {
+          $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
+        }
+        $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
 
-        $("#pfl-editor-link").attr("href", "/pfl/"+response["pfl_pk"]);
+        $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
 
         M.updateTextFields();
         $('select').formSelect();
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   }
@@ -2147,13 +1834,13 @@ body {
   fetch_product_details();
 
   var product_attribute_amazon_uk_cnt = 1;
-  $("#add-product-attribute-amazon-uk-btn").click(function(){
+  $("#add-product-attribute-amazon-uk-btn").click(function () {
     product_attribute_amazon_uk_cnt++;
-    
+
     var html_string = `<div>
                          <div class="input-field col s9">
-                           <input id="product-attribute-amazon-uk-`+product_attribute_amazon_uk_cnt+`" type="text" >
-                           <label for="product-attribute-amazon-uk-`+product_attribute_amazon_uk_cnt+`">Product Attribute</label>
+                           <input id="product-attribute-amazon-uk-`+ product_attribute_amazon_uk_cnt + `" type="text" >
+                           <label for="product-attribute-amazon-uk-`+ product_attribute_amazon_uk_cnt + `">Product Attribute</label>
                          </div>
                          <div class="input-field col s1">
                            <a href="#!" class="remove-product-attribute-amazon-uk-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
@@ -2162,19 +1849,19 @@ body {
     $("#product-attributes-amazon-uk-div").append(html_string);
   });
 
-  $(document).on("click", ".remove-product-attribute-amazon-uk-btn", function(){
+  $(document).on("click", ".remove-product-attribute-amazon-uk-btn", function () {
     $(this).parent().parent().remove();
   });
 
 
   var product_attribute_amazon_uae_cnt = 1;
-  $("#add-product-attribute-amazon-uae-btn").click(function(){
+  $("#add-product-attribute-amazon-uae-btn").click(function () {
     product_attribute_amazon_uae_cnt++;
 
     var html_string = `<div>
                          <div class="input-field col s9">
-                           <input id="product-attribute-amazon-uae-`+product_attribute_amazon_uae_cnt+`" type="text" >
-                           <label for="product-attribute-amazon-uae-`+product_attribute_amazon_uae_cnt+`">Product Attribute</label>
+                           <input id="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `" type="text" >
+                           <label for="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `">Product Attribute</label>
                          </div>
                          <div class="input-field col s1">
                            <a href="#!" class="remove-product-attribute-amazon-uae-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
@@ -2183,19 +1870,19 @@ body {
     $("#product-attributes-amazon-uae-div").append(html_string);
   });
 
-  $(document).on("click", ".remove-product-attribute-amazon-uae-btn", function(){
+  $(document).on("click", ".remove-product-attribute-amazon-uae-btn", function () {
     $(this).parent().parent().remove();
   });
 
 
   var product_attribute_ebay_cnt = 1;
-  $("#add-product-attribute-ebay-btn").click(function(){
+  $("#add-product-attribute-ebay-btn").click(function () {
     product_attribute_ebay_cnt++;
 
     var html_string = `<div>
                          <div class="input-field col s9">
-                           <input id="product-attribute-ebay-`+product_attribute_ebay_cnt+`" type="text" >
-                           <label for="product-attribute-ebay-`+product_attribute_ebay_cnt+`">Product Attribute</label>
+                           <input id="product-attribute-ebay-`+ product_attribute_ebay_cnt + `" type="text" >
+                           <label for="product-attribute-ebay-`+ product_attribute_ebay_cnt + `">Product Attribute</label>
                          </div>
                          <div class="input-field col s1">
                            <a href="#!" class="remove-product-attribute-ebay-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
@@ -2204,7 +1891,7 @@ body {
     $("#product-attributes-ebay-div").append(html_string);
   });
 
-  $(document).on("click", ".remove-product-attribute-ebay-btn", function(){
+  $(document).on("click", ".remove-product-attribute-ebay-btn", function () {
     $(this).parent().parent().remove();
   });
 
@@ -2212,13 +1899,13 @@ body {
 
 
   var product_attribute_noon_cnt = 1;
-  $("#add-product-attribute-noon-btn").click(function(){
+  $("#add-product-attribute-noon-btn").click(function () {
     product_attribute_noon_cnt++;
 
     var html_string = `<div>
                          <div class="input-field col s9">
-                           <input id="product-attribute-noon-`+product_attribute_noon_cnt+`" type="text" >
-                           <label for="product-attribute-noon-`+product_attribute_noon_cnt+`">Product Attribute</label>
+                           <input id="product-attribute-noon-`+ product_attribute_noon_cnt + `" type="text" >
+                           <label for="product-attribute-noon-`+ product_attribute_noon_cnt + `">Product Attribute</label>
                          </div>
                          <div class="input-field col s1">
                            <a href="#!" class="remove-product-attribute-noon-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
@@ -2227,7 +1914,7 @@ body {
     $("#product-attributes-noon-div").append(html_string);
   });
 
-  $(document).on("click", ".remove-product-attribute-noon-btn", function(){
+  $(document).on("click", ".remove-product-attribute-noon-btn", function () {
     $(this).parent().parent().remove();
   });
 
@@ -2235,43 +1922,41 @@ body {
 
 
   var special_feature_cnt = 1;
-  $("#add-special-feature-btn").click(function(){
-      special_feature_cnt++;
+  $("#add-special-feature-btn").click(function () {
+    special_feature_cnt++;
 
-      var html_string = `<div>
+    var html_string = `<div>
                            <div class="input-field col s9">
-                             <input id="special-feature-`+special_feature_cnt+`" type="text" >
-                             <label for="special-feature-`+special_feature_cnt+`">Special Feature</label>
+                             <input id="special-feature-`+ special_feature_cnt + `" type="text" >
+                             <label for="special-feature-`+ special_feature_cnt + `">Special Feature</label>
                            </div>
 
                            <div class="input-field col s1">
                              <a href="#!" class="remove-special-feature-btn btn-floating blue" style = "background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
                            </div>
                         </div>`
-      $("#special-features-div").append(html_string);
+    $("#special-features-div").append(html_string);
   });
 
-  $(document).on("click", ".remove-special-feature-btn", function(){
+  $(document).on("click", ".remove-special-feature-btn", function () {
     $(this).parent().parent().remove();
   });
 
 
-  function update_grid_images_main_images(key)
-  {
+  function update_grid_images_main_images(key) {
     var html_string = "";
-    for(var i=0;i<global_images[key].length;i++)
-    {
+    for (var i = 0; i < global_images[key].length; i++) {
       var checked = "";
-      if(global_images[key][i]["is_main_image"]==true) {
+      if (global_images[key][i]["is_main_image"] == true) {
         checked = "checked";
       }
-      
-      if(i%3==0) {
+
+      if (i % 3 == 0) {
         html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
       }
 
       html_string += `<div style=";position:relative;">
-                        <a href="#delete-image-modal" id="delimg-`+global_images[key][i]["pk"]+`" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                        <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
                           <i class="material-icons redd" title="Delete Image" style="
                             background-color: transparent;
                             padding: 4px;
@@ -2285,47 +1970,44 @@ body {
                             close
                           </i>
                         </a>
-                        <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" high_def_url="`+global_images[key][i]["main-url"]+`"  style="width: 100%;object-fit:contain;">
+                        <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `"  style="width: 100%;object-fit:contain;">
                         <label style="margin-left:0px !important;">
-                          <input value="`+global_images[key][i]["pk"]+`" name="group1" type="radio" `+checked+` />
+                          <input value="`+ global_images[key][i]["pk"] + `" name="group1" type="radio" ` + checked + ` />
                           <span class = "checkbox"></span>
                         </label>
                       </div>`;
 
-      if(i%3==2 || i==global_images[key].length-1) {
+      if (i % 3 == 2 || i == global_images[key].length - 1) {
         html_string += "</div>";
       }
     }
-         
+
     $("#graphics-section").html(html_string);
   }
 
 
-  $(document).on('click', '.miniimage', function(){
+  $(document).on('click', '.miniimage', function () {
     let url = $(this).attr('midimage_url');
     let high_def_url = $(this).attr('high_def_url');
     $('.material-placeholder').remove();
-    $('.main-image').append(`<img class = "preview-img materialboxed" src = '`+ url +`' high_def_url="`+high_def_url+`">`)
+    $('.main-image').append(`<img class = "preview-img materialboxed" src = '` + url + `' high_def_url="` + high_def_url + `">`)
     $('.materialboxed').materialbox();
   });
 
-  $(document).on("click", ".delete-image-modal-btn", function(){
+  $(document).on("click", ".delete-image-modal-btn", function () {
     global_delete_image_pk = this.id.split("-")[1];
   })
 
-  $("#delete-image-btn").click(function(){
+  $("#delete-image-btn").click(function () {
     delete_image();
   })
 
-  function delete_image()
-  {
+  function delete_image() {
     var image_type = "";
-    if(global_image_key=="sub_images" || global_image_key=="main_images")
-    {
+    if (global_image_key == "sub_images" || global_image_key == "main_images") {
       image_type = "main_sub";
     }
-    else
-    {
+    else {
       image_type = "other";
     }
 
@@ -2336,38 +2018,35 @@ body {
     $.ajax({
       url: "/delete-image/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       processData: false,
       contentType: false,
       data: fd,
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
-        if(response["status"]==200)
-        {
-          M.toast({html:"Image successfully deleted!"}); 
+        if (response["status"] == 200) {
+          M.toast({ html: "Image successfully deleted!" });
           $("#delete-image-modal").modal("close");
           fetch_product_images_details();
         }
-        else if(response["status"]==403)
-        {
-          M.toast({html:"You do not have permission to delete images!"});
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to delete images!" });
         }
-        else
-        {
-          M.toast({html:"Error deleting image!"});
+        else {
+          M.toast({ html: "Error deleting image!" });
         }
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   }
 
-  $("#main-image-select-save-btn").click(function(){
+  $("#main-image-select-save-btn").click(function () {
 
-    if(global_image_key!="main_images") {
+    if (global_image_key != "main_images") {
       return;
     }
 
@@ -2380,29 +2059,26 @@ body {
     $.ajax({
       url: "/update-main-image/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       processData: false,
       contentType: false,
       data: fd,
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
-        if(response["status"]==200)
-        {
-          M.toast({html:"Main image updated successfully!"}); 
+        if (response["status"] == 200) {
+          M.toast({ html: "Main image updated successfully!" });
         }
-        else if(response["status"]==403)
-        {
-          M.toast({html:"You do not have permission to update main image!"});
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to update main image!" });
         }
-        else
-        {
-          M.toast({html:"Error updating main image!"});
+        else {
+          M.toast({ html: "Error updating main image!" });
         }
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   });
@@ -2410,22 +2086,22 @@ body {
 
   function update_grid_images_sub_images(key) {
     var html_string = "";
-    for(var i=0;i<global_images[key].length;i++) {
+    for (var i = 0; i < global_images[key].length; i++) {
       var checked = "";
-      if(global_images[key][i]["is_sub_image"]==true) {
+      if (global_images[key][i]["is_sub_image"] == true) {
         checked = "checked";
       }
 
-      if(i%3==0) {
+      if (i % 3 == 0) {
         html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
       }
 
       var sub_image_index = global_images[key][i]["sub_image_index"];
-      if(sub_image_index==0)
+      if (sub_image_index == 0)
         sub_image_index = "-"
 
       html_string += `<div class="" style="position:relative;">
-                        <a href="#delete-image-modal" id="delimg-`+global_images[key][i]["pk"]+`" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:4px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                        <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:4px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
                           <i class="material-icons redd" title="Delete Image" style="
                             background-color: transparent;
                             padding: 4px;
@@ -2439,11 +2115,11 @@ body {
                             close
                           </i>
                         </a>
-                        <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" high_def_url="`+global_images[key][i]["main-url"]+`" style="width: 100%;object-fit:contain;">
-                        <input value="`+sub_image_index+`" id="subcheck_`+global_images[key][i]["pk"]+`" type="text">
+                        <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
+                        <input value="`+ sub_image_index + `" id="subcheck_` + global_images[key][i]["pk"] + `" type="text">
                       </div>`;
 
-      if(i%3==2 || i==global_images[key].length-1) {
+      if (i % 3 == 2 || i == global_images[key].length - 1) {
         html_string += "</div>";
       }
     }
@@ -2451,8 +2127,7 @@ body {
   }
 
   function save_subimages_index() {
-    if(global_image_key!="sub_images")
-    {
+    if (global_image_key != "sub_images") {
       return;
     }
     var fd = new FormData();
@@ -2462,40 +2137,34 @@ body {
 
     // Check for condition
     var unique_sub_index = [];
-    for(var i=0;i<global_images[key].length;i++)
-    {
-      var sub_image_index = $("#subcheck_"+global_images[key][i]["pk"]).val().trim();
-      if(sub_image_index!="-" && sub_image_index!="")
-      {
+    for (var i = 0; i < global_images[key].length; i++) {
+      var sub_image_index = $("#subcheck_" + global_images[key][i]["pk"]).val().trim();
+      if (sub_image_index != "-" && sub_image_index != "") {
         sub_image_index = parseInt(sub_image_index);
-        if(sub_image_index>=1 && sub_image_index<=8)
-        {
+        if (sub_image_index >= 1 && sub_image_index <= 8) {
           console.log("Key: ", sub_image_index);
-          if(unique_sub_index.includes(sub_image_index))
-          {
-            M.toast({html: "Sub Image indices must be unique"})
+          if (unique_sub_index.includes(sub_image_index)) {
+            M.toast({ html: "Sub Image indices must be unique" })
             return;
           }
-          
+
           unique_sub_index.push(sub_image_index);
         }
-        else
-        {
-          M.toast({html: "Sub Image indices must be between 1 to 8"})
+        else {
+          M.toast({ html: "Sub Image indices must be between 1 to 8" })
           return;
         }
       }
     }
 
 
-    for(var i=0;i<global_images[key].length;i++)
-    {
+    for (var i = 0; i < global_images[key].length; i++) {
       var temp_dict = {};
       temp_dict["pk"] = global_images[key][i]["pk"];
-      var sub_image_index = $("#subcheck_"+global_images[key][i]["pk"]).val();
-      if(sub_image_index=="" || sub_image_index=="-")
+      var sub_image_index = $("#subcheck_" + global_images[key][i]["pk"]).val();
+      if (sub_image_index == "" || sub_image_index == "-")
         sub_image_index = "0"
-      temp_dict["sub_image_index"] = sub_image_index; 
+      temp_dict["sub_image_index"] = sub_image_index;
       sub_image.push(temp_dict);
     }
 
@@ -2505,65 +2174,56 @@ body {
     $.ajax({
       url: "/update-sub-images/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       processData: false,
       contentType: false,
       data: fd,
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
-        if(response["status"]==200)
-        {
-          M.toast({html:"Sub images updated successfully!"}); 
+        if (response["status"] == 200) {
+          M.toast({ html: "Sub images updated successfully!" });
         }
-        else if(response["status"]==403)
-        {
-          M.toast({html:"You do not have permission to update sub images!"}); 
-        } 
-        else
-        {
-          M.toast({html:"Error updating sub images!"});
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to update sub images!" });
+        }
+        else {
+          M.toast({ html: "Error updating sub images!" });
         }
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   }
 
 
-  function update_grid_images(key)
-  {
-    if(key=="all_images")
-    {
+  function update_grid_images(key) {
+    if (key == "all_images") {
       $("#import-btn").attr("class", "disabled");
     }
-    else
-    {
-      $("#import-btn").attr("class", "modal-trigger"); 
+    else {
+      $("#import-btn").attr("class", "modal-trigger");
     }
 
-    if(key=="main_images")
-    {
+    if (key == "main_images") {
       update_grid_images_main_images(key);
       return;
     }
 
 
-    if(key=="sub_images")
-    {
+    if (key == "sub_images") {
       update_grid_images_sub_images(key);
       return;
     }
 
 
     var html_string = "";
-    for(var i=0;i<global_images[key].length;i++)
-    {
+    for (var i = 0; i < global_images[key].length; i++) {
       html_string += `<div class="col s4" style="padding:1em;">
                         <div style="position:relative;">
-                          <a href="#delete-image-modal" id="delimg-`+global_images[key][i]["pk"]+`" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                          <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
                             <i class="material-icons redd" title="Delete Image" style="
                               background-color: transparent;
                               padding: 4px;
@@ -2577,7 +2237,7 @@ body {
                               close
                             </i> 
                           </a> 
-                          <img class="miniimage" src="`+global_images[key][i]["thumbnail-url"]+`" midimage_url="`+global_images[key][i]["midimage-url"]+`" high_def_url="`+global_images[key][i]["main-url"]+`" style="width: 100%;object-fit:contain;">
+                          <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
                         </div>
                       </div>`;
     }
@@ -2587,77 +2247,68 @@ body {
 
 
 
-  $("#images-category").change(function(){
-    if($("#images-category").val()=="All Images")
-    {
-      update_grid_images("all_images"); 
+  $("#images-category").change(function () {
+    if ($("#images-category").val() == "All Images") {
+      update_grid_images("all_images");
       global_image_key = "all_images";
     }
-    else if($("#images-category").val()=="Main Images")
-    {
-      update_grid_images("main_images"); 
+    else if ($("#images-category").val() == "Main Images") {
+      update_grid_images("main_images");
       global_image_key = "main_images";
     }
-    else if($("#images-category").val()=="Sub Images")
-    {
+    else if ($("#images-category").val() == "Sub Images") {
       update_grid_images("sub_images");
       global_image_key = "sub_images";
     }
-    else if($("#images-category").val()=="PFL Images")
-    {
+    else if ($("#images-category").val() == "PFL Images") {
       update_grid_images("pfl_images");
       global_image_key = "pfl_images";
     }
-    else if($("#images-category").val()=="PFL Generated Images")
-    {
+    else if ($("#images-category").val() == "PFL Generated Images") {
       update_grid_images("pfl_generated_images");
       global_image_key = "pfl_generated_images";
     }
-    else if($("#images-category").val()=="White Background Images")
-    {
+    else if ($("#images-category").val() == "White Background Images") {
       update_grid_images("white_background_images");
       global_image_key = "white_background_images";
     }
-    else if($("#images-category").val()=="Lifestyle Images")
-    {
+    else if ($("#images-category").val() == "Lifestyle Images") {
       update_grid_images("lifestyle_images");
       global_image_key = "lifestyle_images";
     }
-    else if($("#images-category").val()=="Certificate Images")
-    {
+    else if ($("#images-category").val() == "Certificate Images") {
       update_grid_images("certificate_images");
       global_image_key = "certificate_images";
     }
-    else if($("#images-category").val()=="Giftbox Images")
-    {
+    else if ($("#images-category").val() == "Giftbox Images") {
       update_grid_images("giftbox_images");
       global_image_key = "giftbox_images";
     }
-    else if($("#images-category").val()=="Diecut Images")
-    {
+    else if ($("#images-category").val() == "Diecut Images") {
       update_grid_images("diecut_images");
       global_image_key = "diecut_images";
     }
-    else if($("#images-category").val()=="A+ Content Images")
-    {
+    else if ($("#images-category").val() == "A+ Content Images") {
       update_grid_images("aplus_content_images");
       global_image_key = "aplus_content_images";
     }
-    else if($("#images-category").val()=="Ads Images")
-    {
+    else if ($("#images-category").val() == "Ads Images") {
       update_grid_images("ads_images");
       global_image_key = "ads_images";
     }
-    else if($("#images-category").val()=="Unedited Images")
-    {
-       update_grid_images("unedited_images");
+    else if ($("#images-category").val() == "Unedited Images") {
+      update_grid_images("unedited_images");
       global_image_key = "unedited_images";
+    }
+    else if($("#images-category").val()=="Transparent Images")
+    {
+       update_grid_images("transparent_images");
+      global_image_key = "transparent_images";
     }
   });
 
 
-  function save_pfl_image_to_bucket()
-  {
+  function save_pfl_image_to_bucket() {
     var pfl_product_name = $("#pfl-product-name").val();
 
     var seller_sku = $("#seller-sku").val();
@@ -2665,8 +2316,7 @@ body {
     var image_links = [];
 
     //Set the images
-    if(global_images["main_images"].length>0)
-    {
+    if (global_images["main_images"].length > 0) {
       $("#pfl-product-image-preview-img").attr("src", global_images["main_images"][0]["main-url"]);
     }
 
@@ -2674,24 +2324,21 @@ body {
     //$("#barcode-image-preview-img").attr("src", "");
 
 
-    if($("#pfl-product-image-preview-img").attr("src")!="")
-    {
+    if ($("#pfl-product-image-preview-img").attr("src") != "") {
       image_links.push({
         "key": "product_image",
         "url": $("#pfl-product-image-preview-img").attr("src")
       });
     }
 
-    if($("#brand-image-img").attr("src")!="")
-    {
+    if ($("#brand-image-img").attr("src") != "") {
       image_links.push({
         "key": "brand_image",
         "url": $("#brand-image-img").attr("src")
       });
     }
 
-    if($("#barcode-image-preview-img").attr("src")!="")
-    {
+    if ($("#barcode-image-preview-img").attr("src") != "") {
       image_links.push({
         "key": "barcode_image",
         "url": $("#barcode-image-preview-img").attr("src")
@@ -2703,9 +2350,8 @@ body {
 
     var html_string = `<br><br>`;
     var feature_text = $(".feature-text");
-    for(var i=0;i<feature_text.length;i++)
-    {
-      html_string += `<span style="font-family: 'AvenirNextRegular'"><span style="color:#521893;">&bullet;&nbsp;&nbsp;</span> `+feature_text[i].value+`</span><br>`
+    for (var i = 0; i < feature_text.length; i++) {
+      html_string += `<span style="font-family: 'AvenirNextRegular'"><span style="color:#521893;">&bullet;&nbsp;&nbsp;</span> ` + feature_text[i].value + `</span><br>`
     }
     $("#features-preview-div").html(html_string);
 
@@ -2715,40 +2361,39 @@ body {
     $.ajax({
       url: "/download-images-s3/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
-      data: { 
-        links : JSON.stringify(image_links)
+      data: {
+        links: JSON.stringify(image_links)
       },
-      success: function(response) {
+      success: function (response) {
         console.log("Success! ", response);
-        if(response["status"]==200)
-        {
+        if (response["status"] == 200) {
           var local_links = response["local_links"];
 
-          for(var i=0;i<response["local_links"].length;i++){
-            if (local_links[i]["key"] == "product_image"){
+          for (var i = 0; i < response["local_links"].length; i++) {
+            if (local_links[i]["key"] == "product_image") {
               $("#pfl-product-image-preview-img").attr("src", local_links[i]["url"]);
               $("#pfl-product-image-preview-img").show();
             }
-            else if(local_links[i]["key"] == "brand_image"){
+            else if (local_links[i]["key"] == "brand_image") {
               $("#brand-image-img").attr("src", local_links[i]["url"]);
               $("#brand-image-img").show();
             }
-            else if(local_links[i]["key"] == "barcode_image"){
+            else if (local_links[i]["key"] == "barcode_image") {
               $("#barcode-image-preview-img").attr("src", local_links[i]["url"]);
               $("#barcode-image-preview-img").show();
             }
           }
 
-          $('#pfl-div').css("display" , "block");
+          $('#pfl-div').css("display", "block");
 
           html2canvas($("#pfl-div"), {
             logging: true,
             dpi: 600,
             scale: 3,
-            onrendered: function(canvas) {
+            onrendered: function (canvas) {
 
               $("#pfl-div").hide();
               var image_data = canvas.toDataURL();
@@ -2760,58 +2405,53 @@ body {
               $.ajax({
                 url: "/save-pfl-in-bucket/",
                 type: "POST",
-                headers:{
-                  'X-CSRFToken':getCsrfToken()
+                headers: {
+                  'X-CSRFToken': getCsrfToken()
                 },
                 processData: false,
                 contentType: false,
                 data: fd,
-                success: function(response) {
+                success: function (response) {
                   console.log("Success!", response);
-                  if(response["status"]==200)
-                  {
+                  if (response["status"] == 200) {
                     global_images["pfl_generated_images"] = [{
                       "main-url": response["main-url"],
                       "midimage-url": response["midimage-url"],
                       "thumbnail-url": response["thumbnail-url"]
                     }];
-                    if(global_image_key!="sub_images")
-                    {
+                    if (global_image_key != "sub_images") {
                       update_grid_images(global_image_key);
                     }
 
-                    if(global_image_key=="pfl_generated_images")
-                    {
-                      $($(".miniimage")[0]).click(); 
+                    if (global_image_key == "pfl_generated_images") {
+                      $($(".miniimage")[0]).click();
                     }
                   }
                 },
-                error: function(xhr, textstatus, errorthrown) {
-                  console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+                error: function (xhr, textstatus, errorthrown) {
+                  console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
                 }
               });
             }
           });
         }
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   }
 
-  function save_product()
-  {
+  function save_product() {
     save_pfl_image_to_bucket();
 
     $("#save-btn").attr("disabled", "disabled");
-    
+
     var product_pk = window.location.pathname.split("/")[2];
 
     var pfl_product_name = $("#pfl-product-name").val();
     var pfl_product_features = [];
-    for(var i=0;i<$(".feature-text").length;i++)
-    {
+    for (var i = 0; i < $(".feature-text").length; i++) {
       pfl_product_features.push($(".feature-text")[i].value);
     }
 
@@ -2835,7 +2475,7 @@ body {
     var noon_model_number = $("#noon-model-number").val();
     var noon_model_name = $("#noon-model-name").val();
     var condition_type = $("#condition-type").val();
-    var feed_product_type = $("#feed-product-type").val();  
+    var feed_product_type = $("#feed-product-type").val();
     var update_delete = $("#update-delete").val();
     var recommended_browse_nodes = $("#recommended-browse-nodes").val();
     var product_description_amazon_uk = window.editor[0].getData();
@@ -2845,45 +2485,37 @@ body {
 
 
     var product_attribute_data_amazon_uk = [];
-    for(var i=1;i<=product_attribute_amazon_uk_cnt;i++)
-    {
-      if($("#product-attribute-amazon-uk-"+i).val()!="")
-      {
-        product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-"+i).val());
-      } 
+    for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
+      if ($("#product-attribute-amazon-uk-" + i).val() != "") {
+        product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
+      }
     }
     product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
 
 
     var product_attribute_data_amazon_uae = [];
-    for(var i=1;i<=product_attribute_amazon_uae_cnt;i++)
-    {
-      if($("#product-attribute-amazon-uae-"+i).val()!="")
-      {
-        product_attribute_data_amazon_uae.push($("#product-attribute-amazon-uae-"+i).val());
-      } 
+    for (var i = 1; i <= product_attribute_amazon_uae_cnt; i++) {
+      if ($("#product-attribute-amazon-uae-" + i).val() != "") {
+        product_attribute_data_amazon_uae.push($("#product-attribute-amazon-uae-" + i).val());
+      }
     }
     product_attribute_data_amazon_uae = JSON.stringify(product_attribute_data_amazon_uae);
 
 
     var product_attribute_data_ebay = [];
-    for(var i=1;i<=product_attribute_ebay_cnt;i++)
-    {
-      if($("#product-attribute-ebay-"+i).val()!="")
-      {
-        product_attribute_data_ebay.push($("#product-attribute-ebay-"+i).val());
-      } 
+    for (var i = 1; i <= product_attribute_ebay_cnt; i++) {
+      if ($("#product-attribute-ebay-" + i).val() != "") {
+        product_attribute_data_ebay.push($("#product-attribute-ebay-" + i).val());
+      }
     }
     product_attribute_data_ebay = JSON.stringify(product_attribute_data_ebay);
 
 
 
     var product_attribute_data_noon = [];
-    for(var i=1;i<=product_attribute_noon_cnt;i++)
-    {
-      if($("#product-attribute-noon-"+i).val()!="")
-      {
-        product_attribute_data_noon.push($("#product-attribute-noon-"+i).val());
+    for (var i = 1; i <= product_attribute_noon_cnt; i++) {
+      if ($("#product-attribute-noon-" + i).val() != "") {
+        product_attribute_data_noon.push($("#product-attribute-noon-" + i).val());
       }
     }
     product_attribute_data_noon = JSON.stringify(product_attribute_data_noon);
@@ -2897,11 +2529,9 @@ body {
 
 
     var special_feature_data = [];
-    for(var i=1;i<=special_feature_cnt;i++)
-    {
-      if($("#special-feature-"+i).val()!="")
-      {
-        special_feature_data.push($("#special-feature-"+i).val());
+    for (var i = 1; i <= special_feature_cnt; i++) {
+      if ($("#special-feature-" + i).val() != "") {
+        special_feature_data.push($("#special-feature-" + i).val());
       }
     }
 
@@ -2940,7 +2570,7 @@ body {
     var item_condition_note = $("#item-condition-note").val();
     var max_order_quantity = $("#max-order-quantity").val();
     var number_of_items = $("#number-of-items").val();
-    var wattage = $("#wattage").val(); 
+    var wattage = $("#wattage").val();
     var wattage_metric = $("#wattage-metric").val();
     var material_type = $("#material-type").val();
     var parentage = $("#parentage").val();
@@ -2960,8 +2590,8 @@ body {
 
     var fd = new FormData();
 
-    fd.append('pfl_product_name' , pfl_product_name)
-    fd.append('pfl_product_features' , JSON.stringify(pfl_product_features));
+    fd.append('pfl_product_name', pfl_product_name)
+    fd.append('pfl_product_features', JSON.stringify(pfl_product_features));
     fd.append('product_pk', product_pk)
     fd.append('product_name_sap', product_name_sap);
     fd.append('product_name_amazon_uk', product_name_amazon_uk);
@@ -2974,7 +2604,7 @@ body {
     fd.append('manufacturer', manufacturer);
     fd.append('product_id', product_id);
     fd.append('product_id_type', product_id_type);
-    fd.append('seller_sku',  seller_sku);
+    fd.append('seller_sku', seller_sku);
     fd.append('manufacturer_part_number', manufacturer_part_number);
     fd.append('barcode_string', barcode_string);
     fd.append('noon_product_type', noon_product_type);
@@ -3048,40 +2678,36 @@ body {
     fd.append('sale_end', sale_end);
     fd.append('noon_msrp_ae', noon_msrp_ae);
     fd.append('noon_msrp_ae_unit', noon_msrp_ae_unit);
-    fd.append('factory_notes',factory_notes);
+    fd.append('factory_notes', factory_notes);
 
     $.ajax({
       url: "/save-product/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       processData: false,
       contentType: false,
       data: fd,
-      success: function(response) {
-        
+      success: function (response) {
+
         console.log("Success!", response);
-        if(response["status"]==200)
-        {
-          M.toast({html:"Product saved successfully!"}); 
+        if (response["status"] == 200) {
+          M.toast({ html: "Product saved successfully!" });
         }
-        else if(response["status"]==409)
-        {
-          M.toast({html:"Product ID or Seller SKU is duplicated!"});
+        else if (response["status"] == 409) {
+          M.toast({ html: "Product ID or Seller SKU is duplicated!" });
         }
-        else if(response["status"]==403)
-        {
-          M.toast({html:"You do not have permission for saving product!"});
-        } 
-        else
-        {
-          M.toast({html:"Error saving product!"});
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission for saving product!" });
+        }
+        else {
+          M.toast({ html: "Error saving product!" });
         }
         $("#save-btn").removeAttr("disabled");
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
 
@@ -3089,47 +2715,43 @@ body {
   }
 
 
-  $("#save-btn").click(function(){
-    if($("#product-name-sap").val()=="" || $("#product-id").val()=="" || $("#seller-sku").val()=="" || $("#brand-name").val()=="" || $("#product-name-sap").val()=="") {
-     
+  $("#save-btn").click(function () {
+    if ($("#product-name-sap").val() == "" || $("#product-id").val() == "" || $("#seller-sku").val() == "" || $("#brand-name").val() == "" || $("#product-name-sap").val() == "") {
+
     }
 
-    if($("#brand-name").val().trim()=="")
-    {
-      M.toast({html: "Brand name cannot be empty!"});
+    if ($("#brand-name").val().trim() == "") {
+      M.toast({ html: "Brand name cannot be empty!" });
       return;
     }
 
-    if($("#product-id").val().trim()=="")
-    {
-      M.toast({html: "Product ID cannot be empty!"});
+    if ($("#product-id").val().trim() == "") {
+      M.toast({ html: "Product ID cannot be empty!" });
       return;
     }
 
-    if($("#seller-sku").val().trim()=="")
-    {
-      M.toast({html: "Seller SKU cannot be empty!"});
+    if ($("#seller-sku").val().trim() == "") {
+      M.toast({ html: "Seller SKU cannot be empty!" });
       return;
     }
 
     save_product();
   });
 
-  $("#information-tab").click(function(){
-    setTimeout(function(){
+  $("#information-tab").click(function () {
+    setTimeout(function () {
       $('.tabs').tabs('updateTabIndicator');
     }, 100);
   });
 
 
-  $(window).keydown(function(event) {
+  $(window).keydown(function (event) {
     console.log(event.which, event.keyCode, event.ctrlKey);
-    if(event.which == 83 && event.ctrlKey)
-    {
+    if (event.which == 83 && event.ctrlKey) {
       event.preventDefault();
       save_product();
       return false;
-    } 
+    }
   });
 </script>
 
