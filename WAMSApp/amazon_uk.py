@@ -566,29 +566,40 @@ def update_product_missing_amazon_uk(product_obj, row):
 
 
 def create_new_product_amazon_uk(row):
-    product_obj = Product.objects.create(product_id=row[3])
-    product_obj.feed_product_type = row[0]
-    product_obj.seller_sku = row[1]
+    
+    base_product_obj = BaseProduct.objects.create(seller_sku=row[1],
+                                                  base_product_name= row[5])
+
+    product_obj = Product.objects.create(product_id=row[3],
+                                         base_product = base_product_obj)
+
+    channel_product_obj = product_obj.channel_product
+
+    amazon_uk_product = json.loads(channel_product_obj.amazon_uk_product_json)
+
+    amazon_uk_product["feed_product_type"] = row[0]
+
     if row[2]!="":
         brand_obj, created = Brand.objects.get_or_create(name=row[2])
-        product_obj.brand = brand_obj
-    product_obj.product_id_type = row[4]
-    product_obj.product_name_amazon_uk = row[5]
-    product_obj.product_name_amazon_uk = row[5]
-    product_obj.product_name_ebay = row[5]
-    product_obj.product_name_sap = row[5]
-    product_obj.manufacturer = row[6]
-    product_obj.recommended_browse_nodes = row[7]
+        base_product_obj.brand = brand_obj
+    
+    if row[5]!="":
+        product_id_type_obj, created = ProductIDType.objects.get_or_create(name=row[4])
+        product_obj.product_id_type =product_id_type_obj
+
+    amazon_uk_product["product_name"] = row[5]
+    base_product_obj.manufacturer = row[6]
+    amazon_uk_product["recommended_browse_nodes"] = row[7]
     product_obj.standard_price = None if row[8]=="" else float(row[8])
     product_obj.quantity = None if row[9]=="" else int(row[9])
-    product_obj.parentage = row[20]
-    product_obj.parent_sku = row[21]
-    product_obj.relationship_type = row[22]
-    product_obj.variation_theme = row[23]
-    product_obj.update_delete = row[24]
-    product_obj.manufacturer_part_number = row[26]
-    product_obj.product_description_amazon_uk = row[27]
-    product_obj.wattage_metric = row[28]
+    amazon_uk_product["parentage"] = row[20]
+    amazon_uk_product["parent_sku"] = row[21]
+    amazon_uk_product["relationship_type"] = row[22]
+    amazon_uk_product["variation_theme"] = row[23]
+    amazon_uk_product["update_delete"] = row[24]
+    base_product_obj.manufacturer_part_number = row[26]
+    amazon_uk_product["product_description"] = row[27]
+    amazon_uk_product["wattage_metric"] = row[28]
 
 
     special_features = []
@@ -596,7 +607,7 @@ def create_new_product_amazon_uk(row):
         special_feature = row[51+i]
         if special_feature!="":
             special_features.append(special_feature)
-    product_obj.special_features = json.dumps(special_features)
+    amazon_uk_product["special_features"] = special_features
 
 
     key_product_features = []
@@ -604,51 +615,57 @@ def create_new_product_amazon_uk(row):
         key_product_feature = row[32+i]
         if key_product_feature!="":  
             key_product_features.append(key_product_feature)
-    product_obj.product_attribute_list_amazon_uk = json.dumps(key_product_features)
+    amazon_uk_product["product_attribute_list"] = key_product_features
 
 
-    product_obj.search_terms = row[37]
-    product_obj.wattage = None if row[45]=="" else float(row[45])
+    amazon_uk_product["search_terms"] = row[37]
+    amazon_uk_product["wattage"] = None if row[45]=="" else float(row[45])
     product_obj.color = row[46]
     product_obj.color_map = row[47]
-    product_obj.material_type = row[50]
+    
+    if row[50] != "":
+        material_type_obj , created = MaterialType.objects.get_or_create(name=row[50])
+        product_obj.material_type = material_type_obj
 
+    base_product_obj.item_width_metric = row[84]
+    base_product_obj.item_width = None if row[85]=="" else float(row[85])
+    base_product_obj.item_height = None if row[86]=="" else float(row[86])
+    base_product_obj.item_height_metric = row[89]
+    base_product_obj.item_length_metric = row[91]
+    base_product_obj.item_length = None if row[92]=="" else float(row[92])
+    base_product_obj.shipping_weight = None if row[96]=="" else float(row[96])
+    base_product_obj.shipping_weight_metric = row[97]
+    base_product_obj.item_display_length = None if row[98]=="" else float(row[98])
+    base_product_obj.item_display_length_metric = row[99]
+    base_product_obj.item_display_width = None if row[100]=="" else float(row[100])
+    base_product_obj.item_display_width_metric = row[101]
+    base_product_obj.item_display_height = None if row[102]=="" else float(row[102])
+    base_product_obj.item_display_height_metric = row[103]
+    base_product_obj.item_display_weight = None if row[106]=="" else float(row[106])
+    base_product_obj.item_display_weight_metric = row[107]
+    base_product_obj.item_display_volume = None if row[110]=="" else float(row[110])
+    base_product_obj.item_display_volume_metric = row[111]
+    base_product_obj.package_weight_metric = row[117]
 
-    product_obj.item_width_metric = row[84]
-    product_obj.item_width = None if row[85]=="" else float(row[85])
-    product_obj.item_height = None if row[86]=="" else float(row[86])
-    product_obj.item_height_metric = row[89]
-    product_obj.item_length_metric = row[91]
-    product_obj.item_length = None if row[92]=="" else float(row[92])
-    product_obj.shipping_weight = None if row[96]=="" else float(row[96])
-    product_obj.shipping_weight_metric = row[97]
-    product_obj.item_display_length = None if row[98]=="" else float(row[98])
-    product_obj.item_display_length_metric = row[99]
-    product_obj.item_display_width = None if row[100]=="" else float(row[100])
-    product_obj.item_display_width_metric = row[101]
-    product_obj.item_display_height = None if row[102]=="" else float(row[102])
-    product_obj.item_display_height_metric = row[103]
-    product_obj.item_display_weight = None if row[106]=="" else float(row[106])
-    product_obj.item_display_weight_metric = row[107]
-    product_obj.item_display_volume = None if row[110]=="" else float(row[110])
-    product_obj.item_display_volume_metric = row[111]
-    product_obj.package_weight_metric = row[117]
+    base_product_obj.package_length_metric = row[118]
+    base_product_obj.package_width_metric = row[118]
+    base_product_obj.package_height_metric = row[118]
 
-    product_obj.package_length_metric = row[118]
-    product_obj.package_width_metric = row[118]
-    product_obj.package_height_metric = row[118]
+    base_product_obj.package_weight = None if row[119]=="" else float(row[119])
+    base_product_obj.package_length = None if row[120]=="" else float(row[120])
+    base_product_obj.package_width = None if row[121]=="" else float(row[121])
+    base_product_obj.package_height = None if row[122]=="" else float(row[122])
 
-    product_obj.package_weight = None if row[119]=="" else float(row[119])
-    product_obj.package_length = None if row[120]=="" else float(row[120])
-    product_obj.package_width = None if row[121]=="" else float(row[121])
-    product_obj.package_height = None if row[122]=="" else float(row[122])
+    base_product_obj.item_weight = None if row[165]=="" else float(row[165])
+    base_product_obj.item_weight_metric = row[166]
+    
 
-    product_obj.item_weight = None if row[165]=="" else float(row[165])
-    product_obj.item_weight_metric = row[166]
-    product_obj.sale_price = None if row[187]=="" else float(row[187])
     #row[188] = str(product_obj.sale_from)
     #row[189] = str(product_obj.sale_end)
-    product_obj.condition_type = row[190]
+    amazon_uk_product["sale_price"] = None if row[187]=="" else float(row[187])
+    amazon_uk_product["sale_from"] = None if row[188]=="" else float(row[188])
+    amazon_uk_product["sale_end"] = None if row[189]=="" else float(row[189])
+    amazon_uk_product["condition_type"] = row[190]
 
 
 
@@ -659,22 +676,30 @@ def create_new_product_amazon_uk(row):
         result = urllib.urlretrieve(main_image_url, filename)
         image_obj = Image.objects.create(image=File(open(result[0])))
         image_bucket_obj = ImageBucket.objects.create(image=image_obj, is_main_image=True)
-        product_obj.main_images.add(image_bucket_obj)
+        reset_main_images(product_obj)
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel="Amazon UK")
+        main_images_obj.main_images.add(image_bucket_obj)
+        main_images_obj.save()
         os.system("rm "+result[0])
 
 
     ####################### Sub Images Part ####################### 
-    save_subimage(product_obj, row[11], 1)
-    save_subimage(product_obj, row[12], 2)
-    save_subimage(product_obj, row[13], 3)
-    save_subimage(product_obj, row[14], 4)
-    save_subimage(product_obj, row[15], 5)
-    save_subimage(product_obj, row[16], 6)
-    save_subimage(product_obj, row[17], 7)
-    save_subimage(product_obj, row[18], 8)
+
+    channel_name = "Amazon UK"
+    save_subimage(product_obj, row[11], 1 , channel_name)
+    save_subimage(product_obj, row[12], 2 , channel_name)
+    save_subimage(product_obj, row[13], 3 , channel_name)
+    save_subimage(product_obj, row[14], 4 , channel_name)
+    save_subimage(product_obj, row[15], 5 , channel_name)
+    save_subimage(product_obj, row[16], 6 , channel_name)
+    save_subimage(product_obj, row[17], 7 , channel_name)
+    save_subimage(product_obj, row[18], 8 , channel_name)
     ####################### Sub Images Part ####################### 
 
+    base_product_obj.save()
     product_obj.save()
+    channel_product_obj.amazon_uk_product_json = json.dumps(amazon_uk_product)
+    channel_product.save()
 
 
 def import_amazon_uk(import_rule, import_file):
