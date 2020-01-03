@@ -79,6 +79,7 @@ urlpatterns = [
     url(r'^ecommerce-listing/(?P<pk>[\w-]+)/', views.EcommerceListingPage),
 
     url(r'^upload-flyer-external-images/', views.UploadFlyerExternalImages),
+    url(r'^upload-pfl-external-images/', views.UploadPFLExternalImages),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
