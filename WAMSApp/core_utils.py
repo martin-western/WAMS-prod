@@ -227,7 +227,7 @@ def fill_missing(old_value, new_value, data_type):
         return int(new_value)
 
 
-def save_subimage(product_obj, image_url, index):
+def save_subimage(product_obj, image_url, index, channel):
     
     try:
         if image_url!="":
@@ -235,7 +235,13 @@ def save_subimage(product_obj, image_url, index):
             result = urllib.urlretrieve(image_url, filename)
             image_obj = Image.objects.create(image=File(open(result[0])))
             image_bucket_obj = ImageBucket.objects.create(image=image_obj, is_sub_image=True, sub_image_index=index)
-            sub_images_obj = SubImages.objects.get(product=product_obj,is_sourced=True)
+            
+            if channel==None:
+                sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,is_sourced=True)
+            else:
+                channel_obj = Channel.objects.get(name=channel)
+                sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+            
             sub_images_obj.sub_images.add(image_bucket_obj)
             os.system("rm "+result[0])              # Remove temporary file
             sub_images_obj.save()
