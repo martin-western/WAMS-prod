@@ -378,11 +378,14 @@
     margin: 0 !important;
   }
 
-  .sidebar2 {}
+  .sidebar2 {
+    padding-left: 0 !important;
+  }
 
   .sidebar2 .row {
     height: 100vh;
     background-color: white;
+
   }
 
   .collapse-div-row-container {
@@ -390,13 +393,23 @@
     background-color: white !important;
   }
 
-  .collapse-div {}
+  .collapse-div-container {
+    padding: 0 5px 0 0;
+  }
+
+  .collapse-div {
+    display: inline-block;
+    background-color: white;
+    padding-right: 5px;
+    height: 100vh;
+    overflow-y: auto;
+  }
 </style>
 
 
-<br>
+
 <div>
-  <div class="row" style="margin: 0 35px 0 60px;">
+  <div class="row" style="margin: 10px 35px 0 60px;">
     <div class="toolbar"
       style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
       <a class="right" href="#!" onclick="window.close()"
@@ -545,8 +558,10 @@
             <option value="Main Images" id="main-images-option">Main Images</option>
             <option value="Sub Images" id="sub-images-option">Sub Images</option>
             <option value="PFL Images" id="pfl-images-option">PFL Images</option>
-            <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images</option>
-            <option value="White Background Images" id="white-background-images-option">White Background Images</option>
+            <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
+            </option>
+            <option value="White Background Images" id="white-background-images-option">White Background
+              Images</option>
             <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
             <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
             <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
@@ -578,7 +593,7 @@
     </div>
 
     <div id="collapse-div" class="col s8 center collapse-div-container"
-      style="padding: 0;background-color: white;transition: width 0.5s;">
+      style="display: inline-block;transition: width 0.5s;">
 
       <div class="collapse-div">
         <div class="scroll-style-1 ">
@@ -773,6 +788,18 @@
                 <option value="Old">Old</option>
               </select>
               <label for="condition-type">Condition Type</label>
+            </div>
+            <div class="col s12">
+              <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;">Product Description</h6>
+              <div class="input-field" style="text-align: left;">
+                <div class="document-editor">
+                  <div class="document-editor__toolbar"></div>
+                  <div class="document-editor__editable-container">
+                    <div class="document-editor__editable">
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
 
@@ -1090,7 +1117,8 @@
   <!-- Footer -->
   <div class="col s12" style="background-color:#521893;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
     <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
-      <p class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more
+      <p class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For
+        more
         information, please visit www.royalford.com</p>
     </div>
   </div>
@@ -1460,7 +1488,7 @@
 
 
           var product_id_type_list = response["product_id_type_list"];
-          var html_string = `<option value="" selected>Choose Product ID Type</option>`;
+          var html_string = `<option value="" selected>Product ID Type</option>`;
           for (var i = 0; i < product_id_type_list.length; i++) {
             html_string += `<option value="` + product_id_type_list[i]["name"] + `">` + product_id_type_list[i]["name"] + `</option>`
           }

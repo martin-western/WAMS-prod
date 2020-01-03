@@ -378,23 +378,38 @@
         margin: 0 !important;
     }
 
-    .sidebar2 {}
+    .sidebar2 {
+        padding-left: 0 !important;
+    }
 
     .sidebar2 .row {
         height: 100vh;
         background-color: white;
+
     }
 
-    .collapse-div .row {
+    .collapse-div-row-container {
         height: 100vh;
         background-color: white !important;
+    }
+
+    .collapse-div-container {
+        padding: 0 5px 0 0;
+    }
+
+    .collapse-div {
+        display: inline-block;
+        background-color: white;
+        padding-right: 5px;
+        height: 100vh;
+        overflow-y: auto;
     }
 </style>
 
 
-<br>
+
 <div>
-    <div class="row" style="margin: 0 35px 0 60px;">
+    <div class="row" style="margin: 10px 35px 0 60px;">
         <div class="toolbar"
             style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
             <a class="right" href="#!" onclick="window.close()"
@@ -578,40 +593,62 @@
             </div>
         </div>
 
-        <div id="collapse-div" class="col s8 center" style="padding: 0;background-color: white;transition: width 0.5s;">
-            <div class="scroll-style-1 ">
-                <h6 style="color: #521893;">Amazon UK</h6>
-                <div class="row margin-zero ">
-                    <div class="input-field col s6">
-                        <input id="sidenav-product-name" type="text">
-                        <label for="product-name">Product Name</label>
-                    </div>
-                    <div class="input-field col s6">
-                        <input id="sidenav-product-type" type="text">
-                        <label for="product-type">Product Type</label>
-                    </div>
-                    <div class="input-field col s6">
-                        <input id="sidenav-product-subtype" type="text">
-                        <label for="product-subtype">Product Subtype</label>
-                    </div>
-                    <div class="input-field col s6">
-                        <input id="sidenav-model-no" type="text">
-                        <label for="product-model-no">Model No.</label>
-                    </div>
-                    <div class="input-field col s6">
-                        <input id="sidenav-model-name" type="text">
-                        <label for="product-model-name">Model Name</label>
-                    </div>
-                    <div class="input-field col s6">
-                        <input id="sidenav-model-name" type="text">
-                        <label for="product-msrp">MRP</label>
-                    </div>
-                    <div class="input-field col s6">
-                        <input id="sidenav-product-description" type="text">
-                        <label for="sidenav-product-description">Description</label>
-                    </div>
+        <div id="collapse-div" class="col s8 center collapse-div-container"
+            style="display: inline-block;transition: width 0.5s;">
 
+            <div class="collapse-div">
+                <div class="scroll-style-1 ">
+                    <h6 style="color: #521893;">Amazon UAE</h6>
+                    <div class="row margin-zero collapse-div-row-container">
+                        <div class="input-field col s6">
+                            <input id="product-name" type="text">
+                            <label for="product-name">Product Name</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <input id="created-date" type="date">
+                            <label for="created-date">Created Date</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <input id="feed-product-type" type="text">
+                            <label for="feed-product-type">Feed Product Type</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <select id="update-delete">
+                                <option value="Update" selected>Update</option>
+                                <option value="Delete">Delete</option>
+                            </select>
+                            <label for="update-delete">Update Delete</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <input id="recommended-browse-nodes" type="text">
+                            <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
+                        </div>
+                        <div class="input-field col s9">
+                            <input id="product-attribute-amazon-uk-1" type="text">
+                            <label for="product-attribute-amazon-uk-1">Product Attribute</label>
+                        </div>
+
+                        <div class="input-field col s1">
+                            <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
+                                style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                                    class="material-icons">add</i></a>
+                        </div>
+                        <div class="col s12">
+                            <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;">Product
+                                Description</h6>
+                            <div class="input-field" style="text-align: left;">
+                                <div class="document-editor">
+                                    <div class="document-editor__toolbar"></div>
+                                    <div class="document-editor__editable-container">
+                                        <div class="document-editor__editable">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
 
@@ -655,6 +692,7 @@
                     <input disabled id="sidenav-product-description" type="text">
                     <label for="sidenav-product-description">Description</label>
                 </div>
+
 
             </div>
         </div>
@@ -1294,7 +1332,7 @@
 
 
                     var product_id_type_list = response["product_id_type_list"];
-                    var html_string = `<option value="" selected>Choose Product ID Type</option>`;
+                    var html_string = `<option value="" selected>Product ID Type</option>`;
                     for (var i = 0; i < product_id_type_list.length; i++) {
                         html_string += `<option value="` + product_id_type_list[i]["name"] + `">` + product_id_type_list[i]["name"] + `</option>`
                     }
