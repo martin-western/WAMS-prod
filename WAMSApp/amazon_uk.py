@@ -289,27 +289,37 @@ def update_product_full_amazon_uk(product_obj, row):
 
 def update_product_partial_amazon_uk(product_obj, row):
     try:
-        product_obj.feed_product_type = partial_overwrite(product_obj.feed_product_type, row[0], "str")
-        product_obj.seller_sku = partial_overwrite(product_obj.seller_sku, row[1], "str")
+        
+        base_product = product_obj.base_product
+        channel_product = product_obj.channel_product
+        amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
+
+        amazon_uk_product["feed_product_type"] = partial_overwrite(amazon_uk_product["feed_product_type"], row[0], "str")
+        base_product.seller_sku = partial_overwrite(base_product.seller_sku, row[1], "str")
 
         if row[2]!="":
             brand_obj, created = Brand.objects.get_or_create(name=row[2])
-            product_obj.brand = brand_obj
+            base_product.brand = brand_obj
         #product_obj.brand = partial_overwrite(product_obj.brand, row[2], "str")
-        product_obj.product_id_type = partial_overwrite(product_obj.product_id_type, row[4], "str")
-        product_obj.product_name_amazon_uk = partial_overwrite(product_obj.product_name_amazon_uk, row[5], "str")
-        product_obj.manufacturer = partial_overwrite(product_obj.manufacturer, row[6], "str")
-        product_obj.recommended_browse_nodes = partial_overwrite(product_obj.recommended_browse_nodes, row[7], "str")
+        
+        if row[4]!="":
+            product_id_type_obj , created = ProductIDType.objects.get_or_create(name = row[4])
+            base_product.product_id_type.name = partial_overwrite(product_id_type_obj.name, row[4], "str")
+            product_id_type_obj.save()
+            
+        amazon_uk_product["product_name"] = partial_overwrite(amazon_uk_product["product_name"], row[5], "str")
+        base_product.manufacturer = partial_overwrite(base_product.manufacturer, row[6], "str")
+        amazon_uk_product["recommended_browse_nodes"] = partial_overwrite(amazon_uk_product["recommended_browse_nodes"], row[7], "str")
         product_obj.standard_price = partial_overwrite(product_obj.standard_price, row[8], "float")
         product_obj.quantity = partial_overwrite(product_obj.quantity, row[9], "int")
-        product_obj.parentage = partial_overwrite(product_obj.parentage, row[20], "str")
-        product_obj.parent_sku = partial_overwrite(product_obj.parent_sku, row[21], "str")
-        product_obj.relationship_type = partial_overwrite(product_obj.relationship_type, row[22], "str")
-        product_obj.variation_theme = partial_overwrite(product_obj.variation_theme, row[23], "str")
-        product_obj.update_delete = partial_overwrite(product_obj.update_delete, row[24], "str")
-        product_obj.manufacturer_part_number = partial_overwrite(product_obj.manufacturer_part_number, row[26], "str")
-        product_obj.product_description_amazon_uk = partial_overwrite(product_obj.product_description_amazon_uk, row[27], "str")
-        product_obj.wattage_metric = partial_overwrite(product_obj.wattage_metric, row[28], "str")
+        amazon_uk_product["parentage"] = partial_overwrite(amazon_uk_product["parentage"], row[20], "str")
+        amazon_uk_product["parent_sku"] = partial_overwrite(amazon_uk_product["parent_sku"], row[21], "str")
+        amazon_uk_product["relationship_type"] = partial_overwrite(amazon_uk_product["relationship_type"], row[22], "str")
+        amazon_uk_product["variation_theme"] = partial_overwrite(amazon_uk_product["variation_theme"], row[23], "str")
+        amazon_uk_product["update_delete"] = partial_overwrite(amazon_uk_product["update_delete"], row[24], "str")
+        base_product.manufacturer_part_number = partial_overwrite(base_product.manufacturer_part_number, row[26], "str")
+        amazon_uk_product["product_description"] = partial_overwrite(amazon_uk_product["product_description"], row[27], "str")
+        amazon_uk_product["wattage_metric"] = partial_overwrite(amazon_uk_product["wattage_metric"], row[28], "str")
 
 
 
@@ -319,58 +329,65 @@ def update_product_partial_amazon_uk(product_obj, row):
             if special_feature!="":
                 special_features.append(special_feature)
         if len(special_features)>0:
-            product_obj.special_features = json.dumps(special_features)
+            amazon_uk_product["special_features"] = special_features
 
         key_product_features = []
         old_key_product_features = json.loads(product_obj.product_attribute_list_amazon_uk)
         if len(old_key_product_features) > 0:
             for i in range(len(old_key_product_features)):
                 old_key_product_features[i] = partial_overwrite(old_key_product_features[i], row[32+i], "str")
-        product_obj.product_attribute_list_amazon_uk = json.dumps(old_key_product_features)
+        
+        amazon_uk_product["product_attribute_list"] = old_key_product_features
 
 
-        product_obj.search_terms = partial_overwrite(product_obj.search_terms, row[37], "str")
-        product_obj.wattage = partial_overwrite(product_obj.wattage, row[45], "float")
+        amazon_uk_product["search_terms"] = partial_overwrite(amazon_uk_product["search_terms"], row[37], "str")
+        amazon_uk_product["wattage"] = partial_overwrite(amazon_uk_product["wattage"], row[45], "float")
         product_obj.color = partial_overwrite(product_obj.color, row[46], "str")
         product_obj.color_map = partial_overwrite(product_obj.color_map, row[47], "str")
-        product_obj.material_type = partial_overwrite(product_obj.material_type, row[50], "str")
+        
+        if row[50] != "":
+            material_type_obj = MaterialType.objects.get_or_create(name=row[50])
+            product_obj.material_type.name = partial_overwrite(material_type_obj.name, row[50], "str")
 
 
-        product_obj.item_width_metric = partial_overwrite(product_obj.material_type, row[84], "str")
-        product_obj.item_width = partial_overwrite(product_obj.item_width, row[85], "float")
-        product_obj.item_height = partial_overwrite(product_obj.item_height, row[86], "float")
-        product_obj.item_height_metric = partial_overwrite(product_obj.item_height_metric, row[89], "str")
-        product_obj.item_length_metric = partial_overwrite(product_obj.item_length_metric, row[91], "str")
-        product_obj.item_length = partial_overwrite(product_obj.item_length, row[92], "float")
-        product_obj.shipping_weight = partial_overwrite(product_obj.shipping_weight, row[96], "float")
-        product_obj.shipping_weight_metric = partial_overwrite(product_obj.shipping_weight_metric, row[97], "str")
-        product_obj.item_display_length = partial_overwrite(product_obj.item_display_length, row[98], "float")
-        product_obj.item_display_length_metric = partial_overwrite(product_obj.item_display_length_metric, row[99], "str")
-        product_obj.item_display_width = partial_overwrite(product_obj.item_display_width, row[100], "float")
-        product_obj.item_display_width_metric = partial_overwrite(product_obj.item_display_width_metric, row[101], "str")
-        product_obj.item_display_height = partial_overwrite(product_obj.item_display_height, row[102], "float")
-        product_obj.item_display_height_metric = partial_overwrite(product_obj.item_display_height_metric, row[103], "str")
-        product_obj.item_display_weight = partial_overwrite(product_obj.item_display_weight, row[106], "float")
-        product_obj.item_display_weight_metric = partial_overwrite(product_obj.item_display_weight_metric, row[107], "str")
-        product_obj.item_display_volume = partial_overwrite(product_obj.item_display_volume, row[110], "float")
-        product_obj.item_display_volume_metric = partial_overwrite(product_obj.item_display_volume_metric, row[111], "str")
-        product_obj.package_weight_metric = partial_overwrite(product_obj.package_weight_metric, row[117], "str")
+        base_product.item_width_metric = partial_overwrite(base_product.material_type, row[84], "str")
+        base_product.item_width = partial_overwrite(base_product.item_width, row[85], "float")
+        base_product.item_height = partial_overwrite(base_product.item_height, row[86], "float")
+        base_product.item_height_metric = partial_overwrite(base_product.item_height_metric, row[89], "str")
+        base_product.item_length_metric = partial_overwrite(base_product.item_length_metric, row[91], "str")
+        base_product.item_length = partial_overwrite(base_product.item_length, row[92], "float")
+        base_product.shipping_weight = partial_overwrite(base_product.shipping_weight, row[96], "float")
+        base_product.shipping_weight_metric = partial_overwrite(base_product.shipping_weight_metric, row[97], "str")
+        base_product.item_display_length = partial_overwrite(base_product.item_display_length, row[98], "float")
+        base_product.item_display_length_metric = partial_overwrite(base_product.item_display_length_metric, row[99], "str")
+        base_product.item_display_width = partial_overwrite(base_product.item_display_width, row[100], "float")
+        base_product.item_display_width_metric = partial_overwrite(base_product.item_display_width_metric, row[101], "str")
+        base_product.item_display_height = partial_overwrite(base_product.item_display_height, row[102], "float")
+        base_product.item_display_height_metric = partial_overwrite(base_product.item_display_height_metric, row[103], "str")
+        base_product.item_display_weight = partial_overwrite(base_product.item_display_weight, row[106], "float")
+        base_product.item_display_weight_metric = partial_overwrite(base_product.item_display_weight_metric, row[107], "str")
+        base_product.item_display_volume = partial_overwrite(base_product.item_display_volume, row[110], "float")
+        base_product.item_display_volume_metric = partial_overwrite(base_product.item_display_volume_metric, row[111], "str")
+        base_product.package_weight_metric = partial_overwrite(base_product.package_weight_metric, row[117], "str")
 
-        product_obj.package_length_metric = partial_overwrite(product_obj.package_weight_metric, row[118], "str")
-        product_obj.package_width_metric = partial_overwrite(product_obj.package_width_metric, row[118], "str")
-        product_obj.package_height_metric = partial_overwrite(product_obj.package_height_metric, row[118], "str")
+        base_product.package_length_metric = partial_overwrite(base_product.package_weight_metric, row[118], "str")
+        base_product.package_width_metric = partial_overwrite(base_product.package_width_metric, row[118], "str")
+        base_product.package_height_metric = partial_overwrite(base_product.package_height_metric, row[118], "str")
 
-        product_obj.package_weight = partial_overwrite(product_obj.package_weight, row[119], "float")
-        product_obj.package_length = partial_overwrite(product_obj.package_length, row[120], "float")
-        product_obj.package_width = partial_overwrite(product_obj.package_width, row[121], "float")
-        product_obj.package_height = partial_overwrite(product_obj.package_height, row[122], "float")
+        base_product.package_weight = partial_overwrite(base_product.package_weight, row[119], "float")
+        base_product.package_length = partial_overwrite(base_product.package_length, row[120], "float")
+        base_product.package_width = partial_overwrite(base_product.package_width, row[121], "float")
+        base_product.package_height = partial_overwrite(base_product.package_height, row[122], "float")
 
-        product_obj.item_weight = partial_overwrite(product_obj.item_weight, row[165], "float")
-        product_obj.item_weight_metric = partial_overwrite(product_obj.item_weight_metric, row[166], "str")
-        product_obj.sale_price = partial_overwrite(product_obj.sale_price, row[187], "float")
+        base_product.item_weight = partial_overwrite(base_product.item_weight, row[165], "float")
+        base_product.item_weight_metric = partial_overwrite(base_product.item_weight_metric, row[166], "str")
+        
         #row[188] = str(product_obj.sale_from)
         #row[189] = str(product_obj.sale_end)
-        product_obj.condition_type = partial_overwrite(product_obj.condition_type, row[190], "str")
+        amazon_uk_product["sale_price"] = partial_overwrite(amazon_uk_product["sale_price"], row[187], "float")
+        amazon_uk_product["sale_from"] = partial_overwrite(amazon_uk_product["sale_from"], row[188], "str")
+        amazon_uk_product["sale_end"] = partial_overwrite(amazon_uk_product["sale_end"], row[189], "str")
+        amazon_uk_product["condition_type"] = partial_overwrite(amazon_uk_product["condition_type"], row[190], "str")
 
 
         # Graphics Part
@@ -381,7 +398,8 @@ def update_product_partial_amazon_uk(product_obj, row):
             image_obj = Image.objects.create(image=File(open(result[0])))
             image_bucket_obj = ImageBucket.objects.create(image=image_obj, is_main_image=True)
             reset_main_images(product_obj)
-            product_obj.main_images.add(image_bucket_obj)
+            main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel="Amazon UK")
+            main_images_obj.main_images.add(image_bucket_obj)
             os.system("rm "+result[0])              # Remove temporary file
 
 
@@ -389,17 +407,22 @@ def update_product_partial_amazon_uk(product_obj, row):
 
         reset_sub_images(product_obj)
 
-        save_subimage(product_obj, row[11], 1)
-        save_subimage(product_obj, row[12], 2)
-        save_subimage(product_obj, row[13], 3)
-        save_subimage(product_obj, row[14], 4)
-        save_subimage(product_obj, row[15], 5)
-        save_subimage(product_obj, row[16], 6)
-        save_subimage(product_obj, row[17], 7)
-        save_subimage(product_obj, row[18], 8)
+        channel_name = "Amazon UK"
+        save_subimage(product_obj, row[11], 1 , channel_name)
+        save_subimage(product_obj, row[12], 2 , channel_name)
+        save_subimage(product_obj, row[13], 3 , channel_name)
+        save_subimage(product_obj, row[14], 4 , channel_name)
+        save_subimage(product_obj, row[15], 5 , channel_name)
+        save_subimage(product_obj, row[16], 6 , channel_name)
+        save_subimage(product_obj, row[17], 7 , channel_name)
+        save_subimage(product_obj, row[18], 8 , channel_name)
         ####################### Sub Images Part #######################
 
+        base_product.save()
         product_obj.save()
+        channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
+        channel_product.save()
+
     except Exception as e:
         import sys
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -407,86 +430,117 @@ def update_product_partial_amazon_uk(product_obj, row):
 
 
 def update_product_missing_amazon_uk(product_obj, row):
-    product_obj.feed_product_type = fill_missing(product_obj.feed_product_type, row[0], "str")
-    product_obj.seller_sku = fill_missing(product_obj.seller_sku, row[1], "str")
-    if row[2]!="" and product_obj.brand==None:
+    
+    base_product = product_obj.base_product
+    channel_product = product_obj.channel_product
+    amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
+
+    amazon_uk_product["feed_product_type"] = fill_missing(amazon_uk_product["feed_product_type"], row[0], "str")
+    base_product.seller_sku = fill_missing(base_product.seller_sku, row[1], "str")
+
+    if row[2]!="":
         brand_obj, created = Brand.objects.get_or_create(name=row[2])
-        product_obj.brand = brand_obj
+        base_product.brand = brand_obj
     #product_obj.brand = fill_missing(product_obj.brand, row[2], "str")
-    product_obj.product_id_type = fill_missing(product_obj.product_id_type, row[4], "str")
-    product_obj.product_name_amazon_uk = fill_missing(product_obj.product_name_amazon_uk, row[5], "str")
-    product_obj.manufacturer = fill_missing(product_obj.manufacturer, row[6], "str")
-    product_obj.recommended_browse_nodes = fill_missing(product_obj.recommended_browse_nodes, row[7], "str")
+    
+    if row[4]!="":
+        product_id_type_obj , created = ProductIDType.objects.get_or_create(name = row[4])
+        base_product.product_id_type.name = fill_missing(product_id_type_obj.name, row[4], "str")
+        product_id_type_obj.save()
+        
+    amazon_uk_product["product_name"] = fill_missing(amazon_uk_product["product_name"], row[5], "str")
+    base_product.manufacturer = fill_missing(base_product.manufacturer, row[6], "str")
+    amazon_uk_product["recommended_browse_nodes"] = fill_missing(amazon_uk_product["recommended_browse_nodes"], row[7], "str")
     product_obj.standard_price = fill_missing(product_obj.standard_price, row[8], "float")
     product_obj.quantity = fill_missing(product_obj.quantity, row[9], "int")
-    product_obj.parentage = fill_missing(product_obj.parentage, row[20], "str")
-    product_obj.parent_sku = fill_missing(product_obj.parent_sku, row[21], "str")
-    product_obj.relationship_type = fill_missing(product_obj.relationship_type, row[22], "str")
-    product_obj.variation_theme = fill_missing(product_obj.variation_theme, row[23], "str")
-    product_obj.update_delete = fill_missing(product_obj.update_delete, row[24], "str")
-    product_obj.manufacturer_part_number = fill_missing(product_obj.manufacturer_part_number, row[26], "str")
-    product_obj.product_description_amazon_uk = fill_missing(product_obj.product_description_amazon_uk, row[27], "str")
-    product_obj.wattage_metric = fill_missing(product_obj.wattage_metric, row[28], "str")
-    
+    amazon_uk_product["parentage"] = fill_missing(amazon_uk_product["parentage"], row[20], "str")
+    amazon_uk_product["parent_sku"] = fill_missing(amazon_uk_product["parent_sku"], row[21], "str")
+    amazon_uk_product["relationship_type"] = fill_missing(amazon_uk_product["relationship_type"], row[22], "str")
+    amazon_uk_product["variation_theme"] = fill_missing(amazon_uk_product["variation_theme"], row[23], "str")
+    amazon_uk_product["update_delete"] = fill_missing(amazon_uk_product["update_delete"], row[24], "str")
+    base_product.manufacturer_part_number = fill_missing(base_product.manufacturer_part_number, row[26], "str")
+    amazon_uk_product["product_description"] = fill_missing(amazon_uk_product["product_description"], row[27], "str")
+    amazon_uk_product["wattage_metric"] = fill_missing(amazon_uk_product["wattage_metric"], row[28], "str")
+
+
+
+    special_features = []
+    for i in range(5):
+        special_feature = row[51+i]
+        if special_feature!="":
+            special_features.append(special_feature)
+    if len(special_features)>0:
+        amazon_uk_product["special_features"] = special_features
 
     key_product_features = []
     old_key_product_features = json.loads(product_obj.product_attribute_list_amazon_uk)
     if len(old_key_product_features) > 0:
         for i in range(len(old_key_product_features)):
             old_key_product_features[i] = fill_missing(old_key_product_features[i], row[32+i], "str")
-    product_obj.product_attribute_list_amazon_uk = json.dumps(old_key_product_features)
+    
+    amazon_uk_product["product_attribute_list"] = old_key_product_features
 
-    product_obj.search_terms = fill_missing(product_obj.search_terms, row[37], "str")
-    product_obj.wattage = fill_missing(product_obj.wattage, row[45], "float")
+
+    amazon_uk_product["search_terms"] = fill_missing(amazon_uk_product["search_terms"], row[37], "str")
+    amazon_uk_product["wattage"] = fill_missing(amazon_uk_product["wattage"], row[45], "float")
     product_obj.color = fill_missing(product_obj.color, row[46], "str")
     product_obj.color_map = fill_missing(product_obj.color_map, row[47], "str")
-    product_obj.material_type = fill_missing(product_obj.material_type, row[50], "str")
+    
+    if row[50] != "":
+        material_type_obj = MaterialType.objects.get_or_create(name=row[50])
+        product_obj.material_type.name = fill_missing(material_type_obj.name, row[50], "str")
 
 
-    product_obj.item_width_metric = fill_missing(product_obj.item_width_metric, row[84], "str")
-    product_obj.item_width = fill_missing(product_obj.item_width, row[85], "float")
-    product_obj.item_height = fill_missing(product_obj.item_height, row[86], "float")
-    product_obj.item_height_metric = fill_missing(product_obj.item_height_metric, row[89], "str")
-    product_obj.item_length_metric = fill_missing(product_obj.item_length_metric, row[91], "str")
-    product_obj.item_length = fill_missing(product_obj.item_length, row[92], "float")
-    product_obj.shipping_weight = fill_missing(product_obj.shipping_weight, row[96], "float")
-    product_obj.shipping_weight_metric = fill_missing(product_obj.shipping_weight_metric, row[97], "str")
-    product_obj.item_display_length = fill_missing(product_obj.item_display_length, row[98], "float")
-    product_obj.item_display_length_metric = fill_missing(product_obj.item_display_length_metric, row[99], "str")
-    product_obj.item_display_width = fill_missing(product_obj.item_display_width, row[100], "float")
-    product_obj.item_display_width_metric = fill_missing(product_obj.item_display_width_metric, row[101], "float")
-    product_obj.item_display_height = fill_missing(product_obj.item_display_height, row[102], "float")
-    product_obj.item_display_height_metric = fill_missing(product_obj.item_display_height_metric, row[103], "str")
-    product_obj.item_display_weight = fill_missing(product_obj.item_display_weight, row[106], "float")
-    product_obj.item_display_weight_metric = fill_missing(product_obj.item_display_weight_metric, row[107], "str")
-    product_obj.item_display_volume = fill_missing(product_obj.item_display_volume, row[110], "float")
-    product_obj.item_display_volume_metric = fill_missing(product_obj.item_display_volume_metric, row[111], "str")
-    product_obj.package_weight_metric = fill_missing(product_obj.package_weight_metric, row[117], "str")
+    base_product.item_width_metric = fill_missing(base_product.material_type, row[84], "str")
+    base_product.item_width = fill_missing(base_product.item_width, row[85], "float")
+    base_product.item_height = fill_missing(base_product.item_height, row[86], "float")
+    base_product.item_height_metric = fill_missing(base_product.item_height_metric, row[89], "str")
+    base_product.item_length_metric = fill_missing(base_product.item_length_metric, row[91], "str")
+    base_product.item_length = fill_missing(base_product.item_length, row[92], "float")
+    base_product.shipping_weight = fill_missing(base_product.shipping_weight, row[96], "float")
+    base_product.shipping_weight_metric = fill_missing(base_product.shipping_weight_metric, row[97], "str")
+    base_product.item_display_length = fill_missing(base_product.item_display_length, row[98], "float")
+    base_product.item_display_length_metric = fill_missing(base_product.item_display_length_metric, row[99], "str")
+    base_product.item_display_width = fill_missing(base_product.item_display_width, row[100], "float")
+    base_product.item_display_width_metric = fill_missing(base_product.item_display_width_metric, row[101], "str")
+    base_product.item_display_height = fill_missing(base_product.item_display_height, row[102], "float")
+    base_product.item_display_height_metric = fill_missing(base_product.item_display_height_metric, row[103], "str")
+    base_product.item_display_weight = fill_missing(base_product.item_display_weight, row[106], "float")
+    base_product.item_display_weight_metric = fill_missing(base_product.item_display_weight_metric, row[107], "str")
+    base_product.item_display_volume = fill_missing(base_product.item_display_volume, row[110], "float")
+    base_product.item_display_volume_metric = fill_missing(base_product.item_display_volume_metric, row[111], "str")
+    base_product.package_weight_metric = fill_missing(base_product.package_weight_metric, row[117], "str")
 
-    product_obj.package_length_metric = fill_missing(product_obj.package_weight_metric, row[118], "str")
-    product_obj.package_width_metric = fill_missing(product_obj.package_width_metric, row[118], "str")
-    product_obj.package_height_metric = fill_missing(product_obj.package_height_metric, row[118], "str")
+    base_product.package_length_metric = fill_missing(base_product.package_weight_metric, row[118], "str")
+    base_product.package_width_metric = fill_missing(base_product.package_width_metric, row[118], "str")
+    base_product.package_height_metric = fill_missing(base_product.package_height_metric, row[118], "str")
 
-    product_obj.package_weight = fill_missing(product_obj.package_weight, row[119], "float")
-    product_obj.package_length = fill_missing(product_obj.package_length, row[120], "float")
-    product_obj.package_width = fill_missing(product_obj.package_width, row[121], "float")
-    product_obj.package_height = fill_missing(product_obj.package_height, row[122], "float")
+    base_product.package_weight = fill_missing(base_product.package_weight, row[119], "float")
+    base_product.package_length = fill_missing(base_product.package_length, row[120], "float")
+    base_product.package_width = fill_missing(base_product.package_width, row[121], "float")
+    base_product.package_height = fill_missing(base_product.package_height, row[122], "float")
 
-    product_obj.item_weight = fill_missing(product_obj.item_weight, row[165], "float")
-    product_obj.item_weight_metric = fill_missing(product_obj.item_weight_metric, row[166], "str")
-    product_obj.sale_price = fill_missing(product_obj.sale_price, row[187], "float")
+    base_product.item_weight = fill_missing(base_product.item_weight, row[165], "float")
+    base_product.item_weight_metric = fill_missing(base_product.item_weight_metric, row[166], "str")
+    
     #row[188] = str(product_obj.sale_from)
     #row[189] = str(product_obj.sale_end)
-    product_obj.condition_type = fill_missing(product_obj.condition_type, row[190], "str")
+    amazon_uk_product["sale_price"] = fill_missing(amazon_uk_product["sale_price"], row[187], "float")
+    amazon_uk_product["sale_from"] = fill_missing(amazon_uk_product["sale_from"], row[188], "str")
+    amazon_uk_product["sale_end"] = fill_missing(amazon_uk_product["sale_end"], row[189], "str")
+    amazon_uk_product["condition_type"] = fill_missing(amazon_uk_product["condition_type"], row[190], "str")
 
 
+    # Graphics Part
     main_image_url = row[10]
-    if main_image_url!="" and product_obj.main_images.filter(is_main_image=True).count()==0:
+    if main_image_url!="":
         filename = main_image_url.split("/")[-1]
         result = urllib.urlretrieve(main_image_url, filename)
         image_obj = Image.objects.create(image=File(open(result[0])))
         image_bucket_obj = ImageBucket.objects.create(image=image_obj, is_main_image=True)
-        product_obj.main_images.add(image_bucket_obj)
+        reset_main_images(product_obj)
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel="Amazon UK")
+        main_images_obj.main_images.add(image_bucket_obj)
         os.system("rm "+result[0])              # Remove temporary file
 
 
@@ -494,17 +548,21 @@ def update_product_missing_amazon_uk(product_obj, row):
 
     reset_sub_images(product_obj)
 
-    save_subimage(product_obj, row[11], 1)
-    save_subimage(product_obj, row[12], 2)
-    save_subimage(product_obj, row[13], 3)
-    save_subimage(product_obj, row[14], 4)
-    save_subimage(product_obj, row[15], 5)
-    save_subimage(product_obj, row[16], 6)
-    save_subimage(product_obj, row[17], 7)
-    save_subimage(product_obj, row[18], 8)
-    ####################### Sub Images Part ####################### 
+    channel_name = "Amazon UK"
+    save_subimage(product_obj, row[11], 1 , channel_name)
+    save_subimage(product_obj, row[12], 2 , channel_name)
+    save_subimage(product_obj, row[13], 3 , channel_name)
+    save_subimage(product_obj, row[14], 4 , channel_name)
+    save_subimage(product_obj, row[15], 5 , channel_name)
+    save_subimage(product_obj, row[16], 6 , channel_name)
+    save_subimage(product_obj, row[17], 7 , channel_name)
+    save_subimage(product_obj, row[18], 8 , channel_name)
+    ####################### Sub Images Part #######################
 
+    base_product.save()
     product_obj.save()
+    channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
+    channel_product.save()
 
 
 def create_new_product_amazon_uk(row):
