@@ -97,7 +97,7 @@ def update_product_full_amazon_uae(product_obj, row):
 
     base_product = product_obj.base_product
     channel_product = product_obj.channel_product
-    amazon_uae_product = {}
+    amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
 
     amazon_uae_product["feed_product_type"] = row[1]
     base_product.seller_sku = row[2]
@@ -143,8 +143,7 @@ def update_product_full_amazon_uae(product_obj, row):
         main_images_obj.main_images.add(image_bucket_obj)
         os.system("rm " + result[0])              # Remove temporary file
 
-    amazon_uae_product_json = json.dumps(amazon_uae_product)
-    channel_product.amazon_uae_product_json = amazon_uae_product_json
+    channel_product.save()
     product_obj.save()
 
 
