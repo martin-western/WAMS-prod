@@ -818,6 +818,8 @@ class SaveProductAPI(APIView):
             product_obj.pfl_product_features = pfl_product_features
 
             product_obj.factory_notes = factory_notes
+            
+            base_product_obj.save()
             product_obj.save()
 
             response['status'] = 200

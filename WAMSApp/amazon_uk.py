@@ -171,32 +171,38 @@ def update_product_full_amazon_uk(product_obj, row):
     channel_product = product_obj.channel_product
     amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
 
-    product_obj.feed_product_type = row[0]
-    product_obj.seller_sku = row[1]
+    amazon_uk_product["feed_product_type"] = row[0]
+    base_product.seller_sku = row[1]
+    
     if row[2]!="":
         brand_obj = Brand.objects.create(name=row[2])
-        product_obj.brand = brand_obj
-    product_obj.product_id_type = row[4]
-    product_obj.product_name_amazon_uk = row[5]
-    product_obj.manufacturer = row[6]
-    product_obj.recommended_browse_nodes = row[7]
+        base_product.brand = brand_obj
+    
+    if row[4]!="":
+        product_id_type_obj , created = ProductIDType.objects.get_or_create(name = row[4])
+        base_product.product_id_type = product_id_type_obj
+
+    amazon_uk_product["product_name"] = row[5]
+    base_product.manufacturer = row[6]
+    amazon_uk_product["recommended_browse_nodes"] = row[7]
     product_obj.standard_price = None if row[8]=="" else float(row[8])
     product_obj.quantity = None if row[9]=="" else int(row[9])
-    product_obj.parentage = row[20]
-    product_obj.parent_sku = row[21]
-    product_obj.relationship_type = row[22]
-    product_obj.variation_theme = row[23]
-    product_obj.update_delete = row[24]
-    product_obj.manufacturer_part_number = row[26]
-    product_obj.product_description_amazon_uk = row[27]
-    product_obj.wattage_metric = row[28]
+    amazon_uk_product["parentage"] = row[20]
+    amazon_uk_product["parent_sku"] = row[21]
+    amazon_uk_product["relationship_type"] = row[22]
+    amazon_uk_product["variation_theme"] = row[23]
+    amazon_uk_product["update_delete"] = row[24]
+    base_product.manufacturer_part_number = row[26]
+    amazon_uk_product["product_description"] = row[27]
+    amazon_uk_product["wattage_metric"] = row[28]
 
-    product_obj.search_terms = row[37]
+    amazon_uk_product["search_terms"] = row[37]
 
     key_product_features = []
     for i in range(5):
         key_product_features.append(row[32+i])
-    product_obj.product_attribute_list_amazon_uk = json.dumps(key_product_features)
+    
+    amazon_uk_product["product_attribute_list"] = key_product_features
 
     product_obj.search_terms = row[37]
     product_obj.wattage = None if row[45]=="" else float(row[45])

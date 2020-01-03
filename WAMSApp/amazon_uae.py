@@ -140,6 +140,7 @@ def update_product_full_amazon_uae(product_obj, row):
         main_images_obj.main_images.add(image_bucket_obj)
         os.system("rm " + result[0])              # Remove temporary file
 
+    channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
     channel_product.save()
     product_obj.save()
 
@@ -217,7 +218,10 @@ def update_product_partial_amazon_uae(product_obj, row):
             main_images_obj.main_images.add(image_bucket_obj)
             os.system("rm " + result[0])              # Remove temporary file
 
+        channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
+        channel_product.save()
         product_obj.save()
+        base_product.save()
 
     except Exception as e:
         import sys
@@ -299,7 +303,10 @@ def update_product_missing_amazon_uae(product_obj, row):
         main_images_obj.main_images.add(image_bucket_obj)
         os.system("rm " + result[0])              # Remove temporary file
 
+    channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
+    channel_product.save()
     product_obj.save()
+    base_product.save()
 
 
 def create_new_product_amazon_uae(row):
@@ -365,6 +372,7 @@ def create_new_product_amazon_uae(row):
 
     base_product_obj.save()
     product_obj.save()
+    channel_product_obj.amazon_uae_product_json = json.dumps(amazon_uae_product)
     channel_product_obj.save()
 
 
