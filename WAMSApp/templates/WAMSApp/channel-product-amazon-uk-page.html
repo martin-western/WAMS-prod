@@ -373,12 +373,30 @@
   .scroll-style-2>li>a {
     padding: 0 17px !important;
   }
+
+  .margin-zero {
+    margin: 0 !important;
+  }
+
+  .sidebar2 {}
+
+  .sidebar2 .row {
+    height: 100vh;
+    background-color: white;
+  }
+
+  .collapse-div-row-container {
+    height: 100vh;
+    background-color: white !important;
+  }
+
+  .collapse-div {}
 </style>
 
 
 <br>
 <div>
-  <div class="row" style="margin: 0 52px 0 60px;">
+  <div class="row" style="margin: 0 35px 0 60px;">
     <div class="toolbar"
       style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
       <a class="right" href="#!" onclick="window.close()"
@@ -559,73 +577,25 @@
       </div>
     </div>
 
-    <div id="collapse-div" class="col s8 center" style="padding: 0;transition: width 0.5s;">
-      <ul class="scroll-style-2 tabs">
-        <li class="active tab"><a href="#vital">VITAL</a></li>
-        <li class="tab"><a id="information-tab" href="#information">INFORMATION</a></li>
-        <li class="tab"><a href="#dimensions">DIMENSIONS</a></li>
-        <li class="tab"><a href="#attributes">ATTRIBUTES</a></li>
-        <li class="tab"><a href="#variation">VARIATION</a></li>
-        <li class="tab"><a href="#offer">OFFER</a></li>
-        <li class="tab"><a href="#pfl">PFL</a></li>
-        <li class="tab"><a href="#factoryNotes">FACTORY NOTES</a></li>
-      </ul>
+    <div id="collapse-div" class="col s8 center collapse-div-container"
+      style="padding: 0;background-color: white;transition: width 0.5s;">
 
-      <div class="scroll-style-1 tab-content">
-        <div class="tab-pane active" id="vital">
-          <h4>VITAL</h4>
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s12" style="margin-top:40px !important;">
-              <input id="product-name-sap" type="text">
-              <label for="product-name-sap">Product Title SAP</label>
-            </div>
-
-            <div class="input-field col s12">
-              <input id="product-name-amazon-uk" type="text">
-              <label for="product-name-amazon-uk">Product Title Amazon UK</label>
-            </div>
-
-            <div class="input-field col s12">
-              <input id="product-name-amazon-uae" type="text">
-              <label for="product-name-amazon-uae">Product Title Amazon UAE</label>
-            </div>
-
-            <div class="input-field col s12">
-              <input id="product-name-ebay" type="text">
-              <label for="product-name-ebay">Product Title Ebay</label>
-            </div>
-
-            <div class="input-field col s12">
-              <input id="product-name-noon" type="text">
-              <label for="product-name-noon">Product Title Noon</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
+      <div class="collapse-div">
+        <div class="scroll-style-1 ">
+          <h6 style="color: #521893;">Amazon UK</h6>
+          <div class="row margin-zero collapse-div-row-container">
             <div class="input-field col s6">
-              <input id="category" type="text">
-              <label for="category">Category</label>
+              <input id="product-name" type="text">
+              <label for="product-name">Product Name</label>
             </div>
-
             <div class="input-field col s6">
-              <input id="subtitle" type="text">
-              <label for="subtitle">Subtitle</label>
+              <input id="product-type" type="text">
+              <label for="product-type">Product Type</label>
             </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <input id="brand-name" type="text">
-              <label for="brand-name">Brand Name</label>
+              <input id="product-subtype" type="text">
+              <label for="product-subtype">Product Subtype</label>
             </div>
-
-            <div class="input-field col s6">
-              <input id="manufacturer" type="text">
-              <label for="manufacturer">Manufacturer</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
               <input id="product-id" type="text">
               <label for="product-id">Product ID</label>
@@ -636,37 +606,50 @@
               </select>
               <label for="product-id-type">Product ID Type</label>
             </div>
-          </div>
-
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <input id="seller-sku" type="text">
-              <label for="seller-sku">Seller SKU</label>
+              <input id="model-no" type="text">
+              <label for="product-model-no">Model No.</label>
             </div>
-
             <div class="input-field col s6">
-              <input id="manufacturer-part-number" type="text">
-              <label for="manufacturer-part-number">Manufacturer Part Number</label>
+              <input id="model-name" type="text">
+              <label for="product-model-name">Model Name</label>
             </div>
-          </div>
-
-
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
+            <div class="input-field col s6">
+              <input id="model-name" type="text">
+              <label for="product-msrp">MRP</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-description" type="text">
+              <label for="product-description">Description</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-relation-type" type="text">
+              <label for="product-relation-type">Relation Type</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-variation-theme" type="text">
+              <label for="product-variation-theme">Variation Theme</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-variation-theme" type="text">
+              <label for="product-variation-theme">Variation Theme</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="created-date" type="date">
+              <label for="created-date">Created Date</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-subtitle" type="text">
+              <label for="product-subtitle">Subtitle</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="product-subtitle" type="text">
+              <label for="product-subtitle">Subtitle</label>
+            </div>
             <div class="input-field col s6">
               <input id="feed-product-type" type="text">
               <label for="feed-product-type">Feed Product Type</label>
             </div>
-
-            <div class="input-field col s6">
-              <input id="parent-sku" type="text">
-              <label for="parent-sku">Parent SKU</label>
-            </div>
-          </div>
-
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
               <select id="update-delete">
                 <option value="Update" selected>Update</option>
@@ -674,595 +657,26 @@
               </select>
               <label for="update-delete">Update Delete</label>
             </div>
-
             <div class="input-field col s6">
               <input id="recommended-browse-nodes" type="text">
               <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
             </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <input id="barcode-string" type="text" data-length="20">
-              <label for="barcode-string">Barcode</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="noon-product-type" type="text">
-              <label for="noon-product-type">Noon Product Type</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s6">
-              <input id="noon-product-subtype" type="text">
-              <label for="noon-product-subtype">Noon Product Subtype</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="noon-model-number" type="text">
-              <label for="noon-model-number">Noon Model Number</label>
-            </div>
-          </div>
-
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s6">
-              <input id="noon-model-name" type="text">
-              <label for="noon-model-name">Noon Model Name</label>
-            </div>
-          </div>
-
-
-        </div>
-
-
-        <div class="tab-pane" id="information">
-          <h4>Information</h4>
-          <div class="row white" style="position: relative;padding-bottom:0em !important;margin-bottom: 0em;">
-            <span style="position: absolute;top: 20px;left: 30px;color: gray;">Product Description - HTML Editor</span>
-            <br>
-            <div class="col s12">
-              <ul class="tabs">
-                <li class="tab col s3"><a class="active" href="#amazon_uk_description_div">Amazon UK</a></li>
-                <li class="tab col s3"><a href="#amazon_uae_description_div">Amazon UAE</a></li>
-                <li class="tab col s3"><a href="#ebay_description_div">Ebay</a></li>
-                <li class="tab col s3"><a href="#noon_description_div">Noon</a></li>
-              </ul>
-            </div>
-
-            <div id="amazon_uk_description_div">
-              <div class="input-field col s12" style="text-align: left;">
-                <div class="document-editor">
-                  <div class="document-editor__toolbar"></div>
-                  <div class="document-editor__editable-container">
-                    <div class="document-editor__editable">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="input-field col s9">
-                <input id="product-attribute-amazon-uk-1" type="text">
-                <label for="product-attribute-amazon-uk-1">Product Attribute</label>
-              </div>
-
-              <div class="input-field col s1">
-                <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
-                  style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                    class="material-icons">add</i></a>
-              </div>
-
-              <div id="product-attributes-amazon-uk-div">
-              </div>
-            </div>
-
-            <div id="amazon_uae_description_div">
-              <div class="input-field col s12" style="text-align: left;">
-                <div class="document-editor">
-                  <div class="document-editor__toolbar clone2_toolbar"></div>
-                  <div class="document-editor__editable-container clone2_container">
-                    <div class="document-editor__editable clone2_editable">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="input-field col s9">
-                <input id="product-attribute-amazon-uae-1" type="text">
-                <label for="product-attribute-amazon-uae-1">Product Attribute</label>
-              </div>
-
-              <div class="input-field col s1">
-                <a id="add-product-attribute-amazon-uae-btn" href="#!" class="btn-floating blue"
-                  style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                    class="material-icons">add</i></a>
-              </div>
-
-              <div id="product-attributes-amazon-uae-div">
-              </div>
-            </div>
-
-            <div id="ebay_description_div">
-
-              <div class="input-field col s12" style="text-align: left;">
-                <div class="document-editor">
-                  <div class="document-editor__toolbar clone3_toolbar"></div>
-                  <div class="document-editor__editable-container clone3_container">
-                    <div class="document-editor__editable clone3_editable">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-
-              <div class="input-field col s9">
-                <input id="product-attribute-ebay-1" type="text">
-                <label for="product-attribute-ebay-1">Product Attribute</label>
-              </div>
-
-              <div class="input-field col s1">
-                <a id="add-product-attribute-ebay-btn" href="#!" class="btn-floating"
-                  style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                    class="material-icons">add</i></a>
-              </div>
-
-              <div id="product-attributes-ebay-div">
-              </div>
-            </div>
-
-
-
-            <div id="noon_description_div">
-
-              <div class="input-field col s12" style="text-align: left;">
-                <div class="document-editor">
-                  <div class="document-editor__toolbar clone4_toolbar"></div>
-                  <div class="document-editor__editable-container clone4_container">
-                    <div class="document-editor__editable clone4_editable">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-
-              <div class="input-field col s9">
-                <input id="product-attribute-noon-1" type="text">
-                <label for="product-attribute-noon-1">Product Attribute</label>
-              </div>
-
-              <div class="input-field col s1">
-                <a id="add-product-attribute-noon-btn" href="#!" class="btn-floating"
-                  style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                    class="material-icons">add</i></a>
-              </div>
-
-              <div id="product-attributes-noon-div">
-              </div>
-            </div>
-
-            <div class="input-field col s12">
               <input id="search-terms" type="text">
               <label for="search-terms">Search Terms</label>
             </div>
-          </div>
-
-          <div class="row white"
-            style="margin-top: 0em;margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-
-            <div class="input-field col s6">
-              <input id="color-map" type="text">
-              <label for="color-map">Color Map</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="color" type="text">
-              <label for="color">Color</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
               <input id="enclosure-material" type="text">
               <label for="enclosure-material">Enclosure Material</label>
             </div>
-
             <div class="input-field col s6">
               <input id="cover-material-type" type="text">
               <label for="cover-material-type">Cover Material Type</label>
             </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s9">
-              <input id="special-feature-1" type="text">
-              <label for="special-feature-1">Special Feature</label>
-            </div>
-
-            <div class="input-field col s1">
-              <a id="add-special-feature-btn" href="#!" class="btn-floating blue"
-                style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                  class="material-icons">add</i></a>
-            </div>
-
-            <div id="special-features-div">
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-pane" id="dimensions">
-          <h4>Dimensions</h4>
-          <div class="row white" style="margin-bottom:0px !important;">
-
-            <div class="col s12">
-              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="package-length" type="number">
-                  <label for="package-length">Package Length</label>
-                </div>
-
-                <div class="input-field  col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="package-length-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="package-width" type="number">
-                  <label for="package-width">Package Width</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="package-width-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="package-height" type="number">
-                  <label for="package-height">Package Height</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="package-height-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="package-weight" type="number">
-                  <label for="package-weight">Package Weight</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="package-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="shipping-weight" type="number">
-                  <label for="shipping-weight">Shipping Weight</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="shipping-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-display-weight" type="number">
-                  <label for="item-display-weight">Item Display Weight</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-display-volume" type="number">
-                  <label for="item-display-volume">Item Display Volume</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-volume-metric">
-                    <option selected value="">Unit</option>
-                    <option value="cc">CC</option>
-                    <option value="litres">L</option>
-                    <option value="cubic-m">CUBIC-M</option>
-                  </select>
-                </div>
-
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-display-length" type="number">
-                  <label for="item-display-length">Item Display Length</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-length-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-weight" type="number">
-                  <label for="item-weight">Item Weight</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-length" type="number">
-                  <label for="item-length">Item Length</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-length-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-width" type="number">
-                  <label for="item-width">Item Width</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-width-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-height" type="number">
-                  <label for="item-height">Item Height</label>
-                </div>
-
-                <div class="input-field col s2 " style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-height-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-display-width" type="number">
-                  <label for="item-display-width">Item Display Width</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-width-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-display-height" type="number">
-                  <label for="item-display-height">Item Display Height</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-height-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-count" type="number">
-                  <label for="item-count">Item Count</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-count-metric">
-                    <option selected value="">Unit</option>
-                    <option value="Bag">Bag</option>
-                    <option value="Box">Box</option>
-                    <option value="Dzn">Dzn</option>
-                    <option value="Mah">Mah</option>
-                    <option value="Pieces">Pieces</option>
-                    <option value="Packet">Packet</option>
-                  </select>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-pane" id="attributes">
-          <h4>Attributes</h4>
-          <div class="row white" style="position:absolute;margin-bottom:0px !important;">
-
-            <div class="col s12">
-              <div class="row"
-                style="padding-top:0em !important;margin-top:0em !important;margin-bottom:0px !important;padding-bottom: 0em !important;">
-                <div class="input-field col s12">
-                  <input id="item-condition-note" type="text">
-                  <label for="item-condition-note">Item Condition Note</label>
-                </div>
-              </div>
-
-              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
-                <div class="input-field col s6">
-                  <input id="max-order-quantity" type="text">
-                  <label for="max-order-quantity">Max Order Quantity</label>
-                </div>
-
-                <div class="input-field col s6">
-                  <input id="number-of-items" type="text">
-                  <label for="number-of-items">Number of Items</label>
-                </div>
-              </div>
-
-              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 50px  !important;">
-                  <input id="wattage" type="number">
-                  <label for="wattage">Wattage</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="wattage-metric">
-                    <option selected value="">Unit</option>
-                    <option value="volts">V</option>
-                    <option value="Watts">W</option>
-                    <option value="Kilowatts">KW</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s6">
-                  <input id="material-type" type="text">
-                  <label for="material-type">Material Type</label>
-                </div>
-              </div>
-
-
-              <div class="row" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-                <div class="input-field col s6">
-                  <select id="condition-type">
-                    <option value="New" selected>New</option>
-                    <option value="Old">Old</option>
-                  </select>
-                  <label for="condition-type">Condition Type</label>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-pane" id="variation">
-          <h4>Variation</h4>
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="parentage" type="text">
-              <label for="parentage">Parentage</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="variation-theme" type="text">
-              <label for="variation-theme">Variation Theme</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="relationship-type" type="text">
-              <label for="relationship-type">Relationship Type</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-pane" id="offer">
-          <h4>Offer</h4>
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="standard-price" type="number">
-              <label for="standard-price">Standard Price</label>
-            </div>
-
             <div class="input-field col s6">
               <input id="sale-price" type="number">
               <label for="sale-price">Sale Price</label>
             </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
             <div class="input-field col s6">
               <input id="sale-from" type="date">
               <label for="sale-from">Sale From</label>
@@ -1272,78 +686,152 @@
               <input id="sale-end" type="date">
               <label for="sale-end">Sale End</label>
             </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="noon-msrp-ae" type="number">
-              <label for="noon-msrp-ae">Noon MSRP AE</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="noon-msrp-ae-unit" type="text">
-              <label for="noon-msrp-ae-unit">Noon MSRP AE Unit</label>
-            </div>
-          </div>
-
-
-          <div class="row white" style="margin-bottom: 0em;padding-bottom: 0em !important;padding-top: 0em !important;">
-            <div class="input-field col s6">
-              <input id="quantity" type="number">
-              <label for="quantity">Quantity</label>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="tab-pane" id="pfl">
-          <h4>PFL</h4>
-          <div class="row white" style="margin-bottom:0px !important;">
-            <div class="input-field col s12">
-              <input id="pfl-product-name" type="text">
-              <label for="pfl-product-name">PFL Product Name</label>
-            </div>
-
-            <div id="feature-summary-editor-div" class="row">
+            <div class="row margin-zero">
               <div class="input-field col s9">
-                <input class="feature-text" id="pfl-feature-1" type="text">
-                <label for="pfl-feature-1">Feature</label>
+                <input id="special-feature-1" type="text">
+                <label for="special-feature-1">Special Feature</label>
               </div>
 
               <div class="input-field col s1">
-                <a id="add-feature-btn" href="#!" class="btn-floating blue"
+                <a id="add-special-feature-btn" href="#!" class="btn-floating blue"
                   style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
                     class="material-icons">add</i></a>
               </div>
-            </div>
-          </div>
-        </div>
 
-        <div class="tab-pane" id="factoryNotes">
-          <h4>FACTORY NOTES</h4>
-          <div class="row white" style="margin-bottom:0px !important;">
-            <div class="input-field col s12">
-              <input id="factory-notes" type="text">
-              <label for="">Factory Notes</label>
+              <div id="special-features-div">
+              </div>
             </div>
+            <div class="row margin-zero">
+              <div class="input-field col s4" style="padding: 0px 20px 0px 50px  !important;">
+                <input id="wattage" type="number">
+                <label for="wattage">Wattage</label>
+              </div>
+
+              <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                <select id="wattage-metric">
+                  <option selected value="">Unit</option>
+                  <option value="volts">V</option>
+                  <option value="Watts">W</option>
+                  <option value="Kilowatts">KW</option>
+                </select>
+              </div>
+
+              <div class="input-field col s6">
+                <input id="material-type" type="text">
+                <label for="material-type">Material Type</label>
+              </div>
+            </div>
+            <div class="input-field col s6">
+              <input id="parentage" type="text">
+              <label for="parentage">Parentage</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="parent-sku" type="text">
+              <label for="parent-sku">Parent SKU</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="relationship-type" type="text">
+              <label for="relationship-type">Relationship Type</label>
+            </div>
+            <div class="row margin-zero">
+              <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
+                <input id="item-count" type="number">
+                <label for="item-count">Item Count</label>
+              </div>
+
+              <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
+                <select id="item-count-metric">
+                  <option selected value="">Unit</option>
+                  <option value="Bag">Bag</option>
+                  <option value="Box">Box</option>
+                  <option value="Dzn">Dzn</option>
+                  <option value="Mah">Mah</option>
+                  <option value="Pieces">Pieces</option>
+                  <option value="Packet">Packet</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-field col s6">
+              <input id="item-condition-note" type="text">
+              <label for="item-condition-note">Item Condition Note</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="max-order-quantity" type="text">
+              <label for="max-order-quantity">Max Order Quantity</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="number-of-items" type="text">
+              <label for="number-of-items">Number of Items</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="material-type" type="text">
+              <label for="material-type">Material Type</label>
+            </div>
+            <div class="input-field col s6">
+              <select id="condition-type">
+                <option value="New" selected>New</option>
+                <option value="Old">Old</option>
+              </select>
+              <label for="condition-type">Condition Type</label>
+            </div>
+
+
 
 
           </div>
         </div>
 
       </div>
-
-
     </div>
 
-    <div id="sidebar2" class="col s4" style="display: none;">
-      Hello
+    <div id="sidebar2" class="col s4 sidebar2" style="display: none;">
+      <div class="row margin-zero">
+        <div class="input-field col s12">
+          <select id="flyer-brand">
+            <option value="" selected>Select Channel</option>
+            <option value="">Amazon UK</option>
+            <option value="">Amazon UAE</option>
+            <option value="">Ebay</option>
+            <option value="">Noon</option>
+          </select>
+          <label>Channels</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-product-name" type="text">
+          <label for="product-name">Product Name</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-product-type" type="text">
+          <label for="product-type">Product Type</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-product-subtype" type="text">
+          <label for="product-subtype">Product Subtype</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-model-no" type="text">
+          <label for="product-model-no">Model No.</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-model-name" type="text">
+          <label for="product-model-name">Model Name</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-model-name" type="text">
+          <label for="product-msrp">MRP</label>
+        </div>
+        <div class="input-field col s6">
+          <input disabled id="sidenav-product-description" type="text">
+          <label for="sidenav-product-description">Description</label>
+        </div>
+
+      </div>
     </div>
 
     <div class="toolbar"
       style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
       <a id="open-it-btn" visible="no" href="#" class="button-collapse show-on-large">
-        <i class="material-icons">add</i>
+        <i class="material-icons">keyboard_arrow_left</i>
       </a>
 
 
@@ -1638,8 +1126,9 @@
   $("#open-it-btn").click(function () {
     if ($(this).attr("visible") == "no") {
       $(this).attr("visible", "yes");
-      $("#sidebar2").show();
       $("#collapse-div").attr("class", "col s4 center");
+      $("#sidebar2").show(600);
+
     }
     else {
       $(this).attr("visible", "no");
@@ -1697,7 +1186,7 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        product_pk: window.location.pathname.split("/")[2],
+        product_pk: window.location.pathname.split("/")[3],
         export_format: export_format
       },
       success: function (response) {
@@ -1736,7 +1225,7 @@
 
   function call_verify_api(verify) {
     var fd = new FormData()
-    fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("product_pk", window.location.pathname.split("/")[3]);
     fd.append("verify", verify);
 
     $.ajax({
@@ -2004,7 +1493,7 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        pk: window.location.pathname.split("/")[2]
+        pk: window.location.pathname.split("/")[3]
       },
       success: function (response) {
         console.log("Success!", response);
@@ -2057,7 +1546,7 @@
     $("#upload-image-btn").attr("disabled", "disabled");
     $("#upload-preloader").show();
 
-    product_pk = window.location.pathname.split("/")[2];
+    product_pk = window.location.pathname.split("/")[3];
 
     var fd = new FormData();
 
@@ -2128,7 +1617,7 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        pk: window.location.pathname.split("/")[2]
+        pk: window.location.pathname.split("/")[3]
       },
       success: function (response) {
         console.log("Success!", response);
@@ -2548,7 +2037,7 @@
 
     var checked_pk = $("input[name=group1]:checked").val();
     fd.append("checked_pk", checked_pk);
-    fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("product_pk", window.location.pathname.split("/")[3]);
 
     $.ajax({
       url: "/update-main-image/",
@@ -2663,7 +2152,7 @@
     }
 
     fd.append("sub_images", JSON.stringify(sub_image));
-    fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("product_pk", window.location.pathname.split("/")[3]);
 
     $.ajax({
       url: "/update-sub-images/",
@@ -2889,7 +2378,7 @@
 
               var fd = new FormData();
               fd.append('image_data', image_data);
-              fd.append('product_pk', window.location.pathname.split("/")[2]);
+              fd.append('product_pk', window.location.pathname.split("/")[3]);
 
               $.ajax({
                 url: "/save-pfl-in-bucket/",
@@ -2936,7 +2425,7 @@
 
     $("#save-btn").attr("disabled", "disabled");
 
-    var product_pk = window.location.pathname.split("/")[2];
+    var product_pk = window.location.pathname.split("/")[3];
 
     var pfl_product_name = $("#pfl-product-name").val();
     var pfl_product_features = [];
@@ -3073,7 +2562,7 @@
     var sale_end = $("#sale-end").val();
     var noon_msrp_ae = $("#noon-msrp-ae").val();
     var noon_msrp_ae_unit = $("#noon-msrp-ae-unit").val();
-    var product_pk = window.location.pathname.split("/")[2];
+    var product_pk = window.location.pathname.split("/")[3];
 
     var factory_notes = $("#factory-notes").val();
 

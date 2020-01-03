@@ -125,8 +125,20 @@ def FlyerDashboardPage(request):
 
 
 @login_required(login_url='/login/')
-def ChannelProductPage(request, pk):
-    return render(request, 'WAMSApp/channel-product-page.html')
+def ChannelProductAmazonUKPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-amazon-uk-page.html')
+
+@login_required(login_url='/login/')
+def ChannelProductAmazonUAEPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-amazon-uae-page.html')
+
+@login_required(login_url='/login/')
+def ChannelProductEbayPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-ebay-page.html')
+
+@login_required(login_url='/login/')
+def ChannelProductNoonPage(request, pk):
+    return render(request, 'WAMSApp/channel-product-noon-page.html')
 
 class LoginSubmitAPI(APIView):
 

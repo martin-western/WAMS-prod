@@ -82,7 +82,13 @@ urlpatterns = [
     url(r'^download-product/', views.DownloadProduct),
     url(r'^ecommerce-listing/(?P<pk>[\w-]+)/', views.EcommerceListingPage),
 
-    url(r'^channel-product/(?P<pk>[\w-]+)/', views.ChannelProductPage),
-
+    url(r'^channel-product/amazon-uk/(?P<pk>[\w-]+)/',
+        views.ChannelProductAmazonUKPage),
+    url(r'^channel-product/amazon-uae/(?P<pk>[\w-]+)/',
+        views.ChannelProductAmazonUAEPage),
+    url(r'^channel-product/ebay/(?P<pk>[\w-]+)/',
+        views.ChannelProductEbayPage),
+    url(r'^channel-product/noon/(?P<pk>[\w-]+)/',
+        views.ChannelProductNoonPage),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
