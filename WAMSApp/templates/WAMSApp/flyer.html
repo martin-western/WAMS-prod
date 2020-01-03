@@ -1690,7 +1690,7 @@
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
                     console.log("Downloading it!!!");
 
-      	            $("#download-flyer-btn").removeAttr("disabled");
+                    $("#download-flyer-btn").removeAttr("disabled");
                     $("#loader-div").hide();
                     
                     var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
