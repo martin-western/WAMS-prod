@@ -2015,7 +2015,19 @@ class FetchPFLDetailsAPI(APIView):
                     "y": 0
                 },
                 "common": {
-                  "image-resizer": 100
+                  "image-resizer": 100,
+                  "product-title-font-size": "25",
+                  "product-title-font-family": "Helvetica",
+                  "product-title-font-weight": "normal",
+                  "product-title-font-color": "#181818",
+                  "seller-sku-font-size": "12",
+                  "seller-sku-font-family": "Helvetica",
+                  "seller-sku-font-weight": "normal",
+                  "seller-sku-font-color": "#181818",
+                  "feature-font-size": "12",
+                  "feature-font-family": "Helvetica",
+                  "feature-font-weight": "normal",
+                  "feature-font-color": "#181818"
                 }
             }
             try:
