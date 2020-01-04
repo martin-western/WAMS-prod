@@ -2027,7 +2027,9 @@ class FetchPFLDetailsAPI(APIView):
                   "feature-font-size": "12",
                   "feature-font-family": "Helvetica",
                   "feature-font-weight": "normal",
-                  "feature-font-color": "#181818"
+                  "feature-font-color": "#181818",
+                  "header-color": "#573B93",
+                  "footer-color": "#573B93"
                 }
             }
             try:
