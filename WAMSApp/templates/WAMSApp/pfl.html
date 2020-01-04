@@ -702,7 +702,27 @@ input[type=range]+.thumb {
         </div>
 
 
+        <!-- Header Footer Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">view_day</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header/Footer Settings</span>
+          </span>
+          
+          <div class="row white hoverable" style="margin-top:0.5em;padding:5px;">
+            <div class="input-field col s6" style="margin-top: 0em !important;">
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Header Color</p>
+              <input id="header-color" type="color" value="#181818">  
+            </div>
+
+            <div class="input-field col s6" style="margin-top: 0em !important;">
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Footer Color</p>
+              <input id="footer-color" type="color" value="#181818">
+            </div>
+
+          </div>
+        </div>
 
 
 
@@ -759,7 +779,7 @@ input[type=range]+.thumb {
           </div>
 
           <!-- Product Name Preview -->
-          <div class="col s12" style="background-color:#521893;text-align: center;width: 210mm;padding-bottom: 1em;position: absolute;margin-top: 190mm;width:210mm;height: 20mm;">
+          <div id="header-div" class="col s12" style="background-color:#521893;text-align: center;width: 210mm;padding-bottom: 1em;position: absolute;margin-top: 190mm;width:210mm;height: 20mm;">
             <div id="product-name-preview" class="left" style="padding-left: 1em;text-transform: uppercase;margin-top: 6.4mm;font-size: 1.5em;font-family:'AvenirNextRegular';">
             </div>
           </div>
@@ -787,9 +807,9 @@ input[type=range]+.thumb {
           </div>
           
           <!-- Footer -->
-          <div class="col s12" style="background-color:#521893;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
+          <div id="footer-div" class="col s12" style="background-color:#521893;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
             <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
-              <p class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.royalford.com</p>
+              <p contenteditable class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.royalford.com</p>
             </div>
           </div>
 
@@ -1046,6 +1066,9 @@ input[type=range]+.thumb {
     var global_feature_font_family = "Helvetica";
     var global_feature_font_weight = "normal";
     var global_feature_font_color = "#181818";
+    var global_header_color = "#573B93";
+    var global_footer_color = "#573B93";
+
 
 
     function render_fetures()
@@ -1516,6 +1539,9 @@ input[type=range]+.thumb {
           global_feature_font_weight = template_data["feature-font-weight"]
           global_feature_font_color = template_data["feature-font-color"]
 
+          global_header_color = template_data["header-color"]
+          global_footer_color = template_data["footer-color"]
+
           update_editor();
           set_editor_style();
 
@@ -1571,7 +1597,9 @@ input[type=range]+.thumb {
           "feature-font-size": global_feature_font_size,
           "feature-font-family": global_feature_font_family,
           "feature-font-weight": global_feature_font_weight,
-          "feature-font-color": global_feature_font_color
+          "feature-font-color": global_feature_font_color,
+          "header-color": global_header_color,
+          "footer-color": global_footer_color
         }
       }
 
@@ -1732,6 +1760,17 @@ input[type=range]+.thumb {
       set_editor_style();
     });
 
+    $("#header-color").change(function(){
+      global_header_color = this.value;
+      set_editor_style();
+    });
+
+    $("#footer-color").change(function(){
+      global_footer_color = this.value;
+      set_editor_style();
+    });
+
+
 
     function update_editor()
     {
@@ -1749,6 +1788,9 @@ input[type=range]+.thumb {
       $("#feature-font-family").val(global_feature_font_family);
       $("#feature-font-weight").val(global_feature_font_weight);
       $("#feature-font-color").val(global_feature_font_color);
+
+      $("#header-color").val(global_header_color)
+      $("#footer-color").val(global_footer_color)
     }
 
 
@@ -1770,6 +1812,9 @@ input[type=range]+.thumb {
       $(".feature-text-preview").css("color", global_feature_font_color);
 
       $("#features-heading").css("color", global_feature_font_color);
+
+      $("#header-div").css("background-color", global_header_color);
+      $("#footer-div").css("background-color", global_footer_color);
     }
 
 
