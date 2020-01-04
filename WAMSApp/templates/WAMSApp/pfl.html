@@ -996,7 +996,7 @@ input[type=range]+.thumb {
               context.scale(scale, scale);
               
               window.scrollTo(0,0);
-              html2canvas(div, {canvas:canvas, scrollX:0, scrollY:0}).then(function(canvas) {
+              html2canvas(div, {canvas:canvas, scrollX:-10, scrollY:0}).then(function(canvas) {
 
                     $("#download-pfl-btn").removeAttr("disabled");
                     $("#loader-div").hide();
