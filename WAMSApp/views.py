@@ -1596,6 +1596,8 @@ class CreateFlyerAPI(APIView):
                 "strikeprice-visible": True,
                 "header-color": "#181818",
                 "footer-color": "#181818",
+                "header-opacity": "1",
+                "footer-opacity": "1",
                 "all-promo-resizer": "40",
                 "all-image-resizer": "100"
             }

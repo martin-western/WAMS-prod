@@ -1211,6 +1211,20 @@
               <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Footer Color</p>
               <input id="footer-color" type="color" value="#181818">
             </div>
+
+            <div class="col s6">
+              <p style="margin-bottom: 0em;">Header Opacity</p>
+              <p class="range-field" style="width:100%;margin-top: 0em;">
+                <input class="custom-slider" type="range" id="header-opacity" min="0" max="1" value="1" step="0.01" />
+              </p>
+            </div>
+
+            <div class="col s6">
+              <p style="margin-bottom: 0em;">Footer Opacity</p>
+              <p class="range-field" style="width:100%;margin-top: 0em;">
+                <input class="custom-slider" type="range" id="footer-opacity" min="0" max="1" value="1" step="0.01" />
+              </p>
+            </div>
           </div>
         </div>
 
@@ -1564,6 +1578,8 @@
     var global_price_box_bg_color = "#fbf00b";
     var global_header_color = "#181818";
     var global_footer_color = "#181818";
+    var global_header_opacity = "1";
+    var global_footer_opacity = "1";
     var global_all_promo_resizer = "40";
     var global_all_image_resizer = "100";
     var global_super_brand_logo = false;
@@ -1873,14 +1889,24 @@
 
 
     $(document).on("change", "#header-color", function(){
-        $("#header-div").css("background-color", this.value);
         global_header_color = this.value;
+        set_header_style();
     });
 
 
     $(document).on("change", "#footer-color", function(){
-        $("#footer-div").css("background-color", this.value);
         global_footer_color = this.value;
+        set_footer_style();
+    });
+
+    $(document).on("change", "#header-opacity", function(){
+        global_header_opacity = this.value;
+        set_header_style();
+    });
+
+    $(document).on("change", "#footer-opacity", function(){
+        global_footer_opacity = this.value;
+        set_footer_style();
     });
 
 
@@ -2600,6 +2626,8 @@
           global_strikeprice_visible = common["strikeprice-visible"]   
           global_header_color = common["header-color"];
           global_footer_color = common["footer-color"];
+          global_header_opacity = common["header-opacity"];
+          global_footer_opacity = common["footer-opacity"];
           global_all_promo_resizer = common["all-promo-resizer"]
           global_all_image_resizer = common["all-image-resizer"]
 
@@ -2762,6 +2790,8 @@
         "strikeprice-visible": global_strikeprice_visible,
         "header-color": global_header_color,
         "footer-color": global_footer_color,
+        "header-opacity": global_header_opacity,
+        "footer-opacity": global_footer_opacity,
         "all-promo-resizer": global_all_promo_resizer,
         "all-image-resizer": global_all_image_resizer
       };
@@ -2909,14 +2939,30 @@
         $(".footer-top-right").hide();
     }
 
+    function HEXtoRGBA(hex, opacity)
+    {
+      var c;
+      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+          c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
+      }
+      throw new Error('Bad Hex');
+    }
+
     function set_header_style()
     {
-      $("#header-div").css("background-color", global_header_color);
+      var color = HEXtoRGBA(global_header_color, global_header_opacity);
+      $("#header-div").css("background", color);
     }
 
     function set_footer_style()
     {
-      $("#footer-div").css("background-color", global_footer_color);
+      var color = HEXtoRGBA(global_footer_color, global_footer_opacity);
+      $("#footer-div").css("background", color);
     }
 
 
@@ -2984,6 +3030,9 @@
       //Header/Footer settings
       $("#header-color").val(global_header_color);
       $("#footer-color").val(global_footer_color);
+
+      $("#header-opacity").val(global_header_opacity);
+      $("#footer-opacity").val(global_footer_opacity);
       
       $("select").formSelect();
     }
