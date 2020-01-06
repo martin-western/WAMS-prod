@@ -61,7 +61,7 @@ def export_noon(products):
                 common_row[6] = "" if base_product.brand==None else str(base_product.brand.name)
                 common_row[7] = noon_product["product_name"]
                 common_row[8] = "china"
-                common_row[9] = noon_product.["model_number"]
+                common_row[9] = noon_product["model_number"]
                 common_row[10] = noon_product["model_name"]
                 common_row[11] = str(product.color)
                 common_row[12] = str(product.color_map)
