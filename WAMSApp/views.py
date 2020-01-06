@@ -1433,7 +1433,7 @@ class FetchProductListAPI(APIView):
                 is_available = False
 
             response["is_available"] = is_available
-            response["total_products"] = len(search_list_objs)
+            response["total_products"] = len(search_list_base_product_objs)
             response["products"] = products
             response['status'] = 200
 
