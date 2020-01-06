@@ -307,7 +307,7 @@ class CreateNewProductAPI(APIView):
 
         return Response(data=response)
 
-class CreateNewNoonChannelProductAPI(APIView):
+class SaveNoonChannelProductAPI(APIView):
 
     authentication_classes = (
         CsrfExemptSessionAuthentication, BasicAuthentication)
@@ -322,12 +322,12 @@ class CreateNewNoonChannelProductAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateNewNoonChannelProductAPI: %s at %s",
+            logger.error("SaveNoonChannelProductAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class CreateNewAmazonUKChannelProductAPI(APIView):
+class SaveAmazonUKChannelProductAPI(APIView):
 
     authentication_classes = (
         CsrfExemptSessionAuthentication, BasicAuthentication)
@@ -342,12 +342,12 @@ class CreateNewAmazonUKChannelProductAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateNewAmazonUKChannelProductAPI: %s at %s",
+            logger.error("SaveAmazonUKChannelProductAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class CreateNewAmazonUAEChannelProductAPI(APIView):
+class SaveAmazonUAEChannelProductAPI(APIView):
 
     authentication_classes = (
         CsrfExemptSessionAuthentication, BasicAuthentication)
@@ -362,12 +362,12 @@ class CreateNewAmazonUAEChannelProductAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateNewAmazonUAEChannelProductAPI: %s at %s",
+            logger.error("SaveAmazonUAEChannelProductAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class CreateNewEbayChannelProductAPI(APIView):
+class SaveEbayChannelProductAPI(APIView):
 
     authentication_classes = (
         CsrfExemptSessionAuthentication, BasicAuthentication)
@@ -382,7 +382,7 @@ class CreateNewEbayChannelProductAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateNewEbayChannelProductAPI: %s at %s",
+            logger.error("SaveEbayChannelProductAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -3359,13 +3359,13 @@ UploadFlyerExternalImages = UploadFlyerExternalImagesAPI.as_view()
 
 UploadPFLExternalImages = UploadPFLExternalImagesAPI.as_view()
 
-CreateNewAmazonUKChannelProduct = CreateNewAmazonUKChannelProductAPI.as_view()
+SaveAmazonUKChannelProduct = SaveAmazonUKChannelProductAPI.as_view()
 
-CreateNewAmazonUAEChannelProduct = CreateNewAmazonUAEChannelProductAPI.as_view()
+SaveAmazonUAEChannelProduct = SaveAmazonUAEChannelProductAPI.as_view()
 
-CreateNewEbayChannelProduct = CreateNewEbayChannelProductAPI.as_view()
+SaveEbayChannelProduct = SaveEbayChannelProductAPI.as_view()
 
-CreateNewNoonChannelProduct = CreateNewNoonChannelProductAPI.as_view()
+SaveNoonChannelProduct = SaveNoonChannelProductAPI.as_view()
 
 FetchAmazonUKChannelProduct = FetchAmazonUKChannelProductAPI.as_view()
 
