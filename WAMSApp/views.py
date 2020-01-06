@@ -1379,8 +1379,8 @@ class FetchProductListAPI(APIView):
                 base_product_objs_list = base_product_objs_list.filter(
                     created_date__gte=start_date).filter(created_date__lte=end_date)
 
-            if filter_parameters["brand_pk"] != "":
-                brand_obj = Brand.objects.get(pk=filter_parameters["brand_pk"])
+            if filter_parameters["brand_name"] != "":
+                brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
                 base_product_objs_list = base_product_objs_list.filter(brand=brand_obj)
 
             if filter_parameters["min_price"] != "":
