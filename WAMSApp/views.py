@@ -1024,6 +1024,7 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.manufacturer = manufacturer
             base_product_obj.manufacturer_part_name = manufacturer_part_name
 
+            base_product_obj.save()
             response['status'] = 200
 
         except Exception as e:
