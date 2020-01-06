@@ -307,6 +307,165 @@ class CreateNewProductAPI(APIView):
 
         return Response(data=response)
 
+class CreateNewNoonChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+           
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateNewNoonChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class CreateNewAmazonUKChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateNewAmazonUKChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class CreateNewAmazonUAEChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateNewAmazonUAEChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class CreateNewEbayChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateNewEbayChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchNoonChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+           
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchNoonChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchAmazonUKChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAmazonUKChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchAmazonUAEChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAmazonUAEChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchEbayChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchEbayChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 class FetchProductDetailsAPI(APIView):
 
@@ -3199,3 +3358,19 @@ DownloadProduct = DownloadProductAPI.as_view()
 UploadFlyerExternalImages = UploadFlyerExternalImagesAPI.as_view()
 
 UploadPFLExternalImages = UploadPFLExternalImagesAPI.as_view()
+
+CreateNewAmazonUKChannelProduct = CreateNewAmazonUKChannelProductAPI.as_view()
+
+CreateNewAmazonUAEChannelProduct = CreateNewAmazonUAEChannelProductAPI.as_view()
+
+CreateNewEbayChannelProduct = CreateNewEbayChannelProductAPI.as_view()
+
+CreateNewNoonChannelProduct = CreateNewNoonChannelProductAPI.as_view()
+
+FetchAmazonUKChannelProduct = FetchAmazonUKChannelProductAPI.as_view()
+
+FetchAmazonUAEChannelProduct = FetchAmazonUAEChannelProductAPI.as_view()
+
+FetchEbayChannelProduct = FetchEbayChannelProductAPI.as_view()
+
+FetchNoonChannelProduct = FetchNoonChannelProductAPI.as_view()
