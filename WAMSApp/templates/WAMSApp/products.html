@@ -489,39 +489,38 @@
     <h5 style="font-family: 'AvenirNext';font-size: 18px;">Edit Base Product</h5>
     <br>
     <div class="row">
-
       <div class="input-field col s6">
-        <input id="product-name" type="text" class="validate">
-        <label class="base-product-modal-label" for="product-name">Product Name<span>*</span></label>
+        <input id="edit-product-name" type="text" class="validate">
+        <label for="edit-product-name" class="base-product-modal-label">Product Name<span>*</span></label>
       </div>
 
       <div class="input-field col s6">
-        <input id="seller-sku" type="text" class="validate">
-        <label class="base-product-modal-label" for="seller-sku">Seller SKU<span>*</span></label
+        <input id="edit-seller-sku" type="text" class="validate">
+        <label for="edit-seller-sku" class="base-product-modal-label">Seller SKU<span>*</span></label
           class="base-product-modal-label">
       </div>
 
       <div class="input-field col s6">
-        <select>
+        <select id="edit-brand">
           <option value="" disabled selected>Brand</option>
-          <option value="1">Geepas</option>
-          <option value="2">Royalford</option>
-          <option value="3">Olsenmark</option>
+          <option value="Geepas">Geepas</option>
+          <option value="Royalford">Royalford</option>
+          <option value="Olsenmark">Olsenmark</option>
         </select>
       </div>
 
       <div class="input-field col s6">
-        <input id="product-name" type="text" class="validate">
-        <label class="base-product-modal-label" for="product-name">Manufacturer<span>*</span></label>
+        <input id="edit-manufacturer" type="text" class="validate">
+        <label for="edit-manufacturer" class="base-product-modal-label">Manufacturer<span>*</span></label>
       </div>
 
       <div class="input-field col s12">
-        <input id="seller-sku" type="text" class="validate width-50">
-        <label class="base-product-modal-label" for="seller-sku">Part Name<span>*</span></label
+        <input id="edit-manufacturer-part-name" type="text" class="validate width-50">
+        <label for="edit-manufacturer-part-name" class="base-product-modal-label">Manufacturer Part Name<span>*</span></label
           class="base-product-modal-label">
       </div>
 
-      <div class="col s12 margin-zero">
+      <!-- <div class="col s12 margin-zero">
         <div class="flex-container">
           <div class="flex-inside">
             <a href="/flyer/1" target="_blank">
@@ -563,14 +562,14 @@
             </a>
           </div>
         </div>
-      </div>
+      </div> -->
 
     </div>
 
   </div>
   <div class="modal-footer" style="margin-bottom: 20px;">
     <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
-    <a id="create-new-product-btn" href="#!" class="waves-effect btn-flat white-text"
+    <a id="save-base-product-btn" href="#!" class="waves-effect btn-flat white-text"
       style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Save</a>
   </div>
 </div>
@@ -732,6 +731,13 @@
 
   var global_products_list = [];
 
+  var global_selected_base_product_pk = null;
+  var global_selected_product_name = "";
+  var global_selected_seller_sku = "";
+  var global_selected_brand = "";
+  var global_selected_manufacturer = "";
+  var global_selected_manufacturer_part_name = "";
+
 
   var page = 1;
 
@@ -813,6 +819,62 @@
       }
     });
   }
+
+
+
+  function save_base_product()
+  {
+
+    var base_product_pk = global_selected_base_product_pk;
+    var base_product_name = $("#edit-product-name").val();
+    var seller_sku = $("#edit-seller-sku").val();
+    var brand_name = $("#edit-brand").val();
+    var manufacturer = $("#edit-manufacturer").val();
+    var manufacturer_part_name = $("#edit-manufacturer-part-name").val();
+
+    $.ajax({
+      url: "/save-base-product/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        "base_product_pk": base_product_pk,
+        "base_product_name": base_product_name,
+        "seller_sku": seller_sku,
+        "brand_name": brand_name,
+        "manufacturer": manufacturer,
+        "manufacturer_part_name": manufacturer_part_name
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        var export_list = response["export_list"];
+        var html_string = "";
+        for (var i = 0; i < export_list.length; i++) {
+          html_string += `<option value="` + export_list[i]["pk"] + `">` + export_list[i]["title"] + `</option>`;
+        }
+        $("#export-titles-list").html(html_string);
+        $('select').formSelect();
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  $("#save-base-product-btn").click(function(){
+    save_base_product();
+  });
+
+  $(document).on("click", ".base-product-edit-modal-btn", function(){
+    global_selected_base_product_pk = $(this).attr("base-product-pk");
+    $("#edit-product-name").val();
+    $("#edit-seller-sku").val();
+    $("#edit-brand").val();
+    $("#edit-manufacturer").val();
+    $("#edit-manufacturer-part-name").val();
+  });
+
 
   $("#export-btn").click(function () {
     fetch_export_list();
@@ -939,7 +1001,7 @@
     filter_parameters['verified'] = $("#status-verified").is(":checked");
     filter_parameters["start_date"] = $("#start-date").val();
     filter_parameters["end_date"] = $("#end-date").val();
-    filter_parameters["brand_pk"] = $("#brand-select").val();
+    filter_parameters["brand_name"] = $("#brand-select").val();
     filter_parameters["has_image"] = $("#has-image-select").val();
     filter_parameters["min_price"] = $("#min-price").val();
     filter_parameters["max_price"] = $("#max-price").val();
@@ -1027,7 +1089,27 @@
 
             var channel_products = products[i]["channel_products"];
 
-            var child_products_html_string = "";
+            var child_products_html_string = `
+              <div class="row margin-zero collapsible-body-row">
+                  <div class="col s3 offset-s1 avenir-next center-align">
+                    <p class="valign-wrapper">
+                      Product Name
+                    </p>
+                  </div>
+                  <div class="col s3 center-align">
+                    <p>
+                      Product ID
+                    </p>
+                  </div>
+                  <div class="col s3 center-align">
+                    <p>
+                      Channel Name
+                    </p>
+                  </div>
+                  <div class="col s2 center-align">
+                    Action
+                  </div>
+                </div>`;
             for(var j=0;j<channel_products.length;j++)
             {
               child_products_html_string += `
@@ -1088,7 +1170,7 @@
                           `+ products[i]["created_date"] + `
                         </div>
                         <div class="col s3  center-align">
-                          <a data="`+products[i]["product_pk"]+`" href="#edit-base-product-modal" class="modal-trigger base-product-edit-modal-btn">
+                          <a base-product-pk="`+products[i]["base_product_pk"]+`" href="#edit-base-product-modal" class="modal-trigger base-product-edit-modal-btn">
                             <i class="material-icons edit-icon">edit</i>
                           </a>
                         </div>
@@ -1218,9 +1300,10 @@
           var html_string = "<option value='' selected>Brand</option>";
           var brand_list = response["brand_list"];
           for (var i = 0; i < brand_list.length; i++) {
-            html_string += `<option value="` + brand_list[i]["pk"] + `">` + brand_list[i]["name"] + `</option>`;
+            html_string += `<option value="` + brand_list[i]["name"] + `">` + brand_list[i]["name"] + `</option>`;
           }
           $("#brand-select").html(html_string);
+          $("#edit-brand").html(html_string);
           $("select").formSelect();
 
           var autocomplete_data = {};
