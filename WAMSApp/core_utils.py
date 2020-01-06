@@ -13,6 +13,20 @@ from WAMSApp.models import *
 
 logger = logging.getLogger(__name__)
 
+def custom_permission_filter_base_products(user):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        brands = permission_obj.brands.all()
+        base_product_objs = BaseProduct.objects.filter(brand__in=brands)
+        
+        return base_product_objs
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_filter_base_products: %s at %s", e, str(exc_tb.tb_lineno))
+        return []
+
 def custom_permission_filter_products(user):
 
     try:
