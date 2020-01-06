@@ -99,7 +99,7 @@ urlpatterns = [
     url(r'^save-channel-product/amazon-uae/(?P<pk>[\w-]+)/',
         views.SaveAmazonUAEChannelProduct),
     url(r'^save-channel-product/ebay/(?P<pk>[\w-]+)/',
-        views.SaveAmazonEbayChannelProduct),
+        views.SaveEbayChannelProduct),
     url(r'^save-channel-product/noon/(?P<pk>[\w-]+)/',
         views.SaveNoonChannelProduct),
 
