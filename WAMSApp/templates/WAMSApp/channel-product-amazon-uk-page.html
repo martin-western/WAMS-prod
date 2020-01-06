@@ -604,14 +604,6 @@
               <label for="product-name">Product Name</label>
             </div>
             <div class="input-field col s6">
-              <input id="product-type" type="text">
-              <label for="product-type">Product Type</label>
-            </div>
-            <div class="input-field col s6">
-              <input id="product-subtype" type="text">
-              <label for="product-subtype">Product Subtype</label>
-            </div>
-            <div class="input-field col s6">
               <input id="product-id" type="text">
               <label for="product-id">Product ID</label>
             </div>
@@ -622,28 +614,12 @@
               <label for="product-id-type">Product ID Type</label>
             </div>
             <div class="input-field col s6">
-              <input id="model-no" type="text">
-              <label for="product-model-no">Model No.</label>
-            </div>
-            <div class="input-field col s6">
-              <input id="model-name" type="text">
-              <label for="product-model-name">Model Name</label>
-            </div>
-            <div class="input-field col s6">
-              <input id="model-name" type="text">
+              <input id="product-msrp" type="text">
               <label for="product-msrp">MRP</label>
-            </div>
-            <div class="input-field col s6">
-              <input id="product-description" type="text">
-              <label for="product-description">Description</label>
             </div>
             <div class="input-field col s6">
               <input id="product-relation-type" type="text">
               <label for="product-relation-type">Relation Type</label>
-            </div>
-            <div class="input-field col s6">
-              <input id="product-variation-theme" type="text">
-              <label for="product-variation-theme">Variation Theme</label>
             </div>
             <div class="input-field col s6">
               <input id="product-variation-theme" type="text">
@@ -789,7 +765,7 @@
               </select>
               <label for="condition-type">Condition Type</label>
             </div>
-            <div class="col s12">
+            <!-- <div class="col s12">
               <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;">Product Description</h6>
               <div class="input-field" style="text-align: left;">
                 <div class="document-editor">
@@ -800,7 +776,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
 
 
 
@@ -1142,7 +1118,7 @@
 <script type="text/javascript">
 
 
-
+  //Initiate
   $('.tabs').tabs();
   $('.chips').chips();
   $('select').formSelect();
@@ -1165,14 +1141,242 @@
     }
   })
 
-  // $('.button-collapse').sidenav({
-  //   menuWidth: 300, // Default is 240
-  //   edge: 'right', // Choose the horizontal origin
-  //   closeOnClick: true,
-  //   isFixed: true,
-  //   // Closes side-nav on <a> clicks, useful for Angular/Meteor
-  // }
-  // );
+
+
+  var global_details_amazon_uk = {};
+  var global_details_amazon_uae = {};
+  var global_details_ebay = {};
+  var global_details_noon = {};
+  
+  function fetch_details_amazon_uk()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uk/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_amazon_uk = response["amazon_uk_product_json"];
+          render_amazon_uk();
+        }
+        else
+        {
+
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  function fetch_details_amazon_uae()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uae/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_amazon_uae = response["amazon_uae_product_json"];
+          render_amazon_uae();
+        }
+        else
+        {
+
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  function fetch_details_ebay()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-ebay/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_ebay = response["ebay_product_json"];
+          render_ebay();
+        }
+        else
+        {
+
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  function fetch_details_noon()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-noon/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_noon = response["noon_product_json"];
+          render_noon();
+        }
+        else
+        {
+
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  function render_amazon_uk()
+  {
+    $("#amazon-uk-product-name").val(global_details_amazon_uk["product_name"])
+    //$("#product-type").val(global_details_amazon_uk["product_name"])
+    //$("#product-type").val(global_details_amazon_uk["product_name"])
+    $("#amazon-uk-product-id").val(global_details_amazon_uk["product_id"]) 
+    $("#amazon-uk-product-id-type").val(global_details_amazon_uk["product_id_type"])
+    $("#amazon-uk-mrp").val(global_details_amazon_uk["product_name"])
+    $("#amazon-uk-relation-type").val(global_details_amazon_uk["product_name"])
+    $("#variation-theme").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+    $("#product-name").val(global_details_amazon_uk["product_name"])
+
+
+    // "condition_type": "", 
+    // "cover_material_type": "", 
+    // "created_date": "", 
+    // "enclosure_material": "", 
+    // "feed_product_type": "", 
+    // "item_condition_note": "", 
+    // "item_count": "", 
+    // "item_count_metric": "", 
+    // "max_order_quantity": "", 
+    // "number_of_items": "", 
+    // "parent_sku": "", 
+    // "parentage": "", 
+    // "product_attribute_list": [], 
+    // "product_description": "", 
+    // "product_id_type": "", 
+    // "product_name": "", 
+    // "recommended_browse_nodes": "", 
+    // "relationship_type": "", 
+    // "sale_end": "", 
+    // "sale_from": "", 
+    // "sale_price": "", 
+    // "search_terms": "", 
+    // "special_features": [], 
+    // "subtitle": "", 
+    // "update_delete": "", 
+    // "variation_theme": "", 
+    // "wattage": "", 
+    // "wattage_metric": ""
+
+
+  }
+
+  function render_amazon_uae()
+  {
+
+  }
+
+  function render_ebay()
+  {
+
+  }
+
+  function render_noon()
+  {
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 
 
@@ -1365,72 +1569,72 @@
 
   window.editor = []
 
-  DecoupledEditor
-    .create(document.querySelector('.document-editor__editable'), {
-      cloudServices: {
-      }
-    })
-    .then(editor => {
-      const toolbarContainer = document.querySelector('.document-editor__toolbar');
+  // DecoupledEditor
+  //   .create(document.querySelector('.document-editor__editable'), {
+  //     cloudServices: {
+  //     }
+  //   })
+  //   .then(editor => {
+  //     const toolbarContainer = document.querySelector('.document-editor__toolbar');
 
-      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-      //editor.isReadOnly = !response['edit_access'];
-      window.editor.push(editor);
-    })
-    .catch(err => {
-      console.error(err);
-    });
+  //     toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+  //     //editor.isReadOnly = !response['edit_access'];
+  //     window.editor.push(editor);
+  //   })
+  //   .catch(err => {
+  //     console.error(err);
+  //   });
 
-  DecoupledEditor
-    .create(document.querySelector('.clone2_editable'), {
-      cloudServices: {
-      }
-    })
-    .then(editor => {
-      const toolbarContainer = document.querySelector('.clone2_toolbar');
+  // DecoupledEditor
+  //   .create(document.querySelector('.clone2_editable'), {
+  //     cloudServices: {
+  //     }
+  //   })
+  //   .then(editor => {
+  //     const toolbarContainer = document.querySelector('.clone2_toolbar');
 
-      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-      //editor.isReadOnly = !response['edit_access'];
-      window.editor.push(editor);
-    })
-    .catch(err => {
-      console.error(err);
-    });
+  //     toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+  //     //editor.isReadOnly = !response['edit_access'];
+  //     window.editor.push(editor);
+  //   })
+  //   .catch(err => {
+  //     console.error(err);
+  //   });
 
-  DecoupledEditor
-    .create(document.querySelector('.clone3_editable'), {
-      cloudServices: {
-      }
-    })
-    .then(editor => {
-      const toolbarContainer = document.querySelector('.clone3_toolbar');
+  // DecoupledEditor
+  //   .create(document.querySelector('.clone3_editable'), {
+  //     cloudServices: {
+  //     }
+  //   })
+  //   .then(editor => {
+  //     const toolbarContainer = document.querySelector('.clone3_toolbar');
 
-      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-      //editor.isReadOnly = !response['edit_access'];
-      window.editor.push(editor);
-    })
-    .catch(err => {
-      console.error(err);
-    });
-
-
+  //     toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+  //     //editor.isReadOnly = !response['edit_access'];
+  //     window.editor.push(editor);
+  //   })
+  //   .catch(err => {
+  //     console.error(err);
+  //   });
 
 
-  DecoupledEditor
-    .create(document.querySelector('.clone4_editable'), {
-      cloudServices: {
-      }
-    })
-    .then(editor => {
-      const toolbarContainer = document.querySelector('.clone4_toolbar');
 
-      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-      //editor.isReadOnly = !response['edit_access'];
-      window.editor.push(editor);
-    })
-    .catch(err => {
-      console.error(err);
-    });
+
+  // DecoupledEditor
+  //   .create(document.querySelector('.clone4_editable'), {
+  //     cloudServices: {
+  //     }
+  //   })
+  //   .then(editor => {
+  //     const toolbarContainer = document.querySelector('.clone4_toolbar');
+
+  //     toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+  //     //editor.isReadOnly = !response['edit_access'];
+  //     window.editor.push(editor);
+  //   })
+  //   .catch(err => {
+  //     console.error(err);
+  //   });
 
 
 
@@ -1697,10 +1901,10 @@
         $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
 
 
-        window.editor[0].setData(response["product_description_amazon_uk"]);
-        window.editor[1].setData(response["product_description_amazon_uae"]);
-        window.editor[2].setData(response["product_description_ebay"]);
-        window.editor[3].setData(response["product_description_noon"]);
+        // window.editor[0].setData(response["product_description_amazon_uk"]);
+        // window.editor[1].setData(response["product_description_amazon_uae"]);
+        // window.editor[2].setData(response["product_description_ebay"]);
+        // window.editor[3].setData(response["product_description_noon"]);
 
 
         var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];
