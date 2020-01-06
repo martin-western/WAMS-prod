@@ -1368,9 +1368,9 @@ class FetchProductListAPI(APIView):
                 temp_dict["product_name"] = base_product_obj.base_product_name
                 
                 if base_product_obj.brand != None:
-                    temp_dict["brand"] = base_product_obj.brand.name
+                    temp_dict["brand_name"] = base_product_obj.brand.name
                 else:
-                    temp_dict["brand"] = "-"
+                    temp_dict["brand_name"] = "-"
                 
                 temp_dict["created_date"] = str(
                     base_product_obj.created_date.strftime("%d %b, %Y"))
