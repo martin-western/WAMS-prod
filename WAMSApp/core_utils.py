@@ -50,7 +50,7 @@ def custom_permission_filter_products(user):
 def custom_permission_filter_brands(user):
 
     try:
-        from WAMSApp.models import *
+        
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
         return brands
