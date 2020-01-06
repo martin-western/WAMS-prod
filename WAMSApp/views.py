@@ -1340,6 +1340,9 @@ class FetchProductListAPI(APIView):
 
             if len(chip_data) == 0:
                 search_list_product_objs = product_objs_list
+                for prod in product_objs_list:
+                    search_list_base_product_objs.append(prod.base_product)
+                    search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
             else:
                 for tag in chip_data:
                     search = product_objs_list.filter(
@@ -1348,6 +1351,7 @@ class FetchProductListAPI(APIView):
                         Q(product_id__icontains=tag) |
                         Q(base_product__seller_sku__icontains=tag)
                     )
+                    logger.info(" Filtered Products %s",search_list_product_objs)
                     for prod in search:
                         search_list_product_objs.append(prod)
                         search_list_base_product_objs.append(prod.base_product)
@@ -1363,8 +1367,8 @@ class FetchProductListAPI(APIView):
                 temp_dict["base_product_pk"] = base_product_obj.pk
                 temp_dict["product_name"] = base_product_obj.base_product_name
                 
-                if product_obj.base_product.brand != None:
-                    temp_dict["brand"] = product_obj.base_product.brand.name
+                if base_product_obj.brand != None:
+                    temp_dict["brand"] = base_product_obj.brand.name
                 else:
                     temp_dict["brand"] = "-"
                 
@@ -1376,7 +1380,7 @@ class FetchProductListAPI(APIView):
 
                 temp_dict["seller_sku"] = base_product_obj.seller_sku
                 
-                product_objs = search_list_product_objs(base_product = base_product_obj)
+                product_objs = search_list_product_objs.filter(base_product = base_product_obj)
 
                 for product_obj in product_objs:
                     
