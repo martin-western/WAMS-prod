@@ -993,7 +993,7 @@ class SaveBaseProductAPI(APIView):
                 data = json.loads(data)
 
 
-            base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
+            base_product_obj = BaseProduct.objects.get(pk=int(data["base_product_pk"]))
             
             base_product_name = data["base_product_name"]
             seller_sku = data["seller_sku"]
