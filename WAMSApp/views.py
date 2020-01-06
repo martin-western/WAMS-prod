@@ -999,7 +999,7 @@ class SaveBaseProductAPI(APIView):
             seller_sku = data["seller_sku"]
             brand_name = data["brand_name"]
             manufacturer = data["manufacturer"]
-            manufacturer_part_name = data["manufacturer_part_name"]
+            manufacturer_part_number = data["manufacturer_part_number"]
             
             if BaseProduct.objects.filter(seller_sku=seller_sku).exclude(pk=data["base_product_pk"]).count() >= 1 :
                 logger.warning("Duplicate product detected!")
@@ -1022,7 +1022,7 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.seller_sku = seller_sku
             base_product_obj.brand = brand_obj
             base_product_obj.manufacturer = manufacturer
-            base_product_obj.manufacturer_part_name = manufacturer_part_name
+            base_product_obj.manufacturer_part_number = manufacturer_part_number
 
             base_product_obj.save()
             response['status'] = 200
@@ -1429,6 +1429,8 @@ class FetchProductListAPI(APIView):
                 temp_dict = {}
                 temp_dict["base_product_pk"] = base_product_obj.pk
                 temp_dict["product_name"] = base_product_obj.base_product_name
+                temp_dict["manufacturer"] = base_product_obj.manufacturer
+                temp_dict["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
                 
                 if base_product_obj.brand != None:
                     temp_dict["brand_name"] = base_product_obj.brand.name
