@@ -479,6 +479,41 @@ class SaveEbayChannelProductAPI(APIView):
         response['status'] = 500
         try:
             
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("SaveEbayChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveEbayChannelProductAPI: %s", str(data))
+
+            channel_name = "Ebay"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(
+                    request.user)
+                channel_obj = Channel.objects.get(name=channel_name)
+                logger.info("Channel Obj is %s", str(channel_obj))
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning(
+                        "SaveEbayChannelProductAPI Restricted Access of Ebay Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("SaveEbayChannelProductAPI Restricted Access of Ebay Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_product = product_obj.channel_product
+            channel_product.ebay_product_json = data["ebay_product_json"]
+            channel_product.save()
+            
             response['status'] = 200
 
         except Exception as e:
