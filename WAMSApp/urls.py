@@ -112,4 +112,6 @@ urlpatterns = [
     url(r'^fetch-channel-product-noon/',
         views.FetchNoonChannelProduct),
 
+    url(r'save-base-product', views.SaveBaseProduct),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

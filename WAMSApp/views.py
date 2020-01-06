@@ -971,6 +971,68 @@ class FetchProductDetailsAPI(APIView):
 
         return Response(data=response)
 
+class SaveBaseProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm('WAMSApp.change_product') == False:
+                logger.warning("SaveBaseProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveBaseProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+
+            base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
+            
+            base_product_name = data["base_product_name"]
+            seller_sku = data["seller_sku"]
+            brand_name = data["brand_name"]
+            manufacturer = data["manufacturer"]
+            manufacturer_part_name = data["manufacturer_part_name"]
+            
+            if BaseProduct.objects.filter(seller_sku=seller_sku).exclude(pk=data["base_product_pk"]).count() >= 1 :
+                logger.warning("Duplicate product detected!")
+                response['status'] = 409
+                return Response(data=response)
+
+            try:
+                permissible_brands = custom_permission_filter_brands(request.user)
+                brand_obj = Brand.objects.get(name=data["brand_name"])
+                if brand_obj not in permissible_brands:
+                    logger.warning("SaveBaseProductAPI Restricted Access Brand!")
+                    response['status'] = 403
+                    return Response(data=response)
+            except Exception as e:
+                logger.error("SaveBaseProductAPI Restricted Access Brand!")
+                response['status'] = 403
+                return Response(data=response)
+
+            base_product_obj.base_product_name = base_product_name
+            base_product_obj.seller_sku = seller_sku
+            base_product_obj.brand = brand_obj
+            base_product_obj.manufacturer = manufacturer
+            base_product_obj.manufacturer_part_name = manufacturer_part_name
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveBaseProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class SaveProductAPI(APIView):
 
     authentication_classes = (
@@ -3686,3 +3748,5 @@ FetchAmazonUAEChannelProduct = FetchAmazonUAEChannelProductAPI.as_view()
 FetchEbayChannelProduct = FetchEbayChannelProductAPI.as_view()
 
 FetchNoonChannelProduct = FetchNoonChannelProductAPI.as_view()
+
+SaveBaseProduct = SaveBaseProductAPI.as_view()
