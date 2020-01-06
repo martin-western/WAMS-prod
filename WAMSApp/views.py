@@ -359,6 +359,7 @@ class SaveNoonChannelProductAPI(APIView):
 
             channel_product = product_obj.channel_product
             channel_product.noon_product_json = data["noon_product_json"]
+            channel_product.is_noon_product_created = True
             channel_product.save()
 
             response['status'] = 200
@@ -422,6 +423,7 @@ class SaveAmazonUKChannelProductAPI(APIView):
 
             channel_product = product_obj.channel_product
             channel_product.amazon_uk_product_json = data["amazon_uk_product_json"]
+            channel_product.is_amazon_uk_product_created = True
             channel_product.save()
             
             response['status'] = 200
@@ -485,6 +487,7 @@ class SaveAmazonUAEChannelProductAPI(APIView):
 
             channel_product = product_obj.channel_product
             channel_product.amazon_uae_product_json = data["amazon_uae_product_json"]
+            channel_product.is_amazon_uae_product_created = True
             channel_product.save()
             response['status'] = 200
 
@@ -548,6 +551,7 @@ class SaveEbayChannelProductAPI(APIView):
 
             channel_product = product_obj.channel_product
             channel_product.ebay_product_json = data["ebay_product_json"]
+            channel_product.is_ebay_product_created = True
             channel_product.save()
             
             response['status'] = 200
