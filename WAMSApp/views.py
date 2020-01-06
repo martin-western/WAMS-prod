@@ -359,6 +359,7 @@ class SaveNoonChannelProductAPI(APIView):
 
             channel_product = product_obj.channel_product
             channel_product.noon_product_json = data["noon_product_json"]
+            channel_product.is_noon_product_created = True
             channel_product.save()
 
             response['status'] = 200
@@ -422,6 +423,7 @@ class SaveAmazonUKChannelProductAPI(APIView):
 
             channel_product = product_obj.channel_product
             channel_product.amazon_uk_product_json = data["amazon_uk_product_json"]
+            channel_product.is_amazon_uk_product_created = True
             channel_product.save()
             
             response['status'] = 200
@@ -485,6 +487,7 @@ class SaveAmazonUAEChannelProductAPI(APIView):
 
             channel_product = product_obj.channel_product
             channel_product.amazon_uae_product_json = data["amazon_uae_product_json"]
+            channel_product.is_amazon_uae_product_created = True
             channel_product.save()
             response['status'] = 200
 
@@ -548,6 +551,7 @@ class SaveEbayChannelProductAPI(APIView):
 
             channel_product = product_obj.channel_product
             channel_product.ebay_product_json = data["ebay_product_json"]
+            channel_product.is_ebay_product_created = True
             channel_product.save()
             
             response['status'] = 200
@@ -1289,8 +1293,14 @@ class FetchProductListAPI(APIView):
             chip_data = json.loads(data['tags'])
 
             page = int(data['page'])
-            search_list_objs = []
-            #product_objs_list = []
+            
+            search_list_base_product_objs = []
+            search_list_product_objs = []
+
+            product_objs_list = []
+            base_product_objs_list = []
+
+            base_product_objs_list = custom_permission_filter_base_products(request.user)
             product_objs_list = custom_permission_filter_products(request.user)
 
             if filter_parameters['verified']:
@@ -1304,12 +1314,12 @@ class FetchProductListAPI(APIView):
                     filter_parameters["start_date"], "%b %d, %Y")
                 end_date = datetime.datetime.strptime(
                     filter_parameters["end_date"], "%b %d, %Y")
-                product_objs_list = product_objs_list.filter(
+                base_product_objs_list = base_product_objs_list.filter(
                     created_date__gte=start_date).filter(created_date__lte=end_date)
 
             if filter_parameters["brand_pk"] != "":
                 brand_obj = Brand.objects.get(pk=filter_parameters["brand_pk"])
-                product_objs_list = product_objs_list.filter(base_product__brand=brand_obj)
+                base_product_objs_list = base_product_objs_list.filter(brand=brand_obj)
 
             if filter_parameters["min_price"] != "":
                 product_objs_list = product_objs_list.filter(
@@ -1329,7 +1339,7 @@ class FetchProductListAPI(APIView):
                         product_objs_list.exclude(pk=product_obj.pk)
 
             if len(chip_data) == 0:
-                search_list_objs = product_objs_list
+                search_list_product_objs = product_objs_list
             else:
                 for tag in chip_data:
                     search = product_objs_list.filter(
@@ -1339,44 +1349,83 @@ class FetchProductListAPI(APIView):
                         Q(base_product__seller_sku__icontains=tag)
                     )
                     for prod in search:
-                        search_list_objs.append(prod)
-
-            paginator = Paginator(search_list_objs, 20)
-            product_objs = paginator.page(page)
+                        search_list_product_objs.append(prod)
+                        search_list_base_product_objs.append(prod.base_product)
+                        search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
             products = []
-            for product_obj in product_objs:
+
+            paginator = Paginator(search_list_base_product_objs, 20)
+            base_product_objs = paginator.page(page)
+
+            for base_product_obj in base_product_objs:
                 temp_dict = {}
-                temp_dict["product_name"] = product_obj.product_name
-                temp_dict["product_id"] = product_obj.product_id
-                temp_dict["seller_sku"] = product_obj.base_product.seller_sku
-                temp_dict["created_date"] = str(
-                    product_obj.created_date.strftime("%d %b, %Y"))
-                temp_dict["status"] = product_obj.status
-                temp_dict["product_pk"] = product_obj.pk
-
-                main_images_list = ImageBucket.objects.none()
-                main_images_objs = MainImages.objects.filter(product=product_obj)
-                for main_images_obj in main_images_objs:
-                    main_images_list |= main_images_obj.main_images.all()
-
-                main_images_list = main_images_list.distinct()
+                temp_dict["base_product_pk"] = base_product_obj.pk
+                temp_dict["product_name"] = base_product_obj.base_product_name
                 
-                if main_images_list.filter(is_main_image=True).count() > 0:
-                    try:
-                        temp_dict["main_image"] = main_images_list.filter(is_main_image=True)[
-                            0].image.thumbnail.url
-                    except Exception as e:
-                        temp_dict["main_image"] = Config.objects.all()[
-                            0].product_404_image.image.url
-                else:
-                    temp_dict["main_image"] = Config.objects.all()[
-                        0].product_404_image.image.url
-
                 if product_obj.base_product.brand != None:
                     temp_dict["brand"] = product_obj.base_product.brand.name
                 else:
                     temp_dict["brand"] = "-"
+                
+                temp_dict["created_date"] = str(
+                    base_product_obj.created_date.strftime("%d %b, %Y"))
+
+                temp_dict["products"] = []
+                temp_dict["channel_products"] = []
+
+                temp_dict["seller_sku"] = base_product_obj.seller_sku
+                
+                product_objs = search_list_product_objs(base_product = base_product_obj)
+
+                for product_obj in product_objs:
+                    
+                    temp_dict2 = {}
+                    temp_dict2["product_pk"] = product_obj.pk
+                    temp_dict2["product_id"] = product_obj.product_id
+                    temp_dict2["product_name"] = product_obj.product_name
+                    temp_dict2["status"] = product_obj.status
+
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_objs = MainImages.objects.filter(product=product_obj)
+                    for main_images_obj in main_images_objs:
+                        main_images_list |= main_images_obj.main_images.all()
+
+                    main_images_list = main_images_list.distinct()
+                    
+                    if main_images_list.filter(is_main_image=True).count() > 0:
+                        try:
+                            temp_dict2["main_image"] = main_images_list.filter(is_main_image=True)[
+                                0].image.thumbnail.url
+                        except Exception as e:
+                            temp_dict2["main_image"] = Config.objects.all()[
+                                0].product_404_image.image.url
+                    else:
+                        temp_dict2["main_image"] = Config.objects.all()[
+                            0].product_404_image.image.url
+
+                    temp_dict["products"].append(temp_dict2)
+
+                    if product_obj.channel_product.is_noon_product_created == True:
+                        
+                        noon_product = json.loads(product_obj.channel_product.noon_product_json)
+                        temp_dict3 = {}
+                        temp_dict3["product_id"] = product_obj.product_id
+                        temp_dict3["product_pk"] = product_obj.pk
+                        temp_dict3["channel_product_name"] = noon_product["product_name"]
+                        temp_dict3["channel_name"] = "Noon"
+                        main_image_url = None
+                        try:
+                            main_images_obj = MainImages.objects.get(product = product, channel="Noon")
+                            
+                            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                                main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                                main_image_url = main_image_obj.image.image.url
+                        except Exception as e:
+                            pass
+                        temp_dict3["image_url"] = main_image_url
+
+                        temp_dict["channel_products"].append(temp_dict3)
 
                 products.append(temp_dict)
             is_available = True

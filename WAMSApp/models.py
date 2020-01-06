@@ -318,9 +318,13 @@ class ChannelProduct(models.Model):
     
     # product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
     noon_product_json = models.TextField(blank=True,default=noon_product_json)
+    is_noon_product_created = models.BooleanField(default=False)
     amazon_uk_product_json = models.TextField(blank=True,default=amazon_uk_product_json)
+    is_amazon_uk_product_created = models.BooleanField(default=False)
     amazon_uae_product_json = models.TextField(blank=True,default=amazon_uae_product_json)
+    is_amazon_uae_product_created = models.BooleanField(default=False)
     ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
+    is_ebay_product_created = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "ChannelProduct"
