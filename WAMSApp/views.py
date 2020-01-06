@@ -325,11 +325,20 @@ class SaveNoonChannelProductAPI(APIView):
             data = request.data
             logger.info("SaveNoonChannelProductAPI: %s", str(data))
 
-            channel_name = "Noon"
-            product_obj = Product.objects.get(pk=data["product_pk"])
-
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            channel_name = "Noon"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveNoonChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
 
             try:
                 permissible_channels = custom_permission_filter_channels(
@@ -379,11 +388,20 @@ class SaveAmazonUKChannelProductAPI(APIView):
             data = request.data
             logger.info("SaveAmazonUKChannelProductAPI: %s", str(data))
 
-            channel_name = "Amazon UK"
-            product_obj = Product.objects.get(pk=data["product_pk"])
-
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            channel_name = "Amazon UK"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
 
             try:
                 permissible_channels = custom_permission_filter_channels(
@@ -433,11 +451,20 @@ class SaveAmazonUAEChannelProductAPI(APIView):
             data = request.data
             logger.info("SaveAmazonUAEChannelProductAPI: %s", str(data))
 
-            channel_name = "Amazon UAE"
-            product_obj = Product.objects.get(pk=data["product_pk"])
-
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            channel_name = "Amazon UAE"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
 
             try:
                 permissible_channels = custom_permission_filter_channels(
@@ -487,11 +514,20 @@ class SaveEbayChannelProductAPI(APIView):
             data = request.data
             logger.info("SaveEbayChannelProductAPI: %s", str(data))
 
-            channel_name = "Ebay"
-            product_obj = Product.objects.get(pk=data["product_pk"])
-
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            channel_name = "Ebay"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveEbayChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
 
             try:
                 permissible_channels = custom_permission_filter_channels(
@@ -541,6 +577,16 @@ class FetchNoonChannelProductAPI(APIView):
 
             product_obj = Product.objects.get(pk=data["product_pk"])
             channel_product_obj = product_obj.channel_product
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchNoonChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
             channel_name = "Noon"
             noon_product_json = channel_product_obj.noon_product_json
 
@@ -573,6 +619,16 @@ class FetchAmazonUKChannelProductAPI(APIView):
 
             product_obj = Product.objects.get(pk=data["product_pk"])
             channel_product_obj = product_obj.channel_product
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchAmazonUKChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
             channel_name = "Amazon UK"
             amazon_uk_product_json = channel_product_obj.amazon_uk_product_json
 
@@ -604,6 +660,16 @@ class FetchAmazonUAEChannelProductAPI(APIView):
 
             product_obj = Product.objects.get(pk=data["product_pk"])
             channel_product_obj = product_obj.channel_product
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchAmazonUAEChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
             channel_name = "Amazon UAE"
             amazon_uae_product_json = channel_product_obj.amazon_uae_product_json
 
@@ -636,6 +702,16 @@ class FetchEbayChannelProductAPI(APIView):
 
             product_obj = Product.objects.get(pk=data["product_pk"])
             channel_product_obj = product_obj.channel_product
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchEbayChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
             channel_name = "Ebay"
             ebay_product_json = channel_product_obj.eaby_product_json
 
