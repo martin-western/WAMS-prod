@@ -596,6 +596,18 @@ class FetchAmazonUAEChannelProductAPI(APIView):
         response = {}
         response['status'] = 500
         try:
+            data = request.data
+            logger.info("FetchAmazonUAEChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            channel_product_obj = product_obj.channel_product
+            channel_name = "Amazon UAE"
+            amazon_uae_product_json = channel_product_obj.amazon_uae_product_json
+
+            response["amazon_uae_product_json"] = amazon_uae_product_json
             
             response['status'] = 200
 
