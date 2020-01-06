@@ -368,7 +368,7 @@
           Brand</div>
         <div class="col s2 center avenir-next purple-1">
           Date Created</div>
-        <div class="col s3 center avenir-next purple-1">Status
+        <div class="col s3 center avenir-next purple-1">Action
         </div>
       </div>
     </div>
@@ -688,17 +688,8 @@
 </div>
 
 {% if perms.WAMSApp.add_product %}
-<div class="fixed-action-btn">
-  <a class="btn-floating btn-large" style="background-color: #521893;">
-    <i class="large material-icons">add</i>
-  </a>
-  <ul>
-    <li><a href="#create-new-base-product-modal" class="btn-floating green modal-trigger"><i class="material-icons">add</i></a></li>
-    <li><a href="#create-new-channel-product-modal" class="btn-floating blue modal-trigger"><i class="material-icons">add</i></a></li>
-  </ul>
-</div>
-<!-- <a href="#create-new-product-modal" class="modal-trigger btn-floating"
-  style="position: fixed;right:1em;bottom:1em;background-color: #521893"><i class="material-icons">add</i></a> -->
+<a href="#create-new-base-product-modal" class="modal-trigger btn-floating"
+  style="position: fixed;right:1em;bottom:1em;background-color: #521893"><i class="material-icons">add</i></a>
 {% endif %}
 
 
@@ -737,6 +728,10 @@
 <script type="text/javascript">
 
   $('.fixed-action-btn').floatingActionButton();
+
+
+  var global_products_list = [];
+
 
   var page = 1;
 
@@ -967,171 +962,160 @@
       success: function (response) {
         console.log("Success!", response);
 
-        var is_available = response["is_available"];
+        if(response["status"]==200)
+        {
+          global_products_list = response["products"];
+          var is_available = response["is_available"];
 
-        $("#total-products").html(response["total_products"]);
+          $("#total-products").html(response["total_products"]);
 
-        var products = response["products"];
+          var products = response["products"];
 
-        var html_string = "";
+          // products = [
+          // {
+          //   "product_pk": 3,
+          //   "product_name": "Duster",
+          //   "seller_sku": "D788",
+          //   "brand_name": "Geepas",
+          //   "created_date": "2nd Jan, 2019",
+          //   "products": [
+          //     {
+          //       "product_pk": 1,
+          //       "product_id": "RD89",
+          //       "product_name": "Red Duster",
+          //       "image_url": "http://www.liksoon.com.my/products/702001-2191-2493-B.jpg"
+          //     },
+          //     {
+          //       "product_pk": 2,
+          //       "product_id": "BD89",
+          //       "product_name": "Blue Duster",
+          //       "image_url": "https://5.imimg.com/data5/DP/DL/PB/SELLER-1021105/blue-plastic-whiteboard-duster-500x500.jpg"
+          //     }
+          //   ],
+          //   "channel_products": [
+          //     {
+          //       "product_pk": 1,
+          //       "product_id": "RD89",
+          //       "product_name": "Big Red Duster",
+          //       "channel_name": "Amazon UK",
+          //       "image_url": "http://www.liksoon.com.my/products/702001-2191-2493-B.jpg"
+          //     },
+          //     {
+          //       "product_pk": 2,
+          //       "product_id": "RD89",
+          //       "product_name": "Super Red Duster",
+          //       "channel_name": "Amazon UAE",
+          //       "image_url": "http://www.liksoon.com.my/products/702001-2191-2493-B.jpg"
+          //     }
+          //   ]
+          // }]
 
-        for (var i = 0; i < products.length; i++) {
-          var img_tag = "";
-          if (products[i]["main_image"] != "") {
-            img_tag = `<img src="` + products[i]["main_image"] + `" style="height:3em;width:3em;">`;
-          }
+          var html_string = "";
 
-          var product_name = products[i]["product_name"].substring(0, 30);
-          if (products[i]["product_name"].length > 30) {
-            product_name += "...";
-          }
+          for (var i = 0; i < products.length; i++) {
+            // var img_tag = "";
+            // if (products[i]["main_image"] != "") {
+            //   img_tag = `<img src="` + products[i]["main_image"] + `" style="height:3em;width:3em;">`;
+            // }
 
-          status_str = getStatus(products[i]["status"]);
+            var product_name = products[i]["product_name"].substring(0, 30);
+            if (products[i]["product_name"].length > 30) {
+              product_name += "...";
+            }
 
-          html_string += `
-              
-              <ul class="collapsible row products-collapse-container" style="margin-bottom:0em;">
-                <li style="margin-bottom:0em;">
-                  <div class="collapsible-header" >
-                    <div class="row ">
-                      <div class="col s1 toggler-container">
-                        <label class="toggler-wrapper style-25">
-                          <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
-                          <div class="toggler-slider">
-                            <div class="toggler-knob"></div>
-                          </div>
-                        </label>  
-                      </div>
-                      <div class="col s4">
-                        <div class = "product-name-container">
-                          <div class="product-img">
-                            `+ img_tag + `
-                          </div>
-                          <div class="product-info">
-                            <p class="title">
-                              `+ product_name + `
-                            </p>
-                            <p class="subtitle">
-                              `+ products[i]["product_id"] + ` | ` + products[i]["seller_sku"] + `
-                            </p>
+            //status_str = getStatus(products[i]["status"]);
+
+            var channel_products = products[i]["channel_products"];
+
+            var child_products_html_string = "";
+            for(var j=0;j<channel_products.length;j++)
+            {
+              child_products_html_string += `
+                <div class="row margin-zero collapsible-body-row">
+                  <div class="col s3 offset-s1 avenir-next avenir-next-regular center-align">
+                    <p class="valign-wrapper">
+                      <img src="` + channel_products[i]["image_url"] + `" style="height:3em;width:3em;">&nbsp;&nbsp;
+                      `+channel_products[j]["product_name"]+`
+                    </p>
+                  </div>
+                  <div class="col s3 avenir-next avenir-next-regular center-align">
+                    <p>
+                      `+channel_products[j]["product_id"]+`
+                    </p>
+                  </div>
+                  <div class="col s3 avenir-next avenir-next-regular center-align">
+                    <p>
+                      `+channel_products[j]["channel_name"]+`
+                    </p>
+                  </div>
+                  <div class="col s2 center-align">
+                    <i class="material-icons edit-icon">edit</i>
+                  </div>
+                </div>`
+            }
+
+
+            html_string += `
+                
+                <ul class="collapsible row products-collapse-container" style="margin-bottom:0em;">
+                  <li style="margin-bottom:0em;">
+                    <div class="collapsible-header" >
+                      <div class="row ">
+                        <div class="col s1 toggler-container">
+                          <label class="toggler-wrapper style-25">
+                            <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                            <div class="toggler-slider">
+                              <div class="toggler-knob"></div>
+                            </div>
+                          </label>  
+                        </div>
+                        <div class="col s4">
+                          <div class = "product-name-container">
+                            <div class="product-info">
+                              <p class="title">
+                                `+ product_name + `
+                              </p>
+                              <p class="subtitle">
+                                `+ products[i]["seller_sku"] + `
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="col s2 avenir-next-regular center-align">
-                        `+ products[i]["brand"] + `
-                      </div>
-                      <div class="col s2 avenir-next-regular center-align">
-                        `+ products[i]["created_date"] + `
-                      </div>
-                      <div class="col s3  center-align">
-                        <a href="#edit-base-product-modal" class="modal-trigger">
-                          <i class="material-icons edit-icon">edit</i>
-                        </a>
+                        <div class="col s2 avenir-next-regular center-align">
+                          `+ products[i]["brand_name"] + `
+                        </div>
+                        <div class="col s2 avenir-next-regular center-align">
+                          `+ products[i]["created_date"] + `
+                        </div>
+                        <div class="col s3  center-align">
+                          <a data="`+products[i]["product_pk"]+`" href="#edit-base-product-modal" class="modal-trigger base-product-edit-modal-btn">
+                            <i class="material-icons edit-icon">edit</i>
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="collapsible-body">
-                      <div class="row margin-zero collapsible-body-row">
-                        <div class="col s1 avenir-next purple-1 center-align">
-                          <p>
-                            Sr
-                          </p>
-                        </div>
-                        <div class="col s3 avenir-next purple-1 center-align">
-                          <p>
-                            Product Id
-                          </p>
-                        </div>
-                        <div class="col s3 avenir-next purple-1 center-align">
-                          <p>
-                            Product Name
-                          </p>
-                        </div>
-                        <div class="col s3 avenir-next purple-1 center-align">
-                          <p>
-                            Channel
-                          </p>
-                        </div>
-                        <div class="col s2 avenir-next purple-1 center-align">
-                          <p>
-                            Action
-                          </p>
-                        </div>
-                      </div>
-                      <div class="row margin-zero collapsible-body-row">
-                        <div class="col s1 avenir-next avenir-next-regular center-align">
-                          <p>
-                            01
-                          </p>
-                        </div>
-                        <div class="col s3 avenir-next avenir-next-regular center-align">
-                          <p>
-                            XYZ-ID
-                          </p>
-                        </div>
-                        <div class="col s3 avenir-next avenir-next-regular center-align">
-                          <p>
-                            Product 1
-                          </p>
-                        </div>
-                        <div class="col s3 avenir-next avenir-next-regular center-align">
-                          <p>
-                            Amazon UAE
-                          </p>
-                        </div>
-                        <div class="col s2 center-align">
-                          <i class="material-icons edit-icon">edit</i>
-                        </div>
-                      </div>
+                    <div class="collapsible-body">
+                        `+child_products_html_string+`
+                    </div>
+                  </li>
+              </ul>`
+          }
 
+          if (load_more_flag == true) {
+            $("#product-table").append(html_string);
+            load_more_flag = false;
+          }
+          else {
+            $("#product-table").html(html_string);
+          }
+          $('.collapsible').collapsible();
 
-                      <div class="row margin-zero collapsible-body-row">
-                        <div class="col s1 avenir-next avenir-next-regular center-align">
-                          <p>
-                            02
-                          </p>
-                        </div>
-                        <div class="col s3 avenir-next avenir-next-regular center-align">
-                          <p>
-                            XYZ-ID
-                          </p>
-                        </div>
-                        <div class="col s3 avenir-next avenir-next-regular center-align">
-                          <p>
-                            Product 2
-                          </p>
-                        </div>
-                        <div class="col s3 avenir-next avenir-next-regular center-align">
-                          <p>
-                            Amazon UK
-                          </p>
-                        </div>
-                        <div class="col s2 center-align">
-                          <i class="material-icons edit-icon">edit</i>
-                        </div>
-                      </div>
-
-                  </div>
-                </li>
-            </ul>   
-              
-              `
-        }
-
-        if (load_more_flag == true) {
-          $("#product-table").append(html_string);
-          load_more_flag = false;
-        }
-        else {
-          $("#product-table").html(html_string);
-        }
-        $('.collapsible').collapsible();
-
-        if (is_available == true) {
-          $("#load-more-btn").show();
-        }
-        else {
-          $("#load-more-btn").hide();
+          if (is_available == true) {
+            $("#load-more-btn").show();
+          }
+          else {
+            $("#load-more-btn").hide();
+          }
         }
 
       },
