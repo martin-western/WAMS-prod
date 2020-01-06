@@ -307,6 +307,424 @@ class CreateNewProductAPI(APIView):
 
         return Response(data=response)
 
+class SaveNoonChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("SaveNoonChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveNoonChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = "Noon"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveNoonChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(
+                    request.user)
+                channel_obj = Channel.objects.get(name=channel_name)
+                logger.info("Channel Obj is %s", str(channel_obj))
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning(
+                        "SaveNoonChannelProductAPI Restricted Access of Noon Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("SaveNoonChannelProductAPI Restricted Access of Noon Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_product = product_obj.channel_product
+            channel_product.noon_product_json = data["noon_product_json"]
+            channel_product.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveNoonChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class SaveAmazonUKChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveAmazonUKChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = "Amazon UK"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(
+                    request.user)
+                channel_obj = Channel.objects.get(name=channel_name)
+                logger.info("Channel Obj is %s", str(channel_obj))
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning(
+                        "SaveAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("SaveAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_product = product_obj.channel_product
+            channel_product.amazon_uk_product_json = data["amazon_uk_product_json"]
+            channel_product.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveAmazonUKChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class SaveAmazonUAEChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveAmazonUAEChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = "Amazon UAE"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(
+                    request.user)
+                channel_obj = Channel.objects.get(name=channel_name)
+                logger.info("Channel Obj is %s", str(channel_obj))
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning(
+                        "SaveAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("SaveAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_product = product_obj.channel_product
+            channel_product.amazon_uae_product_json = data["amazon_uae_product_json"]
+            channel_product.save()
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveAmazonUAEChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class SaveEbayChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("SaveEbayChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveEbayChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = "Ebay"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveEbayChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(
+                    request.user)
+                channel_obj = Channel.objects.get(name=channel_name)
+                logger.info("Channel Obj is %s", str(channel_obj))
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning(
+                        "SaveEbayChannelProductAPI Restricted Access of Ebay Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("SaveEbayChannelProductAPI Restricted Access of Ebay Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_product = product_obj.channel_product
+            channel_product.ebay_product_json = data["ebay_product_json"]
+            channel_product.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveEbayChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchNoonChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchNoonChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            channel_product_obj = product_obj.channel_product
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchNoonChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_name = "Noon"
+            noon_product_json = channel_product_obj.noon_product_json
+
+            response["noon_product_json"] = noon_product_json
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchNoonChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchAmazonUKChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchAmazonUKChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            channel_product_obj = product_obj.channel_product
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchAmazonUKChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_name = "Amazon UK"
+            amazon_uk_product_json = channel_product_obj.amazon_uk_product_json
+
+            response["amazon_uk_product_json"] = amazon_uk_product_json
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAmazonUKChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchAmazonUAEChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchAmazonUAEChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            channel_product_obj = product_obj.channel_product
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchAmazonUAEChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_name = "Amazon UAE"
+            amazon_uae_product_json = channel_product_obj.amazon_uae_product_json
+
+            response["amazon_uae_product_json"] = amazon_uae_product_json
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAmazonUAEChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchEbayChannelProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchEbayChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            channel_product_obj = product_obj.channel_product
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchEbayChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_name = "Ebay"
+            ebay_product_json = channel_product_obj.eaby_product_json
+
+            response["ebay_product_json"] = ebay_product_json
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchEbayChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 class FetchProductDetailsAPI(APIView):
 
@@ -506,7 +924,7 @@ class FetchProductDetailsAPI(APIView):
                 images["white_background_images"] + images["lifestyle_images"] + \
                 images["certificate_images"] + images["giftbox_images"] + \
                 images["diecut_images"] + images["aplus_content_images"] + \
-                images["ads_images"] + images["unedited_images"] + images["transparent_images"] + create_response_images_main_sub_delete(prod_obj.main_images.all()) + create_response_images_main_sub_delete(prod_obj.sub_images.all())
+                images["ads_images"] + images["unedited_images"] + images["transparent_images"] + create_response_images_main_sub_delete(main_images_list) + create_response_images_main_sub_delete(sub_images_list)
 
 
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
@@ -1537,6 +1955,8 @@ class CreateFlyerAPI(APIView):
                 "strikeprice-visible": True,
                 "header-color": "#181818",
                 "footer-color": "#181818",
+                "header-opacity": "1",
+                "footer-opacity": "1",
                 "all-promo-resizer": "40",
                 "all-image-resizer": "100"
             }
@@ -1990,7 +2410,21 @@ class FetchPFLDetailsAPI(APIView):
                     "y": 0
                 },
                 "common": {
-                  "image-resizer": 100
+                  "image-resizer": 100,
+                  "product-title-font-size": "25",
+                  "product-title-font-family": "Helvetica",
+                  "product-title-font-weight": "normal",
+                  "product-title-font-color": "#181818",
+                  "seller-sku-font-size": "12",
+                  "seller-sku-font-family": "Helvetica",
+                  "seller-sku-font-weight": "normal",
+                  "seller-sku-font-color": "#181818",
+                  "feature-font-size": "12",
+                  "feature-font-family": "Helvetica",
+                  "feature-font-weight": "normal",
+                  "feature-font-color": "#181818",
+                  "header-color": "#573B93",
+                  "footer-color": "#573B93"
                 }
             }
             try:
@@ -3183,3 +3617,19 @@ DownloadProduct = DownloadProductAPI.as_view()
 UploadFlyerExternalImages = UploadFlyerExternalImagesAPI.as_view()
 
 UploadPFLExternalImages = UploadPFLExternalImagesAPI.as_view()
+
+SaveAmazonUKChannelProduct = SaveAmazonUKChannelProductAPI.as_view()
+
+SaveAmazonUAEChannelProduct = SaveAmazonUAEChannelProductAPI.as_view()
+
+SaveEbayChannelProduct = SaveEbayChannelProductAPI.as_view()
+
+SaveNoonChannelProduct = SaveNoonChannelProductAPI.as_view()
+
+FetchAmazonUKChannelProduct = FetchAmazonUKChannelProductAPI.as_view()
+
+FetchAmazonUAEChannelProduct = FetchAmazonUAEChannelProductAPI.as_view()
+
+FetchEbayChannelProduct = FetchEbayChannelProductAPI.as_view()
+
+FetchNoonChannelProduct = FetchNoonChannelProductAPI.as_view()

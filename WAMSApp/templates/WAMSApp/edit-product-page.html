@@ -823,19 +823,7 @@
               </div>
 
               <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 50px  !important;">
-                  <input id="wattage" type="number">
-                  <label for="wattage">Wattage</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="wattage-metric">
-                    <option selected value="">Unit</option>
-                    <option value="volts">V</option>
-                    <option value="Watts">W</option>
-                    <option value="Kilowatts">KW</option>
-                  </select>
-                </div>
+                
                 <div class="input-field col s6">
                   <input id="color-map" type="text">
                   <label for="color-map">Color Map</label>
@@ -1348,76 +1336,7 @@
 
   $("#heading-title").html("PRODUCT FORM");
 
-  window.editor = []
-
-  DecoupledEditor
-    .create(document.querySelector('.document-editor__editable'), {
-      cloudServices: {
-      }
-    })
-    .then(editor => {
-      const toolbarContainer = document.querySelector('.document-editor__toolbar');
-
-      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-      //editor.isReadOnly = !response['edit_access'];
-      window.editor.push(editor);
-    })
-    .catch(err => {
-      console.error(err);
-    });
-
-  DecoupledEditor
-    .create(document.querySelector('.clone2_editable'), {
-      cloudServices: {
-      }
-    })
-    .then(editor => {
-      const toolbarContainer = document.querySelector('.clone2_toolbar');
-
-      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-      //editor.isReadOnly = !response['edit_access'];
-      window.editor.push(editor);
-    })
-    .catch(err => {
-      console.error(err);
-    });
-
-  DecoupledEditor
-    .create(document.querySelector('.clone3_editable'), {
-      cloudServices: {
-      }
-    })
-    .then(editor => {
-      const toolbarContainer = document.querySelector('.clone3_toolbar');
-
-      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-      //editor.isReadOnly = !response['edit_access'];
-      window.editor.push(editor);
-    })
-    .catch(err => {
-      console.error(err);
-    });
-
-
-
-
-  DecoupledEditor
-    .create(document.querySelector('.clone4_editable'), {
-      cloudServices: {
-      }
-    })
-    .then(editor => {
-      const toolbarContainer = document.querySelector('.clone4_toolbar');
-
-      toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-      //editor.isReadOnly = !response['edit_access'];
-      window.editor.push(editor);
-    })
-    .catch(err => {
-      console.error(err);
-    });
-
-
+  
 
   function getCsrfToken() {
     var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
@@ -1684,64 +1603,9 @@
         $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
 
 
-        window.editor[0].setData(response["product_description_amazon_uk"]);
-        window.editor[1].setData(response["product_description_amazon_uae"]);
-        window.editor[2].setData(response["product_description_ebay"]);
-        window.editor[3].setData(response["product_description_noon"]);
-
-
-        var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];
-        if (product_attribute_list_amazon_uk.length > 0) {
-          $("#product-attribute-amazon-uk-1").val(product_attribute_list_amazon_uk[0]);
-        }
-        for (var i = 1; i < product_attribute_list_amazon_uk.length; i++) {
-          $("#add-product-attribute-amazon-uk-btn").click();
-          $("#product-attribute-amazon-uk-" + (i + 1)).val(product_attribute_list_amazon_uk[i]);
-        }
-
-        var product_attribute_list_amazon_uae = response["product_attribute_list_amazon_uae"];
-        if (product_attribute_list_amazon_uae.length > 0) {
-          $("#product-attribute-amazon-uae-1").val(product_attribute_list_amazon_uae[0]);
-        }
-        for (var i = 1; i < product_attribute_list_amazon_uae.length; i++) {
-          $("#add-product-attribute-amazon-uae-btn").click();
-          $("#product-attribute-amazon-uae-" + (i + 1)).val(product_attribute_list_amazon_uae[i]);
-        }
-
-        var product_attribute_list_ebay = response["product_attribute_list_ebay"];
-        if (product_attribute_list_ebay.length > 0) {
-          $("#product-attribute-ebay-1").val(product_attribute_list_ebay[0]);
-        }
-        for (var i = 1; i < product_attribute_list_ebay.length; i++) {
-          $("#add-product-attribute-ebay-btn").click();
-          $("#product-attribute-ebay-" + (i + 1)).val(product_attribute_list_ebay[i]);
-        }
-
-        var product_attribute_list_noon = response["product_attribute_list_noon"];
-        if (product_attribute_list_noon.length > 0) {
-          $("#product-attribute-noon-1").val(product_attribute_list_noon[0]);
-        }
-        for (var i = 1; i < product_attribute_list_noon.length; i++) {
-          $("#add-product-attribute-noon-btn").click();
-          $("#product-attribute-noon-" + (i + 1)).val(product_attribute_list_noon[i]);
-        }
-
-        $("#search-terms").val(response["search_terms"]);
         $("#color-map").val(response["color_map"]);
         $("#color").val(response["color"]);
-        $("#enclosure-material").val(response["enclosure_material"]);
-        $("#cover-material-type").val(response["cover_material_type"]);
-
-        var special_features = response["special_features"];
-        if (special_features.length > 0) {
-          $("#special-feature-1").val(special_features[0]);
-        }
-        for (var i = 1; i < special_features.length; i++) {
-          $("#add-special-feature-btn").click();
-          $("#special-feature-" + (i + 1)).val(special_features[i]);
-        }
-
-        $("#special-feature").val(response["special_features"]);
+        
         $("#package-length").val(response["package_length"]);
         $("#package-length-metric").val(response["package_length_metric"]);
         $("#package-width").val(response["package_width"]);

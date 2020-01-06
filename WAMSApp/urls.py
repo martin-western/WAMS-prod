@@ -94,4 +94,22 @@ urlpatterns = [
     url(r'^channel-product/noon/(?P<pk>[\w-]+)/',
         views.ChannelProductNoonPage),
 
+    url(r'^save-channel-product-amazon-uk/',
+        views.SaveAmazonUKChannelProduct),
+    url(r'^save-channel-product-amazon-uae/',
+        views.SaveAmazonUAEChannelProduct),
+    url(r'^save-channel-product-ebay/',
+        views.SaveEbayChannelProduct),
+    url(r'^save-channel-product-noon/',
+        views.SaveNoonChannelProduct),
+
+    url(r'^fetch-channel-product-amazon-uk/',
+        views.FetchAmazonUKChannelProduct),
+    url(r'^fetch-channel-product-amazon-uae/',
+        views.FetchAmazonUAEChannelProduct),
+    url(r'^fetch-channel-product-ebay/',
+        views.FetchEbayChannelProduct),
+    url(r'^fetch-channel-product-noon/',
+        views.FetchNoonChannelProduct),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -44,44 +44,49 @@ def export_noon(products):
 
         rownum = 8
         for product in products:
+            base_product = product.base_product
+            channel_product = product.channel_product
+            noon_product = json.loads(channel_product.noon_product_json)
+            
             try:
                 common_row = ["" for i in range(len(dfs.iloc[3][:]))]
                 common_row[0] = "kitchen_dining"
 
-                common_row[1] = str(product.noon_product_type)
-                common_row[2] = str(product.noon_product_subtype)
+                common_row[1] = noon_product["product_type"]
+                common_row[2] = noon_product["product_subtype"]
                 
-                common_row[3] = str(product.product_id)
-                common_row[4] = str(product.seller_sku)
-                common_row[5] = str(product.parent_sku)
-                common_row[6] = "" if product.brand==None else str(product.brand.name)
-                common_row[7] = str(product.product_name_noon)
+                common_row[3] = product.product_id
+                common_row[4] = product.seller_sku
+                common_row[5] = base_product.parent_sku
+                common_row[6] = "" if base_product.brand==None else str(base_product.brand.name)
+                common_row[7] = noon_product["product_name"]
                 common_row[8] = "china"
-                common_row[9] = str(product.noon_model_number)
-                common_row[10] = str(product.noon_model_name)
+                common_row[9] = noon_product.["model_number"]
+                common_row[10] = noon_product["model_name"]
                 common_row[11] = str(product.color)
                 common_row[12] = str(product.color_map)
-                common_row[13] = "" if product.item_length==None else str(product.item_length)
-                common_row[14] = str(product.item_length_metric)
+                common_row[13] = "" if base_product.item_length==None else str(base_product.item_length)
+                common_row[14] = str(base_product.item_length_metric)
 
-                common_row[26] = str(product.material_type)
+                if product.material_type != None:
+                    common_row[26] = str(product.material_type.name)
 
                 feature1 = ""
                 feature2 = ""
                 feature3 = ""
 
                 try:
-                    feature1 = json.loads(product.product_attribute_list_noon)[0]
+                    feature1 = noon_product["product_attribute_list"][0]
                 except Exception as e:
                     pass
 
                 try:
-                    feature2 = json.loads(product.product_attribute_list_noon)[1]
+                    feature2 = noon_product["product_attribute_list"][1]
                 except Exception as e:
                     pass
 
                 try:
-                    feature3 = json.loads(product.product_attribute_list_noon)[2]
+                    feature3 = noon_product["product_attribute_list"][2]
                 except Exception as e:
                     pass
 
@@ -93,20 +98,33 @@ def export_noon(products):
 
 
                 # Graphics Part
-                main_image_url = ""
-                if product.main_images.filter(is_main_image=True).count() > 0:
-                    main_image_url = str(product.main_images.filter(is_main_image=True)[0].image.image.url)
+                main_image_url = None
+                
+                try:
+                    main_images_obj = MainImages.objects.get(product = product, channel="Noon")
+                    
+                    if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                        main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                        main_image_url = main_image_obj.image.image.url
+                except Exception as e:
+                    pass
 
                 common_row[49] = main_image_url
 
 
                 img_cnt = 0
-                for image in product.main_images.filter(is_sub_image=True).order_by('sub_image_index')[:6]:
-                    common_row[50+img_cnt] = str(image.image.image.url)
-                    img_cnt += 1
+                
+                try:
+                    main_images_obj = MainImages.objects.get(product = product, channel="Noon")
 
-                common_row[65] = "" if product.noon_msrp_ae==None else str(product.noon_msrp_ae)
-                common_row[66] = str(product.noon_msrp_ae_unit)
+                    for image in main_images_obj.main_images.filter(is_sub_image=True).order_by('sub_image_index')[:6]:
+                        common_row[50+img_cnt] = str(image.image.image.url)
+                        img_cnt += 1
+                except Exception as e:
+                    pass
+                
+                common_row[65] = "" if noon_product["msrp_ae"]==None else noon_product["msrp_ae"]
+                common_row[66] =  noon_product["msrp_ae_unit"]
 
                 colnum = 0
                 for row in common_row:

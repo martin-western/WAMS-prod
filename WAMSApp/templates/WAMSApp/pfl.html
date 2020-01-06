@@ -39,6 +39,26 @@
       src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Regular.otf' %}");
     }
 
+     @font-face {
+      font-family: Helvetica;
+      src: url("{% static 'WAMSApp/fonts/Helvetica/Helvetica.ttf' %}");
+    }
+
+    @font-face {
+      font-family: BebasNeueRegular;
+      src: url("{% static 'WAMSApp/fonts/general/BebasNeueRegular.otf' %}");
+    }
+
+    @font-face {
+      font-family: GothamBookRegular;
+      src: url("{% static 'WAMSApp/fonts/general/GothamBookRegular.otf' %}");
+    }
+
+    @font-face {
+      font-family: FrankRegular;
+      src: url("{% static 'WAMSApp/fonts/general/FrankRegular.otf' %}");
+    }
+
     .scroll-style-1::-webkit-scrollbar-track
     {
       -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
@@ -496,7 +516,7 @@ input[type=range]+.thumb {
           <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
             <div class="col s12">
                 <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="100" />
+                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="100" value="100" />
                 </p>
             </div>
           </div>
@@ -538,6 +558,173 @@ input[type=range]+.thumb {
               </div>
           </div>
         </div>
+
+
+
+        <!-- Product Title Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Title Settings</span>
+          </span>
+          
+          <div class="row white hoverable" style="margin-top:0.5em;padding:5px">
+            <div class="input-field col s6" style="margin-top: 1em !important;">
+              <input id="product-title-font-size" type="number" value="12">
+              <label for="product-title-font-size">Font Size</label>  
+            </div>
+
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="product-title-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
+              </select>
+              <label>Font Family</label>
+            </div>
+
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="product-title-font-weight">
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
+              </select>
+              <label>Font Weight</label>
+            </div>  
+
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <span>Font Color</span>
+              <input id="product-title-font-color" type="color" value="#181818"> 
+            </div>
+
+          </div>
+        </div>
+
+
+
+
+
+
+
+        <!-- Seller SKU Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Seller SKU Settings</span>
+          </span>
+          
+          <div class="row white hoverable" style="margin-top:0.5em;padding:5px">
+            <div class="input-field col s6" style="margin-top: 1em !important;">
+              <input id="seller-sku-font-size" type="number" value="12">
+              <label for="seller-sku-font-size">Font Size</label>  
+            </div>
+
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="seller-sku-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
+              </select>
+              <label>Font Family</label>
+            </div>
+
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="seller-sku-font-weight">
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
+              </select>
+              <label>Font Weight</label>
+            </div>  
+
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <span>Font Color</span>
+              <input id="seller-sku-font-color" type="color" value="#181818"> 
+            </div>
+
+          </div>
+        </div>
+
+
+
+
+
+
+        <!-- Feature Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Feature Settings</span>
+          </span>
+          
+          <div class="row white hoverable" style="margin-top:0.5em;padding:5px">
+            <div class="input-field col s6" style="margin-top: 1em !important;">
+              <input id="feature-font-size" type="number" value="12">
+              <label for="feature-font-size">Font Size</label>  
+            </div>
+
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="feature-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
+              </select>
+              <label>Font Family</label>
+            </div>
+
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="feature-font-weight">
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
+              </select>
+              <label>Font Weight</label>
+            </div>  
+
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <span>Font Color</span>
+              <input id="feature-font-color" type="color" value="#181818"> 
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- Header Footer Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">view_day</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header/Footer Settings</span>
+          </span>
+          
+          <div class="row white hoverable" style="margin-top:0.5em;padding:5px;">
+            <div class="input-field col s6" style="margin-top: 0em !important;">
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Header Color</p>
+              <input id="header-color" type="color" value="#181818">  
+            </div>
+
+            <div class="input-field col s6" style="margin-top: 0em !important;">
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Footer Color</p>
+              <input id="footer-color" type="color" value="#181818">
+            </div>
+
+          </div>
+        </div>
+
+
 
         <div class="col s12" style="width: 90%;margin-left: 5%;padding-right: 0em;">
           <a id="save-pfl-template-btn" class="btn right" style="background-color: #521893;font-size: 14px; font-family: 'AvenirNext';">Save</a>
@@ -592,8 +779,8 @@ input[type=range]+.thumb {
           </div>
 
           <!-- Product Name Preview -->
-          <div class="col s12" style="background-color:#521893;text-align: center;width: 210mm;padding-bottom: 1em;position: absolute;margin-top: 190mm;width:210mm;height: 20mm;">
-            <div id="product-name-preview" class="white-text left" style="padding-left: 1em;text-transform: uppercase;margin-top: 6.4mm;font-size: 1.5em;font-family:'AvenirNextRegular';">
+          <div id="header-div" class="col s12" style="background-color:#521893;text-align: center;width: 210mm;padding-bottom: 1em;position: absolute;margin-top: 190mm;width:210mm;height: 20mm;">
+            <div id="product-name-preview" class="left" style="padding-left: 1em;text-transform: uppercase;margin-top: 6.4mm;font-size: 1.5em;font-family:'AvenirNextRegular';">
             </div>
           </div>
 
@@ -605,7 +792,7 @@ input[type=range]+.thumb {
   
           <!-- Features Preview -->
           <div class="col s12" style="position: absolute;margin-top: 218mm;width: 10mm;">
-            <span style="color:#521893;font-size: 1.4em;font-family: 'AvenirNext';padding-left: 1em;">Features</span>
+            <span id="features-heading" style="color:#521893;font-size: 1.4em;font-family: 'AvenirNext';padding-left: 1em;">Features</span>
           </div>
           <div class="col s12" style="margin-top: 215mm;">
             <div id="features-preview-div" style="padding-left: 1.3em;text-align:left;">
@@ -620,9 +807,9 @@ input[type=range]+.thumb {
           </div>
           
           <!-- Footer -->
-          <div class="col s12" style="background-color:#521893;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
+          <div id="footer-div" class="col s12" style="background-color:#521893;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
             <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
-              <p class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.royalford.com</p>
+              <p contenteditable class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.royalford.com</p>
             </div>
           </div>
 
@@ -711,7 +898,7 @@ input[type=range]+.thumb {
     $("#image-resizer").change(function() {
       var R = $("#image-resizer").val();
 
-      $("#pfl-product-image-preview-img").css("max-width", R+"%");
+      $("#pfl-product-image-preview-img").css("width", R+"%");
       $("#pfl-product-image-preview-img").attr("resizer", R);
     });
 
@@ -809,7 +996,7 @@ input[type=range]+.thumb {
               context.scale(scale, scale);
               
               window.scrollTo(0,0);
-              html2canvas(div, {canvas:canvas, scrollX:0, scrollY:0}).then(function(canvas) {
+              html2canvas(div, {canvas:canvas, scrollX:-10, scrollY:0}).then(function(canvas) {
 
                     $("#download-pfl-btn").removeAttr("disabled");
                     $("#loader-div").hide();
@@ -866,16 +1053,35 @@ input[type=range]+.thumb {
     var global_product_name_sap = "";
     var global_external_image_bucket = [];
 
+
+    var global_product_font_size = "25";
+    var global_product_font_family = "Helvetica";
+    var global_product_font_weight = "normal";
+    var global_product_font_color = "#181818";
+    var global_seller_sku_font_size = "12";
+    var global_seller_sku_font_family = "Helvetica";
+    var global_seller_sku_font_weight = "normal";
+    var global_seller_sku_font_color = "#181818";
+    var global_feature_font_size = "12";
+    var global_feature_font_family = "Helvetica";
+    var global_feature_font_weight = "normal";
+    var global_feature_font_color = "#181818";
+    var global_header_color = "#573B93";
+    var global_footer_color = "#573B93";
+
+
+
     function render_fetures()
     {
       var html_string = `<br><br>`;
       var feature_text = $(".feature-text");
       for(var i=0;i<feature_text.length;i++)
       {
-        html_string += `<span style="font-family: 'AvenirNextRegular'"><span style="color:#521893;">&bullet;&nbsp;&nbsp;</span> `+feature_text[i].value+`</span><br>`
+        html_string += `<span class="feature-text-preview" style="font-family: 'AvenirNextRegular'"><span style="color:#521893;">&bullet;&nbsp;&nbsp;</span> `+feature_text[i].value+`</span><br>`
 
       }
       $("#features-preview-div").html(html_string);
+      set_editor_style();
     }
 
 
@@ -1042,7 +1248,7 @@ input[type=range]+.thumb {
       });
     }
 
-    fetch_product_list_autocomplete();
+    //fetch_product_list_autocomplete();
 
 
     function set_brand_image(url)
@@ -1316,6 +1522,30 @@ input[type=range]+.thumb {
 
           set_container(response["template_data"]);
 
+
+          var template_data = response["template_data"]["common"]
+
+          global_product_font_size = template_data["product-title-font-size"]
+          global_product_font_family = template_data["product-title-font-family"]
+          global_product_font_weight = template_data["product-title-font-weight"]
+          global_product_font_color = template_data["product-title-font-color"]
+
+          global_seller_sku_font_size = template_data["seller-sku-font-size"]
+          global_seller_sku_font_family = template_data["seller-sku-font-family"]
+          global_seller_sku_font_weight = template_data["seller-sku-font-weight"]
+          global_seller_sku_font_color = template_data["seller-sku-font-color"]
+
+          global_feature_font_size = template_data["feature-font-size"]
+          global_feature_font_family = template_data["feature-font-family"]
+          global_feature_font_weight = template_data["feature-font-weight"]
+          global_feature_font_color = template_data["feature-font-color"]
+
+          global_header_color = template_data["header-color"]
+          global_footer_color = template_data["footer-color"]
+
+          update_editor();
+          set_editor_style();
+
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -1356,7 +1586,21 @@ input[type=range]+.thumb {
           "y": y
         },
         "common": {
-          "image-resizer": image_resizer
+          "image-resizer": image_resizer,
+          "product-title-font-size": global_product_font_size,
+          "product-title-font-family": global_product_font_family,
+          "product-title-font-weight": global_product_font_weight,
+          "product-title-font-color": global_product_font_color,
+          "seller-sku-font-size": global_seller_sku_font_size,
+          "seller-sku-font-family": global_seller_sku_font_family,
+          "seller-sku-font-weight": global_seller_sku_font_weight,
+          "seller-sku-font-color": global_seller_sku_font_color,
+          "feature-font-size": global_feature_font_size,
+          "feature-font-family": global_feature_font_family,
+          "feature-font-weight": global_feature_font_weight,
+          "feature-font-color": global_feature_font_color,
+          "header-color": global_header_color,
+          "footer-color": global_footer_color
         }
       }
 
@@ -1455,6 +1699,125 @@ input[type=range]+.thumb {
         }
       });
     });
+
+
+    $("#product-title-font-size").change(function(){
+      global_product_font_size = this.value;
+      set_editor_style();
+    });
+
+    $("#product-title-font-family").change(function(){
+      global_product_font_family = this.value;
+      set_editor_style();
+    });
+
+    $("#product-title-font-weight").change(function(){
+      global_product_font_weight = this.value;
+      set_editor_style();
+    });
+
+    $("#product-title-font-color").change(function(){
+      global_product_font_color = this.value;
+      set_editor_style();
+    });
+
+    $("#seller-sku-font-size").change(function(){
+      global_seller_sku_font_size = this.value;
+      set_editor_style();
+    });
+
+    $("#seller-sku-font-family").change(function(){
+      global_seller_sku_font_family = this.value;
+      set_editor_style();
+    });
+
+    $("#seller-sku-font-weight").change(function(){
+      global_seller_sku_font_weight = this.value;
+      set_editor_style();
+    });
+
+    $("#seller-sku-font-color").change(function(){
+      global_seller_sku_font_color = this.value;
+      set_editor_style();
+    });
+
+    $("#feature-font-size").change(function(){
+      global_feature_font_size = this.value;
+      set_editor_style();
+    });
+
+    $("#feature-font-family").change(function(){
+      global_feature_font_family = this.value;
+      set_editor_style();
+    });
+
+    $("#feature-font-weight").change(function(){
+      global_feature_font_weight = this.value;
+      set_editor_style();
+    });
+
+    $("#feature-font-color").change(function(){
+      global_feature_font_color = this.value;
+      set_editor_style();
+    });
+
+    $("#header-color").change(function(){
+      global_header_color = this.value;
+      set_editor_style();
+    });
+
+    $("#footer-color").change(function(){
+      global_footer_color = this.value;
+      set_editor_style();
+    });
+
+
+
+    function update_editor()
+    {
+      $("#product-title-font-size").val(global_product_font_size);
+      $("#product-title-font-family").val(global_product_font_family);
+      $("#product-title-font-weight").val(global_product_font_weight);
+      $("#product-title-font-color").val(global_product_font_color);
+
+      $("#seller-sku-font-size").val(global_seller_sku_font_size);
+      $("#seller-sku-font-family").val(global_seller_sku_font_family);
+      $("#seller-sku-font-weight").val(global_seller_sku_font_weight);
+      $("#seller-sku-font-color").val(global_seller_sku_font_color);
+
+      $("#feature-font-size").val(global_feature_font_size);
+      $("#feature-font-family").val(global_feature_font_family);
+      $("#feature-font-weight").val(global_feature_font_weight);
+      $("#feature-font-color").val(global_feature_font_color);
+
+      $("#header-color").val(global_header_color)
+      $("#footer-color").val(global_footer_color)
+    }
+
+
+    function set_editor_style()
+    {
+      $("#product-name-preview").css("font-size", global_product_font_size+"px");
+      $("#product-name-preview").css("font-family", global_product_font_family);
+      $("#product-name-preview").css("font-weight", global_product_font_weight);
+      $("#product-name-preview").css("color", global_product_font_color);
+
+      $("#seller-sku-preview").css("font-size", global_seller_sku_font_size+"px");
+      $("#seller-sku-preview").css("font-family", global_seller_sku_font_family);
+      $("#seller-sku-preview").css("font-weight", global_seller_sku_font_weight);
+      $("#seller-sku-preview").css("color", global_seller_sku_font_color);
+
+      $(".feature-text-preview").css("font-size", global_feature_font_size+"px");
+      $(".feature-text-preview").css("font-family", global_feature_font_family);
+      $(".feature-text-preview").css("font-weight", global_feature_font_weight);
+      $(".feature-text-preview").css("color", global_feature_font_color);
+
+      $("#features-heading").css("color", global_feature_font_color);
+
+      $("#header-div").css("background-color", global_header_color);
+      $("#footer-div").css("background-color", global_footer_color);
+    }
+
 
   </script>
 

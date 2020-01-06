@@ -65,12 +65,15 @@ def export_amazon_uae(products):
 
             # Graphics Part
             main_image_url = None
-            main_images_obj = MainImages.objects.get(product = product, channel="Amazon UAE")
-            
-            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                main_image_url = main_image_obj.image.image.url
-                   
+            try:
+                main_images_obj = MainImages.objects.get(product = product, channel="Amazon UAE")
+                
+                if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                    main_image_url = main_image_obj.image.image.url
+            except Exception as e:
+                pass
+
             common_row[15] = str(main_image_url)
 
             data_row_2 = []

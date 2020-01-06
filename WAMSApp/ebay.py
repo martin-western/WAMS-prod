@@ -56,13 +56,17 @@ def export_ebay(products):
 
         rownum = 1
         for product in products:
+            base_product = product.base_product
+            channel_product = product.channel_product
+            ebay_product = json.loads(channel_product.ebay_product_json)
+            
             try:
                 common_row = ["" for i in range(len(headers))]
                 common_row[0] = "Add"
-                common_row[1] = str(product.category)
-                common_row[2] = str(product.product_name_ebay)
-                common_row[3] = str(product.subtitle)
-                common_row[4] = str(product.product_description_ebay)
+                common_row[1] = ebay_product["category"]
+                common_row[2] = ebay_product["product_name"]
+                common_row[3] = str(base_product.subtitle)
+                common_row[4] = ebay_product["product_description"]
                 common_row[5] = "1000"
                 
                 common_row[7] = "" if product.quantity==None else str(product.quantity)
@@ -71,22 +75,29 @@ def export_ebay(products):
                 common_row[10] = "GTC"
                 common_row[11] = "Birmingham"
                 common_row[12] = ""
-                common_row[13] = "" if product.brand==None else str(product.brand.name)
-                common_row[14] = str(product.manufacturer_part_number)
+                common_row[13] = "" if base_product.brand==None else str(base_product.brand.name)
+                common_row[14] = str(base_product.manufacturer_part_number)
                 common_row[15] = str(product.product_id)
-                common_row[16] = str(product.seller_sku)
+                common_row[16] = str(base_product.seller_sku)
                 common_row[17] = "24 Hour Delivery Service"
                 common_row[18] = "Western International - Returns 30 days"
                 common_row[19] = "Western International - Paypal"
 
                 # Graphics Part
                 images_link = []
-                if product.main_images.filter(is_main_image=True).count() > 0:
-                    images_link.append(str(product.main_images.filter(is_main_image=True)[0].image.image.url))
 
-                for image in product.main_images.filter(is_sub_image=True).order_by('sub_image_index'):
-                    images_link.append(str(image.image.image.url))                    
+                main_images_list = ImageBucket.objects.none()
+                main_images_obj = MainImages.objects.get(product = product, channel="Ebay")
 
+                main_images_list = main_images_obj.main_images.filter(is_main_image=True).distinct()
+                sub_images_list = main_images_obj.main_images.filter(is_sub_image=True).distinct()
+
+                for main_image in main_images_list:
+                    images_link.append(str(main_image.image.image.url))
+                
+                for sub_image in sub_images_list:
+                    images_link.append(str(sub_image.image.image.url))
+                
                 pic_url = "|".join(images_link)
                 common_row[6] = pic_url
 
