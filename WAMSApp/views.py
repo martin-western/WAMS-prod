@@ -1728,7 +1728,8 @@ class CreateFlyerAPI(APIView):
                                 
 
                             except Exception as e:
-                                logger.error("product_id: %s , error: %s", str(dfs.iloc[i][0]), str(e))
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.error("product index: %s , error: %s at %s", str(i), str(e), str(exc_tb.tb_lineno))
 
                             temp_dict = {}
 
