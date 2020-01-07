@@ -264,6 +264,7 @@ class BaseProduct(models.Model):
 
     base_product_name = models.CharField(max_length=200)
     created_date = models.DateTimeField()
+    modified_date = models.DateTimeField()
     seller_sku = models.CharField(max_length=200, unique=True)
     category = models.CharField(max_length=200, default="")
     subtitle = models.CharField(max_length=200, default="")
@@ -311,6 +312,8 @@ class BaseProduct(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.created_date = timezone.now()
+        else:
+            self.modified_date = timezone.now()
         super(BaseProduct, self).save(*args, **kwargs)
 
 
