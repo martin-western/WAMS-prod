@@ -1336,8 +1336,46 @@ class FetchProductListAPI(APIView):
 
                 temp_dict["products"] = []
                 temp_dict["channel_products"] = []
+                temp_dict["dimensions"] = []
 
                 temp_dict["seller_sku"] = base_product_obj.seller_sku
+                temp_dict["category"] = base_product_obj.category
+                temp_dict["subtitle"] = base_product_obj.subtitle
+
+
+                temp_dimensions_dict = {}
+                temp_dimensions_dict["package_length"] = "" if base_product_obj.package_length == None else base_product_obj.package_length
+                temp_dimensions_dict["package_length_metric"] = base_product_obj.package_length_metric
+                temp_dimensions_dict["package_width"] = "" if base_product_obj.package_width == None else base_product_obj.package_width
+                temp_dimensions_dict["package_width_metric"] = base_product_obj.package_width_metric
+                temp_dimensions_dict["package_height"] = "" if base_product_obj.package_height == None else base_product_obj.package_height
+                temp_dimensions_dict["package_height_metric"] = base_product_obj.package_height_metric
+                temp_dimensions_dict["package_weight"] = "" if base_product_obj.package_weight == None else base_product_obj.package_weight
+                temp_dimensions_dict["package_weight_metric"] = base_product_obj.package_weight_metric
+                temp_dimensions_dict["package_quantity"] = "" if base_product_obj.package_quantity == None else base_product_obj.package_quantity
+                
+                temp_dimensions_dict["shipping_weight"] = "" if base_product_obj.shipping_weight == None else base_product_obj.shipping_weight
+                temp_dimensions_dict["shipping_weight_metric"] = base_product_obj.shipping_weight_metric
+                temp_dimensions_dict["item_display_weight"] = "" if base_product_obj.item_display_weight == None else base_product_obj.item_display_weight
+                temp_dimensions_dict["item_display_weight_metric"] = base_product_obj.item_display_weight_metric
+                temp_dimensions_dict["item_display_volume"] = "" if base_product_obj.item_display_volume == None else base_product_obj.item_display_volume
+                temp_dimensions_dict["item_display_volume_metric"] = base_product_obj.item_display_volume_metric
+                temp_dimensions_dict["item_display_length"] = "" if base_product_obj.item_display_length == None else base_product_obj.item_display_length
+                temp_dimensions_dict["item_display_length_metric"] = base_product_obj.item_display_length_metric
+                temp_dimensions_dict["item_weight"] = "" if base_product_obj.item_weight == None else base_product_obj.item_weight
+                temp_dimensions_dict["item_weight_metric"] = base_product_obj.item_weight_metric
+                temp_dimensions_dict["item_length"] = "" if base_product_obj.item_length == None else base_product_obj.item_length
+                temp_dimensions_dict["item_length_metric"] = base_product_obj.item_length_metric
+                temp_dimensions_dict["item_width"] = "" if base_product_obj.item_width == None else base_product_obj.item_width
+                temp_dimensions_dict["item_width_metric"] = base_product_obj.item_width_metric
+                temp_dimensions_dict["item_height"] = "" if base_product_obj.item_height == None else base_product_obj.item_height
+                temp_dimensions_dict["item_height_metric"] = base_product_obj.item_height_metric
+                temp_dimensions_dict["item_display_width"] = "" if base_product_obj.item_display_width == None else base_product_obj.item_display_width
+                temp_dimensions_dict["item_display_width_metric"] = base_product_obj.item_display_width_metric
+                temp_dimensions_dict["item_display_height"] = "" if base_product_obj.item_display_height == None else base_product_obj.item_display_height
+                temp_dimensions_dict["item_display_height_metric"] = base_product_obj.item_display_height_metric
+
+                temp_dict["dimensions"].append(temp_dimensions_dict)
                 
                 product_objs = search_list_product_objs.filter(base_product = base_product_obj)
 
