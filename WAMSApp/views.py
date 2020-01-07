@@ -780,7 +780,7 @@ class FetchAmazonUKChannelProductAPI(APIView):
 
             response["images"] = images
 
-            response["amazon_uk_product_json"] = amazon_uk_product_json
+            response["amazon_uk_product_json"] = json.loads(amazon_uk_product_json)
             response["product_id"] = product_obj.product_id
             response["material_type"] = ""
             if product_obj.material_type != None:
