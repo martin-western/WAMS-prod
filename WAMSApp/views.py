@@ -1625,7 +1625,7 @@ class CreateFlyerAPI(APIView):
                         temp_dict["data"] = {
                             "image-url": "",
                             "banner-img": "",
-                            "warranty-display": False,
+                            "warranty-img": "",
                             "image-resizer": "100",
                             "promo-resizer": "40",
                             "price": "",
@@ -1742,7 +1742,7 @@ class CreateFlyerAPI(APIView):
                             temp_dict["data"] = {
                                 "image-url": str(image_url),
                                 "banner-img": "",
-                                "warranty-display": False,
+                                "warranty-img": "",
                                 "image-resizer": "100",
                                 "promo-resizer": "40",
                                 "price": str(product_price),
