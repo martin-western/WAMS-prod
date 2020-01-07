@@ -669,7 +669,7 @@ class FetchNoonChannelProductAPI(APIView):
 
             images["sub_images"] = create_response_images_sub(sub_images_list)
 
-            images["all_images"] = create_response_images_main_sub_delete(main_images_list) 
+            images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
                                     + create_response_images_main_sub_delete(sub_images_list)
 
 
@@ -739,7 +739,7 @@ class FetchAmazonUKChannelProductAPI(APIView):
 
             images["sub_images"] = create_response_images_sub(sub_images_list)
 
-            images["all_images"] = create_response_images_main_sub_delete(main_images_list) 
+            images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
                                     + create_response_images_main_sub_delete(sub_images_list)
 
 
@@ -810,7 +810,7 @@ class FetchAmazonUAEChannelProductAPI(APIView):
 
             images["sub_images"] = create_response_images_sub(sub_images_list)
 
-            images["all_images"] = create_response_images_main_sub_delete(main_images_list) 
+            images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
                                     + create_response_images_main_sub_delete(sub_images_list)
 
 
@@ -881,7 +881,7 @@ class FetchEbayChannelProductAPI(APIView):
 
             images["sub_images"] = create_response_images_sub(sub_images_list)
 
-            images["all_images"] = create_response_images_main_sub_delete(main_images_list) 
+            images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
                                     + create_response_images_main_sub_delete(sub_images_list)
 
 
