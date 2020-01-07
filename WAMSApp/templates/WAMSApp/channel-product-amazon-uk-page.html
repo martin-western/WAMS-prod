@@ -882,17 +882,6 @@
 </div>
 
 
-<ul id="slide-out" class="sidenav">
-  <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
-  <li><a href="#!">Second Link</a></li>
-  <li>
-    <div class="divider"></div>
-  </li>
-  <li><a class="subheader">Subheader</a></li>
-  <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
-</ul>
-
-
 <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
 <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
 <script type="text/javascript">
@@ -952,6 +941,94 @@
           global_details_amazon_uk = response["amazon_uk_product_json"];
           global_material_type = response["material_type"];
           render_amazon_uk();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  function fetch_details_amazon_uae()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uae/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_amazon_uae = response["amazon_uae_product_json"];
+          // render_amazon_uk();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  function fetch_details_noon()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-noon/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_noon = response["noon_product_json"];
+          // render_amazon_uk();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  unction fetch_details_ebay()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-ebay/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_ebay = response["ebay_product_json"];
+          
+          // render_amazon_uk();
         }
         else
         {
