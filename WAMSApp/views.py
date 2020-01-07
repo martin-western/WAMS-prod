@@ -1246,12 +1246,12 @@ class SaveProductAPI(APIView):
 
             product_obj.product_name_sap = product_name_sap
 
-            product_id_type_obj = ProductIDType.objects.get_or_create(name=product_id_type)
+            product_id_type_obj , created = ProductIDType.objects.get_or_create(name=product_id_type)
             product_obj.product_id_type = product_id_type_obj
             product_obj.color_map = color_map
             product_obj.color = color
             
-            material_type_obj = MaterialType.objects.get_or_create(name=material_type)
+            material_type_obj , created = MaterialType.objects.get_or_create(name=material_type)
             product_obj.material_type = material_type_obj
             product_obj.standard_price = standard_price
             product_obj.quantity = quantity
