@@ -835,6 +835,7 @@ class FetchProductDetailsAPI(APIView):
             response["product_name_ebay"] = ebay_product_dict["product_name"]
             response["product_name_noon"] = noon_product_dict["product_name"]
 
+            response["product_name"] = product_obj.product_name
             response["product_name_sap"] = product_obj.product_name_sap
             response["category"] = base_product_obj.category
             response["subtitle"] = base_product_obj.subtitle
