@@ -1052,8 +1052,6 @@ class SaveBaseProductAPI(APIView):
             item_display_width_metric = data["item_display_width_metric"]
             item_display_height = None if data["item_display_height"] == "" else float(data["item_display_height"])
             item_display_height_metric = data["item_display_height_metric"]
-            item_count = None if data["item_count"] == "" else float(data["item_count"])
-            item_count_metric = data["item_count_metric"]
             
             if BaseProduct.objects.filter(seller_sku=seller_sku).exclude(pk=data["base_product_pk"]).count() >= 1 :
                 logger.warning("Duplicate product detected!")
@@ -1097,8 +1095,6 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.item_display_width_metric = item_display_width_metric
             base_product_obj.item_display_height = item_display_height
             base_product_obj.item_display_height_metric = item_display_height_metric
-            base_product_obj.item_count = item_count
-            base_product_obj.item_count_metric = item_count_metric
             
             base_product_obj.save()
             
