@@ -1202,19 +1202,23 @@ class SaveProductAPI(APIView):
                 response['status'] = 409
                 return Response(data=response)
 
-            product_name_sap = convert_to_ascii(data["product_name_sap"])
-            product_id_type = convert_to_ascii(data["product_id_type"])
+            product_name = convert_to_ascii(data["product_name"])
             barcode_string = convert_to_ascii(data["barcode_string"])
-            color_map = convert_to_ascii(data["color_map"])
             color = convert_to_ascii(data["color"])
-            material_type = data["material_type"]
+            color_map = convert_to_ascii(data["color_map"])
             standard_price = None if data["standard_price"] == "" else float(data["standard_price"])
             quantity = None if data["quantity"] == "" else int(data["quantity"])
+            
+            product_id_type = convert_to_ascii(data["product_id_type"])
+            product_id_type_obj , created = ProductIDType.objects.get_or_create(name=product_id_type)
+            
+            material_type = convert_to_ascii(data["material_type"])
+            material_type_obj , created = MaterialType.objects.get_or_create(name=material_type)
+            
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = convert_to_ascii(data["pfl_product_features"])
 
             factory_notes = convert_to_ascii(data["factory_notes"])
-
 
             product_obj.product_id = product_id
 
@@ -1245,14 +1249,12 @@ class SaveProductAPI(APIView):
                 logger.error("SaveProductAPI: %s at %s",
                              e, str(exc_tb.tb_lineno))
 
-            product_obj.product_name_sap = product_name_sap
+            product_obj.product_name = product_name
 
-            product_id_type_obj , created = ProductIDType.objects.get_or_create(name=product_id_type)
             product_obj.product_id_type = product_id_type_obj
             product_obj.color_map = color_map
             product_obj.color = color
             
-            material_type_obj , created = MaterialType.objects.get_or_create(name=material_type)
             product_obj.material_type = material_type_obj
             product_obj.standard_price = standard_price
             product_obj.quantity = quantity
