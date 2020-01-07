@@ -873,7 +873,7 @@ class FetchAmazonUAEChannelProductAPI(APIView):
                 temp_dict["pk"] = image.pk
                 temp_dict["is_main_image"] = False
                 pass
-                
+
             sub_images_list = ImageBucket.objects.none()
             try:
                 sub_images_obj = SubImages.objects.get(product=product_obj,channel=channel_obj)
@@ -939,15 +939,34 @@ class FetchEbayChannelProductAPI(APIView):
             images = {}
 
             main_images_list = ImageBucket.objects.none()
+            
             try:
                 main_images_obj = MainImages.objects.get(product=product_obj,channel=channel_obj)
                 main_images_list=main_images_obj.main_images.all()
                 main_images_list = main_images_list.distinct()
+                images["main_images"] = create_response_images_main(main_images_list)
+            
             except Exception as e:
-                main_images_list |= Config.objects.all()[0].product_404_image
-                pass
+                images["main_images"] = []
+                temp_dict = {}
+                image = Config.objects.all()[0].product_404_image
+                temp_dict["main-url"] = image.image.url
+                
+                try:
+                    temp_dict["thumbnail-url"] = image.thumbnail.url
+                except Exception as e:
+                    logger.warning("No thumbnail for main image with pk %s", str(image.pk))
+                    temp_dict["thumbnail-url"] = image.image.url
 
-            images["main_images"] = create_response_images_main(main_images_list)
+                try:
+                    temp_dict["midimage-url"] = image.mid_image.url
+                except Exception as e:
+                    logger.warning("No mid_image for main image with pk %s", str(image.pk))
+                    temp_dict["midimage-url"] = image.image.url
+
+                temp_dict["pk"] = image.pk
+                temp_dict["is_main_image"] = False
+                pass
 
             sub_images_list = ImageBucket.objects.none()
             try:
