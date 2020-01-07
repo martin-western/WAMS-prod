@@ -219,6 +219,10 @@
   }
 
   .flex-inside {}
+
+  .row-0-margin {
+    margin-bottom: 0em;
+  }
 </style>
 
 <div class="row" style="margin-bottom: 0em;background-color: white !important;">
@@ -488,7 +492,7 @@
   <div class="modal-content">
     <h5 style="font-family: 'AvenirNext';font-size: 18px;">Edit Base Product</h5>
     <br>
-    <div class="row">
+    <div class="row row-0-margin">
       <div class="input-field col s6">
         <input id="edit-product-name" type="text" class="validate">
         <label for="edit-product-name" class="base-product-modal-label">Product Name<span>*</span></label>
@@ -499,7 +503,8 @@
         <label for="edit-seller-sku" class="base-product-modal-label">Seller SKU<span>*</span></label
           class="base-product-modal-label">
       </div>
-
+    </div>
+    <div class="row">
       <div class="input-field col s6">
         <select id="edit-brand">
           <option value="" disabled selected>Brand</option>
@@ -511,15 +516,17 @@
 
       <div class="input-field col s6">
         <input id="edit-manufacturer" type="text" class="validate">
-        <label for="edit-manufacturer" class="base-product-modal-label">Manufacturer<span>*</span></label>
+        <label for="edit-manufacturer" class="base-product-modal-label">Manufacturer</label>
       </div>
 
       <div class="input-field col s12">
-        <input id="edit-manufacturer-part-name" type="text" class="validate width-50">
-        <label for="edit-manufacturer-part-name" class="base-product-modal-label">Manufacturer Part Name<span>*</span></label
+        <input id="edit-manufacturer-part-number" type="text" class="validate width-50">
+        <label for="edit-manufacturer-part-number" class="base-product-modal-label">Manufacturer Part Number</label
           class="base-product-modal-label">
       </div>
 
+      <div id="product-cards-modal">
+      </div>
       <!-- <div class="col s12 margin-zero">
         <div class="flex-container">
           <div class="flex-inside">
@@ -730,14 +737,9 @@
 
 
   var global_products_list = [];
+  var global_products_dict = {};
 
   var global_selected_base_product_pk = null;
-  var global_selected_product_name = "";
-  var global_selected_seller_sku = "";
-  var global_selected_brand = "";
-  var global_selected_manufacturer = "";
-  var global_selected_manufacturer_part_name = "";
-
 
   var page = 1;
 
@@ -824,13 +826,14 @@
 
   function save_base_product()
   {
-
     var base_product_pk = global_selected_base_product_pk;
     var base_product_name = $("#edit-product-name").val();
     var seller_sku = $("#edit-seller-sku").val();
     var brand_name = $("#edit-brand").val();
     var manufacturer = $("#edit-manufacturer").val();
-    var manufacturer_part_name = $("#edit-manufacturer-part-name").val();
+    var manufacturer_part_number = $("#edit-manufacturer-part-number").val();
+
+    $("#save-base-product-btn").attr("disabled", "disabled");
 
     $.ajax({
       url: "/save-base-product/",
@@ -844,17 +847,21 @@
         "seller_sku": seller_sku,
         "brand_name": brand_name,
         "manufacturer": manufacturer,
-        "manufacturer_part_name": manufacturer_part_name
+        "manufacturer_part_number": manufacturer_part_number
       },
       success: function (response) {
         console.log("Success!", response);
-        var export_list = response["export_list"];
-        var html_string = "";
-        for (var i = 0; i < export_list.length; i++) {
-          html_string += `<option value="` + export_list[i]["pk"] + `">` + export_list[i]["title"] + `</option>`;
+        $("#save-base-product-btn").removeAttr("disabled");
+        $("#edit-base-product-modal").modal("close");
+        if(response["status"]==200)
+        {
+          M.toast({html: "Product saved successfully!"});
+
+          $("#base-product-name-"+base_product_pk).html(base_product_name);
+          $("#seller-sku-"+base_product_pk).html(seller_sku);
+          $("#brand-name-"+base_product_pk).html(brand_name);
+
         }
-        $("#export-titles-list").html(html_string);
-        $('select').formSelect();
       },
       error: function (xhr, textstatus, errorthrown) {
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
@@ -867,12 +874,57 @@
   });
 
   $(document).on("click", ".base-product-edit-modal-btn", function(){
+
     global_selected_base_product_pk = $(this).attr("base-product-pk");
-    $("#edit-product-name").val();
-    $("#edit-seller-sku").val();
-    $("#edit-brand").val();
-    $("#edit-manufacturer").val();
-    $("#edit-manufacturer-part-name").val();
+    
+    $("#edit-product-name").val(global_products_dict[global_selected_base_product_pk]["product_name"]);
+    $("#edit-seller-sku").val(global_products_dict[global_selected_base_product_pk]["seller_sku"]);
+    $("#edit-brand").val(global_products_dict[global_selected_base_product_pk]["brand_name"]);
+    $("#edit-manufacturer").val(global_products_dict[global_selected_base_product_pk]["manufacturer"]);
+    $("#edit-manufacturer-part-number").val(global_products_dict[global_selected_base_product_pk]["manufacturer_part_number"]);
+
+
+    var html_string = `
+      <div class="col s12">
+        <div class="flex-container">`
+
+    var products = global_products_dict[global_selected_base_product_pk]["products"];
+    for(var i=0;i<products.length;i++)
+    {
+      html_string += `
+        <div class="flex-inside">
+          <a href="/edit-product/`+products[i]["product_pk"]+`" target="_blank">
+            <div class="card center">
+              <img src="`+products[i]["main_image"]+`"
+                style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;">
+              <div class="card-text" style="padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
+                <p style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">
+                  `+products[i]["product_name"]+`
+                </p>
+              </div>
+            </div>
+          </a>
+        </div>`;
+    }
+    html_string += `
+      <div class="flex-inside">
+        <a href="#!">
+          <div class="card center valign-wrapper">
+            <div class="card-text">
+              <p style="margin-top:0em;margin-bottom:0em;text-align: center;color:#521893;font-size:14px;">
+                Add Product Variant
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>`;
+    html_string += `</div></div>`
+
+    $("#product-cards-modal").html(html_string);
+
+
+    $("select").formSelect();
+    M.updateTextFields();
   });
 
 
@@ -1033,45 +1085,6 @@
 
           var products = response["products"];
 
-          // products = [
-          // {
-          //   "product_pk": 3,
-          //   "product_name": "Duster",
-          //   "seller_sku": "D788",
-          //   "brand_name": "Geepas",
-          //   "created_date": "2nd Jan, 2019",
-          //   "products": [
-          //     {
-          //       "product_pk": 1,
-          //       "product_id": "RD89",
-          //       "product_name": "Red Duster",
-          //       "image_url": "http://www.liksoon.com.my/products/702001-2191-2493-B.jpg"
-          //     },
-          //     {
-          //       "product_pk": 2,
-          //       "product_id": "BD89",
-          //       "product_name": "Blue Duster",
-          //       "image_url": "https://5.imimg.com/data5/DP/DL/PB/SELLER-1021105/blue-plastic-whiteboard-duster-500x500.jpg"
-          //     }
-          //   ],
-          //   "channel_products": [
-          //     {
-          //       "product_pk": 1,
-          //       "product_id": "RD89",
-          //       "product_name": "Big Red Duster",
-          //       "channel_name": "Amazon UK",
-          //       "image_url": "http://www.liksoon.com.my/products/702001-2191-2493-B.jpg"
-          //     },
-          //     {
-          //       "product_pk": 2,
-          //       "product_id": "RD89",
-          //       "product_name": "Super Red Duster",
-          //       "channel_name": "Amazon UAE",
-          //       "image_url": "http://www.liksoon.com.my/products/702001-2191-2493-B.jpg"
-          //     }
-          //   ]
-          // }]
-
           var html_string = "";
 
           for (var i = 0; i < products.length; i++) {
@@ -1110,6 +1123,10 @@
                     Action
                   </div>
                 </div>`;
+
+            if(channel_products.length==0)
+              child_products_html_string = "";
+
             for(var j=0;j<channel_products.length;j++)
             {
               child_products_html_string += `
@@ -1136,6 +1153,8 @@
                 </div>`
             }
 
+            var base_product_pk = products[i]["base_product_pk"];
+            global_products_dict[base_product_pk] = products[i];
 
             html_string += `
                 
@@ -1154,23 +1173,23 @@
                         <div class="col s4">
                           <div class = "product-name-container">
                             <div class="product-info">
-                              <p class="title">
+                              <p id="base-product-name-`+base_product_pk+`" class="title">
                                 `+ product_name + `
                               </p>
-                              <p class="subtitle">
+                              <p id="seller-sku-`+base_product_pk+`" class="subtitle">
                                 `+ products[i]["seller_sku"] + `
                               </p>
                             </div>
                           </div>
                         </div>
-                        <div class="col s2 avenir-next-regular center-align">
+                        <div id="brand-name-`+base_product_pk+`" class="col s2 avenir-next-regular center-align">
                           `+ products[i]["brand_name"] + `
                         </div>
                         <div class="col s2 avenir-next-regular center-align">
                           `+ products[i]["created_date"] + `
                         </div>
                         <div class="col s3  center-align">
-                          <a base-product-pk="`+products[i]["base_product_pk"]+`" href="#edit-base-product-modal" class="modal-trigger base-product-edit-modal-btn">
+                          <a base-product-pk='`+base_product_pk+`' href="#edit-base-product-modal" class="modal-trigger base-product-edit-modal-btn">
                             <i class="material-icons edit-icon">edit</i>
                           </a>
                         </div>
