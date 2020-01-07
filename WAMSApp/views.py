@@ -667,7 +667,7 @@ class FetchNoonChannelProductAPI(APIView):
                 main_images_list=main_images_obj.main_images.all()
                 main_images_list = main_images_list.distinct()
             except Exception as e:
-                main_images_list.append(Config.objects.all()[0].product_404_image.image.url )
+                main_images_list |= Config.objects.all()[0].product_404_image
                 pass
 
             images["main_images"] = create_response_images_main(main_images_list)
@@ -741,7 +741,7 @@ class FetchAmazonUKChannelProductAPI(APIView):
                 main_images_list=main_images_obj.main_images.all()
                 main_images_list = main_images_list.distinct()
             except Exception as e:
-                main_images_list.append(Config.objects.all()[0].product_404_image.image.url )
+                main_images_list |= Config.objects.all()[0].product_404_image
                 pass
 
             images["main_images"] = create_response_images_main(main_images_list)
@@ -816,7 +816,7 @@ class FetchAmazonUAEChannelProductAPI(APIView):
                 main_images_list=main_images_obj.main_images.all()
                 main_images_list = main_images_list.distinct()
             except Exception as e:
-                main_images_list.append(Config.objects.all()[0].product_404_image.image.url )
+                main_images_list |= Config.objects.all()[0].product_404_image
                 pass
 
             images["main_images"] = create_response_images_main(main_images_list)
@@ -891,7 +891,7 @@ class FetchEbayChannelProductAPI(APIView):
                 main_images_list=main_images_obj.main_images.all()
                 main_images_list = main_images_list.distinct()
             except Exception as e:
-                main_images_list.append(Config.objects.all()[0].product_404_image.image.url )
+                main_images_list |= Config.objects.all()[0].product_404_image
                 pass
 
             images["main_images"] = create_response_images_main(main_images_list)
