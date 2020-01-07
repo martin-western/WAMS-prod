@@ -207,6 +207,7 @@
   input[type=tel]:focus:not([readonly]),
   input[type=number]:focus:not([readonly]),
   input[type=search]:focus:not([readonly]),
+  
   textarea.materialize-textarea:focus:not([readonly])>label {
     border-bottom: 1px solid #512ea8 !important;
     box-shadow: 0 1px 0 0 #f00 !important;
@@ -520,22 +521,7 @@
           </i>
         </a>
 
-        {% if perms.WAMSApp.change_product %}
-        <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
-          <i class="material-icons purplee" title="Save" style="
-          background-color: #f7f7f7;
-          padding: 8px;
-          color: gray;
-          border-radius: 5px;
-          margin-left: 8px;
-          font-size: 20px;
-          margin-right: 9px;
-          display: block;
-          margin-bottom: 10px;">
-            save
-          </i>
-        </a>
-        {% endif %}
+        
       </div>
     </div>
     <div class="col s4 image-section" style="height: 90vh;">
@@ -974,7 +960,7 @@
     </a>
 
     {% if perms.WAMSApp.change_product %}
-    <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
+    <a href="#!" id="save-btn2" class="right" style="background-color: transparent;">
       <i class="material-icons purplee" title="Save" style="
           background-color: #f7f7f7;
           padding: 8px;
@@ -1211,33 +1197,6 @@
 
   }
 
-  function save_details_amazon_uk()
-  {
-    $.ajax({
-      url: "/save-channel-product-amazon-uk/",
-      type: "POST",
-      headers: {
-        'X-CSRFToken': getCsrfToken()
-      },
-      data: {
-        product_pk: window.location.pathname.split("/")[3]
-      },
-      success: function (response) {
-        console.log("Success!", response);
-        if(response["status"]==200)
-        {
-          render_amazon_uk();
-        }
-        else
-        {
-          M.toast({ html: "Internal Server" });
-        }
-      },
-      error: function (xhr, textstatus, errorthrown) {
-        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-      }
-    });
-  }  
 
 
 
@@ -2247,7 +2206,7 @@
     });
   }
 
-  function save_product() {
+  function save_product_amazon_uk() {
 
     $("#save-btn").attr("disabled", "disabled");
 
@@ -2271,7 +2230,7 @@
         special_feature_data.push($("#special-feature-" + i).val());
       }
     }
-    special_feature_data = JSON.stringify(special_feature_data);
+    // special_feature_data = JSON.stringify(special_feature_data);
 
     var wattage = $("#wattage").val();
     var wattage_metric = $("#wattage-metric").val();
@@ -2294,32 +2253,31 @@
     // product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
 
 
-    var fd = new FormData();
+    amazon_uk_product_json = {}
 
-    fd.append('product_pk', product_pk)
-    fd.append('product_name', product_name);
-    fd.append('feed_product_type', feed_product_type);
-    fd.append('variation_theme', variation_theme);
-    fd.append('update_delete', update_delete);
-    fd.append('recommended_browse_nodes', recommended_browse_nodes);
-    fd.append('search_terms', search_terms);
-    fd.append('enclosure_material', enclosure_material);
-    fd.append('cover_material_type', cover_material_type);
-    fd.append('sale_price', sale_price);
-    fd.append('sale_from', sale_from);
-    fd.append('sale_end', sale_end);
-    fd.append('special_feature_data', special_feature_data);
-    fd.append('wattage', wattage);
-    fd.append('wattage_metric', wattage_metric);
-    fd.append('parentage', parentage);
-    fd.append('parent_sku', parent_sku);
-    fd.append('relationship_type', relationship_type);
-    fd.append('item_count', item_count);
-    fd.append('item_count_metric', item_count_metric);
-    fd.append('item_condition_note', item_condition_note);
-    fd.append('max_order_quantity', max_order_quantity);
-    fd.append('number_of_items', number_of_items);
-    fd.append('condition_type', number_of_items);
+    amazon_uk_product_json["product_name"] = product_name;
+    amazon_uk_product_json["feed_product_type"] = feed_product_type;
+    amazon_uk_product_json["variation_theme"]  = variation_theme;
+    amazon_uk_product_json["'update_delete"] = update_delete;
+    amazon_uk_product_json["recommended_browse_nodes"] = recommended_browse_nodes;
+    amazon_uk_product_json["search_terms"] = search_terms;
+    amazon_uk_product_json["enclosure_material"] = enclosure_material;
+    amazon_uk_product_json["cover_material_type"] = cover_material_type;
+    amazon_uk_product_json["sale_price"] = sale_price;
+    amazon_uk_product_json["sale_from"] = sale_from;
+    amazon_uk_product_json["sale_end"] = sale_end;
+    amazon_uk_product_json["special_features"] = special_feature_data;
+    amazon_uk_product_json["wattage"] = wattage;
+    amazon_uk_product_json["wattage_metric"] = wattage_metric;
+    amazon_uk_product_json["parentage"] = parentage;
+    amazon_uk_product_json["parent_sku"] = parent_sku;
+    amazon_uk_product_json["relationship_type"] = relationship_type;
+    amazon_uk_product_json["item_count"] = item_count;
+    amazon_uk_product_json["item_count_metric"] = item_count_metric;
+    amazon_uk_product_json["item_condition_note"] = item_condition_note;
+    amazon_uk_product_json["max_order_quantity"] = max_order_quantity;
+    amazon_uk_product_json["number_of_items"] = number_of_items;
+    amazon_uk_product_json["condition_type"] = number_of_items;
 
     $.ajax({
       url: "/save-channel-product-amazon-uk/",
@@ -2327,16 +2285,16 @@
       headers: {
         'X-CSRFToken': getCsrfToken()
       },
-      processData: false,
-      contentType: false,
-      data: fd,
+      data: {
+        amazon_uk_product_json : JSON.stringify(amazon_uk_product_json),
+        product_pk : product_pk
+      },
       success: function (response) {
         console.log("Success!", response);
         if (response["status"] == 200) {
+          global_details_amazon_uk = amazon_uk_product_json;
+          render_amazon_uk();
           M.toast({ html: "Product saved successfully!" });
-        }
-        else if (response["status"] == 409) {
-          M.toast({ html: "Product ID or Seller SKU is duplicated!" });
         }
         else if (response["status"] == 403) {
           M.toast({ html: "You do not have permission for saving product!" });
@@ -2351,37 +2309,12 @@
       }
     });
 
-    //save_subimages_index();
   }
 
 
-  $("#save-btn").click(function () {
-    if ($("#product-name-sap").val() == "" || $("#product-id").val() == "" || $("#seller-sku").val() == "" || $("#brand-name").val() == "" || $("#product-name-sap").val() == "") {
-
-    }
-
-    if ($("#brand-name").val().trim() == "") {
-      M.toast({ html: "Brand name cannot be empty!" });
-      return;
-    }
-
-    if ($("#product-id").val().trim() == "") {
-      M.toast({ html: "Product ID cannot be empty!" });
-      return;
-    }
-
-    if ($("#seller-sku").val().trim() == "") {
-      M.toast({ html: "Seller SKU cannot be empty!" });
-      return;
-    }
-
-    save_product();
-  });
-
-  $("#information-tab").click(function () {
-    setTimeout(function () {
-      $('.tabs').tabs('updateTabIndicator');
-    }, 100);
+  $("#save-btn2").click(function () {
+    console.log("Hii");
+    save_product_amazon_uk();
   });
 
 

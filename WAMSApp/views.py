@@ -483,7 +483,7 @@ class SaveAmazonUKChannelProductAPI(APIView):
             channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product_json)
             channel_product.is_amazon_uk_product_created = True
             channel_product.save()
-            
+
             response['status'] = 200
 
         except Exception as e:
