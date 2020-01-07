@@ -451,7 +451,7 @@
   </div>
   <div class="modal-footer" style="margin-bottom: 20px;">
     <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
-    <a id="create-new-product-btn" href="#!" class="waves-effect btn-flat white-text"
+    <a id="create-new-base-product-btn" href="#!" class="waves-effect btn-flat white-text"
       style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Create</a>
   </div>
 </div>
@@ -504,7 +504,7 @@
           class="base-product-modal-label">
       </div>
     </div>
-    <div class="row">
+    <div class="row row-0-margin">
       <div class="input-field col s6">
         <select id="edit-brand">
           <option value="" disabled selected>Brand</option>
@@ -524,55 +524,278 @@
         <label for="edit-manufacturer-part-number" class="base-product-modal-label">Manufacturer Part Number</label
           class="base-product-modal-label">
       </div>
-
-      <div id="product-cards-modal">
-      </div>
-      <!-- <div class="col s12 margin-zero">
-        <div class="flex-container">
-          <div class="flex-inside">
-            <a href="/flyer/1" target="_blank">
-              <div class="card center">
-                <img src="https://wig-wams-s3-bucket.s3.amazonaws.com/default_image.jpeg"
-                  style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;">
-                <div class="card-text" style="padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
-                  <p
-                    style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">
-                    Red Duster</p>
-                </div>
-              </div>
-            </a>
-          </div>
-          <div class="flex-inside">
-            <a href="/flyer/1" target="_blank">
-              <div class="card center">
-                <img src="https://wig-wams-s3-bucket.s3.amazonaws.com/default_image.jpeg"
-                  style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;">
-                <div class="card-text" style="padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
-                  <p
-                    style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">
-                    Blue Duster</p>
-                </div>
-              </div>
-            </a>
-          </div>
-          <div class="flex-inside">
-            <a href="/flyer/1" target="_blank">
-              <div class="card center">
-                <img src="https://wig-wams-s3-bucket.s3.amazonaws.com/default_image.jpeg"
-                  style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;">
-                <div class="card-text" style="padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
-                  <p
-                    style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">
-                    Green Duster</p>
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div> -->
-
     </div>
 
+    <div class="row row-0-margin">
+      <div class="input-field col s6">
+        <input id="edit-category" type="text" class="validate">
+        <label for="edit-category" class="base-product-modal-label">Category</label>
+      </div>
+
+      <div class="input-field col s6">
+        <input id="edit-subtitle" type="text" class="validate">
+        <label for="edit-subtitle" class="base-product-modal-label">Subtitle</label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12">
+        <ul class="collapsible">
+          <li>
+            <div class="collapsible-header">Dimensions</div>
+            <div class="collapsible-body center">
+              <div class="row">
+                <div class="input-field col s4">
+                  <input id="edit-package-length" type="number">
+                  <label for="edit-package-length">Package Length</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-package-length-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+
+                <div class="input-field col s4">
+                  <input id="edit-package-width" type="number">
+                  <label for="edit-package-width">Package Width</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-package-width-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col s4">
+                  <input id="edit-package-height" type="number">
+                  <label for="edit-package-height">Package Height</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-package-height-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+
+                <div class="input-field col s4">
+                  <input id="edit-package-weight" type="number">
+                  <label for="edit-package-weight">Package Weight</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-package-weight-metric">
+                    <option selected value="">Unit</option>
+                    <option value="KG">KG</option>
+                    <option value="LB">LB</option>
+                    <option value="OZ">OZ</option>
+                    <option value="MG">MG</option>
+                    <option value="GR">GR</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col s4">
+                  <input id="edit-shipping-weight" type="number">
+                  <label for="edit-shipping-weight">Shipping Weight</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-shipping-weight-metric">
+                    <option selected value="">Unit</option>
+                    <option value="KG">KG</option>
+                    <option value="LB">LB</option>
+                    <option value="OZ">OZ</option>
+                    <option value="MG">MG</option>
+                    <option value="GR">GR</option>
+                  </select>
+                </div>
+
+                <div class="input-field col s4">
+                  <input id="edit-item-display-weight" type="number">
+                  <label for="edit-item-display-weight">Item Display Weight</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-item-display-weight-metric">
+                    <option selected value="">Unit</option>
+                    <option value="KG">KG</option>
+                    <option value="LB">LB</option>
+                    <option value="OZ">OZ</option>
+                    <option value="MG">MG</option>
+                    <option value="GR">GR</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col s4">
+                  <input id="edit-item-display-volume" type="number">
+                  <label for="edit-item-display-volume">Item Display Volume</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-item-display-volume-metric">
+                    <option selected value="">Unit</option>
+                    <option value="cc">CC</option>
+                    <option value="litres">L</option>
+                    <option value="cubic-m">CUBIC-M</option>
+                  </select>
+                </div>
+
+                <div class="input-field col s4">
+                  <input id="edit-item-display-length" type="number">
+                  <label for="edit-item-display-length">Item Display Length</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-item-display-length-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col s4">
+                  <input id="edit-item-weight" type="number">
+                  <label for="edit-item-weight">Item Weight</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-item-weight-metric">
+                    <option selected value="">Unit</option>
+                    <option value="KG">KG</option>
+                    <option value="LB">LB</option>
+                    <option value="OZ">OZ</option>
+                    <option value="MG">MG</option>
+                    <option value="GR">GR</option>
+                  </select>
+                </div>
+
+                <div class="input-field col s4">
+                  <input id="edit-item-length" type="number">
+                  <label for="edit-item-length">Item Length</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-item-length-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col s4">
+                  <input id="edit-item-width" type="number">
+                  <label for="edit-item-width">Item Width</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-item-width-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+
+                <div class="input-field col s4">
+                  <input id="edit-item-height" type="number">
+                  <label for="edit-item-height">Item Height</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-item-height-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col s4">
+                  <input id="edit-item-display-width" type="number">
+                  <label for="edit-item-display-width">Item Display Width</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-item-display-width-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+
+                <div class="input-field col s4">
+                  <input id="edit-item-display-height" type="number">
+                  <label for="edit-item-display-height">Item Display Height</label>
+                </div>
+
+                <div class="input-field col s2">
+                  <select id="edit-item-display-height-metric">
+                    <option selected value="">Unit</option>
+                    <option value="FT">FT</option>
+                    <option value="IN">IN</option>
+                    <option value="CM">CM</option>
+                    <option value="MM">MM</option>
+                    <option value="M">M</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-field col s6">
+                  <input id="edit-package-qty" type="number">
+                  <label for="edit-package-qty">Package Quantity</label>
+                </div>
+              </div>
+            </div>
+         </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="row">
+      <div id="product-cards-modal">
+      </div>
+    </div>
   </div>
   <div class="modal-footer" style="margin-bottom: 20px;">
     <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
@@ -832,6 +1055,38 @@
     var brand_name = $("#edit-brand").val();
     var manufacturer = $("#edit-manufacturer").val();
     var manufacturer_part_number = $("#edit-manufacturer-part-number").val();
+    var category = $("#edit-category").val();
+    var subtitle = $("#edit-subtitle").val();
+
+    var package_length = $("#edit-package-length").val();
+    var package_length_metric = $("#edit-package-length-metric").val();
+    var package_width = $("#edit-package-width").val();
+    var package_width_metric = $("#edit-package-width-metric").val();
+    var package_height = $("#edit-package-height").val();
+    var package_height_metric = $("#edit-package-height-metric").val();
+    var package_weight = $("#edit-package-weight").val();
+    var package_weight_metric = $("#edit-package-weight-metric").val();
+    var shipping_weight = $("#edit-shipping-weight").val();
+    var shipping_weight_metric = $("#edit-shipping-weight-metric").val();
+    var item_display_weight = $("#edit-item-display-weight").val();
+    var item_display_weight_metric = $("#edit-item-display-weight-metric").val();
+    var item_display_volume = $("#edit-item-display-volume").val();
+    var item_display_volume_metric = $("#edit-item-display-volume-metric").val();
+    var item_display_length = $("#edit-item-display-length").val();
+    var item_display_length_metric = $("#edit-item-display-length-metric").val();
+    var item_weight = $("#edit-item-weight").val();
+    var item_weight_metric = $("#edit-item-weight-metric").val();
+    var item_length = $("#edit-item-length").val();
+    var item_length_metric = $("#edit-item-length-metric").val();
+    var item_width = $("#edit-item-width").val();
+    var item_width_metric = $("#edit-item-width-metric").val();
+    var item_height = $("#edit-item-height").val();
+    var item_height_metric = $("#edit-item-height-metric").val();
+    var item_display_width = $("#edit-item-display-width").val();
+    var item_display_width_metric = $("#edit-item-display-width-metric").val();
+    var item_display_height = $("#edit-item-display-height").val();
+    var item_display_height_metric = $("#edit-item-display-height-metric").val();
+    var package_quantity = $("#edit-package-qty").val();
 
     $("#save-base-product-btn").attr("disabled", "disabled");
 
@@ -847,7 +1102,38 @@
         "seller_sku": seller_sku,
         "brand_name": brand_name,
         "manufacturer": manufacturer,
-        "manufacturer_part_number": manufacturer_part_number
+        "manufacturer_part_number": manufacturer_part_number,
+        "category": category,
+        "subtitle": subtitle,
+        "package_length": package_length,
+        "package_length_metric": package_length_metric,
+        "package_width": package_width,
+        "package_width_metric": package_width_metric,
+        "package_height": package_height,
+        "package_height_metric": package_height_metric,
+        "package_weight": package_weight,
+        "package_weight_metric": package_weight_metric,
+        "shipping_weight": shipping_weight,
+        "shipping_weight_metric": shipping_weight_metric,
+        "item_display_weight": item_display_weight,
+        "item_display_weight_metric": item_display_weight_metric,
+        "item_display_volume": item_display_volume,
+        "item_display_volume_metric": item_display_volume_metric,
+        "item_display_length": item_display_length,
+        "item_display_length_metric": item_display_length_metric,
+        "item_weight": item_weight,
+        "item_weight_metric": item_weight_metric,
+        "item_length": item_length,
+        "item_length_metric": item_length_metric,
+        "item_width": item_width,
+        "item_width_metric": item_width_metric, 
+        "item_height": item_height,
+        "item_height_metric": item_height_metric,
+        "item_display_width": item_display_width,
+        "item_display_width_metric": item_display_width_metric,
+        "item_display_height": item_display_height,
+        "item_display_height_metric": item_display_height_metric,
+        "package_quantity": package_quantity
       },
       success: function (response) {
         console.log("Success!", response);
@@ -882,6 +1168,42 @@
     $("#edit-brand").val(global_products_dict[global_selected_base_product_pk]["brand_name"]);
     $("#edit-manufacturer").val(global_products_dict[global_selected_base_product_pk]["manufacturer"]);
     $("#edit-manufacturer-part-number").val(global_products_dict[global_selected_base_product_pk]["manufacturer_part_number"]);
+    $("#edit-category").val(global_products_dict[global_selected_base_product_pk]["category"]);
+    $("#edit-subtitle").val(global_products_dict[global_selected_base_product_pk]["subtitle"]);
+
+
+    var dimensions = global_products_dict[global_selected_base_product_pk]["dimensions"];
+    //Dimensions
+    $("#edit-package-length").val(dimensions["package_length"]);
+    $("#edit-package-length-metric").val(dimensions["package_length_metric"]);
+    $("#edit-package-width").val(dimensions["package_width"]);
+    $("#edit-package-width-metric").val(dimensions["package_width_metric"]);
+    $("#edit-package-height").val(dimensions["package_height"]);
+    $("#edit-package-height-metric").val(dimensions["package_height_metric"]);
+    $("#edit-package-weight").val(dimensions["package_weight"]);
+    $("#edit-package-weight-metric").val(dimensions["package_weight_metric"]);
+    $("#edit-shipping-weight").val(dimensions["shipping_weight"]);
+    $("#edit-shipping-weight-metric").val(dimensions["shipping_weight_metric"]);
+    $("#edit-item-display-weight").val(dimensions["item_display_weight"]);
+    $("#edit-item-display-weight-metric").val(dimensions["item_display_weight_metric"]);
+    $("#edit-item-display-volume").val(dimensions["item_display_volume"]);
+    $("#edit-item-display-volume-metric").val(dimensions["item_display_volume_metric"]);
+    $("#edit-item-display-length").val(dimensions["item_display_length"]);
+    $("#edit-item-display-length-metric").val(dimensions["item_display_length_metric"]);
+    $("#edit-item-weight").val(dimensions["item_weight"]);
+    $("#edit-item-weight-metric").val(dimensions["item_weight_metric"]);
+    $("#edit-item-length").val(dimensions["item_length"]);
+    $("#edit-item-length-metric").val(dimensions["item_length_metric"]);
+    $("#edit-item-width").val(dimensions["item_width"]);
+    $("#edit-item-width-metric").val(dimensions["item_length_metric"]);
+    $("#edit-item-height").val(dimensions["item_height"]);
+    $("#edit-item-height-metric").val(dimensions["item_length_metric"]);
+    $("#edit-item-display-width").val(dimensions["item_display_width"]);
+    $("#edit-item-display-width-metric").val(dimensions["item_display_width_metric"]);
+    $("#edit-item-display-height").val(dimensions["item_display_height"]);
+    $("#edit-item-display-height-metric").val(dimensions["item_display_height_metric"]);
+    $("#edit-package-qty").val(dimensions["package_quantity"]);
+
 
 
     var html_string = `
@@ -908,7 +1230,7 @@
     }
     html_string += `
       <div class="flex-inside">
-        <a href="#!">
+        <a href="#!" class="add-product-btn" id="add-product-btn-`+global_selected_base_product_pk+`">
           <div class="card center valign-wrapper">
             <div class="card-text">
               <p style="margin-top:0em;margin-bottom:0em;text-align: center;color:#521893;font-size:14px;">
@@ -925,6 +1247,31 @@
 
     $("select").formSelect();
     M.updateTextFields();
+  });
+
+  $(document).on("click", ".add-product-btn", function(){
+
+    $.ajax({
+      url: "/create-new-product/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        "base_product_pk": global_selected_base_product_pk
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          window.location.pathname = "/edit-product/"+response["product_pk"];
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+
   });
 
 
@@ -1366,7 +1713,7 @@
   });
 
 
-  function create_new_product() {
+  function create_new_base_product() {
     var product_name = $("#product-name").val().trim();
     var seller_sku = $("#seller-sku").val().trim();
     var brand_name = $("#brand-name").val().trim();
@@ -1375,9 +1722,8 @@
       M.toast({ html: "Please fill all the details before creating new product" });
       return;
     }
-
     $.ajax({
-      url: "/create-new-product/",
+      url: "/create-new-base-product/",
       type: "POST",
       headers: {
         'X-CSRFToken': getCsrfToken()
@@ -1390,7 +1736,9 @@
       success: function (response) {
         console.log("Success!", response);
         if (response["status"] == 200) {
-          window.location.href = "/edit-product/" + response["product_pk"];
+          M.toast({html: "Base Product successfully created!"});
+          $("#create-new-base-product-modal").modal("close");
+          //window.location.href = "/edit-product/" + response["product_pk"];
         }
         else if (response["status"] == 409) {
           M.toast({ html: "Duplicate product detected!" });
@@ -1408,8 +1756,8 @@
     });
   }
 
-  $("#create-new-product-btn").click(function () {
-    create_new_product();
+  $("#create-new-base-product-btn").click(function () {
+    create_new_base_product();
   });
 
   function check_filter_options() {
