@@ -280,7 +280,7 @@ class BaseProduct(models.Model):
     package_height_metric = models.CharField(max_length=100, default="")
     package_weight = models.FloatField(null=True, blank=True)
     package_weight_metric = models.CharField(max_length=100, default="")
-    package_quantity = models.CharField(max_length=100, default="")
+    package_quantity = models.FloatField(null=True, blank=True)
     shipping_weight = models.FloatField(null=True, blank=True)
     shipping_weight_metric = models.CharField(max_length=100, default="")
     item_display_weight = models.FloatField(null=True, blank=True)
