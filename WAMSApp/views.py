@@ -843,9 +843,9 @@ class FetchProductDetailsAPI(APIView):
             response["factory_notes"] = product_obj.factory_notes
 
             if brand_obj == None:
-                response["brand"] = ""
+                response["brand_name"] = ""
             else:
-                response["brand"] = brand_obj.name
+                response["brand_name"] = brand_obj.name
 
             response["manufacturer"] = base_product_obj.manufacturer
             response["product_id"] = product_obj.product_id
