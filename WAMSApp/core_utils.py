@@ -282,7 +282,7 @@ def reset_sub_images(product_obj):
         img.save()
 
 def reset_main_images(product_obj):
-    main_images_objs = MainImages.objects.get(product=product_obj)
+    main_images_objs = MainImages.objects.filter(product=product_obj)
     
     main_images_list = []
     for main_images_obj in main_images_objs:
