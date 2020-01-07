@@ -75,7 +75,7 @@ def AddVarientProduct(request, pk):
     if base_product_obj.brand not in permissible_brands:
         return HttpResponseRedirect('/products/')
 
-    return render(request, 'WAMSApp/add-varient-product-page.html')
+    return render(request, 'WAMSApp/add-product-varient-page.html')
 
 @login_required(login_url='/login/')
 def EcommerceListingPage(request, pk):
