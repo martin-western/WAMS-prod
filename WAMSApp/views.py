@@ -1021,8 +1021,8 @@ class SaveBaseProductAPI(APIView):
             package_height_metric = data["package_height_metric"]
             package_weight = None if data["package_weight"] == "" else float(data["package_weight"])
             package_weight_metric = data["package_weight_metric"]
-            package_quantity = None if data["package_weight"] == "" else float(data["package_weight"])
-            shipping_weight = None if data["package_quantity"] == "" else float(data["package_quantity"])
+            package_quantity = None if data["package_quantity"] == "" else float(data["package_quantity"])
+            shipping_weight = None if data["shipping_weight"] == "" else float(data["shipping_weight"])
             shipping_weight_metric = data["shipping_weight_metric"]
             item_display_weight = None if data["item_display_weight"] == "" else float(data["item_display_weight"])
             item_display_weight_metric = data["item_display_weight_metric"]
