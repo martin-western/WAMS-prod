@@ -1123,23 +1123,10 @@ class SaveProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            # Check for duplicate
-            product_id = data["product_id"]
-            seller_sku = data["seller_sku"]
-            product_name_sap = convert_to_ascii(data["product_name_sap"])
-
-            product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            base_product_obj = Product.base_product
-
-            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1 or Product.objects.filter(base_product__seller_sku=seller_sku).exclude(pk=data["product_pk"]).count() >= 1:
-                logger.warning("Duplicate product detected!")
-                response['status'] = 409
-                return Response(data=response)
-
             # Checking brand permission
             try:
                 permissible_brands = custom_permission_filter_brands(request.user)
-                brand_obj = Brand.objects.get(name=data["brand"])
+                brand_obj = Brand.objects.get(name=data["brand_name"])
                 if brand_obj not in permissible_brands:
                     logger.warning("SaveProductAPI Restricted Access Brand!")
                     response['status'] = 403
@@ -1149,11 +1136,21 @@ class SaveProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            # Check for duplicate
+            product_id = data["product_id"]
 
-            product_id_type = data["product_id_type"]
-            barcode_string = data["barcode_string"]
-            color_map = data["color_map"]
-            color = data["color"]
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+            
+            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1 :
+                logger.warning("Duplicate product detected!")
+                response['status'] = 409
+                return Response(data=response)
+
+            product_name_sap = convert_to_ascii(data["product_name_sap"])
+            product_id_type = convert_to_ascii(data["product_id_type"])
+            barcode_string = convert_to_ascii(data["barcode_string"])
+            color_map = convert_to_ascii(data["color_map"])
+            color = convert_to_ascii(data["color"])
             max_order_quantity = None if data["max_order_quantity"] == "" else int(data["max_order_quantity"])
             number_of_items = None if data["number_of_items"] == "" else int(data["number_of_items"])
             material_type = data["material_type"]
@@ -1164,9 +1161,6 @@ class SaveProductAPI(APIView):
 
             factory_notes = convert_to_ascii(data["factory_notes"])
 
-            brand_obj = None
-            if brand != "":
-                brand_obj, created = Brand.objects.get_or_create(name=brand)
 
             product_obj.product_id = product_id
 
@@ -1217,7 +1211,6 @@ class SaveProductAPI(APIView):
 
             product_obj.factory_notes = factory_notes
             
-            base_product_obj.save()
             product_obj.save()
 
             response['status'] = 200

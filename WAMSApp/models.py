@@ -310,10 +310,12 @@ class BaseProduct(models.Model):
         return str(self.base_product_name)
 
     def save(self, *args, **kwargs):
+        
         if self.pk == None:
             self.created_date = timezone.now()
         else:
             self.modified_date = timezone.now()
+        
         super(BaseProduct, self).save(*args, **kwargs)
 
 
@@ -391,17 +393,20 @@ class Product(models.Model):
 
 
     def save(self, *args, **kwargs):
+        
         if self.pk != None:
             self.modified_date = timezone.now()
         else:
             self.created_date = timezone.now()
             self.modified_date = timezone.now()
+        
         if self.uuid == None:
             self.uuid = uuid.uuid4()
 
         if self.channel_product == None:
             channel_product_obj = ChannelProduct.objects.create()
             self.channel_product = channel_product_obj
+        
         super(Product, self).save(*args, **kwargs)
 
 
