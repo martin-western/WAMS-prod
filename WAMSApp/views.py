@@ -958,7 +958,7 @@ class FetchProductDetailsAPI(APIView):
             for sub_images_obj in sub_images_objs:
                 sub_images_list|=sub_images_obj.sub_images.all()
             sub_images_list = sub_images_list.distinct()
-            images["sub_images"] = create_response_images_main(sub_images_list)
+            images["sub_images"] = create_response_images_sub(sub_images_list)
             
             images["pfl_images"] = create_response_images(
                 product_obj.pfl_images.all())
