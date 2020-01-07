@@ -797,7 +797,7 @@ class FetchProductDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_obj = Product.objects.get(pk=data["pk"])
+            product_obj = Product.objects.get(pk=data["product_pk"])
             base_product_obj = product_obj.base_product
             channel_product_obj = product_obj.channel_product
             noon_product_dict = json.loads(channel_product_obj.noon_product_json)
@@ -1198,8 +1198,6 @@ class SaveProductAPI(APIView):
             barcode_string = convert_to_ascii(data["barcode_string"])
             color_map = convert_to_ascii(data["color_map"])
             color = convert_to_ascii(data["color"])
-            max_order_quantity = None if data["max_order_quantity"] == "" else int(data["max_order_quantity"])
-            number_of_items = None if data["number_of_items"] == "" else int(data["number_of_items"])
             material_type = data["material_type"]
             standard_price = None if data["standard_price"] == "" else float(data["standard_price"])
             quantity = None if data["quantity"] == "" else int(data["quantity"])
@@ -1244,9 +1242,6 @@ class SaveProductAPI(APIView):
             product_obj.product_id_type = product_id_type_obj
             product_obj.color_map = color_map
             product_obj.color = color
-            
-            product_obj.max_order_quantity = max_order_quantity
-            product_obj.number_of_items = number_of_items
             
             material_type_obj = MaterialType.objects.get_or_create(name=material_type)
             product_obj.material_type = material_type_obj
