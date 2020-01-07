@@ -645,7 +645,35 @@ class FetchNoonChannelProductAPI(APIView):
             channel_name = "Noon"
             noon_product_json = channel_product_obj.noon_product_json
 
+            images = {}
+
+            main_images_list = ImageBucket.objects.none()
+            try:
+                main_images_obj = MainImages.objects.get(product=product_obj,channel="Noon")
+                main_images_list=main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+            except Exception as e:
+                main_images_list.append(Config.objects.all()[0].product_404_image.image.url )
+                pass
+
+            images["main_images"] = create_response_images_main(main_images_list)
+
+            sub_images_list = ImageBucket.objects.none()
+            try:
+                sub_images_obj = SubImages.objects.get(product=product_obj,channel="Noon")
+                sub_images_list = sub_images_obj.sub_images.all()
+                sub_images_list = sub_images_list.distinct()
+            except Exception as e:
+                sub_images_list.append(Config.objects.all()[0].product_404_image.image.url )
+                pass
+
+            images["sub_images"] = create_response_images_sub(sub_images_list)
+
+            images["all_images"] = create_response_images_main_sub_delete(main_images_list) 
+                                    + create_response_images_main_sub_delete(sub_images_list)
+
             response["noon_product_json"] = noon_product_json
+            response["images"] = images
 
             response['status'] = 200
 
