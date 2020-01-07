@@ -849,7 +849,12 @@ class FetchProductDetailsAPI(APIView):
 
             response["manufacturer"] = base_product_obj.manufacturer
             response["product_id"] = product_obj.product_id
-            response["product_id_type"] = product_obj.product_id_type
+            
+            if product_obj.product_id_type != None:
+                response["product_id_type"] = product_obj.product_id_type.name
+            else:
+                response["product_id_type"] = ""
+
 
             response["noon_product_type"] = noon_product_dict["product_type"]
             response["noon_product_subtype"] = noon_product_dict["product_subtype"]
@@ -916,10 +921,12 @@ class FetchProductDetailsAPI(APIView):
             
             response["wattage"] = "" if amazon_uk_product_dict["wattage"] == None else amazon_uk_product_dict["wattage"]
             response["wattage_metric"] = amazon_uk_product_dict["wattage_metric"]
+            
             if product_obj.material_type != None:
                 response["material_type"] = product_obj.material_type.name
             else:
                 response["material_type"] = ""
+            
             response["parentage"] = amazon_uk_product_dict["parentage"]
             response["parent_sku"] = amazon_uk_product_dict["parent_sku"]
             response["relationship_type"] = amazon_uk_product_dict["relationship_type"]
