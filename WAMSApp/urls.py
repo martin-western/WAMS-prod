@@ -11,9 +11,8 @@ urlpatterns = [
     url(r'^logout/$', views.Logout),
 
     url(r'^fetch-constant-values/$', views.FetchConstantValues),
+    url(r'^create-new-base-product/$', views.CreateNewBaseProduct),
     url(r'^create-new-product/$', views.CreateNewProduct),
-
-
 
     url(r'^edit-product/(?P<pk>[\w-]+)/$', views.EditProductPage),
     url(r'^fetch-product-details/$', views.FetchProductDetails),

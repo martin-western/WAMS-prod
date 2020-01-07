@@ -239,6 +239,67 @@ class FetchConstantValuesAPI(APIView):
         return Response(data=response)
 
 
+class CreateNewBaseProductAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("CreateNewProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("CreateNewBaseProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_name = convert_to_ascii(data["product_name"])
+            seller_sku = convert_to_ascii(data["seller_sku"])
+            brand_name = convert_to_ascii(data["brand_name"])
+
+            # Checking brand permission
+            brand_obj = None
+            try:
+                permissible_brands = custom_permission_filter_brands(
+                    request.user)
+                brand_obj = Brand.objects.get(name=brand_name)
+                logger.info("Brand Obj is %s", str(brand_obj))
+                if brand_obj not in permissible_brands:
+                    logger.warning(
+                        "CreateNewBaseProductAPI Restricted Access Brand!")
+                    response['status'] = 403
+                    return Response(data=response)
+            except Exception as e:
+                logger.error("CreateNewBaseProductAPI Restricted Access Brand!")
+                response['status'] = 403
+                return Response(data=response)
+
+            if BaseProduct.objects.filter(seller_sku=seller_sku).exists():
+                logger.warning("CreateNewBaseProductAPI Duplicate product detected!")
+                response["status"] = 409
+                return Response(data=response)
+
+            base_product_obj = BaseProduct.objects.create(base_product_name=product_name,
+                                              seller_sku=seller_sku,
+                                              brand=brand_obj)
+
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateNewBaseProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 class CreateNewProductAPI(APIView):
 
     authentication_classes = (
@@ -260,16 +321,12 @@ class CreateNewProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_name = convert_to_ascii(data["product_name"])
-            seller_sku = convert_to_ascii(data["seller_sku"])
-            brand_name = convert_to_ascii(data["brand_name"])
-
+            base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
             # Checking brand permission
-            brand_obj = None
             try:
                 permissible_brands = custom_permission_filter_brands(
                     request.user)
-                brand_obj = Brand.objects.get(name=brand_name)
+                brand_obj = base_product_obj.brand
                 logger.info("Brand Obj is %s", str(brand_obj))
                 if brand_obj not in permissible_brands:
                     logger.warning(
@@ -280,16 +337,6 @@ class CreateNewProductAPI(APIView):
                 logger.error("CreateNewProductAPI Restricted Access Brand!")
                 response['status'] = 403
                 return Response(data=response)
-
-            if BaseProduct.objects.filter(seller_sku=seller_sku).exists():
-                logger.warning("CreateNewProductAPI Duplicate product detected!")
-                response["status"] = 409
-                return Response(data=response)
-
-            base_product_obj = BaseProduct.objects.create(base_product_name=product_name,
-                                              seller_sku=seller_sku,
-                                              brand=brand_obj)
-
 
             product_obj = Product.objects.create(product_name = product_name,
                                             product_name_sap=product_name,
@@ -305,6 +352,7 @@ class CreateNewProductAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class SaveNoonChannelProductAPI(APIView):
 
@@ -3580,6 +3628,8 @@ LoginSubmit = LoginSubmitAPI.as_view()
 FetchConstantValues = FetchConstantValuesAPI.as_view()
 
 CreateNewProduct = CreateNewProductAPI.as_view()
+
+CreateNewBaseProduct = CreateNewBaseProductAPI.as_view()
 
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
