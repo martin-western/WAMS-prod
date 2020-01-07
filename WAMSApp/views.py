@@ -784,8 +784,37 @@ class FetchAmazonUAEChannelProductAPI(APIView):
                 return Response(data=response)
 
             channel_name = "Amazon UAE"
+            channel_obj = Channel.objects.get(name=channel_name)
             amazon_uae_product_json = channel_product_obj.amazon_uae_product_json
 
+            images = {}
+
+            main_images_list = ImageBucket.objects.none()
+            try:
+                main_images_obj = MainImages.objects.get(product=product_obj,channel=channel_obj)
+                main_images_list=main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+            except Exception as e:
+                main_images_list.append(Config.objects.all()[0].product_404_image.image.url )
+                pass
+
+            images["main_images"] = create_response_images_main(main_images_list)
+
+            sub_images_list = ImageBucket.objects.none()
+            try:
+                sub_images_obj = SubImages.objects.get(product=product_obj,channel=channel_obj)
+                sub_images_list = sub_images_obj.sub_images.all()
+                sub_images_list = sub_images_list.distinct()
+            except Exception as e:
+                pass
+
+            images["sub_images"] = create_response_images_sub(sub_images_list)
+
+            images["all_images"] = create_response_images_main_sub_delete(main_images_list) 
+                                    + create_response_images_main_sub_delete(sub_images_list)
+
+
+            response["images"] = images
             response["amazon_uae_product_json"] = amazon_uae_product_json
             
             response['status'] = 200
