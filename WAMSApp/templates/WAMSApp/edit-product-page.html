@@ -445,31 +445,8 @@
           <h4>VITAL</h4>
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s12" style="margin-top:40px !important;">
-              <input id="product-name-sap" type="text">
-              <label for="product-name-sap">Product Title SAP</label>
-            </div>
-          </div>
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s6">
-              <input id="category" type="text">
-              <label for="category">Category</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="subtitle" type="text">
-              <label for="subtitle">Subtitle</label>
-            </div>
-          </div>
-
-          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
-            <div class="input-field col s6">
-              <input id="brand-name" type="text">
-              <label for="brand-name">Brand Name</label>
-            </div>
-
-            <div class="input-field col s6">
-              <input id="manufacturer" type="text">
-              <label for="manufacturer">Manufacturer</label>
+              <input id="product-name" type="text">
+              <label for="product-name">Product Name</label>
             </div>
           </div>
 
@@ -486,24 +463,44 @@
             </div>
           </div>
 
-
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <input id="seller-sku" type="text">
-              <label for="seller-sku">Seller SKU</label>
+              <input disabled id="category" type="text">
+              <label for="category">Category</label>
             </div>
 
             <div class="input-field col s6">
-              <input id="manufacturer-part-number" type="text">
-              <label for="manufacturer-part-number">Manufacturer Part Number</label>
+              <input disabled id="subtitle" type="text">
+              <label for="subtitle">Subtitle</label>
             </div>
           </div>
 
           <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
-              <input id="recommended-browse-nodes" type="text">
-              <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
+              <input disabled id="brand-name" type="text">
+              <label for="brand-name">Brand Name</label>
             </div>
+
+            <div class="input-field col s6">
+              <input disabled id="manufacturer" type="text">
+              <label for="manufacturer">Manufacturer</label>
+            </div>
+          </div>
+
+
+          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
+            <div class="input-field col s6">
+              <input disabled id="seller-sku" type="text">
+              <label for="seller-sku">Seller SKU</label>
+            </div>
+
+            <div class="input-field col s6">
+              <input disabled id="manufacturer-part-number" type="text">
+              <label for="manufacturer-part-number">Manufacturer Part Number</label>
+            </div>
+          </div>
+
+          <div class="row white" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
             <div class="input-field col s6">
               <input id="barcode-string" type="text" data-length="20">
               <label for="barcode-string">Barcode</label>
@@ -519,12 +516,12 @@
             <div class="col s12">
               <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="package-length" type="number">
+                  <input disabled id="package-length" type="number">
                   <label for="package-length">Package Length</label>
                 </div>
 
                 <div class="input-field  col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="package-length-metric">
+                  <select disabled id="package-length-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
                     <option value="IN">IN</option>
@@ -535,12 +532,12 @@
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="package-width" type="number">
+                  <input disabled id="package-width" type="number">
                   <label for="package-width">Package Width</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="package-width-metric">
+                  <select disabled id="package-width-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
                     <option value="IN">IN</option>
@@ -554,12 +551,12 @@
               <div class="row"
                 style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="package-height" type="number">
+                  <input disabled id="package-height" type="number">
                   <label for="package-height">Package Height</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="package-height-metric">
+                  <select disabled id="package-height-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
                     <option value="IN">IN</option>
@@ -570,12 +567,12 @@
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="package-weight" type="number">
+                  <input disabled id="package-weight" type="number">
                   <label for="package-weight">Package Weight</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="package-weight-metric">
+                  <select disabled id="package-weight-metric">
                     <option selected value="">Unit</option>
                     <option value="KG">KG</option>
                     <option value="LB">LB</option>
@@ -589,12 +586,12 @@
               <div class="row"
                 style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="shipping-weight" type="number">
+                  <input disabled id="shipping-weight" type="number">
                   <label for="shipping-weight">Shipping Weight</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="shipping-weight-metric">
+                  <select disabled id="shipping-weight-metric">
                     <option selected value="">Unit</option>
                     <option value="KG">KG</option>
                     <option value="LB">LB</option>
@@ -606,12 +603,12 @@
 
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-display-weight" type="number">
+                  <input disabled id="item-display-weight" type="number">
                   <label for="item-display-weight">Item Display Weight</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-weight-metric">
+                  <select disabled id="item-display-weight-metric">
                     <option selected value="">Unit</option>
                     <option value="KG">KG</option>
                     <option value="LB">LB</option>
@@ -625,12 +622,12 @@
               <div class="row"
                 style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-display-volume" type="number">
+                  <input disabled id="item-display-volume" type="number">
                   <label for="item-display-volume">Item Display Volume</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-volume-metric">
+                  <select disabled id="item-display-volume-metric">
                     <option selected value="">Unit</option>
                     <option value="cc">CC</option>
                     <option value="litres">L</option>
@@ -640,12 +637,12 @@
 
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-display-length" type="number">
+                  <input disabled id="item-display-length" type="number">
                   <label for="item-display-length">Item Display Length</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-length-metric">
+                  <select disabled id="item-display-length-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
                     <option value="IN">IN</option>
@@ -659,12 +656,12 @@
               <div class="row"
                 style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-weight" type="number">
+                  <input disabled id="item-weight" type="number">
                   <label for="item-weight">Item Weight</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-weight-metric">
+                  <select disabled id="item-weight-metric">
                     <option selected value="">Unit</option>
                     <option value="KG">KG</option>
                     <option value="LB">LB</option>
@@ -675,12 +672,12 @@
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-length" type="number">
+                  <input disabled id="item-length" type="number">
                   <label for="item-length">Item Length</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-length-metric">
+                  <select disabled id="item-length-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
                     <option value="IN">IN</option>
@@ -694,12 +691,12 @@
               <div class="row"
                 style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-width" type="number">
+                  <input disabled id="item-width" type="number">
                   <label for="item-width">Item Width</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-width-metric">
+                  <select disabled id="item-width-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
                     <option value="IN">IN</option>
@@ -710,12 +707,12 @@
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-height" type="number">
+                  <input disabled id="item-height" type="number">
                   <label for="item-height">Item Height</label>
                 </div>
 
                 <div class="input-field col s2 " style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-height-metric">
+                  <select disabled id="item-height-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
                     <option value="IN">IN</option>
@@ -729,12 +726,12 @@
               <div class="row"
                 style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
                 <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-display-width" type="number">
+                  <input disabled id="item-display-width" type="number">
                   <label for="item-display-width">Item Display Width</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-width-metric">
+                  <select disabled id="item-display-width-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
                     <option value="IN">IN</option>
@@ -745,12 +742,12 @@
                 </div>
 
                 <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input id="item-display-height" type="number">
+                  <input disabled id="item-display-height" type="number">
                   <label for="item-display-height">Item Display Height</label>
                 </div>
 
                 <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-display-height-metric">
+                  <select disabled id="item-display-height-metric">
                     <option selected value="">Unit</option>
                     <option value="FT">FT</option>
                     <option value="IN">IN</option>
@@ -765,25 +762,9 @@
 
               <div class="row"
                 style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="item-count" type="number">
-                  <label for="item-count">Item Count</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select id="item-count-metric">
-                    <option selected value="">Unit</option>
-                    <option value="Bag">Bag</option>
-                    <option value="Box">Box</option>
-                    <option value="Dzn">Dzn</option>
-                    <option value="Mah">Mah</option>
-                    <option value="Pieces">Pieces</option>
-                    <option value="Packet">Packet</option>
-                  </select>
-                </div>
-
+               
                 <div class="input-field col s6" style="padding: 0px 20px 0px 40px  !important;">
-                  <input id="package-qty" type="number">
+                  <input disabled id="package-qty" type="number">
                   <label for="package-qty">Package Quantity</label>
                 </div>
 
@@ -799,55 +780,36 @@
             <div class="col s12">
               <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
                 <div class="input-field col s6">
-                  <input id="max-order-quantity" type="text">
-                  <label for="max-order-quantity">Max Order Quantity</label>
+                  <input id="color" type="text">
+                  <label for="color">Color</label>
                 </div>
-
-                <div class="input-field col s6">
-                  <input id="number-of-items" type="text">
-                  <label for="number-of-items">Number of Items</label>
-                </div>
-              </div>
-
-              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
-                <div class="input-field col s9">
-                  <input id="product-attribute" type="text">
-                  <label for="product-attribute">Product Attribute</label>
-                </div>
-
-                <div class="input-field col s1">
-                  <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
-                    style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                      class="material-icons">add</i></a>
-                </div>
-              </div>
-
-              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
-                
                 <div class="input-field col s6">
                   <input id="color-map" type="text">
                   <label for="color-map">Color Map</label>
                 </div>
-
-
-
               </div>
 
 
-              <div class="row" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
+              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
                 <div class="input-field col s6">
-                  <select id="condition-type">
-                    <option value="New" selected>New</option>
-                    <option value="Old">Old</option>
-                  </select>
-                  <label for="condition-type">Condition Type</label>
+                  <input id="material-type" type="text">
+                  <label for="material-type">Material Type</label>
                 </div>
                 <div class="input-field col s6">
-                  <input id="color" type="text">
-                  <label for="color">Color</label>
+                  <input id="standard-price" type="text">
+                  <label for="standard-price">Standard Price</label>
                 </div>
+              </div>
 
+              <div class="row" style="margin-bottom: 0em;padding-top:0em !important;padding-bottom:0em !important;">
                 <div class="input-field col s6">
+                  <input id="quantity" type="text">
+                  <label for="quantity">Quantity</label>
+                </div>
+              </div>              
+
+              <div class="row" style="margin-bottom: 0em;padding-top: 0em !important;padding-bottom: 0em !important;">
+                <div class="input-field col s12">
                   <input id="factory-notes" type="text">
                   <label for="">Factory Notes</label>
                 </div>
@@ -1148,28 +1110,38 @@
   $('select').formSelect();
   $('.modal').modal();
   $('body').css('background-color', '#ebebeb');
+  $('#barcode-string').characterCounter();
 
   var global_verification_status = false;
   var global_delete_image_pk = null;
 
   //Page reload prevent logic
-  let savecounter = false;
-  $('#save-btn').click(() => {
-    savecounter = false;
-  })
+  // let savecounter = false;
+  // $('#save-btn').click(() => {
+  //   savecounter = false;
+  // })
 
-  $('input').click(function () {
-    savecounter = true;
-  })
+  // $('input').click(function () {
+  //   savecounter = true;
+  // })
 
-  function preventDefault() {
-    if (savecounter) {
-      alert('Please save the details before refreshing!');
-    }
-    else {
-      window.close();
-    }
-  }
+  // function preventDefault() {
+  //   if (savecounter) {
+  //     alert('Please save the details before refreshing!');
+  //   }
+  //   else {
+  //     window.close();
+  //   }
+  // }
+
+  // window.addEventListener('beforeunload', function (e) {
+  //   if (savecounter) {
+  //     e.preventDefault();
+  //     e.returnValue = '';
+  //   }
+  //   else
+  //     window.close();
+  // });
 
   $('#close-btn').click(function () {
     preventDefault();
@@ -1203,14 +1175,7 @@
 
   });
 
-  window.addEventListener('beforeunload', function (e) {
-    if (savecounter) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
-    else
-      window.close();
-  });
+ 
 
   $("#pending-icon").click(function () {
     if (global_verification_status) {
@@ -1269,7 +1234,6 @@
     $('.tabs').tabs();
   });
 
-  $('#barcode-string').characterCounter();
 
   $("#download-image-btn").click(function () {
 
@@ -1327,15 +1291,9 @@
     pfl_feature_cnt++;
   });
 
-
-  $(document).on('click', ".delete-feature-btn", function () {
+  $(document).on("click", ".delete-feature-btn", function(){
     $(this).parent().parent().remove();
-  });
-
-  // $('.pflspecific').hide(); 
-
-  $("#heading-title").html("PRODUCT FORM");
-
+  })
   
 
   function getCsrfToken() {
@@ -1415,6 +1373,7 @@
   }
 
   fetch_constant_values();
+  fetch_product_images_details();
 
 
   function fetch_product_images_details() {
@@ -1425,7 +1384,7 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        pk: window.location.pathname.split("/")[2]
+        product_pk: window.location.pathname.split("/")[2]
       },
       success: function (response) {
         console.log("Success!", response);
@@ -1551,143 +1510,143 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        pk: window.location.pathname.split("/")[2]
+        product_pk: window.location.pathname.split("/")[2]
       },
       success: function (response) {
         console.log("Success!", response);
 
-        global_verification_status = response["verified"];
+        if(response["status"]==200)
+        {
+          $("#product-name").val(response["product_name"]);
+          $("#category").val(response["category"]);
+          $("#subtitle").val(response["subtitle"]);
+          $("#brand-name").val(response["brand_name"]);
+          $("#manufacturer").val(response["manufacturer"]);
+          $("#product-id").val(response["product_id"]);
+          $("#product-id-type").val(response["product_id_type"]);
+          $("#seller-sku").val(response["seller_sku"]);
+          $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
+          $("#barcode-string").val(response["barcode_string"]);
 
-        if (response["verified"] == true) {
-          set_verify(true);
-        }
-        else {
-          set_verify(false);
-        }
 
-        $("#pfl-product-name").val(response["pfl_product_name"])
-        var pfl_product_features = response["pfl_product_features"]
-        $('.material-placeholder').remove();
-        $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
-        $('.materialboxed').materialbox();
+          $("#package-length").val(response["package_length"]);
+          $("#package-length-metric").val(response["package_length_metric"]);
+          $("#package-width").val(response["package_width"]);
+          $("#package-width-metric").val(response["package_width_metric"]);
+          $("#package-height").val(response["package_height"]);
+          $("#package-height-metric").val(response["package_height_metric"]);
+          $("#package-weight").val(response["package_weight"]);
+          $("#package-weight-metric").val(response["package_weight_metric"]);
+          $("#shipping-weight").val(response["shipping_weight"]);
+          $("#shipping-weight-metric").val(response["shipping_weight_metric"]);
+          $("#item-display-weight").val(response["item_display_weight"]);
+          $("#item-display-weight-metric").val(response["item_display_weight_metric"]);
+          $("#item-display-volume").val(response["item_display_volume"]);
+          $("#item-display-volume-metric").val(response["item_display_volume_metric"]);
+          $("#item-display-length").val(response["item_display_length"]);
+          $("#item-display-length-metric").val(response["item_display_length_metric"]);
+          $("#item-weight").val(response["item_weight"]);
+          $("#item-weight-metric").val(response["item_weight_metric"]);
+          $("#item-length").val(response["item_length"]);
+          $("#item-length-metric").val(response["item_length_metric"]);
+          $("#item-width").val(response["item_width"]);
+          $("#item-width-metric").val(response["item_length_metric"]);
+          $("#item-height").val(response["item_height"]);
+          $("#item-height-metric").val(response["item_length_metric"]);
+          $("#item-display-width").val(response["item_display_width"]);
+          $("#item-display-width-metric").val(response["item_display_width_metric"]);
+          $("#item-display-height").val(response["item_display_height"]);
+          $("#item-display-height-metric").val(response["item_display_height_metric"]);
+          $("#package-qty").val(response["package_quantity"]);
 
-        for (var i = 0; i < pfl_product_features.length; i++) {
-          $("#pfl-feature-" + (i + 1)).val(pfl_product_features[i]);
-          if ((i + 1) != pfl_product_features.length) {
-            $("#add-feature-btn").click();
+          $("#color").val(response["color"]);
+          $("#color-map").val(response["color_map"]);
+          $("#material-type").val(response["material_type"]);
+          $("#standard-price").val(response["standard_price"]);
+          $("#quantity").val(response["quantity"]);
+          $("#factory-notes").val(response["factory_notes"]);
+
+          $("#pfl-product-name").val(response["pfl_product_name"]);
+          
+
+          var pfl_features = response["pfl_product_features"];
+          if(pfl_features.length>0)
+          {
+            $("#pfl-feature-1").val(pfl_features[0]);
           }
+          for(var i=1;i<pfl_features.length;i++)
+          {
+            $("#add-feature-btn").click();
+            $("#pfl-feature-"+(i+1)).val(pfl_features[i]);
+          }
+
+          global_verification_status = response["verified"];
+          if (response["verified"] == true) {
+            set_verify(true);
+          }
+          else {
+            set_verify(false);
+          }
+
+          M.updateTextFields();
+          $('select').formSelect();
         }
 
-        $("#product-name-amazon-uk").val(response["product_name_amazon_uk"]);
-        $("#product-name-amazon-uae").val(response["product_name_amazon_uae"]);
-        $("#product-name-sap").val(response["product_name_sap"]);
-        $("#product-name-ebay").val(response["product_name_ebay"]);
-        $("#product-name-noon").val(response["product_name_noon"]);
-        $("#category").val(response["category"]);
-        $("#subtitle").val(response["subtitle"]);
-        $("#brand-name").val(response["brand"]);
-        $("#manufacturer").val(response["manufacturer"]);
-        $("#product-id").val(response["product_id"]);
-        $("#product-id-type").val(response["product_id_type"]);
-        $("#seller-sku").val(response["seller_sku"]);
-        $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
-        $("#barcode-string").val(response["barcode_string"]);
-        $("#noon-product-type").val(response["noon_product_type"]);
-        $("#noon-product-subtype").val(response["noon_product_subtype"]);
-        $("#noon-model-name").val(response["noon_model_name"]);
-        $("#noon-model-number").val(response["noon_model_number"]);
-
-        $("#condition-type").val(response["condition_type"]);
-        $("#feed-product-type").val(response["feed_product_type"]);
-        $("#update-delete").val(response["update_delete"]);
-        $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
 
 
-        $("#color-map").val(response["color_map"]);
-        $("#color").val(response["color"]);
-        
-        $("#package-length").val(response["package_length"]);
-        $("#package-length-metric").val(response["package_length_metric"]);
-        $("#package-width").val(response["package_width"]);
-        $("#package-width-metric").val(response["package_width_metric"]);
-        $("#package-height").val(response["package_height"]);
-        $("#package-height-metric").val(response["package_height_metric"]);
-        $("#package-weight").val(response["package_weight"]);
-        $("#package-weight-metric").val(response["package_weight_metric"]);
-        $("#shipping-weight").val(response["shipping_weight"]);
-        $("#shipping-weight-metric").val(response["shipping_weight_metric"]);
-        $("#item-display-weight").val(response["item_display_weight"]);
-        $("#item-display-weight-metric").val(response["item_display_weight_metric"]);
-        $("#item-display-volume").val(response["item_display_volume"]);
-        $("#item-display-volume-metric").val(response["item_display_volume_metric"]);
-        $("#item-display-length").val(response["item_display_length"]);
-        $("#item-display-length-metric").val(response["item_display_length_metric"]);
-        $("#item-weight").val(response["item_weight"]);
-        $("#item-weight-metric").val(response["item_weight_metric"]);
-        $("#item-length").val(response["item_length"]);
-        $("#item-length-metric").val(response["item_length_metric"]);
-        $("#item-width").val(response["item_width"]);
-        $("#item-width-metric").val(response["item_width_metric"]);
-        $("#item-height").val(response["item_height"]);
-        $("#item-height-metric").val(response["item_height_metric"]);
-        $("#item-display-width").val(response["item_display_width"]);
-        $("#item-display-width-metric").val(response["item_display_width_metric"]);
-        $("#item-display-height").val(response["item_display_height"]);
-        $("#item-display-height-metric").val(response["item_display_height_metric"]);
-        $("#item-count").val(response["item_count"]);
-        $("#item-count-metric").val(response["item_count_metric"]);
-        $("#item-condition-note").val(response["item_condition_note"]);
-        $("#max-order-quantity").val(response["max_order_quantity"]);
-        $("#number-of-items").val(response["number_of_items"]);
-        $("#wattage").val(response["wattage"]);
-        $("#wattage-metric").val(response["wattage_metric"]);
-        $("#material-type").val(response["material_type"]);
-        $("#parentage").val(response["parentage"]);
-        $("#parent-sku").val(response["parent_sku"]);
-        $("#relationship-type").val(response["relationship_type"]);
-        $("#variation-theme").val(response["variation_theme"]);
-        $("#standard-price").val(response["standard_price"]);
-        $("#quantity").val(response["quantity"]);
-        $("#sale-price").val(response["sale_price"]);
-        $("#sale-from").val(response["sale_from"]);
-        $("#sale-end").val(response["sale_end"]);
-
-        $("#noon-msrp-ae").val(response["noon_msrp_ae"]);
-        $("#noon-msrp-ae-unit").val(response["noon_msrp_ae_unit"]);
-
-        $("#factory-notes").val(response["factory_notes"]);
 
 
-        global_images = response["images"];
 
-        $("#all-images-option").html("All Images ("+global_images["all_images"].length+")");
-        $("#main-images-option").html("Main Images ("+global_images["main_images"].length+")");
-        $("#sub-images-option").html("Sub Images ("+global_images["sub_images"].length+")");
-        $("#pfl-images-option").html("PFL Images ("+global_images["pfl_images"].length+")");
-        $("#pfl-generated-images-option").html("PFL Generated Images ("+global_images["pfl_generated_images"].length+")");
-        $("#white-background-images-option").html("White Background Images ("+global_images["white_background_images"].length+")");
-        $("#lifestyle-images-option").html("Lifestyle Images ("+global_images["lifestyle_images"].length+")");
-        $("#certificate-images-option").html("Certificate Images ("+global_images["certificate_images"].length+")");
-        $("#giftbox-images-option").html("Giftbox Images ("+global_images["giftbox_images"].length+")");
-        $("#diecut-images-option").html("Diecut Images ("+global_images["diecut_images"].length+")");
-        $("#aplus-content-images-option").html("A+ Content Images ("+global_images["aplus_content_images"].length+")");
-        $("#ads-images-option").html("Ads Images ("+global_images["ads_images"].length+")");
-        $("#unedited-images-option").html("Unedited Images ("+global_images["unedited_images"].length+")");
-        $("#transparent-images-option").html("Transparent Images ("+global_images["transparent_images"].length+")");
+
+
+
+
+
+
+        // $("#pfl-product-name").val(response["pfl_product_name"])
+        // var pfl_product_features = response["pfl_product_features"]
+        // $('.material-placeholder').remove();
+        // $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
+        // $('.materialboxed').materialbox();
+
+        // for (var i = 0; i < pfl_product_features.length; i++) {
+        //   $("#pfl-feature-" + (i + 1)).val(pfl_product_features[i]);
+        //   if ((i + 1) != pfl_product_features.length) {
+        //     $("#add-feature-btn").click();
+        //   }
+        // }
+
+
+        // global_images = response["images"];
+
+        // $("#all-images-option").html("All Images ("+global_images["all_images"].length+")");
+        // $("#main-images-option").html("Main Images ("+global_images["main_images"].length+")");
+        // $("#sub-images-option").html("Sub Images ("+global_images["sub_images"].length+")");
+        // $("#pfl-images-option").html("PFL Images ("+global_images["pfl_images"].length+")");
+        // $("#pfl-generated-images-option").html("PFL Generated Images ("+global_images["pfl_generated_images"].length+")");
+        // $("#white-background-images-option").html("White Background Images ("+global_images["white_background_images"].length+")");
+        // $("#lifestyle-images-option").html("Lifestyle Images ("+global_images["lifestyle_images"].length+")");
+        // $("#certificate-images-option").html("Certificate Images ("+global_images["certificate_images"].length+")");
+        // $("#giftbox-images-option").html("Giftbox Images ("+global_images["giftbox_images"].length+")");
+        // $("#diecut-images-option").html("Diecut Images ("+global_images["diecut_images"].length+")");
+        // $("#aplus-content-images-option").html("A+ Content Images ("+global_images["aplus_content_images"].length+")");
+        // $("#ads-images-option").html("Ads Images ("+global_images["ads_images"].length+")");
+        // $("#unedited-images-option").html("Unedited Images ("+global_images["unedited_images"].length+")");
+        // $("#transparent-images-option").html("Transparent Images ("+global_images["transparent_images"].length+")");
         
 
-        update_grid_images(global_image_key);
+        // update_grid_images(global_image_key);
 
-        $('#brand-image-img').attr("src", response["brand_logo"]);
-        if (global_images["main_images"].length > 0) {
-          $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
-        }
-        $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
+        // $('#brand-image-img').attr("src", response["brand_logo"]);
+        // if (global_images["main_images"].length > 0) {
+        //   $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
+        // }
+        // $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
 
-        $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
+        // $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
 
-        M.updateTextFields();
-        $('select').formSelect();
+        // M.updateTextFields();
+        // $('select').formSelect();
       },
       error: function (xhr, textstatus, errorthrown) {
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
@@ -1696,115 +1655,6 @@
   }
 
   fetch_product_details();
-
-  var product_attribute_amazon_uk_cnt = 1;
-  $("#add-product-attribute-amazon-uk-btn").click(function () {
-    product_attribute_amazon_uk_cnt++;
-
-    var html_string = `<div>
-                         <div class="input-field col s9">
-                           <input id="product-attribute-amazon-uk-`+ product_attribute_amazon_uk_cnt + `" type="text" >
-                           <label for="product-attribute-amazon-uk-`+ product_attribute_amazon_uk_cnt + `">Product Attribute</label>
-                         </div>
-                         <div class="input-field col s1">
-                           <a href="#!" class="remove-product-attribute-amazon-uk-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
-                         </div>
-                       </div>`
-    $("#product-attributes-amazon-uk-div").append(html_string);
-  });
-
-  $(document).on("click", ".remove-product-attribute-amazon-uk-btn", function () {
-    $(this).parent().parent().remove();
-  });
-
-
-  var product_attribute_amazon_uae_cnt = 1;
-  $("#add-product-attribute-amazon-uae-btn").click(function () {
-    product_attribute_amazon_uae_cnt++;
-
-    var html_string = `<div>
-                         <div class="input-field col s9">
-                           <input id="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `" type="text" >
-                           <label for="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `">Product Attribute</label>
-                         </div>
-                         <div class="input-field col s1">
-                           <a href="#!" class="remove-product-attribute-amazon-uae-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
-                         </div>
-                      </div>`
-    $("#product-attributes-amazon-uae-div").append(html_string);
-  });
-
-  $(document).on("click", ".remove-product-attribute-amazon-uae-btn", function () {
-    $(this).parent().parent().remove();
-  });
-
-
-  var product_attribute_ebay_cnt = 1;
-  $("#add-product-attribute-ebay-btn").click(function () {
-    product_attribute_ebay_cnt++;
-
-    var html_string = `<div>
-                         <div class="input-field col s9">
-                           <input id="product-attribute-ebay-`+ product_attribute_ebay_cnt + `" type="text" >
-                           <label for="product-attribute-ebay-`+ product_attribute_ebay_cnt + `">Product Attribute</label>
-                         </div>
-                         <div class="input-field col s1">
-                           <a href="#!" class="remove-product-attribute-ebay-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
-                         </div>
-                       </div>`
-    $("#product-attributes-ebay-div").append(html_string);
-  });
-
-  $(document).on("click", ".remove-product-attribute-ebay-btn", function () {
-    $(this).parent().parent().remove();
-  });
-
-
-
-
-  var product_attribute_noon_cnt = 1;
-  $("#add-product-attribute-noon-btn").click(function () {
-    product_attribute_noon_cnt++;
-
-    var html_string = `<div>
-                         <div class="input-field col s9">
-                           <input id="product-attribute-noon-`+ product_attribute_noon_cnt + `" type="text" >
-                           <label for="product-attribute-noon-`+ product_attribute_noon_cnt + `">Product Attribute</label>
-                         </div>
-                         <div class="input-field col s1">
-                           <a href="#!" class="remove-product-attribute-noon-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
-                         </div>
-                       </div>`
-    $("#product-attributes-noon-div").append(html_string);
-  });
-
-  $(document).on("click", ".remove-product-attribute-noon-btn", function () {
-    $(this).parent().parent().remove();
-  });
-
-
-
-
-  var special_feature_cnt = 1;
-  $("#add-special-feature-btn").click(function () {
-    special_feature_cnt++;
-
-    var html_string = `<div>
-                           <div class="input-field col s9">
-                             <input id="special-feature-`+ special_feature_cnt + `" type="text" >
-                             <label for="special-feature-`+ special_feature_cnt + `">Special Feature</label>
-                           </div>
-
-                           <div class="input-field col s1">
-                             <a href="#!" class="remove-special-feature-btn btn-floating blue" style = "background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
-                           </div>
-                        </div>`
-    $("#special-features-div").append(html_string);
-  });
-
-  $(document).on("click", ".remove-special-feature-btn", function () {
-    $(this).parent().parent().remove();
-  });
 
 
   function update_grid_images_main_images(key) {
@@ -2307,11 +2157,21 @@
   }
 
   function save_product() {
-    save_pfl_image_to_bucket();
+    //save_pfl_image_to_bucket();
 
     $("#save-btn").attr("disabled", "disabled");
 
     var product_pk = window.location.pathname.split("/")[2];
+    var product_name = $("#product-name").val();
+    var product_id = $("#product-id").val();
+    var product_id_type = $("#product-id-type").val();
+    var barcode_string = $("#barcode-string").val();
+    var color_map = $("#color-map").val();
+    var color = $("#color").val();
+    var material_type = $("#material-type").val();
+    var standard_price = $("#standard-price").val();
+    var quantity = $("#quantity").val();
+    var factory_notes = $("#factory-notes").val();
 
     var pfl_product_name = $("#pfl-product-name").val();
     var pfl_product_features = [];
@@ -2319,230 +2179,21 @@
       pfl_product_features.push($(".feature-text")[i].value);
     }
 
-    var product_name_amazon_uk = $("#product-name-amazon-uk").val();
-    var product_name_amazon_uae = $("#product-name-amazon-uae").val();
-    var product_name_ebay = $("#product-name-ebay").val();
-    var product_name_sap = $("#product-name-sap").val();
-    var product_name_noon = $("#product-name-noon").val();
-
-    var category = $("#category").val();
-    var subtitle = $("#subtitle").val();
-    var brand = $("#brand-name").val();
-    var manufacturer = $("#manufacturer").val();
-    var product_id = $("#product-id").val();
-    var product_id_type = $("#product-id-type").val();
-    var seller_sku = $("#seller-sku").val();
-    var manufacturer_part_number = $("#manufacturer-part-number").val();
-    var barcode_string = $("#barcode-string").val();
-    var noon_product_type = $("#noon-product-type").val();
-    var noon_product_subtype = $("#noon-product-subtype").val();
-    var noon_model_number = $("#noon-model-number").val();
-    var noon_model_name = $("#noon-model-name").val();
-    var condition_type = $("#condition-type").val();
-    var feed_product_type = $("#feed-product-type").val();
-    var update_delete = $("#update-delete").val();
-    var recommended_browse_nodes = $("#recommended-browse-nodes").val();
-    var product_description_amazon_uk = window.editor[0].getData();
-    var product_description_amazon_uae = window.editor[1].getData();
-    var product_description_ebay = window.editor[2].getData();
-    var product_description_noon = window.editor[3].getData();
-
-
-    var product_attribute_data_amazon_uk = [];
-    for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
-      if ($("#product-attribute-amazon-uk-" + i).val() != "") {
-        product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
-      }
-    }
-    product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
-
-
-    var product_attribute_data_amazon_uae = [];
-    for (var i = 1; i <= product_attribute_amazon_uae_cnt; i++) {
-      if ($("#product-attribute-amazon-uae-" + i).val() != "") {
-        product_attribute_data_amazon_uae.push($("#product-attribute-amazon-uae-" + i).val());
-      }
-    }
-    product_attribute_data_amazon_uae = JSON.stringify(product_attribute_data_amazon_uae);
-
-
-    var product_attribute_data_ebay = [];
-    for (var i = 1; i <= product_attribute_ebay_cnt; i++) {
-      if ($("#product-attribute-ebay-" + i).val() != "") {
-        product_attribute_data_ebay.push($("#product-attribute-ebay-" + i).val());
-      }
-    }
-    product_attribute_data_ebay = JSON.stringify(product_attribute_data_ebay);
-
-
-
-    var product_attribute_data_noon = [];
-    for (var i = 1; i <= product_attribute_noon_cnt; i++) {
-      if ($("#product-attribute-noon-" + i).val() != "") {
-        product_attribute_data_noon.push($("#product-attribute-noon-" + i).val());
-      }
-    }
-    product_attribute_data_noon = JSON.stringify(product_attribute_data_noon);
-
-
-    var search_terms = $("#search-terms").val();
-    var color_map = $("#color-map").val();
-    var color = $("#color").val();
-    var enclosure_material = $("#enclosure-material").val();
-    var cover_material_type = $("#cover-material-type").val();
-
-
-    var special_feature_data = [];
-    for (var i = 1; i <= special_feature_cnt; i++) {
-      if ($("#special-feature-" + i).val() != "") {
-        special_feature_data.push($("#special-feature-" + i).val());
-      }
-    }
-
-    var special_feature_data = JSON.stringify(special_feature_data);
-    var package_length = $("#package-length").val();
-    var package_length_metric = $("#package-length-metric").val();
-    var package_width = $("#package-width").val();
-    var package_width_metric = $("#package-width-metric").val();
-    var package_height = $("#package-height").val();
-    var package_height_metric = $("#package-height-metric").val();
-    var package_weight = $("#package-weight").val();
-    var package_weight_metric = $("#package-weight-metric").val();
-    var shipping_weight = $("#shipping-weight").val();
-    var shipping_weight_metric = $("#shipping-weight-metric").val();
-    var item_display_weight = $("#item-display-weight").val();
-    var item_display_weight_metric = $("#item-display-weight-metric").val();
-    var item_display_volume = $("#item-display-volume").val();
-    var item_display_volume_metric = $("#item-display-volume-metric").val();
-    var item_display_length = $("#item-display-length").val();
-    var item_display_length_metric = $("#item-display-length-metric").val();
-    var item_weight = $("#item-weight").val();
-    var item_weight_metric = $("#item-weight-metric").val();
-    var item_length = $("#item-length").val();
-    var item_length_metric = $("#item-length-metric").val();
-    var item_width = $("#item-width").val();
-    var item_width_metric = $("#item-width-metric").val();
-    var item_height = $("#item-height").val();
-    var item_height_metric = $("#item-height-metric").val();
-    var item_display_width = $("#item-display-width").val();
-    var item_display_width_metric = $("#item-display-width-metric").val();
-    var item_display_height = $("#item-display-height").val();
-    var item_display_height_metric = $("#item-display-height-metric").val();
-    var item_count = $("#item-count").val();
-    var item_count_metric = $("#item-count-metric").val();
-
-    var item_condition_note = $("#item-condition-note").val();
-    var max_order_quantity = $("#max-order-quantity").val();
-    var number_of_items = $("#number-of-items").val();
-    var wattage = $("#wattage").val();
-    var wattage_metric = $("#wattage-metric").val();
-    var material_type = $("#material-type").val();
-    var parentage = $("#parentage").val();
-    var parent_sku = $("#parent-sku").val();
-    var relationship_type = $("#relationship-type").val();
-    var variation_theme = $("#variation-theme").val();
-    var standard_price = $("#standard-price").val();
-    var quantity = $("#quantity").val();
-    var sale_price = $("#sale-price").val();
-    var sale_from = $("#sale-from").val();
-    var sale_end = $("#sale-end").val();
-    var noon_msrp_ae = $("#noon-msrp-ae").val();
-    var noon_msrp_ae_unit = $("#noon-msrp-ae-unit").val();
-    var product_pk = window.location.pathname.split("/")[2];
-
-    var factory_notes = $("#factory-notes").val();
-
     var fd = new FormData();
 
-    fd.append('pfl_product_name', pfl_product_name)
-    fd.append('pfl_product_features', JSON.stringify(pfl_product_features));
-    fd.append('product_pk', product_pk)
-    fd.append('product_name_sap', product_name_sap);
-    fd.append('product_name_amazon_uk', product_name_amazon_uk);
-    fd.append('product_name_amazon_uae', product_name_amazon_uae);
-    fd.append('product_name_ebay', product_name_ebay);
-    fd.append('product_name_noon', product_name_noon);
-    fd.append('category', category);
-    fd.append('subtitle', subtitle);
-    fd.append('brand', brand);
-    fd.append('manufacturer', manufacturer);
+    fd.append('product_pk', product_pk);
+    fd.append('product_name', product_name);
     fd.append('product_id', product_id);
     fd.append('product_id_type', product_id_type);
-    fd.append('seller_sku', seller_sku);
-    fd.append('manufacturer_part_number', manufacturer_part_number);
     fd.append('barcode_string', barcode_string);
-    fd.append('noon_product_type', noon_product_type);
-    fd.append('noon_product_subtype', noon_product_subtype);
-    fd.append('noon_model_name', noon_model_name);
-    fd.append('noon_model_number', noon_model_number);
-    fd.append('condition_type', condition_type);
-    fd.append('feed_product_type', feed_product_type);
-    fd.append('update_delete', update_delete);
-    fd.append('recommended_browse_nodes', recommended_browse_nodes);
-    fd.append('product_description_amazon_uk', product_description_amazon_uk);
-    fd.append('product_description_amazon_uae', product_description_amazon_uae);
-    fd.append('product_description_ebay', product_description_ebay);
-    fd.append('product_description_noon', product_description_noon);
-
-    fd.append('product_attribute_list_amazon_uk', product_attribute_data_amazon_uk);
-    fd.append('product_attribute_list_amazon_uae', product_attribute_data_amazon_uae);
-    fd.append('product_attribute_list_ebay', product_attribute_data_ebay);
-    fd.append('product_attribute_list_noon', product_attribute_data_noon);
-    fd.append('search_terms', search_terms);
     fd.append('color_map', color_map);
     fd.append('color', color);
-    fd.append('enclosure_material', enclosure_material);
-    fd.append('cover_material_type', cover_material_type);
-    fd.append('special_features', special_feature_data);
-    fd.append('package_length', package_length);
-    fd.append('package_length_metric', package_length_metric);
-    fd.append('package_width', package_width);
-    fd.append('package_width_metric', package_width_metric);
-    fd.append('package_height', package_height);
-    fd.append('package_height_metric', package_height_metric);
-    fd.append('package_weight', package_weight);
-    fd.append('package_weight_metric', package_weight_metric);
-    fd.append('shipping_weight', shipping_weight);
-    fd.append('shipping_weight_metric', shipping_weight_metric);
-    fd.append('item_display_weight', item_display_weight);
-    fd.append('item_display_weight_metric', item_display_weight_metric);
-    fd.append('item_display_volume', item_display_volume);
-    fd.append('item_display_volume_metric', item_display_volume_metric);
-    fd.append('item_display_length', item_display_length);
-    fd.append('item_display_length_metric', item_display_length_metric);
-    fd.append('item_weight', item_weight);
-    fd.append('item_weight_metric', item_weight_metric);
-    fd.append('item_length', item_length);
-    fd.append('item_length_metric', item_length_metric);
-    fd.append('item_width', item_width);
-    fd.append('item_width_metric', item_width_metric);
-    fd.append('item_height', item_height);
-    fd.append('item_height_metric', item_height_metric);
-    fd.append('item_display_width', item_display_width);
-    fd.append('item_display_width_metric', item_display_width_metric);
-    fd.append('item_display_height', item_display_height);
-    fd.append('item_display_height_metric', item_display_height_metric);
-    fd.append('item_count', item_count);
-    fd.append('item_count_metric', item_count_metric);
-
-    fd.append('item_condition_note', item_condition_note);
-    fd.append('max_order_quantity', max_order_quantity);
-    fd.append('number_of_items', number_of_items);
-    fd.append('wattage', wattage);
-    fd.append('wattage_metric', wattage_metric);
     fd.append('material_type', material_type);
-    fd.append('parentage', parentage);
-    fd.append('parent_sku', parent_sku);
-    fd.append('relationship_type', relationship_type);
-    fd.append('variation_theme', variation_theme);
     fd.append('standard_price', standard_price);
     fd.append('quantity', quantity);
-    fd.append('sale_price', sale_price);
-    fd.append('sale_from', sale_from);
-    fd.append('sale_end', sale_end);
-    fd.append('noon_msrp_ae', noon_msrp_ae);
-    fd.append('noon_msrp_ae_unit', noon_msrp_ae_unit);
     fd.append('factory_notes', factory_notes);
+    fd.append('pfl_product_name', pfl_product_name)
+    fd.append('pfl_product_features', JSON.stringify(pfl_product_features));
 
     $.ajax({
       url: "/save-product/",
@@ -2575,39 +2226,19 @@
       }
     });
 
-    save_subimages_index();
+    //save_subimages_index();
   }
 
 
   $("#save-btn").click(function () {
-    if ($("#product-name-sap").val() == "" || $("#product-id").val() == "" || $("#seller-sku").val() == "" || $("#brand-name").val() == "" || $("#product-name-sap").val() == "") {
-
-    }
-
-    if ($("#brand-name").val().trim() == "") {
-      M.toast({ html: "Brand name cannot be empty!" });
-      return;
-    }
 
     if ($("#product-id").val().trim() == "") {
       M.toast({ html: "Product ID cannot be empty!" });
       return;
     }
 
-    if ($("#seller-sku").val().trim() == "") {
-      M.toast({ html: "Seller SKU cannot be empty!" });
-      return;
-    }
-
     save_product();
   });
-
-  $("#information-tab").click(function () {
-    setTimeout(function () {
-      $('.tabs').tabs('updateTabIndicator');
-    }, 100);
-  });
-
 
   $(window).keydown(function (event) {
     console.log(event.which, event.keyCode, event.ctrlKey);

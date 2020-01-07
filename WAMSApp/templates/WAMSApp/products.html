@@ -1738,6 +1738,7 @@
         if (response["status"] == 200) {
           M.toast({html: "Base Product successfully created!"});
           $("#create-new-base-product-modal").modal("close");
+          fetch_product_list();
           //window.location.href = "/edit-product/" + response["product_pk"];
         }
         else if (response["status"] == 409) {
