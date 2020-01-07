@@ -113,6 +113,5 @@ urlpatterns = [
         views.FetchNoonChannelProduct),
 
     url(r'save-base-product/$', views.SaveBaseProduct),
-    url(r'add-varient-product/(?P<pk>[\w-]+)/$', views.AddVarientProduct),
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
