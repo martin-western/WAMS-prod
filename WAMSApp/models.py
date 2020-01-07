@@ -313,6 +313,7 @@ class BaseProduct(models.Model):
         
         if self.pk == None:
             self.created_date = timezone.now()
+            self.modified_date = timezone.now()
         else:
             self.modified_date = timezone.now()
         
