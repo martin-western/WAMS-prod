@@ -821,17 +821,10 @@
         <i class="material-icons">keyboard_arrow_left</i>
       </a>
 
-
-
-
     </div>
-
-    <!-- <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a> -->
-
 
   </div>
 </div>
-
 
 
 <div id="upload-image-modal" class="modal">
@@ -1101,6 +1094,11 @@
 <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
 <script type="text/javascript">
 
+  
+  function getCsrfToken() {
+    var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+    return CSRF_TOKEN;
+  }
 
   //Initiate
   $('.tabs').tabs();
@@ -1126,6 +1124,9 @@
   })
 
   var global_details_amazon_uk = {};
+  var global_details_amazon_uae = {};
+  var global_details_ebay = {};
+  var global_details_noon = {};
   var global_product_id = "";
   var global_material_type = "";
   
@@ -1159,6 +1160,7 @@
       }
     });
   }
+
   
   fetch_details_amazon_uk();
 
@@ -1209,7 +1211,33 @@
 
   }
 
-  
+  function save_details_amazon_uk()
+  {
+    $.ajax({
+      url: "/save-channel-product-amazon-uk/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          render_amazon_uk();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }  
 
 
 
@@ -1223,33 +1251,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1443,81 +1444,6 @@
 
   $("#heading-title").html("PRODUCT FORM");
 
-  window.editor = []
-
-  // DecoupledEditor
-  //   .create(document.querySelector('.document-editor__editable'), {
-  //     cloudServices: {
-  //     }
-  //   })
-  //   .then(editor => {
-  //     const toolbarContainer = document.querySelector('.document-editor__toolbar');
-
-  //     toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-  //     //editor.isReadOnly = !response['edit_access'];
-  //     window.editor.push(editor);
-  //   })
-  //   .catch(err => {
-  //     console.error(err);
-  //   });
-
-  // DecoupledEditor
-  //   .create(document.querySelector('.clone2_editable'), {
-  //     cloudServices: {
-  //     }
-  //   })
-  //   .then(editor => {
-  //     const toolbarContainer = document.querySelector('.clone2_toolbar');
-
-  //     toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-  //     //editor.isReadOnly = !response['edit_access'];
-  //     window.editor.push(editor);
-  //   })
-  //   .catch(err => {
-  //     console.error(err);
-  //   });
-
-  // DecoupledEditor
-  //   .create(document.querySelector('.clone3_editable'), {
-  //     cloudServices: {
-  //     }
-  //   })
-  //   .then(editor => {
-  //     const toolbarContainer = document.querySelector('.clone3_toolbar');
-
-  //     toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-  //     //editor.isReadOnly = !response['edit_access'];
-  //     window.editor.push(editor);
-  //   })
-  //   .catch(err => {
-  //     console.error(err);
-  //   });
-
-
-
-
-  // DecoupledEditor
-  //   .create(document.querySelector('.clone4_editable'), {
-  //     cloudServices: {
-  //     }
-  //   })
-  //   .then(editor => {
-  //     const toolbarContainer = document.querySelector('.clone4_toolbar');
-
-  //     toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-  //     //editor.isReadOnly = !response['edit_access'];
-  //     window.editor.push(editor);
-  //   })
-  //   .catch(err => {
-  //     console.error(err);
-  //   });
-
-
-
-  function getCsrfToken() {
-    var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
-    return CSRF_TOKEN;
-  }
 
   var global_images = {};
   var global_image_key = "all_images";
