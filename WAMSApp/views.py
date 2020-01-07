@@ -408,8 +408,12 @@ class SaveNoonChannelProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            noon_product_json = json.loads(data["noon_product_json"])
+            noon_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+
+
             channel_product = product_obj.channel_product
-            channel_product.noon_product_json = data["noon_product_json"]
+            channel_product.noon_product_json = json.dumps(noon_product_json)
             channel_product.is_noon_product_created = True
             channel_product.save()
 
@@ -472,8 +476,11 @@ class SaveAmazonUKChannelProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            amazon_uk_product_json = json.loads(data["amazon_uk_product_json"])
+            amazon_uk_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+
             channel_product = product_obj.channel_product
-            channel_product.amazon_uk_product_json = data["amazon_uk_product_json"]
+            channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product_json)
             channel_product.is_amazon_uk_product_created = True
             channel_product.save()
             
@@ -536,8 +543,11 @@ class SaveAmazonUAEChannelProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            amazon_uae_product_json = json.loads(data["amazon_uae_product_json"])
+            amazon_uae_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+
             channel_product = product_obj.channel_product
-            channel_product.amazon_uae_product_json = data["amazon_uae_product_json"]
+            channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product_json)
             channel_product.is_amazon_uae_product_created = True
             channel_product.save()
             response['status'] = 200
@@ -600,8 +610,11 @@ class SaveEbayChannelProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            ebay_product_json = json.loads(data["ebay_product_json"])
+            ebay_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+
             channel_product = product_obj.channel_product
-            channel_product.ebay_product_json = data["ebay_product_json"]
+            channel_product.ebay_product_json = json.dumps(ebay_product_json)
             channel_product.is_ebay_product_created = True
             channel_product.save()
             
