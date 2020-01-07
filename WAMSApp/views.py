@@ -1178,10 +1178,16 @@ class SaveProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+
+            # Check for duplicate
+            product_id = data["product_id"]
+
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+            
             # Checking brand permission
             try:
                 permissible_brands = custom_permission_filter_brands(request.user)
-                brand_obj = Brand.objects.get(name=data["brand_name"])
+                brand_obj = Brand.objects.get(name=product_obj.base_product.brand.name)
                 if brand_obj not in permissible_brands:
                     logger.warning("SaveProductAPI Restricted Access Brand!")
                     response['status'] = 403
@@ -1191,11 +1197,6 @@ class SaveProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            # Check for duplicate
-            product_id = data["product_id"]
-
-            product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            
             if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1 :
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
