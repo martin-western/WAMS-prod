@@ -688,6 +688,10 @@ class FetchNoonChannelProductAPI(APIView):
 
             response["images"] = images
             response["noon_product_json"] = noon_product_json
+            response["product_id"] = product_obj.product_id
+            response["material_type"] = ""
+            if product_obj.material_type != None:
+                response["material_type"] = product_obj.material_type.name
             response['status'] = 200
 
         except Exception as e:
@@ -759,6 +763,10 @@ class FetchAmazonUKChannelProductAPI(APIView):
             response["images"] = images
 
             response["amazon_uk_product_json"] = amazon_uk_product_json
+            response["product_id"] = product_obj.product_id
+            response["material_type"] = ""
+            if product_obj.material_type != None:
+                response["material_type"] = product_obj.material_type.name
             response['status'] = 200
 
         except Exception as e:
@@ -828,8 +836,12 @@ class FetchAmazonUAEChannelProductAPI(APIView):
 
 
             response["images"] = images
+
             response["amazon_uae_product_json"] = amazon_uae_product_json
-            
+            response["product_id"] = product_obj.product_id
+            response["material_type"] = ""
+            if product_obj.material_type != None:
+                response["material_type"] = product_obj.material_type.name
             response['status'] = 200
 
         except Exception as e:
@@ -901,7 +913,10 @@ class FetchEbayChannelProductAPI(APIView):
             response["images"] = images
             
             response["ebay_product_json"] = ebay_product_json
-            
+            response["product_id"] = product_obj.product_id
+            response["material_type"] = ""
+            if product_obj.material_type != None:
+                response["material_type"] = product_obj.material_type.name
             response['status'] = 200
 
         except Exception as e:
