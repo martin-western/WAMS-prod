@@ -1321,7 +1321,7 @@ class FetchProductListAPI(APIView):
 
                 temp_dict["products"] = []
                 temp_dict["channel_products"] = []
-                temp_dict["dimensions"] = []
+                temp_dict["dimensions"] = {}
 
                 temp_dict["seller_sku"] = base_product_obj.seller_sku
                 temp_dict["category"] = base_product_obj.category
@@ -1360,7 +1360,7 @@ class FetchProductListAPI(APIView):
                 temp_dimensions_dict["item_display_height"] = "" if base_product_obj.item_display_height == None else base_product_obj.item_display_height
                 temp_dimensions_dict["item_display_height_metric"] = base_product_obj.item_display_height_metric
 
-                temp_dict["dimensions"].append(temp_dimensions_dict)
+                temp_dict["dimensions"] = temp_dimensions_dict
                 
                 product_objs = search_list_product_objs.filter(base_product = base_product_obj)
 
