@@ -290,7 +290,10 @@ class CreateNewBaseProductAPI(APIView):
                                               seller_sku=seller_sku,
                                               brand=brand_obj)
 
+            product_obj = Product.objects.create(product_name=product_name,
+                                              base_product=base_product_obj)
 
+            response["product_pk"] = product_obj.pk
             response['status'] = 200
 
         except Exception as e:
