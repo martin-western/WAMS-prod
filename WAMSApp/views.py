@@ -66,6 +66,16 @@ def EditProductPage(request, pk):
 
     return render(request, 'WAMSApp/edit-product-page.html')
 
+@login_required(login_url='/login/')
+def AddVarientProduct(request, pk):
+
+    product_obj = Product.objects.get(pk=int(pk))
+    base_product_obj = product_obj.base_product
+    permissible_brands = custom_permission_filter_brands(request.user)
+    if base_product_obj.brand not in permissible_brands:
+        return HttpResponseRedirect('/products/')
+
+    return render(request, 'WAMSApp/add-varient-product-page.html')
 
 @login_required(login_url='/login/')
 def EcommerceListingPage(request, pk):
