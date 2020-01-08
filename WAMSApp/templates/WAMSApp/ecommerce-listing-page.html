@@ -1030,6 +1030,27 @@
 
   
   function fetch_product_details() {
+    
+    $.ajax({
+      url: "/sap-integration/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        pk: window.location.pathname.split("/")[2]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        M.updateTextFields();
+        $('select').formSelect();
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  
+
     $.ajax({
       url: "/fetch-product-details/",
       type: "POST",
@@ -1041,6 +1062,7 @@
       },
       success: function (response) {
         console.log("Success!", response);
+
 
         $('.material-placeholder').remove();
         

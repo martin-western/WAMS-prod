@@ -81,5 +81,7 @@ urlpatterns = [
     url(r'^upload-flyer-external-images/', views.UploadFlyerExternalImages),
     url(r'^upload-pfl-external-images/', views.UploadPFLExternalImages),
 
+    url(r'^sap-integration',views.SapIntegration),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
