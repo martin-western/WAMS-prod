@@ -649,14 +649,13 @@
   }
 
   .dimension-tab-info {
-    font-family: 'AvenirNext !important';
+    
     color: #ADADAD;
     font-size: 16px;
     padding-right: 10px;
   }
-
   .dimension-tab-info-value {
-    font-family: 'AvenirNext !important';
+    
     color: #747474;
     font-size: 16px;
   }
@@ -668,6 +667,27 @@
   .select-wrapper input.select-dropdown {
     font: AvenirNext !important;
     font-size: 10px !important;
+  }
+
+  .outdoor-price-container ul.dropdown-content.select-dropdown li span {
+    padding: 5px !important;
+    font: AvenirNext !important;
+    font-size: 12px !important;
+    color: grey !important;
+  }
+  .outdoor-price-container ul.dropdown-content.select-dropdown li {
+    display: flex;
+    align-items: center;
+  }
+  .product-stock-warehouse-container ul.dropdown-content.select-dropdown li span {
+    padding: 5px !important;
+    font: AvenirNext !important;
+    font-size: 12px !important;
+    color: grey !important;
+  }
+  .product-stock-warehouse-container ul.dropdown-content.select-dropdown li {
+    display: flex;
+    align-items: center;
   }
 
 </style>
@@ -711,7 +731,10 @@
 
             </div>
             <div class="slider slider-nav" id="slider-images">
-              
+              <div >
+                <img class="img-fluid-nav" src="http://www.geepas.com/assets/images/products/orginal/GLED3215PHD.jpg"
+                  alt="Image Description">
+              </div>
               
             </div>
 
@@ -843,26 +866,8 @@
       <h6 class="special-features-title">
         Special Features
       </h6>
-      <ul>
-        <li>
-          Geepas stainless steel 3 jars - Wet and Dry grinding, Liquidizing, Chutney making
-        </li>
-        <li>
-          Jar Capacity: 1.25 Litre liquidizing jar, 0.8 Litre multi purpose jar, 0.35 Litre chutney jar
-        </li>
-        <li>
-          The regular Memory foam pillows are not just comfortable, but also provides relief from backaches, headaches,
-          neck issues or other pain related problems which we face due to stress
-        </li>
-        <li>
-          This cervical contour pillow comes with a removable zip cover | Our pillow cover’s hypoallergenic properties
-          fight off allergens and is perfect for sensitive skin | Ultra Soft, Removable & Washable. | Best Pillow for
-          sleeping!
-        </li>
-        <li>
-          Memory Foam Pillow is perfect for anyone who experiences tossing and turning, snoring, overheating, shoulder
-          aches, neck and back pain, congestion blockage, or simply wishes to improve their overall sleep quality.
-        </li>
+      <ul id="special-features-list">
+        
       </ul>
     </div>
   </div>
@@ -896,16 +901,14 @@
     <div class="col s12 row padding-zero">
       <div class="col s3 padding-zero">
         <ul class="tabs product-info-tab">
-          <li class="tab "><a href="#test1">DESCRIPTION</a></li>
-          <li class="tab "><a class="active" href="#test3">DIMENSIONS</a></li>
-          <li class="tab "><a href="#test4">SPECIFICATIONS</a></li>
+          <li class="tab "><a class="active" href="#product-description">DESCRIPTION</a></li>
+          <li class="tab "><a href="#test3">DIMENSIONS</a></li>
+
         </ul>
       </div>
       <div class="col s9  padding-zero product-info-container">
-        <div id="test1" class="product-info">
-          The tabs structure consists of an unordered list of tabs that have hashes corresponding to tab ids. Then
-          when
-          you click on each tab, only the container with the corresponding
+        <div class="product-info" id="product-description">
+          
         </div>
 
         <div id="test3" class="product-info dimension-tab-container">
@@ -915,11 +918,11 @@
                 <tbody>
                   <tr>
                     <td class="dimension-tab-info">Package Dimensions (L x B x H)</td>
-                    <td class="dimension-tab-info-value">24 centimeters</td>
+                    <td class="dimension-tab-info-value" id="package-dimensions"></td>
                   </tr>
                   <tr>
                     <td class="dimension-tab-info">Item Dimensions (L x B x H)</td>
-                    <td class="dimension-tab-info-value">24 centimeters</td>
+                    <td class="dimension-tab-info-value" id="item-dimensions">24 centimeters</td>
                   </tr>
 
                 </tbody>
@@ -930,23 +933,19 @@
                 <tbody>
                   <tr>
                     <td class="dimension-tab-info">Item Display (L x B x H)</td class="dimension-tab-info">
-                    <td class="dimension-tab-info-value">24 centimeters</td>
+
+                    <td class="dimension-tab-info-value" id="item-display-dimensions">24 centimeters</td>
                   </tr>
                   <tr>
                     <td class="dimension-tab-info">Item Weight (L x B x H)</td class="dimension-tab-info">
-                    <td class="dimension-tab-info-value">24 grams</td>
+                    <td class="dimension-tab-info-value" id="item-weight-dimensions">24 grams</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
-        <div id="test4" class="product-info">
-          touch enabled devices to switch tabs. Make sure you keep the tab content divs in the same wrapping
-          container.
-          You can also set the responsiveThreshold option to a screen width in pixels where the swipeable
-          functionality w
-        </div>
+        
       </div>
     </div>
   </div>
@@ -1085,142 +1084,33 @@
                   src='` + response["repr_image_url"] + `' alt="Image Description">
               </div>`)
 
-        $('#slider-images').append(`<div>
-                <img class="img-fluid-nav" src="http://www.geepas.com/assets/images/products/orginal/GLED3215PHD.jpg"
-                  alt="Image Description">
-              </div>`)
-        
+
         $('.materialboxed').materialbox();
 
         
         $("#product-name-sap").html(response["product_name_sap"]);
-        $("#product-name").html(response["product_name"]);
+        $("#product-name").html(response["product_name_sap"]);
         $("#category").html(response["category"]);
         $("#color-group").html(response["color_map"]);
+        $("#brand-name").html(response["brand"]);
+        $("#product-id").html(response["product_id"]);
+        $("#seller-sku").html(response["seller_sku"]);
+        $("#product-description").html(`<h7>`+response["product_description_amazon_uk"]+`</h7>`);
         
-        $("#brand-name").val(response["brand"]);
-        
-
-        $("#product-id").text(response["product_id"]);
-        $("#product-id-type").val(response["product_id_type"]);
-        $("#seller-sku").val(response["seller_sku"]);
-        $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
-        $("#barcode-string").val(response["barcode_string"]);
-        $("#noon-product-type").val(response["noon_product_type"]);
-        $("#noon-product-subtype").val(response["noon_product_subtype"]);
-        $("#noon-model-name").val(response["noon_model_name"]);
-        $("#noon-model-number").val(response["noon_model_number"]);
-
-        $("#condition-type").val(response["condition_type"]);
-        $("#feed-product-type").val(response["feed_product_type"]);
-        $("#update-delete").val(response["update_delete"]);
-        $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
-
-
-
-        var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];
-        if (product_attribute_list_amazon_uk.length > 0) {
-          $("#product-attribute-amazon-uk-1").val(product_attribute_list_amazon_uk[0]);
-        }
-        for (var i = 1; i < product_attribute_list_amazon_uk.length; i++) {
-          $("#add-product-attribute-amazon-uk-btn").click();
-          $("#product-attribute-amazon-uk-" + (i + 1)).val(product_attribute_list_amazon_uk[i]);
-        }
-
-        var product_attribute_list_amazon_uae = response["product_attribute_list_amazon_uae"];
-        if (product_attribute_list_amazon_uae.length > 0) {
-          $("#product-attribute-amazon-uae-1").val(product_attribute_list_amazon_uae[0]);
-        }
-        for (var i = 1; i < product_attribute_list_amazon_uae.length; i++) {
-          $("#add-product-attribute-amazon-uae-btn").click();
-          $("#product-attribute-amazon-uae-" + (i + 1)).val(product_attribute_list_amazon_uae[i]);
-        }
-
-        var product_attribute_list_ebay = response["product_attribute_list_ebay"];
-        if (product_attribute_list_ebay.length > 0) {
-          $("#product-attribute-ebay-1").val(product_attribute_list_ebay[0]);
-        }
-        for (var i = 1; i < product_attribute_list_ebay.length; i++) {
-          $("#add-product-attribute-ebay-btn").click();
-          $("#product-attribute-ebay-" + (i + 1)).val(product_attribute_list_ebay[i]);
-        }
-
-        var product_attribute_list_noon = response["product_attribute_list_noon"];
-        if (product_attribute_list_noon.length > 0) {
-          $("#product-attribute-noon-1").val(product_attribute_list_noon[0]);
-        }
-        for (var i = 1; i < product_attribute_list_noon.length; i++) {
-          $("#add-product-attribute-noon-btn").click();
-          $("#product-attribute-noon-" + (i + 1)).val(product_attribute_list_noon[i]);
-        }
-
-        $("#search-terms").val(response["search_terms"]);
-        $("#color-map").val(response["color_map"]);
-        $("#color").val(response["color"]);
-        $("#enclosure-material").val(response["enclosure_material"]);
-        $("#cover-material-type").val(response["cover_material_type"]);
-
         var special_features = response["special_features"];
-        if (special_features.length > 0) {
-          $("#special-feature-1").val(special_features[0]);
-        }
-        for (var i = 1; i < special_features.length; i++) {
-          $("#add-special-feature-btn").click();
-          $("#special-feature-" + (i + 1)).val(special_features[i]);
+        
+        for (var i = 0; i < special_features.length; i++) {
+          $
+          $("#special-features-list").append(`<li>`+special_features[i]+`</li>`);
         }
 
-        $("#special-feature").val(response["special_features"]);
-        $("#package-length").val(response["package_length"]);
-        $("#package-length-metric").val(response["package_length_metric"]);
-        $("#package-width").val(response["package_width"]);
-        $("#package-width-metric").val(response["package_width_metric"]);
-        $("#package-height").val(response["package_height"]);
-        $("#package-height-metric").val(response["package_height_metric"]);
-        $("#package-weight").val(response["package_weight"]);
-        $("#package-weight-metric").val(response["package_weight_metric"]);
-        $("#shipping-weight").val(response["shipping_weight"]);
-        $("#shipping-weight-metric").val(response["shipping_weight_metric"]);
-        $("#item-display-weight").val(response["item_display_weight"]);
-        $("#item-display-weight-metric").val(response["item_display_weight_metric"]);
-        $("#item-display-volume").val(response["item_display_volume"]);
-        $("#item-display-volume-metric").val(response["item_display_volume_metric"]);
-        $("#item-display-length").val(response["item_display_length"]);
-        $("#item-display-length-metric").val(response["item_display_length_metric"]);
-        $("#item-weight").val(response["item_weight"]);
-        $("#item-weight-metric").val(response["item_weight_metric"]);
-        $("#item-length").val(response["item_length"]);
-        $("#item-length-metric").val(response["item_length_metric"]);
-        $("#item-width").val(response["item_width"]);
-        $("#item-width-metric").val(response["item_width_metric"]);
-        $("#item-height").val(response["item_height"]);
-        $("#item-height-metric").val(response["item_height_metric"]);
-        $("#item-display-width").val(response["item_display_width"]);
-        $("#item-display-width-metric").val(response["item_display_width_metric"]);
-        $("#item-display-height").val(response["item_display_height"]);
-        $("#item-display-height-metric").val(response["item_display_height_metric"]);
-        $("#item-count").val(response["item_count"]);
-        $("#item-count-metric").val(response["item_count_metric"]);
-        $("#item-condition-note").val(response["item_condition_note"]);
-        $("#max-order-quantity").val(response["max_order_quantity"]);
-        $("#number-of-items").val(response["number_of_items"]);
-        $("#wattage").val(response["wattage"]);
-        $("#wattage-metric").val(response["wattage_metric"]);
-        $("#material-type").val(response["material_type"]);
-        $("#parentage").val(response["parentage"]);
-        $("#parent-sku").val(response["parent_sku"]);
-        $("#relationship-type").val(response["relationship_type"]);
-        $("#variation-theme").val(response["variation_theme"]);
-        $("#standard-price").val(response["standard_price"]);
-        $("#quantity").val(response["quantity"]);
-        $("#sale-price").val(response["sale_price"]);
-        $("#sale-from").val(response["sale_from"]);
-        $("#sale-end").val(response["sale_end"]);
+        $("#package-dimensions").html(response["package_length"]+` `+response["package_length_metric"]+` `+response["package_width"]+` `+response["package_width_metric"]+` `+response["package_height"]+` `+response["package_height_metric"] );
+        
+        $("#item-dimensions").html(response["item_length"]+` `+response["item_length_metric"]+` `+response["item_width"]+` `+response["item_width_metric"]+` `+response["item_height"]+` `+response["item_height_metric"] );
 
-        $("#noon-msrp-ae").val(response["noon_msrp_ae"]);
-        $("#noon-msrp-ae-unit").val(response["noon_msrp_ae_unit"]);
+        $("#item-display-dimensions").html(response["item_display_length"]+` `+response["item_display_length_metric"]+` `+response["item_display_width"]+` `+response["item_display_width_metric"]+` `+response["item_display_height"]+` `+response["item_display_height_metric"] );
 
-
-
+        $("#item-weight-dimensions").html(response["item_display_weight"]+` `+response["item_display_weight_metric"]+` `+response["item_display_volume"]+` `+response["item_display_volume_metric"]+` `+response["item_weight"]+` `+response["item_weight_metric"] );
         
         M.updateTextFields();
         $('select').formSelect();
