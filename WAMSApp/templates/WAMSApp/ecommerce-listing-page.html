@@ -664,6 +664,12 @@
   .dimension-tab-container table.striped>tbody>tr:nth-child(odd) {
     background-color: #EDF8FF;
   }
+
+  .select-wrapper input.select-dropdown {
+    font: AvenirNext !important;
+    font-size: 10px !important;
+  }
+  
 </style>
 
 
@@ -1102,15 +1108,6 @@
       success: function (response) {
         console.log("Success!", response);
 
-        global_verification_status = response["verified"];
-
-        if (response["verified"] == true) {
-          set_verify(true);
-        }
-        else {
-          set_verify(false);
-        }
-
         $("#pfl-product-name").val(response["pfl_product_name"])
         var pfl_product_features = response["pfl_product_features"]
         $('.material-placeholder').remove();
@@ -1268,8 +1265,6 @@
         $("#aplus-content-images-option").html("A+ Content Images (" + global_images["aplus_content_images"].length + ")");
         $("#ads-images-option").html("Ads Images (" + global_images["ads_images"].length + ")");
         $("#unedited-images-option").html("Unedited Images (" + global_images["unedited_images"].length + ")");
-
-        update_grid_images(global_image_key);
 
         $('#brand-image-img').attr("src", response["brand_logo"]);
         if (global_images["main_images"].length > 0) {
