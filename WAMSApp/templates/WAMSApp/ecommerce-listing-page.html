@@ -669,7 +669,7 @@
     font: AvenirNext !important;
     font-size: 10px !important;
   }
-  
+
 </style>
 
 
@@ -706,59 +706,22 @@
         <div class="col l5 s12">
 
           <div class="slider-container margin-zero ">
-            <div class="slider slider-for ">
-              <div>
-                <img class="img-fluid-preview"
-                  src="http://www.geepas.com/assets/images/products/orginal/GLED3215PHD.jpg" alt="Image Description">
-              </div>
-              <div>
-                <img class="img-fluid-preview"
-                  src="http://www.geepas.com/assets/images/products/orginal/GLED3210CHD.jpg" alt="Image Description">
-              </div>
-              <div>
-                <img class="img-fluid-preview" src="http://www.geepas.com/assets/images/products/orginal/GLE3202EHD.jpg"
-                  alt="Image Description">
-              </div>
-              <div>
-                <img class="img-fluid-preview"
-                  src="http://www.geepas.com/assets/images/products/orginal/GLED4059SXHD.jpg" alt="Image Description">
-              </div>
-              <div>
-                <img class="img-fluid-preview"
-                  src="http://www.geepas.com/assets/images/products/orginal/GLED5006XFHD.jpg" alt="Image Description">
-              </div>
+            <div class="slider slider-for " id="images">
+              
 
             </div>
-            <div class="slider slider-nav">
-              <div>
-                <img class="img-fluid-nav" src="http://www.geepas.com/assets/images/products/orginal/GLED3215PHD.jpg"
-                  alt="Image Description">
-              </div>
-              <div>
-                <img class="img-fluid-nav" src="http://www.geepas.com/assets/images/products/orginal/GLED3210CHD.jpg"
-                  alt="Image Description">
-              </div>
-              <div>
-                <img class="img-fluid-nav" src="http://www.geepas.com/assets/images/products/orginal/GLE3202EHD.jpg"
-                  alt="Image Description">
-              </div>
-              <div>
-                <img class="img-fluid-nav" src="http://www.geepas.com/assets/images/products/orginal/GLED4059SXHD.jpg"
-                  alt="Image Description">
-              </div>
-              <div>
-                <img class="img-fluid-nav" src="http://www.geepas.com/assets/images/products/orginal/GLED5006XFHD.jpg"
-                  alt="Image Description">
-              </div>
+            <div class="slider slider-nav" id="slider-images">
+              
+              
             </div>
 
           </div>
         </div>
         <div class="col l7 s12 product-info-container">
-          <h6 class="brand-title">
+          <h6 class="brand-title" id="brand-name">
             Geepas
           </h6>
-          <h6 class="product-title">
+          <h6 class="product-title" id="product-name">
             Geepas Product Name. This can be of three lines and or more as name are long for products
           </h6>
           <!-- <div class="product-id-sku-container">
@@ -766,55 +729,62 @@
             <p class="separator">|</p>
             <p class="seller-sku">Seller SKU: FRH786</p c>
           </div> -->
+          
           <div class="product-category-container">
             <div class="row">
               <div class="col s3 category-title padding-zero">
                 Product ID:
               </div>
-              <div class="col s9 category-info padding-zero">
+              <div class="col s9 category-info padding-zero" id="product-id">
                 60000072654762
               </div>
             </div>
+
             <div class="row">
               <div class="col s3 category-title padding-zero">
                 Seller SKU:
               </div>
-              <div class="col s9 category-info padding-zero">
+              <div class="col s9 category-info padding-zero" id="seller-sku">
                 GP23424
               </div>
             </div>
+
             <div class="row">
               <div class="col s3 category-title padding-zero">
                 SAP Name:
               </div>
-              <div class="col s9 category-info padding-zero">
+              <div class="col s9 category-info padding-zero" id="product-name-sap">
                 Amazon product name, this again can be of three lines or more
               </div>
             </div>
+
             <div class="row">
               <div class="col s3 category-title padding-zero">
                 Category:
               </div>
-              <div class="col s9 category-info padding-zero">
+              <div class="col s9 category-info padding-zero" id="category">
                 Home Appliances
               </div>
             </div>
-            <div class="row">
+
+           <!--  <div class="row">
               <div class="col s3 category-title padding-zero">
                 Sub - Category:
               </div>
               <div class="col s9 category-info padding-zero">
                 Grinder
               </div>
-            </div>
+            </div> -->
+
             <div class="row">
               <div class="col s3 category-title padding-zero">
                 Color Group
               </div>
-              <div class="col s9 category-info padding-zero">
+              <div class="col s9 category-info padding-zero" id="color-group">
                 Electric Blue
               </div>
             </div>
+
           </div>
           <div class="product-price-stock-container">
             <div class="row">
@@ -1108,29 +1078,30 @@
       success: function (response) {
         console.log("Success!", response);
 
-        $("#pfl-product-name").val(response["pfl_product_name"])
-        var pfl_product_features = response["pfl_product_features"]
         $('.material-placeholder').remove();
-        $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
+        
+        $('#images').append(`<div>
+                <img class="img-fluid-preview"
+                  src='` + response["repr_image_url"] + `' alt="Image Description">
+              </div>`)
+
+        $('#slider-images').append(`<div>
+                <img class="img-fluid-nav" src="http://www.geepas.com/assets/images/products/orginal/GLED3215PHD.jpg"
+                  alt="Image Description">
+              </div>`)
+        
         $('.materialboxed').materialbox();
 
-        for (var i = 0; i < pfl_product_features.length; i++) {
-          $("#pfl-feature-" + (i + 1)).val(pfl_product_features[i]);
-          if ((i + 1) != pfl_product_features.length) {
-            $("#add-feature-btn").click();
-          }
-        }
-
-        $("#product-name-amazon-uk").val(response["product_name_amazon_uk"]);
-        $("#product-name-amazon-uae").val(response["product_name_amazon_uae"]);
-        $("#product-name-sap").val(response["product_name_sap"]);
-        $("#product-name-ebay").val(response["product_name_ebay"]);
-        $("#product-name-noon").val(response["product_name_noon"]);
-        $("#category").val(response["category"]);
-        $("#subtitle").val(response["subtitle"]);
+        
+        $("#product-name-sap").html(response["product_name_sap"]);
+        $("#product-name").html(response["product_name"]);
+        $("#category").html(response["category"]);
+        $("#color-group").html(response["color_map"]);
+        
         $("#brand-name").val(response["brand"]);
-        $("#manufacturer").val(response["manufacturer"]);
-        $("#product-id").val(response["product_id"]);
+        
+
+        $("#product-id").text(response["product_id"]);
         $("#product-id-type").val(response["product_id_type"]);
         $("#seller-sku").val(response["seller_sku"]);
         $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
@@ -1250,30 +1221,7 @@
 
 
 
-        global_images = response["images"];
-
-        $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
-        $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
-        $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
-        $("#pfl-images-option").html("PFL Images (" + global_images["pfl_images"].length + ")");
-        $("#pfl-generated-images-option").html("PFL Generated Images (" + global_images["pfl_generated_images"].length + ")");
-        $("#white-background-images-option").html("White Background Images (" + global_images["white_background_images"].length + ")");
-        $("#lifestyle-images-option").html("Lifestyle Images (" + global_images["lifestyle_images"].length + ")");
-        $("#certificate-images-option").html("Certificate Images (" + global_images["certificate_images"].length + ")");
-        $("#giftbox-images-option").html("Giftbox Images (" + global_images["giftbox_images"].length + ")");
-        $("#diecut-images-option").html("Diecut Images (" + global_images["diecut_images"].length + ")");
-        $("#aplus-content-images-option").html("A+ Content Images (" + global_images["aplus_content_images"].length + ")");
-        $("#ads-images-option").html("Ads Images (" + global_images["ads_images"].length + ")");
-        $("#unedited-images-option").html("Unedited Images (" + global_images["unedited_images"].length + ")");
-
-        $('#brand-image-img').attr("src", response["brand_logo"]);
-        if (global_images["main_images"].length > 0) {
-          $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
-        }
-        $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
-
-        $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
-
+        
         M.updateTextFields();
         $('select').formSelect();
       },
