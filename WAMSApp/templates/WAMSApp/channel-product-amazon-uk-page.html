@@ -548,7 +548,7 @@
             <option value="All Images" id="all-images-option">All Images</option>
             <option value="Main Images" id="main-images-option">Main Images</option>
             <option value="Sub Images" id="sub-images-option">Sub Images</option>
-            </select>
+          </select>
         </div>
 
         <div class="col s3">
@@ -782,7 +782,7 @@
           <label for="product-model-name">Model Name</label>
         </div>
         <div class="input-field col s6">
-          <input disabled id="sidenav-model-name" type="text" class="deep-purple-text">
+          <input disabled id="sidenav-model-mrp" type="text" class="deep-purple-text">
           <label for="product-msrp">MRP</label>
         </div>
         <div class="input-field col s6">
@@ -908,6 +908,8 @@
   var global_details_noon = {};
   var global_product_id = "";
   var global_material_type = "";
+  var global_images = {};
+  var global_image_key = "all_images";
   
   function fetch_details_amazon_uk()
   {
@@ -928,6 +930,8 @@
           global_product_id = response["product_id"];
           global_details_amazon_uk = response["amazon_uk_product_json"];
           global_material_type = response["material_type"];
+          global_images = response["images"];
+          update_grid_images("all_images");
           render_amazon_uk();
         }
         else
@@ -1244,10 +1248,7 @@
 
   $("#heading-title").html("PRODUCT FORM");
 
-  var global_images = {};
-  var global_image_key = "all_images";
-
-  function fetch_product_images_details() {
+  function fetch_amazon_uk_product_images_details() {
 
     $.ajax({
       url: "/fetch-product-details/",
@@ -1267,6 +1268,7 @@
           $('.materialboxed').materialbox();
 
           global_images = response["images"];
+          console.log("global_images ", global_images)
 
           $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
           $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
