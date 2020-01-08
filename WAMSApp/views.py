@@ -1696,7 +1696,7 @@ class FetchProductListAPI(APIView):
                         temp_dict3["product_pk"] = product_obj.pk
                         temp_dict3["channel_product_name"] = amazon_uk_product["product_name"]
                         temp_dict3["channel_name"] = "Amazon UK"
-                        main_image_url = None
+                        main_image_url = Config.objects.all()[0].product_404_image.image.url
                         try:
                             main_images_obj = MainImages.objects.get(product = product, channel="Amazon UK")
                             

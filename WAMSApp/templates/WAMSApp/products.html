@@ -1471,42 +1471,57 @@
             }
 
             //status_str = getStatus(products[i]["status"]);
+            child_products_html_string = "";
 
             var channel_products = products[i]["channel_products"];
 
-            var child_products_html_string = `
-              <div class="row margin-zero collapsible-body-row">
-                  <div class="col s3 offset-s1 avenir-next center-align">
-                    <p class="valign-wrapper">
-                      Product Name
-                    </p>
-                  </div>
-                  <div class="col s3 center-align">
-                    <p>
-                      Product ID
-                    </p>
-                  </div>
-                  <div class="col s3 center-align">
-                    <p>
-                      Channel Name
-                    </p>
-                  </div>
-                  <div class="col s2 center-align">
-                    Action
-                  </div>
-                </div>`;
+            // var child_products_html_string = `
+            //   <div class="row margin-zero collapsible-body-row">
+            //       <div class="col s3 offset-s1 avenir-next center-align">
+            //         <p class="valign-wrapper">
+            //           Product Name
+            //         </p>
+            //       </div>
+            //       <div class="col s3 center-align">
+            //         <p>
+            //           Product ID
+            //         </p>
+            //       </div>
+            //       <div class="col s3 center-align">
+            //         <p>
+            //           Channel Name
+            //         </p>
+            //       </div>
+            //       <div class="col s2 center-align">
+            //         Action
+            //       </div>
+            //     </div>`;
 
             if(channel_products.length==0)
               child_products_html_string = "";
 
             for(var j=0;j<channel_products.length;j++)
             {
+              var href_edit = "#!";
+              if(channel_products[j]["channel_name"]=="Amazon UK"){
+                href_edit = "/channel-product/amazon-uk/"+channel_products[j]["product_pk"];
+              }
+              if(channel_products[j]["channel_name"]=="Amazon UAE"){
+                href_edit = "/channel-product/amazon-uae/"+channel_products[j]["product_pk"];
+              }
+              if(channel_products[j]["channel_name"]=="Ebay"){
+                href_edit = "/channel-product/ebay/"+channel_products[j]["product_pk"];
+              }
+              if(channel_products[j]["channel_name"]=="Noon"){
+                href_edit = "/channel-product/noon/"+channel_products[j]["product_pk"];
+              }
+
               child_products_html_string += `
                 <div class="row margin-zero collapsible-body-row">
                   <div class="col s3 offset-s1 avenir-next avenir-next-regular center-align">
                     <p class="valign-wrapper">
                       <img src="` + channel_products[i]["image_url"] + `" style="height:3em;width:3em;">&nbsp;&nbsp;
-                      `+channel_products[j]["product_name"]+`
+                      `+channel_products[j]["channel_product_name"]+`
                     </p>
                   </div>
                   <div class="col s3 avenir-next avenir-next-regular center-align">
@@ -1520,7 +1535,7 @@
                     </p>
                   </div>
                   <div class="col s2 center-align">
-                    <i class="material-icons edit-icon">edit</i>
+                    <a href="`+href_edit+`"><i class="material-icons edit-icon" >edit</i></a>
                   </div>
                 </div>`
             }
