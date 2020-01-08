@@ -731,10 +731,6 @@
 
             </div>
             <div class="slider slider-nav" id="slider-images">
-              <div >
-                <img class="img-fluid-nav" src="http://www.geepas.com/assets/images/products/orginal/GLED3215PHD.jpg"
-                  alt="Image Description">
-              </div>
               
             </div>
 
@@ -997,38 +993,7 @@
 
   // slider product listing 
 
-  $('.slider-for').slick({
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-    fade: true,
-    asNavFor: '.slider-nav',
-
-  });
-  $('.slider-nav').slick({
-    slidesToShow: 4,
-    slidesToScroll: 1,
-    asNavFor: '.slider-for',
-    dots: false,
-    centerMode: true,
-    focusOnSelect: false,
-    vertical: false,
-    arrows: true,
-    focusOnSelect: true
-
-  });
-
-  // initialized materialize css select
-  $("select").formSelect();
-
-  $('.slider-down-button').click(function () {
-    $('.slider-nav').slick('slickPrev');
-  })
-
-  $('.slider-up-button').click(function () {
-    $('.slider-nav').slick('slickNext');
-  })
-
+  
 
 
   var global_verification_status = false;
@@ -1079,11 +1044,58 @@
 
         $('.material-placeholder').remove();
         
+        // $('#images').append(`<div>
+        //         <img class="img-fluid-preview"
+        //           src='` + response["repr_image_url"] + `' alt="Image Description">
+        //       </div>`)
+        images = response["images"]["all_images"];
+
+        for(i=0;i<images.length;i++)
+        {
+          console.log(images[i]["main-url"]);
         $('#images').append(`<div>
                 <img class="img-fluid-preview"
-                  src='` + response["repr_image_url"] + `' alt="Image Description">
+                  src='` + images[i]["main-url"] + `' alt="Image Description">
               </div>`)
 
+        $('#slider-images').append(`<div>
+                <img class="img-fluid-nav"
+                  src='` + images[i]["main-url"] + `' alt="Image Description">
+              </div>`)
+
+        }
+
+        $('.slider-for').slick({
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            arrows: false,
+            fade: true,
+            asNavFor: '.slider-nav',
+
+          });
+          $('.slider-nav').slick({
+            slidesToShow: 4,
+            slidesToScroll: 1,
+            asNavFor: '.slider-for',
+            dots: false,
+            centerMode: true,
+            focusOnSelect: false,
+            vertical: false,
+            arrows: true,
+            focusOnSelect: true
+
+          });
+
+          // initialized materialize css select
+
+
+          $('.slider-down-button').click(function () {
+            $('.slider-nav').slick('slickPrev');
+          })
+
+          $('.slider-up-button').click(function () {
+            $('.slider-nav').slick('slickNext');
+          })
 
         $('.materialboxed').materialbox();
 
