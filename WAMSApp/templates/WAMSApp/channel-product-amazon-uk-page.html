@@ -596,15 +596,15 @@
                 <label for="feed-product-type">Feed Product Type</label>
               </div>
               <div class="input-field col s6">
-                <input id="product-variation-theme" type="text">
-                <label for="product-variation-theme">Variation Theme</label>
+                <input id="variation-theme" type="text">
+                <label for="variation-theme">Variation Theme</label>
               </div>
             </div>
 
             <div class="row margin-zero">
               <div class="input-field col s6">
                 <select id="update-delete">
-                  <option value="Update" selected>Update</option>
+                  <option value="Update" >Update</option>
                   <option value="Delete">Delete</option>
                 </select>
                 <label for="update-delete">Update Delete</label>
@@ -739,7 +739,7 @@
               </div>
               <div class="input-field col s6">
                 <select id="condition-type">
-                  <option value="New" selected>New</option>
+                  <option value="New" >New</option>
                   <option value="Old">Old</option>
                 </select>
                 <label for="condition-type">Condition Type</label>
@@ -1076,6 +1076,7 @@
 
 
     M.updateTextFields();
+    $("select").formSelect();
 
   }
 
@@ -1839,7 +1840,7 @@
     amazon_uk_product_json["product_name"] = product_name;
     amazon_uk_product_json["feed_product_type"] = feed_product_type;
     amazon_uk_product_json["variation_theme"]  = variation_theme;
-    amazon_uk_product_json["'update_delete"] = update_delete;
+    amazon_uk_product_json["update_delete"] = update_delete;
     amazon_uk_product_json["recommended_browse_nodes"] = recommended_browse_nodes;
     amazon_uk_product_json["search_terms"] = search_terms;
     amazon_uk_product_json["enclosure_material"] = enclosure_material;
@@ -1858,8 +1859,9 @@
     amazon_uk_product_json["item_condition_note"] = item_condition_note;
     amazon_uk_product_json["max_order_quantity"] = max_order_quantity;
     amazon_uk_product_json["number_of_items"] = number_of_items;
-    amazon_uk_product_json["condition_type"] = number_of_items;
+    amazon_uk_product_json["condition_type"] = condition_type;
 
+    console.log(amazon_uk_product_json);
     $.ajax({
       url: "/save-channel-product-amazon-uk/",
       type: "POST",

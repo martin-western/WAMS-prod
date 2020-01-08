@@ -480,6 +480,7 @@ class SaveAmazonUKChannelProductAPI(APIView):
             amazon_uk_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
+            logger.info(" Amazon UK Product JSON Saved %s",amazon_uk_product_json)
             channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product_json)
             channel_product.is_amazon_uk_product_created = True
             channel_product.save()
@@ -799,6 +800,7 @@ class FetchAmazonUKChannelProductAPI(APIView):
             response["images"] = images
 
             response["amazon_uk_product_json"] = json.loads(amazon_uk_product_json)
+            logger.info(" Amazon UK Product JSON Fetched %s",amazon_uk_product_json)
             response["product_id"] = product_obj.product_id
             response["material_type"] = ""
             if product_obj.material_type != None:
