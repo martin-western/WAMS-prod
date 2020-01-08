@@ -1688,6 +1688,27 @@ class FetchProductListAPI(APIView):
 
                         temp_dict["channel_products"].append(temp_dict3)
 
+                    if product_obj.channel_product.is_amazon_uk_product_created == True:
+                        
+                        amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
+                        temp_dict3 = {}
+                        temp_dict3["product_id"] = product_obj.product_id
+                        temp_dict3["product_pk"] = product_obj.pk
+                        temp_dict3["channel_product_name"] = amazon_uk_product["product_name"]
+                        temp_dict3["channel_name"] = "Amazon UK"
+                        main_image_url = None
+                        try:
+                            main_images_obj = MainImages.objects.get(product = product, channel="Amazon UK")
+                            
+                            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                                main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                                main_image_url = main_image_obj.image.image.url
+                        except Exception as e:
+                            pass
+                        temp_dict3["image_url"] = main_image_url
+
+                        temp_dict["channel_products"].append(temp_dict3)
+
                 products.append(temp_dict)
             is_available = True
             if paginator.num_pages == page:

@@ -509,7 +509,7 @@
         </a>
 
         {% if perms.WAMSApp.change_product %}
-        <a href="#!" id="save-btn2" class="right" style="background-color: transparent;">
+        <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
           <i class="material-icons purplee" title="Save" style="
               background-color: #f7f7f7;
               padding: 8px;
@@ -548,19 +548,7 @@
             <option value="All Images" id="all-images-option">All Images</option>
             <option value="Main Images" id="main-images-option">Main Images</option>
             <option value="Sub Images" id="sub-images-option">Sub Images</option>
-            <option value="PFL Images" id="pfl-images-option">PFL Images</option>
-            <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
-            </option>
-            <option value="White Background Images" id="white-background-images-option">White Background
-              Images</option>
-            <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
-            <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
-            <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
-            <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
-            <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
-            <option value="Ads Images" id="ads-images-option">Ads Images</option>
-            <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
-          </select>
+            </select>
         </div>
 
         <div class="col s3">
@@ -924,6 +912,7 @@
   
   function fetch_details_amazon_uk()
   {
+    console.log("Here");
     $.ajax({
       url: "/fetch-channel-product-amazon-uk/",
       type: "POST",
@@ -1011,7 +1000,7 @@
     });
   }
 
-  unction fetch_details_ebay()
+  function fetch_details_ebay()
   {
     $.ajax({
       url: "/fetch-channel-product-ebay/",
@@ -1090,24 +1079,6 @@
     M.updateTextFields();
 
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   var global_verification_status = false;
@@ -1271,108 +1242,13 @@
     });
   });
 
-  var pfl_feature_cnt = 2;
-
-  $("#add-feature-btn").click(function () {
-    var html_string = `<div class="feature-div">
-                         <div class="input-field col s9">
-                           <input class="feature-text" id="pfl-feature-`+ pfl_feature_cnt + `" type="text" >
-                           <label for="pfl-feature-`+ pfl_feature_cnt + `">Feature</label>
-                         </div>
-
-                        <div class="input-field col s1">
-                          <a href="#!" class="delete-feature-btn btn-floating red" style="transform: scale(0.7);box-shadow: none;"><i class="material-icons">remove</i></a>
-                        </div>
-                      </div>`;
-    $("#feature-summary-editor-div").append(html_string);
-    pfl_feature_cnt++;
-  });
-
-
-  $(document).on('click', ".delete-feature-btn", function () {
-    $(this).parent().parent().remove();
-  });
-
-  // $('.pflspecific').hide(); 
-
   $("#heading-title").html("PRODUCT FORM");
-
 
   var global_images = {};
   var global_image_key = "all_images";
 
-  function fetch_constant_values() {
-    $.ajax({
-      url: "/fetch-constant-values/",
-      type: "POST",
-      headers: {
-        'X-CSRFToken': getCsrfToken()
-      },
-      data: {},
-      success: function (response) {
-        console.log("Success!", response);
-        if (response["status"] == 200) {
-          var autocomplete_data = {}
-          var material_list = response["material_list"];
-          for (var i = 0; i < material_list.length; i++) {
-            autocomplete_data[material_list[i]["name"]] = null;
-          }
-          $('#material-type').autocomplete({
-            data: autocomplete_data
-          });
-
-          autocomplete_data = {};
-          var ebay_category_list = response["ebay_category_list"];
-          for (var i = 0; i < ebay_category_list.length; i++) {
-            autocomplete_data[ebay_category_list[i]["name"] + "|" + ebay_category_list[i]["category_id"]] = null;
-          }
-          $('#category').autocomplete({
-            data: autocomplete_data,
-            onAutocomplete: function (val) {
-              var category_id = val.split("|")
-              category_id = category_id[category_id.length - 1];
-              $("#category").val(category_id);
-            }
-          });
-
-
-          autocomplete_data = {};
-          var brand_list = response["brand_list"];
-          for (var i = 0; i < brand_list.length; i++) {
-            autocomplete_data[brand_list[i]["name"]] = null;
-          }
-          $('#brand-name').autocomplete({
-            data: autocomplete_data
-          });
-
-
-          var product_id_type_list = response["product_id_type_list"];
-          var html_string = `<option value="" selected>Product ID Type</option>`;
-          for (var i = 0; i < product_id_type_list.length; i++) {
-            html_string += `<option value="` + product_id_type_list[i]["name"] + `">` + product_id_type_list[i]["name"] + `</option>`
-          }
-
-
-
-
-          $("#product-id-type").html(html_string);
-          $('select').formSelect();
-        }
-        else {
-          //M.toast({html:"Duplicate product detected!"});
-        }
-        //$("#save-btn").removeAttr("disabled");
-      },
-      error: function (xhr, textstatus, errorthrown) {
-        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-      }
-    });
-  }
-
-  fetch_constant_values();
-
-
   function fetch_product_images_details() {
+
     $.ajax({
       url: "/fetch-product-details/",
       type: "POST",
@@ -1395,24 +1271,8 @@
           $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
           $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
           $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
-          $("#pfl-images-option").html("PFL Images (" + global_images["pfl_images"].length + ")");
-          $("#pfl-generated-images-option").html("PFL Generated Images (" + global_images["pfl_generated_images"].length + ")");
-          $("#white-background-images-option").html("White Background Images (" + global_images["white_background_images"].length + ")");
-          $("#lifestyle-images-option").html("Lifestyle Images (" + global_images["lifestyle_images"].length + ")");
-          $("#certificate-images-option").html("Certificate Images (" + global_images["certificate_images"].length + ")");
-          $("#giftbox-images-option").html("Giftbox Images (" + global_images["giftbox_images"].length + ")");
-          $("#diecut-images-option").html("Diecut Images (" + global_images["diecut_images"].length + ")");
-          $("#aplus-content-images-option").html("A+ Content Images (" + global_images["aplus_content_images"].length + ")");
-          $("#ads-images-option").html("Ads Images (" + global_images["ads_images"].length + ")");
-          $("#unedited-images-option").html("Unedited Images (" + global_images["unedited_images"].length + ")");
-
+          
           update_grid_images(global_image_key);
-
-          $('#brand-image-img').attr("src", response["brand_logo"]);
-          if (global_images["main_images"].length > 0) {
-            $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
-          }
-          $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
 
           M.updateTextFields();
           $('select').formSelect();
@@ -1923,182 +1783,9 @@
       update_grid_images("sub_images");
       global_image_key = "sub_images";
     }
-    else if ($("#images-category").val() == "PFL Images") {
-      update_grid_images("pfl_images");
-      global_image_key = "pfl_images";
-    }
-    else if ($("#images-category").val() == "PFL Generated Images") {
-      update_grid_images("pfl_generated_images");
-      global_image_key = "pfl_generated_images";
-    }
-    else if ($("#images-category").val() == "White Background Images") {
-      update_grid_images("white_background_images");
-      global_image_key = "white_background_images";
-    }
-    else if ($("#images-category").val() == "Lifestyle Images") {
-      update_grid_images("lifestyle_images");
-      global_image_key = "lifestyle_images";
-    }
-    else if ($("#images-category").val() == "Certificate Images") {
-      update_grid_images("certificate_images");
-      global_image_key = "certificate_images";
-    }
-    else if ($("#images-category").val() == "Giftbox Images") {
-      update_grid_images("giftbox_images");
-      global_image_key = "giftbox_images";
-    }
-    else if ($("#images-category").val() == "Diecut Images") {
-      update_grid_images("diecut_images");
-      global_image_key = "diecut_images";
-    }
-    else if ($("#images-category").val() == "A+ Content Images") {
-      update_grid_images("aplus_content_images");
-      global_image_key = "aplus_content_images";
-    }
-    else if ($("#images-category").val() == "Ads Images") {
-      update_grid_images("ads_images");
-      global_image_key = "ads_images";
-    }
-    else if ($("#images-category").val() == "Unedited Images") {
-      update_grid_images("unedited_images");
-      global_image_key = "unedited_images";
-    }
+    
   });
 
-
-  function save_pfl_image_to_bucket() {
-    var pfl_product_name = $("#pfl-product-name").val();
-
-    var seller_sku = $("#seller-sku").val();
-
-    var image_links = [];
-
-    //Set the images
-    if (global_images["main_images"].length > 0) {
-      $("#pfl-product-image-preview-img").attr("src", global_images["main_images"][0]["main-url"]);
-    }
-
-    //$("#brand-image-img").attr("src", "");
-    //$("#barcode-image-preview-img").attr("src", "");
-
-
-    if ($("#pfl-product-image-preview-img").attr("src") != "") {
-      image_links.push({
-        "key": "product_image",
-        "url": $("#pfl-product-image-preview-img").attr("src")
-      });
-    }
-
-    if ($("#brand-image-img").attr("src") != "") {
-      image_links.push({
-        "key": "brand_image",
-        "url": $("#brand-image-img").attr("src")
-      });
-    }
-
-    if ($("#barcode-image-preview-img").attr("src") != "") {
-      image_links.push({
-        "key": "barcode_image",
-        "url": $("#barcode-image-preview-img").attr("src")
-      });
-    }
-
-
-    $("#seller-sku-preview").html(seller_sku);
-
-    var html_string = `<br><br>`;
-    var feature_text = $(".feature-text");
-    for (var i = 0; i < feature_text.length; i++) {
-      html_string += `<span style="font-family: 'AvenirNextRegular'"><span style="color:#521893;">&bullet;&nbsp;&nbsp;</span> ` + feature_text[i].value + `</span><br>`
-    }
-    $("#features-preview-div").html(html_string);
-
-    $("#product-name-preview").text(pfl_product_name);
-
-
-    $.ajax({
-      url: "/download-images-s3/",
-      type: "POST",
-      headers: {
-        'X-CSRFToken': getCsrfToken()
-      },
-      data: {
-        links: JSON.stringify(image_links)
-      },
-      success: function (response) {
-        console.log("Success! ", response);
-        if (response["status"] == 200) {
-          var local_links = response["local_links"];
-
-          for (var i = 0; i < response["local_links"].length; i++) {
-            if (local_links[i]["key"] == "product_image") {
-              $("#pfl-product-image-preview-img").attr("src", local_links[i]["url"]);
-              $("#pfl-product-image-preview-img").show();
-            }
-            else if (local_links[i]["key"] == "brand_image") {
-              $("#brand-image-img").attr("src", local_links[i]["url"]);
-              $("#brand-image-img").show();
-            }
-            else if (local_links[i]["key"] == "barcode_image") {
-              $("#barcode-image-preview-img").attr("src", local_links[i]["url"]);
-              $("#barcode-image-preview-img").show();
-            }
-          }
-
-          $('#pfl-div').css("display", "block");
-
-          html2canvas($("#pfl-div"), {
-            logging: true,
-            dpi: 600,
-            scale: 3,
-            onrendered: function (canvas) {
-
-              $("#pfl-div").hide();
-              var image_data = canvas.toDataURL();
-
-              var fd = new FormData();
-              fd.append('image_data', image_data);
-              fd.append('product_pk', window.location.pathname.split("/")[3]);
-
-              $.ajax({
-                url: "/save-pfl-in-bucket/",
-                type: "POST",
-                headers: {
-                  'X-CSRFToken': getCsrfToken()
-                },
-                processData: false,
-                contentType: false,
-                data: fd,
-                success: function (response) {
-                  console.log("Success!", response);
-                  if (response["status"] == 200) {
-                    global_images["pfl_generated_images"] = [{
-                      "main-url": response["main-url"],
-                      "midimage-url": response["midimage-url"],
-                      "thumbnail-url": response["thumbnail-url"]
-                    }];
-                    if (global_image_key != "sub_images") {
-                      update_grid_images(global_image_key);
-                    }
-
-                    if (global_image_key == "pfl_generated_images") {
-                      $($(".miniimage")[0]).click();
-                    }
-                  }
-                },
-                error: function (xhr, textstatus, errorthrown) {
-                  console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-                }
-              });
-            }
-          });
-        }
-      },
-      error: function (xhr, textstatus, errorthrown) {
-        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-      }
-    });
-  }
 
   function save_product_amazon_uk() {
 
@@ -2206,7 +1893,7 @@
   }
 
 
-  $("#save-btn2").click(function () {
+  $("#save-btn").click(function () {
     console.log("Hii");
     save_product_amazon_uk();
   });
