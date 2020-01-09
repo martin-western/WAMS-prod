@@ -670,24 +670,6 @@ class FetchNoonChannelProductAPI(APIView):
                 images["main_images"] = create_response_images_main(main_images_list)
             except Exception as e:
                 images["main_images"] = []
-                temp_dict = {}
-                image = Config.objects.all()[0].product_404_image
-                temp_dict["main-url"] = image.image.url
-                
-                try:
-                    temp_dict["thumbnail-url"] = image.thumbnail.url
-                except Exception as e:
-                    logger.warning("No thumbnail for main image with pk %s", str(image.pk))
-                    temp_dict["thumbnail-url"] = image.image.url
-
-                try:
-                    temp_dict["midimage-url"] = image.mid_image.url
-                except Exception as e:
-                    logger.warning("No mid_image for main image with pk %s", str(image.pk))
-                    temp_dict["midimage-url"] = image.image.url
-
-                temp_dict["pk"] = image.pk
-                temp_dict["is_main_image"] = False
                 pass
 
 
@@ -696,17 +678,34 @@ class FetchNoonChannelProductAPI(APIView):
                 sub_images_obj = SubImages.objects.get(product=product_obj,channel=channel_obj)
                 sub_images_list = sub_images_obj.sub_images.all()
                 sub_images_list = sub_images_list.distinct()
+                images["sub_images"] = create_response_images_sub(sub_images_list)
             except Exception as e:
+                images["sub_images"] = []
                 pass
 
-            images["sub_images"] = create_response_images_sub(sub_images_list)
 
             images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
                                     + create_response_images_main_sub_delete(sub_images_list)
 
+            repr_image_url = Config.objects.all()[0].product_404_image.image.url
+            repr_high_def_url = repr_image_url
+            
+            if main_images_list.filter(is_main_image=True).count() > 0:
+                try:
+                    repr_image_url = main_images_list.filter(
+                        is_main_image=True)[0].image.mid_image.url
+                except Exception as e:
+                    repr_image_url = main_images_list.filter(is_main_image=True)[0].image.image.url
+
+                repr_high_def_url = main_images_list.filter(is_main_image=True)[0].image.image.url
+
+            response["repr_image_url"] = repr_image_url
+            response["repr_high_def_url"] = repr_high_def_url
 
             response["images"] = images
-            response["noon_product_json"] = noon_product_json
+
+            response["noon_product_json"] = json.loads(noon_product_json)
+            logger.info("Noon Product JSON Fetched %s",noon_product_json)
             response["product_id"] = product_obj.product_id
             response["material_type"] = ""
             if product_obj.material_type != None:
