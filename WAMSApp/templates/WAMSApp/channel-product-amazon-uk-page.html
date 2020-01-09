@@ -528,7 +528,9 @@
       </div>
     
     </div>
-    
+ 
+
+    <!-- <div class="row" style="margin:0px;margin-left: 100px;"> -->
     <div class="col s4 image-section" style="height: 90vh;">
       <div class="main-image" style="position: relative;">
         <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
@@ -1035,7 +1037,7 @@
 
   
   fetch_details_amazon_uk();
-
+  fetch_amazon_uk_product_images_details();
   
   function render_amazon_uk()
   {
@@ -1251,13 +1253,13 @@
   function fetch_amazon_uk_product_images_details() {
 
     $.ajax({
-      url: "/fetch-product-details/",
+      url: "/fetch-channel-product-amazon-uk/",
       type: "POST",
       headers: {
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        pk: window.location.pathname.split("/")[3]
+        product_pk: window.location.pathname.split("/")[3]
       },
       success: function (response) {
         console.log("Success!", response);
