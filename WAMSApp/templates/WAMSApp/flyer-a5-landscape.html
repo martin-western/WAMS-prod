@@ -1827,6 +1827,7 @@
     var global_white_container = false;
     var global_price_resizer = "100";
     var global_strikeprice_visible = false;
+    var global_footer_text = "www.geepas.com";
 
 
 
@@ -2893,8 +2894,9 @@
           global_footer_color = common["footer-color"];
           global_header_opacity = common["header-opacity"];
           global_footer_opacity = common["footer-opacity"];
-          global_all_promo_resizer = common["all-promo-resizer"]
-          global_all_image_resizer = common["all-image-resizer"]
+          global_all_promo_resizer = common["all-promo-resizer"];
+          global_all_image_resizer = common["all-image-resizer"];
+          global_footer_text = common["footer-text"];
 
           update_editor_settings();
           create_flyer_grid();
@@ -3052,6 +3054,7 @@
 
         item_data.push(temp_dict);
       }
+      global_footer_text = $("#footer-text").html();
       global_template_data["item-data"] = item_data;
 
       var common = {
@@ -3088,7 +3091,8 @@
         "header-opacity": global_header_opacity,
         "footer-opacity": global_footer_opacity,
         "all-promo-resizer": global_all_promo_resizer,
-        "all-image-resizer": global_all_image_resizer
+        "all-image-resizer": global_all_image_resizer,
+        "footer-text": global_footer_text
       };
 
       global_template_data["common"] = common;
@@ -3328,6 +3332,7 @@
 
       $("#header-opacity").val(global_header_opacity);
       $("#footer-opacity").val(global_footer_opacity);
+      $("#footer-text").text(global_footer_text);
       
       $("select").formSelect();
     }
