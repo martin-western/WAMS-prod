@@ -1072,6 +1072,14 @@
         //       </div>`)
         images = response["images"]["all_images"];
 
+        if(images.length==0)
+        {
+          $('#images').append(`<div>
+                <img class="img-fluid-preview"
+                  src='` + response["repr_image_url"] + `' alt="Image Description">
+              </div>`)
+        }
+
         for(i=0;i<images.length;i++)
         {
           console.log(images[i]["main-url"]);
