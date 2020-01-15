@@ -5,6 +5,12 @@
 {% load static %}
 
 <style type="text/css">
+  html,
+  body {
+    height: 100%;
+    background-color: white !important;
+  }
+
   @font-face {
     font-family: AvenirNext;
     src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Demi.otf' %}");
@@ -82,7 +88,7 @@
   }
 
   .purplee:hover {
-    background-color: #512de8 !important;
+    background-color: #512da8 !important;
     color: white !important;
   }
 
@@ -102,11 +108,11 @@
   }
 
   input[type="checkbox"].filled-in:checked+span:before {
-    background-color: #512de8 !important
+    background-color: #512da8 !important
   }
 
   input[type="checkbox"].filled-in:checked+span:after {
-    background-color: #512de8 !important
+    background-color: #512da8 !important
   }
 
   .img-overlay:before {
@@ -222,7 +228,7 @@
   input[type=number]:focus:not([readonly]),
   input[type=search]:focus:not([readonly]),
   textarea.materialize-textarea:focus:not([readonly])>label {
-    border-bottom: 1px solid #512ea8 !important;
+    border-bottom: 1px solid #512da8 !important;
     box-shadow: 0 1px 0 0 #f00 !important;
     border-bottom: none !important;
     box-shadow: none !important;
@@ -233,12 +239,12 @@
   }
 
   .input-field:not(.left-section) input:focus+label {
-    color: #512ea8 !important;
+    color: #512da8 !important;
   }
 
   .row .input-field:not(.left-section) input:focus {
-    border-bottom: 1px solid #512ea8 !important;
-    box-shadow: 0 1px 0 0 #512ea8 !important
+    border-bottom: 1px solid #512da8 !important;
+    box-shadow: 0 1px 0 0 #512da8 !important
   }
 
   .left-section .select-wrapper ul {
@@ -302,7 +308,7 @@
 
   .product-info-tab>li>.active {
     /* background-color: #80808091 !important; */
-    color: #972CC6 !important;
+    color: #e23844 !important;
     background-color: white !important;
     border-right: .5px solid rgba(128, 128, 128, 0.418);
   }
@@ -423,13 +429,19 @@
   .content-left-container {
 
     min-height: 100vh;
+    border-right: .5px solid rgba(128, 128, 128, 0.39) !important;
+  }
+
+  .content-left-container .border-right {
+    border-right: .5px solid rgba(128, 128, 128, 0.39) !important;
+
   }
 
   .content-right-container {
     height: 100% !important;
     padding: 10px !important;
 
-    border-left: .5px solid rgba(128, 128, 128, 0.39);
+
 
 
   }
@@ -441,7 +453,7 @@
   .content-right-container ul>li:before {
     content: "•";
     display: inline-block;
-    color: #321DD6;
+    color: #e23844;
     margin-right: 5px;
   }
 
@@ -454,7 +466,7 @@
   }
 
   .special-features-title {
-    color: #321DD6;
+    color: #e23844;
     font-size: 16px;
   }
 
@@ -478,7 +490,7 @@
   }
 
   .product-id-sku-container>p {
-    color: #972CC6;
+    color: #e23844;
     font-family: 'AvenirNextRegular';
     margin: 0 10px 0 0;
   }
@@ -557,7 +569,9 @@
   }
 
   .img-fluid-preview {
-    width: 100% !important;
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
   }
 
   .slick-slide {
@@ -586,13 +600,13 @@
   .product-stock-warehouse-container {
     background-color: white;
     border-radius: 5px;
-    border: 1px solid #321DD6;
+    border: 1px solid #e23844;
     padding: 10px 10px 5px 10px;
   }
 
   .product-stock {
     margin: 0;
-    color: #321DD6;
+    color: #e23844;
     font-family: 'AvenirNextRegular';
     font-size: 13px;
   }
@@ -601,7 +615,7 @@
     font-family: 'AvenirNextRegular !important';
     font-size: 12px !important;
     border: none;
-    color: #321DD6;
+    color: #e23844;
   }
 
   .stock-warehouse:focus {
@@ -638,26 +652,27 @@
     border-bottom: none !important;
     font-size: 10px;
     margin: 0;
-    color: #321DD6;
+    color: #e23844;
     height: 20px;
     font-weight: 200;
   }
 
   .product-stock-warehouse-container .select-wrapper .caret {
-    right: -20px;
-    fill: #321DD6;
+    right: -24px;
+    fill: #e23844;
   }
 
   .dimension-tab-info {
-    
+
     color: #ADADAD;
-    font-size: 16px;
+    font-size: 14px;
     padding-right: 10px;
   }
+
   .dimension-tab-info-value {
-    
+
     color: #747474;
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .dimension-tab-container table.striped>tbody>tr:nth-child(odd) {
@@ -675,21 +690,46 @@
     font-size: 12px !important;
     color: grey !important;
   }
+
   .outdoor-price-container ul.dropdown-content.select-dropdown li {
     display: flex;
     align-items: center;
   }
+
   .product-stock-warehouse-container ul.dropdown-content.select-dropdown li span {
     padding: 5px !important;
     font: AvenirNext !important;
     font-size: 12px !important;
     color: grey !important;
   }
+
   .product-stock-warehouse-container ul.dropdown-content.select-dropdown li {
     display: flex;
     align-items: center;
   }
 
+  .edit-button-nav {
+    background-color: #fff4c6;
+    color: black;
+    box-shadow: none;
+    font-family: AvenirNext !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 80px;
+    text-transform: capitalize;
+  }
+
+  .edit-button-nav:hover {
+    background-color: #e23844;
+    color: white;
+    box-shadow: none;
+  }
+
+  .edit-button-nav:focus {
+    background-color: transparent;
+  }
 </style>
 
 
@@ -711,10 +751,13 @@
   <div class="row breadcrumb-container">
     <nav class="no-shadows">
       <div class="nav-wrapper white ">
-        <div class="col s12 ">
+        <div class="col s11 ">
           <a href="#!" class="breadcrumb ">Products</a>
           <a href="#!" class="breadcrumb ">Product Listings</a>
           <a href="#!" class="breadcrumb active-breadcrumb">Product Details Page</a>
+        </div>
+        <div class="col s1">
+          <a class="waves-effect waves-light btn-small edit-button-nav">Edit</a>
         </div>
       </div>
     </nav>
@@ -722,16 +765,16 @@
 
   <div class="row bg-white" style="">
     <div class="row col l9 s12 content-left-container padding-zero">
-      <div class="row bg-white" style="padding: 10px;">
+      <div class="row bg-white border-right" style="padding: 10px;">
         <div class="col l5 s12">
 
           <div class="slider-container margin-zero ">
             <div class="slider slider-for " id="images">
-              
+
 
             </div>
             <div class="slider slider-nav" id="slider-images">
-              
+
             </div>
 
           </div>
@@ -748,7 +791,7 @@
             <p class="separator">|</p>
             <p class="seller-sku">Seller SKU: FRH786</p c>
           </div> -->
-          
+
           <div class="product-category-container">
             <div class="row">
               <div class="col s3 category-title padding-zero">
@@ -786,7 +829,7 @@
               </div>
             </div>
 
-           <!--  <div class="row">
+            <!--  <div class="row">
               <div class="col s3 category-title padding-zero">
                 Sub - Category:
               </div>
@@ -828,28 +871,28 @@
                   </div>
                 </div>
               </div>
-              <div class="col s6 l7 " style="padding: 0  0 0 .75rem;">
+              <div class="col s6 l5 " style="padding: 0  0 0 .75rem;">
                 <div class="product-stock-warehouse-container">
                   <div class="row">
                     <p class="product-stock">
-                      AED 19,240
+                      Stock: 400 Units
                     </p>
                   </div>
                   <div class="row">
-                    <div class="col l5 s6"></div>
-                    <div class="col l7 s6">
+                    <div class="col l2 s6"></div>
+                    <div class="col l9 s6 padding-zero">
                       <select class=" stock-warehouse">
                         <option value="" selected>Jabel Ali Warehouse, Dubai UAE</option>
-                        <option value="1">AED 2000</option>
-                        <option value="2">AED 3000</option>
-                        <option value="3">AED 2100</option>
+                        <option value="1">Al Saba Warehouse, Dubai UAE</option>
+                        <option value="2">Al Hafeez Warehouse, Dubai UAE</option>
+                        <option value="3">Jabel Ali Warehouse, Dubai UAE</option>
                       </select>
                     </div>
 
                   </div>
                 </div>
               </div>
-              <div class="col l1 s0"></div>
+              <div class="col l3 s0"></div>
             </div>
           </div>
         </div>
@@ -863,7 +906,7 @@
         Special Features
       </h6>
       <ul id="special-features-list">
-        
+
       </ul>
     </div>
   </div>
@@ -904,7 +947,7 @@
       </div>
       <div class="col s9  padding-zero product-info-container">
         <div class="product-info" id="product-description">
-          
+
         </div>
 
         <div id="test3" class="product-info dimension-tab-container">
@@ -941,7 +984,7 @@
             </div>
           </div>
         </div>
-        
+
       </div>
     </div>
   </div>
@@ -993,7 +1036,7 @@
 
   // slider product listing 
 
-  
+
 
 
   var global_verification_status = false;
@@ -1028,28 +1071,30 @@
     return CSRF_TOKEN;
   }
 
-  
+
   function fetch_product_details() {
-    
-    $.ajax({
-      url: "/sap-integration/",
-      type: "POST",
-      headers: {
-        'X-CSRFToken': getCsrfToken()
-      },
-      data: {
-        pk: window.location.pathname.split("/")[2]
-      },
-      success: function (response) {
-        console.log("SAP Success!", response);
-        M.updateTextFields();
-        $('select').formSelect();
-      },
-      error: function (xhr, textstatus, errorthrown) {
-        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-      }
-    });
-  
+
+    // $.ajax({
+    //   url: "/sap-integration/",
+    //   type: "POST",
+    //   headers: {
+    //     'X-CSRFToken': getCsrfToken()
+    //   },
+    //   data: {
+    //     pk: window.location.pathname.split("/")[2]
+    //   },
+    //   success: function (response) {
+
+    //     console.log("SAP Success!", response);
+
+    //     M.updateTextFields();
+    //     $('select').formSelect();
+    //   },
+    //   error: function (xhr, textstatus, errorthrown) {
+    //     console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+    //   }
+    // });
+
 
     $.ajax({
       url: "/fetch-product-details/",
@@ -1065,12 +1110,27 @@
 
 
         $('.material-placeholder').remove();
-        
+
         // $('#images').append(`<div>
         //         <img class="img-fluid-preview"
         //           src='` + response["repr_image_url"] + `' alt="Image Description">
         //       </div>`)
-        images = response["images"]["all_images"];
+        images = response["images"]["main_images"];
+
+        for (i = 0; i < images.length; i++) {
+          console.log(images[i]["main-url"]);
+          $('#images').append(`<div>
+                <img class="img-fluid-preview"
+                  src='` + images[i]["main-url"] + `' alt="Image Description">
+              </div>`)
+
+          $('#slider-images').append(`<div>
+                <img class="img-fluid-nav"
+                  src='` + images[i]["main-url"] + `' alt="Image Description">
+              </div>`)
+
+        }
+
 
         if(images.length==0)
         {
@@ -1080,56 +1140,59 @@
               </div>`)
         }
 
-        for(i=0;i<images.length;i++)
-        {
+        images = response["images"]["sub_images"];
+
+        for (i = 0; i < images.length; i++) {
+
           console.log(images[i]["main-url"]);
-        $('#images').append(`<div>
+          $('#images').append(`<div>
                 <img class="img-fluid-preview"
                   src='` + images[i]["main-url"] + `' alt="Image Description">
               </div>`)
 
-        $('#slider-images').append(`<div>
+          $('#slider-images').append(`<div>
                 <img class="img-fluid-nav"
                   src='` + images[i]["main-url"] + `' alt="Image Description">
               </div>`)
 
         }
 
+
         $('.slider-for').slick({
-            slidesToShow: 1,
-            slidesToScroll: 1,
-            arrows: false,
-            fade: true,
-            asNavFor: '.slider-nav',
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          arrows: false,
+          fade: true,
+          asNavFor: '.slider-nav',
 
-          });
-          $('.slider-nav').slick({
-            slidesToShow: 4,
-            slidesToScroll: 1,
-            asNavFor: '.slider-for',
-            dots: false,
-            centerMode: true,
-            focusOnSelect: false,
-            vertical: false,
-            arrows: true,
-            focusOnSelect: true
+        });
+        $('.slider-nav').slick({
+          slidesToShow: 4,
+          slidesToScroll: 1,
+          asNavFor: '.slider-for',
+          dots: false,
+          centerMode: true,
+          focusOnSelect: false,
+          vertical: false,
+          arrows: true,
+          focusOnSelect: true
 
-          });
+        });
 
-          // initialized materialize css select
+        // initialized materialize css select
 
 
-          $('.slider-down-button').click(function () {
-            $('.slider-nav').slick('slickPrev');
-          })
+        $('.slider-down-button').click(function () {
+          $('.slider-nav').slick('slickPrev');
+        })
 
-          $('.slider-up-button').click(function () {
-            $('.slider-nav').slick('slickNext');
-          })
+        $('.slider-up-button').click(function () {
+          $('.slider-nav').slick('slickNext');
+        })
 
         $('.materialboxed').materialbox();
 
-        
+
         $("#product-name-sap").html(response["product_name_sap"]);
         $("#product-name").html(response["product_name_sap"]);
         $("#category").html(response["category"]);
@@ -1137,23 +1200,23 @@
         $("#brand-name").html(response["brand"]);
         $("#product-id").html(response["product_id"]);
         $("#seller-sku").html(response["seller_sku"]);
-        $("#product-description").html(`<h7>`+response["product_description_amazon_uk"]+`</h7>`);
-        
+        $("#product-description").html(`<h7>` + response["product_description_amazon_uk"] + `</h7>`);
+
         var special_features = response["special_features"];
-        
+
         for (var i = 0; i < special_features.length; i++) {
           $
-          $("#special-features-list").append(`<li>`+special_features[i]+`</li>`);
+          $("#special-features-list").append(`<li>` + special_features[i] + `</li>`);
         }
 
-        $("#package-dimensions").html(response["package_length"]+` `+response["package_length_metric"]+` `+response["package_width"]+` `+response["package_width_metric"]+` `+response["package_height"]+` `+response["package_height_metric"] );
-        
-        $("#item-dimensions").html(response["item_length"]+` `+response["item_length_metric"]+` `+response["item_width"]+` `+response["item_width_metric"]+` `+response["item_height"]+` `+response["item_height_metric"] );
+        $("#package-dimensions").html(response["package_length"] + ` ` + response["package_length_metric"] + ` ` + response["package_width"] + ` ` + response["package_width_metric"] + ` ` + response["package_height"] + ` ` + response["package_height_metric"]);
 
-        $("#item-display-dimensions").html(response["item_display_length"]+` `+response["item_display_length_metric"]+` `+response["item_display_width"]+` `+response["item_display_width_metric"]+` `+response["item_display_height"]+` `+response["item_display_height_metric"] );
+        $("#item-dimensions").html(response["item_length"] + ` ` + response["item_length_metric"] + ` ` + response["item_width"] + ` ` + response["item_width_metric"] + ` ` + response["item_height"] + ` ` + response["item_height_metric"]);
 
-        $("#item-weight-dimensions").html(response["item_display_weight"]+` `+response["item_display_weight_metric"]+` `+response["item_display_volume"]+` `+response["item_display_volume_metric"]+` `+response["item_weight"]+` `+response["item_weight_metric"] );
-        
+        $("#item-display-dimensions").html(response["item_display_length"] + ` ` + response["item_display_length_metric"] + ` ` + response["item_display_width"] + ` ` + response["item_display_width_metric"] + ` ` + response["item_display_height"] + ` ` + response["item_display_height_metric"]);
+
+        $("#item-weight-dimensions").html(response["item_display_weight"] + ` ` + response["item_display_weight_metric"] + ` ` + response["item_display_volume"] + ` ` + response["item_display_volume_metric"] + ` ` + response["item_weight"] + ` ` + response["item_weight_metric"]);
+
         M.updateTextFields();
         $('select').formSelect();
       },
