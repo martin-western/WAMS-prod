@@ -1,525 +1,4 @@
-{% extends 'WAMSApp/base.html' %}
 
-{% block content %}
-
-{% load static %}
-
-<link rel = 'stylesheet' type="text/css" href="{% static 'WAMSApp/css/materialize_override.css' %}"/>
-<script src="https://cdn.ckeditor.com/ckeditor5/11.0.1/decoupled-document/ckeditor.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/document_editor.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/main.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/dropdown.css' %}">  
-
-
-    <div class="row main-div" style="margin: 0px 70px 0px 0px; padding: 20px 10px !important;" >
-        
-
-        <div class="col s4 image-section" style="padding-right: 0px;">
-
-            <div class="main-image" style="position: relative;">
-                <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
-                    style="position:absolute;right:0.5em;top:0.5em;z-index: 100;"><i class="material-icons"
-                   style="color: #521893;">file_download</i>
-               </a>
-            </div>
-
-            <div class = "image-section-dropdown">
-
-              <!--   <div id = "images-category">
-
-                  <a class='dropdown-trigger btn' href='#' data-target='dropdown1'>Drop Me!</a>
-
-                  <ul id='dropdown1' class='dropdown-content'>
-                    <li><a href="#!">one</a></li>
-                    <li><a href="#!">two</a></li>
-                    <li><a href="#!">one</a></li>
-                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
-                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
-                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
-                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
-                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
-                    <li><a href="#!">two</a></li>
-                  </ul>
-                </div> -->
-
-                 <div class="input-field image-section-dropdownchild">
-                    <select id="images-category">
-                        <option value="All Images" id="all-images-option">All Images</option>
-                        <option value="Main Images" id="main-images-option">Main Images</option>
-                        <option value="Sub Images" id="sub-images-option">Sub Images</option>
-                        <option value="PFL Images" id="pfl-images-option">PFL Images</option>
-                        <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
-                        </option>
-                        <option value="White Background Images" id="white-background-images-option">White Background
-                            Images</option>
-                        <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
-                        <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
-                        <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
-                        <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
-                        <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
-                        <option value="Ads Images" id="ads-images-option">Ads Images</option>
-                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
-                    </select>
-                </div>
-
-
-
-                <div class="image-section-dropdownchild sidebtn">
-                   <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
-                        <i class="material-icons" title="Add Image" style="
-                              color: gray;
-                              background-color: white;
-                              padding: 8px;">
-                              add_photo_alternate
-                        </i>
-                    </a>
-                </div>
-
-            </div>
-
-             <!--  <div class="row image-section-dropdown" style="margin-bottom: 0px;">
-                <div class="input-field left-section col s7" style="
-                     position:relative;height: 50px !important;">
-                    <select id="images-category" style="padding-top: 20px;">
-                        <option value="All Images" id="all-images-option">All Images</option>
-                        <option value="Main Images" id="main-images-option">Main Images</option>
-                        <option value="Sub Images" id="sub-images-option">Sub Images</option>
-                        <option value="PFL Images" id="pfl-images-option">PFL Images</option>
-                        <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
-                        </option>
-                        <option value="White Background Images" id="white-background-images-option">White Background
-                            Images</option>
-                        <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
-                        <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
-                        <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
-                        <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
-                        <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
-                        <option value="Ads Images" id="ads-images-option">Ads Images</option>
-                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
-                    </select>
-                </div>
-
-                <div class="col s3">
-                    <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
-                        <i class="material-icons" title="Add Image" style="
-                              color: gray;
-                              background-color: white;
-                              padding: 8px;
-                              margin-top: 15px;">
-                              add_photo_alternate
-                        </i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="row" style="position: relative;bottom: 15px;right: 5px;">
-                <div id="graphics-section" class="col s12" style="width: 94%;padding-top: 1.11em;">
-
-                </div>
-            </div> -->
-        </div>
-
-
-
-        <div id="collapse-div" class="col s8 center collapse-div-container"
-            style="transition: width 0.5s;">
-
-            <div class="collapse-div" style = "padding-right:0px !important;overflow-x:hidden  !important;">
-                <div class="scroll-style-1 ">
-                    <h6 style="color: #521893;margin: 30px 0px 30px 0px !important;">Amazon UAE</h6>
-                    <div class="row margin-zero collapse-div-row-container">
-                        <div class="input-field col s6">
-                            <input id="product-name" type="text">
-                            <label for="product-name">Product Name</label>
-                        </div>
-                        <div class="input-field col s6">
-                            <input id="created-date" type="date">
-                            <label for="created-date">Created Date</label>
-                        </div>
-                        <div class="input-field col s6">
-                            <input id="feed-product-type" type="text">
-                            <label for="feed-product-type">Feed Product Type</label>
-                        </div>
-                        <div class="input-field col s6">
-                            <select id="update-delete">
-                                <option value="Update" selected>Update</option>
-                                <option value="Delete">Delete</option>
-                            </select>
-                            <label for="update-delete">Update Delete</label>
-                        </div>
-                        <div class="input-field col s6">
-                            <input id="recommended-browse-nodes" type="text">
-                            <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
-                        </div>
-                        <div class="input-field col s9">
-                            <input id="product-attribute-amazon-uk-1" type="text">
-                            <label for="product-attribute-amazon-uk-1">Product Attribute</label>
-                        </div>
-
-                        <div class="input-field col s1">
-                            <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
-                                style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                                    class="material-icons">add</i></a>
-                        </div>
-                        <div class="col s12">
-                            <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
-                                Description</h6>
-                            
-                                <div class="document-editor">
-                                    <div class="document-editor__toolbar"></div>
-                                    <div class="document-editor__editable-container">
-                                        <div class="document-editor__editable" style="width: 100% !important;">
-                                        </div>
-                                    </div>
-                                </div>
-                          
-                        </div>
-                    </div>
-                </div>
-
-            </div>  
-        </div>
-
-        <div id="sidebar2" class="col s4" style="background-color: white;display: none;">
-            <div class="row">
-                <div class="input-field col s12" style="margin-top: 30px !important;">
-                    <select id="flyer-brand">
-                        <option value="" selected>Select Channel</option>
-                        <option value="">Amazon UK</option>
-                        <option value="">Amazon UAE</option>
-                        <option value="">Ebay</option>
-                        <option value="">Noon</option>
-                    </select>
-                    <label>Channels</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-product-name" type="text">
-                    <label for="product-name">Product Name</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-product-type" type="text">
-                    <label for="product-type">Product Type</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-product-subtype" type="text">
-                    <label for="product-subtype">Product Subtype</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-model-no" type="text">
-                    <label for="product-model-no">Model No.</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-model-name" type="text">
-                    <label for="product-model-name">Model Name</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-model-name" type="text">
-                    <label for="product-msrp">MRP</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-product-description" type="text">
-                    <label for="sidenav-product-description">Description</label>
-                </div>
-            </div>
-        </div>
-                                
-       <!--  <div class="toolbar"
-            style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
-        </div> -->
-
-
-    </div>
-
-
-
-<div id="upload-image-modal" class="modal">
-    <div class="modal-content">
-        <h4 style="font-family:'AvenirNext';font-size:18px;">Upload Image</h4>
-        <div class="file-field input-field">
-            <div class="btn" style="background-color: #512da8">
-                <span style="font-size:14px;">File</span>
-                <input id="product-image-input" type="file" multiple>
-            </div>
-            <div class="file-path-wrapper">
-                <input class="file-path validate" type="text">
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
-        <a id="upload-image-btn" href="#!" class="waves-effect waves-green btn-flat blue white-text"
-            style="background-color:#009051 !important ;">Upload</a>
-        <div class="progress" id="upload-preloader"
-            style="display:none;margin: 0px !important;background-color: white !important;">
-            <div class="indeterminate" style="background-color: #512de8;"></div>
-        </div>
-    </div>
-</div>
-
-
-<div id="delete-image-modal" class="modal">
-    <div class="modal-content">
-        <h4 style="font-family:'AvenirNext';font-size:18px;">Are you sure you want to delete the image?</h4>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
-        <a id="delete-image-btn" href="#!" class="red waves-effect waves-red btn-flat white-text">Delete</a>
-    </div>
-</div>
-
-
-
-<div class="toolbar"
-    style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
-    <a class="right" href="#!" onclick="window.close()"
-        style="background-color: transparent;display: block;cursor: pointer;">
-        <i class="material-icons redd" title="Close" style="
-      background-color: #f7f7f7;
-      padding: 8px;
-      color: gray;
-      border-radius: 5px;
-      margin-left: 8px;
-      font-size: 20px;
-      margin-right: 9px;
-      display: block;
-      margin-bottom: 10px;">
-            close
-        </i>
-    </a>
-    </br>
-
-    <a class="right" href="/products" style="background-color: transparent;display: block;cursor: pointer;">
-        <i class="material-icons homee" title="Products" style="
-      background-color: #f7f7f7;
-      padding: 8px;
-      color: gray;
-      border-radius: 5px;
-      margin-left: 8px;
-      font-size: 20px;
-      margin-right: 9px;
-      display: block;
-      margin-bottom: 10px;">
-            select_all
-        </i>
-    </a>
-
-    </br>
-
-     <a class="right button-collapse show-on-large" href="#" id="open-it-btn" style="background-color: transparent;display: block;cursor: pointer;">
-        <i class="material-icons sidebare bluee" title="Products" style="
-      background-color: #f7f7f7;
-      padding: 8px;
-      color: gray;
-      border-radius: 5px;
-      margin-left: 8px;
-      font-size: 20px;
-      margin-right: 9px;
-      display: block;
-      margin-bottom: 10px;">
-            keyboard_arrow_left
-        </i>
-    </a>
-
-    <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-        <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i class="material-icons maroonn" title="PFL Editor" style="
-        color: gray;
-        background-color: #f7f7f7;
-        padding: 8px;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;margin-bottom: 10px;">
-                vertical_split
-            </i>
-        </a>
-
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                timer
-            </i>
-        </a>
-
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i id="verified-icon" class="material-icons greenn" title="Verified" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                verified_user
-            </i>
-        </a>
-
-        <a href="#!" id="main-image-select-save-btn" class="right"
-            style="background-color: transparent;display: block;">
-            <i class="material-icons bluee" title="Set Cover Image" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                burst_mode
-            </i>
-        </a>
-
-        <a href="#download-export-list-modal" class="modal-trigger right" style="background-color: transparent;">
-            <i class="material-icons greenn" title="Export Product Details" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                file_download
-            </i>
-        </a>
-
-        {% if perms.WAMSApp.change_product %}
-        <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
-            <i class="material-icons purplee" title="Save" style="
-          background-color: #f7f7f7;
-          padding: 8px;
-          color: gray;
-          border-radius: 5px;
-          margin-left: 8px;
-          font-size: 20px;
-          margin-right: 9px;
-          display: block;
-          margin-bottom: 10px;">
-                save
-            </i>
-        </a>
-        {% endif %}
-    </div>
-</div>
-        
-
-<div id="download-export-list-modal" class="modal" style="border-radius: 5px;">
-    <div class="modal-content">
-        <h5 style="font-family: 'AvenirNext';font-size: 18px;">EXPORT PRODUCT</h5>
-        <br>
-        <div class="row">
-            <div class="input-field col s6" style="padding-left: 0em !important;">
-                <select id="export-format">
-                    <option value="Amazon UK" selected>Amazon UK</option>
-                    <option value="Amazon UAE">Amazon UAE</option>
-                    <option value="Ebay">Ebay</option>
-                    <option value="Noon">Noon</option>
-                    <!-- <option value="Ebay" style="font-family: 'AvenirNextRegular';">Ebay</option>   -->
-                </select>
-                <label style="margin-left: 0em !important;">Export Format</label>
-            </div>
-
-            <div class="input-field col s6">
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer" style="margin-bottom: 15px">
-        <a href="#!" class="modal-close waves-effect btn-flat" style="margin-right: 20px;">Close</a>
-        <a id="download-product-btn" href="#!" class="waves-effect btn-flat white-text"
-            style="margin-right: 20px;background-color: #521893 !important;">Download</a>
-    </div>
-</div>
-
-
-<div id="pfl-div" class="row white"
-    style="text-align: center;margin-left: auto;display:none;height: 297mm;width: 210mm;">
-    <!-- Brand Image Preview -->
-    <div id="brand-image" class="col s6 right">
-        <br>
-        <img id="brand-image-img" src="" style="width: 73.5mm;margin-left:-27mm;display: none;position: absolute;">
-    </div>
-
-    <!-- Product Image Preview -->
-    <div class="col s12" style="text-align: center; position: absolute;width: 210mm;margin-top: 40mm;">
-        <img id="pfl-product-image-preview-img"
-            style="max-width: 90%;max-height: 130mm;object-fit: scale-down;display: none;background-size: 100% 100%;">
-        <br>
-    </div>
-
-    <!-- Product Name Preview -->
-    <div class="col s12"
-        style="background-color:#521893;text-align: center;width: 210mm;padding-bottom: 1em;position: absolute;margin-top: 190mm;width:210mm;height: 20mm;">
-        <div id="product-name-preview" class="white-text left"
-            style="padding-left: 1em;text-transform: uppercase;margin-top: 6.4mm;font-size: 1.7em;font-family:'AvenirNextRegular';">
-        </div>
-    </div>
-
-    <!-- Seller SKU Preview -->
-    <div class="col s12"
-        style="background-color:white;position: absolute;margin-top: 192.5mm;width:45mm;height: 15mm;margin-left: 156mm;text-align: center;">
-        <span id="seller-sku-preview"
-            style="font-size: 1.4em;font-family:'AvenirNextRegular'; line-height: 16mm;color:#521893;"></span>
-    </div>
-
-    <!-- Features Preview -->
-    <div class="col s12" style="position: absolute;margin-top: 218mm;width: 10mm;">
-        <span style="color:#521893;font-size: 1.4em;font-family: 'AvenirNext';padding-left: 1em;">Features</span>
-    </div>
-    <div class="col s12" style="margin-top: 215mm;">
-        <div id="features-preview-div" style="text-align: left; padding-left: 1.3em;">
-        </div>
-    </div>
-
-
-    <!-- Barcode Preview -->
-    <div class="col s3" style="position: absolute;margin-top: 240mm;width:45mm;margin-left:152mm;">
-        <br><br>
-        <img id="barcode-image-preview-img" src="" style="display:none;width: 100%;">
-    </div>
-
-    <!-- Footer -->
-    <div class="col s12"
-        style="background-color:#521893;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
-        <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
-            <p class="right" style="color:#009051;font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For
-                more
-                information, please visit www.royalford.com</p>
-        </div>
-    </div>
-
-</div>
-
-
-<ul id="slide-out" class="sidenav">
-    <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
-    <li><a href="#!">Second Link</a></li>
-    <li>
-        <div class="divider"></div>
-    </li>
-    <li><a class="subheader">Subheader</a></li>
-    <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
-</ul>
-
-
-<script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
-<script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
-<!-- <script type="text/javascript" src="{% static 'WAMSApp/js/amazonuaeFORM.js' %}"> -->
-
-    <script type="text/javascript">
-    
     $('.tabs').tabs();
     $('.chips').chips();
     $('select').formSelect();
@@ -539,7 +18,6 @@
             $("#collapse-div").attr("class", "col s4 center");
             $("#sidebar2").show(600);
             console.log($(this));
-            $(this).children().text("keyboard_arrow_right");
             // $(".main-div").css('margin-right' , '0px');
         }
         else {
@@ -547,7 +25,6 @@
             $("#sidebar2").hide();
             $("#collapse-div").attr("class", "col s8 center");
             $(".main-div").css('margin-right' , '70px');
-            $(this).children().text("keyboard_arrow_left");
         }
     })
 
@@ -587,7 +64,6 @@
     $('#close-btn').click(function () {
         preventDefault();
     })
-
 
     $("#download-product-btn").click(function () {
 
@@ -636,6 +112,36 @@
             call_verify_api(1);
         }
     });
+
+    function fetch_details_amazon_uae()     
+      {
+        $.ajax({
+          url: "/fetch-channel-product-amazon-uae/",
+          type: "POST",
+          headers: {
+            'X-CSRFToken': getCsrfToken()
+          },
+          data: {
+            product_pk: window.location.pathname.split("/")[3]
+          },
+          success: function (response) {
+            console.log("Success!", response);
+            if(response["status"]==200)
+            {
+              global_details_amazon_uae = response["amazon_uae_product_json"];
+              // render_amazon_uk();
+            }
+            else
+            {
+              M.toast({ html: "Internal Server" });
+            }
+          },
+          error: function (xhr, textstatus, errorthrown) {
+            console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+          }
+        });
+      }
+    fetch_details_amazon_uae();
 
     function call_verify_api(verify) {
         var fd = new FormData()
@@ -2150,6 +1656,3 @@
    console.log('resized');
    return false;
 });
-</script>       
-
-{% endblock %}

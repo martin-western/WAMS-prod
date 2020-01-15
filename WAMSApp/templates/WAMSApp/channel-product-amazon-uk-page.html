@@ -4,534 +4,126 @@
 
 {% load static %}
 
-<style type="text/css">
-  .ck.ck-content ul,
-  .ck.ck-content ul li {
-    list-style-type: inherit;
-  }
-
-
-  .ck.ck-content ul {
-    padding-left: 40px;
-  }
-
-  .ck.ck-content strong {
-    font-weight: bold;
-  }
-
-  .flex-container-space-btw {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .flex-container-space-btw>div {
-    margin-top: 15px;
-    width: 7vw;
-  }
-
-
-  .img-wrapper {
-    position: relative;
-  }
-
-  .img-responsive {
-    width: 100%;
-    height: auto;
-  }
-
-  .img-overlay {
-    position: absolute;
-    top: 1em;
-    bottom: 0;
-    right: 1em;
-    text-align: center;
-  }
-
-  .redd:hover {
-    background-color: red !important;
-    color: white !important;
-  }
-
-  .greenn:hover {
-    background-color: #009051 !important;
-    color: white !important;
-  }
-
-  .bluee:hover {
-    background-color: blue !important;
-    color: white !important;
-  }
-
-  .yelloww:hover {
-    background-color: orange !important;
-    color: white !important;
-  }
-
-  .purplee:hover {
-    background-color: #512de8 !important;
-    color: white !important;
-  }
-
-  .maroonn:hover {
-    background-color: maroon !important;
-    color: white !important;
-  }
-
-  .homee:hover {
-    background-color: #521893 !important;
-    color: white !important;
-  }
-
-  .miniimage+input {
-    width: 50% !important;
-    display: block;
-  }
-
-  input[type="checkbox"].filled-in:checked+span:before {
-    background-color: #512de8 !important
-  }
-
-  input[type="checkbox"].filled-in:checked+span:after {
-    background-color: #512de8 !important
-  }
-
-  .img-overlay:before {
-    content: ' ';
-    display: block;
-    height: 10%;
-  }
-
-
-  a .active {
-    background-color: #512da8 !important;
-  }
-
-
-  /*tabs*/
-
-  .tab-content {
-    margin-top: 20px;
-    max-height: 80vh;
-    overflow: auto;
-    overflow-x: hidden;
-  }
-
-  input:focus {
-    border-color: #512da8 !important;
-  }
-
-  input:select {
-    border-color: #512da8 !important;
-  }
-
-  .tab-pane div.row {
-    padding: 20px !important;
-  }
-
-  .savebtn {
-    position: fixed;
-    top: 20px;
-    left: 50px;
-    background-color: #512da8;
-  }
-
-  li span {
-    color: black !important;
-  }
-
-  img.materialboxed {
-    width: 100px;
-    height: 100px;
-    background-color: white;
-  }
-
-  .tab-pane h4 {
-    display: none;
-  }
-
-  .miniimage {
-    display: block;
-    height: 80px;
-  }
-
-  .image-section {
-    overflow-y: scroll;
-    overflow-x: hidden;
-  }
-
-  ::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: gray;
-  }
-
-
-  .input-field:not(.left-section) {
-    padding: 0px 50px 0px 50px !important;
-    margin-top: 20px !important;
-  }
-
-
-  input:not([type]),
-  input[type=text],
-  input[type=password],
-  input[type=email],
-  input[type=url],
-  input[type=time],
-  input[type=date],
-  input[type=datetime],
-  input[type=datetime-local],
-  input[type=tel],
-  input[type=number],
-  input[type=search],
-  textarea.materialize-textarea {
-    border: none !important;
-    border-bottom: 2px solid #f7f7f7 !important;
-    padding-left: 10px !important;
-    font-family: 'AvenirNext' !important;
-    font-weight:
-  }
-
-  input:not([type]):focus:not([readonly]),
-  input[type=text]:focus:not([readonly]),
-  input[type=password]:focus:not([readonly]),
-  input[type=email]:focus:not([readonly]),
-  input[type=url]:focus:not([readonly]),
-  input[type=time]:focus:not([readonly]),
-  input[type=date]:focus:not([readonly]),
-  input[type=datetime]:focus:not([readonly]),
-  input[type=datetime-local]:focus:not([readonly]),
-  input[type=tel]:focus:not([readonly]),
-  input[type=number]:focus:not([readonly]),
-  input[type=search]:focus:not([readonly]),
-  
-  textarea.materialize-textarea:focus:not([readonly])>label {
-    border-bottom: 1px solid #512ea8 !important;
-    box-shadow: 0 1px 0 0 #f00 !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
-  }
-
-  label {
-    margin-left: 50px !important;
-  }
-
-  .input-field:not(.left-section) input:focus+label {
-    color: #512ea8 !important;
-  }
-
-  .row .input-field:not(.left-section) input:focus {
-    border-bottom: 1px solid #512ea8 !important;
-    box-shadow: 0 1px 0 0 #512ea8 !important
-  }
-
-  .left-section .select-wrapper ul {
-    position: relative;
-    top: -300px !important;
-  }
-
-  .material-placeholder {
-    width: 25vw;
-    height: 25vw;
-  }
-
-  .preview-img {
-    height: 100% !important;
-    width: 100% !important;
-    object-fit: contain;
-  }
-
-  body {
-    z-index: 100;
-  }
-</style>
-
-
-
+<link rel = 'stylesheet' type="text/css" href="{% static 'WAMSApp/css/materialize_override.css' %}"/>
 <script src="https://cdn.ckeditor.com/ckeditor5/11.0.1/decoupled-document/ckeditor.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/document_editor.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/main.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/dropdown.css' %}">
 
-<style type="text/css">
-  .document-editor {
-    border: 1px solid var(--ck-color-base-border);
-    border-radius: var(--ck-border-radius);
-    max-height: 40em;
-    display: flex;
-    flex-flow: column nowrap;
-  }
-
-  .document-editor__toolbar {
-    z-index: 1;
-    box-shadow: 0 0 5px hsla(0, 0%, 0%, .2);
-    border-bottom: 1px solid var(--ck-color-toolbar-border);
-  }
-
-  .document-editor__toolbar .ck-toolbar {
-    border: 0;
-    border-radius: 0;
-  }
-
-
-  .document-editor__editable-container {
-    padding: calc(2 * var(--ck-spacing-large));
-    background: var(--ck-color-base-foreground);
-    overflow-y: scroll;
-  }
-
-  .document-editor__editable-container .ck-editor__editable {
-    width: 15.8cm;
-    min-height: 21cm;
-    padding: 1cm 2cm 2cm;
-    border: 1px hsl(0, 0%, 82.7%) solid;
-    border-radius: var(--ck-border-radius);
-    background: white;
-    box-shadow: 0 0 5px hsla(0, 0%, 0%, .1);
-    margin: 0 auto;
-  }
-
-  .document-editor .ck-content,
-  .document-editor .ck-heading-dropdown .ck-list .ck-button__label {
-    font: 16px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif;
-  }
-
-  .document-editor .ck-heading-dropdown .ck-list .ck-button__label {
-    line-height: calc(1.7 * var(--ck-line-height-base) * var(--ck-font-size-base));
-    min-width: 6em;
-  }
-
-  .document-editor .ck-heading-dropdown .ck-list .ck-button:not(.ck-heading_paragraph) .ck-button__label {
-    transform: scale(0.8);
-    transform-origin: left;
-  }
-
-  .document-editor .ck-content h2,
-  .document-editor .ck-heading-dropdown .ck-heading_heading1 .ck-button__label {
-    font-size: 2.18em;
-    font-weight: normal;
-  }
-
-  .document-editor .ck-content h2 {
-    line-height: 1.37em;
-    padding-top: .342em;
-    margin-bottom: .142em;
-  }
-
-  .document-editor .ck-content h3,
-  .document-editor .ck-heading-dropdown .ck-heading_heading2 .ck-button__label {
-    font-size: 1.75em;
-    font-weight: normal;
-    color: hsl(203, 100%, 50%);
-  }
-
-  .document-editor .ck-heading-dropdown .ck-heading_heading2.ck-on .ck-button__label {
-    color: var(--ck-color-list-button-on-text);
-  }
-
-  .document-editor .ck-content h3 {
-    line-height: 1.86em;
-    padding-top: .171em;
-    margin-bottom: .357em;
-  }
-
-  .document-editor .ck-content h4,
-  .document-editor .ck-heading-dropdown .ck-heading_heading3 .ck-button__label {
-    font-size: 1.31em;
-    font-weight: bold;
-  }
-
-  .document-editor .ck-content h4 {
-    line-height: 1.24em;
-    padding-top: .286em;
-    margin-bottom: .952em;
-  }
-
-  .document-editor .ck-content p {
-    font-size: 1em;
-    line-height: 1.63em;
-    padding-top: .5em;
-    margin-bottom: 1.13em;
-  }
-
-  .image-section-dropdown .select-wrapper input.select-dropdown {
-    border: none !important;
-    bottom: 2px !important;
-    margin-bottom: 0px !important;
-    font-size: 14px !important;
-  }
-
-  .document-editor .ck-content blockquote {
-    font-family: Georgia, serif;
-    margin-left: calc(2 * var(--ck-spacing-large));
-    margin-right: calc(2 * var(--ck-spacing-large));
-  }
-
-  input.active {
-    border-bottom-color: #512da8 !important;
-  }
-
-  .scroll-style-2>li>a {
-    padding: 0 17px !important;
-  }
-
-  .margin-zero {
-    margin: 0 !important;
-  }
-
-  .sidebar2 {
-    padding-left: 0 !important;
-  }
-
-  .sidebar2 .row {
-    height: 100vh;
-    background-color: white;
-
-  }
-
-  .collapse-div-row-container {
-    height: 100vh;
-    background-color: white !important;
-  }
-
-  .collapse-div-container {
-    padding: 0 5px 0 0;
-  }
-
-  .collapse-div {
-    display: inline-block;
-    background-color: white;
-    padding-right: 5px;
-    height: 100vh;
-    overflow-y: auto;
-  }
-</style>
-
-
-
+  
 <div>
-  <div class="row" style="margin: 10px 35px 0 60px;">
-    <div class="toolbar"
-      style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
-      <a class="right" href="#!" onclick="window.close()"
-        style="background-color: transparent;display: block;cursor: pointer;">
-        <i class="material-icons redd" title="Close" style="
-            background-color: #f7f7f7;
-            padding: 8px;
-            color: gray;
-            border-radius: 5px;
-            margin-left: 8px;
-            font-size: 20px;
-            margin-right: 9px;
-            display: block;
-            margin-bottom: 10px;">
-          close
-        </i>
-      </a>
-      </br>
+    <div class="row main-div" style="margin: 0px 70px 0px 0px; padding: 20px 10px !important;" >
+   
 
-      <a class="right" href="/products" style="background-color: transparent;display: block;cursor: pointer;">
-        <i class="material-icons homee" title="Products" style="
-          background-color: #f7f7f7;
-          padding: 8px;
-          color: gray;
-          border-radius: 5px;
-          margin-left: 8px;
-          font-size: 20px;
-          margin-right: 9px;
-          display: block;
-          margin-bottom: 10px;">
-          select_all
-        </i>
-      </a>
 
-      <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-        
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-          <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
-            background-color: #f7f7f7;
-            padding: 8px;
-            color: gray;
-            border-radius: 5px;
-            margin-left: 8px;
-            font-size: 20px;
-            margin-right: 9px;
-            display: block;
-            margin-bottom: 10px;">
-            timer
-          </i>
-        </a>
+  <div class="col s4 image-section" style="padding-right: 0px;">
 
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-          <i id="verified-icon" class="material-icons greenn" title="Verified" style="
-            background-color: #f7f7f7;
-            padding: 8px;
-            color: gray;
-            border-radius: 5px;
-            margin-left: 8px;
-            font-size: 20px;
-            margin-right: 9px;
-            display: block;
-            margin-bottom: 10px;">
-            verified_user
-          </i>
-        </a>
+            <div class="main-image" style="position: relative;">
+                <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
+                    style="position:absolute;right:0.5em;top:0.5em;z-index: 100;"><i class="material-icons"
+                   style="color: #521893;">file_download</i>
+               </a>
+            </div>
 
-        <a href="#!" id="main-image-select-save-btn" class="right"
-          style="background-color: transparent;display: block;">
-          <i class="material-icons bluee" title="Set Cover Image" style="
-            background-color: #f7f7f7;
-            padding: 8px;
-            color: gray;
-            border-radius: 5px;
-            margin-left: 8px;
-            font-size: 20px;
-            margin-right: 9px;
-            display: block;
-            margin-bottom: 10px;">
-            burst_mode
-          </i>
-        </a>
+            <div class = "image-section-dropdown">
 
-        <a href="#download-export-list-modal" class="modal-trigger right" style="background-color: transparent;">
-          <i class="material-icons greenn" title="Export Product Details" style="
-            background-color: #f7f7f7;
-            padding: 8px;
-            color: gray;
-            border-radius: 5px;
-            margin-left: 8px;
-            font-size: 20px;
-            margin-right: 9px;
-            display: block;
-            margin-bottom: 10px;">
-            file_download
-          </i>
-        </a>
+              <!--   <div id = "images-category">
 
-        {% if perms.WAMSApp.change_product %}
-        <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
-          <i class="material-icons purplee" title="Save" style="
-              background-color: #f7f7f7;
-              padding: 8px;
-              color: gray;
-              border-radius: 5px;
-              margin-left: 8px;
-              font-size: 20px;
-              margin-right: 9px;
-              display: block;
-              margin-bottom: 10px;">
-            save
-          </i>
-        </a>
-        {% endif %}
-    
-      </div>
-    
-    </div>
+                  <a class='dropdown-trigger btn' href='#' data-target='dropdown1'>Drop Me!</a>
+
+                  <ul id='dropdown1' class='dropdown-content'>
+                    <li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li>
+                    <li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li>
+                  </ul>
+                </div> -->
+
+                 <div class="input-field image-section-dropdownchild">
+                    <select id="images-category">
+                          <option value="All Images" id="all-images-option">All Images</option>
+                        <option value="Main Images" id="main-images-option">Main Images</option>
+                        <option value="Sub Images" id="sub-images-option">Sub Images</option>
+                        <option value="PFL Images" id="pfl-images-option">PFL Images</option>
+                        <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
+                        </option>
+                        <option value="White Background Images" id="white-background-images-option">White Background
+                            Images</option>
+                        <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
+                        <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
+                        <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
+                        <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
+                        <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
+                        <option value="Ads Images" id="ads-images-option">Ads Images</option>
+                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
+                    </select>
+                </div>
+
+
+
+                <div class="image-section-dropdownchild sidebtn">
+                   <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
+                        <i class="material-icons" title="Add Image" style="
+                              color: gray;
+                              background-color: white;
+                              padding: 8px;">
+                              add_photo_alternate
+                        </i>
+                    </a>
+                </div>
+
+            </div>
+
+             <!--  <div class="row image-section-dropdown" style="margin-bottom: 0px;">
+                <div class="input-field left-section col s7" style="
+                     position:relative;height: 50px !important;">
+                    <select id="images-category" style="padding-top: 20px;">
+                        <option value="All Images" id="all-images-option">All Images</option>
+                        <option value="Main Images" id="main-images-option">Main Images</option>
+                        <option value="Sub Images" id="sub-images-option">Sub Images</option>
+                        <option value="PFL Images" id="pfl-images-option">PFL Images</option>
+                        <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
+                        </option>
+                        <option value="White Background Images" id="white-background-images-option">White Background
+                            Images</option>
+                        <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
+                        <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
+                        <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
+                        <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
+                        <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
+                        <option value="Ads Images" id="ads-images-option">Ads Images</option>
+                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
+                    </select>
+                </div>
+
+                <div class="col s3">
+                    <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
+                        <i class="material-icons" title="Add Image" style="
+                              color: gray;
+                              background-color: white;
+                              padding: 8px;
+                              margin-top: 15px;">
+                              add_photo_alternate
+                        </i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="row" style="position: relative;bottom: 15px;right: 5px;">
+                <div id="graphics-section" class="col s12" style="width: 94%;padding-top: 1.11em;">
+
+                </div>
+            </div> -->
+        </div>
  
 
     <!-- <div class="row" style="margin:0px;margin-left: 100px;"> -->
-    <div class="col s4 image-section" style="height: 90vh;">
+   <!--  <div class="col s4 image-section" style="height: 90vh;">
       <div class="main-image" style="position: relative;">
         <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
           style="position:absolute;right:5em;top:0em;z-index: 100;"><i class="material-icons"
@@ -561,7 +153,7 @@
               padding: 8px;
               margin-top: 15px;">
               add_photo_alternate
-            </i>
+            </i>pp
           </a>
         </div>
       </div>
@@ -571,17 +163,16 @@
 
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div id="collapse-div" class="col s8 center collapse-div-container"
-      style="display: inline-block;transition: width 0.5s;">
+      style="transition: width 0.5s;">
 
-      <div class="collapse-div">
+      <div class="collapse-div" style = "padding-right:0px !important;overflow-x:hidden  !important;">
         <div class="scroll-style-1 ">
-          <h6 style="color: #521893;">Amazon UK</h6>
-          <div class="collapse-div-row-container">
+          <h6 style="color: #521893;margin: 30px 0px 30px 0px !important;">Amazon UK</h6>
+          <div class="row margin-zero collapse-div-row-container">
             
-            <div class="row margin-zero">
               <div class="input-field col s6">
                 <input id="product-name" type="text">
                 <label for="product-name">Product Name</label>
@@ -590,9 +181,7 @@
                 <input disabled id="product-id" type="text" class="deep-purple-text">
                 <label for="product-id">Product ID</label>
               </div>
-            </div>
 
-            <div class="row margin-zero">
               <div class="input-field col s6">
                 <input id="feed-product-type" type="text">
                 <label for="feed-product-type">Feed Product Type</label>
@@ -601,9 +190,7 @@
                 <input id="variation-theme" type="text">
                 <label for="variation-theme">Variation Theme</label>
               </div>
-            </div>
 
-            <div class="row margin-zero">
               <div class="input-field col s6">
                 <select id="update-delete">
                   <option value="Update" >Update</option>
@@ -615,9 +202,7 @@
                 <input id="recommended-browse-nodes" type="text">
                 <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
               </div>
-            </div>
 
-            <div class="row margin-zero">
               <div class="input-field col s6">
                 <input id="search-terms" type="text">
                 <label for="search-terms">Search Terms</label>
@@ -626,9 +211,7 @@
                 <input id="enclosure-material" type="text">
                 <label for="enclosure-material">Enclosure Material</label>
               </div>
-            </div>
 
-            <div class="row margin-zero">
               <div class="input-field col s6">
                 <input id="cover-material-type" type="text">
                 <label for="cover-material-type">Cover Material Type</label>
@@ -637,9 +220,7 @@
                 <input id="sale-price" type="number">
                 <label for="sale-price">Sale Price</label>
               </div>
-            </div>
 
-            <div class="row margin-zero">
               <div class="input-field col s6">
                 <input id="sale-from" type="date">
                 <label for="sale-from">Sale From</label>
@@ -649,9 +230,7 @@
                 <input id="sale-end" type="date">
                 <label for="sale-end">Sale End</label>
               </div>
-            </div>
 
-            <div class="row margin-zero">
               <div class="input-field col s9">
                 <input id="special-feature-1" type="text">
                 <label for="special-feature-1">Special Feature</label>
@@ -663,11 +242,6 @@
                     class="material-icons">add</i></a>
               </div>
 
-              <div id="special-features-div">
-              </div>
-            </div>
-
-            <div class="row margin-zero">
               <div class="input-field col s4" style="padding: 0px 20px 0px 50px  !important;">
                 <input id="wattage" type="number">
                 <label for="wattage">Wattage</label>
@@ -686,9 +260,7 @@
                 <input disabled id="material-type" type="text" class="deep-purple-text">
                 <label for="material-type">Material Type</label>
               </div>
-            </div>
 
-            <div class="row margin-zero">
               <div class="input-field col s6">
                 <input id="parentage" type="text">
                 <label for="parentage">Parentage</label>
@@ -697,9 +269,7 @@
                 <input id="parent-sku" type="text">
                 <label for="parent-sku">Parent SKU</label>
               </div>
-            </div>
 
-            <div class="row margin-zero">
               <div class="input-field col s6">
                 <input id="relationship-type" type="text">
                 <label for="relationship-type">Relationship Type</label>
@@ -721,9 +291,7 @@
                   <option value="Packet">Packet</option>
                 </select>
               </div>
-            </div>
 
-            <div class="row margin-zero">
               <div class="input-field col s6">
                 <input id="item-condition-note" type="text">
                 <label for="item-condition-note">Item Condition Note</label>
@@ -732,9 +300,8 @@
                 <input id="max-order-quantity" type="text">
                 <label for="max-order-quantity">Max Order Quantity</label>
               </div>
-            </div>
 
-            <div class="row margin-zero">
+
               <div class="input-field col s6">
                 <input id="number-of-items" type="text">
                 <label for="number-of-items">Number of Items</label>
@@ -746,15 +313,14 @@
                 </select>
                 <label for="condition-type">Condition Type</label>
               </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="sidebar2" class="col s4 sidebar2" style="display: none;">
-      <div class="row margin-zero">
-        <div class="input-field col s12">
+    <div id="sidebar2" class="col s4" style="background-color: white;display: none;">
+      <div class="row">
+        <div class="input-field col s12" style="margin-top: 30px !important;">
           <select id="reference-channel">
             <option value="" selected>Select Channel</option>
             <option value="">Amazon UAE</option>
@@ -793,14 +359,6 @@
         </div>
 
       </div>
-    </div>
-
-    <div class="toolbar"
-      style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
-      <a id="open-it-btn" visible="no" href="#" class="button-collapse show-on-large">
-        <i class="material-icons">keyboard_arrow_left</i>
-      </a>
-
     </div>
 
   </div>
@@ -842,6 +400,152 @@
   </div>
 </div>
 
+
+<div class="toolbar"
+    style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
+    <a class="right" href="#!" onclick="window.close()"
+        style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons redd" title="Close" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+            close
+        </i>
+    </a>
+    </br>
+
+    <a class="right" href="/products" style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons homee" title="Products" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+            select_all
+        </i>
+    </a>
+
+    </br>
+
+     <a class="right button-collapse show-on-large" href="#" id="open-it-btn" style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons sidebare bluee" title="Products" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+            keyboard_arrow_left
+        </i>
+    </a>
+
+    <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
+        <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
+            <i class="material-icons maroonn" title="PFL Editor" style="
+        color: gray;
+        background-color: #f7f7f7;
+        padding: 8px;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;margin-bottom: 10px;">
+                vertical_split
+            </i>
+        </a>
+
+        <a href="#!" class=" right" style="background-color: transparent;display: block;">
+            <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+                timer
+            </i>
+        </a>
+
+        <a href="#!" class=" right" style="background-color: transparent;display: block;">
+            <i id="verified-icon" class="material-icons greenn" title="Verified" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+                verified_user
+            </i>
+        </a>
+
+        <a href="#!" id="main-image-select-save-btn" class="right"
+            style="background-color: transparent;display: block;">
+            <i class="material-icons bluee" title="Set Cover Image" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+                burst_mode
+            </i>
+        </a>
+
+        <a href="#download-export-list-modal" class="modal-trigger right" style="background-color: transparent;">
+            <i class="material-icons greenn" title="Export Product Details" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+                file_download
+            </i>
+        </a>
+
+        {% if perms.WAMSApp.change_product %}
+        <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
+            <i class="material-icons purplee" title="Save" style="
+          background-color: #f7f7f7;
+          padding: 8px;
+          color: gray;
+          border-radius: 5px;
+          margin-left: 8px;
+          font-size: 20px;
+          margin-right: 9px;
+          display: block;
+          margin-bottom: 10px;">
+                save
+            </i>
+        </a>
+        {% endif %}
+    </div>
+</div>  
 
 <div id="download-export-list-modal" class="modal" style="border-radius: 5px;">
   <div class="modal-content">
@@ -891,18 +595,22 @@
 
 
   $("#open-it-btn").click(function () {
-    if ($(this).attr("visible") == "no") {
-      $(this).attr("visible", "yes");
-      $("#collapse-div").attr("class", "col s4 center");
-      $("#sidebar2").show(600);
-
-    }
-    else {
-      $(this).attr("visible", "no");
-      $("#sidebar2").hide();
-      $("#collapse-div").attr("class", "col s8 center");
-    }
-  })
+        if ($(this).attr("visible") == "no") {
+            $(this).attr("visible", "yes");
+            $("#collapse-div").attr("class", "col s4 center");
+            $("#sidebar2").show(600);
+            console.log($(this));
+            $(this).children().text("keyboard_arrow_right");
+            // $(".main-div").css('margin-right' , '0px');
+        }
+        else {
+            $(this).attr("visible", "no");
+            $("#sidebar2").hide();
+            $("#collapse-div").attr("class", "col s8 center");
+            $(".main-div").css('margin-right' , '70px');
+            $(this).children().text("keyboard_arrow_left");
+        }
+    })
 
   var global_details_amazon_uk = {};
   var global_details_amazon_uae = {};
@@ -1330,7 +1038,7 @@
         if (response["status"] == 200) {
           $("#upload-image-modal").modal("close");
           M.toast({ html: "Successfully uploaded images!" });
-          fetch_product_images_details();
+          fetch_amazon_uk_product_images_details();
         }
         else if (response["status"] == 403) {
           M.toast({ html: "You do not have permission to upload images!" });
