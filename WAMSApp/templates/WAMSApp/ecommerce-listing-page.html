@@ -308,7 +308,7 @@
 
   .product-info-tab>li>.active {
     /* background-color: #80808091 !important; */
-    color: #e23844 !important;
+    color: #321DD6  !important;
     background-color: white !important;
     border-right: .5px solid rgba(128, 128, 128, 0.418);
   }
@@ -453,7 +453,7 @@
   .content-right-container ul>li:before {
     content: "•";
     display: inline-block;
-    color: #e23844;
+    color: #321DD6 ;
     margin-right: 5px;
   }
 
@@ -466,7 +466,7 @@
   }
 
   .special-features-title {
-    color: #e23844;
+    color: #321DD6 ;
     font-size: 16px;
   }
 
@@ -490,7 +490,7 @@
   }
 
   .product-id-sku-container>p {
-    color: #e23844;
+    color: #321DD6 ;
     font-family: 'AvenirNextRegular';
     margin: 0 10px 0 0;
   }
@@ -600,13 +600,13 @@
   .product-stock-warehouse-container {
     background-color: white;
     border-radius: 5px;
-    border: 1px solid #e23844;
+    border: 1px solid #321DD6 ;
     padding: 10px 10px 5px 10px;
   }
 
   .product-stock {
     margin: 0;
-    color: #e23844;
+    color: #321DD6 ;
     font-family: 'AvenirNextRegular';
     font-size: 13px;
   }
@@ -615,7 +615,7 @@
     font-family: 'AvenirNextRegular !important';
     font-size: 12px !important;
     border: none;
-    color: #e23844;
+    color: #321DD6 ;
   }
 
   .stock-warehouse:focus {
@@ -652,14 +652,14 @@
     border-bottom: none !important;
     font-size: 10px;
     margin: 0;
-    color: #e23844;
+    color: #321DD6 ;
     height: 20px;
     font-weight: 200;
   }
 
   .product-stock-warehouse-container .select-wrapper .caret {
     right: -24px;
-    fill: #e23844;
+    fill: #321DD6 ;
   }
 
   .dimension-tab-info {
@@ -722,7 +722,7 @@
   }
 
   .edit-button-nav:hover {
-    background-color: #e23844;
+    background-color: #321DD6 ;
     color: white;
     box-shadow: none;
   }
@@ -757,7 +757,7 @@
           <a href="#!" class="breadcrumb active-breadcrumb">Product Details Page</a>
         </div>
         <div class="col s1">
-          <a class="waves-effect waves-light btn-small edit-button-nav">Edit</a>
+          <a class="waves-effect waves-light btn-small edit-button-nav" id="edit-btn">Edit</a>
         </div>
       </div>
     </nav>
@@ -848,7 +848,7 @@
             </div>
 
           </div>
-          <div class="product-price-stock-container">
+          <!-- <div class="product-price-stock-container">
             <div class="row">
               <div class="col s6 l4 " style="padding: 0 .75rem 0 0;">
                 <div class="product-price-outdoor-container">
@@ -893,7 +893,7 @@
                 </div>
               </div>
               <div class="col l3 s0"></div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -1108,6 +1108,9 @@
       success: function (response) {
         console.log("Success!", response);
 
+        var edit_url = "/edit-product/"+window.location.pathname.split("/")[2];
+        console.log(edit_url)
+        $('#edit-btn').attr("href",edit_url);
 
         $('.material-placeholder').remove();
 
