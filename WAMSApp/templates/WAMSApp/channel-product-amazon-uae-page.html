@@ -129,8 +129,8 @@
                     <h6 style="color: #521893;margin: 30px 0px 30px 0px !important;">Amazon UAE</h6>
                     <div class="row margin-zero collapse-div-row-container">
                         <div class="input-field col s6">
-                            <input id="product-name" type="text">
-                            <label for="product-name">Product Name</label>
+                            <input id="product-name-amazon-uae" type="text">
+                            <label for="product-name-amazon-uae">Product Name</label>
                         </div>
                         <div class="input-field col s6">
                             <input id="created-date" type="date">
@@ -1031,7 +1031,7 @@
                 'X-CSRFToken': getCsrfToken()
             },
             data: {
-                pk: window.location.pathname.split("/")[3]
+                product_pk: window.location.pathname.split("/")[3]
             },
             success: function (response) {
                 console.log("Success!", response);
@@ -1083,10 +1083,10 @@
                 $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
 
 
-                window.editor[0].setData(response["product_description_amazon_uk"]);
-                window.editor[1].setData(response["product_description_amazon_uae"]);
-                window.editor[2].setData(response["product_description_ebay"]);
-                window.editor[3].setData(response["product_description_noon"]);
+                // window.editor[0].setData(response["product_description_amazon_uk"]);
+                // window.editor[1].setData(response["product_description_amazon_uae"]);
+                // window.editor[2].setData(response["product_description_ebay"]);
+                // window.editor[3].setData(response["product_description_noon"]);
 
 
                 var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];

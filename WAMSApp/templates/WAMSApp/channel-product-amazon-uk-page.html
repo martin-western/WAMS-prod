@@ -648,6 +648,9 @@
         {
           M.toast({ html: "Internal Server" });
         }
+
+        console.log("heye");
+        console.log(global_details_amazon_uk);
       },
       error: function (xhr, textstatus, errorthrown) {
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
@@ -677,6 +680,8 @@
         {
           M.toast({ html: "Internal Server" });
         }
+        console.log("uae");
+        console.log(global_details_amazon_uae);
       },
       error: function (xhr, textstatus, errorthrown) {
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
@@ -746,6 +751,9 @@
   
   fetch_details_amazon_uk();
   fetch_amazon_uk_product_images_details();
+  fetch_details_amazon_uae();
+  fetch_details_ebay();
+  fetch_details_noon();
   
   function render_amazon_uk()
   {
@@ -1280,6 +1288,7 @@
       }
     });
   }
+
 
   $("#main-image-select-save-btn").click(function () {
 

@@ -79,3 +79,33 @@
                         </div>
                        
                       </div>
+
+
+
+                      var product_name_amazon_uk = $("#product-name-amazon-uk").val();
+                      var product_name_amazon_uae = $("#product-name-amazon-uae").val();
+                      var product_name_ebay = $("#product-name-ebay").val();
+                      var product_name_sap = $("#product-name-sap").val();
+                      var product_name_noon = $("#product-name-noon").val();
+              
+                      var category = $("#category").val();
+                      var subtitle = $("#subtitle").val();
+                      var brand = $("#brand-name").val();
+                      var manufacturer = $("#manufacturer").val();
+                      var product_id = $("#product-id").val();
+                      var product_id_type = $("#product-id-type").val();
+                      var seller_sku = $("#seller-sku").val();
+                      var manufacturer_part_number = $("#manufacturer-part-number").val();
+                      var barcode_string = $("#barcode-string").val();
+                      var noon_product_type = $("#noon-product-type").val();
+                      var noon_product_subtype = $("#noon-product-subtype").val();
+                      var noon_model_number = $("#noon-model-number").val();
+                      var noon_model_name = $("#noon-model-name").val();
+                      var condition_type = $("#condition-type").val();
+                      var feed_product_type = $("#feed-product-type").val();
+                      var update_delete = $("#update-delete").val();
+                      var recommended_browse_nodes = $("#recommended-browse-nodes").val();
+                      var product_description_amazon_uk = window.editor[0].getData();
+                      var product_description_amazon_uae = window.editor[1].getData();
+                      var product_description_ebay = window.editor[2].getData();
+                      var product_description_noon = window.editor[3].getData();
