@@ -234,7 +234,8 @@ ul.dropdown-content.select-dropdown li span {
           <div class = "col s4" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Product Name</div>    
           <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Brand</div>   
           <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Date Created</div>   
-          <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;padding-right: 15px;">Status</div>   
+          <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;padding-right: 15px;">Status</div>
+          <div class = "col s1 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;padding-right: 15px;">Action</div>   
         </div>
       </div>
       <div id = "product-table">
@@ -746,7 +747,7 @@ ul.dropdown-content.select-dropdown li span {
                 </div>
 
 
-                <a target="_blank" href="/edit-product/`+products[i]["product_pk"]+`"><div class = "col s4" style="line-height: 100%;padding-top: 2px;">
+                <a target="_blank" href="/ecommerce-listing/`+products[i]["product_pk"]+`"><div class = "col s4" style="line-height: 100%;padding-top: 2px;">
                   <div style="position: relative;">
                     <div style="position: absolute;top: 50%;transform: translateY(-18%);">
                     `+img_tag+`
@@ -762,7 +763,10 @@ ul.dropdown-content.select-dropdown li span {
                 <div class = "col s2" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;text-align:center;">`+products[i]["brand"]+`</div>
                 <div class = "col s2 left" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;text-align:center;">`+products[i]["created_date"]+`</div>
                 <div class = "col s2" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;padding-right:15px;text-align:left;text-align:center;">`+status_str+`</div>
-                  </div>`
+                  
+                <div class = "col s1" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;padding-right:15px;text-align:left;text-align:center;"><a href="/edit-product/`+products[i]["product_pk"]+`" target="_blank"><i class="material-icons">edit</i></a></div>
+                </div>`
+
           }
           
           if(load_more_flag==true)

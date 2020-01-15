@@ -1448,7 +1448,7 @@
 
           <div id="footer-div" class="col s12" style="background-color:#181818;position: absolute;margin-top: 200mm;width:297mm;height: 10mm;">
             <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
-              <p class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';">For more information, please visit www.geepas.com</p>
+              <p id="footer-text" class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';" contenteditable="true"></p>
             </div>
           </div>
 
@@ -1830,13 +1830,20 @@
     var global_white_container = false;
     var global_price_resizer = "100";
     var global_strikeprice_visible = false;
+    var global_footer_text = "www.geepas.com";
 
+    var global_flyer_name = "flyer";
+
+    var global_save_signal = false;
 
 
     $("#download-flyer-btn").click(function(e){
 
-      $("#download-flyer-btn").attr("disabled", "disabled");
-      $("#loader-div").show();
+      if(global_save_signal==false)
+      {
+        $("#download-flyer-btn").attr("disabled", "disabled");
+        $("#loader-div").show();
+      }
 
       var total_grids = $(".grid-stack-item").length;
       var image_links = [];
@@ -1937,19 +1944,22 @@
               window.scrollTo(0,0);
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
                     console.log("Downloading it!!!");
-
-                    $("#download-flyer-btn").removeAttr("disabled");
-                    $("#loader-div").hide();
                     
                     var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
 
                     var blob = dataURLtoBlob(dataURI);
                     var objurl = URL.createObjectURL(blob);
                     
-                    var a = document.createElement('a');
-                    a.download = 'flyer_image_'+(window.location.pathname.split("/")[2])+'.jpg';
-                    a.href = objurl;
-                    a.click();
+                    if(global_save_signal==false)
+                    {
+                      $("#download-flyer-btn").removeAttr("disabled");
+                      $("#loader-div").hide();
+                      var a = document.createElement('a');
+                      a.download = global_flyer_name+'.jpg';
+                      a.href = objurl;
+                      a.click();
+                    }
+                    global_save_signal = false;
 
                     $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
@@ -1961,28 +1971,28 @@
                     $("#flyer-div").css("background-image", "url('" +original_bg_image_url+ "')");
                     //$(".product-strikeprice-info").attr("placeholder", "strikeprice");
 
-                    // var image_data = canvas.toDataURL();
+                    var image_data = canvas.toDataURL();
 
-                    // var fd = new FormData();
-                    // fd.append('image_data', image_data);
-                    // fd.append('flyer_pk', window.location.pathname.split("/")[2]);
+                    var fd = new FormData();
+                    fd.append('image_data', image_data);
+                    fd.append('flyer_pk', window.location.pathname.split("/")[2]);
 
-                    // $.ajax({
-                    //   url: "/save-flyer-in-bucket/",
-                    //   type: "POST",
-                    //   headers:{
-                    //     'X-CSRFToken':getCsrfToken()
-                    //   },
-                    //   processData: false,
-                    //   contentType: false,
-                    //   data: fd,
-                    //   success: function(response) {
-                    //     console.log("Success!", response);
-                    //   },
-                    //   error: function(xhr, textstatus, errorthrown) {
-                    //     console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-                    //   }
-                    // });
+                    $.ajax({
+                      url: "/save-flyer-in-bucket/",
+                      type: "POST",
+                      headers:{
+                        'X-CSRFToken':getCsrfToken()
+                      },
+                      processData: false,
+                      contentType: false,
+                      data: fd,
+                      success: function(response) {
+                        console.log("Success!", response);
+                      },
+                      error: function(xhr, textstatus, errorthrown) {
+                        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+                      }
+                    });
               });
             }
         },
@@ -2895,8 +2905,9 @@
           global_footer_color = common["footer-color"];
           global_header_opacity = common["header-opacity"];
           global_footer_opacity = common["footer-opacity"];
-          global_all_promo_resizer = common["all-promo-resizer"]
-          global_all_image_resizer = common["all-image-resizer"]
+          global_all_promo_resizer = common["all-promo-resizer"];
+          global_all_image_resizer = common["all-image-resizer"];
+          global_footer_text = common["footer-text"];
 
           update_editor_settings();
           create_flyer_grid();
@@ -2907,6 +2918,8 @@
           update_background_image_bucket();
           update_external_image_bucket();
           set_brand_image(response["brand_image_url"]);
+
+          global_flyer_name = response["flyer_name"];
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -3002,6 +3015,9 @@
 
 
     $("#save-flyer-template-btn").click(function(){
+
+      global_save_signal = true;
+      $("#download-flyer-btn").click();
       
       $("#save-flyer-template-btn").attr("disabled", "disabled");
 
@@ -3025,7 +3041,6 @@
         var description = $("#product-title-info-"+grid_id).val();
         var price = $("#product-price-info-"+grid_id).val();
         var strikeprice = $("#product-strikeprice-info-"+grid_id).html();
-
         var warranty_img = $("#banner-img-left-"+grid_id).attr("src");
 
         var temp_dict = {
@@ -3053,6 +3068,7 @@
 
         item_data.push(temp_dict);
       }
+      global_footer_text = $("#footer-text").html();
       global_template_data["item-data"] = item_data;
 
       var common = {
@@ -3089,7 +3105,8 @@
         "header-opacity": global_header_opacity,
         "footer-opacity": global_footer_opacity,
         "all-promo-resizer": global_all_promo_resizer,
-        "all-image-resizer": global_all_image_resizer
+        "all-image-resizer": global_all_image_resizer,
+        "footer-text": global_footer_text
       };
 
       global_template_data["common"] = common;
@@ -3329,6 +3346,12 @@
 
       $("#header-opacity").val(global_header_opacity);
       $("#footer-opacity").val(global_footer_opacity);
+      // console.log(global_footer_text);
+
+      if(global_footer_text=="")
+        global_footer_text = "Footer Text"
+
+      $("#footer-text").text(global_footer_text);
       
       $("select").formSelect();
     }

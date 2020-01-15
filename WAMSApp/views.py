@@ -21,12 +21,15 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
+
 from PIL import Image as IMage
 import StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 import barcode
 from barcode.writer import ImageWriter
+
+import xmltodict
 
 import requests
 import json
@@ -38,6 +41,8 @@ import boto3
 import urllib2
 import logging
 import pandas as pd
+import xml.dom.minidom
+
 
 from WAMSApp.models import Product
 
@@ -1599,7 +1604,8 @@ class CreateFlyerAPI(APIView):
                 "header-opacity": "1",
                 "footer-opacity": "1",
                 "all-promo-resizer": "40",
-                "all-image-resizer": "100"
+                "all-image-resizer": "100",
+                "footer-text": "Your Footer Here"
             }
 
             template_data = {
@@ -2644,7 +2650,7 @@ class FetchFlyerListAPI(APIView):
                 temp_dict["flyer_pk"] = flyer_obj.pk
                 # Update this later
                 if flyer_obj.flyer_image != None:
-                    temp_dict["flyer_image"] = flyer_obj.flyer_image.image.url
+                    temp_dict["flyer_image"] = flyer_obj.flyer_image.mid_image.url
                 else:
                     temp_dict["flyer_image"] = Config.objects.all()[
                         0].product_404_image.image.url
@@ -3068,7 +3074,107 @@ class UploadPFLExternalImagesAPI(APIView):
 
         return Response(data=response)
 
+class SapIntegrationAPI(APIView):
 
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SapIntegrationAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_obj = Product.objects.get(pk=data["pk"])
+
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            #headers = {'content-type': 'application/soap+xml'}
+            #headers = {'content-type': 'text/xml'}
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+
+            if product_obj.brand.name == "Geepas":
+                company_code = "1070"
+            elif product_obj.brand.name == "Royalford":
+                company_code = "3000"
+            else :
+                company_code = "3050"
+
+
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_obj.product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+
+            print(json.dumps(content, indent=4, sort_keys=True))
+            
+            logger.info("%s",type(content))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            
+            qty=0.0
+
+            for item in items:
+                qty += float(item["TOT_QTY"])
+
+            
+
+            response["qty"] = qty
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SapIntegrationAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+SapIntegration = SapIntegrationAPI.as_view()
 
 
 LoginSubmit = LoginSubmitAPI.as_view()

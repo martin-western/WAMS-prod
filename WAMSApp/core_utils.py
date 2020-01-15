@@ -1,10 +1,9 @@
 from WAMSApp.models import *
+
 import logging
 import sys
 
 logger = logging.getLogger(__name__)
-
-
 
 
 def convert_to_ascii(s):
