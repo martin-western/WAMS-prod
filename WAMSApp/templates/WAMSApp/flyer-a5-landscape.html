@@ -1448,7 +1448,7 @@
 
           <div id="footer-div" class="col s12" style="background-color:#181818;position: absolute;margin-top: 138mm;width:210mm;height: 10mm;">
             <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
-              <p class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';" contenteditable="true">For more information, please visit www.geepas.com</p>
+              <p class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';" contenteditable="true"></p>
             </div>
           </div>
 
@@ -1829,6 +1829,7 @@
     var global_strikeprice_visible = false;
     var global_footer_text = "www.geepas.com";
 
+    var global_flyer_name = "flyer";
 
 
     $("#download-flyer-btn").click(function(e){
@@ -1945,7 +1946,7 @@
                     var objurl = URL.createObjectURL(blob);
                     
                     var a = document.createElement('a');
-                    a.download = 'flyer_image_'+(window.location.pathname.split("/")[2])+'.jpg';
+                    a.download = global_flyer_name+'.jpg';
                     a.href = objurl;
                     a.click();
 
@@ -1959,28 +1960,28 @@
                     $("#flyer-div").css("background-image", "url('" +original_bg_image_url+ "')");
                     //$(".product-strikeprice-info").attr("placeholder", "strikeprice");
 
-                    // var image_data = canvas.toDataURL();
+                    var image_data = canvas.toDataURL();
 
-                    // var fd = new FormData();
-                    // fd.append('image_data', image_data);
-                    // fd.append('flyer_pk', window.location.pathname.split("/")[2]);
+                    var fd = new FormData();
+                    fd.append('image_data', image_data);
+                    fd.append('flyer_pk', window.location.pathname.split("/")[2]);
 
-                    // $.ajax({
-                    //   url: "/save-flyer-in-bucket/",
-                    //   type: "POST",
-                    //   headers:{
-                    //     'X-CSRFToken':getCsrfToken()
-                    //   },
-                    //   processData: false,
-                    //   contentType: false,
-                    //   data: fd,
-                    //   success: function(response) {
-                    //     console.log("Success!", response);
-                    //   },
-                    //   error: function(xhr, textstatus, errorthrown) {
-                    //     console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-                    //   }
-                    // });
+                    $.ajax({
+                      url: "/save-flyer-in-bucket/",
+                      type: "POST",
+                      headers:{
+                        'X-CSRFToken':getCsrfToken()
+                      },
+                      processData: false,
+                      contentType: false,
+                      data: fd,
+                      success: function(response) {
+                        console.log("Success!", response);
+                      },
+                      error: function(xhr, textstatus, errorthrown) {
+                        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+                      }
+                    });
               });
             }
         },
@@ -2907,6 +2908,8 @@
           update_background_image_bucket();
           update_external_image_bucket();
           set_brand_image(response["brand_image_url"]);
+
+          global_flyer_name = response["flyer_name"];
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -3332,6 +3335,10 @@
 
       $("#header-opacity").val(global_header_opacity);
       $("#footer-opacity").val(global_footer_opacity);
+
+      if(global_footer_text=="")
+        global_footer_text = "Footer Text"
+
       $("#footer-text").text(global_footer_text);
       
       $("select").formSelect();

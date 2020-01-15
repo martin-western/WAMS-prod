@@ -1604,7 +1604,8 @@ class CreateFlyerAPI(APIView):
                 "header-opacity": "1",
                 "footer-opacity": "1",
                 "all-promo-resizer": "40",
-                "all-image-resizer": "100"
+                "all-image-resizer": "100",
+                "footer-text": "Your Footer Here"
             }
 
             template_data = {
@@ -2649,7 +2650,7 @@ class FetchFlyerListAPI(APIView):
                 temp_dict["flyer_pk"] = flyer_obj.pk
                 # Update this later
                 if flyer_obj.flyer_image != None:
-                    temp_dict["flyer_image"] = flyer_obj.flyer_image.image.url
+                    temp_dict["flyer_image"] = flyer_obj.flyer_image.mid_image.url
                 else:
                     temp_dict["flyer_image"] = Config.objects.all()[
                         0].product_404_image.image.url
