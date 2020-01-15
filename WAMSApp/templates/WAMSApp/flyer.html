@@ -1830,15 +1830,20 @@
     var global_white_container = false;
     var global_price_resizer = "100";
     var global_strikeprice_visible = false;
-    var global_footer_text = "www,geepas.com";
+    var global_footer_text = "www.geepas.com";
 
     var global_flyer_name = "flyer";
+
+    var global_save_signal = false;
 
 
     $("#download-flyer-btn").click(function(e){
 
-      $("#download-flyer-btn").attr("disabled", "disabled");
-      $("#loader-div").show();
+      if(global_save_signal==false)
+      {
+        $("#download-flyer-btn").attr("disabled", "disabled");
+        $("#loader-div").show();
+      }
 
       var total_grids = $(".grid-stack-item").length;
       var image_links = [];
@@ -1939,19 +1944,23 @@
               window.scrollTo(0,0);
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
                     console.log("Downloading it!!!");
-
-      	            $("#download-flyer-btn").removeAttr("disabled");
-                    $("#loader-div").hide();
                     
                     var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
 
                     var blob = dataURLtoBlob(dataURI);
                     var objurl = URL.createObjectURL(blob);
                     
-                    var a = document.createElement('a');
-                    a.download = global_flyer_name+'.jpg';
-                    a.href = objurl;
-                    a.click();
+
+                    if(global_save_signal==false)
+                    {
+                      $("#download-flyer-btn").removeAttr("disabled");
+                      $("#loader-div").hide();
+                      var a = document.createElement('a');
+                      a.download = global_flyer_name+'.jpg';
+                      a.href = objurl;
+                      a.click();
+                    }
+                    global_save_signal = false;
 
                     $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
@@ -3008,6 +3017,9 @@
 
 
     $("#save-flyer-template-btn").click(function(){
+
+      global_save_signal = true;
+      $("#download-flyer-btn").click();
       
       $("#save-flyer-template-btn").attr("disabled", "disabled");
 
