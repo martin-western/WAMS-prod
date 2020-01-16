@@ -77,7 +77,7 @@ def custom_permission_filter_pfls(user):
     try:
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
-        pfl_objs = PFL.objects.filter(product__brand__in=brands)
+        pfl_objs = PFL.objects.filter(product__base_product__brand__in=brands)
         return pfl_objs
     
     except Exception as e:
