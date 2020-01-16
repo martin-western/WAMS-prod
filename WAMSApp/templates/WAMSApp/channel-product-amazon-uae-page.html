@@ -155,15 +155,20 @@
                             <input placeholder="" id="recommended-browse-nodes" type="text">
                             <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
                         </div>
-                        <div class="input-field col s9 toggle-s6-s12">
-                            <input placeholder="" id="product-attribute-amazon-uk-1" type="text">
-                            <label for="product-attribute-amazon-uk-1">Product Attribute</label>
-                        </div>
+                        <div class="col s12">
+                            <div class="input-field col s9">
+                                <input placeholder="" id="product-attribute-amazon-uae-1" type="text">
+                                <label for="product-attribute-amazon-uae-1">Product Attribute</label>
+                            </div>
 
-                        <div class="input-field col s1 toggle-s6-s12">
-                            <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
-                                style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                                    class="material-icons">add</i></a>
+                            <div class="input-field col s1">
+                                <a id="add-product-attribute-amazon-uae-btn" href="#!" class="btn-floating blue"
+                                    style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                                        class="material-icons">add</i></a>
+                            
+                            </div>
+                        </div>
+                        <div id = "product-attributes-amazon-uae-div" class = "col s12">
                         </div>
                         <div class="col s12 toggle-s6-s12">
                             <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
@@ -884,6 +889,31 @@
         });
     }
 
+    var product_attribute_amazon_uae_cnt = 1;
+    var val_to_fill = "";
+        $("#add-product-attribute-amazon-uae-btn").click(function () {
+            product_attribute_amazon_uae_cnt++;
+
+            var html_string = `<div class = "col s12">
+                                <div class="input-field col s9">
+                                <input placeholder = "" value = `+val_to_fill+` class = "initiate" id="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `" type="text" >
+                              
+                                </div>
+                                <div class="input-field col s1">
+                                <a href="#!" class="remove-product-attribute-amazon-uae-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
+                                </div>
+                            </div>`
+            $("#product-attributes-amazon-uae-div").append(html_string);
+            $('input.initiate').click();
+            val_to_fill = "";
+        });
+
+        $(document).on("click", ".remove-product-attribute-amazon-uae-btn", function () {
+            $(this).parent().parent().remove();
+        });
+
+
+
     $(document).ready(function () {
         $('.tabs').tabs();
     });
@@ -1225,6 +1255,19 @@ function fetch_amazon_uae_product_images_details() {
         $('#update-delete').val(data["update_delete"]);
         $('select').formSelect();
         $('#recommended-browse-nodes').val(data["recommended_browse_nodes"]);
+        var product_attributes_list = data["product_attributes"];
+        console.log(product_attributes_list);
+        product_attributes_list = JSON.parse(product_attributes_list);
+        console.log(product_attributes_list);
+        if(product_attributes_list.length > 0)
+        {
+            $('#product-attribute-amazon-uae-1').val(product_attributes_list[0]);
+            for(var i = 1;i<product_attributes_list.length;i++)
+            {
+                val_to_fill = product_attributes_list[i];
+                $("#add-product-attribute-amazon-uae-btn").click();
+            }
+        }
     }
 
     
@@ -1797,13 +1840,13 @@ function fetch_amazon_uae_product_images_details() {
             // var number_of_items = $("#number-of-items").val();
             // var condition_type = $("#condition-type").val();
 
-            // var product_attribute_data_amazon_uk = [];
-            // for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
-            //   if ($("#product-attribute-amazon-uk-" + i).val() != "") {
-            //     product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
-            //   }
-            // }
-            // product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
+            var product_attribute_data_amazon_uae = [];
+            for (var i = 1; i <= product_attribute_amazon_uae_cnt; i++) {
+              if ($("#product-attribute-amazon-uae-" + i).val() != "") {
+                product_attribute_data_amazon_uae.push($("#product-attribute-amazon-uae-" + i).val());
+              }
+            }
+            product_attribute_data_amazon_uae = JSON.stringify(product_attribute_data_amazon_uae);
 
 
             amazon_uae_product_json = {}
@@ -1813,6 +1856,8 @@ function fetch_amazon_uae_product_images_details() {
             // amazon_uae_product_json["variation_theme"]  = variation_theme;
             amazon_uae_product_json["update_delete"] = update_delete;
             amazon_uae_product_json["recommended_browse_nodes"] = recommended_browse_nodes;
+            amazon_uae_product_json["product_attributes"] = product_attribute_data_amazon_uae;
+
             // amazon_uae_product_json["search_terms"] = search_terms;
             // amazon_uae_product_json["enclosure_material"] = enclosure_material;
             // amazon_uae_product_json["cover_material_type"] = cover_material_type;

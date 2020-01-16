@@ -108,16 +108,21 @@
                         </div>
 
 
-                        <div class="input-field col s9 toggle-s6-s12">
-                            <input placeholder="" id="product-attribute-amazon-uk-1" type="text">
-                            <label for="product-attribute-amazon-uk-1">Product Attribute</label>
-                        </div>
+                        <div class = "col s12">
+                            <div class="input-field col s9">
+                                <input placeholder="" id="product-attribute-noon-1" type="text">
+                                <label for="product-attribute-noon-1">Product Attribute</label>
+                            </div>
 
-                        <div class="input-field col s1 toggle-s6-s12">
-                            <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
-                                style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                                    class="material-icons">add</i></a>
-                        </div>
+                            <div class="input-field col s1">
+                                <a id="add-product-attribute-noon-btn" href="#!" class="btn-floating blue"
+                                    style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                                        class="material-icons">add</i></a>
+                            </div>
+                        </div>  
+                        <div class="col s12" id = "product-attributes-noon-div"></div>
+
+                      
                         <div class="input-field col s6 toggle-s6-s12">
                             <input placeholder="" id="created-date" type="date">
                             <label for="created-date">Created Date</label>
@@ -1219,19 +1224,21 @@ error: function (xhr, textstatus, errorthrown) {
 
 
     var product_attribute_noon_cnt = 1;
+    var val_to_fill = ""
     $("#add-product-attribute-noon-btn").click(function () {
         product_attribute_noon_cnt++;
 
-        var html_string = `<div>
+        var html_string = `<div class = "col s12">
                          <div class="input-field col s9">
-                           <input id="product-attribute-noon-`+ product_attribute_noon_cnt + `" type="text" >
-                           <label for="product-attribute-noon-`+ product_attribute_noon_cnt + `">Product Attribute</label>
+                           <input value = `+val_to_fill+` id="product-attribute-noon-`+ product_attribute_noon_cnt + `" type="text" >
+                         
                          </div>
                          <div class="input-field col s1">
                            <a href="#!" class="remove-product-attribute-noon-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
                          </div>
                        </div>`
         $("#product-attributes-noon-div").append(html_string);
+        val_to_fill = ""
     });
 
     $(document).on("click", ".remove-product-attribute-noon-btn", function () {
@@ -1769,7 +1776,19 @@ error: function (xhr, textstatus, errorthrown) {
                     $('#product-description').val(data["product_description"]);
                     $('#noon-product-subtype').val(data["product_subtype"]);
                     $('#noon-product-type').val(data["product_type"]);
-
+                    var product_attributes_list = data["product_attributes"];
+                    console.log(product_attributes_list);
+                    product_attributes_list = JSON.parse(product_attributes_list);
+                    console.log(product_attributes_list);
+                    if(product_attributes_list.length > 0)
+                    {
+                        $('#product-attribute-noon-1').val(product_attributes_list[0]);
+                        for(var i = 1;i<product_attributes_list.length;i++)
+                        {
+                            val_to_fill = product_attributes_list[i];
+                            $("#add-product-attribute-noon-btn").click();
+                        }
+                    }
                 }
 
 
@@ -1810,7 +1829,7 @@ error: function (xhr, textstatus, errorthrown) {
                 fetch_details_noon();
 
 
-            function save_product_noon() {
+                function save_product_noon() {
 
                         $("#save-btn").attr("disabled", "disabled");
 
@@ -1859,13 +1878,13 @@ error: function (xhr, textstatus, errorthrown) {
                         // var number_of_items = $("#number-of-items").val();
                         // var condition_type = $("#condition-type").val();
 
-                        // var product_attribute_data_amazon_uk = [];
-                        // for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
-                        //   if ($("#product-attribute-amazon-uk-" + i).val() != "") {
-                        //     product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
-                        //   }
-                        // }
-                        // product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
+                        var product_attribute_data_noon = [];
+                        for (var i = 1; i <= product_attribute_noon_cnt; i++) {
+                          if ($("#product-attribute-noon-" + i).val() != "") {
+                            product_attribute_data_noon.push($("#product-attribute-noon-" + i).val());
+                          }
+                        }
+                        product_attribute_data_noon = JSON.stringify(product_attribute_data_noon);
 
 
                         // "product_name" : "",
@@ -1890,6 +1909,8 @@ error: function (xhr, textstatus, errorthrown) {
                         noon_data_json["model_name"] = model_name
                         noon_data_json["product_subtype"] = product_subtype
                         noon_data_json["created_date"] = created_date
+                        noon_data_json["product_attributes"] = product_attribute_data_noon
+
                         // noon_data_json["category"] = category
                         // noon_data_json["variation_theme"]  = variation_theme;
                         // noon_data_json["update_delete"] = update_delete;

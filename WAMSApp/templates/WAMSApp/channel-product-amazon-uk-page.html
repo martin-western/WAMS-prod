@@ -231,21 +231,28 @@
                 <label for="sale-end">Sale End</label>
               </div>
 
-              <div class="input-field col s9 toggle-s6-s12">
-                <input id="special-feature-1" type="text">
+              <div class = "col s12">
+              <div class="input-field col s9">
+                <input  placeholder="" id="special-feature-1" type="text">
                 <label for="special-feature-1">Special Feature</label>
               </div>
 
-              <div class="input-field col s1 toggle-s6-s12">
+              <div class="input-field col s1">
                 <a id="add-special-feature-btn" href="#!" class="btn-floating blue"
                   style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
                     class="material-icons">add</i></a>
+              </div>
+              </div>
+
+              <div class="col s12" id = "special-features-div">
               </div>
 
               <div class="input-field col s4 toggle-s6-s12" style="padding: 0px 20px 0px 50px  !important;">
                 <input id="wattage" type="number">
                 <label for="wattage">Wattage</label>
               </div>
+
+              
 
               <div class="input-field col s2 toggle-s6-s12" style="padding: 0px 40px 0px 10px !important;">
                 <select id="wattage-metric">
@@ -1282,10 +1289,9 @@
   $("#add-special-feature-btn").click(function () {
     special_feature_cnt++;
 
-    var html_string = `<div>
+    var html_string = `<div class = "col s12">
                            <div class="input-field col s9">
                              <input id="special-feature-`+ special_feature_cnt + `" type="text" >
-                             <label for="special-feature-`+ special_feature_cnt + `">Special Feature</label>
                            </div>
 
                            <div class="input-field col s1">

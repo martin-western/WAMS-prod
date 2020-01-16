@@ -204,7 +204,7 @@
             border-radius: 5px !important;
             padding-left: 10px !important;
             font-family: 'AvenirNext' !important;
-            font-weight:
+            box-sizing: border-box !important;
         }
     
         input:not([type]):focus:not([readonly]),

@@ -85,17 +85,22 @@
                             <input placeholder="" id="product-category" type="text">
                             <label for="product-category">Category</label>
                         </div>
+                    
+                            <div class = "col s12">
+                                <div class="input-field col s9">
+                                    <input placeholder="" id="product-attribute-ebay-1" type="text">
+                                    <label for="product-attribute-ebay-1">Product Attribute</label>
+                                </div>
 
-                        <div class="input-field col s9 toggle-s6-s12">
-                            <input placeholder="" id="product-attribute-amazon-uk-1" type="text">
-                            <label for="product-attribute-amazon-uk-1">Product Attribute</label>
-                        </div>
-
-                        <div class="input-field col s1 toggle-s6-s12">
-                            <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
-                                style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
-                                    class="material-icons">add</i></a>
-                        </div>
+                                <div class="input-field col s1">
+                                    <a id="add-product-attribute-ebay-btn" href="#!" class="btn-floating blue"
+                                        style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                                            class="material-icons">add</i></a>
+                                </div>
+                        </div>  
+                        <div class="col s12" id = "product-attributes-ebay-div"></div>
+                       
+                      
                         <div class="col s12 toggle-s6-s12">
                             <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
                                 Description</h6>
@@ -1146,28 +1151,6 @@
         }
     }
 
-   
-
-    var product_attribute_amazon_uk_cnt = 1;
-    $("#add-product-attribute-amazon-uk-btn").click(function () {
-        product_attribute_amazon_uk_cnt++;
-
-        var html_string = `<div>
-                         <div class="input-field col s9">
-                           <input id="product-attribute-amazon-uk-`+ product_attribute_amazon_uk_cnt + `" type="text" >
-                           <label for="product-attribute-amazon-uk-`+ product_attribute_amazon_uk_cnt + `">Product Attribute</label>
-                         </div>
-                         <div class="input-field col s1">
-                           <a href="#!" class="remove-product-attribute-amazon-uk-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
-                         </div>
-                       </div>`
-        $("#product-attributes-amazon-uk-div").append(html_string);
-    });
-
-    $(document).on("click", ".remove-product-attribute-amazon-uk-btn", function () {
-        $(this).parent().parent().remove();
-    });
-
 
     var product_attribute_amazon_uae_cnt = 1;
     $("#add-product-attribute-amazon-uae-btn").click(function () {
@@ -1190,20 +1173,23 @@
     });
 
 
+
     var product_attribute_ebay_cnt = 1;
+    var val_to_fill = "";
     $("#add-product-attribute-ebay-btn").click(function () {
         product_attribute_ebay_cnt++;
 
         var html_string = `<div>
                          <div class="input-field col s9">
-                           <input id="product-attribute-ebay-`+ product_attribute_ebay_cnt + `" type="text" >
-                           <label for="product-attribute-ebay-`+ product_attribute_ebay_cnt + `">Product Attribute</label>
+                           <input  value = `+val_to_fill+` id="product-attribute-ebay-`+ product_attribute_ebay_cnt + `" type="text" >
+                        
                          </div>
                          <div class="input-field col s1">
                            <a href="#!" class="remove-product-attribute-ebay-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
                          </div>
                        </div>`
         $("#product-attributes-ebay-div").append(html_string);
+        val_to_fill = "";   
     });
 
     $(document).on("click", ".remove-product-attribute-ebay-btn", function () {
@@ -1214,6 +1200,7 @@
 
 
     var product_attribute_noon_cnt = 1;
+
     $("#add-product-attribute-noon-btn").click(function () {
         product_attribute_noon_cnt++;
 
@@ -1227,6 +1214,7 @@
                          </div>
                        </div>`
         $("#product-attributes-noon-div").append(html_string);
+        val_to_fill = "";
     });
 
     $(document).on("click", ".remove-product-attribute-noon-btn", function () {
@@ -1759,6 +1747,19 @@
         $('#product-id').val(data["product-id"]);
         $('#product-category').val(data["category"]);   
         $('#product-description').val(data["product_description"]);
+        var product_attributes_list = data["product_attributes"];
+        console.log(product_attributes_list);
+        product_attributes_list = JSON.parse(product_attributes_list);
+        console.log(product_attributes_list);
+        if(product_attributes_list.length > 0)
+        {
+            $('#product-attribute-ebay-1').val(product_attributes_list[0]);
+            for(var i = 1;i<product_attributes_list.length;i++)
+            {
+                val_to_fill = product_attributes_list[i];
+                $("#add-product-attribute-ebay-btn").click();
+            }
+        }
     }
 
         
@@ -1842,13 +1843,13 @@ function save_product_ebay() {
         // var number_of_items = $("#number-of-items").val();
         // var condition_type = $("#condition-type").val();
 
-        // var product_attribute_data_amazon_uk = [];
-        // for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
-        //   if ($("#product-attribute-amazon-uk-" + i).val() != "") {
-        //     product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
-        //   }
-        // }
-        // product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
+        var product_attribute_data_ebay = [];
+        for (var i = 1; i <= product_attribute_ebay_cnt; i++) {
+          if ($("#product-attribute-ebay-" + i).val() != "") {
+            product_attribute_data_ebay.push($("#product-attribute-ebay-" + i).val());
+          }
+        }
+        product_attribute_data_ebay = JSON.stringify(product_attribute_data_ebay);
 
 
         ebay_data_json = {}
@@ -1857,6 +1858,7 @@ function save_product_ebay() {
         ebay_data_json["product_name"] = product_name;
         ebay_data_json["product_description"] = description
         ebay_data_json["category"] = category
+        ebay_data_json["product_attributes"] = product_attribute_data_ebay
         // ebay_data_json["variation_theme"]  = variation_theme;
         // ebay_data_json["update_delete"] = update_delete;
         // ebay_data_json["recommended_browse_nodes"] = recommended_browse_nodes;
