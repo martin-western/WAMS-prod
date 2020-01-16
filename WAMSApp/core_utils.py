@@ -1,4 +1,5 @@
 from django.core.files.base import ContentFile
+from WAMSApp.models import *
 
 from PIL import Image as IMAGE
 
@@ -9,6 +10,7 @@ import base64
 import six
 import uuid
 
+logger = logging.getLogger(__name__)
 
 def custom_permission_filter_base_products(user):
 
