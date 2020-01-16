@@ -1944,12 +1944,6 @@
               window.scrollTo(0,0);
               html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
                     console.log("Downloading it!!!");
-<<<<<<< HEAD
-
-                    $("#download-flyer-btn").removeAttr("disabled");
-                    $("#loader-div").hide();
-=======
->>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
                     
                     var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
 
