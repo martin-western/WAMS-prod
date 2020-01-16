@@ -4,7 +4,7 @@ import sys
 
 product_objs = Product.objects.all()
 
-fw = open("./files/csv/report-1-images.csv", mode='w')
+fw = open("./files/csv/report-1-images-count.csv", mode='w')
 writer = csv.writer(fw,
                     delimiter=',',
                     quotechar='"',
@@ -13,6 +13,7 @@ writer = csv.writer(fw,
 row = ["Sr. No.",
        "Product ID",
        "Product Name",
+       "Brand",
        "Main Images",
        "Sub Images",
        "PFL Images",
@@ -31,11 +32,13 @@ writer.writerow(row)
 cnt = 0
 for product_obj in product_objs:
     try:
+        break
         cnt += 1
         print("Cnt: ", cnt)
         row = [str(cnt),
                str(product_obj.product_id),
                product_obj.product_name_sap,
+               str(product_obj.brand),
                str(product_obj.main_images.all().count()),
                str(product_obj.sub_images.all().count()),
                str(product_obj.pfl_images.all().count()),
@@ -60,6 +63,79 @@ for product_obj in product_objs:
 
 fw.close()
 
+#########################################################################
+
+
+fw = open("./files/csv/report-1-images-boolean.csv", mode='w')
+writer = csv.writer(fw,
+                    delimiter=',',
+                    quotechar='"',
+                    quoting=csv.QUOTE_MINIMAL)
+
+row = ["Sr. No.",
+       "Product ID",
+       "Product Name",
+       "Brand",
+       "Main Images",
+       "Sub Images",
+       "PFL Images",
+       "White Background Images",
+       "Lifestyle Images",
+       "Certificate Images",
+       "Giftbox Images",
+       "Diecut Images",
+       "A+ Content Images",
+       "Ads Images",
+       "Unedited Images",
+       "PFL Generated Images"]
+
+
+
+writer.writerow(row)
+
+cnt = 0
+for product_obj in product_objs:
+    try:
+        cnt += 1
+        print("Cnt: ", cnt)
+        row = [str(cnt),
+               str(product_obj.product_id),
+               product_obj.product_name_sap,
+               str(product_obj.brand),
+               str(product_obj.main_images.all().count()),
+               str(product_obj.sub_images.all().count()),
+               str(product_obj.pfl_images.all().count()),
+               str(product_obj.white_background_images.all().count()),
+               str(product_obj.lifestyle_images.all().count()),
+               str(product_obj.certificate_images.all().count()),
+               str(product_obj.giftbox_images.all().count()),
+               str(product_obj.diecut_images.all().count()),
+               str(product_obj.aplus_content_images.all().count()),
+               str(product_obj.ads_images.all().count()),
+               str(product_obj.unedited_images.all().count()),
+               str(product_obj.pfl_generated_images.all().count())]
+
+        data_row = []
+        indexx = 0
+        for k in row:
+            indexx += 1
+            l = k.encode('utf-8').strip()
+            try:
+                if indexx>4:
+                    if int(l)>0:
+                        l = "1"
+                    else:
+                        l = "0"
+            except Exception as e:
+                pass
+            data_row.append(l)
+        writer.writerow(data_row)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print("Error pk:", product_obj.pk, str(e), str(exc_tb.tb_lineno))
+
+fw.close()
+
 
 ##########################################################################
 
@@ -74,6 +150,7 @@ writer = csv.writer(fw,
 row = ["Sr. No.",
        "Product ID",
        "Product Name",
+       "Brand",
        "product_name_sap",
        "product_name_amazon_uk",
        "product_name_amazon_uae",
@@ -163,6 +240,9 @@ writer.writerow(row)
 cnt = 0
 for product_obj in product_objs:
     try:
+        break
+        #if product_obj.brand==None or str(product_obj.brand.organization)=="Nesto":
+        #    continue
         cnt += 1
         print("Cnt: ", cnt)
         # Vital
@@ -261,6 +341,7 @@ for product_obj in product_objs:
         row = [str(cnt),
                str(product_obj.product_id),
                product_obj.product_name_sap,
+               str(product_obj.brand),
                str(product_name_sap),
                str(product_name_amazon_uk),
                str(product_name_amazon_uae),
@@ -348,6 +429,10 @@ for product_obj in product_objs:
         data_row = []
         for k in row:
             l = k.encode('utf-8').strip()
+            if l=="True":
+                l = "1"
+            elif l=="False":
+                l = "0"
             data_row.append(l)
         writer.writerow(data_row)
     except Exception as e:

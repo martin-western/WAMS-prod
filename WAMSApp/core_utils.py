@@ -9,9 +9,6 @@ import base64
 import six
 import uuid
 
-from WAMSApp.models import *
-
-logger = logging.getLogger(__name__)
 
 def custom_permission_filter_base_products(user):
 

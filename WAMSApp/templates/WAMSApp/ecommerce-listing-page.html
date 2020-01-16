@@ -5,6 +5,30 @@
 {% load static %}
 
 <style type="text/css">
+<<<<<<< HEAD
+=======
+  html,
+  body {
+    height: 100%;
+    background-color: white !important;
+  }
+
+  @font-face {
+    font-family: AvenirNext;
+    src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Demi.otf' %}");
+  }
+
+  @font-face {
+    font-family: AvenirNextBold;
+    src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Bold.otf' %}");
+  }
+
+  @font-face {
+    font-family: AvenirNextBold;
+    src: url("{% static 'WAMSApp/fonts/Avenir-Next-Font/AvenirNextLTPro-Bold.otf' %}");
+  }
+
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
   .ck.ck-content ul,
   .ck.ck-content ul li {
     list-style-type: inherit;
@@ -67,7 +91,11 @@
   }
 
   .purplee:hover {
+<<<<<<< HEAD
     background-color: #512de8 !important;
+=======
+    background-color: #512da8 !important;
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
     color: white !important;
   }
 
@@ -87,6 +115,7 @@
   }
 
   input[type="checkbox"].filled-in:checked+span:before {
+<<<<<<< HEAD
     background-color: #512de8 !important
   }
 
@@ -138,6 +167,59 @@
     color: black !important;
   }
 
+=======
+    background-color: #512da8 !important
+  }
+
+  input[type="checkbox"].filled-in:checked+span:after {
+    background-color: #512da8 !important
+  }
+
+  .img-overlay:before {
+    content: ' ';
+    display: block;
+    height: 10%;
+  }
+
+
+  a .active {
+    background-color: #512da8 !important;
+  }
+
+
+  /*tabs*/
+
+  .tab-content {
+    margin-top: 20px;
+    max-height: 80vh;
+    overflow: auto;
+    overflow-x: hidden;
+  }
+
+  input:focus {
+    border-color: #512da8 !important;
+  }
+
+  input:select {
+    border-color: #512da8 !important;
+  }
+
+  .tab-pane div.row {
+    padding: 20px !important;
+  }
+
+  .savebtn {
+    position: fixed;
+    top: 20px;
+    left: 50px;
+    background-color: #512da8;
+  }
+
+  li span {
+    color: black !important;
+  }
+
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
   img.materialboxed {
     width: 100px;
     height: 100px;
@@ -166,6 +248,7 @@
   ::-webkit-scrollbar-thumb {
     background: gray;
   }
+<<<<<<< HEAD
 
 
   .input-field:not(.left-section) {
@@ -335,22 +418,149 @@
     display: none;
   }
 </style>
+=======
 
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+  .input-field:not(.left-section) {
+    padding: 0px 50px 0px 50px !important;
+    margin-top: 20px !important;
+  }
+
+<<<<<<< HEAD
 <style type="text/css">
   .image-section-dropdown .select-wrapper input.select-dropdown {
     border: none !important;
     bottom: 2px !important;
     margin-bottom: 0px !important;
-    font-size: 14px !important;
+=======
+
+  input:not([type]),
+  input[type=text],
+  input[type=password],
+  input[type=email],
+  input[type=url],
+  input[type=time],
+  input[type=date],
+  input[type=datetime],
+  input[type=datetime-local],
+  input[type=tel],
+  input[type=number],
+  input[type=search],
+  textarea.materialize-textarea {
+    border: none !important;
+    border-bottom: 2px solid #f7f7f7 !important;
+    padding-left: 10px !important;
+    font-family: 'AvenirNext' !important;
+    font-weight:
   }
 
+  input:not([type]):focus:not([readonly]),
+  input[type=text]:focus:not([readonly]),
+  input[type=password]:focus:not([readonly]),
+  input[type=email]:focus:not([readonly]),
+  input[type=url]:focus:not([readonly]),
+  input[type=time]:focus:not([readonly]),
+  input[type=date]:focus:not([readonly]),
+  input[type=datetime]:focus:not([readonly]),
+  input[type=datetime-local]:focus:not([readonly]),
+  input[type=tel]:focus:not([readonly]),
+  input[type=number]:focus:not([readonly]),
+  input[type=search]:focus:not([readonly]),
+  textarea.materialize-textarea:focus:not([readonly])>label {
+    border-bottom: 1px solid #512da8 !important;
+    box-shadow: 0 1px 0 0 #f00 !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+  }
+
+  label {
+    margin-left: 50px !important;
+  }
+
+  .input-field:not(.left-section) input:focus+label {
+    color: #512da8 !important;
+  }
+
+  .row .input-field:not(.left-section) input:focus {
+    border-bottom: 1px solid #512da8 !important;
+    box-shadow: 0 1px 0 0 #512da8 !important
+  }
+
+  .left-section .select-wrapper ul {
+    position: relative;
+    top: -300px !important;
+  }
+
+  .material-placeholder {}
+
+  .preview-img {
+    height: 100% !important;
+    width: 100% !important;
+    object-fit: contain;
+  }
+
+  .image-section {
+    padding: 0 !important;
+  }
+
+
+
+  .padding-zero {
+    padding: 0 !important;
+  }
+
+  .graphics-section {
+    padding: 10px 0 !important;
+    margin: 0;
+  }
+
+  .feature-container>p {
+    display: flex;
+    align-items: center;
+  }
+
+  .feature-container ul {
+    margin: 10px 0;
+  }
+
+  .feature-list {
+    color: grey;
+    font-size: 12px;
+  }
+
+  .product-info-parent {
+
+    padding: 0 20px;
+  }
+
+  .product-info {
+    font-size: 14px;
+    color: grey;
+    font-family: 'AvenirNextRegular';
+  }
+
+  .product-info-tab>li>a {
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+    font-size: 14px !important;
+    color: grey !important;
+    padding: 0 5px;
+  }
+
+<<<<<<< HEAD
   input.active {
     border-bottom-color: #512da8 !important;
+=======
+  .product-info-tab>li>.active {
+    /* background-color: #80808091 !important; */
+    color: #321DD6  !important;
+    background-color: white !important;
+    border-right: .5px solid rgba(128, 128, 128, 0.418);
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
   }
-</style>
 
 
+<<<<<<< HEAD
 <div>
   <div class="row" style="margin:0px; padding: 20px;">
 
@@ -425,12 +635,49 @@
     </div>
   </div>
 </div>
+=======
+  .product-info-tab {
+    display: flex;
+    flex-direction: column !important;
+    width: 100%;
+    height: auto;
+    background-color: white;
+    border-right: .5px solid rgba(128, 128, 128, 0.418);
+    margin: 10px 0;
+  }
 
+  .product-info-tab .tab>a {
+    text-align: left;
+    color: #512da8;
+    font-size: 14px !important;
+  }
 
+  .product-info-container {}
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+  .product-info {
+    padding: 20px;
+  }
 
+  .right-container {
+    padding: 0 30px !important;
+  }
 
+<<<<<<< HEAD
 
+=======
+  .right-container h5 {
+    color: #512da8;
+    font-size: 20px;
+  }
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+  .feature-title {
+    color: #512da8;
+    font-size: 14px;
+  }
+
+<<<<<<< HEAD
 <div id="download-export-list-modal" class="modal" style="border-radius: 5px;">
   <div class="modal-content">
     <h5 style="font-family: 'AvenirNext';font-size: 18px;">EXPORT PRODUCT</h5>
@@ -457,10 +704,21 @@
       style="margin-right: 20px;background-color: #521893 !important;">Download</a>
   </div>
 </div>
+=======
+  .sku-info {
+    color: grey;
+    font-size: 12px;
+  }
+
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+  /* disable bottom border from tabs */
+  li.indicator {
+    display: none;
+  }
 
 
-<script type="text/javascript">
-
+<<<<<<< HEAD
   $('.tabs').tabs();
   $('.chips').chips();
   $('select').formSelect();
@@ -493,12 +751,40 @@
   $('#close-btn').click(function () {
     preventDefault();
   })
+=======
+  /*  Sourav Code */
 
+  .row {
+    margin: 0 !important;
 
+  }
+
+  .margin-zero {
+    margin: 0 !important;
+  }
+
+  .bg-white {
+    background-color: white;
+  }
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+  .text-grey {
+    color: grey;
+  }
+
+<<<<<<< HEAD
   $("#download-product-btn").click(function () {
+=======
+  .no-shadows {
+    box-shadow: none !important;
+  }
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
-    var export_format = $("#export-format").val();
+  .avenier-next {
+    font-family: 'AvenirNext';
+  }
 
+<<<<<<< HEAD
     $.ajax({
       url: "/download-product/",
       type: "POST",
@@ -519,9 +805,14 @@
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
+=======
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
-  });
+  .breadcrumb-container {
+    border-bottom: .5px solid rgba(128, 128, 128, 0.384);
+  }
 
+<<<<<<< HEAD
   window.addEventListener('beforeunload', function (e) {
     if (savecounter) {
       e.preventDefault();
@@ -591,15 +882,35 @@
   $('#barcode-string').characterCounter();
 
   $("#download-image-btn").click(function () {
+=======
+  .breadcrumb:before {
+    color: grey;
+    font-size: 14px;
 
-    $("#download-image-btn").attr("disabled", "disabled");
-    var high_def_url = $($(".preview-img")[0]).attr("high_def_url");
-    var image_links = [];
-    image_links.push({
-      "key": "high_def_url",
-      "url": high_def_url
-    })
+  }
 
+  .breadcrumb {
+    color: grey;
+    font-family: 'AvenirNextRegular';
+    font-size: 14px;
+  }
+
+  .active-breadcrumb {
+    color: grey !important;
+    font-family: 'AvenirNextRegular';
+    font-size: 14px;
+  }
+
+  .active-breadcrumb:before {
+    color: grey;
+  }
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+  .breadcrumb-container nav {
+    height: 50px;
+  }
+
+<<<<<<< HEAD
     $.ajax({
       url: "/download-images-s3/",
       type: "POST",
@@ -637,34 +948,45 @@
                            <input class="feature-text" id="pfl-feature-`+ pfl_feature_cnt + `" type="text" >
                            <label for="pfl-feature-`+ pfl_feature_cnt + `">Feature</label>
                          </div>
+=======
+  .nav-wrapper {
+    height: 50px !important;
+    display: flex;
+    align-items: center;
+  }
 
-                        <div class="input-field col s1">
-                          <a href="#!" class="delete-feature-btn btn-floating red" style="transform: scale(0.7);box-shadow: none;"><i class="material-icons">remove</i></a>
-                        </div>
-                      </div>`;
-    $("#feature-summary-editor-div").append(html_string);
-    pfl_feature_cnt++;
-  });
+  .content-left-container {
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+    min-height: 100vh;
+    border-right: .5px solid rgba(128, 128, 128, 0.39) !important;
+  }
 
+  .content-left-container .border-right {
+    border-right: .5px solid rgba(128, 128, 128, 0.39) !important;
+
+<<<<<<< HEAD
   $(document).on('click', ".delete-feature-btn", function () {
     $(this).parent().parent().remove();
   });
+=======
+  }
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
-  // $('.pflspecific').hide(); 
+  .content-right-container {
+    height: 100% !important;
+    padding: 10px !important;
 
-  $("#heading-title").html("PRODUCT FORM");
 
 
 
-  function getCsrfToken() {
-    var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
-    return CSRF_TOKEN;
   }
 
-  var global_images = {};
-  var global_image_key = "all_images";
+  .content-right-container ul {
+    padding: 10px !important;
+  }
 
+<<<<<<< HEAD
   function fetch_constant_values() {
     $.ajax({
       url: "/fetch-constant-values/",
@@ -731,11 +1053,24 @@
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
+=======
+  .content-right-container ul>li:before {
+    content: "•";
+    display: inline-block;
+    color: #321DD6 ;
+    margin-right: 5px;
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
   }
 
-  fetch_constant_values();
 
+  .content-right-container ul>li {
+    font-family: 'AvenirNextRegular';
+    font-size: 14px;
+    color: #757575;
+    margin-bottom: 10px;
+  }
 
+<<<<<<< HEAD
   function fetch_product_images_details() {
     $.ajax({
       url: "/fetch-product-details/",
@@ -789,18 +1124,50 @@
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
+=======
+  .special-features-title {
+    color: #321DD6 ;
+    font-size: 16px;
   }
 
+  .brand-title {
+    color: grey;
+    font-family: 'AvenirNextRegular';
+    font-size: 16px;
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+  }
 
+  .product-title {
+    font-family: 'AvenirNext';
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+<<<<<<< HEAD
   $("#upload-image-btn").click(function () {
 
     $("#upload-image-btn").attr("disabled", "disabled");
     $("#upload-preloader").show();
+=======
+  .product-id-sku-container {
+    display: flex;
+    align-items: center;
+    background-color: #F8EDFF;
+    padding: 10px;
+  }
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
-    product_pk = window.location.pathname.split("/")[2];
+  .product-id-sku-container>p {
+    color: #321DD6 ;
+    font-family: 'AvenirNextRegular';
+    margin: 0 10px 0 0;
+  }
 
-    var fd = new FormData();
+  .product-category-container {
+    padding: 10px 0;
+  }
 
+<<<<<<< HEAD
     fd.append("product_pk", product_pk);
     var product_image_input = document.getElementById("product-image-input");
 
@@ -872,9 +1239,46 @@
       },
       success: function (response) {
         console.log("Success!", response);
+=======
+  .product-category-container .category-title {
+    color: #ADADAD;
+    font-size: 14px;
+    font-family: 'AvenirNextRegular';
+  }
 
-        global_verification_status = response["verified"];
+  .product-category-container>.row {
+    margin-bottom: 15px !important;
+  }
 
+  .product-category-container .category-info {
+    color: #5A5A5A;
+    font-size: 14px;
+    font-family: 'AvenirNextRegular';
+    line-height: 1.2 !important;
+  }
+
+  .social-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    height: 60px;
+    border-top: .5px solid rgba(128, 128, 128, 0.37);
+    border-bottom: .5px solid rgba(128, 128, 128, 0.37);
+  }
+
+  .fab {
+    font-size: 25px;
+    margin: 0 10px;
+  }
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+  .slider-container {
+    width: 100%;
+    padding: 0 5px;
+  }
+
+<<<<<<< HEAD
         if (response["verified"] == true) {
           set_verify(true);
         }
@@ -1057,10 +1461,152 @@
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
+=======
+  .slider-for {
+    height: auto;
   }
 
-  fetch_product_details();
+  .slider-nav {
+    height: auto;
+    margin-top: 20px;
+    padding: 0 8px;
+    position: relative;
+  }
 
+  .slick-prev {
+    position: absolute;
+    left: -12px;
+  }
+
+  .slick-next {
+    position: absolute;
+    right: -12px;
+  }
+
+  .slick-track {
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .slick-prev:before,
+  .slick-next:before {
+
+    color: #CCCCCC;
+  }
+
+  .img-fluid-preview {
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
+  }
+
+  .slick-slide {
+    padding: 2px !important;
+  }
+
+  .img-fluid-nav {
+    width: 100% !important;
+    margin: 0 4px;
+  }
+
+  .product-price-outdoor-container {
+    background-color: #3FB223;
+    padding: 10px 10px 5px 10px;
+    border-radius: 5px;
+  }
+
+  .product-price {
+    margin: 0;
+    color: white;
+    font-family: 'AvenirNextRegular';
+    font-size: 13px;
+
+  }
+
+  .product-stock-warehouse-container {
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid #321DD6 ;
+    padding: 10px 10px 5px 10px;
+  }
+
+  .product-stock {
+    margin: 0;
+    color: #321DD6 ;
+    font-family: 'AvenirNextRegular';
+    font-size: 13px;
+  }
+
+  .stock-warehouse {
+    font-family: 'AvenirNextRegular !important';
+    font-size: 12px !important;
+    border: none;
+    color: #321DD6 ;
+  }
+
+  .stock-warehouse:focus {
+    outline: none;
+  }
+
+  .outdoor-price {
+    font-family: 'AvenirNextRegular !important';
+    font-size: 12px !important;
+    background-color: #3FB223;
+    border: none;
+    color: white;
+  }
+
+  .outdoor-price:focus {
+    outline: none;
+  }
+
+  .outdoor-price-container .select-wrapper input.select-dropdown {
+    border-bottom: none !important;
+    font-size: 10px;
+    margin: 0;
+    color: white;
+    height: 20px;
+    font-weight: 200;
+  }
+
+  .outdoor-price-container .select-wrapper .caret {
+    right: -20px;
+    fill: white;
+  }
+
+  .product-stock-warehouse-container .select-wrapper input.select-dropdown {
+    border-bottom: none !important;
+    font-size: 10px;
+    margin: 0;
+    color: #321DD6 ;
+    height: 20px;
+    font-weight: 200;
+  }
+
+  .product-stock-warehouse-container .select-wrapper .caret {
+    right: -24px;
+    fill: #321DD6 ;
+  }
+
+  .dimension-tab-info {
+
+    color: #ADADAD;
+    font-size: 14px;
+    padding-right: 10px;
+  }
+
+  .dimension-tab-info-value {
+
+    color: #747474;
+    font-size: 14px;
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+  }
+
+  .dimension-tab-container table.striped>tbody>tr:nth-child(odd) {
+    background-color: #EDF8FF;
+  }
+
+<<<<<<< HEAD
   var product_attribute_amazon_uk_cnt = 1;
   $("#add-product-attribute-amazon-uk-btn").click(function () {
     product_attribute_amazon_uk_cnt++;
@@ -1211,9 +1757,26 @@
     }
 
     $("#graphics-section").html(html_string);
+=======
+  .select-wrapper input.select-dropdown {
+    font: AvenirNext !important;
+    font-size: 10px !important;
   }
 
+  .outdoor-price-container ul.dropdown-content.select-dropdown li span {
+    padding: 5px !important;
+    font: AvenirNext !important;
+    font-size: 12px !important;
+    color: grey !important;
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+  }
 
+  .outdoor-price-container ul.dropdown-content.select-dropdown li {
+    display: flex;
+    align-items: center;
+  }
+
+<<<<<<< HEAD
   $(document).on('click', '.miniimage', function () {
     let url = $(this).attr('midimage_url');
     let high_def_url = $(this).attr('high_def_url');
@@ -1238,11 +1801,45 @@
     else {
       image_type = "other";
     }
+=======
+  .product-stock-warehouse-container ul.dropdown-content.select-dropdown li span {
+    padding: 5px !important;
+    font: AvenirNext !important;
+    font-size: 12px !important;
+    color: grey !important;
+  }
 
-    var fd = new FormData();
-    fd.append("image_pk", global_delete_image_pk);
-    fd.append("image_type", image_type);
+  .product-stock-warehouse-container ul.dropdown-content.select-dropdown li {
+    display: flex;
+    align-items: center;
+  }
 
+  .edit-button-nav {
+    background-color: #fff4c6;
+    color: black;
+    box-shadow: none;
+    font-family: AvenirNext !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 80px;
+    text-transform: capitalize;
+  }
+
+  .edit-button-nav:hover {
+    background-color: #321DD6 ;
+    color: white;
+    box-shadow: none;
+  }
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+  .edit-button-nav:focus {
+    background-color: transparent;
+  }
+</style>
+
+<<<<<<< HEAD
     $.ajax({
       url: "/delete-image/",
       type: "POST",
@@ -1277,13 +1874,45 @@
     if (global_image_key != "main_images") {
       return;
     }
+=======
 
-    var fd = new FormData();
+<style type="text/css">
+  .image-section-dropdown .select-wrapper input.select-dropdown {
+    border: none !important;
+    bottom: 2px !important;
+    margin-bottom: 0px !important;
+    font-size: 14px !important;
+  }
 
-    var checked_pk = $("input[name=group1]:checked").val();
-    fd.append("checked_pk", checked_pk);
-    fd.append("product_pk", window.location.pathname.split("/")[2]);
+  input.active {
+    border-bottom-color: #512da8 !important;
+  }
+</style>
 
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+<div>
+  <div class="row breadcrumb-container">
+    <nav class="no-shadows">
+      <div class="nav-wrapper white ">
+        <div class="col s11 ">
+          <a href="#!" class="breadcrumb ">Products</a>
+          <a href="#!" class="breadcrumb ">Product Listings</a>
+          <a href="#!" class="breadcrumb active-breadcrumb">Product Details Page</a>
+        </div>
+        <div class="col s1">
+          <a class="waves-effect waves-light btn-small edit-button-nav" id="edit-btn">Edit</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="row bg-white" style="">
+    <div class="row col l9 s12 content-left-container padding-zero">
+      <div class="row bg-white border-right" style="padding: 10px;">
+        <div class="col l5 s12">
+
+<<<<<<< HEAD
     $.ajax({
       url: "/update-main-image/",
       type: "POST",
@@ -1395,10 +2024,189 @@
       temp_dict["sub_image_index"] = sub_image_index;
       sub_image.push(temp_dict);
     }
+=======
+          <div class="slider-container margin-zero ">
+            <div class="slider slider-for " id="images">
 
-    fd.append("sub_images", JSON.stringify(sub_image));
-    fd.append("product_pk", window.location.pathname.split("/")[2]);
 
+            </div>
+            <div class="slider slider-nav" id="slider-images">
+
+            </div>
+
+          </div>
+        </div>
+        <div class="col l7 s12 product-info-container">
+          <h6 class="brand-title" id="brand-name">
+            Geepas
+          </h6>
+          <h6 class="product-title" id="product-name">
+            Geepas Product Name. This can be of three lines and or more as name are long for products
+          </h6>
+          <!-- <div class="product-id-sku-container">
+            <p class="product-id">Product id: 60002763576</p>
+            <p class="separator">|</p>
+            <p class="seller-sku">Seller SKU: FRH786</p c>
+          </div> -->
+
+          <div class="product-category-container">
+            <div class="row">
+              <div class="col s3 category-title padding-zero">
+                Product ID:
+              </div>
+              <div class="col s9 category-info padding-zero" id="product-id">
+                60000072654762
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col s3 category-title padding-zero">
+                Seller SKU:
+              </div>
+              <div class="col s9 category-info padding-zero" id="seller-sku">
+                GP23424
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col s3 category-title padding-zero">
+                SAP Name:
+              </div>
+              <div class="col s9 category-info padding-zero" id="product-name-sap">
+                Amazon product name, this again can be of three lines or more
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col s3 category-title padding-zero">
+                Category:
+              </div>
+              <div class="col s9 category-info padding-zero" id="category">
+                Home Appliances
+              </div>
+            </div>
+
+            <!--  <div class="row">
+              <div class="col s3 category-title padding-zero">
+                Sub - Category:
+              </div>
+              <div class="col s9 category-info padding-zero">
+                Grinder
+              </div>
+            </div> -->
+
+            <div class="row">
+              <div class="col s3 category-title padding-zero">
+                Color Group
+              </div>
+              <div class="col s9 category-info padding-zero" id="color-group">
+                Electric Blue
+              </div>
+            </div>
+
+          </div>
+<!--           <div class="product-price-stock-container">
+            <div class="row">
+              <div class="col s6 l4 " style="padding: 0 .75rem 0 0;">
+                <div class="product-price-outdoor-container">
+                  <div class="row product-price-container">
+                    <p class="product-price">
+                      AED 19,240
+                    </p>
+                  </div>
+                  <div class="row outdoor-price-container">
+                    <div class="col l5"></div>
+                    <div class="col l7">
+                      <select class="outdoor-price">
+                        <option value="" disabled selected>outdoor price</option>
+                        <option value="1">AED 2000</option>
+                        <option value="2">AED 3000</option>
+                        <option value="3">AED 2100</option>
+                      </select>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <div class="col s6 l5 " style="padding: 0  0 0 .75rem;">
+                <div class="product-stock-warehouse-container">
+                  <div class="row">
+                    <p class="product-stock">
+                      Stock: 400 Units
+                    </p>
+                  </div>
+                  <div class="row">
+                    <div class="col l2 s6"></div>
+                    <div class="col l9 s6 padding-zero">
+                      <select class=" stock-warehouse">
+                        <option value="" selected>Jabel Ali Warehouse, Dubai UAE</option>
+                        <option value="1">Al Saba Warehouse, Dubai UAE</option>
+                        <option value="2">Al Hafeez Warehouse, Dubai UAE</option>
+                        <option value="3">Jabel Ali Warehouse, Dubai UAE</option>
+                      </select>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <div class="col l3 s0"></div>
+            </div>
+          </div> -->
+        </div>
+      </div>
+
+
+
+    </div>
+    <div class="col l3 s12 content-right-container bg-white">
+      <h6 class="special-features-title">
+        Special Features
+      </h6>
+      <ul id="special-features-list">
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+      </ul>
+    </div>
+  </div>
+  <div class="row padding-zero bg-white">
+    <div class="col s12 row padding-zero">
+      <ul class="social-icon-container">
+        <li>
+          <a href="#">
+            <i class="fab fa-facebook black-text"></i>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fab fa-twitter  black-text"></i>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fab fa-instagram  black-text "></i>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fab fa-snapchat  black-text "></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="row padding-zero  bg-white">
+    <div class="col s12 row padding-zero">
+      <div class="col s3 padding-zero">
+        <ul class="tabs product-info-tab">
+          <li class="tab "><a class="active" href="#product-description">DESCRIPTION</a></li>
+          <li class="tab "><a href="#test3">DIMENSIONS</a></li>
+
+        </ul>
+      </div>
+      <div class="col s9  padding-zero product-info-container">
+        <div class="product-info" id="product-description">
+
+<<<<<<< HEAD
     $.ajax({
       url: "/update-sub-images/",
       type: "POST",
@@ -1425,8 +2233,46 @@
       }
     });
   }
+=======
+        </div>
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+        <div id="test3" class="product-info dimension-tab-container">
+          <div class="row">
+            <div class="col l6">
+              <table class="striped">
+                <tbody>
+                  <tr>
+                    <td class="dimension-tab-info">Package Dimensions (L x B x H)</td>
+                    <td class="dimension-tab-info-value" id="package-dimensions"></td>
+                  </tr>
+                  <tr>
+                    <td class="dimension-tab-info">Item Dimensions (L x B x H)</td>
+                    <td class="dimension-tab-info-value" id="item-dimensions">24 centimeters</td>
+                  </tr>
 
+                </tbody>
+              </table>
+            </div>
+            <div class="col l6">
+              <table class="striped">
+                <tbody>
+                  <tr>
+                    <td class="dimension-tab-info">Item Display (L x B x H)</td class="dimension-tab-info">
+
+                    <td class="dimension-tab-info-value" id="item-display-dimensions">24 centimeters</td>
+                  </tr>
+                  <tr>
+                    <td class="dimension-tab-info">Item Weight (L x B x H)</td class="dimension-tab-info">
+                    <td class="dimension-tab-info-value" id="item-weight-dimensions">24 grams</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+<<<<<<< HEAD
   function update_grid_images(key) {
     if (key == "all_images") {
       $("#import-btn").attr("class", "disabled");
@@ -1439,8 +2285,16 @@
       update_grid_images_main_images(key);
       return;
     }
+=======
+      </div>
+    </div>
+  </div>
 
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+</div>
+
+<<<<<<< HEAD
     if (key == "sub_images") {
       update_grid_images_sub_images(key);
       return;
@@ -1457,12 +2311,30 @@
                       </div>
                       `;
     }
-
-    $("#graphics-section").html(html_string);
-  }
+=======
 
 
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+
+
+<div id="download-export-list-modal" class="modal" style="border-radius: 5px;">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">EXPORT PRODUCT</h5>
+    <br>
+    <div class="row">
+      <div class="input-field col s6" style="padding-left: 0em !important;">
+        <select id="export-format">
+          <option value="Amazon UK" selected>Amazon UK</option>
+          <option value="Amazon UAE">Amazon UAE</option>
+          <option value="Ebay">Ebay</option>
+          <option value="Noon">Noon</option>
+          <!-- <option value="Ebay" style="font-family: 'AvenirNextRegular';">Ebay</option>   -->
+        </select>
+        <label style="margin-left: 0em !important;">Export Format</label>
+      </div>
+
+<<<<<<< HEAD
   $("#images-category").change(function () {
     if ($("#images-category").val() == "All Images") {
       update_grid_images("all_images");
@@ -1521,20 +2393,42 @@
 
   function save_pfl_image_to_bucket() {
     var pfl_product_name = $("#pfl-product-name").val();
+=======
+      <div class="input-field col s6">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="margin-bottom: 15px">
+    <a href="#!" class="modal-close waves-effect btn-flat" style="margin-right: 20px;">Close</a>
+    <a id="download-product-btn" href="#!" class="waves-effect btn-flat white-text"
+      style="margin-right: 20px;background-color: #521893 !important;">Download</a>
+  </div>
+</div>
 
-    var seller_sku = $("#seller-sku").val();
 
-    var image_links = [];
+<script type="text/javascript">
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+  $('.tabs').tabs();
+  $('.chips').chips();
+  $('select').formSelect();
+  $('.modal').modal();
+  $('body').css('background-color', '#ebebeb');
+  $('.tabs').tabs();
+
+  // slider product listing 
+
+<<<<<<< HEAD
     //Set the images
     if (global_images["main_images"].length > 0) {
       $("#pfl-product-image-preview-img").attr("src", global_images["main_images"][0]["main-url"]);
     }
+=======
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
-    //$("#brand-image-img").attr("src", "");
-    //$("#barcode-image-preview-img").attr("src", "");
 
 
+<<<<<<< HEAD
     if ($("#pfl-product-image-preview-img").attr("src") != "") {
       image_links.push({
         "key": "product_image",
@@ -1554,28 +2448,82 @@
         "key": "barcode_image",
         "url": $("#barcode-image-preview-img").attr("src")
       });
+=======
+  var global_verification_status = false;
+  var global_delete_image_pk = null;
+
+  //Page reload prevent logic
+  let savecounter = false;
+  $('#save-btn').click(() => {
+    savecounter = false;
+  })
+
+  $('input').click(function () {
+    savecounter = true;
+  })
+
+  function preventDefault() {
+    if (savecounter) {
+      alert('Please save the details before refreshing!');
     }
+    else {
+      window.close();
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+    }
+  }
+
+  $('#close-btn').click(function () {
+    preventDefault();
+  })
 
 
-    $("#seller-sku-preview").html(seller_sku);
-
+<<<<<<< HEAD
     var html_string = `<br><br>`;
     var feature_text = $(".feature-text");
     for (var i = 0; i < feature_text.length; i++) {
       html_string += `<span style="font-family: 'AvenirNextRegular'"><span style="color:#521893;">&bullet;&nbsp;&nbsp;</span> ` + feature_text[i].value + `</span><br>`
     }
     $("#features-preview-div").html(html_string);
+=======
+  function getCsrfToken() {
+    var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+    return CSRF_TOKEN;
+  }
 
-    $("#product-name-preview").text(pfl_product_name);
+
+  function fetch_product_details() {
+
+    // $.ajax({
+    //   url: "/sap-integration/",
+    //   type: "POST",
+    //   headers: {
+    //     'X-CSRFToken': getCsrfToken()
+    //   },
+    //   data: {
+    //     pk: window.location.pathname.split("/")[2]
+    //   },
+    //   success: function (response) {
+
+    //     console.log("SAP Success!", response);
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+    //     M.updateTextFields();
+    //     $('select').formSelect();
+    //   },
+    //   error: function (xhr, textstatus, errorthrown) {
+    //     console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+    //   }
+    // });
 
 
     $.ajax({
-      url: "/download-images-s3/",
+      url: "/fetch-product-details/",
       type: "POST",
       headers: {
         'X-CSRFToken': getCsrfToken()
       },
       data: {
+<<<<<<< HEAD
         links: JSON.stringify(image_links)
       },
       success: function (response) {
@@ -1698,8 +2646,66 @@
       }
     }
     product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
+=======
+        pk: window.location.pathname.split("/")[2]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+
+        var edit_url = "/edit-product/"+window.location.pathname.split("/")[2];
+        console.log(edit_url)
+        $('#edit-btn').attr("href",edit_url);
+
+        $('.material-placeholder').remove();
+
+        // $('#images').append(`<div>
+        //         <img class="img-fluid-preview"
+        //           src='` + response["repr_image_url"] + `' alt="Image Description">
+        //       </div>`)
+        images = response["images"]["main_images"];
+
+        for (i = 0; i < images.length; i++) {
+          console.log(images[i]["main-url"]);
+          $('#images').append(`<div>
+                <img class="img-fluid-preview"
+                  src='` + images[i]["main-url"] + `' alt="Image Description">
+              </div>`)
+
+          $('#slider-images').append(`<div>
+                <img class="img-fluid-nav"
+                  src='` + images[i]["main-url"] + `' alt="Image Description">
+              </div>`)
+
+        }
 
 
+        if(images.length==0)
+        {
+          $('#images').append(`<div>
+                <img class="img-fluid-preview"
+                  src='` + response["repr_image_url"] + `' alt="Image Description">
+              </div>`)
+        }
+
+        images = response["images"]["sub_images"];
+
+        for (i = 0; i < images.length; i++) {
+
+          console.log(images[i]["main-url"]);
+          $('#images').append(`<div>
+                <img class="img-fluid-preview"
+                  src='` + images[i]["main-url"] + `' alt="Image Description">
+              </div>`)
+
+          $('#slider-images').append(`<div>
+                <img class="img-fluid-nav"
+                  src='` + images[i]["main-url"] + `' alt="Image Description">
+              </div>`)
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+        }
+
+<<<<<<< HEAD
     var product_attribute_data_amazon_uae = [];
     for (var i = 1; i <= product_attribute_amazon_uae_cnt; i++) {
       if ($("#product-attribute-amazon-uae-" + i).val() != "") {
@@ -1707,8 +2713,17 @@
       }
     }
     product_attribute_data_amazon_uae = JSON.stringify(product_attribute_data_amazon_uae);
+=======
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+        $('.slider-for').slick({
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          arrows: false,
+          fade: true,
+          asNavFor: '.slider-nav',
 
+<<<<<<< HEAD
     var product_attribute_data_ebay = [];
     for (var i = 1; i <= product_attribute_ebay_cnt; i++) {
       if ($("#product-attribute-ebay-" + i).val() != "") {
@@ -1716,9 +2731,25 @@
       }
     }
     product_attribute_data_ebay = JSON.stringify(product_attribute_data_ebay);
+=======
+        });
+        $('.slider-nav').slick({
+          slidesToShow: 4,
+          slidesToScroll: 1,
+          asNavFor: '.slider-for',
+          dots: false,
+          centerMode: true,
+          focusOnSelect: false,
+          vertical: false,
+          arrows: true,
+          focusOnSelect: true
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+        });
 
+        // initialized materialize css select
 
+<<<<<<< HEAD
     var product_attribute_data_noon = [];
     for (var i = 1; i <= product_attribute_noon_cnt; i++) {
       if ($("#product-attribute-noon-" + i).val() != "") {
@@ -1726,15 +2757,20 @@
       }
     }
     product_attribute_data_noon = JSON.stringify(product_attribute_data_noon);
+=======
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 
+        $('.slider-down-button').click(function () {
+          $('.slider-nav').slick('slickPrev');
+        })
 
-    var search_terms = $("#search-terms").val();
-    var color_map = $("#color-map").val();
-    var color = $("#color").val();
-    var enclosure_material = $("#enclosure-material").val();
-    var cover_material_type = $("#cover-material-type").val();
+        $('.slider-up-button').click(function () {
+          $('.slider-nav').slick('slickNext');
+        })
 
+        $('.materialboxed').materialbox();
 
+<<<<<<< HEAD
     var special_feature_data = [];
     for (var i = 1; i <= special_feature_cnt; i++) {
       if ($("#special-feature-" + i).val() != "") {
@@ -1914,11 +2950,30 @@
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
+=======
 
-    save_subimages_index();
-  }
+        $("#product-name-sap").html(response["product_name_sap"]);
+        $("#product-name").html(response["product_name_sap"]);
+        $("#category").html(response["category"]);
+        $("#color-group").html(response["color_map"]);
+        $("#brand-name").html(response["brand"]);
+        $("#product-id").html(response["product_id"]);
+        $("#seller-sku").html(response["seller_sku"]);
+        $("#product-description").html(`<h7>` + response["product_description_amazon_uk"] + `</h7>`);
 
+        var special_features = response["special_features"];
 
+        for (var i = 0; i < special_features.length; i++) {
+          $
+          $("#special-features-list").append(`<li>` + special_features[i] + `</li>`);
+        }
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
+
+        $("#package-dimensions").html(response["package_length"] + ` ` + response["package_length_metric"] + ` ` + response["package_width"] + ` ` + response["package_width_metric"] + ` ` + response["package_height"] + ` ` + response["package_height_metric"]);
+
+        $("#item-dimensions").html(response["item_length"] + ` ` + response["item_length_metric"] + ` ` + response["item_width"] + ` ` + response["item_width_metric"] + ` ` + response["item_height"] + ` ` + response["item_height_metric"]);
+
+<<<<<<< HEAD
   $("#save-btn").click(function () {
     if ($("#product-name-sap").val() == "" || $("#product-id").val() == "" || $("#seller-sku").val() == "" || $("#brand-name").val() == "" || $("#product-name-sap").val() == "") {
 
@@ -1957,6 +3012,24 @@
       return false;
     }
   });
+=======
+        $("#item-display-dimensions").html(response["item_display_length"] + ` ` + response["item_display_length_metric"] + ` ` + response["item_display_width"] + ` ` + response["item_display_width_metric"] + ` ` + response["item_display_height"] + ` ` + response["item_display_height_metric"]);
+
+        $("#item-weight-dimensions").html(response["item_display_weight"] + ` ` + response["item_display_weight_metric"] + ` ` + response["item_display_volume"] + ` ` + response["item_display_volume_metric"] + ` ` + response["item_weight"] + ` ` + response["item_weight_metric"]);
+
+        M.updateTextFields();
+        $('select').formSelect();
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  fetch_product_details();
+
+
+>>>>>>> b04dce2a517e50f8e97f17afb36c686bac8bb682
 </script>
 
 {% endblock %}
