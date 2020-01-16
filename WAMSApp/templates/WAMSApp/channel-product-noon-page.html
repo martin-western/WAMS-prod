@@ -27,7 +27,7 @@
                         <option value="All Images" id="all-images-option">All Images</option>
                         <option value="Main Images" id="main-images-option">Main Images</option>
                         <option value="Sub Images" id="sub-images-option">Sub Images</option>
-                        <option value="PFL Images" id="pfl-images-option">PFL Images</option>
+                        <!-- <option value="PFL Images" id="pfl-images-option">PFL Images</option>
                         <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
                         </option>
                         <option value="White Background Images" id="white-background-images-option">White Background
@@ -38,7 +38,7 @@
                         <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
                         <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
                         <option value="Ads Images" id="ads-images-option">Ads Images</option>
-                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
+                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option> -->
                     </select>
                 </div>
 
@@ -653,24 +653,26 @@
     $("#open-it-btn").click(function () {
 
 
-
         if ($(this).attr("visible") == "no") {
-
-            $( ".toggle-s6-s12" ).each(function( index ) {
-                    $(this).addClass("s12");
-            });
-
+                    $( ".toggle-s6-s12" ).each(function( index ) {
+                  $(this).addClass("s12");
+          });
             $(this).attr("visible", "yes");
             $("#collapse-div").attr("class", "col s4 center");
             $("#sidebar2").show(600);
+            console.log($(this));
+            $(this).children().text("keyboard_arrow_right");
+            // $(".main-div").css('margin-right' , '0px');
         }
         else {
+            $(this).attr("visible", "no");
             $( ".toggle-s6-s12" ).each(function( index ) {
                     $(this).removeClass("s12");
             });
-            $(this).attr("visible", "no");
             $("#sidebar2").hide();
             $("#collapse-div").attr("class", "col s8 center");
+            $(".main-div").css('margin-right' , '70px');
+            $(this).children().text("keyboard_arrow_left");
         }
     })
 
@@ -1038,115 +1040,101 @@
 
     fetch_constant_values();
 
+    function fetch_noon_product_images_details() {
 
-    function fetch_product_images_details() {
-        $.ajax({
-            url: "/fetch-product-details/",
-            type: "POST",
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            },
-            data: {
-                pk: window.location.pathname.split("/")[3]
-            },
-            success: function (response) {
-                console.log("Success!", response);
+$.ajax({
+url: "/fetch-channel-product-noon/",
+type: "POST",
+headers: {
+    'X-CSRFToken': getCsrfToken()
+},
+data: {
+    product_pk: window.location.pathname.split("/")[3]
+},
+success: function (response) {
+    console.log("Success!", response);
 
-                if (response["status"] == 200) {
-                    $('.material-placeholder').remove();
-                    $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
-                    $('.materialboxed').materialbox();
+    if (response["status"] == 200) {
+    $('.material-placeholder').remove();
+    $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
+    $('.materialboxed').materialbox();
 
-                    global_images = response["images"];
+    global_images = response["images"];
+    console.log("global_images ", global_images)
 
-                    $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
-                    $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
-                    $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
-                    $("#pfl-images-option").html("PFL Images (" + global_images["pfl_images"].length + ")");
-                    $("#pfl-generated-images-option").html("PFL Generated Images (" + global_images["pfl_generated_images"].length + ")");
-                    $("#white-background-images-option").html("White Background Images (" + global_images["white_background_images"].length + ")");
-                    $("#lifestyle-images-option").html("Lifestyle Images (" + global_images["lifestyle_images"].length + ")");
-                    $("#certificate-images-option").html("Certificate Images (" + global_images["certificate_images"].length + ")");
-                    $("#giftbox-images-option").html("Giftbox Images (" + global_images["giftbox_images"].length + ")");
-                    $("#diecut-images-option").html("Diecut Images (" + global_images["diecut_images"].length + ")");
-                    $("#aplus-content-images-option").html("A+ Content Images (" + global_images["aplus_content_images"].length + ")");
-                    $("#ads-images-option").html("Ads Images (" + global_images["ads_images"].length + ")");
-                    $("#unedited-images-option").html("Unedited Images (" + global_images["unedited_images"].length + ")");
+    $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
+    $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
+    $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
+    
+    // update_grid_images(global_image_key);
 
-                    update_grid_images(global_image_key);
-
-                    $('#brand-image-img').attr("src", response["brand_logo"]);
-                    if (global_images["main_images"].length > 0) {
-                        $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
-                    }
-                    $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
-
-                    M.updateTextFields();
-                    $('select').formSelect();
-                }
-                else {
-                    M.toast({ html: "Error fetching images information" });
-                }
-            },
-            error: function (xhr, textstatus, errorthrown) {
-                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-            }
-        });
+    M.updateTextFields();
+    $('select').formSelect();
     }
+    else {
+    M.toast({ html: "Error fetching images information" });
+    }
+},
+error: function (xhr, textstatus, errorthrown) {
+    console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+}
+});
+}   
+
+fetch_noon_product_images_details();
+
+$("#upload-image-btn").click(function () {
+
+$("#upload-image-btn").attr("disabled", "disabled");
+$("#upload-preloader").show();
+
+product_pk = window.location.pathname.split("/")[3];
+
+var fd = new FormData();
+
+fd.append("product_pk", product_pk);
+var product_image_input = document.getElementById("product-image-input");
+
+fd.append('image_count', product_image_input.files.length);
+for (var i = 0; i < product_image_input.files.length; i++) {
+fd.append('image_' + i, product_image_input.files[i]);
+}
 
 
-    $("#upload-image-btn").click(function () {
+fd.append('image_category', global_image_key);
+fd.append('channel_name', "Noon");
+$.ajax({
+url: "/upload-product-image/",
+type: "POST",
+headers: {
+    'X-CSRFToken': getCsrfToken()
+},
+processData: false,
+contentType: false,
+data: fd,
+success: function (response) {
+    console.log("Success!", response);
+    $("#upload-preloader").hide();
+    $("#upload-image-btn").removeAttr("disabled");
 
-        $("#upload-image-btn").attr("disabled", "disabled");
-        $("#upload-preloader").show();
-
-        product_pk = window.location.pathname.split("/")[3];
-
-        var fd = new FormData();
-
-        fd.append("product_pk", product_pk);
-        var product_image_input = document.getElementById("product-image-input");
-
-        fd.append('image_count', product_image_input.files.length);
-        for (var i = 0; i < product_image_input.files.length; i++) {
-            fd.append('image_' + i, product_image_input.files[i]);
-        }
-
-
-        fd.append('image_category', global_image_key);
-
-        $.ajax({
-            url: "/upload-product-image/",
-            type: "POST",
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            },
-            processData: false,
-            contentType: false,
-            data: fd,
-            success: function (response) {
-                console.log("Success!", response);
-                $("#upload-preloader").hide();
-                $("#upload-image-btn").removeAttr("disabled");
-
-                if (response["status"] == 200) {
-                    $("#upload-image-modal").modal("close");
-                    M.toast({ html: "Successfully uploaded images!" });
-                    fetch_product_images_details();
-                }
-                else if (response["status"] == 403) {
-                    M.toast({ html: "You do not have permission to upload images!" });
-                }
-                else {
-                    M.toast({ html: "Error uploading images!" });
-                }
-            },
-            error: function (xhr, textstatus, errorthrown) {
-                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-                $("#upload-preloader").hide();
-            }
-        });
-    })
+    if (response["status"] == 200) {
+        $("#upload-image-modal").modal("close");
+        M.toast({ html: "Successfully uploaded images!" });
+        fetch_noon_product_images_details();
+    }
+    else if (response["status"] == 403) {
+        M.toast({ html: "You do not have permission to upload images!" });
+    }
+    else {
+        M.toast({ html: "Error uploading images!" });
+    }
+},
+error: function (xhr, textstatus, errorthrown) {
+    console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+    $("#upload-preloader").hide();
+}
+});
+})
 
     function set_verify(verified) {
         if (verified == true) {
@@ -1532,49 +1520,49 @@
 
 
     function update_grid_images(key) {
-        if (key == "all_images") {
-            $("#import-btn").attr("class", "disabled");
-        }
-        else {
-            $("#import-btn").attr("class", "modal-trigger");
-        }
+        // if (key == "all_images") {
+        //     $("#import-btn").attr("class", "disabled");
+        // }
+        // else {
+        //     $("#import-btn").attr("class", "modal-trigger");
+        // }
 
-        if (key == "main_images") {
-            update_grid_images_main_images(key);
-            return;
-        }
-
-
-        if (key == "sub_images") {
-            update_grid_images_sub_images(key);
-            return;
-        }
+        // if (key == "main_images") {
+        //     update_grid_images_main_images(key);
+        //     return;
+        // }
 
 
-        var html_string = "";
-        for (var i = 0; i < global_images[key].length; i++) {
-            html_string += `<div class="col s4" style="padding:1em;">
-                        <div style="position:relative;">
-                          <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
-                            <i class="material-icons redd" title="Delete Image" style="
-                              background-color: transparent;
-                              padding: 4px;
-                              color: gray;
-                              border-radius: 2px;
-                              margin-left: 4px;
-                              font-size: 10px;
-                              margin-right: 4px;
-                              display: block;
-                              margin-bottom: 5px;">
-                              close
-                            </i> 
-                          </a> 
-                          <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
-                        </div>
-                      </div>`;
-        }
+        // if (key == "sub_images") {
+        //     update_grid_images_sub_images(key);
+        //     return;
+        // }
 
-        $("#graphics-section").html(html_string);
+
+        // var html_string = "";
+        // for (var i = 0; i < global_images[key].length; i++) {
+        //     html_string += `<div class="col s4" style="padding:1em;">
+        //                 <div style="position:relative;">
+        //                   <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+        //                     <i class="material-icons redd" title="Delete Image" style="
+        //                       background-color: transparent;
+        //                       padding: 4px;
+        //                       color: gray;
+        //                       border-radius: 2px;
+        //                       margin-left: 4px;
+        //                       font-size: 10px;
+        //                       margin-right: 4px;
+        //                       display: block;
+        //                       margin-bottom: 5px;">
+        //                       close
+        //                     </i> 
+        //                   </a> 
+        //                   <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
+        //                 </div>
+        //               </div>`;
+        // }
+
+        // $("#graphics-section").html(html_string);
     }
 
 

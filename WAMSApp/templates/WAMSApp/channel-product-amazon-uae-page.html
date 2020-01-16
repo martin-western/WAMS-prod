@@ -47,7 +47,7 @@
                         <option value="All Images" id="all-images-option">All Images</option>
                         <option value="Main Images" id="main-images-option">Main Images</option>
                         <option value="Sub Images" id="sub-images-option">Sub Images</option>
-                        <option value="PFL Images" id="pfl-images-option">PFL Images</option>
+                        <!-- <option value="PFL Images" id="pfl-images-option">PFL Images</option>
                         <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
                         </option>
                         <option value="White Background Images" id="white-background-images-option">White Background
@@ -58,7 +58,7 @@
                         <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
                         <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
                         <option value="Ads Images" id="ads-images-option">Ads Images</option>
-                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
+                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option> -->
                     </select>
                 </div>
 
@@ -128,44 +128,44 @@
                 <div class="scroll-style-1 ">
                     <h6 style="color: #521893;margin: 30px 0px 30px 0px !important;">Amazon UAE</h6>
                     <div class="row margin-zero collapse-div-row-container">
-                        <div class="input-field col s6">
+                        <div class="input-field col s6 toggle-s6-s12">
                             <input placeholder="" id="product-name" type="text">
                             <label for="product-name">Product Name</label>
                         </div>
-                        <div class="input-field col s6">
+                        <div class="input-field col s6 toggle-s6-s12">
                             <input placeholder="" disabled id="product-id" type="text" class="deep-purple-text">
                             <label for="product-id">Product ID</label>
                         </div>
-                        <div class="input-field col s6">
+                        <div class="input-field col s6 toggle-s6-s12">
                             <input placeholder="" id="created-date" type="date">
                             <label for="created-date">Created Date</label>
                         </div>
-                        <div class="input-field col s6">
+                        <div class="input-field col s6 toggle-s6-s12">
                             <input placeholder="" id="feed-product-type" type="text">
                             <label for="feed-product-type">Feed Product Type</label>
                         </div>
-                        <div class="input-field col s6">
+                        <div class="input-field col s6 toggle-s6-s12">
                             <select id="update-delete">
                                 <option value="Update" selected>Update</option>
                                 <option value="Delete">Delete</option>
                             </select>
                             <label for="update-delete">Update Delete</label>
                         </div>
-                        <div class="input-field col s6">
+                        <div class="input-field col s6 toggle-s6-s12">
                             <input placeholder="" id="recommended-browse-nodes" type="text">
                             <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
                         </div>
-                        <div class="input-field col s9">
+                        <div class="input-field col s9 toggle-s6-s12">
                             <input placeholder="" id="product-attribute-amazon-uk-1" type="text">
                             <label for="product-attribute-amazon-uk-1">Product Attribute</label>
                         </div>
 
-                        <div class="input-field col s1">
+                        <div class="input-field col s1 toggle-s6-s12">
                             <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
                                 style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
                                     class="material-icons">add</i></a>
                         </div>
-                        <div class="col s12">
+                        <div class="col s12 toggle-s6-s12">
                             <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
                                 Description</h6>
                             
@@ -735,6 +735,9 @@
 
     $("#open-it-btn").click(function () {
         if ($(this).attr("visible") == "no") {
+                    $( ".toggle-s6-s12" ).each(function( index ) {
+                  $(this).addClass("s12");
+          });
             $(this).attr("visible", "yes");
             $("#collapse-div").attr("class", "col s4 center");
             $("#sidebar2").show(600);
@@ -744,6 +747,9 @@
         }
         else {
             $(this).attr("visible", "no");
+            $( ".toggle-s6-s12" ).each(function( index ) {
+                    $(this).removeClass("s12");
+            });
             $("#sidebar2").hide();
             $("#collapse-div").attr("class", "col s8 center");
             $(".main-div").css('margin-right' , '70px');
@@ -1098,62 +1104,48 @@
 
     fetch_constant_values();
 
+function fetch_amazon_uae_product_images_details() {
 
-    function fetch_product_images_details() {
-        $.ajax({
-            url: "/fetch-product-details/",
-            type: "POST",
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            },
-            data: {
-                pk: window.location.pathname.split("/")[3]
-            },
-            success: function (response) {
-                console.log("Success!", response);
+    $.ajax({
+    url: "/fetch-channel-product-amazon-uae/",
+    type: "POST",
+    headers: {
+        'X-CSRFToken': getCsrfToken()
+    },
+    data: {
+        product_pk: window.location.pathname.split("/")[3]
+    },
+    success: function (response) {
+        console.log("Success!", response);
 
-                if (response["status"] == 200) {
-                    $('.material-placeholder').remove();
-                    $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
-                    $('.materialboxed').materialbox();
+        if (response["status"] == 200) {
+        $('.material-placeholder').remove();
+        $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
+        $('.materialboxed').materialbox();
 
-                    global_images = response["images"];
+        global_images = response["images"];
+        console.log("global_images ", global_images)
 
-                    $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
-                    $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
-                    $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
-                    $("#pfl-images-option").html("PFL Images (" + global_images["pfl_images"].length + ")");
-                    $("#pfl-generated-images-option").html("PFL Generated Images (" + global_images["pfl_generated_images"].length + ")");
-                    $("#white-background-images-option").html("White Background Images (" + global_images["white_background_images"].length + ")");
-                    $("#lifestyle-images-option").html("Lifestyle Images (" + global_images["lifestyle_images"].length + ")");
-                    $("#certificate-images-option").html("Certificate Images (" + global_images["certificate_images"].length + ")");
-                    $("#giftbox-images-option").html("Giftbox Images (" + global_images["giftbox_images"].length + ")");
-                    $("#diecut-images-option").html("Diecut Images (" + global_images["diecut_images"].length + ")");
-                    $("#aplus-content-images-option").html("A+ Content Images (" + global_images["aplus_content_images"].length + ")");
-                    $("#ads-images-option").html("Ads Images (" + global_images["ads_images"].length + ")");
-                    $("#unedited-images-option").html("Unedited Images (" + global_images["unedited_images"].length + ")");
+        $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
+        $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
+        $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
+        
+        update_grid_images(global_image_key);
 
-                    update_grid_images(global_image_key);
-
-                    $('#brand-image-img').attr("src", response["brand_logo"]);
-                    if (global_images["main_images"].length > 0) {
-                        $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
-                    }
-                    $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
-
-                    M.updateTextFields();
-                    $('select').formSelect();
-                }
-                else {
-                    M.toast({ html: "Error fetching images information" });
-                }
-            },
-            error: function (xhr, textstatus, errorthrown) {
-                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-            }
-        });
+        M.updateTextFields();
+        $('select').formSelect();
+        }
+        else {
+        M.toast({ html: "Error fetching images information" });
+        }
+    },
+    error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
     }
+    });
+ }   
 
+ fetch_amazon_uae_product_images_details();
 
     $("#upload-image-btn").click(function () {
 
@@ -1174,7 +1166,7 @@
 
 
         fd.append('image_category', global_image_key);
-
+        fd.append('channel_name', "Amazon UAE");
         $.ajax({
             url: "/upload-product-image/",
             type: "POST",
@@ -1192,7 +1184,7 @@
                 if (response["status"] == 200) {
                     $("#upload-image-modal").modal("close");
                     M.toast({ html: "Successfully uploaded images!" });
-                    fetch_product_images_details();
+                    fetch_amazon_uae_product_images_details();
                 }
                 else if (response["status"] == 403) {
                     M.toast({ html: "You do not have permission to upload images!" });
