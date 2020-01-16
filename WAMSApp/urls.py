@@ -113,4 +113,6 @@ urlpatterns = [
 
     url(r'save-base-product/$', views.SaveBaseProduct),
     
+    url(r'^sap-integration',views.SapIntegration),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

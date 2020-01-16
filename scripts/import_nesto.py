@@ -16,7 +16,7 @@ columns = len(dfs.iloc[0][:])
 
 print dfs.iloc[0]
 
-BASE_PATH = "/home/nisarg/Desktop/thumbs/"
+BASE_PATH = "/home/ubuntu/thumbs/"
 CURR_PATH = os.getcwd()
 
 organization_obj, created = Organization.objects.get_or_create(name="Nesto")
@@ -26,7 +26,7 @@ nesto_images_error = []
 article_id_error = []
 
 cnt = 0
-rows = 23
+#rows = 23
 os.chdir(BASE_PATH)
 for i in range(rows):
     try:

@@ -1,4 +1,5 @@
 from django.core.files.base import ContentFile
+from WAMSApp.models import *
 
 from PIL import Image as IMAGE
 
@@ -8,8 +9,6 @@ import imghdr
 import base64
 import six
 import uuid
-
-from WAMSApp.models import *
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +77,7 @@ def custom_permission_filter_pfls(user):
     try:
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
-        pfl_objs = PFL.objects.filter(product__brand__in=brands)
+        pfl_objs = PFL.objects.filter(product__base_product__brand__in=brands)
         return pfl_objs
     
     except Exception as e:

@@ -33,6 +33,7 @@ for image_obj in image_objs:
         image_obj.save()
         time.sleep(0.1)
     except Exception as e:
+        print("Error: ", str(e))
         error_images.append(image_obj.pk)
 
 import json

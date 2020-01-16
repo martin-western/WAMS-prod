@@ -19,12 +19,15 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
+
 from PIL import Image as IMage
 import StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 import barcode
 from barcode.writer import ImageWriter
+
+import xmltodict
 
 import requests
 import json
@@ -35,6 +38,8 @@ import datetime
 import boto3
 import urllib2
 import pandas as pd
+import xml.dom.minidom
+
 
 logger = logging.getLogger(__name__)
 
@@ -1660,10 +1665,11 @@ class FetchProductListAPI(APIView):
                         temp_dict2["main_image"] = Config.objects.all()[
                             0].product_404_image.image.url
 
-                    temp_dict["products"].append(temp_dict2)
+                    channels_of_prod =0
 
                     if product_obj.channel_product.is_noon_product_created == True:
                         
+                        channels_of_prod +=1
                         noon_product = json.loads(product_obj.channel_product.noon_product_json)
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
@@ -1685,6 +1691,7 @@ class FetchProductListAPI(APIView):
 
                     if product_obj.channel_product.is_amazon_uk_product_created == True:
                         
+                        channels_of_prod +=1
                         amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
@@ -1703,6 +1710,53 @@ class FetchProductListAPI(APIView):
                         temp_dict3["image_url"] = main_image_url
 
                         temp_dict["channel_products"].append(temp_dict3)
+
+                    if product_obj.channel_product.is_amazon_uae_product_created == True:
+                        
+                        channels_of_prod +=1
+                        amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
+                        temp_dict3 = {}
+                        temp_dict3["product_id"] = product_obj.product_id
+                        temp_dict3["product_pk"] = product_obj.pk
+                        temp_dict3["channel_product_name"] = amazon_uae_product["product_name"]
+                        temp_dict3["channel_name"] = "Amazon UAE"
+                        main_image_url = Config.objects.all()[0].product_404_image.image.url
+                        try:
+                            main_images_obj = MainImages.objects.get(product = product, channel="Amazon UAE")
+                            
+                            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                                main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                                main_image_url = main_image_obj.image.image.url
+                        except Exception as e:
+                            pass
+                        temp_dict3["image_url"] = main_image_url
+
+                        temp_dict["channel_products"].append(temp_dict3)
+
+                    if product_obj.channel_product.is_ebay_product_created == True:
+                        
+                        channels_of_prod +=1
+                        ebay_product = json.loads(product_obj.channel_product.ebay_product_json)
+                        temp_dict3 = {}
+                        temp_dict3["product_id"] = product_obj.product_id
+                        temp_dict3["product_pk"] = product_obj.pk
+                        temp_dict3["channel_product_name"] = ebay_product["product_name"]
+                        temp_dict3["channel_name"] = "Ebay"
+                        main_image_url = None
+                        try:
+                            main_images_obj = MainImages.objects.get(product = product, channel="Ebay")
+                            
+                            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                                main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                                main_image_url = main_image_obj.image.image.url
+                        except Exception as e:
+                            pass
+                        temp_dict3["image_url"] = main_image_url
+
+                        temp_dict["channel_products"].append(temp_dict3)
+
+                    temp_dict["channels_of_prod"] = channels_of_prod
+                    temp_dict["products"].append(temp_dict2)
 
                 products.append(temp_dict)
             is_available = True
@@ -2284,7 +2338,8 @@ class CreateFlyerAPI(APIView):
                 "header-opacity": "1",
                 "footer-opacity": "1",
                 "all-promo-resizer": "40",
-                "all-image-resizer": "100"
+                "all-image-resizer": "100",
+                "footer-text": "Your Footer Here"
             }
 
             template_data = {
@@ -2310,7 +2365,7 @@ class CreateFlyerAPI(APIView):
                         temp_dict["data"] = {
                             "image-url": "",
                             "banner-img": "",
-                            "warranty-display": False,
+                            "warranty-img": "",
                             "image-resizer": "100",
                             "promo-resizer": "40",
                             "price": "",
@@ -2421,7 +2476,8 @@ class CreateFlyerAPI(APIView):
                                 
 
                             except Exception as e:
-                                logger.error("product_id: %s , error: %s", str(dfs.iloc[i][0]), str(e))
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.error("product index: %s , error: %s at %s", str(i), str(e), str(exc_tb.tb_lineno))
 
                             temp_dict = {}
 
@@ -2434,7 +2490,7 @@ class CreateFlyerAPI(APIView):
                             temp_dict["data"] = {
                                 "image-url": str(image_url),
                                 "banner-img": "",
-                                "warranty-display": False,
+                                "warranty-img": "",
                                 "image-resizer": "100",
                                 "promo-resizer": "40",
                                 "price": str(product_price),
@@ -3408,7 +3464,7 @@ class FetchFlyerListAPI(APIView):
                 temp_dict["flyer_pk"] = flyer_obj.pk
                 # Update this later
                 if flyer_obj.flyer_image != None:
-                    temp_dict["flyer_image"] = flyer_obj.flyer_image.image.url
+                    temp_dict["flyer_image"] = flyer_obj.flyer_image.mid_image.url
                 else:
                     temp_dict["flyer_image"] = Config.objects.all()[
                         0].product_404_image.image.url
@@ -3863,7 +3919,107 @@ class UploadPFLExternalImagesAPI(APIView):
 
         return Response(data=response)
 
+class SapIntegrationAPI(APIView):
 
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SapIntegrationAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_obj = Product.objects.get(pk=data["pk"])
+
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            #headers = {'content-type': 'application/soap+xml'}
+            #headers = {'content-type': 'text/xml'}
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+
+            if product_obj.brand.name == "Geepas":
+                company_code = "1070"
+            elif product_obj.brand.name == "Royalford":
+                company_code = "3000"
+            else :
+                company_code = "3050"
+
+
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_obj.product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+
+            print(json.dumps(content, indent=4, sort_keys=True))
+            
+            logger.info("%s",type(content))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            
+            qty=0.0
+
+            for item in items:
+                qty += float(item["TOT_QTY"])
+
+            
+
+            response["qty"] = qty
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SapIntegrationAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+SapIntegration = SapIntegrationAPI.as_view()
 
 
 LoginSubmit = LoginSubmitAPI.as_view()
