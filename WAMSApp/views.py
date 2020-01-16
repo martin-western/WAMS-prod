@@ -1665,10 +1665,11 @@ class FetchProductListAPI(APIView):
                         temp_dict2["main_image"] = Config.objects.all()[
                             0].product_404_image.image.url
 
-                    temp_dict["products"].append(temp_dict2)
+                    channels_of_prod =0
 
                     if product_obj.channel_product.is_noon_product_created == True:
                         
+                        channels_of_prod +=1
                         noon_product = json.loads(product_obj.channel_product.noon_product_json)
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
@@ -1690,6 +1691,7 @@ class FetchProductListAPI(APIView):
 
                     if product_obj.channel_product.is_amazon_uk_product_created == True:
                         
+                        channels_of_prod +=1
                         amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
@@ -1711,6 +1713,7 @@ class FetchProductListAPI(APIView):
 
                     if product_obj.channel_product.is_amazon_uae_product_created == True:
                         
+                        channels_of_prod +=1
                         amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
@@ -1732,6 +1735,7 @@ class FetchProductListAPI(APIView):
 
                     if product_obj.channel_product.is_ebay_product_created == True:
                         
+                        channels_of_prod +=1
                         ebay_product = json.loads(product_obj.channel_product.ebay_product_json)
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
@@ -1750,6 +1754,9 @@ class FetchProductListAPI(APIView):
                         temp_dict3["image_url"] = main_image_url
 
                         temp_dict["channel_products"].append(temp_dict3)
+
+                    temp_dict["channels_of_prod"] = channels_of_prod
+                    temp_dict["products"].append(temp_dict2)
 
                 products.append(temp_dict)
             is_available = True
