@@ -4,561 +4,30 @@
 
 {% load static %}
 
-<style type="text/css">
-    .ck.ck-content ul,
-    .ck.ck-content ul li {
-        list-style-type: inherit;
-    }
-
-
-    .ck.ck-content ul {
-        padding-left: 40px;
-    }
-
-    .ck.ck-content strong {
-        font-weight: bold;
-    }
-
-    .flex-container-space-btw {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .flex-container-space-btw>div {
-        margin-top: 15px;
-        width: 7vw;
-    }
-
-
-    .img-wrapper {
-        position: relative;
-    }
-
-    .img-responsive {
-        width: 100%;
-        height: auto;
-    }
-
-    .img-overlay {
-        position: absolute;
-        top: 1em;
-        bottom: 0;
-        right: 1em;
-        text-align: center;
-    }
-
-    .redd:hover {
-        background-color: red !important;
-        color: white !important;
-    }
-
-    .greenn:hover {
-        background-color: #009051 !important;
-        color: white !important;
-    }
-
-    .bluee:hover {
-        background-color: blue !important;
-        color: white !important;
-    }
-
-    .yelloww:hover {
-        background-color: orange !important;
-        color: white !important;
-    }
-
-    .purplee:hover {
-        background-color: #512de8 !important;
-        color: white !important;
-    }
-
-    .maroonn:hover {
-        background-color: maroon !important;
-        color: white !important;
-    }
-
-    .homee:hover {
-        background-color: #521893 !important;
-        color: white !important;
-    }
-
-    .miniimage+input {
-        width: 50% !important;
-        display: block;
-    }
-
-    input[type="checkbox"].filled-in:checked+span:before {
-        background-color: #512de8 !important
-    }
-
-    input[type="checkbox"].filled-in:checked+span:after {
-        background-color: #512de8 !important
-    }
-
-    .img-overlay:before {
-        content: ' ';
-        display: block;
-        height: 10%;
-    }
-
-
-    a .active {
-        background-color: #512da8 !important;
-    }
-
-
-    /*tabs*/
-
-    .tab-content {
-        margin-top: 20px;
-        max-height: 80vh;
-        overflow: auto;
-        overflow-x: hidden;
-    }
-
-    input:focus {
-        border-color: #512da8 !important;
-    }
-
-    input:select {
-        border-color: #512da8 !important;
-    }
-
-    .tab-pane div.row {
-        padding: 20px !important;
-    }
-
-    .savebtn {
-        position: fixed;
-        top: 20px;
-        left: 50px;
-        background-color: #512da8;
-    }
-
-    li span {
-        color: black !important;
-    }
-
-    img.materialboxed {
-        width: 100px;
-        height: 100px;
-        background-color: white;
-    }
-
-    .tab-pane h4 {
-        display: none;
-    }
-
-    .miniimage {
-        display: block;
-        height: 80px;
-    }
-
-    .image-section {
-        overflow-y: scroll;
-        overflow-x: hidden;
-    }
-
-    ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: gray;
-    }
-
-
-    .input-field:not(.left-section) {
-        padding: 0px 50px 0px 50px !important;
-        margin-top: 20px !important;
-    }
-
-
-    input:not([type]),
-    input[type=text],
-    input[type=password],
-    input[type=email],
-    input[type=url],
-    input[type=time],
-    input[type=date],
-    input[type=datetime],
-    input[type=datetime-local],
-    input[type=tel],
-    input[type=number],
-    input[type=search],
-    textarea.materialize-textarea {
-        border: none !important;
-        border-bottom: 2px solid #f7f7f7 !important;
-        padding-left: 10px !important;
-        font-family: 'AvenirNext' !important;
-        font-weight:
-    }
-
-    input:not([type]):focus:not([readonly]),
-    input[type=text]:focus:not([readonly]),
-    input[type=password]:focus:not([readonly]),
-    input[type=email]:focus:not([readonly]),
-    input[type=url]:focus:not([readonly]),
-    input[type=time]:focus:not([readonly]),
-    input[type=date]:focus:not([readonly]),
-    input[type=datetime]:focus:not([readonly]),
-    input[type=datetime-local]:focus:not([readonly]),
-    input[type=tel]:focus:not([readonly]),
-    input[type=number]:focus:not([readonly]),
-    input[type=search]:focus:not([readonly]),
-    textarea.materialize-textarea:focus:not([readonly])>label {
-        border-bottom: 1px solid #512ea8 !important;
-        box-shadow: 0 1px 0 0 #f00 !important;
-        border-bottom: none !important;
-        box-shadow: none !important;
-    }
-
-    label {
-        margin-left: 50px !important;
-    }
-
-    .input-field:not(.left-section) input:focus+label {
-        color: #512ea8 !important;
-    }
-
-    .row .input-field:not(.left-section) input:focus {
-        border-bottom: 1px solid #512ea8 !important;
-        box-shadow: 0 1px 0 0 #512ea8 !important
-    }
-
-    .left-section .select-wrapper ul {
-        position: relative;
-        top: -300px !important;
-    }
-
-    .material-placeholder {
-        width: 25vw;
-        height: 25vw;
-    }
-
-    .preview-img {
-        height: 100% !important;
-        width: 100% !important;
-        object-fit: contain;
-    }
-
-    body {
-        z-index: 100;
-    }
-</style>
-
-
-
+<link rel = 'stylesheet' type="text/css" href="{% static 'WAMSApp/css/materialize_override.css' %}"/>
 <script src="https://cdn.ckeditor.com/ckeditor5/11.0.1/decoupled-document/ckeditor.js"></script>
-
-<style type="text/css">
-    .document-editor {
-        border: 1px solid var(--ck-color-base-border);
-        border-radius: var(--ck-border-radius);
-        max-height: 40em;
-        display: flex;
-        flex-flow: column nowrap;
-    }
-
-    .document-editor__toolbar {
-        z-index: 1;
-        box-shadow: 0 0 5px hsla(0, 0%, 0%, .2);
-        border-bottom: 1px solid var(--ck-color-toolbar-border);
-    }
-
-    .document-editor__toolbar .ck-toolbar {
-        border: 0;
-        border-radius: 0;
-    }
-
-
-    .document-editor__editable-container {
-        padding: calc(2 * var(--ck-spacing-large));
-        background: var(--ck-color-base-foreground);
-        overflow-y: scroll;
-    }
-
-    .document-editor__editable-container .ck-editor__editable {
-        width: 15.8cm;
-        min-height: 21cm;
-        padding: 1cm 2cm 2cm;
-        border: 1px hsl(0, 0%, 82.7%) solid;
-        border-radius: var(--ck-border-radius);
-        background: white;
-        box-shadow: 0 0 5px hsla(0, 0%, 0%, .1);
-        margin: 0 auto;
-    }
-
-    .document-editor .ck-content,
-    .document-editor .ck-heading-dropdown .ck-list .ck-button__label {
-        font: 16px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif;
-    }
-
-    .document-editor .ck-heading-dropdown .ck-list .ck-button__label {
-        line-height: calc(1.7 * var(--ck-line-height-base) * var(--ck-font-size-base));
-        min-width: 6em;
-    }
-
-    .document-editor .ck-heading-dropdown .ck-list .ck-button:not(.ck-heading_paragraph) .ck-button__label {
-        transform: scale(0.8);
-        transform-origin: left;
-    }
-
-    .document-editor .ck-content h2,
-    .document-editor .ck-heading-dropdown .ck-heading_heading1 .ck-button__label {
-        font-size: 2.18em;
-        font-weight: normal;
-    }
-
-    .document-editor .ck-content h2 {
-        line-height: 1.37em;
-        padding-top: .342em;
-        margin-bottom: .142em;
-    }
-
-    .document-editor .ck-content h3,
-    .document-editor .ck-heading-dropdown .ck-heading_heading2 .ck-button__label {
-        font-size: 1.75em;
-        font-weight: normal;
-        color: hsl(203, 100%, 50%);
-    }
-
-    .document-editor .ck-heading-dropdown .ck-heading_heading2.ck-on .ck-button__label {
-        color: var(--ck-color-list-button-on-text);
-    }
-
-    .document-editor .ck-content h3 {
-        line-height: 1.86em;
-        padding-top: .171em;
-        margin-bottom: .357em;
-    }
-
-    .document-editor .ck-content h4,
-    .document-editor .ck-heading-dropdown .ck-heading_heading3 .ck-button__label {
-        font-size: 1.31em;
-        font-weight: bold;
-    }
-
-    .document-editor .ck-content h4 {
-        line-height: 1.24em;
-        padding-top: .286em;
-        margin-bottom: .952em;
-    }
-
-    .document-editor .ck-content p {
-        font-size: 1em;
-        line-height: 1.63em;
-        padding-top: .5em;
-        margin-bottom: 1.13em;
-    }
-
-    .image-section-dropdown .select-wrapper input.select-dropdown {
-        border: none !important;
-        bottom: 2px !important;
-        margin-bottom: 0px !important;
-        font-size: 14px !important;
-    }
-
-    .document-editor .ck-content blockquote {
-        font-family: Georgia, serif;
-        margin-left: calc(2 * var(--ck-spacing-large));
-        margin-right: calc(2 * var(--ck-spacing-large));
-    }
-
-    input.active {
-        border-bottom-color: #512da8 !important;
-    }
-
-    .scroll-style-2>li>a {
-        padding: 0 17px !important;
-    }
-
-    .margin-zero {
-        margin: 0 !important;
-    }
-
-    .sidebar2 {
-        padding-left: 0 !important;
-    }
-
-    .sidebar2 .row {
-        height: 100vh;
-        background-color: white;
-
-    }
-
-    .collapse-div-row-container {
-        height: 100vh;
-        background-color: white !important;
-    }
-
-    .collapse-div-container {
-        padding: 0 5px 0 0;
-    }
-
-    .collapse-div {
-        display: inline-block;
-        background-color: white;
-        padding-right: 5px;
-        height: 100vh;
-        overflow-y: auto;
-    }
-</style>
-
-
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/document_editor.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/main.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/dropdown.css' %}">
 
 <div>
-    <div class="row" style="margin: 10px 35px 0 60px;">
-        <div class="toolbar"
-            style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
-            <a class="right" href="#!" onclick="window.close()"
-                style="background-color: transparent;display: block;cursor: pointer;">
-                <i class="material-icons redd" title="Close" style="
-      background-color: #f7f7f7;
-      padding: 8px;
-      color: gray;
-      border-radius: 5px;
-      margin-left: 8px;
-      font-size: 20px;
-      margin-right: 9px;
-      display: block;
-      margin-bottom: 10px;">
-                    close
-                </i>
-            </a>
-            </br>
+    <div class="row main-div" style="margin: 0px 70px 0px 0px; padding: 20px 10px !important;" >
+        
 
-            <a class="right" href="/products" style="background-color: transparent;display: block;cursor: pointer;">
-                <i class="material-icons homee" title="Products" style="
-      background-color: #f7f7f7;
-      padding: 8px;
-      color: gray;
-      border-radius: 5px;
-      margin-left: 8px;
-      font-size: 20px;
-      margin-right: 9px;
-      display: block;
-      margin-bottom: 10px;">
-                    select_all
-                </i>
-            </a>
-
-            <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-                <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
-                    <i class="material-icons maroonn" title="PFL Editor" style="
-        color: gray;
-        background-color: #f7f7f7;
-        padding: 8px;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;margin-bottom: 10px;">
-                        vertical_split
-                    </i>
-                </a>
-
-                <a href="#!" class=" right" style="background-color: transparent;display: block;">
-                    <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                        timer
-                    </i>
-                </a>
-
-                <a href="#!" class=" right" style="background-color: transparent;display: block;">
-                    <i id="verified-icon" class="material-icons greenn" title="Verified" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                        verified_user
-                    </i>
-                </a>
-
-                <a href="#!" id="main-image-select-save-btn" class="right"
-                    style="background-color: transparent;display: block;">
-                    <i class="material-icons bluee" title="Set Cover Image" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                        burst_mode
-                    </i>
-                </a>
-
-                <a href="#download-export-list-modal" class="modal-trigger right"
-                    style="background-color: transparent;">
-                    <i class="material-icons greenn" title="Export Product Details" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                        file_download
-                    </i>
-                </a>
-
-                {% if perms.WAMSApp.change_product %}
-                <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
-                    <i class="material-icons purplee" title="Save" style="
-          background-color: #f7f7f7;
-          padding: 8px;
-          color: gray;
-          border-radius: 5px;
-          margin-left: 8px;
-          font-size: 20px;
-          margin-right: 9px;
-          display: block;
-          margin-bottom: 10px;">
-                        save
-                    </i>
-                </a>
-                {% endif %}
-            </div>
-        </div>
         <div class="col s4 image-section" style="height: 90vh;">
             <div class="main-image" style="position: relative;">
                 <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
-                    style="position:absolute;right:5em;top:0em;z-index: 100;"><i class="material-icons"
+                    style="position:absolute;right:0.5em;top:0.5em;z-index: 100;"><i class="material-icons"
                         style="color: #521893;">file_download</i></a>
             </div>
 
-            <div class="row image-section-dropdown" style="margin-bottom: 0px;">
-                <div class="input-field left-section col s7" style="
-          width: 21vw;
-          border: none; 
-          background-color: 
-          white;height: 40px; 
-          font-size: 14px !important;
-          margin-left: 10px;">
+            <div class="image-section-dropdown">
+                <div class="input-field image-section-dropdownchild">
                     <select id="images-category">
                         <option value="All Images" id="all-images-option">All Images</option>
                         <option value="Main Images" id="main-images-option">Main Images</option>
                         <option value="Sub Images" id="sub-images-option">Sub Images</option>
-                        <option value="PFL Images" id="pfl-images-option">PFL Images</option>
+                        <!-- <option value="PFL Images" id="pfl-images-option">PFL Images</option>
                         <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
                         </option>
                         <option value="White Background Images" id="white-background-images-option">White Background
@@ -569,17 +38,17 @@
                         <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
                         <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
                         <option value="Ads Images" id="ads-images-option">Ads Images</option>
-                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
+                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option> -->
                     </select>
                 </div>
 
-                <div class="col s3">
+                <div class="image-section-dropdownchild sidebtn">
                     <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
                         <i class="material-icons" title="Add Image" style="
               color: gray;
               background-color: white;
               padding: 8px;
-              margin-top: 15px;">
+                ">
                             add_photo_alternate
                         </i>
                     </a>
@@ -594,59 +63,63 @@
         </div>
 
         <div id="collapse-div" class="col s8 center collapse-div-container"
-            style="display: inline-block;transition: width 0.5s;">
+            style="transition: width 0.5s;">
 
-            <div class="collapse-div">
+            <div class="collapse-div" style = "padding-right:0px !important;overflow-x:hidden  !important;">
                 <div class="scroll-style-1 ">
-                    <h6 style="color: #521893;">Noon</h6>
+                    <h6 style="color: #521893;margin: 30px 0px 30px 0px !important;">Noon</h6>
                     <div class="row margin-zero collapse-div-row-container">
-                        <div class="input-field col s6">
-                            <input id="product-name" type="text">
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="product-name" type="text">
                             <label for="product-name">Product Name</label>
                         </div>
-                        <div class="input-field col s6">
-                            <input id="noon-product-type" type="text">
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="product-id" type="text">
+                            <label for="product-id">Product ID</label>
+                        </div>
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="noon-product-type" type="text">
                             <label for="noon-product-type">Product Type</label>
                         </div>
-                        <div class="input-field col s6">
-                            <input id="noon-product-subtype" type="text">
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="noon-product-subtype" type="text">
                             <label for="noon-product-subtype">Product Subtype</label>
                         </div>
-                        <div class="input-field col s6">
-                            <input id="noon-model-number" type="text">
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="noon-model-number" type="text">
                             <label for="noon-model-number">Model Number</label>
                         </div>
-                        <div class="input-field col s6">
-                            <input id="noon-model-name" type="text">
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="noon-model-name" type="text">
                             <label for="noon-model-name">Model Name</label>
                         </div>
-                        <div class="input-field col s6">
-                            <input id="noon-msrp-ae" type="number">
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="noon-msrp-ae" type="number">
                             <label for="noon-msrp-ae">MSRP AE</label>
                         </div>
 
-                        <div class="input-field col s6">
-                            <input id="noon-msrp-ae-unit" type="text">
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="noon-msrp-ae-unit" type="text">
                             <label for="noon-msrp-ae-unit">MSRP AE Unit</label>
                         </div>
-                        <div class="input-field col s6">
-                            <input id="product-description" type="text">
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="product-description" type="text">
                             <label for="product-description">Description</label>
                         </div>
 
 
-                        <div class="input-field col s9">
-                            <input id="product-attribute-amazon-uk-1" type="text">
+                        <div class="input-field col s9 toggle-s6-s12">
+                            <input placeholder="" id="product-attribute-amazon-uk-1" type="text">
                             <label for="product-attribute-amazon-uk-1">Product Attribute</label>
                         </div>
 
-                        <div class="input-field col s1">
+                        <div class="input-field col s1 toggle-s6-s12">
                             <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
                                 style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
                                     class="material-icons">add</i></a>
                         </div>
-                        <div class="input-field col s6">
-                            <input id="created-date" type="date">
+                        <div class="input-field col s6 toggle-s6-s12">
+                            <input placeholder="" id="created-date" type="date">
                             <label for="created-date">Created Date</label>
                         </div>
 
@@ -670,66 +143,76 @@
             </div>
         </div>
 
-        <div id="sidebar2" class="col s4 sidebar2" style="display: none;">
-            <div class="row margin-zero">
-                <div class="input-field col s12">
-                    <select id="flyer-brand">
-                        <option value="" selected>Select Channel</option>
-                        <option value="">Amazon UK</option>
-                        <option value="">Amazon UAE</option>
-                        <option value="">Ebay</option>
-                        <option value="">Noon</option>
+        <div id="sidebar2" class="col s4" style="background-color: white;display: none;">
+            <div class="row">
+                <div class="input-field col s12" style="margin-top: 30px !important;">
+                    <select  id="reference-channel">
+                        <option value = "" selected>Select Channel</option>
+                        <option order = "1" value="">Amazon UK</option>
+                        <option order = "2" value="">Uae</option>
+                        <option order = "3" value="">Ebay</option>
                     </select>
                     <label>Channels</label>
                 </div>
-                <div class="input-field col s6">
-                    <input disabled id="sidenav-product-name" type="text">
-                    <label for="product-name">Product Name</label>
+                <div class = "toggle_btw_forms">
+                    <div id = "toggle_btw_forms1" style = "display: none;">
+                        <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uk-sidenav-product-name" type="text">
+                            <label for="uk-sidenav-product-name">Product Name</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uk-sidenav-feed-product-type" type="text">
+                            <label for="uk-sidenav-feed-product-type">Product Type</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="uk-sidenav-update-delete" type="text">
+                          <label for="uk-sidenav-update-delete">Update Delete</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="uk-sidenav-variation-theme" type="text">
+                          <label for="uk-sidenav-variation-theme">Variation Theme</label>
+                        </div>
+                    </div>
+          
+                    <div id = "toggle_btw_forms2" style = "display: none;">
+                        <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uae-sidenav-product-name" type="text">
+                            <label for="uae-sidenav-product-name">Product Name</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uae-sidenav-feed-product-type" type="text">
+                            <label for="uae-sidenav-feed-product-type">Product Type</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="uae-sidenav-update-delete" type="text">
+                          <label for="uae-sidenav-update-delete">Update Delete</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="uae-sidenav-recommended-browse-nodes" type="text">
+                          <label for="uae-sidenav-recommended-browse-nodes">Recommended Browse Nodes</label>
+                        </div>
+                    </div>
+          
+                
+                    <div id = "toggle_btw_forms3" style="display: none;">
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="ebay-sidenav-product-name" type="text">
+                          <label for="ebay-sidenav-product-name">Product Name</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="ebay-sidenav-description" type="text">
+                          <label for="ebay-sidenav-description">Description</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="ebay-sidenav-category" type="text">
+                        <label for="ebay-sidenav-category">Category</label>
+                      </div>
+                   </div>
                 </div>
-                <div class="input-field col s6">
-                    <input disabled id="sidenav-product-type" type="text">
-                    <label for="product-type">Product Type</label>
-                </div>
-                <div class="input-field col s6">
-                    <input disabled id="sidenav-product-subtype" type="text">
-                    <label for="product-subtype">Product Subtype</label>
-                </div>
-                <div class="input-field col s6">
-                    <input disabled id="sidenav-model-no" type="text">
-                    <label for="product-model-no">Model No.</label>
-                </div>
-                <div class="input-field col s6">
-                    <input disabled id="sidenav-model-name" type="text">
-                    <label for="product-model-name">Model Name</label>
-                </div>
-                <div class="input-field col s6">
-                    <input disabled id="sidenav-model-name" type="text">
-                    <label for="product-msrp">MRP</label>
-                </div>
-                <div class="input-field col s6">
-                    <input disabled id="sidenav-product-description" type="text">
-                    <label for="sidenav-product-description">Description</label>
-                </div>
-
 
 
             </div>
         </div>
-
-        <div class="toolbar"
-            style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
-            <a id="open-it-btn" visible="no" href="#" class="button-collapse show-on-large">
-                <i class="material-icons">keyboard_arrow_left</i>
-            </a>
-
-
-
-
-        </div>
-
-        <!-- <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a> -->
-
-
     </div>
 </div>
 
@@ -772,8 +255,9 @@
 
 
 
+
 <div class="toolbar"
-    style="position: fixed; top: 0px; left: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
+    style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
     <a class="right" href="#!" onclick="window.close()"
         style="background-color: transparent;display: block;cursor: pointer;">
         <i class="material-icons redd" title="Close" style="
@@ -803,6 +287,23 @@
       display: block;
       margin-bottom: 10px;">
             select_all
+        </i>
+    </a>
+
+    </br>
+
+     <a class="right button-collapse show-on-large" href="#" id="open-it-btn" style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons sidebare bluee" title="Products" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+            keyboard_arrow_left
         </i>
     </a>
 
@@ -900,6 +401,7 @@
         {% endif %}
     </div>
 </div>
+       
 
 
 <div id="download-export-list-modal" class="modal" style="border-radius: 5px;">
@@ -1014,16 +516,163 @@
     $('.sidenav').sidenav({ edge: 'left' });
 
 
+    var global_details_noon = {};
+
+
+    function fill_sidebar_uk(){
+        var data = global_details_amazon_uk;
+        $('#uk-sidenav-product-name').val(data["product_name"]);
+        $('#uk-sidenav-feed-product-type').val(data["feed_product_type"]);
+        $('#uk-sidenav-update-delete').val(data["update_delete"]);
+        $('#uk-sidenav-variation-theme').val(data["variation_theme"]);
+    }
+
+
+
+    function fetch_details_amazon_uk()
+  {
+    console.log("Here");
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uk/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+           global_details_amazon_uk = response["amazon_uk_product_json"];
+           console.log("uk_data" , global_details_amazon_uk);
+           fill_sidebar_uk();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+
+        console.log("heye");
+        console.log(global_details_amazon_uk);
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  fetch_details_amazon_uk();
+
+
+  function fill_side_form_ebay()
+  {
+    var data = global_details_ebay;
+    $('#ebay-sidenav-product-name').val(data["product_name"]);
+    $('#ebay-sidenav-description').val(data["product_description"]);
+    $('#ebay-sidenav-category').val(data[""]);
+  }
+
+  function fetch_details_ebay()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-ebay/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_ebay = response["ebay_product_json"];
+          
+          fill_side_form_ebay();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  fetch_details_ebay();
+
+
+  function fill_side_form_uae(){
+    var data = global_details_amazon_uae;
+    $('#uae-sidenav-product-name').val(data["product_name"]);
+    $('#uae-sidenav-recommended-browse-nodes').val(data["recommended_browse_nodes"]);
+    $('#uae-sidenav-update-delete').val(data["update_delete"]);
+    $('#uae-sidenav-feed-product-type').val(data["feed_product_type"]);
+  }
+
+  function fetch_details_amazon_uae()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uae/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_amazon_uae = response["amazon_uae_product_json"];
+          // render_amazon_uk();
+          fill_side_form_uae();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+        console.log("uae");
+        console.log(global_details_amazon_uae);
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  fetch_details_amazon_uae();
+
+
     $("#open-it-btn").click(function () {
+
+
         if ($(this).attr("visible") == "no") {
+                    $( ".toggle-s6-s12" ).each(function( index ) {
+                  $(this).addClass("s12");
+          });
             $(this).attr("visible", "yes");
             $("#collapse-div").attr("class", "col s4 center");
             $("#sidebar2").show(600);
+            console.log($(this));
+            $(this).children().text("keyboard_arrow_right");
+            // $(".main-div").css('margin-right' , '0px');
         }
         else {
             $(this).attr("visible", "no");
+            $( ".toggle-s6-s12" ).each(function( index ) {
+                    $(this).removeClass("s12");
+            });
             $("#sidebar2").hide();
             $("#collapse-div").attr("class", "col s8 center");
+            $(".main-div").css('margin-right' , '70px');
+            $(this).children().text("keyboard_arrow_left");
         }
     })
 
@@ -1035,6 +684,23 @@
     //   // Closes side-nav on <a> clicks, useful for Angular/Meteor
     // }
     // );
+
+
+
+
+    $(document).on('change','#reference-channel',function(){
+      console.log("clicked");
+      $('#reference-channel option').each(function() {
+        if ($(this).is(':selected')) {
+          var order = $(this).attr("order");
+          $("#toggle_btw_forms"+order).css("display","block");
+        }
+        else{
+          var order = $(this).attr("order");
+          $("#toggle_btw_forms"+order).css("display","none");
+        }
+    });
+  });
 
 
 
@@ -1374,115 +1040,101 @@
 
     fetch_constant_values();
 
+    function fetch_noon_product_images_details() {
 
-    function fetch_product_images_details() {
-        $.ajax({
-            url: "/fetch-product-details/",
-            type: "POST",
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            },
-            data: {
-                pk: window.location.pathname.split("/")[3]
-            },
-            success: function (response) {
-                console.log("Success!", response);
+$.ajax({
+url: "/fetch-channel-product-noon/",
+type: "POST",
+headers: {
+    'X-CSRFToken': getCsrfToken()
+},
+data: {
+    product_pk: window.location.pathname.split("/")[3]
+},
+success: function (response) {
+    console.log("Success!", response);
 
-                if (response["status"] == 200) {
-                    $('.material-placeholder').remove();
-                    $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
-                    $('.materialboxed').materialbox();
+    if (response["status"] == 200) {
+    $('.material-placeholder').remove();
+    $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
+    $('.materialboxed').materialbox();
 
-                    global_images = response["images"];
+    global_images = response["images"];
+    console.log("global_images ", global_images)
 
-                    $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
-                    $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
-                    $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
-                    $("#pfl-images-option").html("PFL Images (" + global_images["pfl_images"].length + ")");
-                    $("#pfl-generated-images-option").html("PFL Generated Images (" + global_images["pfl_generated_images"].length + ")");
-                    $("#white-background-images-option").html("White Background Images (" + global_images["white_background_images"].length + ")");
-                    $("#lifestyle-images-option").html("Lifestyle Images (" + global_images["lifestyle_images"].length + ")");
-                    $("#certificate-images-option").html("Certificate Images (" + global_images["certificate_images"].length + ")");
-                    $("#giftbox-images-option").html("Giftbox Images (" + global_images["giftbox_images"].length + ")");
-                    $("#diecut-images-option").html("Diecut Images (" + global_images["diecut_images"].length + ")");
-                    $("#aplus-content-images-option").html("A+ Content Images (" + global_images["aplus_content_images"].length + ")");
-                    $("#ads-images-option").html("Ads Images (" + global_images["ads_images"].length + ")");
-                    $("#unedited-images-option").html("Unedited Images (" + global_images["unedited_images"].length + ")");
+    $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
+    $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
+    $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
+    
+    // update_grid_images(global_image_key);
 
-                    update_grid_images(global_image_key);
-
-                    $('#brand-image-img').attr("src", response["brand_logo"]);
-                    if (global_images["main_images"].length > 0) {
-                        $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
-                    }
-                    $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
-
-                    M.updateTextFields();
-                    $('select').formSelect();
-                }
-                else {
-                    M.toast({ html: "Error fetching images information" });
-                }
-            },
-            error: function (xhr, textstatus, errorthrown) {
-                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-            }
-        });
+    M.updateTextFields();
+    $('select').formSelect();
     }
+    else {
+    M.toast({ html: "Error fetching images information" });
+    }
+},
+error: function (xhr, textstatus, errorthrown) {
+    console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+}
+});
+}   
+
+fetch_noon_product_images_details();
+
+$("#upload-image-btn").click(function () {
+
+$("#upload-image-btn").attr("disabled", "disabled");
+$("#upload-preloader").show();
+
+product_pk = window.location.pathname.split("/")[3];
+
+var fd = new FormData();
+
+fd.append("product_pk", product_pk);
+var product_image_input = document.getElementById("product-image-input");
+
+fd.append('image_count', product_image_input.files.length);
+for (var i = 0; i < product_image_input.files.length; i++) {
+fd.append('image_' + i, product_image_input.files[i]);
+}
 
 
-    $("#upload-image-btn").click(function () {
+fd.append('image_category', global_image_key);
+fd.append('channel_name', "Noon");
+$.ajax({
+url: "/upload-product-image/",
+type: "POST",
+headers: {
+    'X-CSRFToken': getCsrfToken()
+},
+processData: false,
+contentType: false,
+data: fd,
+success: function (response) {
+    console.log("Success!", response);
+    $("#upload-preloader").hide();
+    $("#upload-image-btn").removeAttr("disabled");
 
-        $("#upload-image-btn").attr("disabled", "disabled");
-        $("#upload-preloader").show();
-
-        product_pk = window.location.pathname.split("/")[3];
-
-        var fd = new FormData();
-
-        fd.append("product_pk", product_pk);
-        var product_image_input = document.getElementById("product-image-input");
-
-        fd.append('image_count', product_image_input.files.length);
-        for (var i = 0; i < product_image_input.files.length; i++) {
-            fd.append('image_' + i, product_image_input.files[i]);
-        }
-
-
-        fd.append('image_category', global_image_key);
-
-        $.ajax({
-            url: "/upload-product-image/",
-            type: "POST",
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            },
-            processData: false,
-            contentType: false,
-            data: fd,
-            success: function (response) {
-                console.log("Success!", response);
-                $("#upload-preloader").hide();
-                $("#upload-image-btn").removeAttr("disabled");
-
-                if (response["status"] == 200) {
-                    $("#upload-image-modal").modal("close");
-                    M.toast({ html: "Successfully uploaded images!" });
-                    fetch_product_images_details();
-                }
-                else if (response["status"] == 403) {
-                    M.toast({ html: "You do not have permission to upload images!" });
-                }
-                else {
-                    M.toast({ html: "Error uploading images!" });
-                }
-            },
-            error: function (xhr, textstatus, errorthrown) {
-                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-                $("#upload-preloader").hide();
-            }
-        });
-    })
+    if (response["status"] == 200) {
+        $("#upload-image-modal").modal("close");
+        M.toast({ html: "Successfully uploaded images!" });
+        fetch_noon_product_images_details();
+    }
+    else if (response["status"] == 403) {
+        M.toast({ html: "You do not have permission to upload images!" });
+    }
+    else {
+        M.toast({ html: "Error uploading images!" });
+    }
+},
+error: function (xhr, textstatus, errorthrown) {
+    console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+    $("#upload-preloader").hide();
+}
+});
+})
 
     function set_verify(verified) {
         if (verified == true) {
@@ -1499,212 +1151,7 @@
         }
     }
 
-    function fetch_product_details() {
-        $.ajax({
-            url: "/fetch-product-details/",
-            type: "POST",
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            },
-            data: {
-                pk: window.location.pathname.split("/")[3]
-            },
-            success: function (response) {
-                console.log("Success!", response);
 
-                global_verification_status = response["verified"];
-
-                if (response["verified"] == true) {
-                    set_verify(true);
-                }
-                else {
-                    set_verify(false);
-                }
-
-                $("#pfl-product-name").val(response["pfl_product_name"])
-                var pfl_product_features = response["pfl_product_features"]
-                $('.material-placeholder').remove();
-                $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
-                $('.materialboxed').materialbox();
-
-                for (var i = 0; i < pfl_product_features.length; i++) {
-                    $("#pfl-feature-" + (i + 1)).val(pfl_product_features[i]);
-                    if ((i + 1) != pfl_product_features.length) {
-                        $("#add-feature-btn").click();
-                    }
-                }
-
-                $("#product-name-amazon-uk").val(response["product_name_amazon_uk"]);
-                $("#product-name-amazon-uae").val(response["product_name_amazon_uae"]);
-                $("#product-name-sap").val(response["product_name_sap"]);
-                $("#product-name-ebay").val(response["product_name_ebay"]);
-                $("#product-name-noon").val(response["product_name_noon"]);
-                $("#category").val(response["category"]);
-                $("#subtitle").val(response["subtitle"]);
-                $("#brand-name").val(response["brand"]);
-                $("#manufacturer").val(response["manufacturer"]);
-                $("#product-id").val(response["product_id"]);
-                $("#product-id-type").val(response["product_id_type"]);
-                $("#seller-sku").val(response["seller_sku"]);
-                $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
-                $("#barcode-string").val(response["barcode_string"]);
-                $("#noon-product-type").val(response["noon_product_type"]);
-                $("#noon-product-subtype").val(response["noon_product_subtype"]);
-                $("#noon-model-name").val(response["noon_model_name"]);
-                $("#noon-model-number").val(response["noon_model_number"]);
-
-                $("#condition-type").val(response["condition_type"]);
-                $("#feed-product-type").val(response["feed_product_type"]);
-                $("#update-delete").val(response["update_delete"]);
-                $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
-
-
-                window.editor[0].setData(response["product_description_amazon_uk"]);
-                window.editor[1].setData(response["product_description_amazon_uae"]);
-                window.editor[2].setData(response["product_description_ebay"]);
-                window.editor[3].setData(response["product_description_noon"]);
-
-
-                var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];
-                if (product_attribute_list_amazon_uk.length > 0) {
-                    $("#product-attribute-amazon-uk-1").val(product_attribute_list_amazon_uk[0]);
-                }
-                for (var i = 1; i < product_attribute_list_amazon_uk.length; i++) {
-                    $("#add-product-attribute-amazon-uk-btn").click();
-                    $("#product-attribute-amazon-uk-" + (i + 1)).val(product_attribute_list_amazon_uk[i]);
-                }
-
-                var product_attribute_list_amazon_uae = response["product_attribute_list_amazon_uae"];
-                if (product_attribute_list_amazon_uae.length > 0) {
-                    $("#product-attribute-amazon-uae-1").val(product_attribute_list_amazon_uae[0]);
-                }
-                for (var i = 1; i < product_attribute_list_amazon_uae.length; i++) {
-                    $("#add-product-attribute-amazon-uae-btn").click();
-                    $("#product-attribute-amazon-uae-" + (i + 1)).val(product_attribute_list_amazon_uae[i]);
-                }
-
-                var product_attribute_list_ebay = response["product_attribute_list_ebay"];
-                if (product_attribute_list_ebay.length > 0) {
-                    $("#product-attribute-ebay-1").val(product_attribute_list_ebay[0]);
-                }
-                for (var i = 1; i < product_attribute_list_ebay.length; i++) {
-                    $("#add-product-attribute-ebay-btn").click();
-                    $("#product-attribute-ebay-" + (i + 1)).val(product_attribute_list_ebay[i]);
-                }
-
-                var product_attribute_list_noon = response["product_attribute_list_noon"];
-                if (product_attribute_list_noon.length > 0) {
-                    $("#product-attribute-noon-1").val(product_attribute_list_noon[0]);
-                }
-                for (var i = 1; i < product_attribute_list_noon.length; i++) {
-                    $("#add-product-attribute-noon-btn").click();
-                    $("#product-attribute-noon-" + (i + 1)).val(product_attribute_list_noon[i]);
-                }
-
-                $("#search-terms").val(response["search_terms"]);
-                $("#color-map").val(response["color_map"]);
-                $("#color").val(response["color"]);
-                $("#enclosure-material").val(response["enclosure_material"]);
-                $("#cover-material-type").val(response["cover_material_type"]);
-
-                var special_features = response["special_features"];
-                if (special_features.length > 0) {
-                    $("#special-feature-1").val(special_features[0]);
-                }
-                for (var i = 1; i < special_features.length; i++) {
-                    $("#add-special-feature-btn").click();
-                    $("#special-feature-" + (i + 1)).val(special_features[i]);
-                }
-
-                $("#special-feature").val(response["special_features"]);
-                $("#package-length").val(response["package_length"]);
-                $("#package-length-metric").val(response["package_length_metric"]);
-                $("#package-width").val(response["package_width"]);
-                $("#package-width-metric").val(response["package_width_metric"]);
-                $("#package-height").val(response["package_height"]);
-                $("#package-height-metric").val(response["package_height_metric"]);
-                $("#package-weight").val(response["package_weight"]);
-                $("#package-weight-metric").val(response["package_weight_metric"]);
-                $("#shipping-weight").val(response["shipping_weight"]);
-                $("#shipping-weight-metric").val(response["shipping_weight_metric"]);
-                $("#item-display-weight").val(response["item_display_weight"]);
-                $("#item-display-weight-metric").val(response["item_display_weight_metric"]);
-                $("#item-display-volume").val(response["item_display_volume"]);
-                $("#item-display-volume-metric").val(response["item_display_volume_metric"]);
-                $("#item-display-length").val(response["item_display_length"]);
-                $("#item-display-length-metric").val(response["item_display_length_metric"]);
-                $("#item-weight").val(response["item_weight"]);
-                $("#item-weight-metric").val(response["item_weight_metric"]);
-                $("#item-length").val(response["item_length"]);
-                $("#item-length-metric").val(response["item_length_metric"]);
-                $("#item-width").val(response["item_width"]);
-                $("#item-width-metric").val(response["item_width_metric"]);
-                $("#item-height").val(response["item_height"]);
-                $("#item-height-metric").val(response["item_height_metric"]);
-                $("#item-display-width").val(response["item_display_width"]);
-                $("#item-display-width-metric").val(response["item_display_width_metric"]);
-                $("#item-display-height").val(response["item_display_height"]);
-                $("#item-display-height-metric").val(response["item_display_height_metric"]);
-                $("#item-count").val(response["item_count"]);
-                $("#item-count-metric").val(response["item_count_metric"]);
-                $("#item-condition-note").val(response["item_condition_note"]);
-                $("#max-order-quantity").val(response["max_order_quantity"]);
-                $("#number-of-items").val(response["number_of_items"]);
-                $("#wattage").val(response["wattage"]);
-                $("#wattage-metric").val(response["wattage_metric"]);
-                $("#material-type").val(response["material_type"]);
-                $("#parentage").val(response["parentage"]);
-                $("#parent-sku").val(response["parent_sku"]);
-                $("#relationship-type").val(response["relationship_type"]);
-                $("#variation-theme").val(response["variation_theme"]);
-                $("#standard-price").val(response["standard_price"]);
-                $("#quantity").val(response["quantity"]);
-                $("#sale-price").val(response["sale_price"]);
-                $("#sale-from").val(response["sale_from"]);
-                $("#sale-end").val(response["sale_end"]);
-
-                $("#noon-msrp-ae").val(response["noon_msrp_ae"]);
-                $("#noon-msrp-ae-unit").val(response["noon_msrp_ae_unit"]);
-
-                $("#factory-notes").val(response["factory_notes"]);
-
-
-                global_images = response["images"];
-
-                $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
-                $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
-                $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
-                $("#pfl-images-option").html("PFL Images (" + global_images["pfl_images"].length + ")");
-                $("#pfl-generated-images-option").html("PFL Generated Images (" + global_images["pfl_generated_images"].length + ")");
-                $("#white-background-images-option").html("White Background Images (" + global_images["white_background_images"].length + ")");
-                $("#lifestyle-images-option").html("Lifestyle Images (" + global_images["lifestyle_images"].length + ")");
-                $("#certificate-images-option").html("Certificate Images (" + global_images["certificate_images"].length + ")");
-                $("#giftbox-images-option").html("Giftbox Images (" + global_images["giftbox_images"].length + ")");
-                $("#diecut-images-option").html("Diecut Images (" + global_images["diecut_images"].length + ")");
-                $("#aplus-content-images-option").html("A+ Content Images (" + global_images["aplus_content_images"].length + ")");
-                $("#ads-images-option").html("Ads Images (" + global_images["ads_images"].length + ")");
-                $("#unedited-images-option").html("Unedited Images (" + global_images["unedited_images"].length + ")");
-
-                update_grid_images(global_image_key);
-
-                $('#brand-image-img').attr("src", response["brand_logo"]);
-                if (global_images["main_images"].length > 0) {
-                    $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
-                }
-                $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
-
-                $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
-
-                M.updateTextFields();
-                $('select').formSelect();
-            },
-            error: function (xhr, textstatus, errorthrown) {
-                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-            }
-        });
-    }
-
-    fetch_product_details();
 
     var product_attribute_amazon_uk_cnt = 1;
     $("#add-product-attribute-amazon-uk-btn").click(function () {
@@ -2073,49 +1520,49 @@
 
 
     function update_grid_images(key) {
-        if (key == "all_images") {
-            $("#import-btn").attr("class", "disabled");
-        }
-        else {
-            $("#import-btn").attr("class", "modal-trigger");
-        }
+        // if (key == "all_images") {
+        //     $("#import-btn").attr("class", "disabled");
+        // }
+        // else {
+        //     $("#import-btn").attr("class", "modal-trigger");
+        // }
 
-        if (key == "main_images") {
-            update_grid_images_main_images(key);
-            return;
-        }
-
-
-        if (key == "sub_images") {
-            update_grid_images_sub_images(key);
-            return;
-        }
+        // if (key == "main_images") {
+        //     update_grid_images_main_images(key);
+        //     return;
+        // }
 
 
-        var html_string = "";
-        for (var i = 0; i < global_images[key].length; i++) {
-            html_string += `<div class="col s4" style="padding:1em;">
-                        <div style="position:relative;">
-                          <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
-                            <i class="material-icons redd" title="Delete Image" style="
-                              background-color: transparent;
-                              padding: 4px;
-                              color: gray;
-                              border-radius: 2px;
-                              margin-left: 4px;
-                              font-size: 10px;
-                              margin-right: 4px;
-                              display: block;
-                              margin-bottom: 5px;">
-                              close
-                            </i> 
-                          </a> 
-                          <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
-                        </div>
-                      </div>`;
-        }
+        // if (key == "sub_images") {
+        //     update_grid_images_sub_images(key);
+        //     return;
+        // }
 
-        $("#graphics-section").html(html_string);
+
+        // var html_string = "";
+        // for (var i = 0; i < global_images[key].length; i++) {
+        //     html_string += `<div class="col s4" style="padding:1em;">
+        //                 <div style="position:relative;">
+        //                   <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+        //                     <i class="material-icons redd" title="Delete Image" style="
+        //                       background-color: transparent;
+        //                       padding: 4px;
+        //                       color: gray;
+        //                       border-radius: 2px;
+        //                       margin-left: 4px;
+        //                       font-size: 10px;
+        //                       margin-right: 4px;
+        //                       display: block;
+        //                       margin-bottom: 5px;">
+        //                       close
+        //                     </i> 
+        //                   </a> 
+        //                   <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
+        //                 </div>
+        //               </div>`;
+        // }
+
+        // $("#graphics-section").html(html_string);
     }
 
 
@@ -2310,301 +1757,202 @@
         });
     }
 
-    function save_product() {
-        save_pfl_image_to_bucket();
 
-        $("#save-btn").attr("disabled", "disabled");
+                function fill_product_details(){
+                    var data = global_details_noon;
+                    $('#product-id').val(data["product-id"]);
+                    $('#noon-model-name').val(data["model_name"]);
+                    $('#noon-model-number').val(data["model_number"]);
+                    $('#noon-msrp-ae').val(data["msrp_ae"]);
+                    $('#noon-msrp-ae-unit').val(data["msrp_ae_unit"]);
+                    $('#product-name').val(data["product_name"]);
+                    $('#product-description').val(data["product_description"]);
+                    $('#noon-product-subtype').val(data["product_subtype"]);
+                    $('#noon-product-type').val(data["product_type"]);
 
-        var product_pk = window.location.pathname.split("/")[3];
-
-        var pfl_product_name = $("#pfl-product-name").val();
-        var pfl_product_features = [];
-        for (var i = 0; i < $(".feature-text").length; i++) {
-            pfl_product_features.push($(".feature-text")[i].value);
-        }
-
-        var product_name_amazon_uk = $("#product-name-amazon-uk").val();
-        var product_name_amazon_uae = $("#product-name-amazon-uae").val();
-        var product_name_ebay = $("#product-name-ebay").val();
-        var product_name_sap = $("#product-name-sap").val();
-        var product_name_noon = $("#product-name-noon").val();
-
-        var category = $("#category").val();
-        var subtitle = $("#subtitle").val();
-        var brand = $("#brand-name").val();
-        var manufacturer = $("#manufacturer").val();
-        var product_id = $("#product-id").val();
-        var product_id_type = $("#product-id-type").val();
-        var seller_sku = $("#seller-sku").val();
-        var manufacturer_part_number = $("#manufacturer-part-number").val();
-        var barcode_string = $("#barcode-string").val();
-        var noon_product_type = $("#noon-product-type").val();
-        var noon_product_subtype = $("#noon-product-subtype").val();
-        var noon_model_number = $("#noon-model-number").val();
-        var noon_model_name = $("#noon-model-name").val();
-        var condition_type = $("#condition-type").val();
-        var feed_product_type = $("#feed-product-type").val();
-        var update_delete = $("#update-delete").val();
-        var recommended_browse_nodes = $("#recommended-browse-nodes").val();
-        var product_description_amazon_uk = window.editor[0].getData();
-        var product_description_amazon_uae = window.editor[1].getData();
-        var product_description_ebay = window.editor[2].getData();
-        var product_description_noon = window.editor[3].getData();
-
-
-        var product_attribute_data_amazon_uk = [];
-        for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
-            if ($("#product-attribute-amazon-uk-" + i).val() != "") {
-                product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
-            }
-        }
-        product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
-
-
-        var product_attribute_data_amazon_uae = [];
-        for (var i = 1; i <= product_attribute_amazon_uae_cnt; i++) {
-            if ($("#product-attribute-amazon-uae-" + i).val() != "") {
-                product_attribute_data_amazon_uae.push($("#product-attribute-amazon-uae-" + i).val());
-            }
-        }
-        product_attribute_data_amazon_uae = JSON.stringify(product_attribute_data_amazon_uae);
-
-
-        var product_attribute_data_ebay = [];
-        for (var i = 1; i <= product_attribute_ebay_cnt; i++) {
-            if ($("#product-attribute-ebay-" + i).val() != "") {
-                product_attribute_data_ebay.push($("#product-attribute-ebay-" + i).val());
-            }
-        }
-        product_attribute_data_ebay = JSON.stringify(product_attribute_data_ebay);
-
-
-
-        var product_attribute_data_noon = [];
-        for (var i = 1; i <= product_attribute_noon_cnt; i++) {
-            if ($("#product-attribute-noon-" + i).val() != "") {
-                product_attribute_data_noon.push($("#product-attribute-noon-" + i).val());
-            }
-        }
-        product_attribute_data_noon = JSON.stringify(product_attribute_data_noon);
-
-
-        var search_terms = $("#search-terms").val();
-        var color_map = $("#color-map").val();
-        var color = $("#color").val();
-        var enclosure_material = $("#enclosure-material").val();
-        var cover_material_type = $("#cover-material-type").val();
-
-
-        var special_feature_data = [];
-        for (var i = 1; i <= special_feature_cnt; i++) {
-            if ($("#special-feature-" + i).val() != "") {
-                special_feature_data.push($("#special-feature-" + i).val());
-            }
-        }
-
-        var special_feature_data = JSON.stringify(special_feature_data);
-        var package_length = $("#package-length").val();
-        var package_length_metric = $("#package-length-metric").val();
-        var package_width = $("#package-width").val();
-        var package_width_metric = $("#package-width-metric").val();
-        var package_height = $("#package-height").val();
-        var package_height_metric = $("#package-height-metric").val();
-        var package_weight = $("#package-weight").val();
-        var package_weight_metric = $("#package-weight-metric").val();
-        var shipping_weight = $("#shipping-weight").val();
-        var shipping_weight_metric = $("#shipping-weight-metric").val();
-        var item_display_weight = $("#item-display-weight").val();
-        var item_display_weight_metric = $("#item-display-weight-metric").val();
-        var item_display_volume = $("#item-display-volume").val();
-        var item_display_volume_metric = $("#item-display-volume-metric").val();
-        var item_display_length = $("#item-display-length").val();
-        var item_display_length_metric = $("#item-display-length-metric").val();
-        var item_weight = $("#item-weight").val();
-        var item_weight_metric = $("#item-weight-metric").val();
-        var item_length = $("#item-length").val();
-        var item_length_metric = $("#item-length-metric").val();
-        var item_width = $("#item-width").val();
-        var item_width_metric = $("#item-width-metric").val();
-        var item_height = $("#item-height").val();
-        var item_height_metric = $("#item-height-metric").val();
-        var item_display_width = $("#item-display-width").val();
-        var item_display_width_metric = $("#item-display-width-metric").val();
-        var item_display_height = $("#item-display-height").val();
-        var item_display_height_metric = $("#item-display-height-metric").val();
-        var item_count = $("#item-count").val();
-        var item_count_metric = $("#item-count-metric").val();
-
-        var item_condition_note = $("#item-condition-note").val();
-        var max_order_quantity = $("#max-order-quantity").val();
-        var number_of_items = $("#number-of-items").val();
-        var wattage = $("#wattage").val();
-        var wattage_metric = $("#wattage-metric").val();
-        var material_type = $("#material-type").val();
-        var parentage = $("#parentage").val();
-        var parent_sku = $("#parent-sku").val();
-        var relationship_type = $("#relationship-type").val();
-        var variation_theme = $("#variation-theme").val();
-        var standard_price = $("#standard-price").val();
-        var quantity = $("#quantity").val();
-        var sale_price = $("#sale-price").val();
-        var sale_from = $("#sale-from").val();
-        var sale_end = $("#sale-end").val();
-        var noon_msrp_ae = $("#noon-msrp-ae").val();
-        var noon_msrp_ae_unit = $("#noon-msrp-ae-unit").val();
-        var product_pk = window.location.pathname.split("/")[3];
-
-        var factory_notes = $("#factory-notes").val();
-
-        var fd = new FormData();
-
-        fd.append('pfl_product_name', pfl_product_name)
-        fd.append('pfl_product_features', JSON.stringify(pfl_product_features));
-        fd.append('product_pk', product_pk)
-        fd.append('product_name_sap', product_name_sap);
-        fd.append('product_name_amazon_uk', product_name_amazon_uk);
-        fd.append('product_name_amazon_uae', product_name_amazon_uae);
-        fd.append('product_name_ebay', product_name_ebay);
-        fd.append('product_name_noon', product_name_noon);
-        fd.append('category', category);
-        fd.append('subtitle', subtitle);
-        fd.append('brand', brand);
-        fd.append('manufacturer', manufacturer);
-        fd.append('product_id', product_id);
-        fd.append('product_id_type', product_id_type);
-        fd.append('seller_sku', seller_sku);
-        fd.append('manufacturer_part_number', manufacturer_part_number);
-        fd.append('barcode_string', barcode_string);
-        fd.append('noon_product_type', noon_product_type);
-        fd.append('noon_product_subtype', noon_product_subtype);
-        fd.append('noon_model_name', noon_model_name);
-        fd.append('noon_model_number', noon_model_number);
-        fd.append('condition_type', condition_type);
-        fd.append('feed_product_type', feed_product_type);
-        fd.append('update_delete', update_delete);
-        fd.append('recommended_browse_nodes', recommended_browse_nodes);
-        fd.append('product_description_amazon_uk', product_description_amazon_uk);
-        fd.append('product_description_amazon_uae', product_description_amazon_uae);
-        fd.append('product_description_ebay', product_description_ebay);
-        fd.append('product_description_noon', product_description_noon);
-
-        fd.append('product_attribute_list_amazon_uk', product_attribute_data_amazon_uk);
-        fd.append('product_attribute_list_amazon_uae', product_attribute_data_amazon_uae);
-        fd.append('product_attribute_list_ebay', product_attribute_data_ebay);
-        fd.append('product_attribute_list_noon', product_attribute_data_noon);
-        fd.append('search_terms', search_terms);
-        fd.append('color_map', color_map);
-        fd.append('color', color);
-        fd.append('enclosure_material', enclosure_material);
-        fd.append('cover_material_type', cover_material_type);
-        fd.append('special_features', special_feature_data);
-        fd.append('package_length', package_length);
-        fd.append('package_length_metric', package_length_metric);
-        fd.append('package_width', package_width);
-        fd.append('package_width_metric', package_width_metric);
-        fd.append('package_height', package_height);
-        fd.append('package_height_metric', package_height_metric);
-        fd.append('package_weight', package_weight);
-        fd.append('package_weight_metric', package_weight_metric);
-        fd.append('shipping_weight', shipping_weight);
-        fd.append('shipping_weight_metric', shipping_weight_metric);
-        fd.append('item_display_weight', item_display_weight);
-        fd.append('item_display_weight_metric', item_display_weight_metric);
-        fd.append('item_display_volume', item_display_volume);
-        fd.append('item_display_volume_metric', item_display_volume_metric);
-        fd.append('item_display_length', item_display_length);
-        fd.append('item_display_length_metric', item_display_length_metric);
-        fd.append('item_weight', item_weight);
-        fd.append('item_weight_metric', item_weight_metric);
-        fd.append('item_length', item_length);
-        fd.append('item_length_metric', item_length_metric);
-        fd.append('item_width', item_width);
-        fd.append('item_width_metric', item_width_metric);
-        fd.append('item_height', item_height);
-        fd.append('item_height_metric', item_height_metric);
-        fd.append('item_display_width', item_display_width);
-        fd.append('item_display_width_metric', item_display_width_metric);
-        fd.append('item_display_height', item_display_height);
-        fd.append('item_display_height_metric', item_display_height_metric);
-        fd.append('item_count', item_count);
-        fd.append('item_count_metric', item_count_metric);
-
-        fd.append('item_condition_note', item_condition_note);
-        fd.append('max_order_quantity', max_order_quantity);
-        fd.append('number_of_items', number_of_items);
-        fd.append('wattage', wattage);
-        fd.append('wattage_metric', wattage_metric);
-        fd.append('material_type', material_type);
-        fd.append('parentage', parentage);
-        fd.append('parent_sku', parent_sku);
-        fd.append('relationship_type', relationship_type);
-        fd.append('variation_theme', variation_theme);
-        fd.append('standard_price', standard_price);
-        fd.append('quantity', quantity);
-        fd.append('sale_price', sale_price);
-        fd.append('sale_from', sale_from);
-        fd.append('sale_end', sale_end);
-        fd.append('noon_msrp_ae', noon_msrp_ae);
-        fd.append('noon_msrp_ae_unit', noon_msrp_ae_unit);
-        fd.append('factory_notes', factory_notes);
-
-        $.ajax({
-            url: "/save-product/",
-            type: "POST",
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            },
-            processData: false,
-            contentType: false,
-            data: fd,
-            success: function (response) {
-
-                console.log("Success!", response);
-                if (response["status"] == 200) {
-                    M.toast({ html: "Product saved successfully!" });
                 }
-                else if (response["status"] == 409) {
-                    M.toast({ html: "Product ID or Seller SKU is duplicated!" });
+
+
+                    function fetch_details_noon()
+                {
+                    $.ajax({
+                    url: "/fetch-channel-product-noon/",
+                    type: "POST",
+                    headers: {
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    data: {
+                        product_pk: window.location.pathname.split("/")[3]
+                    },
+                    success: function (response) {
+                        console.log("Noon Success!", response);
+                        if(response["status"]==200)
+                        {
+                        global_details_noon = response["noon_product_json"];
+                        global_details_noon["product-id"] = response["product_id"];
+                        // render_amazon_uk();
+                        console.log("noon");
+                        console.log(global_details_noon);
+                        fill_product_details();
+                        }
+                        else
+                        {
+                        M.toast({ html: "Internal Server" });
+                        }
+                        
+                    },
+                    error: function (xhr, textstatus, errorthrown) {
+                        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+                    }
+                    });
                 }
-                else if (response["status"] == 403) {
-                    M.toast({ html: "You do not have permission for saving product!" });
-                }
-                else {
-                    M.toast({ html: "Error saving product!" });
-                }
-                $("#save-btn").removeAttr("disabled");
-            },
-            error: function (xhr, textstatus, errorthrown) {
-                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+
+                fetch_details_noon();
+
+
+            function save_product_noon() {
+
+                        $("#save-btn").attr("disabled", "disabled");
+
+                        var product_pk = window.location.pathname.split("/")[3];
+
+                        var product_name = $("#product-name").val();
+                        var product_id = $('#product-id').val();
+                        var description = $('#product-description').val();
+                        var model_number = $('#noon-model-number').val();
+                        var model_name = $('#noon-model-name').val();
+                        var msrp_ae = $('#noon-msrp-ae').val();
+                        var msrp_ae_unit = $('#noon-msrp-ae-unit').val();
+                        var product_type = $('#noon-product-type').val();
+                        var product_subtype = $('#noon-product-subtype').val();
+                        var created_date = $("#created-date").val();
+                        // var category = $('#product-category').val();
+
+                        // var feed_product_type = $("#feed-product-type").val();
+                        // var variation_theme = $("#variation-theme").val();
+                        // var update_delete = $("#update-delete").val();
+                        // var recommended_browse_nodes = $("#recommended-browse-nodes").val();
+                        // var search_terms = $("#search-terms").val();
+                        // var enclosure_material = $("#enclosure-material").val();
+                        // var cover_material_type = $("#cover-material-type").val();
+                        // var sale_price = $("#sale-price").val();
+                        // var sale_from = $("#sale-from").val();
+                        // var sale_end = $("#sale-end").val();
+
+                        // var special_feature_data = [];
+                        // for (var i = 1; i <= special_feature_cnt; i++) {
+                        // if ($("#special-feature-" + i).val() != "") {
+                        //     special_feature_data.push($("#special-feature-" + i).val());
+                        // }
+                        // }
+                        // special_feature_data = JSON.stringify(special_feature_data);
+
+                        // var wattage = $("#wattage").val();
+                        // var wattage_metric = $("#wattage-metric").val();
+                        // var parentage = $("#parentage").val();
+                        // var parent_sku = $("#parent-sku").val();
+                        // var relationship_type = $("#relationship-type").val();
+                        // var item_count = $("#item-count").val();
+                        // var item_count_metric = $("#item-count-metric").val();
+                        // var item_condition_note = $("#item-condition-note").val();
+                        // var max_order_quantity = $("#max-order-quantity").val();
+                        // var number_of_items = $("#number-of-items").val();
+                        // var condition_type = $("#condition-type").val();
+
+                        // var product_attribute_data_amazon_uk = [];
+                        // for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
+                        //   if ($("#product-attribute-amazon-uk-" + i).val() != "") {
+                        //     product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
+                        //   }
+                        // }
+                        // product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
+
+
+                        // "product_name" : "",
+                        // "product_type" : "",
+                        // "product_subtype" : "",
+                        // "model_number" : "",
+                        // "model_name" : "",
+                        // "msrp_ae" : "",
+                        // "msrp_ae_unit" : "",
+                        // "product_description" : "",
+                        // "product_attribute_list" : [],
+                        // "created_date" : ""   
+
+                        noon_data_json = {}
+
+                        // noon_data_json["feed_product_type"] = feed_product_type;
+                        noon_data_json["product_name"] = product_name;
+                        noon_data_json["product_description"] = description
+                        noon_data_json["msrp_ae"] = msrp_ae
+                        noon_data_json["msrp_ae_unit"] = msrp_ae_unit
+                        noon_data_json["model_number"] = model_number
+                        noon_data_json["model_name"] = model_name
+                        noon_data_json["product_subtype"] = product_subtype
+                        noon_data_json["created_date"] = created_date
+                        // noon_data_json["category"] = category
+                        // noon_data_json["variation_theme"]  = variation_theme;
+                        // noon_data_json["update_delete"] = update_delete;
+                        // noon_data_json["recommended_browse_nodes"] = recommended_browse_nodes;
+                        // noon_data_json["search_terms"] = search_terms;
+                        // noon_data_json["enclosure_material"] = enclosure_material;
+                        // noon_data_json["cover_material_type"] = cover_material_type;
+                        // noon_data_json["sale_price"] = sale_price;
+                        // noon_data_json["sale_from"] = sale_from;
+                        // noon_data_json["sale_end"] = sale_end;
+                        // noon_data_json["special_features"] = special_feature_data;
+                        // noon_data_json["wattage"] = wattage;
+                        // noon_data_json["wattage_metric"] = wattage_metric;
+                        // noon_data_json["parentage"] = parentage;
+                        // noon_data_json["parent_sku"] = parent_sku;
+                        // noon_data_json["relationship_type"] = relationship_type;
+                        // noon_data_json["item_count"] = item_count;
+                        // noon_data_json["item_count_metric"] = item_count_metric;
+                        // noon_data_json["item_condition_note"] = item_condition_note;
+                        // noon_data_json["max_order_quantity"] = max_order_quantity;
+                        // noon_data_json["number_of_items"] = number_of_items;
+                        // noon_data_json["condition_type"] = condition_type;
+
+                        console.log(noon_data_json);
+                        $.ajax({
+                        url: "/save-channel-product-noon/",
+                        type: "POST",
+                        headers: {
+                            'X-CSRFToken': getCsrfToken()
+                        },
+                        data: {
+                            noon_product_json : JSON.stringify(noon_data_json),
+                            product_pk : product_pk
+                        },
+                        success: function (response) {
+                            console.log("Saved Success!", response);
+                            if (response["status"] == 200) {
+                            global_details_noon = noon_data_json;
+                            console.log("noon data" , global_details_noon);
+                            M.toast({ html: "Product saved successfully!" });
+                            }
+                            else if (response["status"] == 403) {
+                            M.toast({ html: "You do not have permission for saving product!" });
+                            }
+                            else {
+                            M.toast({ html: "Error saving product!" });
+                            }
+                            $("#save-btn").removeAttr("disabled");
+                        },
+                        error: function (xhr, textstatus, errorthrown) {
+                            console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+                        }
+                        });
+
             }
-        });
-
-        save_subimages_index();
-    }
 
 
-    $("#save-btn").click(function () {
-        if ($("#product-name-sap").val() == "" || $("#product-id").val() == "" || $("#seller-sku").val() == "" || $("#brand-name").val() == "" || $("#product-name-sap").val() == "") {
-
-        }
-
-        if ($("#brand-name").val().trim() == "") {
-            M.toast({ html: "Brand name cannot be empty!" });
-            return;
-        }
-
-        if ($("#product-id").val().trim() == "") {
-            M.toast({ html: "Product ID cannot be empty!" });
-            return;
-        }
-
-        if ($("#seller-sku").val().trim() == "") {
-            M.toast({ html: "Seller SKU cannot be empty!" });
-            return;
-        }
-
-        save_product();
-    });
+    $('document').ready(()=>{
+            $('#save-btn').click(function(){
+            console.log("heye");
+            save_product_noon();
+            });
+        })
 
     $("#information-tab").click(function () {
         setTimeout(function () {

@@ -1,0 +1,240 @@
+   .ck.ck-content ul,
+    .ck.ck-content ul li {
+        list-style-type: inherit;
+    }
+
+
+    .ck.ck-content ul {
+        padding-left: 40px;
+    }
+
+    .ck.ck-content strong {
+        font-weight: bold;
+    }
+
+    input{
+        margin-top: 4px !important;
+      }
+
+
+    .flex-container-space-btw {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .flex-container-space-btw>div {
+        margin-top: 15px;
+        width: 7vw;
+    }
+
+
+    .img-wrapper {
+        position: relative;
+    }
+
+    .img-responsive {
+        width: 100%;
+        height: auto;
+    }
+
+    .img-overlay {
+        position: absolute;
+        top: 1em;
+        bottom: 0;
+        right: 1em;
+        text-align: center;
+    }
+
+    .redd:hover {
+        background-color: red !important;
+        color: white !important;
+    }
+
+    .greenn:hover {
+        background-color: #009051 !important;
+        color: white !important;
+    }
+
+    .bluee:hover {
+        background-color: blue !important;
+        color: white !important;
+    }
+
+    .yelloww:hover {
+        background-color: orange !important;
+        color: white !important;
+    }
+
+    .purplee:hover {
+        background-color: #512de8 !important;
+        color: white !important;
+    }
+
+    .maroonn:hover {
+        background-color: maroon !important;
+        color: white !important;
+    }
+
+    .homee:hover {
+        background-color: #521893 !important;
+        color: white !important;
+    }
+
+    .miniimage+input {
+        width: 50% !important;
+        display: block;
+    }
+
+    input[type="checkbox"].filled-in:checked+span:before {
+        background-color: #512de8 !important
+    }
+
+    input[type="checkbox"].filled-in:checked+span:after {
+        background-color: #512de8 !important
+    }
+
+    .img-overlay:before {
+        content: ' ';
+        display: block;
+        height: 10%;
+    }
+
+
+    a .active {
+        background-color: #512da8 !important;
+    }
+
+
+    /*tabs*/
+
+    .tab-content {
+        margin-top: 20px;
+        max-height: 80vh;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+
+    input:focus {
+        border-color: #512da8 !important;
+    }
+
+    input:select {
+        border-color: #512da8 !important;
+    }
+
+    .tab-pane div.row {
+        padding: 20px !important;
+    }
+
+    .savebtn {
+        position: fixed;
+        top: 20px;
+        left: 50px;
+        background-color: #512da8;
+    }
+
+    li span {
+        color: black !important;
+    }
+
+    img.materialboxed {
+        width: 100px;
+        height: 100px;
+        background-color: white;
+    }
+
+    .tab-pane h4 {
+        display: none;
+    }
+
+    .miniimage {
+        display: block;
+        height: 80px;
+    }
+
+    .image-section {
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: gray;
+    }
+
+
+    .input-field:not(.image-section-dropdownchild) {
+        padding: 0px 5% !important;
+        margin-top: 20px !important;
+    }
+
+
+    label{
+        margin-bottom: 10px !important;
+        left: 3rem !important;
+      }
+    
+      input{
+        margin-top: 4px !important;
+      }
+    
+      .status-bar{
+        font-size: 12px;
+        letter-spacing: 2px;
+      }
+    
+      input:not([type]),
+        input[type=text],
+        input[type=password],
+        input[type=email],
+        input[type=url],
+        input[type=time],
+        input[type=date],
+        input[type=datetime],
+        input[type=datetime-local],
+        input[type=tel],
+        input[type=number],
+        input[type=search],
+        textarea.materialize-textarea {
+            border: 1px solid #C6C6C6 !important;
+            border-radius: 5px !important;
+            padding-left: 10px !important;
+            font-family: 'AvenirNext' !important;
+            font-weight:
+        }
+    
+        input:not([type]):focus:not([readonly]),
+        input[type=text]:focus:not([readonly]),
+        input[type=password]:focus:not([readonly]),
+        input[type=email]:focus:not([readonly]),
+        input[type=url]:focus:not([readonly]),
+        input[type=time]:focus:not([readonly]),
+        input[type=date]:focus:not([readonly]),
+        input[type=datetime]:focus:not([readonly]),
+        input[type=datetime-local]:focus:not([readonly]),
+        input[type=tel]:focus:not([readonly]),
+        input[type=number]:focus:not([readonly]),
+        input[type=search]:focus:not([readonly]),
+        textarea.materialize-textarea:focus:not([readonly])>label {
+            border-bottom: 1px solid #512ea8 !important;
+            box-shadow: 0 1px 0 0 #f00 !important;
+            border-bottom: none !important;
+            box-shadow: none !important;
+        }
+     input.active {
+        border-bottom-color: #512da8 !important;
+    }
+
+    .input-field:not(.image-section-dropdownchild) input:focus+label {
+        color: #512ea8 !important;
+    }
+
+    .row .input-field:not(.image-section-dropdownchild) input:focus {
+        border-bottom: 1px solid #512ea8 !important;
+        box-shadow: 0 1px 0 0 #512ea8 !important
+    }
+

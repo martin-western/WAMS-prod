@@ -1,0 +1,51 @@
+   .scroll-style-2>li>a {
+        padding: 0 17px !important;
+    }   
+
+    .margin-zero {
+        margin: 0 !important;
+    }
+
+    .sidebar2 {
+        padding-left: 0 !important;
+        position: fixed;
+        right: 0px !important;
+        background-color: black !important;
+    }
+
+    .sidebar2 .row {
+        height: 100vh;
+        background-color: white;
+
+    }
+
+    .collapse-div-row-container {
+        height: 100vh;
+        background-color: white !important;
+    }
+
+    .collapse-div-container {
+        padding: 0 5px 0 0;
+    }
+
+    .collapse-div {
+        display: inline-block;
+        background-color: white;
+        padding-right: 5px;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
+    .material-placeholder {
+        height: 25vw;
+    }
+
+    .preview-img {
+        height: 100% !important;
+        width: 100% !important;
+        object-fit: contain;
+    }
+
+    body {
+        z-index: 100;
+    }

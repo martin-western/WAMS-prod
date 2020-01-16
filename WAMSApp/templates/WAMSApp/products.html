@@ -4,11 +4,97 @@
 
 {% load static %}
 
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/collapsible-cwsplit.css' %}">
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/materialize_override.css' %}"> -->
+
 <style type="text/css">
+
+  label{
+    margin-bottom: 10px !important;
+  }
+
+  input{
+    margin-top: 4px !important;
+  }
+
+  .status-bar{
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  input:not([type]),
+    input[type=text],
+    input[type=password],
+    input[type=email],
+    input[type=url],
+    input[type=time],
+    input[type=date],
+    input[type=datetime],
+    input[type=datetime-local],
+    input[type=tel],
+    input[type=number],
+    input[type=search],
+    textarea.materialize-textarea {
+        border: 1px solid #C6C6C6 !important;
+        border-radius: 5px !important;
+        padding-left: 10px !important;
+        font-family: 'AvenirNext' !important;
+        font-weight:
+    }
+
+    input:not([type]):focus:not([readonly]),
+    input[type=text]:focus:not([readonly]),
+    input[type=password]:focus:not([readonly]),
+    input[type=email]:focus:not([readonly]),
+    input[type=url]:focus:not([readonly]),
+    input[type=time]:focus:not([readonly]),
+    input[type=date]:focus:not([readonly]),
+    input[type=datetime]:focus:not([readonly]),
+    input[type=datetime-local]:focus:not([readonly]),
+    input[type=tel]:focus:not([readonly]),
+    input[type=number]:focus:not([readonly]),
+    input[type=search]:focus:not([readonly]),
+    textarea.materialize-textarea:focus:not([readonly])>label {
+        border-bottom: 1px solid #512ea8 !important;
+        box-shadow: 0 1px 0 0 #f00 !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+    }
+
+    .no-border input{
+      border: 0px solid black !important;
+    }
+
+    .no-border input:focus{
+      border: 0px solid black !important;
+    }
+
+     input.active {
+        border-bottom-color: #512da8 !important;
+    }
+
+    .input-field:not(.image-section-dropdownchild) input:focus+label {
+        color: #512ea8 !important;
+    }
+
+    .row .input-field:not(.image-section-dropdownchild) input:focus {
+        border-bottom: 1px solid #512ea8 !important;
+        box-shadow: 0 1px 0 0 #512ea8 !important
+    }
+
+
   ul.dropdown-content.select-dropdown li span {
     color: #521893;
     font-size: 14px;
     font-family: 'AvenirNext';
+  }
+
+  .margin-left-zero{
+    margin-left: 0px !important;
+  }
+
+  .padd-right{
+    margin-right: 20px !important;  
   }
 
   .select-wrapper input.select-dropdown {
@@ -22,7 +108,6 @@
     font-size: 14px;
     font-family: 'AvenirNext';
   }
-
 
   .input-field>label {
     color: #521893;
@@ -87,6 +172,10 @@
     color: white !important;
   }
 
+  .margin-btm-zero{
+    margin-bottom: 0px !important;
+  }
+
   /*.checkbox-verified[type="checkbox"].filled-in:checked + label:after{
    border: 2px solid #521893;
    background-color: #521893;
@@ -98,6 +187,26 @@
     font-family: 'AvenirNext';
   }
 
+  .padding-lr-zero{
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+
+  .header{
+    font-size: 14px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;  
+  }
+
+  .small-font{
+    font-size: 14px !important;
+  }
+
+  .subtitle-font
+  {
+    font-size: 12px !important;
+  }
+
   .avenir-next-regular {
     font-family: 'AvenirNextRegular';
   }
@@ -106,9 +215,19 @@
     color: #521893;
   }
 
+  .thumbnail-img{
+    width: 40px !important;   
+    margin-left: 6px;
+    margin-right: 5px;    
+  }
+
   .margin-zero {
     margin: 0;
   }
+
+  .inline-block{
+    display: inline-block !important;
+  } 
 
   .padding-zero {
     padding: 0;
@@ -130,6 +249,10 @@
     border-radius: 5px;
   }
 
+  .collapsible-header i{
+    width: 30px !important;
+  }
+
   .collapsible-header .col {
     padding: 0;
   }
@@ -141,9 +264,6 @@
     align-items: center;
   }
 
-  .collapsible-header i {
-    margin-left: 30px;
-  }
 
   .collapsible-header .toggler-container {
     padding: 0;
@@ -186,8 +306,26 @@
     padding: .5rem .5rem 0 .5rem;
   }
 
+
+  .slite-top{
+    position: relative;;
+    top: 10px !important;
+  }
+
   .edit-icon {
     color: gray;
+  }
+
+  .color-for-text{
+    color: #521893;
+  }
+
+  .color-for-back{
+    background-color: #521893;
+  }
+
+  .color-grey-for-back{
+    background-color: #EDEDED;
   }
 
   .collapsible-body-row {
@@ -226,11 +364,11 @@
 </style>
 
 <div class="row" style="margin-bottom: 0em;background-color: white !important;">
-  <div class="input-field col s10 search-input-div" style="padding: 0em;margin-top:0rem;margin-bottom: 0px;">
+  <div class="input-field col s10 search-input-div" style="padding: 0em;margin-top:0rem;margin-bottom: 0px;border: none !important;">
     <i class="material-icons"
       style="z-index:100;position: absolute;margin-top: 0.4em;margin-left: 0.5em;color: grey !important;">search</i>
 
-    <div type="text" class="validate white search-input chips chips-placeholder"
+    <div type="text" class="validate white search-input no-border chips chips-placeholder"
       style="margin:0px;text-indent: 2.5em;box-shadow: none; border: none;outline: none;font-family: 'AvenirNextRegular';font-size: 14px;letter-spacing: 1px;">
     </div>
   </div>
@@ -357,23 +495,38 @@
 
     <div style="margin-top: 15px;">
       <div class="row product_row" style="margin-bottom: 10px;">
-        <div class="col s1 center avenir-next ">
-          <label class="toggler-wrapper style-25">
-            <input id="all-select-checkbox" type="checkbox">
-            <div class="toggler-slider">
-              <div class="toggler-knob"></div>
-            </div>
-          </label>
-        </div>
-
-        <div class="col s4 avenir-next purple-1">Product
-          Name</div>
-        <div class="col s2 center avenir-next purple-1">
-          Brand</div>
-        <div class="col s2 center avenir-next purple-1">
-          Date Created</div>
-        <div class="col s3 center avenir-next purple-1">Action
-        </div>
+                <div class="col s3"  style="transform: translateY(4px);">
+                    <div class="row" style="padding: 0px 20px 0px 20px !important; margin-bottom: 0px !important;">
+                      <div class = "col s2 padding-lr-zero">
+                        <label class="toggler-wrapper style-25" style="position:relative;right:10px;">
+                          <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                           <div class="toggler-slider">
+                            <div class="toggler-knob"></div>
+                          </div>
+                        </label>       
+                  </div>
+                    <div class="col s10" style="transform: translateY(4px);"></div>
+                        Product Name
+                    </div>
+                </div>
+                <div class="col s3 padding-lr-zero" style="transform: translateY(4px);">
+                      <div class="row" style="padding: 0px 20px 0px 20px !important;  margin-bottom: 0px !important;">
+                          <div class="col s4 padding-lr-zero">Brand</div>
+                          <div class="col s3 padding-lr-zero">Varient</div>
+                          <div class="col s5 padding-lr-zero">Channel</div>
+                      </div>
+                </div>
+                <div class="col s3" style="transform: translateY(4px);">
+                      <div class="row" style=" margin-bottom: 0px !important;">
+                            <div class="col s6 padding-lr-zero">Warehouse</div>
+                            <div class="col s6 padding-lr-zero">Price</div>
+                      </div>
+                </div>
+                <div class="col s3" style="transform: translateY(4px);">
+                     <div class="row" style=" margin-bottom: 0px !important;position: relative;right: 12px;">
+                          <div class="col s6 padding-lr-zero">Status</div>
+                    </div>
+                </div>
       </div>
     </div>
     <div id="product-table">
@@ -425,26 +578,25 @@
 </div>
 
 
-
-<div id="create-new-base-product-modal" class="modal" style="border-radius:5px;">
+<div id="create-new-base-product-modal" class="modal scroll-style-1" style="border-radius:5px;">
   <div class="modal-content">
     <h5 style="font-family: 'AvenirNext';font-size: 18px;">NEW BASE PRODUCT</h5>
     <br>
-    <div class="row">
+    <div class="row"> 
 
       <div class="input-field col s12">
-        <input id="product-name" type="text" class="validate">
-        <label for="product-name" style="color:black;">Product Name<span style="color:#009051;">*</span></label>
+        <input id="product-name" placeholder="" type="text" class="validate">
+        <label for="product-name" style="">Product Name<span style="color:#009051;">*</span></label>
       </div>
 
       <div class="input-field col s12">
-        <input id="seller-sku" type="text" class="validate">
-        <label for="seller-sku" style="color:black;">Seller SKU<span style="color:#009051;">*</span></label>
+        <input id="seller-sku" placeholder="" type="text" class="validate">
+        <label for="seller-sku" style="">Seller SKU<span style="color:#009051;">*</span></label>
       </div>
 
       <div class="input-field col s12">
-        <input id="brand-name" type="text" class="validate">
-        <label for="brand-name" style="color:black;">Brand<span style="color:#009051;">*</span></label>
+        <input id="brand-name" placeholder="" type="text" class="validate">
+        <label for="brand-name" style="">Brand<span style="color:#009051;">*</span></label>
       </div>
     </div>
 
@@ -458,15 +610,17 @@
 
 
 
+
+
 <div id="create-new-channel-product-modal" class="modal" style="border-radius:5px;">
   <div class="modal-content">
     <h5 style="font-family: 'AvenirNext';font-size: 18px;">NEW CHANNEL PRODUCT</h5>
     <br>
     <div class="row">
-      <div class="input-field col s12">
+      <div class="input-field col s12">      
         <select id="product-id-option">
         </select>
-        <label>Product ID</label>
+        <label for="product-id-option">Product Id</label>
       </div>
 
       <div class="input-field col s12">
@@ -489,319 +643,191 @@
 </div>
 
 <div id="edit-base-product-modal" class="modal" style="border-radius:5px;">
-  <div class="modal-content">
-    <h5 style="font-family: 'AvenirNext';font-size: 18px;">Edit Base Product</h5>
-    <br>
-    <div class="row row-0-margin">
-      <div class="input-field col s6">
-        <input id="edit-product-name" type="text" class="validate">
-        <label for="edit-product-name" class="base-product-modal-label">Product Name<span>*</span></label>
-      </div>
+  <div class="modal-content" style="padding: 0px !important;">
 
-      <div class="input-field col s6">
-        <input id="edit-seller-sku" type="text" class="validate">
-        <label for="edit-seller-sku" class="base-product-modal-label">Seller SKU<span>*</span></label
-          class="base-product-modal-label">
-      </div>
-    </div>
-    <div class="row row-0-margin">
-      <div class="input-field col s6">
-        <select id="edit-brand">
-          <option value="" disabled selected>Brand</option>
-          <option value="Geepas">Geepas</option>
-          <option value="Royalford">Royalford</option>
-          <option value="Olsenmark">Olsenmark</option>
-        </select>
-      </div>
-
-      <div class="input-field col s6">
-        <input id="edit-manufacturer" type="text" class="validate">
-        <label for="edit-manufacturer" class="base-product-modal-label">Manufacturer</label>
-      </div>
-
-      <div class="input-field col s12">
-        <input id="edit-manufacturer-part-number" type="text" class="validate width-50">
-        <label for="edit-manufacturer-part-number" class="base-product-modal-label">Manufacturer Part Number</label
-          class="base-product-modal-label">
-      </div>
+    <div  style="background-color: #521893; width: 100%;display: flex;justify-content: space-between;align-items: center;padding:10px 0px 10px 0px !important;">
+       <div style="margin-left: 20px;" class="white-text">  <i class="material-icons" style="position: relative;top: 3px !important;">add</i> <span style = "position: relative;bottom: 3px !important;">ADD PRODUCT</span> </div>
+       <div style="margin-right: 20px;" class="white-text">  <a class="modal-close white-text" style="position: relative;top: 3px !important;"><i class="material-icons">cancel</i></a> </div>
     </div>
 
-    <div class="row row-0-margin">
-      <div class="input-field col s6">
-        <input id="edit-category" type="text" class="validate">
-        <label for="edit-category" class="base-product-modal-label">Category</label>
-      </div>
+    <ul class="collapsible margin-zero">
+      <li>
+        <div class="collapsible-header color-grey-for-back  color-for-text">Product Identity</div>
+        <div class="collapsible-body">
+          
 
-      <div class="input-field col s6">
-        <input id="edit-subtitle" type="text" class="validate">
-        <label for="edit-subtitle" class="base-product-modal-label">Subtitle</label>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col s12">
-        <ul class="collapsible">
-          <li>
-            <div class="collapsible-header">Dimensions</div>
-            <div class="collapsible-body center">
-              <div class="row">
-                <div class="input-field col s4">
-                  <input id="edit-package-length" type="number">
-                  <label for="edit-package-length">Package Length</label>
+          <div style="padding:20px 40px 20px 40px !important;">
+                 <div class="row">
+                <div class="input-field col s12" style="margin-top: 60px !important;font-family: 'AvenirNext';">
+                  <input placeholder="" id="edit-product-name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                  <label for="edit-product-name">Product Name</label>
                 </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-package-length-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4">
-                  <input id="edit-package-width" type="number">
-                  <label for="edit-package-width">Package Width</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-package-width-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="input-field col s4">
-                  <input id="edit-package-height" type="number">
-                  <label for="edit-package-height">Package Height</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-package-height-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4">
-                  <input id="edit-package-weight" type="number">
-                  <label for="edit-package-weight">Package Weight</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-package-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="input-field col s4">
-                  <input id="edit-shipping-weight" type="number">
-                  <label for="edit-shipping-weight">Shipping Weight</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-shipping-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4">
-                  <input id="edit-item-display-weight" type="number">
-                  <label for="edit-item-display-weight">Item Display Weight</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-item-display-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="input-field col s4">
-                  <input id="edit-item-display-volume" type="number">
-                  <label for="edit-item-display-volume">Item Display Volume</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-item-display-volume-metric">
-                    <option selected value="">Unit</option>
-                    <option value="cc">CC</option>
-                    <option value="litres">L</option>
-                    <option value="cubic-m">CUBIC-M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4">
-                  <input id="edit-item-display-length" type="number">
-                  <label for="edit-item-display-length">Item Display Length</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-item-display-length-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="input-field col s4">
-                  <input id="edit-item-weight" type="number">
-                  <label for="edit-item-weight">Item Weight</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-item-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4">
-                  <input id="edit-item-length" type="number">
-                  <label for="edit-item-length">Item Length</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-item-length-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="input-field col s4">
-                  <input id="edit-item-width" type="number">
-                  <label for="edit-item-width">Item Width</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-item-width-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4">
-                  <input id="edit-item-height" type="number">
-                  <label for="edit-item-height">Item Height</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-item-height-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="input-field col s4">
-                  <input id="edit-item-display-width" type="number">
-                  <label for="edit-item-display-width">Item Display Width</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-item-display-width-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4">
-                  <input id="edit-item-display-height" type="number">
-                  <label for="edit-item-display-height">Item Display Height</label>
-                </div>
-
-                <div class="input-field col s2">
-                  <select id="edit-item-display-height-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="input-field col s6">
-                  <input id="edit-package-qty" type="number">
-                  <label for="edit-package-qty">Package Quantity</label>
-                </div>
-              </div>
             </div>
-         </li>
-        </ul>
-      </div>
-    </div>
+             <div class="row">
+                  <div class="input-field col s6" style="font-family: 'AvenirNext';">
+                    <input placeholder="" id="edit-seller-sku" type="text" class="validate" style="font-family: 'AvenirNext';">
+                    <label for="edit-seller-sku">Seller SKU</label>
+                  </div>
+                  <div class="input-field col s6" style="font-family: 'AvenirNext';">
+                    <input placeholder="" id="edit-manufacturer-part-number" type="text" class="validate" style="font-family: 'AvenirNext';">
+                    <label for="edit-manufacturer-part-number">Manufacturer Part Number</label>
+                  </div>
+            </div>
+            <div class="row">
+                 <div class="input-field col s6" style="font-family: 'AvenirNext';">
+                    <input placeholder="" id="edit-brand" type="text" class="validate" style="font-family: 'AvenirNext';">
+                    <label for="edit-brand">Brand</label>
+                  </div>
+                 <div class="input-field col s6" style="font-family: 'AvenirNext';">
+                    <input placeholder="" id="edit-manufacturer" type="text" class="validate" style="font-family: 'AvenirNext';">
+                    <label for="edit-manufacturer">Manufacturer</label>
+                  </div>
+            </div>
+          </div>
 
-    <div class="row">
-      <div id="product-cards-modal">
-      </div>
+
+         
+            <div>
+
+        </div>
+      </li>
+      <li>
+        <div class="collapsible-header color-grey-for-back  color-for-text">Product Category</div>
+        <div class="collapsible-body">
+
+           <div style="padding:20px 40px 20px 40px !important;">
+                 <div class="row">
+                 <div class="input-field col s6" style="margin-top: 60px !important;font-family: 'AvenirNext';">
+                    <input placeholder="" id="edit-category" type="text" class="validate" style="font-family: 'AvenirNext';">
+                    <label for="edit-category">Category</label>
+                  </div>
+                 <div class="input-field col s6" style="margin-top: 60px !important;font-family: 'AvenirNext';">
+                    <input placeholder="" id="edit-subtitle" type="text" class="validate" style="font-family: 'AvenirNext';">
+                    <label for="edit-subtitle">Subtitle</label>
+                  </div>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="collapsible-header color-grey-for-back  color-for-text">Dimensions</div>
+        <div class="collapsible-body">
+           <div style="padding:20px 40px 20px 40px !important;">
+
+
+
+                <div class="row">
+                    
+                    <div class="col s6">
+                       <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;">EXPORT CARTON QUANTITY ( L | B | H )</p>
+                        <div class="row">
+                          <div class="col s3">
+                            <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                              <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                            
+                            </div>
+                          </div>
+                          <div class="col s3">
+                              <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                               
+                              </div>
+                          </div>
+                          <div class="col s3">
+                              <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                               
+                              </div>
+                          </div>    
+                        </div>
+                    </div>
+                    
+                    <div class="col s6">
+                       <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;">EXPORT CARTON QUANTITY ( L | B | H )</p>
+                      <div class="row">
+                          <div class="col s3">
+                            <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                              <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                            
+                            </div>
+                          </div>
+                          <div class="col s3">
+                              <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                               
+                              </div>
+                          </div>
+                          <div class="col s3">
+                              <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                               
+                              </div>
+                          </div>  
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    
+                    <div class="col s6">
+                       <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;">PRODUCT DIMENSION ( L | B | H )</p>
+                        <div class="row">
+                          <div class="col s3">
+                            <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                              <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                            
+                            </div>
+                          </div>
+                          <div class="col s3">
+                              <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                               
+                              </div>
+                          </div>
+                          <div class="col s3">
+                              <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                               
+                              </div>
+                          </div>    
+                        </div>
+                    </div>
+                    
+                    <div class="col s6">
+                       <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;">GIFT BOX ( L | B | H )</p>
+                      <div class="row">
+                          <div class="col s3">
+                            <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                              <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                            
+                            </div>
+                          </div>
+                          <div class="col s3">
+                              <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                               
+                              </div>
+                          </div>
+                          <div class="col s3">
+                              <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                <input placeholder="" id="first_name" type="text" class="validate" style="font-family: 'AvenirNext';">
+                               
+                              </div>
+                          </div>  
+                        </div>
+                    </div>
+                </div>
+
+          </div>
+        </div>
+      </li>
+    </ul>
     </div>
-  </div>
-  <div class="modal-footer" style="margin-bottom: 20px;">
-    <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
-    <a id="save-base-product-btn" href="#!" class="waves-effect btn-flat white-text"
-      style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Save</a>
-  </div>
+    <div class="modal-footer" style=" background-color: #EDEDED;" >
+      <a id="save-base-product-btn" href="#!" class="waves-effect btn-flat white-text"
+        style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 10px;background-color: #521893">Save</a>
+    </div>
 </div>
 
 
@@ -1156,12 +1182,16 @@
   }
 
   $("#save-base-product-btn").click(function(){
+    console.log("hryry");
     save_base_product();
   });
 
   $(document).on("click", ".base-product-edit-modal-btn", function(){
 
-    global_selected_base_product_pk = $(this).attr("base-product-pk");
+    global_selected_base_product_pk = $(this).attr("base_product_pk");
+
+    console.log(global_selected_base_product_pk);
+    console.log(global_products_dict[global_selected_base_product_pk]);
     
     $("#edit-product-name").val(global_products_dict[global_selected_base_product_pk]["product_name"]);
     $("#edit-seller-sku").val(global_products_dict[global_selected_base_product_pk]["seller_sku"]);
@@ -1251,10 +1281,11 @@
 
 
   $(document).on("click", ".create-new-channel-product-modal-btn", function(){
-    global_selected_base_product_pk = $(this).attr("base-product-pk");
+    global_selected_base_product_pk = $(this).attr("base_product_pk");
 
     var html_string = "";
     var products = global_products_dict[global_selected_base_product_pk]["products"];
+    console.log(global_products_dict[global_selected_base_product_pk]);
     for(var i=0;i<products.length;i++)
     {
       if(products[i]["product_id"]!=null)
@@ -1475,6 +1506,8 @@
 
             var channel_products = products[i]["channel_products"];
 
+            var product_varients = products[i]["products"];
+
             // var child_products_html_string = `
             //   <div class="row margin-zero collapsible-body-row">
             //       <div class="col s3 offset-s1 avenir-next center-align">
@@ -1500,6 +1533,170 @@
             if(channel_products.length==0)
               child_products_html_string = "";
 
+
+            product_varients_string = `  <div class="" style = "padding :0px 12px 0px 12px !important;">
+                    
+                    <p class="" style = "margin-bottom:3px !important;font-size:12px;color:grey; transform:translateX(-10px)">Product Varients</p>
+                    <div class = "" style = "">`;
+
+
+            for(var j = 0;j<product_varients.length;j++)
+            {
+              var statuscolor = (product_varients[j]["status"] == "Pending")?("#D9D9D9"):("#009051");
+               product_varients_string += `
+                      <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;margin-bottom:5px !important;">
+                        
+                        <div class = "col l3 s12">
+                            <div class = "row margin-btm-zero">
+                                <div class = "col s2 left">
+                                      <label class="toggler-wrapper style-25 slite-top" style="position:relative;right:20px;">
+                                        <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                                         <div class="toggler-slider">
+                                          <div class="toggler-knob"></div>
+                                        </div>
+                                      </label>       
+                                </div>
+                                <div class = "col s10 padding-lr-zero">
+
+                                          <div class = "thumbnail_container inline-block">
+                                          <img src="` + product_varients[j]["main_image"] + `" class = "thumbnail-img" />
+                                        </div>
+                                        <div class = "product-name-container inline-block">
+                                          <div class="product-info" style="width:100% !important;">
+                                            <p id="base-product-name-`+base_product_pk+`" class="title small-font">
+                                              `+product_varients[j]["product_name"]+` 
+                                            </p>
+                                            <p id="seller-sku-`+base_product_pk+`" class="subtitle subtitle-font">
+                                              `+product_varients[j]["product_pk"]+`
+                                            </p>
+                                          </div>
+                                        </div>    
+
+                                </div>
+                            </div>
+                        </div>
+ 
+                        <div  class = "col l3 s12">
+
+                            <div class = "row margin-btm-zero">
+                                <div class = "col s4 padding-lr-zero">
+                                         <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                        a
+                                        </div>    
+                                </div>
+                                 <div class = "col s3 padding-lr-zero" >
+                                            <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                              2
+                                            </div>
+                                </div>
+                                 <div class = "col s5 padding-lr-zero">
+                                       <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                       a
+                                        </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                             <div class = "row margin-btm-zero">
+                                <div class = "col s6 padding-lr-zero">
+                                  <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                      warehouse demo
+                                </div>
+                                </div>
+                                 <div class = "col s6 padding-lr-zero">
+                                  <div class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                          123,ASD
+                                  </div>
+                                </div>                         
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                              <div class = "row margin-btm-zero">
+                                <div class = "col s6 padding-lr-zero">
+
+                                  <a class="status-btn padding-lr-zero " base_product_pk = '`+base_product_pk+`' href="#edit-base-product-modal" style="position:relative;" class="">
+                                    <i class="material-icons statusbtn slite-top" title="Import" style="
+                                        color: white;
+                                        background-color: `+statuscolor+`;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        position:relative;
+                                        top:6px !important;                      
+                                        font-size: 10px;
+                                        ">
+                                        check_circle
+                                    </i>
+                                  </a>
+
+                                </div>
+                                 <div class = "col s3 padding-lr-zero">
+
+                                      <a class="status-btn padding-lr-zero " base_product_pk = '`+base_product_pk+`' href="/edit-product/`+product_varients[j]["product_pk"]+`" style="position:relative;" class="">
+                                    <i class="material-icons statusbtn slite-top" title="Import" style="
+                                        color: black;
+                                        background-color: #FFFBA3;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        position:relative;
+                                        top:6px !important;
+                                       
+                                        font-size: 10px;
+                                        ">
+                                      border_color
+                                    </i>
+                                  </a>
+
+                                </div>
+                                 <div class = "col s3 padding-lr-zero">
+                               
+
+                                </div>
+                            </div>
+
+                        </div>
+                      </div>
+                    
+                 `
+            }
+
+            // <a class="status-btn padding-lr-zero" base_product_pk = '`+base_product_pk+`' href="#create-new-base-product-modal" class="">
+            //                     <i class="material-icons statusbtn" title="Import" style="
+            //                         color: white;
+            //                         background-color: #677EFF;
+            //                         padding: 10px;
+            //                         border-radius: 5px;
+            //                         position:relative;
+            //                         top:6px !important;
+            //                         margin-left:0px !important; 
+            //                         font-size: 10px;">
+            //                      add_circle_outline
+            //                     </i>
+            //                   </a>
+
+            product_varients_string += `</div>
+                    
+                  </div>`;
+
+            child_products_html_string = product_varients_string;
+
+            if(channel_products.length != 0)
+            {
+              child_products_html_string += ` <div class="" style = "padding :0px 12px 20px 12px !important;">
+                    
+                    <p class="" style = "margin-bottom:3px !important;font-size:12px;color:grey; transform:translateX(-10px)">Channels</p>
+                    <div class = "" style = "">`;
+
+            }
+
+            console.log("channel product");
+            console.log(channel_products);
+           
             for(var j=0;j<channel_products.length;j++)
             {
               var href_edit = "#!";
@@ -1516,29 +1713,147 @@
                 href_edit = "/channel-product/noon/"+channel_products[j]["product_pk"];
               }
 
+               // <div class="col s3 offset-s1 avenir-next avenir-next-regular center-align">
+               //      <p class="valign-wrapper">
+               //        <img src="` + channel_products[i]["image_url"] + `" style="height:3em;width:3em;">&nbsp;&nbsp;
+               //        `+channel_products[j]["channel_product_name"]+`
+               //      </p>
+               //    </div>
+               //    <div class="col s3 avenir-next avenir-next-regular center-align">
+               //      <p>
+               //        `+channel_products[j]["product_id"]+`
+               //      </p>
+               //    </div>
+               //    <div class="col s3 avenir-next avenir-next-regular center-align">
+               //      <p>
+               //        `+channel_products[j]["channel_name"]+`
+               //      </p>
+               //    </div>
+               //    <div class="col s2 center-align">
+               //      <a href="`+href_edit+`"><i class="material-icons edit-icon" >edit</i></a>
+               //    </div>
+
               child_products_html_string += `
-                <div class="row margin-zero collapsible-body-row">
-                  <div class="col s3 offset-s1 avenir-next avenir-next-regular center-align">
-                    <p class="valign-wrapper">
-                      <img src="` + channel_products[i]["image_url"] + `" style="height:3em;width:3em;">&nbsp;&nbsp;
-                      `+channel_products[j]["channel_product_name"]+`
-                    </p>
-                  </div>
-                  <div class="col s3 avenir-next avenir-next-regular center-align">
-                    <p>
-                      `+channel_products[j]["product_id"]+`
-                    </p>
-                  </div>
-                  <div class="col s3 avenir-next avenir-next-regular center-align">
-                    <p>
-                      `+channel_products[j]["channel_name"]+`
-                    </p>
-                  </div>
-                  <div class="col s2 center-align">
-                    <a href="`+href_edit+`"><i class="material-icons edit-icon" >edit</i></a>
-                  </div>
-                </div>`
+               
+                      <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;margin-bottom:5px !important;">
+                        
+                        <div class = "col l3 s12">
+                            <div class = "row margin-btm-zero">
+                                <div class = "col s2 left">
+                                      <label class="toggler-wrapper style-25 slite-top" style="position:relative;right:20px;">
+                                        <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                                         <div class="toggler-slider">
+                                          <div class="toggler-knob"></div>
+                                        </div>
+                                      </label>       
+                                </div>
+                                <div class = "col s10 padding-lr-zero">
+
+                                          <div class = "thumbnail_container inline-block">
+                                          <img src="` + channel_products[i]["image_url"] + `" class = "thumbnail-img" />
+                                        </div>
+                                        <div class = "product-name-container inline-block">
+                                          <div class="product-info" style="width:100% !important;">
+                                            <p id="base-product-name-`+base_product_pk+`" class="title small-font">
+                                              `+channel_products[j]["channel_product_name"]+` 
+                                            </p>
+                                            <p id="seller-sku-`+base_product_pk+`" class="subtitle subtitle-font">
+                                              `+channel_products[j]["product_id"]+`
+                                            </p>
+                                          </div>
+                                        </div>    
+
+                                </div>
+                            </div>
+                        </div>
+ 
+                        <div  class = "col l3 s12">
+
+                            <div class = "row margin-btm-zero">
+                                <div class = "col s4 padding-lr-zero">
+                                         <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                          `+ products[i]["brand_name"] + `
+                                        </div>    
+                                </div>
+                                 <div class = "col s3 padding-lr-zero" >
+                                            <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                              2
+                                            </div>
+                                </div>
+                                 <div class = "col s5 padding-lr-zero">
+                                       <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                        `+channel_products[j]["channel_name"]+`
+                                        </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                             <div class = "row margin-btm-zero">
+                                <div class = "col s6 padding-lr-zero">
+                                  <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                      warehouse demo
+                                </div>
+                                </div>
+                                 <div class = "col s6 padding-lr-zero">
+                                  <div class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                          123,ASD
+                                  </div>
+                                </div>                         
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                              <div class = "row margin-btm-zero">
+                                <div class = "col s6 padding-lr-zero">
+
+                                  <a class="status-btn padding-lr-zero " base_product_pk = '`+base_product_pk+`' href="#edit-base-product-modal" style="position:relative;" class="">
+                                    <i class="material-icons statusbtn slite-top" title="Import" style="
+                                        color: white;
+                                        background-color: #3FB223;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        position:relative;
+                                        top:6px !important;                      
+                                        font-size: 10px;
+                                        ">
+                                        dynamic_feed
+                                    </i>
+                                  </a>
+
+                                </div>
+                                 <div class = "col s3 padding-lr-zero">
+
+                                      <a class="status-btn padding-lr-zero " base_product_pk = '`+base_product_pk+`' href="`+href_edit+`" style="position:relative;" class="">
+                                    <i class="material-icons statusbtn slite-top" title="Import" style="
+                                        color: black;
+                                        background-color: #FFFBA3;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        position:relative;
+                                        top:6px !important;
+                                       
+                                        font-size: 10px;
+                                        ">
+                                      border_color
+                                    </i>
+                                  </a>
+
+                                </div>
+                              
+                            </div>
+
+                        </div>
+                      </div>
+              `
             }
+            child_products_html_string += `      </div>
+                    
+                  </div>`;
 
             var base_product_pk = products[i]["base_product_pk"];
             global_products_dict[base_product_pk] = products[i];
@@ -1547,45 +1862,128 @@
                 
                 <ul class="collapsible row products-collapse-container" style="margin-bottom:0em;">
                   <li style="margin-bottom:0em;">
-                    <div class="collapsible-header" >
-                      <div class="row ">
-                        <div class="col s1 toggler-container">
-                          <label class="toggler-wrapper style-25">
-                            <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
-                            <div class="toggler-slider">
-                              <div class="toggler-knob"></div>
+                    <div class="collapsible-header active padding-lr-zero" >
+                      
+                      <div class = "row" style = "padding:0px 20px 0px 20px !important;">
+                        <div class = "col l3 s12">
+                            <div class = "row">
+                                <div class = "col s2">
+                                      <label class="toggler-wrapper style-25" style="position:relative;right:10px;">
+                                        <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                                         <div class="toggler-slider">
+                                          <div class="toggler-knob"></div>
+                                        </div>
+                                      </label>       
+                                </div>
+                                <div class = "col s10">
+
+                                        <div class = "thumbnail_container inline-block">
+                                          <img src = "{% static 'WAMSApp/img/thumbnail.jpeg' %}" class = "thumbnail-img" />
+                                        </div>
+                                        <div class = "product-name-container inline-block">
+                                          <div class="product-info">
+                                            <p id="base-product-name-`+base_product_pk+`" class="title small-font">
+                                              `+ product_name + `   
+                                            </p>
+                                            <p id="seller-sku-`+base_product_pk+`" class="subtitle subtitle-font">
+                                              `+ products[i]["seller_sku"] + `
+                                            </p>
+                                          </div>
+                                        </div>  
+
+                                </div>
                             </div>
-                          </label>  
                         </div>
-                        <div class="col s4">
-                          <div class = "product-name-container">
-                            <div class="product-info">
-                              <p id="base-product-name-`+base_product_pk+`" class="title">
-                                `+ product_name + `
-                              </p>
-                              <p id="seller-sku-`+base_product_pk+`" class="subtitle">
-                                `+ products[i]["seller_sku"] + `
-                              </p>
+ 
+                        <div  class = "col l3 s12">
+
+                            <div class = "row">
+                                <div class = "col s4">
+                                       <div id="brand-name-`+base_product_pk+`" class="col s1 avenir-next-regular margin-left-zero left small-font padd-right">
+                                          `+ products[i]["brand_name"] + `
+                                        </div>    
+                                </div>
+                                 <div class = "col s3">
+                                  <div id="brand-name-`+base_product_pk+`" class="avenir-next-regular margin-left-zero left small-font padd-right">
+                                    2
+                                  </div>
+                                </div>
+                                 <div class = "col s5">
+                                  <div id="brand-name-`+base_product_pk+`" class=" avenir-next-regular margin-left-zero left small-font padd-right">
+                                      2
+                                    </div>
+                                </div>
                             </div>
-                          </div>
+
                         </div>
-                        <div id="brand-name-`+base_product_pk+`" class="col s2 avenir-next-regular center-align">
-                          `+ products[i]["brand_name"] + `
+
+                        <div class = "col l3 s12">
+
+                             <div class = "row">
+                                <div class = "col s6">
+                                  <div id="brand-name-`+base_product_pk+`" class="avenir-next-regular margin-left-zero left small-font padd-right">
+                                        warehouse demo
+                                  </div>
+                                </div>
+                                 <div class = "col s6">
+                                  <div class="avenir-next-regular margin-left-zero left small-font padd-right">
+                                          123,ASD
+                                  </div>
+                                </div>                         
+                            </div>
+
                         </div>
-                        <div class="col s2 avenir-next-regular center-align">
-                          `+ products[i]["created_date"] + `
-                        </div>
-                        <div class="col s3  center-align">
-                          <a base-product-pk='`+base_product_pk+`' href="#edit-base-product-modal" class="modal-trigger base-product-edit-modal-btn">
-                            <i class="material-icons edit-icon">edit</i>
-                          </a>
-                          <a base-product-pk='`+base_product_pk+`' href="#create-new-channel-product-modal" class="modal-trigger create-new-channel-product-modal-btn">
-                            <i class="material-icons edit-icon">add</i>
-                          </a>
+
+                        <div class = "col l3 s12">
+
+                              <div class = "row">
+                                <div class = "col s6">
+
+                                      <div class = "inline-block" style = "color:#E2E2E2 !important;">
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#009051;" class = "status-bar">2V </span>| 
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#FFCE00;" class = "status-bar"> 1P</span>
+                                        <br/>
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#3FB223;" class = "status-bar">1A </span>| 
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#ADADAD;" class = "status-bar"> 1P</span>
+                                    </div>
+                                      
+                                </div>
+                                 <div class = "col s3">
+
+                              <a class="status-btn modal-trigger base-product-edit-modal-btn" base_product_pk = '`+base_product_pk+`' href="#edit-base-product-modal" style="position:relative;">
+                                <i class="material-icons statusbtn" title="Edit Product" style="
+                                    color: black;
+                                    background-color: #FFFBA3;
+                                    padding: 10px;
+                                    border-radius: 5px;                                                    
+                                    font-size: 10px;">
+                                  border_color
+                                </i>
+                              </a>
+
+                                </div>
+                                 <div class = "col s3">
+                                  <a class="status-btn padding-lr-zero modal-trigger create-new-channel-product-modal-btn" base_product_pk = '`+base_product_pk+`' href="#create-new-channel-product-modal">
+                                <i class="material-icons statusbtn" title="New Channel Product"  style="
+                                    color: white;
+                                    background-color: #677EFF;
+                                    padding: 10px;
+                                    border-radius: 5px;                          
+                                    margin-left:0px !important; 
+                                    font-size: 10px;">
+                                 add_circle_outline
+                                </i>
+                              </a>
+
+
+                                </div>
+                            </div>
+
                         </div>
                       </div>
+
                     </div>
-                    <div class="collapsible-body">
+                    <div class="collapsible-body" style = "background-color: #D8D6D6 !important;">
                         `+child_products_html_string+`
                     </div>
                   </li>
@@ -1599,6 +1997,7 @@
           else {
             $("#product-table").html(html_string);
           }
+
           $('.collapsible').collapsible();
 
           if (is_available == true) {
@@ -1607,6 +2006,11 @@
           else {
             $("#load-more-btn").hide();
           }
+
+           // $('.collapsible-header').click(function(e){ e.stopPropagation(); });  
+           $('.status-btn').click(()=>{
+               
+           })
         }
 
       },

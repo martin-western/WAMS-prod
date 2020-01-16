@@ -1,0 +1,79 @@
+ <div class = "row" style='margin-bottom:5px !important;'>
+                            <div class="col s1 toggler-container margin-left-zero left" style="margin-top:15px;">
+                              <label class="toggler-wrapper style-25">
+                                <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                                 <div class="toggler-slider" style="margin-left: 5px;">
+                                  <div class="toggler-knob"></div>
+                                </div>
+                              </label>  
+                            </div>
+                            <div class = "col s2">
+                              <div class = "thumbnail_container inline-block">
+                                <img src="` + channel_products[i]["image_url"] + `" class = "thumbnail-img" />
+                              </div>
+                            <div class = "product-name-container inline-block">
+                              <div class="product-info">
+                                <p id="base-product-name-`+channel_products[j]["product_id"]+`" class="title small-font" style="max-height:20px;overflow:hidden;">
+                                 `+channel_products[j]["channel_product_name"]+`   
+                                </p>
+                                <p id="seller-sku-`+base_product_pk+`" class="subtitle subtitle-font">
+                                  `+ products[i]["seller_sku"] + `
+                                </p>
+                              </div>
+                            </div>
+                            </div>
+                            <div class = "col s1 middle left" style = "font-size:12px;">
+                            RF
+                            </div>
+                            <div class = "col s1 middle">
+                            <label class="toggler-wrapper style-25 inline-block">
+                                <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                                 <div class="toggler-slider" style="margin-left: 5px;">
+                                  <div class="toggler-knob" style = "background-color:green;"></div>
+                                </div>
+                              </label>
+                              <div class = "inline-block" style = "position:relative;bottom:7px !important;font-size:12px;">
+                                  Green
+                              </div>
+                            </div>
+                            <div class = "col s1 middle center" style = "font-size:12px;">
+                            `+channel_products[j]["channel_name"]+`
+                            </div>
+                            <div class = "col s2 middle" style = "font-size:12px;margin-left:10px !important">
+                             20 UNITS
+                            </div>
+                             <div class = "col s1 middle" style = "font-size:12px;">
+                             AED,1245
+                            </div>
+                            <div class = "col s2 middle right" style="">
+
+                                 <a class="status-btn" href="#" class="">
+                                <i class="material-icons statusbtn" title="Import" style="
+                                    color: white;
+                                    background-color: green;
+                                    padding: 6px;
+                                    border-radius: 5px;
+                                    position:relative;
+                                    bottom:9px; 
+                                    margin-left:0px !important; 
+                                    font-size: 10px;">
+                                  check_circle
+                                </i>
+                              </a>
+
+                                 <a class="status-btn" href="`+href_edit+`" class="">
+                                <i class="material-icons statusbtn" title="Import" style="
+                                    color: black;
+                                    background-color: #FFFBA3;
+                                    padding: 6px;
+                                    border-radius: 5px;
+                                    position:relative;
+                                    bottom:9px;
+                                    margin-left:30px !important; 
+                                    font-size: 10px;">
+                                    border_color
+                                </i>
+                              </a>
+
+                            </div>
+                        </div>
