@@ -2064,10 +2064,10 @@ class UploadProductImageAPI(APIView):
 
             elif data["image_category"] == "sub_images":
                 index = 0
-                if data["channel"] == "" or data["channel"] == None:
+                if data["channel_name"] == "" or data["channel_name"] == None:
                     sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,is_sourced=True)
                 else:
-                    channel_obj = Channel.objects.get(name=data["channel"])
+                    channel_obj = Channel.objects.get(name=data["channel_name"])
                     sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,channel=channel_obj)
                     
                 sub_images = sub_images_obj.sub_images.all().order_by('-sub_image_index')

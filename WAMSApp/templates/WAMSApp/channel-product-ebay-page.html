@@ -70,20 +70,24 @@
                     <h6 style="color: #521893;margin: 30px 0px 30px 0px !important;">Ebay</h6>
                     <div class="row margin-zero collapse-div-row-container">
                         <div class="input-field col s6">
-                            <input id="product-name" type="text">
+                            <input placeholder="" id="product-name" type="text">
                             <label for="product-name">Product Name</label>
                         </div>
                         <div class="input-field col s6">
-                            <input id="product-description" type="text">
+                            <input placeholder="" id="product-id" type="text">
+                            <label for="product-id">Product Id</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <input placeholder="" id="product-description" type="text">
                             <label for="product-description">Description</label>
                         </div>
                         <div class="input-field col s6">
-                            <input id="product-category" type="text">
+                            <input placeholder="" id="product-category" type="text">
                             <label for="product-category">Category</label>
                         </div>
 
                         <div class="input-field col s9">
-                            <input id="product-attribute-amazon-uk-1" type="text">
+                            <input placeholder="" id="product-attribute-amazon-uk-1" type="text">
                             <label for="product-attribute-amazon-uk-1">Product Attribute</label>
                         </div>
 
@@ -116,42 +120,87 @@
              <div id="sidebar2" class="col s4" style="background-color: white;display: none;">
             <div class="row">
                 <div class="input-field col s12" style="margin-top: 30px !important;">
-                    <select id="flyer-brand">
-                        <option value="" selected>Select Channel</option>
-                        <option value="">Amazon UK</option>
-                        <option value="">Amazon UAE</option>
-                        <option value="">Ebay</option>
-                        <option value="">Noon</option>
+                    <select  id="reference-channel">
+                        <option value = "" selected>Select Channel</option>
+                        <option order = "1" value="">Amazon UK</option>
+                        <option order = "2" value="">Uae</option>
+                        <option order = "3" value="">Noon</option>
                     </select>
                     <label>Channels</label>
                 </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-product-name" type="text">
-                    <label for="product-name">Product Name</label>
+                <div class = "toggle_btw_forms">
+                    <div id = "toggle_btw_forms1" style = "display: none;">
+                        <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uk-sidenav-product-name" type="text">
+                            <label for="uk-sidenav-product-name">Product Name</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uk-sidenav-feed-product-type" type="text">
+                            <label for="uk-sidenav-feed-product-type">Product Type</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="uk-sidenav-update-delete" type="text">
+                          <label for="uk-sidenav-update-delete">Update Delete</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="uk-sidenav-variation-theme" type="text">
+                          <label for="uk-sidenav-variation-theme">Variation Theme</label>
+                        </div>
+                    </div>
+          
+                    <div id = "toggle_btw_forms2" style = "display: none;">
+                        <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uae-sidenav-product-name" type="text">
+                            <label for="uae-sidenav-product-name">Product Name</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uae-sidenav-feed-product-type" type="text">
+                            <label for="uae-sidenav-feed-product-type">Product Type</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="uae-sidenav-update-delete" type="text">
+                          <label for="uae-sidenav-update-delete">Update Delete</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="uae-sidenav-recommended-browse-nodes" type="text">
+                          <label for="uae-sidenav-recommended-browse-nodes">Recommended Browse Nodes</label>
+                        </div>
+                    </div>
+          
+                  <div id = "toggle_btw_forms3" style="display: none;">
+                      <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="noon-sidenav-product-name" type="text">
+                        <label for="noon-sidenav-product-name">Product Name</label>
+                    </div>
+                    <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="noon-sidenav-product-type" type="text">
+                        <label for="noon-sidenav-product-type">Product Type</label>
+                    </div>
+                    <div class="input-field col s12 m6">
+                      <input placeholder="" disabled id="noon-sidenav-product-sub-type" type="text">
+                      <label for="noon-sidenav-product-sub-type">Product Sub Type</label>
+                    </div>
+                    <div class="input-field col s12 m6">
+                      <input placeholder="" disabled id="noon-sidenav-mobileno" type="text">
+                      <label for="noon-sidenav-mobileno">Mobile No</label>
+                    </div>
+                    <div class="input-field col s12 m6">
+                      <input placeholder="" disabled id="noon-sidenav-msrpae" type="text">
+                      <label for="noon-sidenav-msrpae">MSRP AE</label>
+                    </div>
+                    <div class="input-field col s12 m6">
+                      <input placeholder="" disabled id="noon-sidenav-model-name" type="text">
+                      <label for="noon-sidenav-model-name">Model Name</label>
+                    </div>
+                    <div class="input-field col s12 m6">
+                      <input placeholder="" disabled id="noon-sidenav-msrpae-unit" type="text">
+                      <label for="noon-sidenav-msrpae-unit">MSRP AE UNIT</label>
+                    </div>
+                    <div class="input-field col s12 m6">
+                      <input placeholder="" disabled id="noon-sidenav-descrption" type="text">
+                      <label for="noon-sidenav-description">Description</label>
+                    </div>
                 </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-product-type" type="text">
-                    <label for="product-type">Product Type</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-product-subtype" type="text">
-                    <label for="product-subtype">Product Subtype</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-model-no" type="text">
-                    <label for="product-model-no">Model No.</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-model-name" type="text">
-                    <label for="product-model-name">Model Name</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-model-name" type="text">
-                    <label for="product-msrp">MRP</label>
-                </div>
-                <div class="input-field col s12 m6">
-                    <input disabled id="sidenav-product-description" type="text">
-                    <label for="sidenav-product-description">Description</label>
                 </div>
             </div>
         </div>
@@ -453,6 +502,167 @@
     $('.modal').modal();
     $('body').css('background-color', '#ebebeb');
     $('.sidenav').sidenav({ edge: 'left' });
+
+
+    var global_details_ebay;
+
+
+
+
+    function fill_sidebar_uk(){
+        var data = global_details_amazon_uk;
+        $('#uk-sidenav-product-name').val(data["product_name"]);
+        $('#uk-sidenav-feed-product-type').val(data["feed_product_type"]);
+        $('#uk-sidenav-update-delete').val(data["update_delete"]);
+        $('#uk-sidenav-variation-theme').val(data["variation_theme"]);
+    }
+
+
+
+    function fetch_details_amazon_uk()
+  {
+    console.log("Here");
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uk/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+           global_details_amazon_uk = response["amazon_uk_product_json"];
+           console.log("uk_data" , global_details_amazon_uk);
+           fill_sidebar_uk();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+
+        console.log("heye");
+        console.log(global_details_amazon_uk);
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  fetch_details_amazon_uk();
+
+
+
+  function fill_side_form_uae(){
+    var data = global_details_amazon_uae;
+    $('#uae-sidenav-product-name').val(data["product_name"]);
+    $('#uae-sidenav-recommended-browse-nodes').val(data["recommended_browse_nodes"]);
+    $('#uae-sidenav-update-delete').val(data["update_delete"]);
+    $('#uae-sidenav-feed-product-type').val(data["feed_product_type"]);
+  }
+
+  function fetch_details_amazon_uae()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uae/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_amazon_uae = response["amazon_uae_product_json"];
+          // render_amazon_uk();
+          fill_side_form_uae();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+        console.log("uae");
+        console.log(global_details_amazon_uae);
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  fetch_details_amazon_uae();
+
+
+
+  function fill_side_form_noon(){
+      var data = global_details_noon;
+      console.log("aa toh rha h" , data);
+      $('#noon-sidenav-product-name').val(data["product_name"]);
+      $('#noon-sidenav-product-type').val(data["product_type"]);
+      $('#noon-sidenav-product-sub-type').val(data["product_subtype"]);
+      $('#noon-sidenav-mobileno').val(data["model_number"]);
+      $('#noon-sidenav-msrpae').val(data["msrp_ae"]);
+      $('#noon-sidenav-model-name').val(data["model_name"]);
+      $('#noon-sidenav-msrpae-unit').val(data["msrp_ae_unit"]);
+      $('#noon-sidenav-descrption').val(data["product_description"]);
+  }
+
+  function fetch_details_noon()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-noon/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_noon = response["noon_product_json"];
+          // render_amazon_uk();
+          fill_side_form_noon();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  fetch_details_noon();
+
+
+
+    $(document).on('change','#reference-channel',function(){
+      console.log("clicked");
+      $('#reference-channel option').each(function() {
+        if ($(this).is(':selected')) {
+          var order = $(this).attr("order");
+          $("#toggle_btw_forms"+order).css("display","block");
+        }
+        else{
+          var order = $(this).attr("order");
+          $("#toggle_btw_forms"+order).css("display","none");
+        }
+    });
+  });
+
+
 
   $("#open-it-btn").click(function () {
         if ($(this).attr("visible") == "no") {
@@ -944,212 +1154,7 @@
         }
     }
 
-    function fetch_product_details() {
-        $.ajax({
-            url: "/fetch-product-details/",
-            type: "POST",
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            },
-            data: {
-                pk: window.location.pathname.split("/")[3]
-            },
-            success: function (response) {
-                console.log("Success!", response);
-
-                global_verification_status = response["verified"];
-
-                if (response["verified"] == true) {
-                    set_verify(true);
-                }
-                else {
-                    set_verify(false);
-                }
-
-                $("#pfl-product-name").val(response["pfl_product_name"])
-                var pfl_product_features = response["pfl_product_features"]
-                $('.material-placeholder').remove();
-                $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
-                $('.materialboxed').materialbox();
-
-                for (var i = 0; i < pfl_product_features.length; i++) {
-                    $("#pfl-feature-" + (i + 1)).val(pfl_product_features[i]);
-                    if ((i + 1) != pfl_product_features.length) {
-                        $("#add-feature-btn").click();
-                    }
-                }
-
-                $("#product-name-amazon-uk").val(response["product_name_amazon_uk"]);
-                $("#product-name-amazon-uae").val(response["product_name_amazon_uae"]);
-                $("#product-name-sap").val(response["product_name_sap"]);
-                $("#product-name-ebay").val(response["product_name_ebay"]);
-                $("#product-name-noon").val(response["product_name_noon"]);
-                $("#category").val(response["category"]);
-                $("#subtitle").val(response["subtitle"]);
-                $("#brand-name").val(response["brand"]);
-                $("#manufacturer").val(response["manufacturer"]);
-                $("#product-id").val(response["product_id"]);
-                $("#product-id-type").val(response["product_id_type"]);
-                $("#seller-sku").val(response["seller_sku"]);
-                $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
-                $("#barcode-string").val(response["barcode_string"]);
-                $("#noon-product-type").val(response["noon_product_type"]);
-                $("#noon-product-subtype").val(response["noon_product_subtype"]);
-                $("#noon-model-name").val(response["noon_model_name"]);
-                $("#noon-model-number").val(response["noon_model_number"]);
-
-                $("#condition-type").val(response["condition_type"]);
-                $("#feed-product-type").val(response["feed_product_type"]);
-                $("#update-delete").val(response["update_delete"]);
-                $("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
-
-
-                window.editor[0].setData(response["product_description_amazon_uk"]);
-                window.editor[1].setData(response["product_description_amazon_uae"]);
-                window.editor[2].setData(response["product_description_ebay"]);
-                window.editor[3].setData(response["product_description_noon"]);
-
-
-                var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];
-                if (product_attribute_list_amazon_uk.length > 0) {
-                    $("#product-attribute-amazon-uk-1").val(product_attribute_list_amazon_uk[0]);
-                }
-                for (var i = 1; i < product_attribute_list_amazon_uk.length; i++) {
-                    $("#add-product-attribute-amazon-uk-btn").click();
-                    $("#product-attribute-amazon-uk-" + (i + 1)).val(product_attribute_list_amazon_uk[i]);
-                }
-
-                var product_attribute_list_amazon_uae = response["product_attribute_list_amazon_uae"];
-                if (product_attribute_list_amazon_uae.length > 0) {
-                    $("#product-attribute-amazon-uae-1").val(product_attribute_list_amazon_uae[0]);
-                }
-                for (var i = 1; i < product_attribute_list_amazon_uae.length; i++) {
-                    $("#add-product-attribute-amazon-uae-btn").click();
-                    $("#product-attribute-amazon-uae-" + (i + 1)).val(product_attribute_list_amazon_uae[i]);
-                }
-
-                var product_attribute_list_ebay = response["product_attribute_list_ebay"];
-                if (product_attribute_list_ebay.length > 0) {
-                    $("#product-attribute-ebay-1").val(product_attribute_list_ebay[0]);
-                }
-                for (var i = 1; i < product_attribute_list_ebay.length; i++) {
-                    $("#add-product-attribute-ebay-btn").click();
-                    $("#product-attribute-ebay-" + (i + 1)).val(product_attribute_list_ebay[i]);
-                }
-
-                var product_attribute_list_noon = response["product_attribute_list_noon"];
-                if (product_attribute_list_noon.length > 0) {
-                    $("#product-attribute-noon-1").val(product_attribute_list_noon[0]);
-                }
-                for (var i = 1; i < product_attribute_list_noon.length; i++) {
-                    $("#add-product-attribute-noon-btn").click();
-                    $("#product-attribute-noon-" + (i + 1)).val(product_attribute_list_noon[i]);
-                }
-
-                $("#search-terms").val(response["search_terms"]);
-                $("#color-map").val(response["color_map"]);
-                $("#color").val(response["color"]);
-                $("#enclosure-material").val(response["enclosure_material"]);
-                $("#cover-material-type").val(response["cover_material_type"]);
-
-                var special_features = response["special_features"];
-                if (special_features.length > 0) {
-                    $("#special-feature-1").val(special_features[0]);
-                }
-                for (var i = 1; i < special_features.length; i++) {
-                    $("#add-special-feature-btn").click();
-                    $("#special-feature-" + (i + 1)).val(special_features[i]);
-                }
-
-                $("#special-feature").val(response["special_features"]);
-                $("#package-length").val(response["package_length"]);
-                $("#package-length-metric").val(response["package_length_metric"]);
-                $("#package-width").val(response["package_width"]);
-                $("#package-width-metric").val(response["package_width_metric"]);
-                $("#package-height").val(response["package_height"]);
-                $("#package-height-metric").val(response["package_height_metric"]);
-                $("#package-weight").val(response["package_weight"]);
-                $("#package-weight-metric").val(response["package_weight_metric"]);
-                $("#shipping-weight").val(response["shipping_weight"]);
-                $("#shipping-weight-metric").val(response["shipping_weight_metric"]);
-                $("#item-display-weight").val(response["item_display_weight"]);
-                $("#item-display-weight-metric").val(response["item_display_weight_metric"]);
-                $("#item-display-volume").val(response["item_display_volume"]);
-                $("#item-display-volume-metric").val(response["item_display_volume_metric"]);
-                $("#item-display-length").val(response["item_display_length"]);
-                $("#item-display-length-metric").val(response["item_display_length_metric"]);
-                $("#item-weight").val(response["item_weight"]);
-                $("#item-weight-metric").val(response["item_weight_metric"]);
-                $("#item-length").val(response["item_length"]);
-                $("#item-length-metric").val(response["item_length_metric"]);
-                $("#item-width").val(response["item_width"]);
-                $("#item-width-metric").val(response["item_width_metric"]);
-                $("#item-height").val(response["item_height"]);
-                $("#item-height-metric").val(response["item_height_metric"]);
-                $("#item-display-width").val(response["item_display_width"]);
-                $("#item-display-width-metric").val(response["item_display_width_metric"]);
-                $("#item-display-height").val(response["item_display_height"]);
-                $("#item-display-height-metric").val(response["item_display_height_metric"]);
-                $("#item-count").val(response["item_count"]);
-                $("#item-count-metric").val(response["item_count_metric"]);
-                $("#item-condition-note").val(response["item_condition_note"]);
-                $("#max-order-quantity").val(response["max_order_quantity"]);
-                $("#number-of-items").val(response["number_of_items"]);
-                $("#wattage").val(response["wattage"]);
-                $("#wattage-metric").val(response["wattage_metric"]);
-                $("#material-type").val(response["material_type"]);
-                $("#parentage").val(response["parentage"]);
-                $("#parent-sku").val(response["parent_sku"]);
-                $("#relationship-type").val(response["relationship_type"]);
-                $("#variation-theme").val(response["variation_theme"]);
-                $("#standard-price").val(response["standard_price"]);
-                $("#quantity").val(response["quantity"]);
-                $("#sale-price").val(response["sale_price"]);
-                $("#sale-from").val(response["sale_from"]);
-                $("#sale-end").val(response["sale_end"]);
-
-                $("#noon-msrp-ae").val(response["noon_msrp_ae"]);
-                $("#noon-msrp-ae-unit").val(response["noon_msrp_ae_unit"]);
-
-                $("#factory-notes").val(response["factory_notes"]);
-
-
-                global_images = response["images"];
-
-                $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
-                $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
-                $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
-                $("#pfl-images-option").html("PFL Images (" + global_images["pfl_images"].length + ")");
-                $("#pfl-generated-images-option").html("PFL Generated Images (" + global_images["pfl_generated_images"].length + ")");
-                $("#white-background-images-option").html("White Background Images (" + global_images["white_background_images"].length + ")");
-                $("#lifestyle-images-option").html("Lifestyle Images (" + global_images["lifestyle_images"].length + ")");
-                $("#certificate-images-option").html("Certificate Images (" + global_images["certificate_images"].length + ")");
-                $("#giftbox-images-option").html("Giftbox Images (" + global_images["giftbox_images"].length + ")");
-                $("#diecut-images-option").html("Diecut Images (" + global_images["diecut_images"].length + ")");
-                $("#aplus-content-images-option").html("A+ Content Images (" + global_images["aplus_content_images"].length + ")");
-                $("#ads-images-option").html("Ads Images (" + global_images["ads_images"].length + ")");
-                $("#unedited-images-option").html("Unedited Images (" + global_images["unedited_images"].length + ")");
-
-                update_grid_images(global_image_key);
-
-                $('#brand-image-img').attr("src", response["brand_logo"]);
-                if (global_images["main_images"].length > 0) {
-                    $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
-                }
-                $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
-
-                $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
-
-                M.updateTextFields();
-                $('select').formSelect();
-            },
-            error: function (xhr, textstatus, errorthrown) {
-                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
-            }
-        });
-    }
-
-    fetch_product_details();
+   
 
     var product_attribute_amazon_uk_cnt = 1;
     $("#add-product-attribute-amazon-uk-btn").click(function () {
@@ -1755,301 +1760,173 @@
         });
     }
 
-    function save_product() {
-        save_pfl_image_to_bucket();
+
+    function fill_product_details(){
+        var data = global_details_ebay;
+        $('#product-name').val(data["product_name"]);
+        $('#product-id').val(data["product-id"]);
+        $('#product-category').val(data["category"]);   
+        $('#product-description').val(data["product_description"]);
+    }
+
+        
+  function fetch_details_ebay()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-ebay/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("UAE Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_ebay = response["ebay_product_json"];
+          global_details_ebay["product-id"] = response["product_id"];
+          // render_amazon_uk();
+          console.log("ebay");
+        console.log(global_details_ebay);
+        fill_product_details();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+        
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  fetch_details_ebay();
+
+
+
+function save_product_ebay() {
 
         $("#save-btn").attr("disabled", "disabled");
 
         var product_pk = window.location.pathname.split("/")[3];
 
-        var pfl_product_name = $("#pfl-product-name").val();
-        var pfl_product_features = [];
-        for (var i = 0; i < $(".feature-text").length; i++) {
-            pfl_product_features.push($(".feature-text")[i].value);
-        }
+        var product_name = $("#product-name").val();
+        var product_id = $('#product-id').val();
+        var description = $('#product-description').val();
+        var category = $('#product-category').val();
 
-        var product_name_amazon_uk = $("#product-name-amazon-uk").val();
-        var product_name_amazon_uae = $("#product-name-amazon-uae").val();
-        var product_name_ebay = $("#product-name-ebay").val();
-        var product_name_sap = $("#product-name-sap").val();
-        var product_name_noon = $("#product-name-noon").val();
+        // var feed_product_type = $("#feed-product-type").val();
+        // var variation_theme = $("#variation-theme").val();
+        // var update_delete = $("#update-delete").val();
+        // var recommended_browse_nodes = $("#recommended-browse-nodes").val();
+        // var search_terms = $("#search-terms").val();
+        // var enclosure_material = $("#enclosure-material").val();
+        // var cover_material_type = $("#cover-material-type").val();
+        // var sale_price = $("#sale-price").val();
+        // var sale_from = $("#sale-from").val();
+        // var sale_end = $("#sale-end").val();
 
-        var category = $("#category").val();
-        var subtitle = $("#subtitle").val();
-        var brand = $("#brand-name").val();
-        var manufacturer = $("#manufacturer").val();
-        var product_id = $("#product-id").val();
-        var product_id_type = $("#product-id-type").val();
-        var seller_sku = $("#seller-sku").val();
-        var manufacturer_part_number = $("#manufacturer-part-number").val();
-        var barcode_string = $("#barcode-string").val();
-        var noon_product_type = $("#noon-product-type").val();
-        var noon_product_subtype = $("#noon-product-subtype").val();
-        var noon_model_number = $("#noon-model-number").val();
-        var noon_model_name = $("#noon-model-name").val();
-        var condition_type = $("#condition-type").val();
-        var feed_product_type = $("#feed-product-type").val();
-        var update_delete = $("#update-delete").val();
-        var recommended_browse_nodes = $("#recommended-browse-nodes").val();
-        var product_description_amazon_uk = window.editor[0].getData();
-        var product_description_amazon_uae = window.editor[1].getData();
-        var product_description_ebay = window.editor[2].getData();
-        var product_description_noon = window.editor[3].getData();
+        // var special_feature_data = [];
+        // for (var i = 1; i <= special_feature_cnt; i++) {
+        // if ($("#special-feature-" + i).val() != "") {
+        //     special_feature_data.push($("#special-feature-" + i).val());
+        // }
+        // }
+        // special_feature_data = JSON.stringify(special_feature_data);
 
+        // var wattage = $("#wattage").val();
+        // var wattage_metric = $("#wattage-metric").val();
+        // var parentage = $("#parentage").val();
+        // var parent_sku = $("#parent-sku").val();
+        // var relationship_type = $("#relationship-type").val();
+        // var item_count = $("#item-count").val();
+        // var item_count_metric = $("#item-count-metric").val();
+        // var item_condition_note = $("#item-condition-note").val();
+        // var max_order_quantity = $("#max-order-quantity").val();
+        // var number_of_items = $("#number-of-items").val();
+        // var condition_type = $("#condition-type").val();
 
-        var product_attribute_data_amazon_uk = [];
-        for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
-            if ($("#product-attribute-amazon-uk-" + i).val() != "") {
-                product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
-            }
-        }
-        product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
-
-
-        var product_attribute_data_amazon_uae = [];
-        for (var i = 1; i <= product_attribute_amazon_uae_cnt; i++) {
-            if ($("#product-attribute-amazon-uae-" + i).val() != "") {
-                product_attribute_data_amazon_uae.push($("#product-attribute-amazon-uae-" + i).val());
-            }
-        }
-        product_attribute_data_amazon_uae = JSON.stringify(product_attribute_data_amazon_uae);
+        // var product_attribute_data_amazon_uk = [];
+        // for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
+        //   if ($("#product-attribute-amazon-uk-" + i).val() != "") {
+        //     product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
+        //   }
+        // }
+        // product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
 
 
-        var product_attribute_data_ebay = [];
-        for (var i = 1; i <= product_attribute_ebay_cnt; i++) {
-            if ($("#product-attribute-ebay-" + i).val() != "") {
-                product_attribute_data_ebay.push($("#product-attribute-ebay-" + i).val());
-            }
-        }
-        product_attribute_data_ebay = JSON.stringify(product_attribute_data_ebay);
+        ebay_data_json = {}
 
+        // ebay_data_json["feed_product_type"] = feed_product_type;
+        ebay_data_json["product_name"] = product_name;
+        ebay_data_json["product_description"] = description
+        ebay_data_json["category"] = category
+        // ebay_data_json["variation_theme"]  = variation_theme;
+        // ebay_data_json["update_delete"] = update_delete;
+        // ebay_data_json["recommended_browse_nodes"] = recommended_browse_nodes;
+        // ebay_data_json["search_terms"] = search_terms;
+        // ebay_data_json["enclosure_material"] = enclosure_material;
+        // ebay_data_json["cover_material_type"] = cover_material_type;
+        // ebay_data_json["sale_price"] = sale_price;
+        // ebay_data_json["sale_from"] = sale_from;
+        // ebay_data_json["sale_end"] = sale_end;
+        // ebay_data_json["special_features"] = special_feature_data;
+        // ebay_data_json["wattage"] = wattage;
+        // ebay_data_json["wattage_metric"] = wattage_metric;
+        // ebay_data_json["parentage"] = parentage;
+        // ebay_data_json["parent_sku"] = parent_sku;
+        // ebay_data_json["relationship_type"] = relationship_type;
+        // ebay_data_json["item_count"] = item_count;
+        // ebay_data_json["item_count_metric"] = item_count_metric;
+        // ebay_data_json["item_condition_note"] = item_condition_note;
+        // ebay_data_json["max_order_quantity"] = max_order_quantity;
+        // ebay_data_json["number_of_items"] = number_of_items;
+        // ebay_data_json["condition_type"] = condition_type;
 
-
-        var product_attribute_data_noon = [];
-        for (var i = 1; i <= product_attribute_noon_cnt; i++) {
-            if ($("#product-attribute-noon-" + i).val() != "") {
-                product_attribute_data_noon.push($("#product-attribute-noon-" + i).val());
-            }
-        }
-        product_attribute_data_noon = JSON.stringify(product_attribute_data_noon);
-
-
-        var search_terms = $("#search-terms").val();
-        var color_map = $("#color-map").val();
-        var color = $("#color").val();
-        var enclosure_material = $("#enclosure-material").val();
-        var cover_material_type = $("#cover-material-type").val();
-
-
-        var special_feature_data = [];
-        for (var i = 1; i <= special_feature_cnt; i++) {
-            if ($("#special-feature-" + i).val() != "") {
-                special_feature_data.push($("#special-feature-" + i).val());
-            }
-        }
-
-        var special_feature_data = JSON.stringify(special_feature_data);
-        var package_length = $("#package-length").val();
-        var package_length_metric = $("#package-length-metric").val();
-        var package_width = $("#package-width").val();
-        var package_width_metric = $("#package-width-metric").val();
-        var package_height = $("#package-height").val();
-        var package_height_metric = $("#package-height-metric").val();
-        var package_weight = $("#package-weight").val();
-        var package_weight_metric = $("#package-weight-metric").val();
-        var shipping_weight = $("#shipping-weight").val();
-        var shipping_weight_metric = $("#shipping-weight-metric").val();
-        var item_display_weight = $("#item-display-weight").val();
-        var item_display_weight_metric = $("#item-display-weight-metric").val();
-        var item_display_volume = $("#item-display-volume").val();
-        var item_display_volume_metric = $("#item-display-volume-metric").val();
-        var item_display_length = $("#item-display-length").val();
-        var item_display_length_metric = $("#item-display-length-metric").val();
-        var item_weight = $("#item-weight").val();
-        var item_weight_metric = $("#item-weight-metric").val();
-        var item_length = $("#item-length").val();
-        var item_length_metric = $("#item-length-metric").val();
-        var item_width = $("#item-width").val();
-        var item_width_metric = $("#item-width-metric").val();
-        var item_height = $("#item-height").val();
-        var item_height_metric = $("#item-height-metric").val();
-        var item_display_width = $("#item-display-width").val();
-        var item_display_width_metric = $("#item-display-width-metric").val();
-        var item_display_height = $("#item-display-height").val();
-        var item_display_height_metric = $("#item-display-height-metric").val();
-        var item_count = $("#item-count").val();
-        var item_count_metric = $("#item-count-metric").val();
-
-        var item_condition_note = $("#item-condition-note").val();
-        var max_order_quantity = $("#max-order-quantity").val();
-        var number_of_items = $("#number-of-items").val();
-        var wattage = $("#wattage").val();
-        var wattage_metric = $("#wattage-metric").val();
-        var material_type = $("#material-type").val();
-        var parentage = $("#parentage").val();
-        var parent_sku = $("#parent-sku").val();
-        var relationship_type = $("#relationship-type").val();
-        var variation_theme = $("#variation-theme").val();
-        var standard_price = $("#standard-price").val();
-        var quantity = $("#quantity").val();
-        var sale_price = $("#sale-price").val();
-        var sale_from = $("#sale-from").val();
-        var sale_end = $("#sale-end").val();
-        var noon_msrp_ae = $("#noon-msrp-ae").val();
-        var noon_msrp_ae_unit = $("#noon-msrp-ae-unit").val();
-        var product_pk = window.location.pathname.split("/")[3];
-
-        var factory_notes = $("#factory-notes").val();
-
-        var fd = new FormData();
-
-        fd.append('pfl_product_name', pfl_product_name)
-        fd.append('pfl_product_features', JSON.stringify(pfl_product_features));
-        fd.append('product_pk', product_pk)
-        fd.append('product_name_sap', product_name_sap);
-        fd.append('product_name_amazon_uk', product_name_amazon_uk);
-        fd.append('product_name_amazon_uae', product_name_amazon_uae);
-        fd.append('product_name_ebay', product_name_ebay);
-        fd.append('product_name_noon', product_name_noon);
-        fd.append('category', category);
-        fd.append('subtitle', subtitle);
-        fd.append('brand', brand);
-        fd.append('manufacturer', manufacturer);
-        fd.append('product_id', product_id);
-        fd.append('product_id_type', product_id_type);
-        fd.append('seller_sku', seller_sku);
-        fd.append('manufacturer_part_number', manufacturer_part_number);
-        fd.append('barcode_string', barcode_string);
-        fd.append('noon_product_type', noon_product_type);
-        fd.append('noon_product_subtype', noon_product_subtype);
-        fd.append('noon_model_name', noon_model_name);
-        fd.append('noon_model_number', noon_model_number);
-        fd.append('condition_type', condition_type);
-        fd.append('feed_product_type', feed_product_type);
-        fd.append('update_delete', update_delete);
-        fd.append('recommended_browse_nodes', recommended_browse_nodes);
-        fd.append('product_description_amazon_uk', product_description_amazon_uk);
-        fd.append('product_description_amazon_uae', product_description_amazon_uae);
-        fd.append('product_description_ebay', product_description_ebay);
-        fd.append('product_description_noon', product_description_noon);
-
-        fd.append('product_attribute_list_amazon_uk', product_attribute_data_amazon_uk);
-        fd.append('product_attribute_list_amazon_uae', product_attribute_data_amazon_uae);
-        fd.append('product_attribute_list_ebay', product_attribute_data_ebay);
-        fd.append('product_attribute_list_noon', product_attribute_data_noon);
-        fd.append('search_terms', search_terms);
-        fd.append('color_map', color_map);
-        fd.append('color', color);
-        fd.append('enclosure_material', enclosure_material);
-        fd.append('cover_material_type', cover_material_type);
-        fd.append('special_features', special_feature_data);
-        fd.append('package_length', package_length);
-        fd.append('package_length_metric', package_length_metric);
-        fd.append('package_width', package_width);
-        fd.append('package_width_metric', package_width_metric);
-        fd.append('package_height', package_height);
-        fd.append('package_height_metric', package_height_metric);
-        fd.append('package_weight', package_weight);
-        fd.append('package_weight_metric', package_weight_metric);
-        fd.append('shipping_weight', shipping_weight);
-        fd.append('shipping_weight_metric', shipping_weight_metric);
-        fd.append('item_display_weight', item_display_weight);
-        fd.append('item_display_weight_metric', item_display_weight_metric);
-        fd.append('item_display_volume', item_display_volume);
-        fd.append('item_display_volume_metric', item_display_volume_metric);
-        fd.append('item_display_length', item_display_length);
-        fd.append('item_display_length_metric', item_display_length_metric);
-        fd.append('item_weight', item_weight);
-        fd.append('item_weight_metric', item_weight_metric);
-        fd.append('item_length', item_length);
-        fd.append('item_length_metric', item_length_metric);
-        fd.append('item_width', item_width);
-        fd.append('item_width_metric', item_width_metric);
-        fd.append('item_height', item_height);
-        fd.append('item_height_metric', item_height_metric);
-        fd.append('item_display_width', item_display_width);
-        fd.append('item_display_width_metric', item_display_width_metric);
-        fd.append('item_display_height', item_display_height);
-        fd.append('item_display_height_metric', item_display_height_metric);
-        fd.append('item_count', item_count);
-        fd.append('item_count_metric', item_count_metric);
-
-        fd.append('item_condition_note', item_condition_note);
-        fd.append('max_order_quantity', max_order_quantity);
-        fd.append('number_of_items', number_of_items);
-        fd.append('wattage', wattage);
-        fd.append('wattage_metric', wattage_metric);
-        fd.append('material_type', material_type);
-        fd.append('parentage', parentage);
-        fd.append('parent_sku', parent_sku);
-        fd.append('relationship_type', relationship_type);
-        fd.append('variation_theme', variation_theme);
-        fd.append('standard_price', standard_price);
-        fd.append('quantity', quantity);
-        fd.append('sale_price', sale_price);
-        fd.append('sale_from', sale_from);
-        fd.append('sale_end', sale_end);
-        fd.append('noon_msrp_ae', noon_msrp_ae);
-        fd.append('noon_msrp_ae_unit', noon_msrp_ae_unit);
-        fd.append('factory_notes', factory_notes);
-
+        console.log(ebay_data_json);
         $.ajax({
-            url: "/save-product/",
-            type: "POST",
-            headers: {
-                'X-CSRFToken': getCsrfToken()
-            },
-            processData: false,
-            contentType: false,
-            data: fd,
-            success: function (response) {
-
-                console.log("Success!", response);
-                if (response["status"] == 200) {
-                    M.toast({ html: "Product saved successfully!" });
-                }
-                else if (response["status"] == 409) {
-                    M.toast({ html: "Product ID or Seller SKU is duplicated!" });
-                }
-                else if (response["status"] == 403) {
-                    M.toast({ html: "You do not have permission for saving product!" });
-                }
-                else {
-                    M.toast({ html: "Error saving product!" });
-                }
-                $("#save-btn").removeAttr("disabled");
-            },
-            error: function (xhr, textstatus, errorthrown) {
-                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+        url: "/save-channel-product-ebay/",
+        type: "POST",
+        headers: {
+            'X-CSRFToken': getCsrfToken()
+        },
+        data: {
+            ebay_product_json : JSON.stringify(ebay_data_json),
+            product_pk : product_pk
+        },
+        success: function (response) {
+            console.log("Saved Success!", response);
+            if (response["status"] == 200) {
+            global_details_ebay = ebay_data_json;
+            M.toast({ html: "Product saved successfully!" });
             }
+            else if (response["status"] == 403) {
+            M.toast({ html: "You do not have permission for saving product!" });
+            }
+            else {
+            M.toast({ html: "Error saving product!" });
+            }
+            $("#save-btn").removeAttr("disabled");
+        },
+        error: function (xhr, textstatus, errorthrown) {
+            console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+        }
         });
 
-        save_subimages_index();
-    }
+}
+
+        $('document').ready(()=>{
+            $('#save-btn').click(function(){
+            console.log("heye");
+            save_product_ebay();
+            });
+        })
 
 
-    $("#save-btn").click(function () {
-        if ($("#product-name-sap").val() == "" || $("#product-id").val() == "" || $("#seller-sku").val() == "" || $("#brand-name").val() == "" || $("#product-name-sap").val() == "") {
-
-        }
-
-        if ($("#brand-name").val().trim() == "") {
-            M.toast({ html: "Brand name cannot be empty!" });
-            return;
-        }
-
-        if ($("#product-id").val().trim() == "") {
-            M.toast({ html: "Product ID cannot be empty!" });
-            return;
-        }
-
-        if ($("#seller-sku").val().trim() == "") {
-            M.toast({ html: "Seller SKU cannot be empty!" });
-            return;
-        }
-
-        save_product();
-    });
 
     $("#information-tab").click(function () {
         setTimeout(function () {

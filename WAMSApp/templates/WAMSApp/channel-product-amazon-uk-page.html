@@ -67,7 +67,7 @@
 
 
                 <div class="image-section-dropdownchild sidebtn">
-                   <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
+                   <a href="#upload-image-modal" id="upload-image-modal-btn" class="">
                         <i class="material-icons" title="Add Image" style="
                               color: gray;
                               background-color: white;
@@ -322,42 +322,83 @@
       <div class="row">
         <div class="input-field col s12" style="margin-top: 30px !important;">
           <select id="reference-channel">
-            <option value="" selected>Select Channel</option>
-            <option value="">Amazon UAE</option>
-            <option value="">Ebay</option>
-            <option value="">Noon</option>
+            <option value = "" selected>Select Channel</option>
+            <option order = "1" value="">Amazon UAE</option>
+            <option order = "2" value="">Ebay</option>
+            <option order = "3" value="">Noon</option>
           </select>
           <label>Channels</label>
         </div>
-        <div class="input-field col s6">
-          <input disabled id="sidenav-product-name" type="text" class="deep-purple-text">
-          <label for="product-name">Product Name</label>
-        </div>
-        <div class="input-field col s6">
-          <input disabled id="sidenav-product-type" type="text" class="deep-purple-text">
-          <label for="product-type">Product Type</label>
-        </div>
-        <div class="input-field col s6">
-          <input disabled id="sidenav-product-subtype" type="text" class="deep-purple-text">
-          <label for="product-subtype">Product Subtype</label>
-        </div>
-        <div class="input-field col s6">
-          <input disabled id="sidenav-model-no" type="text" class="deep-purple-text">
-          <label for="product-model-no">Model No.</label>
-        </div>
-        <div class="input-field col s6">
-          <input disabled id="sidenav-model-name" type="text" class="deep-purple-text">
-          <label for="product-model-name">Model Name</label>
-        </div>
-        <div class="input-field col s6">
-          <input disabled id="sidenav-model-mrp" type="text" class="deep-purple-text">
-          <label for="product-msrp">MRP</label>
-        </div>
-        <div class="input-field col s6">
-          <input disabled id="sidenav-product-description" type="text" class="deep-purple-text">
-          <label for="sidenav-product-description">Description</label>
-        </div>
+        <div class = "toggle_btw_forms">
+          <div id = "toggle_btw_forms1" style = "display: none;">
+              <div class="input-field col s12 m6">
+                  <input placeholder="" disabled id="uae-sidenav-product-name" type="text">
+                  <label for="uae-sidenav-product-name">Product Name</label>
+              </div>
+              <div class="input-field col s12 m6">
+                  <input placeholder="" disabled id="uae-sidenav-feed-product-type" type="text">
+                  <label for="uae-sidenav-feed-product-type">Product Type</label>
+              </div>
+              <div class="input-field col s12 m6">
+                <input placeholder="" disabled id="uae-sidenav-update-delete" type="text">
+                <label for="uae-sidenav-update-delete">Update Delete</label>
+              </div>
+              <div class="input-field col s12 m6">
+                <input placeholder="" disabled id="uae-sidenav-recommended-browse-nodes" type="text">
+                <label for="uae-sidenav-recommended-browse-nodes">Recommended Browse Nodes</label>
+              </div>
+          </div>
 
+          <div id = "toggle_btw_forms2" style="display: none;">
+            <div class="input-field col s12 m6">
+              <input placeholder="" disabled id="ebay-sidenav-product-name" type="text">
+              <label for="ebay-sidenav-product-name">Product Name</label>
+          </div>
+          <div class="input-field col s12 m6">
+              <input placeholder="" disabled id="ebay-sidenav-description" type="text">
+              <label for="ebay-sidenav-description">Description</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="ebay-sidenav-category" type="text">
+            <label for="ebay-sidenav-category">Category</label>
+          </div>
+       </div>
+
+        <div id = "toggle_btw_forms3" style="display: none;">
+            <div class="input-field col s12 m6">
+              <input placeholder="" disabled id="noon-sidenav-product-name" type="text">
+              <label for="noon-sidenav-product-name">Product Name</label>
+          </div>
+          <div class="input-field col s12 m6">
+              <input placeholder="" disabled id="noon-sidenav-product-type" type="text">
+              <label for="noon-sidenav-product-type">Product Type</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-product-sub-type" type="text">
+            <label for="noon-sidenav-product-sub-type">Product Sub Type</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-mobileno" type="text">
+            <label for="noon-sidenav-mobileno">Mobile No</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-msrpae" type="text">
+            <label for="noon-sidenav-msrpae">MSRP AE</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-model-name" type="text">
+            <label for="noon-sidenav-model-name">Model Name</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-msrpae-unit" type="text">
+            <label for="noon-sidenav-msrpae-unit">MSRP AE UNIT</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-descrption" type="text">
+            <label for="noon-sidenav-description">Description</label>
+          </div>
+      </div>
+      </div>
       </div>
     </div>
 
@@ -371,6 +412,8 @@
     <div class="file-field input-field">
       <div class="btn" style="background-color: #512da8">
         <span style="font-size:14px;">File</span>
+
+
         <input id="product-image-input" type="file" multiple>
       </div>
       <div class="file-path-wrapper">
@@ -589,10 +632,20 @@
   $('.tabs').tabs();
   $('.chips').chips();
   $('select').formSelect();
-  $('.modal').modal();
+  $(document).ready(function(){
+    $('.modal').modal();
+
+
+    $('#upload-image-modal-btn').click(()=>{
+      $('#upload-image-modal').modal("open");
+    })
+    
+  });
   $('body').css('background-color', '#ebebeb');
   $('.sidenav').sidenav({ edge: 'left' });
 
+
+  
 
   $("#open-it-btn").click(function () {
         if ($(this).attr("visible") == "no") {
@@ -658,6 +711,14 @@
     });
   }
 
+  function fill_side_form_uae(){
+    var data = global_details_amazon_uae;
+    $('#uae-sidenav-product-name').val(data["product_name"]);
+    $('#uae-sidenav-recommended-browse-nodes').val(data["recommended_browse_nodes"]);
+    $('#uae-sidenav-update-delete').val(data["update_delete"]);
+    $('#uae-sidenav-feed-product-type').val(data["feed_product_type"]);
+  }
+
   function fetch_details_amazon_uae()
   {
     $.ajax({
@@ -675,6 +736,7 @@
         {
           global_details_amazon_uae = response["amazon_uae_product_json"];
           // render_amazon_uk();
+          fill_side_form_uae();
         }
         else
         {
@@ -687,6 +749,20 @@
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
+  }
+
+
+  function fill_side_form_noon(){
+      var data = global_details_noon;
+      console.log("aa toh rha h" , data);
+      $('#noon-sidenav-product-name').val(data["product_name"]);
+      $('#noon-sidenav-product-type').val(data["product_type"]);
+      $('#noon-sidenav-product-sub-type').val(data["product_subtype"]);
+      $('#noon-sidenav-mobileno').val(data["model_number"]);
+      $('#noon-sidenav-msrpae').val(data["msrp_ae"]);
+      $('#noon-sidenav-model-name').val(data["model_name"]);
+      $('#noon-sidenav-msrpae-unit').val(data["msrp_ae_unit"]);
+      $('#noon-sidenav-descrption').val(data["product_description"]);
   }
 
   function fetch_details_noon()
@@ -706,6 +782,7 @@
         {
           global_details_noon = response["noon_product_json"];
           // render_amazon_uk();
+          fill_side_form_noon();
         }
         else
         {
@@ -716,6 +793,14 @@
         console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
+  }
+
+  function fill_side_form_ebay()
+  {
+    var data = global_details_ebay;
+    $('#ebay-sidenav-product-name').val(data["product_name"]);
+    $('#ebay-sidenav-description').val(data["product_description"]);
+    $('#ebay-sidenav-category').val(data[""]);
   }
 
   function fetch_details_ebay()
@@ -735,7 +820,7 @@
         {
           global_details_ebay = response["ebay_product_json"];
           
-          // render_amazon_uk();
+          fill_side_form_ebay();
         }
         else
         {
@@ -815,6 +900,26 @@
   $('input').click(function () {
     savecounter = true;
   })
+
+
+  $(document).on('change','#reference-channel',function(){
+      console.log("clicked");
+      $('#reference-channel option').each(function() {
+        if ($(this).is(':selected')) {
+          var order = $(this).attr("order");
+          $("#toggle_btw_forms"+order).css("display","block");
+        }
+        else{
+          var order = $(this).attr("order");
+          $("#toggle_btw_forms"+order).css("display","none");
+        }
+    });
+  });
+
+
+
+
+
 
   function preventDefault() {
     if (savecounter) {
@@ -1010,6 +1115,8 @@
 
   $("#upload-image-btn").click(function () {
 
+
+    console.log("upload image");
     $("#upload-image-btn").attr("disabled", "disabled");
     $("#upload-preloader").show();
 
@@ -1019,8 +1126,8 @@
 
     fd.append("product_pk", product_pk);
     var product_image_input = document.getElementById("product-image-input");
-
     fd.append('image_count', product_image_input.files.length);
+
     for (var i = 0; i < product_image_input.files.length; i++) {
       fd.append('image_' + i, product_image_input.files[i]);
     }
@@ -1040,6 +1147,7 @@
       data: fd,
       success: function (response) {
         console.log("Success!", response);
+        console.log(response);
         $("#upload-preloader").hide();
         $("#upload-image-btn").removeAttr("disabled");
 
@@ -1506,7 +1614,7 @@
       update_grid_images("sub_images");
       global_image_key = "sub_images";
     }
-    
+    console.log(global_image_key);
   });
 
 

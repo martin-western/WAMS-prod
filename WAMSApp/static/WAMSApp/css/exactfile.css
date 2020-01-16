@@ -74,38 +74,83 @@
                                 </i>
                               </a>
 
+
+
+
+                              uae evay noon
                           
 
                         </div>
                        
                       </div>
 
-
-
-                      var product_name_amazon_uk = $("#product-name-amazon-uk").val();
-                      var product_name_amazon_uae = $("#product-name-amazon-uae").val();
-                      var product_name_ebay = $("#product-name-ebay").val();
-                      var product_name_sap = $("#product-name-sap").val();
-                      var product_name_noon = $("#product-name-noon").val();
-              
-                      var category = $("#category").val();
-                      var subtitle = $("#subtitle").val();
-                      var brand = $("#brand-name").val();
-                      var manufacturer = $("#manufacturer").val();
-                      var product_id = $("#product-id").val();
-                      var product_id_type = $("#product-id-type").val();
-                      var seller_sku = $("#seller-sku").val();
-                      var manufacturer_part_number = $("#manufacturer-part-number").val();
-                      var barcode_string = $("#barcode-string").val();
-                      var noon_product_type = $("#noon-product-type").val();
-                      var noon_product_subtype = $("#noon-product-subtype").val();
-                      var noon_model_number = $("#noon-model-number").val();
-                      var noon_model_name = $("#noon-model-name").val();
-                      var condition_type = $("#condition-type").val();
-                      var feed_product_type = $("#feed-product-type").val();
-                      var update_delete = $("#update-delete").val();
-                      var recommended_browse_nodes = $("#recommended-browse-nodes").val();
-                      var product_description_amazon_uk = window.editor[0].getData();
-                      var product_description_amazon_uae = window.editor[1].getData();
-                      var product_description_ebay = window.editor[2].getData();
-                      var product_description_noon = window.editor[3].getData();
+                      <div class = "toggle_btw_forms">
+                      <div id = "toggle_btw_forms1" style = "display: none;">
+                          <div class="input-field col s12 m6">
+                              <input placeholder="" disabled id="uae-sidenav-product-name" type="text">
+                              <label for="uae-sidenav-product-name">Product Name</label>
+                          </div>
+                          <div class="input-field col s12 m6">
+                              <input placeholder="" disabled id="uae-sidenav-feed-product-type" type="text">
+                              <label for="uae-sidenav-feed-product-type">Product Type</label>
+                          </div>
+                          <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uae-sidenav-update-delete" type="text">
+                            <label for="uae-sidenav-update-delete">Update Delete</label>
+                          </div>
+                          <div class="input-field col s12 m6">
+                            <input placeholder="" disabled id="uae-sidenav-recommended-browse-nodes" type="text">
+                            <label for="uae-sidenav-recommended-browse-nodes">Recommended Browse Nodes</label>
+                          </div>
+                      </div>
+            
+                      <div id = "toggle_btw_forms2" style="display: none;">
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="ebay-sidenav-product-name" type="text">
+                          <label for="ebay-sidenav-product-name">Product Name</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="ebay-sidenav-description" type="text">
+                          <label for="ebay-sidenav-description">Description</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="ebay-sidenav-category" type="text">
+                        <label for="ebay-sidenav-category">Category</label>
+                      </div>
+                   </div>
+            
+                    <div id = "toggle_btw_forms3" style="display: none;">
+                        <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="noon-sidenav-product-name" type="text">
+                          <label for="noon-sidenav-product-name">Product Name</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                          <input placeholder="" disabled id="noon-sidenav-product-type" type="text">
+                          <label for="noon-sidenav-product-type">Product Type</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="noon-sidenav-product-sub-type" type="text">
+                        <label for="noon-sidenav-product-sub-type">Product Sub Type</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="noon-sidenav-mobileno" type="text">
+                        <label for="noon-sidenav-mobileno">Mobile No</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="noon-sidenav-msrpae" type="text">
+                        <label for="noon-sidenav-msrpae">MSRP AE</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="noon-sidenav-model-name" type="text">
+                        <label for="noon-sidenav-model-name">Model Name</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="noon-sidenav-msrpae-unit" type="text">
+                        <label for="noon-sidenav-msrpae-unit">MSRP AE UNIT</label>
+                      </div>
+                      <div class="input-field col s12 m6">
+                        <input placeholder="" disabled id="noon-sidenav-descrption" type="text">
+                        <label for="noon-sidenav-description">Description</label>
+                      </div>
+                  </div>
+                  </div>

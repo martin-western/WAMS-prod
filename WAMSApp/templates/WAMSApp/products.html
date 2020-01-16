@@ -55,7 +55,7 @@
     input[type=number]:focus:not([readonly]),
     input[type=search]:focus:not([readonly]),
     textarea.materialize-textarea:focus:not([readonly])>label {
-        border-bottom: 1px solid #512ea8 !important;/
+        border-bottom: 1px solid #512ea8 !important;
         box-shadow: 0 1px 0 0 #f00 !important;
         border-bottom: none !important;
         box-shadow: none !important;
@@ -518,7 +518,7 @@
                 </div>
                 <div class="col s3" style="transform: translateY(4px);">
                       <div class="row" style=" margin-bottom: 0px !important;">
-                            <div class="col s6 padding-lr-zero">warehouse</div>
+                            <div class="col s6 padding-lr-zero">Warehouse</div>
                             <div class="col s6 padding-lr-zero">Price</div>
                       </div>
                 </div>
@@ -1534,7 +1534,7 @@
               child_products_html_string = "";
 
 
-            product_varients_string = `  <div class="" style = "padding :20px 12px 20px 12px !important;">
+            product_varients_string = `  <div class="" style = "padding :0px 12px 0px 12px !important;">
                     
                     <p class="" style = "margin-bottom:3px !important;font-size:12px;color:grey; transform:translateX(-10px)">Product Varients</p>
                     <div class = "" style = "">`;
@@ -1544,7 +1544,7 @@
             {
               var statuscolor = (product_varients[j]["status"] == "Pending")?("#D9D9D9"):("#009051");
                product_varients_string += `
-                      <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;">
+                      <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;margin-bottom:5px !important;">
                         
                         <div class = "col l3 s12">
                             <div class = "row margin-btm-zero">
@@ -1687,12 +1687,15 @@
 
             if(channel_products.length != 0)
             {
-              child_products_html_string += ` <div class="" style = "padding :20px 12px 20px 12px !important;">
+              child_products_html_string += ` <div class="" style = "padding :0px 12px 20px 12px !important;">
                     
                     <p class="" style = "margin-bottom:3px !important;font-size:12px;color:grey; transform:translateX(-10px)">Channels</p>
                     <div class = "" style = "">`;
 
             }
+
+            console.log("channel product");
+            console.log(channel_products);
            
             for(var j=0;j<channel_products.length;j++)
             {
@@ -1732,7 +1735,7 @@
 
               child_products_html_string += `
                
-                      <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;">
+                      <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;margin-bottom:5px !important;">
                         
                         <div class = "col l3 s12">
                             <div class = "row margin-btm-zero">
@@ -1846,8 +1849,6 @@
 
                         </div>
                       </div>
-
-                    </div>
               `
             }
             child_products_html_string += `      </div>
