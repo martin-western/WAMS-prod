@@ -487,7 +487,7 @@
 
     </br>
 
-     <a class="right button-collapse show-on-large" href="#" id="open-it-btn" style="background-color: transparent;display: block;cursor: pointer;">
+     <a class="right button-collapse show-on-large" href="#" id="open-it-btn" style="background-color: transparent;display: block;cursor: pointer;" visible="no">
         <i class="material-icons sidebare bluee" title="Products" style="
       background-color: #f7f7f7;
       padding: 8px;
@@ -653,29 +653,28 @@
 
 
 
-  $("#open-it-btn").click(function () {
-                  if ($(this).attr("visible") == "no") {
-                    $( ".toggle-s6-s12" ).each(function( index ) {
-                  $(this).addClass("s12");
-          });
-            $(this).attr("visible", "yes");
-            $("#collapse-div").attr("class", "col s4 center");
-            $("#sidebar2").show(600);
-            console.log($(this));
-            $(this).children().text("keyboard_arrow_right");
-            // $(".main-div").css('margin-right' , '0px');
-        }
-        else {
-            $(this).attr("visible", "no");
-            $( ".toggle-s6-s12" ).each(function( index ) {
-                    $(this).removeClass("s12");
-            });
-            $("#sidebar2").hide();
-            $("#collapse-div").attr("class", "col s8 center");
-            $(".main-div").css('margin-right' , '70px');
-            $(this).children().text("keyboard_arrow_left");
-        }
-    })
+  $("#open-it-btn").click(function () {  
+    if ($(this).attr("visible") == "no") {
+      $( ".toggle-s6-s12" ).each(function( index ) {
+        $(this).addClass("s12");
+      });
+      $(this).attr("visible", "yes");
+      $("#collapse-div").attr("class", "col s4 center");
+      $("#sidebar2").show(600);
+      console.log($(this));
+      $(this).children().text("keyboard_arrow_right");
+    }
+    else {
+      $(this).attr("visible", "no");
+      $( ".toggle-s6-s12" ).each(function( index ) {
+        $(this).removeClass("s12");
+      });
+      $("#sidebar2").hide();
+      $("#collapse-div").attr("class", "col s8 center");
+      $(".main-div").css('margin-right' , '70px');
+      $(this).children().text("keyboard_arrow_left");
+    }
+  })
 
   var global_details_amazon_uk = {};
   var global_details_amazon_uae = {};
