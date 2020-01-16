@@ -174,20 +174,20 @@
           <div class="row margin-zero collapse-div-row-container">
             
               <div class="input-field col s6  toggle-s6-s12">
-                <input id="product-name" type="text">
+                <input placeholder="" id="product-name" type="text">
                 <label for="product-name">Product Name</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
-                <input disabled id="product-id" type="text" class="deep-purple-text">
+                <input placeholder="" disabled id="product-id" type="text" class="deep-purple-text">
                 <label for="product-id">Product ID</label>
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="feed-product-type" type="text">
+                <input placeholder="" id="feed-product-type" type="text">
                 <label for="feed-product-type">Feed Product Type</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="variation-theme" type="text">
+                <input placeholder="" id="variation-theme" type="text">
                 <label for="variation-theme">Variation Theme</label>
               </div>
 
@@ -199,62 +199,78 @@
                 <label for="update-delete">Update Delete</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="recommended-browse-nodes" type="text">
+                <input placeholder="" id="recommended-browse-nodes" type="text">
                 <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="search-terms" type="text">
+                <input placeholder="" id="search-terms" type="text">
                 <label for="search-terms">Search Terms</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="enclosure-material" type="text">
+                <input placeholder="" id="enclosure-material" type="text">
                 <label for="enclosure-material">Enclosure Material</label>
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="cover-material-type" type="text">
+                <input placeholder="" id="cover-material-type" type="text">
                 <label for="cover-material-type">Cover Material Type</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="sale-price" type="number">
+                <input placeholder="" id="sale-price" type="number">
                 <label for="sale-price">Sale Price</label>
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="sale-from" type="date">
+                <input placeholder="" id="sale-from" type="date">
                 <label for="sale-from">Sale From</label>
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="sale-end" type="date">
+                <input placeholder="" id="sale-end" type="date">
                 <label for="sale-end">Sale End</label>
               </div>
 
-              <div class = "col s12">
-              <div class="input-field col s9">
+
+              <div class = "col s12" style="padding-left: 0px !important;">
+                <div class="input-field col s10">
+                    <input placeholder="" id="product-attribute-amazon-uk-1" type="text">
+                    <label for="product-attribute-amazon-uk-1">Product Attribute</label>
+                </div>
+
+                <div class="input-field col s2">
+                    <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
+                        style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                            class="material-icons">add</i></a>
+                </div>
+              </div>  
+              <div class="col s12" id = "product-attributes-amazon-uk-div" style="padding-left: 0px !important;"></div>
+            
+
+              <div class = "col s12" style="padding-left: 0px !important;">
+              <div class="input-field col s10">
                 <input  placeholder="" id="special-feature-1" type="text">
                 <label for="special-feature-1">Special Feature</label>
               </div>
 
-              <div class="input-field col s1">
+              <div class="input-field col s2">
                 <a id="add-special-feature-btn" href="#!" class="btn-floating blue"
                   style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
                     class="material-icons">add</i></a>
               </div>
               </div>
 
-              <div class="col s12" id = "special-features-div">
+              <div class="col s12"  style="padding-left: 0px !important;"  id = "special-features-div">
               </div>
 
-              <div class="input-field col s4 toggle-s6-s12" style="padding: 0px 20px 0px 50px  !important;">
-                <input id="wattage" type="number">
+              <div class="input-field col s4 toggle-s6-s12" >
+                <input placeholder="" id="wattage" type="number">
                 <label for="wattage">Wattage</label>
               </div>
 
               
 
-              <div class="input-field col s2 toggle-s6-s12" style="padding: 0px 40px 0px 10px !important;">
+              <div class="input-field col s2 toggle-s6-s12" >
                 <select id="wattage-metric">
                   <option selected value="">Unit</option>
                   <option value="volts">V</option>
@@ -264,26 +280,26 @@
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input disabled id="material-type" type="text" class="deep-purple-text">
+                <input disabled placeholder="" id="material-type" type="text" class="deep-purple-text">
                 <label for="material-type">Material Type</label>
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="parentage" type="text">
+                <input placeholder="" id="parentage" type="text">
                 <label for="parentage">Parentage</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="parent-sku" type="text">
+                <input placeholder="" id="parent-sku" type="text">
                 <label for="parent-sku">Parent SKU</label>
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="relationship-type" type="text">
+                <input placeholder="" id="relationship-type" type="text">
                 <label for="relationship-type">Relationship Type</label>
               </div>
 
               <div class="input-field col s4 toggle-s6-s12" style="padding: 0px 20px 0px 40px  !important;">
-                <input id="item-count" type="number">
+                <input placeholder="" id="item-count" type="number">
                 <label for="item-count">Item Count</label>
               </div>
 
@@ -300,17 +316,17 @@
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="item-condition-note" type="text">
+                <input placeholder="" id="item-condition-note" type="text">
                 <label for="item-condition-note">Item Condition Note</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="max-order-quantity" type="text">
+                <input placeholder="" id="max-order-quantity" type="number">
                 <label for="max-order-quantity">Max Order Quantity</label>
               </div>
 
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input id="number-of-items" type="text">
+                <input placeholder="" id="number-of-items" type="number">
                 <label for="number-of-items">Number of Items</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
@@ -503,19 +519,6 @@
     </a>
 
     <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-        <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i class="material-icons maroonn" title="PFL Editor" style="
-        color: gray;
-        background-color: #f7f7f7;
-        padding: 8px;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;margin-bottom: 10px;">
-                vertical_split
-            </i>
-        </a>
 
         <a href="#!" class=" right" style="background-color: transparent;display: block;">
             <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
@@ -722,6 +725,31 @@
     });
   }
 
+  var product_attribute_uk_cnt = 1;
+    var val_to_fill = "";
+    $("#add-product-attribute-uk-btn").click(function () {
+        if(val_to_fill == null)return;
+
+        product_attribute_uk_cnt++;
+
+        var html_string = `<div>
+                         <div class="input-field col s10">
+                           <input id="product-attribute-uk-`+ product_attribute_ebay_cnt + `" type="text" >
+                        
+                         </div>
+                         <div class="input-field col s2">
+                           <a href="#!" class="remove-product-attribute-uk-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
+                         </div>
+                       </div>`
+        $("#product-attributes-uk-div").append(html_string);
+        $('#product-attribute-uk-'+product_attribute_uk_cnt).val(val_to_fill);
+        val_to_fill = "";   
+    });
+
+    $(document).on("click", ".remove-product-attribute-uk-btn", function () {
+        $(this).parent().parent().remove();
+    });
+
   function fill_side_form_uae(){
     var data = global_details_amazon_uae;
     $('#uae-sidenav-product-name').val(data["product_name"]);
@@ -877,7 +905,6 @@
     {
       $("#add-special-feature-btn").click();
       $("#special-feature-" + (i+1)).val(special_feature_data[i]);
-      
     }
     
     $("#wattage").val(global_details_amazon_uk["wattage"]);
@@ -892,6 +919,17 @@
     $("#number-of-items").val(global_details_amazon_uk["number_of_items"]);
     $("#condition-type").val(global_details_amazon_uk["condition_type"]);
 
+    var product_attributes_list = global_details_amazon_uk["product_attributes"];
+    
+    if(product_attributes_list.length>0)
+    {
+      $("#product-attribute-amazon-uk-1").val(product_attributes_list[0]);
+    }
+    for(var i=1;i<product_attributes_list.length;i++)
+    {
+      $("#add-product-attribute-amazon-uk-btn").click();
+      $("#product-attribute-amazon-uk-" + (i+1)).val(product_attributes_list[i]);
+    }
 
     M.updateTextFields();
     $("select").formSelect();
@@ -1201,11 +1239,11 @@
     product_attribute_amazon_uk_cnt++;
 
     var html_string = `<div>
-                         <div class="input-field col s9">
+                         <div class="input-field col s10">
                            <input id="product-attribute-amazon-uk-`+ product_attribute_amazon_uk_cnt + `" type="text" >
-                           <label for="product-attribute-amazon-uk-`+ product_attribute_amazon_uk_cnt + `">Product Attribute</label>
+                          
                          </div>
-                         <div class="input-field col s1">
+                         <div class="input-field col s2">
                            <a href="#!" class="remove-product-attribute-amazon-uk-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
                          </div>
                        </div>`
@@ -1224,7 +1262,7 @@
     var html_string = `<div>
                          <div class="input-field col s9">
                            <input id="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `" type="text" >
-                           <label for="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `">Product Attribute</label>
+                          
                          </div>
                          <div class="input-field col s1">
                            <a href="#!" class="remove-product-attribute-amazon-uae-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
@@ -1288,12 +1326,12 @@
   $("#add-special-feature-btn").click(function () {
     special_feature_cnt++;
 
-    var html_string = `<div class = "col s12">
-                           <div class="input-field col s9">
+    var html_string = `<div>
+                           <div class="input-field col s10">
                              <input id="special-feature-`+ special_feature_cnt + `" type="text" >
                            </div>
 
-                           <div class="input-field col s1">
+                           <div class="input-field col s2">
                              <a href="#!" class="remove-special-feature-btn btn-floating blue" style = "background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
                            </div>
                         </div>`
@@ -1648,7 +1686,7 @@
 
     var special_feature_data = [];
     for (var i = 1; i <= special_feature_cnt; i++) {
-      if ($("#special-feature-" + i).val() != "") {
+      if ($("#special-feature-" + i).val() != "" && $("#special-feature-" + i).val() != undefined) {
         special_feature_data.push($("#special-feature-" + i).val());
       }
     }
@@ -1666,18 +1704,19 @@
     var number_of_items = $("#number-of-items").val();
     var condition_type = $("#condition-type").val();
 
-    // var product_attribute_data_amazon_uk = [];
-    // for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
-    //   if ($("#product-attribute-amazon-uk-" + i).val() != "") {
-    //     product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
-    //   }
-    // }
+    var product_attribute_data_amazon_uk = [];
+    for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
+      if ($("#product-attribute-amazon-uk-" + i).val() != "" && $("#product-attribute-amazon-uk-" + i).val() != undefined) {
+        product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
+      }
+    }
     // product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
 
 
     amazon_uk_product_json = {}
 
     amazon_uk_product_json["product_name"] = product_name;
+    amazon_uk_product_json["product_attributes"] = product_attribute_data_amazon_uk
     amazon_uk_product_json["feed_product_type"] = feed_product_type;
     amazon_uk_product_json["variation_theme"]  = variation_theme;
     amazon_uk_product_json["update_delete"] = update_delete;

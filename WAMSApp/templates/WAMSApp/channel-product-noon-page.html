@@ -108,19 +108,19 @@
                         </div>
 
 
-                        <div class = "col s12">
-                            <div class="input-field col s9">
+                        <div class = "col s12" style="padding-left: 0px !important;">
+                            <div class="input-field col s10">
                                 <input placeholder="" id="product-attribute-noon-1" type="text">
                                 <label for="product-attribute-noon-1">Product Attribute</label>
                             </div>
 
-                            <div class="input-field col s1">
+                            <div class="input-field col s2">
                                 <a id="add-product-attribute-noon-btn" href="#!" class="btn-floating blue"
                                     style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
                                         class="material-icons">add</i></a>
                             </div>
                         </div>  
-                        <div class="col s12" id = "product-attributes-noon-div"></div>
+                        <div class="col s12" id = "product-attributes-noon-div" style="padding-left: 0px !important;"></div>
 
                       
                         <div class="input-field col s6 toggle-s6-s12">
@@ -313,19 +313,7 @@
     </a>
 
     <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-        <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i class="material-icons maroonn" title="PFL Editor" style="
-        color: gray;
-        background-color: #f7f7f7;
-        padding: 8px;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;margin-bottom: 10px;">
-                vertical_split
-            </i>
-        </a>
+      
 
         <a href="#!" class=" right" style="background-color: transparent;display: block;">
             <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
@@ -1228,16 +1216,17 @@ error: function (xhr, textstatus, errorthrown) {
     $("#add-product-attribute-noon-btn").click(function () {
         product_attribute_noon_cnt++;
 
-        var html_string = `<div class = "col s12">
-                         <div class="input-field col s9">
-                           <input value = `+val_to_fill+` id="product-attribute-noon-`+ product_attribute_noon_cnt + `" type="text" >
+        var html_string = `<div>
+                         <div class="input-field col s10">
+                           <input id="product-attribute-noon-`+ product_attribute_noon_cnt + `" type="text" >
                          
                          </div>
-                         <div class="input-field col s1">
+                         <div class="input-field col s2">
                            <a href="#!" class="remove-product-attribute-noon-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
                          </div>
                        </div>`
         $("#product-attributes-noon-div").append(html_string);
+        $('#product-attribute-noon-'+product_attribute_noon_cnt).val(val_to_fill);
         val_to_fill = ""
     });
 

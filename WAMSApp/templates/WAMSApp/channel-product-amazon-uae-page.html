@@ -155,20 +155,20 @@
                             <input placeholder="" id="recommended-browse-nodes" type="text">
                             <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
                         </div>
-                        <div class="col s12">
-                            <div class="input-field col s9">
+                        <div class="col s12" style="padding-left: 0px !important;">
+                            <div class="input-field col s10">
                                 <input placeholder="" id="product-attribute-amazon-uae-1" type="text">
                                 <label for="product-attribute-amazon-uae-1">Product Attribute</label>
                             </div>
 
-                            <div class="input-field col s1">
+                            <div class="input-field col s2">
                                 <a id="add-product-attribute-amazon-uae-btn" href="#!" class="btn-floating blue"
                                     style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
                                         class="material-icons">add</i></a>
                             
                             </div>
                         </div>
-                        <div id = "product-attributes-amazon-uae-div" class = "col s12">
+                        <div id = "product-attributes-amazon-uae-div" class = "col s12" style="padding-left: 0px !important;">
                         </div>
                         <div class="col s12 toggle-s6-s12">
                             <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
@@ -371,19 +371,7 @@
     </a>
 
     <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-        <a id="pfl-editor-link" href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i class="material-icons maroonn" title="PFL Editor" style="
-        color: gray;
-        background-color: #f7f7f7;
-        padding: 8px;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;margin-bottom: 10px;">
-                vertical_split
-            </i>
-        </a>
+       
 
         <a href="#!" class=" right" style="background-color: transparent;display: block;">
             <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
@@ -892,18 +880,21 @@
     var product_attribute_amazon_uae_cnt = 1;
     var val_to_fill = "";
         $("#add-product-attribute-amazon-uae-btn").click(function () {
+            if(val_to_fill == null)return;
+
             product_attribute_amazon_uae_cnt++;
 
-            var html_string = `<div class = "col s12">
-                                <div class="input-field col s9">
-                                <input placeholder = "" value = `+val_to_fill+` class = "initiate" id="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `" type="text" >
+            var html_string = `<divstyle = "padding-left:0px !important;">
+                                <div class="input-field col s10">
+                                <input placeholder = "" class = "initiate" id="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `" type="text" >
                               
                                 </div>
-                                <div class="input-field col s1">
+                                <div class="input-field col s2">
                                 <a href="#!" class="remove-product-attribute-amazon-uae-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
                                 </div>
                             </div>`
             $("#product-attributes-amazon-uae-div").append(html_string);
+            $('#product-attribute-amazon-uae-'+ product_attribute_amazon_uae_cnt).val(val_to_fill);
             $('input.initiate').click();
             val_to_fill = "";
         });
