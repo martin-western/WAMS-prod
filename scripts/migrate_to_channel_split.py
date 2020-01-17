@@ -258,7 +258,22 @@ for data in all_data_json:
             brand_obj = Brand.objects.get(pk=brand_mapped_pk)
 
             main_images = data["fields"]["main_images"]
+            main_image_buckets = []
+            for main_image in main_images:
+                image_bucket_pk = main_image["pk"]
+                mapped_image_bucket_pk = image_bucket_pk_mapping[image_bucket_pk]
+                image_bucket_obj = ImageBucket.objects.get(pk=mapped_image_bucket_pk)
+                main_image_buckets.append(image_bucket_obj)
+            
             sub_images = data["fields"]["sub_images"]
+            sub_image_buckets = []
+            for sub_image in sub_images:
+                image_bucket_pk = sub_image["pk"]
+                mapped_image_bucket_pk = image_bucket_pk_mapping[image_bucket_pk]
+                image_bucket_obj = ImageBucket.objects.get(pk=mapped_image_bucket_pk)
+                sub_image_buckets.append(image_bucket_obj)            
+
+
             pfl_images = data["fields"]["pfl_images"]
             white_background_images = data["fields"]["white_background_images"]
             lifestyle_images = data["fields"]["lifestyle_images"]
@@ -271,6 +286,10 @@ for data in all_data_json:
             pfl_generated_images = data["fields"]["pfl_generated_images"]
             transparent_images = data["fields"]["transparent_images"]
 
-            print("Product Cnt:", image_bucket_cnt)
+
+
+
+
+            print("Product Cnt:", product_cnt)
     except Exception as e:
         print("Error Product Bucket", str(e))
