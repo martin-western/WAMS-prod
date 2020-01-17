@@ -1755,7 +1755,7 @@ class FetchProductListAPI(APIView):
 
                         temp_dict["channel_products"].append(temp_dict3)
 
-                    temp_dict["channels_of_prod"] = channels_of_prod
+                    temp_dict2["channels_of_prod"] = channels_of_prod
                     temp_dict["products"].append(temp_dict2)
 
                 products.append(temp_dict)
