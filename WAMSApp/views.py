@@ -1067,6 +1067,7 @@ class FetchProductDetailsAPI(APIView):
 
             response["product_description_amazon_uk"] = amazon_uk_product_dict["product_description"]
             response["special_features"] = amazon_uk_product_dict["special_features"]
+            response["ecommerce_dimensions"] = amazon_uk_product_dict["dimensions"]
 
             
             if product_obj.product_id_type != None:
@@ -2387,7 +2388,7 @@ class FetchFlyerDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["product_bucket_name"] = product_obj.product_name_sap
                 temp_dict["product_bucket_pk"] = product_obj.pk
-                temp_dict["seller_sku"] = product_obj.seller_sku
+                temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                 main_image_url = Config.objects.all()[0].product_404_image.image.url
                 
                 try:
@@ -2733,7 +2734,7 @@ class FetchProductListFlyerPFLAPI(APIView):
 
                         main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                         
-                        main_image_url = main_image_obj.image.image.url
+                        main_image_url = main_image_obj.image.thumbnail.url
                     
                     except Exception as e:
 
@@ -2799,7 +2800,7 @@ class AddProductFlyerBucketAPI(APIView):
 
                 main_images_list = set(main_images_list)
                 
-                image_url = main_image_obj.image.image.urlrl
+                image_url = main_image_obj.image.mid_image.url
             
             except Exception as e:
                 pass
@@ -2848,7 +2849,7 @@ class AddProductFlyerBucketAPI(APIView):
             response["product_pk"] = product_obj.pk
             response["product_name"] = product_obj.product_name_sap
             response["product_image_url"] = image_url
-            response["seller_sku"] = product_obj.seller_sku
+            response["seller_sku"] = product_obj.base_product.seller_sku
 
             response['status'] = 200
 
