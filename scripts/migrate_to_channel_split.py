@@ -26,25 +26,15 @@ for data in all_data_json:
     try:
         if data["model"] == "WAMSApp.image":
             image_cnt+=1
-            image_obj = Image.objects.create(image=data["fields"]["image"])
+            image_obj = Image.objects.create(image=data["fields"]["image"],
+                                             mid_image=data["fields"]["mid_image"],
+                                             thumbnail=data["fields"]["thumbnail"],
+                                             description=data["fields"]["description"]
+                                             )
             image_pk_mapping[data["pk"]] = image_obj.pk
             print("Image Cnt:", image_cnt)
     except Exception as e:
         print("Error Image", str(e))
-
-brand_pk_mapping = {}
-brand_cnt=0
-
-for data in all_data_json:
-    
-    try:
-        if data["model"] == "WAMSApp.brand":
-            brand_cnt+=1
-            brand_obj = Brand.objects.create(name=data["fields"]["name"])
-            brand_pk_mapping[data["pk"]] = brand_obj.pk
-            print("Brand Cnt:", brand_cnt)
-    except Exception as e:
-        print("Error Brnad", str(e))
 
 organization_pk_mapping = {}
 organization_cnt=0
@@ -59,6 +49,33 @@ for data in all_data_json:
             print("Organization Cnt:", organization_cnt)
     except Exception as e:
         print("Error Organization", str(e))
+
+brand_pk_mapping = {}
+brand_cnt=0
+
+for data in all_data_json:
+    
+    try:
+        if data["model"] == "WAMSApp.brand":
+            brand_cnt+=1
+
+            logo_pk = data["fields"]["logo"]["pk"]
+            mapped_pk = image_pk_mapping[logo_pk]
+            logo_obj = Image.objects.get(pk = mapped_pk)
+            organization_pk = data["fields"]["organization"]["pk"]
+            organization_mapped_pk = image_pk_mapping[organization_pk]
+            organization_obj = Organization.objects.get(pk = organization_mapped_pk)
+
+            brand_obj = Brand.objects.create(name=data["fields"]["name"],
+                                             logo = logo_obj,
+                                             organization=organization_obj
+                                             )
+
+            brand_pk_mapping[data["pk"]] = brand_obj.pk
+            print("Brand Cnt:", brand_cnt)
+    except Exception as e:
+        print("Error Brnad", str(e))
+
 
 category_pk_mapping = {}
 category_cnt=0
