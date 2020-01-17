@@ -142,267 +142,92 @@
 
         <div class="tab-pane" id="dimensions">
           <h4>Dimensions</h4>
-          <div class="row white" style="margin-bottom:0px !important;">
-
-            <div class="col s12">
-              <div class="row" style="margin-bottom:0px !important;padding-bottom: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input  placeholder="" disabled id="package-length" type="number">
-                  <label for="package-length">Package Length</label>
+          <div class="row white" style="padding:20px 40px 20px 40px !important;">
+            <div class="row" style="margin-bottom:0px !important;">
+                <div class="col s6">
+                   <p class="grey-text" style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 0px;text-align: left;">EXPORT CARTON QUANTITY ( L | B | H )</p>
+                    <div class="row" style="padding-top: 0px !important;padding-left: 0px !important;">
+                      <div class="col s3">
+                        <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                          <input disabled placeholder="" id="export-carton-qty-l" type="text" class="validate" style="font-family: 'AvenirNext';">
+                        </div>
+                      </div>
+                      <div class="col s3">
+                          <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                            <input disabled placeholder="" id="export-carton-qty-b" type="text" class="validate" style="font-family: 'AvenirNext';">
+                          </div>
+                      </div>
+                      <div class="col s3">
+                          <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                            <input disabled placeholder="" id="export-carton-qty-h" type="text" class="validate" style="font-family: 'AvenirNext';">
+                          </div>
+                      </div>    
+                    </div>
                 </div>
-
-                <div class="input-field  col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="package-length-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
+                <div class="col s6">
+                   <p class="grey-text" style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px; text-align: left;">EXPORT CARTON CRM ( L | B | H )</p>
+                  <div class="row" style="padding-top: 0px !important;padding-left: 0px !important;">
+                      <div class="col s3">
+                        <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                          <input disabled placeholder="" id="export-carton-crm-l" type="text" class="validate" style="font-family: 'AvenirNext';">
+                        </div>
+                      </div>
+                      <div class="col s3">
+                          <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                            <input disabled placeholder="" id="export-carton-crm-b" type="text" class="validate" style="font-family: 'AvenirNext';">
+                          </div>
+                      </div>
+                      <div class="col s3">
+                          <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                            <input disabled placeholder="" id="export-carton-crm-h" type="text" class="validate" style="font-family: 'AvenirNext';">
+                          </div>
+                      </div>  
+                    </div>
                 </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input  placeholder="" disabled id="package-width" type="number">
-                  <label for="package-width">Package Width</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="package-width-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input  placeholder="" disabled id="package-height" type="number">
-                  <label for="package-height">Package Height</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="package-height-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input  placeholder="" disabled id="package-weight" type="number">
-                  <label for="package-weight">Package Weight</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="package-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input  placeholder="" disabled id="shipping-weight" type="number">
-                  <label for="shipping-weight">Shipping Weight</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="shipping-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input  placeholder="" disabled id="item-display-weight" type="number">
-                  <label for="item-display-weight">Item Display Weight</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="item-display-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input  placeholder="" disabled id="item-display-volume" type="number">
-                  <label for="item-display-volume">Item Display Volume</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="item-display-volume-metric">
-                    <option selected value="">Unit</option>
-                    <option value="cc">CC</option>
-                    <option value="litres">L</option>
-                    <option value="cubic-m">CUBIC-M</option>
-                  </select>
-                </div>
-
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input  placeholder="" disabled id="item-display-length" type="number">
-                  <label for="item-display-length">Item Display Length</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="item-display-length-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input  placeholder="" disabled id="item-weight" type="number">
-                  <label for="item-weight">Item Weight</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="item-weight-metric">
-                    <option selected value="">Unit</option>
-                    <option value="KG">KG</option>
-                    <option value="LB">LB</option>
-                    <option value="OZ">OZ</option>
-                    <option value="MG">MG</option>
-                    <option value="GR">GR</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input  placeholder="" disabled id="item-length" type="number">
-                  <label for="item-length">Item Length</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="item-length-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input  placeholder="" disabled id="item-width" type="number">
-                  <label for="item-width">Item Width</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="item-width-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input  placeholder="" disabled id="item-height" type="number">
-                  <label for="item-height">Item Height</label>
-                </div>
-
-                <div class="input-field col s2 " style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="item-height-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-                <div class="input-field col s4" style="padding: 0px 20px 0px 40px  !important;">
-                  <input  placeholder="" disabled id="item-display-width" type="number">
-                  <label for="item-display-width">Item Display Width</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="item-display-width-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-
-                <div class="input-field col s4" style="padding: 0px 40px 0px 20px  !important;">
-                  <input  placeholder="" disabled id="item-display-height" type="number">
-                  <label for="item-display-height">Item Display Height</label>
-                </div>
-
-                <div class="input-field col s2" style="padding: 0px 40px 0px 10px !important;">
-                  <select disabled id="item-display-height-metric">
-                    <option selected value="">Unit</option>
-                    <option value="FT">FT</option>
-                    <option value="IN">IN</option>
-                    <option value="CM">CM</option>
-                    <option value="MM">MM</option>
-                    <option value="M">M</option>
-                  </select>
-                </div>
-              </div>
-
-
-
-              <div class="row"
-                style="margin-bottom:0px !important;padding-bottom: 0em !important;padding-top: 0em !important;">
-               
-                <div class="input-field col s6" style="padding: 0px 20px 0px 40px  !important;">
-                  <input  placeholder="" disabled id="package-qty" type="number">
-                  <label for="package-qty">Package Quantity</label>
-                </div>
-
-              </div>
-
             </div>
-          </div>
+            <div class="row">
+                <div class="col s6">
+                   <p class="grey-text" style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px; text-align: left;">PRODUCT DIMENSION ( L | B | H )</p>
+                    <div class="row" style="padding-top: 0px !important;padding-left: 0px !important;">
+                      <div class="col s3">
+                        <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                          <input disabled placeholder="" id="product-dimension-l" type="text" class="validate" style="font-family: 'AvenirNext';">
+                        </div>
+                      </div>
+                      <div class="col s3">
+                          <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                            <input disabled placeholder="" id="product-dimension-b" type="text" class="validate" style="font-family: 'AvenirNext';">
+                          </div>
+                      </div>
+                      <div class="col s3">
+                          <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                            <input disabled placeholder="" id="product-dimension-h" type="text" class="validate" style="font-family: 'AvenirNext';">
+                          </div>
+                      </div>    
+                    </div>
+                </div>
+                <div class="col s6">
+                   <p class="grey-text" style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px; text-align: left;">GIFT BOX ( L | B | H )</p>
+                  <div class="row" style="padding-top: 0px !important;padding-left: 0px !important;">
+                      <div class="col s3">
+                        <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                          <input disabled placeholder="" id="gift-box-l" type="text" class="validate" style="font-family: 'AvenirNext';">
+                        </div>
+                      </div>
+                      <div class="col s3">
+                          <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                            <input disabled placeholder="" id="gift-box-b" type="text" class="validate" style="font-family: 'AvenirNext';">
+                          </div>
+                      </div>
+                      <div class="col s3">
+                          <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                            <input disabled placeholder="" id="gift-box-h" type="text" class="validate" style="font-family: 'AvenirNext';">
+                          </div>
+                      </div>  
+                    </div>
+                </div>
+            </div>
+      </div>
         </div>
 
         <div class="tab-pane" id="attributes">
@@ -1159,36 +984,22 @@
           $("#manufacturer-part-number").val(response["manufacturer_part_number"]);
           $("#barcode-string").val(response["barcode_string"]);
 
+          $("#export-carton-qty-l").val(response["dimensions"]["export_carton_quantity_l"])
+          $("#export-carton-qty-b").val(response["dimensions"]["export_carton_quantity_b"])
+          $("#export-carton-qty-h").val(response["dimensions"]["export_carton_quantity_h"])
 
-          $("#package-length").val(response["package_length"]);
-          $("#package-length-metric").val(response["package_length_metric"]);
-          $("#package-width").val(response["package_width"]);
-          $("#package-width-metric").val(response["package_width_metric"]);
-          $("#package-height").val(response["package_height"]);
-          $("#package-height-metric").val(response["package_height_metric"]);
-          $("#package-weight").val(response["package_weight"]);
-          $("#package-weight-metric").val(response["package_weight_metric"]);
-          $("#shipping-weight").val(response["shipping_weight"]);
-          $("#shipping-weight-metric").val(response["shipping_weight_metric"]);
-          $("#item-display-weight").val(response["item_display_weight"]);
-          $("#item-display-weight-metric").val(response["item_display_weight_metric"]);
-          $("#item-display-volume").val(response["item_display_volume"]);
-          $("#item-display-volume-metric").val(response["item_display_volume_metric"]);
-          $("#item-display-length").val(response["item_display_length"]);
-          $("#item-display-length-metric").val(response["item_display_length_metric"]);
-          $("#item-weight").val(response["item_weight"]);
-          $("#item-weight-metric").val(response["item_weight_metric"]);
-          $("#item-length").val(response["item_length"]);
-          $("#item-length-metric").val(response["item_length_metric"]);
-          $("#item-width").val(response["item_width"]);
-          $("#item-width-metric").val(response["item_length_metric"]);
-          $("#item-height").val(response["item_height"]);
-          $("#item-height-metric").val(response["item_length_metric"]);
-          $("#item-display-width").val(response["item_display_width"]);
-          $("#item-display-width-metric").val(response["item_display_width_metric"]);
-          $("#item-display-height").val(response["item_display_height"]);
-          $("#item-display-height-metric").val(response["item_display_height_metric"]);
-          $("#package-qty").val(response["package_quantity"]);
+          $("#export-carton-crm-l").val(response["dimensions"]["export_carton_crm_l"])
+          $("#export-carton-crm-b").val(response["dimensions"]["export_carton_crm_b"])
+          $("#export-carton-crm-h").val(response["dimensions"]["export_carton_crm_h"])
+          
+          $('#product-dimension-l').val(response["dimensions"]["product_dimension_l"]);
+          $('#product-dimension-b').val(response["dimensions"]["product_dimension_b"]);
+          $('#product-dimension-h').val(response["dimensions"]["product_dimension_h"]);
+
+          $('#gift-box-l').val(response["dimensions"]["giftbox_l"]);
+          $('#gift-box-b').val(response["dimensions"]["giftbox_b"]);
+          $('#gift-box-h').val(response["dimensions"]["giftbox_h"]);
+
 
           $("#color").val(response["color"]);
           $("#color-map").val(response["color_map"]);
@@ -1857,7 +1668,7 @@
       }
     });
 
-    //save_subimages_index();
+    save_subimages_index();
   }
 
 

@@ -178,7 +178,7 @@
                 <label for="product-name">Product Name</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
-                <input placeholder="" disabled id="product-id" type="text" class="deep-purple-text">
+                <input placeholder="" disabled id="product-id" type="text" class="grey-text">
                 <label for="product-id">Product ID</label>
               </div>
 
@@ -213,7 +213,7 @@
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input placeholder="" id="cover-material-type" type="text">
+                <input placeholder="" id="cover-material-type" class="black-text" type="text">
                 <label for="cover-material-type">Cover Material Type</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
@@ -263,14 +263,14 @@
               <div class="col s12"  style="padding-left: 0px !important;"  id = "special-features-div">
               </div>
 
-              <div class="input-field col s4 toggle-s6-s12" >
+              <div class="input-field col s4 toggle-s6-s12"  style="padding: 0px 20px 0px 40px  !important;" >
                 <input placeholder="" id="wattage" type="number">
                 <label for="wattage">Wattage</label>
               </div>
 
               
 
-              <div class="input-field col s2 toggle-s6-s12" >
+              <div class="input-field col s2 toggle-s6-s12" style="padding: 0px 40px 0px 10px !important;" >
                 <select id="wattage-metric">
                   <option selected value="">Unit</option>
                   <option value="volts">V</option>
@@ -280,7 +280,7 @@
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input disabled placeholder="" id="material-type" type="text" class="deep-purple-text">
+                <input disabled placeholder="" id="material-type" type="text" class="grey-text">
                 <label for="material-type">Material Type</label>
               </div>
 
@@ -336,6 +336,23 @@
                 </select>
                 <label for="condition-type">Condition Type</label>
               </div>
+
+              <div class="col s12 toggle-s6-s12">
+                <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                    Description</h6>
+
+
+               
+                    <div class="document-editor">
+                        <div class="document-editor__toolbar"></div>
+                        <div class="document-editor__editable-container">
+                            <div class="document-editor__editable" 
+                            style="width: 100% !important;">
+                            </div>
+                        </div>
+                    </div>
+
+            </div> 
           </div>
         </div>
       </div>
@@ -354,40 +371,86 @@
         </div>
         <div class = "toggle_btw_forms">
           <div id = "toggle_btw_forms1" style = "display: none;">
-              <div class="input-field col s12 m6">
+
+            <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
+              <div class="input-field col s12">
                   <input placeholder="" disabled id="uae-sidenav-product-name" type="text">
                   <label for="uae-sidenav-product-name">Product Name</label>
               </div>
-              <div class="input-field col s12 m6">
+              <div class="input-field col s12">
                   <input placeholder="" disabled id="uae-sidenav-feed-product-type" type="text">
-                  <label for="uae-sidenav-feed-product-type">Product Type</label>
+                  <label for="uae-sidenav-feed-product-type">Feed Product Type</label>
               </div>
-              <div class="input-field col s12 m6">
+              <div class="input-field col s12">
                 <input placeholder="" disabled id="uae-sidenav-update-delete" type="text">
                 <label for="uae-sidenav-update-delete">Update Delete</label>
               </div>
-              <div class="input-field col s12 m6">
+              <div class="input-field col s12">
                 <input placeholder="" disabled id="uae-sidenav-recommended-browse-nodes" type="text">
                 <label for="uae-sidenav-recommended-browse-nodes">Recommended Browse Nodes</label>
               </div>
+           
+              <!-- <div class="input-field col s12">
+                <textarea placeholder="" disabled id="uae-sidenav-description" class="materialize-textarea"></textarea>
+                <label for="uae-sidenav-description">Description</label>
+              </div>   -->
+              <div class="input-field col s12" id = "uae-sidenav-product-attributes">
+               
+              </div>   
+              <div class="col s12 toggle-s6-s12">
+                <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                    Description</h6>
+
+
+            
+                    <div class="document-editor">
+                        <div class="document-editor__toolbar clone2_toolbar"></div>
+                        <div class="document-editor__editable-container clone2_container">
+                            <div class="document-editor__editable clone2_editable" 
+                            style="width: 100% !important;">
+                            </div>
+                        </div>
+                    </div>
+
+            </div>        
+          </div>
           </div>
 
           <div id = "toggle_btw_forms2" style="display: none;">
+            <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
             <div class="input-field col s12 m6">
               <input placeholder="" disabled id="ebay-sidenav-product-name" type="text">
               <label for="ebay-sidenav-product-name">Product Name</label>
           </div>
-          <div class="input-field col s12 m6">
-              <input placeholder="" disabled id="ebay-sidenav-description" type="text">
-              <label for="ebay-sidenav-description">Description</label>
-          </div>
+          
           <div class="input-field col s12 m6">
             <input placeholder="" disabled id="ebay-sidenav-category" type="text">
             <label for="ebay-sidenav-category">Category</label>
           </div>
+          <div class="input-field col s12" id = "ebay-sidenav-product-attributes">
+               
+          </div> 
+          <div class="col s12 toggle-s6-s12">
+            <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                Description</h6>
+
+
+        
+                <div class="document-editor">
+                    <div class="document-editor__toolbar clone3_toolbar"></div>
+                    <div class="document-editor__editable-container clone3_container">
+                        <div class="document-editor__editable clone3_editable" 
+                        style="width: 100% !important;">
+                        </div>
+                    </div>
+                </div>
+
+        </div>     
+          </div>
        </div>
 
         <div id = "toggle_btw_forms3" style="display: none;">
+          <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
             <div class="input-field col s12 m6">
               <input placeholder="" disabled id="noon-sidenav-product-name" type="text">
               <label for="noon-sidenav-product-name">Product Name</label>
@@ -416,10 +479,26 @@
             <input placeholder="" disabled id="noon-sidenav-msrpae-unit" type="text">
             <label for="noon-sidenav-msrpae-unit">MSRP AE UNIT</label>
           </div>
-          <div class="input-field col s12 m6">
-            <input placeholder="" disabled id="noon-sidenav-descrption" type="text">
-            <label for="noon-sidenav-description">Description</label>
+        
+          <div class="input-field col s12" id = "noon-sidenav-product-attributes">
           </div>
+          <div class="col s12 toggle-s6-s12">
+            <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                Description</h6>
+
+
+        
+                <div class="document-editor">
+                    <div class="document-editor__toolbar clone4_toolbar"></div>
+                    <div class="document-editor__editable-container clone4_container">
+                        <div class="document-editor__editable clone4_editable" 
+                        style="width: 100% !important;">
+                        </div>
+                    </div>
+                </div>
+
+        </div> 
+          </div>     
       </div>
       </div>
       </div>
@@ -679,6 +758,80 @@
     }
   })
 
+
+  window.editor = []
+
+DecoupledEditor
+    .create(document.querySelector('.document-editor__editable'), {
+        cloudServices: {
+        }
+    })
+    .then(editor => {
+        const toolbarContainer = document.querySelector('.document-editor__toolbar');
+
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+        //editor.isReadOnly = !response['edit_access'];
+        window.editor.push(editor);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+DecoupledEditor
+    .create(document.querySelector('.clone2_editable'), {
+        cloudServices: {
+        }
+    })
+    .then(editor => {
+        const toolbarContainer = document.querySelector('.clone2_toolbar');
+
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+        //editor.isReadOnly = !response['edit_access'];
+        window.editor.push(editor);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+DecoupledEditor
+    .create(document.querySelector('.clone3_editable'), {
+        cloudServices: {
+        }
+    })
+    .then(editor => {
+        const toolbarContainer = document.querySelector('.clone3_toolbar');
+
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+        //editor.isReadOnly = !response['edit_access'];
+        window.editor.push(editor);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+
+
+
+DecoupledEditor
+    .create(document.querySelector('.clone4_editable'), {
+        cloudServices: {
+        }
+    })
+    .then(editor => {
+        const toolbarContainer = document.querySelector('.clone4_toolbar');
+
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+        //editor.isReadOnly = !response['edit_access'];
+        window.editor.push(editor);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+
+   
+
+
   var global_details_amazon_uk = {};
   var global_details_amazon_uae = {};
   var global_details_ebay = {};
@@ -753,9 +906,39 @@
   function fill_side_form_uae(){
     var data = global_details_amazon_uae;
     $('#uae-sidenav-product-name').val(data["product_name"]);
+    window.editor[1].setData(data["product_description"]);
     $('#uae-sidenav-recommended-browse-nodes').val(data["recommended_browse_nodes"]);
     $('#uae-sidenav-update-delete').val(data["update_delete"]);
     $('#uae-sidenav-feed-product-type').val(data["feed_product_type"]);
+    // $('#uae-sidenav-product-id').val(data["product_id"]);
+  
+    // $("#uae-sidenav-description").val(data["product_description"]);
+    console.log(data["product_attributes"]);
+
+   if(data["product_attributes"].length > 0)
+    {
+       $('#uae-sidenav-product-attributes').append(`
+                  <p style = "margin-left: 20px;
+                    color: grey;
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder = "" disabled id="uae-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
+                
+                  </div>        
+       `);
+                  
+        for(var i = 1;i<data["product_attributes"].length;i++)
+        {
+          $('#uae-sidenav-product-attributes').append(`
+
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder="" disabled id="uae-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
+                  </div>        
+ 
+          `);
+        }
+
+    }
   }
 
   function fetch_details_amazon_uae()
@@ -801,7 +984,32 @@
       $('#noon-sidenav-msrpae').val(data["msrp_ae"]);
       $('#noon-sidenav-model-name').val(data["model_name"]);
       $('#noon-sidenav-msrpae-unit').val(data["msrp_ae_unit"]);
-      $('#noon-sidenav-descrption').val(data["product_description"]);
+    window.editor[3].setData(data["product_description"]);
+      
+   if(data["product_attributes"].length > 0)
+    {
+       $('#noon-sidenav-product-attributes').append(`
+                  <p style = "margin-left: 20px;
+                    color: grey;
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder = "" disabled id="noon-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
+                
+                  </div>        
+       `);
+                  
+        for(var i = 1;i<data["product_attributes"].length;i++)
+        {
+          $('#noon-sidenav-product-attributes').append(`
+
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder="" disabled id="noon-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
+                  </div>        
+ 
+          `);
+        }
+
+    }
   }
 
   function fetch_details_noon()
@@ -838,8 +1046,35 @@
   {
     var data = global_details_ebay;
     $('#ebay-sidenav-product-name').val(data["product_name"]);
-    $('#ebay-sidenav-description').val(data["product_description"]);
-    $('#ebay-sidenav-category').val(data[""]);
+    // $('#ebay-sidenav-description').val(data["product_description"]);
+    // $('#ebay-sidenav-category').val(data[""]);
+    $('#ebay-sidenav-category').val(data["category"]);
+    window.editor[2].setData(data["product_description"]);
+
+    if(data["product_attributes"].length > 0)
+    {
+       $('#ebay-sidenav-product-attributes').append(`
+                  <p style = "margin-left: 20px;
+                    color: grey;
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder = "" disabled id="ebay-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
+                
+                  </div>        
+       `);
+                  
+        for(var i = 1;i<data["product_attributes"].length;i++)
+        {
+          $('#ebay-sidenav-product-attributes').append(`
+
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder="" disabled id="ebay-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
+                  </div>        
+ 
+          `);
+        }
+
+    }
   }
 
   function fetch_details_ebay()
@@ -895,7 +1130,7 @@
     $("#sale-price").val(global_details_amazon_uk["sale_price"]);
     $("#sale-from").val(global_details_amazon_uk["sale_from"]);
     $("#sale-end").val(global_details_amazon_uk["sale_end"]);
-
+    window.editor[0].setData(global_details_amazon_uk["product_description"]);
     var special_feature_data = global_details_amazon_uk["special_features"];
     if(special_feature_data.length>0)
     {
@@ -920,6 +1155,7 @@
     $("#condition-type").val(global_details_amazon_uk["condition_type"]);
 
     var product_attributes_list = global_details_amazon_uk["product_attributes"];
+    console.log(product_attributes_list);
     
     if(product_attributes_list.length>0)
     {
@@ -1739,6 +1975,7 @@
     amazon_uk_product_json["max_order_quantity"] = max_order_quantity;
     amazon_uk_product_json["number_of_items"] = number_of_items;
     amazon_uk_product_json["condition_type"] = condition_type;
+    amazon_uk_product_json["product_description"] = window.editor[0].getData();
 
     console.log(amazon_uk_product_json);
     $.ajax({
@@ -1754,8 +1991,8 @@
       success: function (response) {
         console.log("Success!", response);
         if (response["status"] == 200) {
-          global_details_amazon_uk = amazon_uk_product_json;
-          render_amazon_uk();
+          // global_details_amazon_uk = amazon_uk_product_json;
+          // render_amazon_uk();
           M.toast({ html: "Product saved successfully!" });
         }
         else if (response["status"] == 403) {
@@ -1774,6 +2011,13 @@
   }
 
 
+  $('document').ready(()=>{
+    window.editor[1].isReadOnly = true
+    window.editor[2].isReadOnly = true
+    window.editor[3].isReadOnly = true
+  })
+
+ 
   $("#save-btn").click(function () {
     console.log("Hii");
     save_product_amazon_uk();

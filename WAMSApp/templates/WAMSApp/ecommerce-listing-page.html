@@ -1103,7 +1103,7 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        pk: window.location.pathname.split("/")[2]
+        product_pk: window.location.pathname.split("/")[2]
       },
       success: function (response) {
         console.log("Success!", response);
