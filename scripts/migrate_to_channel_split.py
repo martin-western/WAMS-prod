@@ -42,7 +42,7 @@ for data in all_data_json:
             brand_cnt+=1
             brand_obj = Brand.objects.create(name=data["fields"]["name"])
             brand_pk_mapping[data["pk"]] = brand_obj.pk
-            print("Cnt:", brand_cnt)
+            print("Brand Cnt:", brand_cnt)
     except Exception as e:
         print("Error Brnad", str(e))
 
@@ -54,7 +54,7 @@ for data in all_data_json:
             organization_cnt+=1
             organization_obj = Organization.objects.create(name=data["fields"]["name"])
             organization_pk_mapping[data["pk"]] = organization_obj.pk
-            print("Cnt:", organization_cnt)
+            print("Organization Cnt:", organization_cnt)
     except Exception as e:
         print("Error Organization", str(e))
 
@@ -66,6 +66,21 @@ for data in all_data_json:
             category_cnt+=1
             category_obj = Category.objects.create(name=data["fields"]["name"])
             category_pk_mapping[data["pk"]] = category_obj.pk
-            print("Cnt:", category_cnt)
+            print("Category Cnt:", category_cnt)
     except Exception as e:
         print("Error Category", str(e))
+
+background_image_cnt=0
+for data in all_data_json:
+    
+    try:
+        if data["model"] == "WAMSApp.backgroundimage":
+            background_image_cnt+=1
+            pk = data["fields"]["pk"]
+            mapped_pk = image_pk_mapping[pk]
+            image_obj = Image.objects.get(pk=mapped_pk)
+            background_image_obj = BackgroundImage.objects.create(image=image_obj)
+            cbackground_image_pk_mapping[data["pk"]] = background_image_obj.pk
+            print("Background Image Cnt:", background_image_cnt)
+    except Exception as e:
+        print("Error Background Image", str(e))
