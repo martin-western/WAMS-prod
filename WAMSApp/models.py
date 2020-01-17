@@ -58,6 +58,37 @@ amazon_uk_product_json = {
     "max_order_quantity" : "",
     "number_of_items" : "",
     "condition_type" : "",
+    "dimensions": {
+        "package_length":"",
+        "package_length_metric":"",
+        "package_width":"",
+        "package_width_metric":"",
+        "package_height":"",
+        "package_height_metric":"",
+        "package_weight":"",
+        "package_weight_metric":"",
+        "package_quantity":"",
+        "shipping_weight":"",
+        "shipping_weight_metric":"",
+        "item_display_weight":"",
+        "item_display_weight_metric":"",
+        "item_display_volume":"",
+        "item_display_volume_metric":"",
+        "item_display_length":"",
+        "item_display_length_metric":"",
+        "item_weight":"",
+        "item_weight_metric":"",
+        "item_length":"",
+        "item_length_metric":"",
+        "item_width":"",
+        "item_width_metric":"",
+        "item_height":"",
+        "item_height_metric":"",
+        "item_display_width":"",
+        "item_display_width_metric":"",
+        "item_display_height":"",
+        "item_display_height_metric":""
+    }
 }
 
 amazon_uae_product_json = {
@@ -82,11 +113,38 @@ ebay_product_json = {
         
 }
 
+base_dimensions_json = {
+    "export_carton_quantity_l": "",
+    "export_carton_quantity_l_metric": "",
+    "export_carton_quantity_b": "",
+    "export_carton_quantity_b_metric": "",
+    "export_carton_quantity_h": "",
+    "export_carton_quantity_h_metric": "",
+    "export_carton_crm_l": "",
+    "export_carton_crm_l_metric": "",
+    "export_carton_crm_b": "",
+    "export_carton_crm_b_metric": "",
+    "export_carton_crm_h": "",
+    "export_carton_crm_h_metric": "",
+    "product_dimension_l": "",
+    "product_dimension_l_metric": "",
+    "product_dimension_b": "",
+    "product_dimension_b_metric": "",
+    "product_dimension_h": "",
+    "product_dimension_h_metric": "",
+    "giftbox_l": "",
+    "giftbox_l_metric": "",
+    "giftbox_b": "",
+    "giftbox_b_metric": "",
+    "giftbox_h": "",
+    "giftbox_h_metric": ""
+}
+
 noon_product_json  = json.dumps(noon_product_json)
 amazon_uk_product_json = json.dumps(amazon_uk_product_json)
 amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
-
+base_dimensions_json = json.dumps(base_dimensions_json)
 
 class ContentManager(User):
 
@@ -265,36 +323,8 @@ class BaseProduct(models.Model):
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
-    
-    package_length = models.FloatField(null=True, blank=True)
-    package_length_metric = models.CharField(max_length=100, default="")
-    package_width = models.FloatField(null=True, blank=True)
-    package_width_metric = models.CharField(max_length=100, default="")
-    package_height = models.FloatField(null=True, blank=True)
-    package_height_metric = models.CharField(max_length=100, default="")
-    package_weight = models.FloatField(null=True, blank=True)
-    package_weight_metric = models.CharField(max_length=100, default="")
-    package_quantity = models.FloatField(null=True, blank=True)
-    shipping_weight = models.FloatField(null=True, blank=True)
-    shipping_weight_metric = models.CharField(max_length=100, default="")
-    item_display_weight = models.FloatField(null=True, blank=True)
-    item_display_weight_metric = models.CharField(max_length=100, default="")
-    item_display_volume = models.FloatField(null=True, blank=True)
-    item_display_volume_metric = models.CharField(max_length=100, default="")
-    item_display_length = models.FloatField(null=True, blank=True)
-    item_display_length_metric = models.CharField(max_length=100, default="")
-    item_weight = models.FloatField(null=True, blank=True)
-    item_weight_metric = models.CharField(max_length=100, default="")
-    item_length = models.FloatField(null=True, blank=True)
-    item_length_metric = models.CharField(max_length=100, default="")
-    item_width = models.FloatField(null=True, blank=True) 
-    item_width_metric = models.CharField(max_length=100, default="")
-    item_height = models.FloatField(null=True, blank=True)
-    item_height_metric = models.CharField(max_length=100, default="")
-    item_display_width = models.FloatField(null=True, blank=True)
-    item_display_width_metric = models.CharField(max_length=100, default="")
-    item_display_height = models.FloatField(null=True, blank=True)
-    item_display_height_metric = models.CharField(max_length=100, default="")
+
+    dimensions = models.TextField(blank=True, default=base_dimensions_json)
     
     class Meta:
         verbose_name = "BaseProduct"
