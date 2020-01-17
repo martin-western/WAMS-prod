@@ -1052,6 +1052,7 @@ class FetchProductDetailsAPI(APIView):
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
+            response["dimensions"] = json.loads(base_product_obj.dimensions)
 
             response["product_name"] = product_obj.product_name
             response["product_name_sap"] = product_obj.product_name_sap
@@ -1063,6 +1064,7 @@ class FetchProductDetailsAPI(APIView):
             response["verified"] = product_obj.verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
+
             
             if product_obj.product_id_type != None:
                 response["product_id_type"] = product_obj.product_id_type.name
