@@ -152,6 +152,7 @@ for data in all_data_json:
                     data["fields"]["created_date"][:19], "%b %d, %Y")
             status = data["fields"]["status"]
             verified = data["fields"]["verified"]
+            pfl_product_name = data["fields"]["pfl_product_name"]
             pfl_product_features = data["fields"]["pfl_product_features"]
             
             product_name_sap = data["fields"]["product_name_sap"]
@@ -286,9 +287,42 @@ for data in all_data_json:
             pfl_generated_images = data["fields"]["pfl_generated_images"]
             transparent_images = data["fields"]["transparent_images"]
 
+            base_product_obj = BaseProduct.objects.create(seller_sku=seller_sku,
+                                                          brand=brand_obj,
+                                                          base_product_name=product_name_sap,
+                                                          created_date=created_date,
+                                                          category=category,
+                                                          subtitle=subtitle,
+                                                          manufacturer=manufacturer,
+                                                          manufacturer_part_number=manufacturer_part_number
+                                                          )
 
+            product_id_type_obj , created = ProductIDType.objects.get_or_create(name=product_id_type)
+            material_type_obj , created = MaterialType.objects.get_or_create(name=material_type)
 
+            product_obj = Product.objects.create(base_product=base_product_obj,
+                                                 product_name=product_name_sap,
+                                                 product_id=product_id,
+                                                 product_id_type=product_id_type_obj,
+                                                 created_date=created_date,
+                                                 status=status,
+                                                 verified=bool(verified),
+                                                 pfl_product_name=pfl_product_name,
+                                                 pfl_product_features=pfl_product_features,
+                                                 product_name_sap=product_name_sap,
+                                                 color_map=color_map,
+                                                 color=color,
+                                                 standard_price=float(standard_price),
+                                                 quantity=int(quantity),
+                                                 material_type=material_type_obj,
+                                                 barcode=barcode_obj,
+                                                 barcode_string=barcode_string,
+                                                 outdoor_price=outdoor_price,
+                                                 factory_notes=factory_notes
+                                                 )
 
+            channel_product_obj = product_obj.channel_product
+            
 
             print("Product Cnt:", product_cnt)
     except Exception as e:
