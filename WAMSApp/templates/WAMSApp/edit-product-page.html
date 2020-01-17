@@ -1030,6 +1030,8 @@
             set_verify(false);
           }
 
+          $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
+
           M.updateTextFields();
           $('select').formSelect();
         }
@@ -1084,8 +1086,6 @@
         //   $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
         // }
         // $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
-
-        // $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
 
         // M.updateTextFields();
         // $('select').formSelect();

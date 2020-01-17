@@ -79,6 +79,12 @@
 
             </div>
 
+            <div class="row" style="position: relative;bottom: 15px;right: 5px;">
+                <div id="graphics-section" class="col s12" style="width: 94%;padding-top: 1.11em;">
+
+                </div>
+            </div>
+
              <!--  <div class="row image-section-dropdown" style="margin-bottom: 0px;">
                 <div class="input-field left-section col s7" style="
                      position:relative;height: 50px !important;">
@@ -723,12 +729,6 @@
   $('select').formSelect();
   $(document).ready(function(){
     $('.modal').modal();
-
-
-    $('#upload-image-modal-btn').click(()=>{
-      $('#upload-image-modal').modal("open");
-    })
-    
   });
   $('body').css('background-color', '#ebebeb');
   $('.sidenav').sidenav({ edge: 'left' });
@@ -1838,11 +1838,12 @@ DecoupledEditor
 
 
   function update_grid_images(key) {
+    console.log(key);
     if (key == "all_images") {
-      $("#import-btn").attr("class", "disabled");
+      $("#upload-image-modal-btn").attr("class", "disabled");
     }
     else {
-      $("#import-btn").attr("class", "modal-trigger");
+      $("#upload-image-modal-btn").attr("class", "modal-trigger");
     }
 
     if (key == "main_images") {
