@@ -1065,6 +1065,9 @@ class FetchProductDetailsAPI(APIView):
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
 
+            response["product_description_amazon_uk"] = amazon_uk_product_dict["product_description"]
+            response["special_features"] = amazon_uk_product_dict["special_features"]
+
             
             if product_obj.product_id_type != None:
                 response["product_id_type"] = product_obj.product_id_type.name
