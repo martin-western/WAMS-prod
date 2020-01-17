@@ -1041,125 +1041,40 @@ class FetchProductDetailsAPI(APIView):
                 response["brand_logo"] = brand_obj.logo.image.url
             except Exception as e:
                 response["brand_logo"] = ''
-
-            try:
-                response["barcode_string"] = product_obj.barcode_string
-            except Exception as e:
-                response["barcode_string"] = ''
-            logger.info("%s",amazon_uk_product_dict)
-            response["product_name_amazon_uk"] = amazon_uk_product_dict["product_name"]
-            response["product_name_amazon_uae"] = amazon_uae_product_dict["product_name"]
-            response["product_name_ebay"] = ebay_product_dict["product_name"]
-            response["product_name_noon"] = noon_product_dict["product_name"]
-
-            response["product_name"] = product_obj.product_name
-            response["product_name_sap"] = product_obj.product_name_sap
-            response["category"] = base_product_obj.category
-            response["subtitle"] = base_product_obj.subtitle
             
-            response["factory_notes"] = product_obj.factory_notes
-
             if brand_obj == None:
                 response["brand_name"] = ""
             else:
                 response["brand_name"] = brand_obj.name
-
+            
+            response["category"] = base_product_obj.category
+            response["subtitle"] = base_product_obj.subtitle
+            response["seller_sku"] = base_product_obj.seller_sku
+            response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
+
+            response["product_name"] = product_obj.product_name
+            response["product_name_sap"] = product_obj.product_name_sap
             response["product_id"] = product_obj.product_id
+            response["barcode_string"] = product_obj.barcode_string
+            response["standard_price"] = "" if product_obj.standard_price == None else product_obj.standard_price
+            response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
+            response["factory_notes"] = product_obj.factory_notes
+            response["verified"] = product_obj.verified
+            response["color_map"] = product_obj.color_map
+            response["color"] = product_obj.color
             
             if product_obj.product_id_type != None:
                 response["product_id_type"] = product_obj.product_id_type.name
             else:
                 response["product_id_type"] = ""
-
-
-            response["noon_product_type"] = noon_product_dict["product_type"]
-            response["noon_product_subtype"] = noon_product_dict["product_subtype"]
-            response["noon_model_number"] = noon_product_dict["model_number"]
-            response["noon_model_name"] = noon_product_dict["model_name"]
-
-            response["seller_sku"] = base_product_obj.seller_sku
-            response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
-            
-            response["condition_type"] = amazon_uk_product_dict["condition_type"]
-            response["feed_product_type"] = amazon_uk_product_dict["feed_product_type"]
-            response["update_delete"] = amazon_uk_product_dict["update_delete"]
-            response["recommended_browse_nodes"] = amazon_uk_product_dict["recommended_browse_nodes"]
-            response["product_description_amazon_uk"] = amazon_uk_product_dict["product_description"]
-            response["product_description_amazon_uae"] = amazon_uae_product_dict["product_description"]
-            response["product_description_ebay"] = ebay_product_dict["product_description"]
-            response["product_description_noon"] = noon_product_dict["product_description"]
-            response["product_attribute_list_amazon_uk"] = amazon_uk_product_dict["product_attribute_list"]
-            response["product_attribute_list_amazon_uae"] = amazon_uae_product_dict["product_attribute_list"]
-            response["product_attribute_list_ebay"] = ebay_product_dict["product_attribute_list"]
-            response["product_attribute_list_noon"] = noon_product_dict["product_attribute_list"]
-            response["search_terms"] = amazon_uk_product_dict["search_terms"]
-            response["color_map"] = product_obj.color_map
-            response["color"] = product_obj.color
-            response["enclosure_material"] = amazon_uk_product_dict["enclosure_material"]
-            response["cover_material_type"] = amazon_uk_product_dict["cover_material_type"]
-            response["special_features"] = amazon_uk_product_dict["special_features"]
-
-            response["package_length"] = "" if base_product_obj.package_length == None else base_product_obj.package_length
-            response["package_length_metric"] = base_product_obj.package_length_metric
-            response["package_width"] = "" if base_product_obj.package_width == None else base_product_obj.package_width
-            response["package_width_metric"] = base_product_obj.package_width_metric
-            response["package_height"] = "" if base_product_obj.package_height == None else base_product_obj.package_height
-            response["package_height_metric"] = base_product_obj.package_height_metric
-            response["package_weight"] = "" if base_product_obj.package_weight == None else base_product_obj.package_weight
-            response["package_weight_metric"] = base_product_obj.package_weight_metric
-            response["shipping_weight"] = "" if base_product_obj.shipping_weight == None else base_product_obj.shipping_weight
-            response["shipping_weight_metric"] = base_product_obj.shipping_weight_metric
-            response["item_display_weight"] = "" if base_product_obj.item_display_weight == None else base_product_obj.item_display_weight
-            response["item_display_weight_metric"] = base_product_obj.item_display_weight_metric
-            response["item_display_volume"] = "" if base_product_obj.item_display_volume == None else base_product_obj.item_display_volume
-            response["item_display_volume_metric"] = base_product_obj.item_display_volume_metric
-            response["item_display_length"] = "" if base_product_obj.item_display_length == None else base_product_obj.item_display_length
-            response["item_display_length_metric"] = base_product_obj.item_display_length_metric
-            response["item_weight"] = "" if base_product_obj.item_weight == None else base_product_obj.item_weight
-            response["item_weight_metric"] = base_product_obj.item_weight_metric
-            response["item_length"] = "" if base_product_obj.item_length == None else base_product_obj.item_length
-            response["item_length_metric"] = base_product_obj.item_length_metric
-            response["item_width"] = "" if base_product_obj.item_width == None else base_product_obj.item_width
-            response["item_width_metric"] = base_product_obj.item_width_metric
-            response["item_height"] = "" if base_product_obj.item_height == None else base_product_obj.item_height
-            response["item_height_metric"] = base_product_obj.item_height_metric
-            response["item_display_width"] = "" if base_product_obj.item_display_width == None else base_product_obj.item_display_width
-            response["item_display_width_metric"] = base_product_obj.item_display_width_metric
-            response["item_display_height"] = "" if base_product_obj.item_display_height == None else base_product_obj.item_display_height
-            response["item_display_height_metric"] = base_product_obj.item_display_height_metric
-
-            
-            response["item_count"] = "" if amazon_uk_product_dict["item_count"] == None else amazon_uk_product_dict["item_count"]
-            response["item_count_metric"] = amazon_uk_product_dict["item_count_metric"]
-            response["item_condition_note"] = amazon_uk_product_dict["item_condition_note"]
-            response["max_order_quantity"] = "" if amazon_uk_product_dict["max_order_quantity"] == None else amazon_uk_product_dict["max_order_quantity"]
-            response["number_of_items"] = "" if amazon_uk_product_dict["number_of_items"] == None else amazon_uk_product_dict["number_of_items"]
-            
-            response["wattage"] = "" if amazon_uk_product_dict["wattage"] == None else amazon_uk_product_dict["wattage"]
-            response["wattage_metric"] = amazon_uk_product_dict["wattage_metric"]
             
             if product_obj.material_type != None:
                 response["material_type"] = product_obj.material_type.name
             else:
                 response["material_type"] = ""
             
-            response["parentage"] = amazon_uk_product_dict["parentage"]
-            response["parent_sku"] = amazon_uk_product_dict["parent_sku"]
-            response["relationship_type"] = amazon_uk_product_dict["relationship_type"]
-            response["variation_theme"] = amazon_uk_product_dict["variation_theme"]
-            response["standard_price"] = "" if product_obj.standard_price == None else product_obj.standard_price
-            response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
-            response["sale_price"] = "" if amazon_uk_product_dict["sale_price"] == None else amazon_uk_product_dict["sale_price"]
-            response["sale_from"] = "" if amazon_uk_product_dict["sale_from"] == None else amazon_uk_product_dict["sale_from"]
-            response["sale_end"] = "" if amazon_uk_product_dict["sale_end"] == None else amazon_uk_product_dict["sale_end"]
-            response["sale_price"] = "" if amazon_uk_product_dict["sale_price"] == None else amazon_uk_product_dict["sale_price"]
             
-
-            response["noon_msrp_ae"] = "" if noon_product_dict["msrp_ae"] == None else noon_product_dict["msrp_ae"]
-            response["noon_msrp_ae_unit"] = str(noon_product_dict["msrp_ae_unit"])
-
-            response["verified"] = product_obj.verified
 
             images = {}
 
@@ -1247,6 +1162,7 @@ class FetchProductDetailsAPI(APIView):
 
         return Response(data=response)
 
+
 class SaveBaseProductAPI(APIView):
 
     authentication_classes = (
@@ -1289,36 +1205,21 @@ class SaveBaseProductAPI(APIView):
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
             category = convert_to_ascii(data["category"])
             subtitle = convert_to_ascii(data["subtitle"])
-            package_length = None if data["package_length"] == "" else float(data["package_length"])
-            package_length_metric = data["package_length_metric"]
-            package_width = None if data["package_width"] == "" else float(data["package_width"])
-            package_width_metric = data["package_width_metric"]
-            package_height = None if data["package_height"] == "" else float(data["package_height"])
-            package_height_metric = data["package_height_metric"]
-            package_weight = None if data["package_weight"] == "" else float(data["package_weight"])
-            package_weight_metric = data["package_weight_metric"]
-            package_quantity = None if data["package_quantity"] == "" else float(data["package_quantity"])
-            shipping_weight = None if data["shipping_weight"] == "" else float(data["shipping_weight"])
-            shipping_weight_metric = data["shipping_weight_metric"]
-            item_display_weight = None if data["item_display_weight"] == "" else float(data["item_display_weight"])
-            item_display_weight_metric = data["item_display_weight_metric"]
-            item_display_volume = None if data["item_display_volume"] == "" else float(data["item_display_volume"])
-            item_display_volume_metric = data["item_display_volume_metric"]
-            item_display_length = None if data["item_display_length"] == "" else float(data["item_display_length"])
-            item_display_length_metric = data["item_display_length_metric"]
-            item_weight = None if data["item_weight"] == "" else float(data["item_weight"])
-            item_weight_metric = data["item_weight_metric"]
-            item_length = None if data["item_length"] == "" else float(data["item_length"])
-            item_length_metric = data["item_length_metric"]
-            item_width = None if data["item_width"] == "" else float(data["item_width"])
-            item_width_metric = data["item_width_metric"]
-            item_height = None if data["item_height"] == "" else float(data["item_height"])
-            item_height_metric = data["item_height_metric"]
-            item_display_width = None if data["item_display_width"] == "" else float(data["item_display_width"])
-            item_display_width_metric = data["item_display_width_metric"]
-            item_display_height = None if data["item_display_height"] == "" else float(data["item_display_height"])
-            item_display_height_metric = data["item_display_height_metric"]
             
+
+            dimensions = json.loads(data["dimensions"])
+            old_dimensions = json.loads(base_product_obj.dimensions)
+            if len(dimensions.keys())==len(old_dimensions.keys()):
+                for key in dimensions:
+                    if key not in old_dimensions:
+                        dimensions = old_dimensions
+                        break
+            else:
+                dimensions = old_dimensions
+            dimensions = json.dumps(dimensions)
+
+           
+
             if BaseProduct.objects.filter(seller_sku=seller_sku).exclude(pk=data["base_product_pk"]).count() >= 1 :
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
@@ -1331,36 +1232,7 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.manufacturer_part_number = manufacturer_part_number
             base_product_obj.category = category
             base_product_obj.subtitle = subtitle
-
-            base_product_obj.package_length = package_length
-            base_product_obj.package_length_metric = package_length_metric
-            base_product_obj.package_width = package_width
-            base_product_obj.package_width_metric = package_width_metric
-            base_product_obj.package_height = package_height
-            base_product_obj.package_height_metric = package_height_metric
-            base_product_obj.package_weight = package_weight
-            base_product_obj.package_weight_metric = package_weight_metric
-            base_product_obj.package_quantity = package_quantity
-            base_product_obj.shipping_weight = shipping_weight
-            base_product_obj.shipping_weight_metric = shipping_weight_metric
-            base_product_obj.item_display_weight = item_display_weight
-            base_product_obj.item_display_weight_metric = item_display_weight_metric
-            base_product_obj.item_display_volume = item_display_volume
-            base_product_obj.item_display_volume_metric = item_display_volume_metric
-            base_product_obj.item_display_length = item_display_length
-            base_product_obj.item_display_length_metric = item_display_length_metric
-            base_product_obj.item_weight = item_weight
-            base_product_obj.item_weight_metric = item_weight_metric
-            base_product_obj.item_length = item_length
-            base_product_obj.item_length_metric = item_length_metric
-            base_product_obj.item_width = item_width
-            base_product_obj.item_width_metric = item_width_metric
-            base_product_obj.item_height = item_height
-            base_product_obj.item_height_metric = item_height_metric
-            base_product_obj.item_display_width = item_display_width
-            base_product_obj.item_display_width_metric = item_display_width_metric
-            base_product_obj.item_display_height = item_display_height
-            base_product_obj.item_display_height_metric = item_display_height_metric
+            base_product_obj.dimensions = dimensions
             
             base_product_obj.save()
             
@@ -1601,41 +1473,7 @@ class FetchProductListAPI(APIView):
                 temp_dict["seller_sku"] = base_product_obj.seller_sku
                 temp_dict["category"] = base_product_obj.category
                 temp_dict["subtitle"] = base_product_obj.subtitle
-
-
-                temp_dimensions_dict = {}
-                temp_dimensions_dict["package_length"] = "" if base_product_obj.package_length == None else base_product_obj.package_length
-                temp_dimensions_dict["package_length_metric"] = base_product_obj.package_length_metric
-                temp_dimensions_dict["package_width"] = "" if base_product_obj.package_width == None else base_product_obj.package_width
-                temp_dimensions_dict["package_width_metric"] = base_product_obj.package_width_metric
-                temp_dimensions_dict["package_height"] = "" if base_product_obj.package_height == None else base_product_obj.package_height
-                temp_dimensions_dict["package_height_metric"] = base_product_obj.package_height_metric
-                temp_dimensions_dict["package_weight"] = "" if base_product_obj.package_weight == None else base_product_obj.package_weight
-                temp_dimensions_dict["package_weight_metric"] = base_product_obj.package_weight_metric
-                temp_dimensions_dict["package_quantity"] = "" if base_product_obj.package_quantity == None else base_product_obj.package_quantity
-                
-                temp_dimensions_dict["shipping_weight"] = "" if base_product_obj.shipping_weight == None else base_product_obj.shipping_weight
-                temp_dimensions_dict["shipping_weight_metric"] = base_product_obj.shipping_weight_metric
-                temp_dimensions_dict["item_display_weight"] = "" if base_product_obj.item_display_weight == None else base_product_obj.item_display_weight
-                temp_dimensions_dict["item_display_weight_metric"] = base_product_obj.item_display_weight_metric
-                temp_dimensions_dict["item_display_volume"] = "" if base_product_obj.item_display_volume == None else base_product_obj.item_display_volume
-                temp_dimensions_dict["item_display_volume_metric"] = base_product_obj.item_display_volume_metric
-                temp_dimensions_dict["item_display_length"] = "" if base_product_obj.item_display_length == None else base_product_obj.item_display_length
-                temp_dimensions_dict["item_display_length_metric"] = base_product_obj.item_display_length_metric
-                temp_dimensions_dict["item_weight"] = "" if base_product_obj.item_weight == None else base_product_obj.item_weight
-                temp_dimensions_dict["item_weight_metric"] = base_product_obj.item_weight_metric
-                temp_dimensions_dict["item_length"] = "" if base_product_obj.item_length == None else base_product_obj.item_length
-                temp_dimensions_dict["item_length_metric"] = base_product_obj.item_length_metric
-                temp_dimensions_dict["item_width"] = "" if base_product_obj.item_width == None else base_product_obj.item_width
-                temp_dimensions_dict["item_width_metric"] = base_product_obj.item_width_metric
-                temp_dimensions_dict["item_height"] = "" if base_product_obj.item_height == None else base_product_obj.item_height
-                temp_dimensions_dict["item_height_metric"] = base_product_obj.item_height_metric
-                temp_dimensions_dict["item_display_width"] = "" if base_product_obj.item_display_width == None else base_product_obj.item_display_width
-                temp_dimensions_dict["item_display_width_metric"] = base_product_obj.item_display_width_metric
-                temp_dimensions_dict["item_display_height"] = "" if base_product_obj.item_display_height == None else base_product_obj.item_display_height
-                temp_dimensions_dict["item_display_height_metric"] = base_product_obj.item_display_height_metric
-
-                temp_dict["dimensions"] = temp_dimensions_dict
+                temp_dict["dimensions"] = json.loads(base_product_obj.dimensions)
                 
                 product_objs = search_list_product_objs.filter(base_product = base_product_obj)
 
@@ -1755,7 +1593,7 @@ class FetchProductListAPI(APIView):
 
                         temp_dict["channel_products"].append(temp_dict3)
 
-                    temp_dict["channels_of_prod"] = channels_of_prod
+                    temp_dict2["channels_of_prod"] = channels_of_prod
                     temp_dict["products"].append(temp_dict2)
 
                 products.append(temp_dict)
