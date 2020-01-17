@@ -74,7 +74,7 @@
                             <label for="product-name">Product Name</label>
                         </div>
                         <div class="input-field col s6 toggle-s6-s12">
-                            <input placeholder="" id="product-id" type="text">
+                            <input disabled placeholder="" id="product-id" type="text">
                             <label for="product-id">Product ID</label>
                         </div>
                         <div class="input-field col s6 toggle-s6-s12">
@@ -1766,18 +1766,17 @@ error: function (xhr, textstatus, errorthrown) {
                     $('#noon-product-subtype').val(data["product_subtype"]);
                     $('#noon-product-type').val(data["product_type"]);
                     var product_attributes_list = data["product_attributes"];
-                    console.log(product_attributes_list);
-                    product_attributes_list = JSON.parse(product_attributes_list);
-                    console.log(product_attributes_list);
-                    if(product_attributes_list.length > 0)
+        
+                    if(product_attributes_list.length>0)
                     {
-                        $('#product-attribute-noon-1').val(product_attributes_list[0]);
-                        for(var i = 1;i<product_attributes_list.length;i++)
-                        {
-                            val_to_fill = product_attributes_list[i];
-                            $("#add-product-attribute-noon-btn").click();
-                        }
+                    $("#product-attribute-noon-1").val(product_attributes_list[0]);
                     }
+                    for(var i=1;i<product_attributes_list.length;i++)
+                    {
+                        $("#add-product-attribute-noon-btn").click();
+                        $("#product-attribute-noon-" + (i+1)).val(product_attributes_list[i]);
+                    }
+
                 }
 
 
@@ -1869,11 +1868,11 @@ error: function (xhr, textstatus, errorthrown) {
 
                         var product_attribute_data_noon = [];
                         for (var i = 1; i <= product_attribute_noon_cnt; i++) {
-                          if ($("#product-attribute-noon-" + i).val() != "") {
+                          if ($("#product-attribute-noon-" + i).val() != "" && $("#product-attribute-noon-" + i).val() != undefined) {
                             product_attribute_data_noon.push($("#product-attribute-noon-" + i).val());
                           }
                         }
-                        product_attribute_data_noon = JSON.stringify(product_attribute_data_noon);
+                        // product_attribute_data_noon = JSON.stringify(product_attribute_data_noon);
 
 
                         // "product_name" : "",

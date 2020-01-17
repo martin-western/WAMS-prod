@@ -74,7 +74,7 @@
                             <label for="product-name">Product Name</label>
                         </div>
                         <div class="input-field col s6 toggle-s6-s12">
-                            <input placeholder="" id="product-id" type="text">
+                            <input disabled placeholder="" id="product-id" type="text">
                             <label for="product-id">Product Id</label>
                         </div>
                         <div class="input-field col s6 toggle-s6-s12">
@@ -1163,10 +1163,7 @@
 
 
     var product_attribute_ebay_cnt = 1;
-    var val_to_fill = "";
     $("#add-product-attribute-ebay-btn").click(function () {
-        if(val_to_fill == null)return;
-
         product_attribute_ebay_cnt++;
 
         var html_string = `<div>
@@ -1179,8 +1176,6 @@
                          </div>
                        </div>`
         $("#product-attributes-ebay-div").append(html_string);
-        $('#product-attribute-ebay-'+product_attribute_ebay_cnt).val(val_to_fill);
-        val_to_fill = "";   
     });
 
     $(document).on("click", ".remove-product-attribute-ebay-btn", function () {
@@ -1738,18 +1733,17 @@
         $('#product-id').val(data["product-id"]);
         $('#product-category').val(data["category"]);   
         $('#product-description').val(data["product_description"]);
+
         var product_attributes_list = data["product_attributes"];
-        console.log(product_attributes_list);
-        product_attributes_list = JSON.parse(product_attributes_list);
-        console.log(product_attributes_list);
-        if(product_attributes_list.length > 0)
+        
+        if(product_attributes_list.length>0)
         {
-            $('#product-attribute-ebay-1').val(product_attributes_list[0]);
-            for(var i = 1;i<product_attributes_list.length;i++)
-            {
-                val_to_fill = product_attributes_list[i];
-                $("#add-product-attribute-ebay-btn").click();
-            }
+         $("#product-attribute-ebay-1").val(product_attributes_list[0]);
+        }
+        for(var i=1;i<product_attributes_list.length;i++)
+        {
+            $("#add-product-attribute-ebay-btn").click();
+            $("#product-attribute-ebay-" + (i+1)).val(product_attributes_list[i]);
         }
     }
 
@@ -1836,11 +1830,11 @@ function save_product_ebay() {
 
         var product_attribute_data_ebay = [];
         for (var i = 1; i <= product_attribute_ebay_cnt; i++) {
-          if ($("#product-attribute-ebay-" + i).val() != "") {
+          if ($("#product-attribute-ebay-" + i).val() != "" && $("#product-attribute-ebay-" + i).val() != undefined) {
             product_attribute_data_ebay.push($("#product-attribute-ebay-" + i).val());
           }
         }
-        product_attribute_data_ebay = JSON.stringify(product_attribute_data_ebay);
+        // product_attribute_data_ebay = JSON.stringify(product_attribute_data_ebay);
 
 
         ebay_data_json = {}

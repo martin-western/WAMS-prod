@@ -133,7 +133,7 @@
                             <label for="product-name">Product Name</label>
                         </div>
                         <div class="input-field col s6 toggle-s6-s12">
-                            <input placeholder="" disabled id="product-id" type="text" class="deep-purple-text">
+                            <input disabled placeholder="" disabled id="product-id" type="text" class="deep-purple-text">
                             <label for="product-id">Product ID</label>
                         </div>
                         <div class="input-field col s6 toggle-s6-s12">
@@ -1247,17 +1247,15 @@ function fetch_amazon_uae_product_images_details() {
         $('select').formSelect();
         $('#recommended-browse-nodes').val(data["recommended_browse_nodes"]);
         var product_attributes_list = data["product_attributes"];
-        console.log(product_attributes_list);
-        product_attributes_list = JSON.parse(product_attributes_list);
-        console.log(product_attributes_list);
-        if(product_attributes_list.length > 0)
+        
+        if(product_attributes_list.length>0)
         {
-            $('#product-attribute-amazon-uae-1').val(product_attributes_list[0]);
-            for(var i = 1;i<product_attributes_list.length;i++)
-            {
-                val_to_fill = product_attributes_list[i];
-                $("#add-product-attribute-amazon-uae-btn").click();
-            }
+        $("#product-attribute-amazon-uae-1").val(product_attributes_list[0]);
+        }
+        for(var i=1;i<product_attributes_list.length;i++)
+        {
+            $("#add-product-attribute-amazon-uae-btn").click();
+            $("#product-attribute-amazon-uae-" + (i+1)).val(product_attributes_list[i]);
         }
     }
 
@@ -1833,11 +1831,11 @@ function fetch_amazon_uae_product_images_details() {
 
             var product_attribute_data_amazon_uae = [];
             for (var i = 1; i <= product_attribute_amazon_uae_cnt; i++) {
-              if ($("#product-attribute-amazon-uae-" + i).val() != "") {
+              if ($("#product-attribute-amazon-uae-" + i).val() != "" && $("#product-attribute-amazon-uae-" + i).val() != undefined) {
                 product_attribute_data_amazon_uae.push($("#product-attribute-amazon-uae-" + i).val());
               }
             }
-            product_attribute_data_amazon_uae = JSON.stringify(product_attribute_data_amazon_uae);
+            // product_attribute_data_amazon_uae = JSON.stringify(product_attribute_data_amazon_uae);
 
 
             amazon_uae_product_json = {}
