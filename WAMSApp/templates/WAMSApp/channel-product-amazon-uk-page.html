@@ -178,7 +178,7 @@
                 <label for="product-name">Product Name</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
-                <input placeholder="" disabled id="product-id" type="text" class="deep-purple-text">
+                <input placeholder="" disabled id="product-id" type="text" class="grey-text">
                 <label for="product-id">Product ID</label>
               </div>
 
@@ -213,7 +213,7 @@
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input placeholder="" id="cover-material-type" type="text">
+                <input placeholder="" id="cover-material-type" class="grey-text" type="text">
                 <label for="cover-material-type">Cover Material Type</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
@@ -280,7 +280,7 @@
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input disabled placeholder="" id="material-type" type="text" class="deep-purple-text">
+                <input disabled placeholder="" id="material-type" type="text" class="grey-text">
                 <label for="material-type">Material Type</label>
               </div>
 
@@ -372,7 +372,7 @@
         <div class = "toggle_btw_forms">
           <div id = "toggle_btw_forms1" style = "display: none;">
 
-            <div class = "row" style = "max-height: 80vh; overflow-y: scroll;">
+            <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
               <div class="input-field col s12">
                   <input placeholder="" disabled id="uae-sidenav-product-name" type="text">
                   <label for="uae-sidenav-product-name">Product Name</label>
@@ -389,42 +389,68 @@
                 <input placeholder="" disabled id="uae-sidenav-recommended-browse-nodes" type="text">
                 <label for="uae-sidenav-recommended-browse-nodes">Recommended Browse Nodes</label>
               </div>
-              <div class="input-field col s12">
-                <input placeholder="" disabled id="uae-sidenav-created-date" type="text">
-                <label for="uae-sidenav-created-date">Created Date</label>
-              </div>   
+           
               <!-- <div class="input-field col s12">
                 <textarea placeholder="" disabled id="uae-sidenav-description" class="materialize-textarea"></textarea>
                 <label for="uae-sidenav-description">Description</label>
               </div>   -->
               <div class="input-field col s12" id = "uae-sidenav-product-attributes">
                
-              </div>          
+              </div>   
+              <div class="col s12 toggle-s6-s12">
+                <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                    Description</h6>
+
+
+            
+                    <div class="document-editor">
+                        <div class="document-editor__toolbar clone2_toolbar"></div>
+                        <div class="document-editor__editable-container clone2_container">
+                            <div class="document-editor__editable clone2_editable" 
+                            style="width: 100% !important;">
+                            </div>
+                        </div>
+                    </div>
+
+            </div>        
           </div>
           </div>
 
           <div id = "toggle_btw_forms2" style="display: none;">
-            <div class = "row" style = "max-height: 80vh; overflow-y: scroll;">
+            <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
             <div class="input-field col s12 m6">
               <input placeholder="" disabled id="ebay-sidenav-product-name" type="text">
               <label for="ebay-sidenav-product-name">Product Name</label>
           </div>
-          <div class="input-field col s12 m6">
-              <input placeholder="" disabled id="ebay-sidenav-description" type="text">
-              <label for="ebay-sidenav-description">Description</label>
-          </div>
+          
           <div class="input-field col s12 m6">
             <input placeholder="" disabled id="ebay-sidenav-category" type="text">
             <label for="ebay-sidenav-category">Category</label>
           </div>
           <div class="input-field col s12" id = "ebay-sidenav-product-attributes">
                
-          </div>     
+          </div> 
+          <div class="col s12 toggle-s6-s12">
+            <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                Description</h6>
+
+
+        
+                <div class="document-editor">
+                    <div class="document-editor__toolbar clone3_toolbar"></div>
+                    <div class="document-editor__editable-container clone3_container">
+                        <div class="document-editor__editable clone3_editable" 
+                        style="width: 100% !important;">
+                        </div>
+                    </div>
+                </div>
+
+        </div>     
           </div>
        </div>
 
         <div id = "toggle_btw_forms3" style="display: none;">
-          <div class = "row" style = "max-height: 80vh; overflow-y: scroll;">
+          <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
             <div class="input-field col s12 m6">
               <input placeholder="" disabled id="noon-sidenav-product-name" type="text">
               <label for="noon-sidenav-product-name">Product Name</label>
@@ -459,6 +485,22 @@
           </div>
           <div class="input-field col s12" id = "noon-sidenav-product-attributes">
           </div>
+          <div class="col s12 toggle-s6-s12">
+            <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                Description</h6>
+
+
+        
+                <div class="document-editor">
+                    <div class="document-editor__toolbar clone4_toolbar"></div>
+                    <div class="document-editor__editable-container clone4_container">
+                        <div class="document-editor__editable clone4_editable" 
+                        style="width: 100% !important;">
+                        </div>
+                    </div>
+                </div>
+
+        </div> 
           </div>     
       </div>
       </div>
@@ -866,11 +908,12 @@ DecoupledEditor
   function fill_side_form_uae(){
     var data = global_details_amazon_uae;
     $('#uae-sidenav-product-name').val(data["product_name"]);
+    window.editor[1].setData(data["product_description"]);
     $('#uae-sidenav-recommended-browse-nodes').val(data["recommended_browse_nodes"]);
     $('#uae-sidenav-update-delete').val(data["update_delete"]);
     $('#uae-sidenav-feed-product-type').val(data["feed_product_type"]);
     // $('#uae-sidenav-product-id').val(data["product_id"]);
-    $("#uae-sidenav-created-date").val(data["created_date"]);
+  
     // $("#uae-sidenav-description").val(data["product_description"]);
     console.log(data["product_attributes"]);
 
@@ -880,7 +923,7 @@ DecoupledEditor
                   <p style = "margin-left: 20px;
                     color: grey;
                     margin-bottom: 0px;">Product Attributes</p>
-                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="uae-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
                   </div>        
@@ -890,7 +933,7 @@ DecoupledEditor
         {
           $('#uae-sidenav-product-attributes').append(`
 
-                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder="" disabled id="uae-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
                   </div>        
  
@@ -943,13 +986,15 @@ DecoupledEditor
       $('#noon-sidenav-msrpae').val(data["msrp_ae"]);
       $('#noon-sidenav-model-name').val(data["model_name"]);
       $('#noon-sidenav-msrpae-unit').val(data["msrp_ae_unit"]);
+    window.editor[3].setData(data["product_description"]);
+      
    if(data["product_attributes"].length > 0)
     {
        $('#noon-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
                     margin-bottom: 0px;">Product Attributes</p>
-                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="noon-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
                   </div>        
@@ -959,7 +1004,7 @@ DecoupledEditor
         {
           $('#noon-sidenav-product-attributes').append(`
 
-                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder="" disabled id="noon-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
                   </div>        
  
@@ -1003,15 +1048,18 @@ DecoupledEditor
   {
     var data = global_details_ebay;
     $('#ebay-sidenav-product-name').val(data["product_name"]);
-    $('#ebay-sidenav-description').val(data["product_description"]);
-    $('#ebay-sidenav-category').val(data[""]);
+    // $('#ebay-sidenav-description').val(data["product_description"]);
+    // $('#ebay-sidenav-category').val(data[""]);
+    $('#ebay-sidenav-category').val(data["category"]);
+    window.editor[2].setData(data["product_description"]);
+
     if(data["product_attributes"].length > 0)
     {
        $('#ebay-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
                     margin-bottom: 0px;">Product Attributes</p>
-                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="ebay-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
                   </div>        
@@ -1021,7 +1069,7 @@ DecoupledEditor
         {
           $('#ebay-sidenav-product-attributes').append(`
 
-                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder="" disabled id="ebay-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
                   </div>        
  

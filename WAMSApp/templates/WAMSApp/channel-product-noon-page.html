@@ -93,14 +93,14 @@
                             <input placeholder="" id="noon-model-name" type="text">
                             <label for="noon-model-name">Model Name</label>
                         </div>
-                        <div class="input-field col s6 toggle-s6-s12">
+                        <div class="input-field col s10 toggle-s6-s12">
                             <input placeholder="" id="noon-msrp-ae" type="number">
                             <label for="noon-msrp-ae">MSRP AE</label>
                         </div>
 
-                        <div class="input-field col s6 toggle-s6-s12">
+                        <div class="input-field col s2 toggle-s6-s12" style="padding-left: 0px !important;" >
                             <input placeholder="" id="noon-msrp-ae-unit" type="text">
-                            <label for="noon-msrp-ae-unit">MSRP AE Unit</label>
+                            <label style = "transform: translate(-45px , -12px);" for="noon-msrp-ae-unit">Unit</label>
                         </div>
                      
                         <div class = "col s12" style="padding-left: 0px !important;">
@@ -118,10 +118,7 @@
                         <div class="col s12" id = "product-attributes-noon-div" style="padding-left: 0px !important;"></div>
 
                       
-                        <div class="input-field col s6 toggle-s6-s12">
-                            <input placeholder="" id="created-date" type="date">
-                            <label for="created-date">Created Date</label>
-                        </div>
+                      
 
                        
                         <div class="col s12 toggle-s6-s12">
@@ -155,14 +152,14 @@
                     <select  id="reference-channel">
                         <option value = "" selected>Select Channel</option>
                         <option order = "1" value="">Amazon UK</option>
-                        <option order = "2" value="">Uae</option>
+                        <option order = "2" value="">Amazon UAE</option>
                         <option order = "3" value="">Ebay</option>
                     </select>
                     <label>Channels</label>
                 </div>
                 <div class = "toggle_btw_forms">
                     <div id = "toggle_btw_forms1" style = "display: none;">
-                        <div class = "row" style = "max-height: 80vh; overflow-y: scroll;">
+                        <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
                             <div class="input-field col s12 m6">
                                 <input placeholder="" disabled id="uk-sidenav-product-name" type="text">
                                 <label for="uk-sidenav-product-name">Product Name</label>
@@ -235,10 +232,7 @@
                                 <input placeholder="" disabled id="uk-sidenav-item-condition-note" type="text">
                                 <label for="uk-sidenav-item-condition-note">Item Condition Note</label>
                               </div>
-                              <div class="input-field col s12 m6">
-                                <input placeholder="" disabled id="uk-sidenav-variation-theme" type="text">
-                                <label for="uk-sidenav-variation-theme">Variation Theme</label>
-                              </div>
+                             
                               <div class="input-field col s12 m6">
                                 <input placeholder="" disabled id="uk-sidenav-max-order-quantity" type="text">
                                 <label for="uk-sidenav-max-order-quantity">Max Order Quantity</label>
@@ -257,12 +251,30 @@
     
                             <div class="input-field col s12" id = "uk-sidenav-special-features">
                             </div>
+
+                               
+                                    <div class="col s12 toggle-s6-s12">
+                                        <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                                            Description</h6>
+                        
+                        
+                                    
+                                            <div class="document-editor">
+                                                <div class="document-editor__toolbar clone2_toolbar"></div>
+                                                <div class="document-editor__editable-container clone2_container">
+                                                    <div class="document-editor__editable clone2_editable" 
+                                                    style="width: 100% !important;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                        
+                                    </div> 
                              
                               </div>
                     </div>
           
                     <div id = "toggle_btw_forms2" style = "display: none;">
-                        <div class = "row" style = "max-height: 80vh; overflow-y: scroll;">
+                        <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
                             <div class="input-field col s12">
                                 <input placeholder="" disabled id="uae-sidenav-product-name" type="text">
                                 <label for="uae-sidenav-product-name">Product Name</label>
@@ -279,38 +291,69 @@
                               <input placeholder="" disabled id="uae-sidenav-recommended-browse-nodes" type="text">
                               <label for="uae-sidenav-recommended-browse-nodes">Recommended Browse Nodes</label>
                             </div>
-                            <div class="input-field col s12">
-                              <input placeholder="" disabled id="uae-sidenav-created-date" type="text">
-                              <label for="uae-sidenav-created-date">Created Date</label>
-                            </div>   
+                          
                             <!-- <div class="input-field col s12">
                               <textarea placeholder="" disabled id="uae-sidenav-description" class="materialize-textarea"></textarea>
                               <label for="uae-sidenav-description">Description</label>
                             </div>   -->
                             <div class="input-field col s12" id = "uae-sidenav-product-attributes">
                              
-                            </div>          
+                            </div>   
+                            
+                            <div class="col s12 toggle-s6-s12">
+                                <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                                    Description</h6>
+                
+                
+                            
+                                    <div class="document-editor">
+                                        <div class="document-editor__toolbar clone3_toolbar"></div>
+                                        <div class="document-editor__editable-container clone3_container">
+                                            <div class="document-editor__editable clone3_editable" 
+                                            style="width: 100% !important;">
+                                            </div>
+                                        </div>
+                                    </div>
+                
+                            </div> 
+                     
+                            
                         </div>
                     </div>
           
                 
                     <div id = "toggle_btw_forms3" style="display: none;">
-                        <div class = "row" style = "max-height: 80vh; overflow-y: scroll;">
+                        <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
                             <div class="input-field col s12 m6">
                               <input placeholder="" disabled id="ebay-sidenav-product-name" type="text">
                               <label for="ebay-sidenav-product-name">Product Name</label>
                           </div>
-                          <div class="input-field col s12 m6">
-                              <input placeholder="" disabled id="ebay-sidenav-description" type="text">
-                              <label for="ebay-sidenav-description">Description</label>
-                          </div>
+                        
                           <div class="input-field col s12 m6">
                             <input placeholder="" disabled id="ebay-sidenav-category" type="text">
                             <label for="ebay-sidenav-category">Category</label>
                           </div>
                           <div class="input-field col s12" id = "ebay-sidenav-product-attributes">
                                
-                          </div>     
+                          </div>    
+                          
+                          <div class="col s12 toggle-s6-s12">
+                            <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                                Description</h6>
+            
+            
+                        
+                                <div class="document-editor">
+                                    <div class="document-editor__toolbar clone4_toolbar"></div>
+                                    <div class="document-editor__editable-container clone4_container">
+                                        <div class="document-editor__editable clone4_editable" 
+                                        style="width: 100% !important;">
+                                        </div>
+                                    </div>
+                                </div>
+            
+                        </div> 
+                 
                           </div>
                    </div>
                 </div>
@@ -637,6 +680,10 @@
         $('#uk-sidenav-max-order-quantity').val(data["max_order_quantity"]);
         $('#uk-sidenav-number-of-items').val(data["number_of_items"]);
         $('#uk-sidenav-condition-type').val(data["condition_type"]);
+        window.editor[1].setData(data["product_description"]);
+        $('#uk-sidenav-parent-sku').val(data["parent_sku"]);
+        $('#uk-sidenav-material-type').val(data["material_type"]);
+        $('#uk-sidenav-relationship-type').val(data["relationship_type"]);
 
         if(data["product_attributes"].length > 0)
         {
@@ -644,7 +691,7 @@
                     <p style = "margin-left: 20px;
                         color: grey;
                         margin-bottom: 0px;">Product Attributes</p>
-                    <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                    <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                         <input placeholder = "" disabled id="uk-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                     
                     </div>        
@@ -654,7 +701,7 @@
             {
             $('#uk-sidenav-product-attributes').append(`
 
-                    <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                    <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                         <input placeholder="" disabled id="uk-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
                     </div>        
     
@@ -668,19 +715,19 @@
         $('#uk-sidenav-special-features').append(`
                     <p style = "margin-left: 20px;
                         color: grey;
-                        margin-bottom: 0px;">Product Attributes</p>
-                    <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
-                        <input placeholder = "" disabled id="uk-sidenav-special-features-0" type="text" value = "`+ data["product_attributes"][0] +`">
+                        margin-bottom: 0px;">Special Features</p>
+                    <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                        <input placeholder = "" disabled id="uk-sidenav-special-features-0" type="text" value = "`+ data["special_features"][0] +`">
                     
                     </div>        
         `);
                     
-            for(var i = 1;i<data["product_attributes"].length;i++)
+            for(var i = 1;i<data["special_features"].length;i++)
             {
             $('#uk-sidenav-special-features').append(`
 
-                    <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
-                        <input placeholder="" disabled id="uk-sidenav-special-features-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
+                    <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                        <input placeholder="" disabled id="uk-sidenav-special-features-" `+i+` type="text" value = "`+ data["special_features"][i] +`">
                     </div>        
     
             `);
@@ -710,6 +757,8 @@
         if(response["status"]==200)
         {
            global_details_amazon_uk = response["amazon_uk_product_json"];
+           global_details_amazon_uk["material_type"] = response["material_type"];
+           global_details_amazon_uk["wattage"] += " " + global_details_amazon_uk["wattage_metric"];
            console.log("uk_data" , global_details_amazon_uk);
            fill_sidebar_uk();
         }
@@ -733,16 +782,18 @@
   function fill_side_form_ebay()
   {
     var data = global_details_ebay;
+    console.log("evai",data);
     $('#ebay-sidenav-product-name').val(data["product_name"]);
-    $('#ebay-sidenav-description').val(data["product_description"]);
-    $('#ebay-sidenav-category').val(data[""]);
+    window.editor[3].setData(data["product_description"]);
+    // $('#ebay-sidenav-description').val(data["product_description"]);
+    $('#ebay-sidenav-category').val(data["category"]);
     if(data["product_attributes"].length > 0)
     {
        $('#ebay-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
                     margin-bottom: 0px;">Product Attributes</p>
-                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="ebay-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
                   </div>        
@@ -752,7 +803,7 @@
         {
           $('#ebay-sidenav-product-attributes').append(`
 
-                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder="" disabled id="ebay-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
                   </div>        
  
@@ -870,9 +921,10 @@ DecoupledEditor
     var data = global_details_amazon_uae;
     $('#uae-sidenav-product-name').val(data["product_name"]);
     $('#uae-sidenav-recommended-browse-nodes').val(data["recommended_browse_nodes"]);
+    window.editor[2].setData(data["product_description"]);
     $('#uae-sidenav-update-delete').val(data["update_delete"]);
     $('#uae-sidenav-feed-product-type').val(data["feed_product_type"]);
-    $("#uae-sidenav-created-date").val(data["created_date"]);
+  
     // $("#uae-sidenav-description").val(data["product_description"]);
     console.log(data["product_attributes"]);
 
@@ -882,7 +934,7 @@ DecoupledEditor
                   <p style = "margin-left: 20px;
                     color: grey;
                     margin-bottom: 0px;">Product Attributes</p>
-                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="uae-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
                   </div>        
@@ -892,7 +944,7 @@ DecoupledEditor
         {
           $('#uae-sidenav-product-attributes').append(`
 
-                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;">
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder="" disabled id="uae-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
                   </div>        
  
@@ -2058,7 +2110,7 @@ error: function (xhr, textstatus, errorthrown) {
                         var msrp_ae_unit = $('#noon-msrp-ae-unit').val();
                         var product_type = $('#noon-product-type').val();
                         var product_subtype = $('#noon-product-subtype').val();
-                        var created_date = $("#created-date").val();
+
                         // var category = $('#product-category').val();
 
                         // var feed_product_type = $("#feed-product-type").val();
@@ -2122,9 +2174,9 @@ error: function (xhr, textstatus, errorthrown) {
                         noon_data_json["model_number"] = model_number
                         noon_data_json["model_name"] = model_name
                         noon_data_json["product_subtype"] = product_subtype
-                        noon_data_json["created_date"] = created_date
                         noon_data_json["product_attributes"] = product_attribute_data_noon
                         noon_data_json["product_description"] = window.editor[0].getData();
+                        noon_data_json["product_type"] = product_type
                         // noon_data_json["category"] = category
                         // noon_data_json["variation_theme"]  = variation_theme;
                         // noon_data_json["update_delete"] = update_delete;
