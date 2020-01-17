@@ -16,13 +16,11 @@ MainImages.objects.create(is_sourced=True)
 SubImages.objects.create(is_sourced=True)
 
 
+
+
 image_pk_mapping = {}
-brand_pk_mapping = {}
-organization_pk_mapping = {}
-category_pk_mapping = {}
-
-
 image_cnt=0
+
 for data in all_data_json:
     
     try:
@@ -34,7 +32,9 @@ for data in all_data_json:
     except Exception as e:
         print("Error Image", str(e))
 
+brand_pk_mapping = {}
 brand_cnt=0
+
 for data in all_data_json:
     
     try:
@@ -46,7 +46,9 @@ for data in all_data_json:
     except Exception as e:
         print("Error Brnad", str(e))
 
+organization_pk_mapping = {}
 organization_cnt=0
+
 for data in all_data_json:
     
     try:
@@ -58,7 +60,9 @@ for data in all_data_json:
     except Exception as e:
         print("Error Organization", str(e))
 
+category_pk_mapping = {}
 category_cnt=0
+
 for data in all_data_json:
     
     try:
@@ -70,17 +74,50 @@ for data in all_data_json:
     except Exception as e:
         print("Error Category", str(e))
 
+background_image_pk_mapping ={}
 background_image_cnt=0
+
 for data in all_data_json:
     
     try:
         if data["model"] == "WAMSApp.backgroundimage":
             background_image_cnt+=1
-            pk = data["fields"]["pk"]
-            mapped_pk = image_pk_mapping[pk]
+            
+            image_pk = data["fields"]["image"]["pk"]
+            mapped_pk = image_pk_mapping[image_pk]
             image_obj = Image.objects.get(pk=mapped_pk)
+            
             background_image_obj = BackgroundImage.objects.create(image=image_obj)
-            cbackground_image_pk_mapping[data["pk"]] = background_image_obj.pk
+            background_image_pk_mapping[data["pk"]] = background_image_obj.pk
+            
             print("Background Image Cnt:", background_image_cnt)
     except Exception as e:
         print("Error Background Image", str(e))
+
+image_bucket_pk_mapping = {}
+image_bucket_cnt=0
+
+for data in all_data_json:
+    
+    try:
+        if data["model"] == "WAMSApp.imagebucket":
+            image_bucket_cnt+=1
+            
+            image_pk = data["fields"]["image"]["pk"]
+            mapped_pk = image_pk_mapping[image_pk]
+            image_obj = Image.objects.get(pk=mapped_pk)
+            description = data["fields"]["image"]["description"]
+            is_main_image = data["fields"]["image"]["is_main_image"]
+            is_sub_image = data["fields"]["image"]["is_sub_image"]
+            sub_image_index = data["fields"]["image"]["sub_image_index"]
+            
+            image_bucket_obj = ImageBucket.objects.create(image=image_obj,
+                                                          description=description,
+                                                          is_main_image=is_main_image,
+                                                          is_sub_image=is_sub_image,
+                                                          sub_image_index=sub_image_index
+                                                          )
+            image_bucket_pk_mapping[data["pk"]] = image_bucket_obj.pk
+            print("Image Bucket Cnt:", image_bucket_cnt)
+    except Exception as e:
+        print("Error Image Bucket", str(e))
