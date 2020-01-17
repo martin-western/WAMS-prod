@@ -690,7 +690,7 @@
         $('#uk-sidenav-product-attributes').append(`
                     <p style = "margin-left: 20px;
                         color: grey;
-                        margin-bottom: 0px;">Product Attributes</p>
+                        margin-bottom: 0px;font-size:12px;">Product Attributes</p>
                     <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                         <input placeholder = "" disabled id="uk-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                     
@@ -715,7 +715,7 @@
         $('#uk-sidenav-special-features').append(`
                     <p style = "margin-left: 20px;
                         color: grey;
-                        margin-bottom: 0px;">Special Features</p>
+                        margin-bottom: 0px;font-size:12px;">Special Features</p>
                     <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                         <input placeholder = "" disabled id="uk-sidenav-special-features-0" type="text" value = "`+ data["special_features"][0] +`">
                     
@@ -792,7 +792,7 @@
        $('#ebay-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
-                    margin-bottom: 0px;">Product Attributes</p>
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
                   <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="ebay-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
@@ -933,7 +933,7 @@ DecoupledEditor
        $('#uae-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
-                    margin-bottom: 0px;">Product Attributes</p>
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
                   <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="uae-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
@@ -2234,6 +2234,8 @@ error: function (xhr, textstatus, errorthrown) {
             }
 
 
+
+
     $('document').ready(()=>{
             $('#save-btn').click(function(){
             console.log("heye");
@@ -2247,6 +2249,11 @@ error: function (xhr, textstatus, errorthrown) {
         }, 100);
     });
 
+    $('document').ready(()=>{
+                window.editor[1].isReadOnly = true
+                window.editor[2].isReadOnly = true
+                window.editor[3].isReadOnly = true
+            })
 
     $(window).keydown(function (event) {
         console.log(event.which, event.keyCode, event.ctrlKey);

@@ -213,7 +213,7 @@
               </div>
 
               <div class="input-field col s6 toggle-s6-s12">
-                <input placeholder="" id="cover-material-type" class="grey-text" type="text">
+                <input placeholder="" id="cover-material-type" class="black-text" type="text">
                 <label for="cover-material-type">Cover Material Type</label>
               </div>
               <div class="input-field col s6 toggle-s6-s12">
@@ -263,14 +263,14 @@
               <div class="col s12"  style="padding-left: 0px !important;"  id = "special-features-div">
               </div>
 
-              <div class="input-field col s4 toggle-s6-s12" >
+              <div class="input-field col s4 toggle-s6-s12"  style="padding: 0px 20px 0px 40px  !important;" >
                 <input placeholder="" id="wattage" type="number">
                 <label for="wattage">Wattage</label>
               </div>
 
               
 
-              <div class="input-field col s2 toggle-s6-s12" >
+              <div class="input-field col s2 toggle-s6-s12" style="padding: 0px 40px 0px 10px !important;" >
                 <select id="wattage-metric">
                   <option selected value="">Unit</option>
                   <option value="volts">V</option>
@@ -479,10 +479,7 @@
             <input placeholder="" disabled id="noon-sidenav-msrpae-unit" type="text">
             <label for="noon-sidenav-msrpae-unit">MSRP AE UNIT</label>
           </div>
-          <div class="input-field col s12 m6">
-            <input placeholder="" disabled id="noon-sidenav-descrption" type="text">
-            <label for="noon-sidenav-description">Description</label>
-          </div>
+        
           <div class="input-field col s12" id = "noon-sidenav-product-attributes">
           </div>
           <div class="col s12 toggle-s6-s12">
@@ -832,6 +829,7 @@ DecoupledEditor
     });
 
 
+   
 
 
   var global_details_amazon_uk = {};
@@ -922,7 +920,7 @@ DecoupledEditor
        $('#uae-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
-                    margin-bottom: 0px;">Product Attributes</p>
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
                   <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="uae-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
@@ -993,7 +991,7 @@ DecoupledEditor
        $('#noon-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
-                    margin-bottom: 0px;">Product Attributes</p>
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
                   <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="noon-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
@@ -1058,7 +1056,7 @@ DecoupledEditor
        $('#ebay-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
-                    margin-bottom: 0px;">Product Attributes</p>
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
                   <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="ebay-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
@@ -2013,6 +2011,13 @@ DecoupledEditor
   }
 
 
+  $('document').ready(()=>{
+    window.editor[1].isReadOnly = true
+    window.editor[2].isReadOnly = true
+    window.editor[3].isReadOnly = true
+  })
+
+ 
   $("#save-btn").click(function () {
     console.log("Hii");
     save_product_amazon_uk();

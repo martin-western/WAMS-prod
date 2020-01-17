@@ -378,10 +378,7 @@
                       <input placeholder="" disabled id="noon-sidenav-msrpae-unit" type="text">
                       <label for="noon-sidenav-msrpae-unit">MSRP AE UNIT</label>
                     </div>
-                    <div class="input-field col s12 m6">
-                      <input placeholder="" disabled id="noon-sidenav-descrption" type="text">
-                      <label for="noon-sidenav-description">Description</label>
-                    </div>
+                 
                     <div class="input-field col s12" id = "noon-sidenav-product-attributes">
                     </div>
                     <div class="col s12 toggle-s6-s12">
@@ -733,7 +730,7 @@
         $('#uk-sidenav-product-attributes').append(`
                     <p style = "margin-left: 20px;
                         color: grey;
-                        margin-bottom: 0px;">Product Attributes</p>
+                        margin-bottom: 0px;font-size:12px;">Product Attributes</p>
                     <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                         <input placeholder = "" disabled id="uk-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                     
@@ -759,7 +756,7 @@
         $('#uk-sidenav-special-features').append(`
                     <p style = "margin-left: 20px;
                         color: grey;
-                        margin-bottom: 0px;">Special Features</p>
+                        margin-bottom: 0px;font-size:12px;">Special Features</p>
                     <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                         <input placeholder = "" disabled id="uk-sidenav-special-features-0" type="text" value = "`+ data["special_features"][0] +`">
                     
@@ -837,7 +834,7 @@
        $('#ebay-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
-                    margin-bottom: 0px;">Product Attributes</p>
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
                   <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="ebay-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
@@ -908,7 +905,7 @@
        $('#noon-sidenav-product-attributes').append(`
                   <p style = "margin-left: 20px;
                     color: grey;
-                    margin-bottom: 0px;">Product Attributes</p>
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
                   <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
                     <input placeholder = "" disabled id="noon-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
                 
@@ -2160,7 +2157,9 @@ function fetch_amazon_uae_product_images_details() {
             }
             });
 
-}
+    }
+
+
 
     $('document').ready(()=>{
         $('#save-btn').click(function(){
@@ -2184,6 +2183,13 @@ function fetch_amazon_uae_product_images_details() {
             return false;
         }
     });
+
+    $('document').ready(()=>{
+    window.editor[1].isReadOnly = true
+    window.editor[2].isReadOnly = true
+    window.editor[3].isReadOnly = true
+  })
+
 
    $('#collapse-div').bind('resize', function(){
    console.log('resized');
