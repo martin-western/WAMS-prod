@@ -1377,7 +1377,6 @@
       return;
     }
 
-
     var html_string = "";
     for (var i = 0; i < global_images[key].length; i++) {
       html_string += `<div class="col s4" style="padding:1em;">
@@ -1402,6 +1401,10 @@
     }
 
     $("#graphics-section").html(html_string);
+
+    if(key=="pfl_generated_images") {
+      $($(".miniimage")[0]).click();
+    }
   }
 
 
@@ -1546,6 +1549,10 @@
             }
           }
 
+          $('#pfl-div').css("display", "block");
+
+          //$('#pfl-div').show();
+
           var scale = 5;
           var div = document.getElementById('pfl-div');
           var canvas = document.createElement('canvas');
@@ -1561,9 +1568,9 @@
 
           window.scrollTo(0,0);
 
-          $('#pfl-div').css("display", "block");
-
           html2canvas(div, {canvas:canvas, scrollX:-10, scrollY:0}).then(function(canvas) {
+
+            $('#pfl-div').hide();
 
             var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
 
@@ -1571,7 +1578,7 @@
 
             var fd = new FormData();
             fd.append('image_data', image_data);
-            fd.append('product_pk', global_pfl_pk);
+            fd.append('product_pk', window.location.pathname.split("/")[2]);
 
             $.ajax({
               url: "/save-pfl-in-bucket/",
@@ -1585,18 +1592,15 @@
               success: function (response) {
                 console.log("Success!", response);
                 if (response["status"] == 200) {
-                  global_images["pfl_generated_images"] = [{
-                    "main-url": response["main-url"],
-                    "midimage-url": response["midimage-url"],
-                    "thumbnail-url": response["thumbnail-url"]
-                  }];
-                  if (global_image_key != "sub_images") {
-                    update_grid_images(global_image_key);
-                  }
-
-                  if (global_image_key == "pfl_generated_images") {
-                    $($(".miniimage")[0]).click();
-                  }
+                  // global_images["pfl_generated_images"] = [{
+                  //   "main-url": response["main-url"],
+                  //   "midimage-url": response["midimage-url"],
+                  //   "thumbnail-url": response["thumbnail-url"]
+                  // }];
+                  // if (global_image_key != "sub_images") {
+                  //   update_grid_images(global_image_key);
+                  // }
+                  fetch_product_images_details();
                 }
               },
               error: function (xhr, textstatus, errorthrown) {

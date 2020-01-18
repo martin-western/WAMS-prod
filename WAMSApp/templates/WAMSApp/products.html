@@ -1444,10 +1444,17 @@
                     <p class="" style = "margin-bottom:3px !important;font-size:12px;color:grey; transform:translateX(-10px)">Product Variants</p>
                     <div class = "" style = "">`;
 
-
+            var total_verified = 0;
+            var total_pending = 0;
             for(var j = 0;j<product_variants.length;j++)
             {
               var statuscolor = (product_variants[j]["status"] == "Pending")?("#D9D9D9"):("#009051");
+
+              if(product_variants[j]["status"] == "Verified")
+                total_verified += 1;
+              else
+                total_pending += 1;
+
                product_variants_string += `
                       <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;margin-bottom:5px !important;">
                         
@@ -1496,7 +1503,7 @@
                                 </div>
                                  <div class = "col s5 padding-lr-zero">
                                        <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
-                                   
+                                          `+product_variants[j]["channels_of_prod"]+`
                                         </div>
                                 </div>
                             </div>
@@ -1848,11 +1855,11 @@
                                 <div class = "col s6">
 
                                       <div class = "inline-block" style = "color:#E2E2E2 !important;">
-                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#009051;" class = "status-bar">2V </span>| 
-                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#FFCE00;" class = "status-bar"> 1P</span>
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#009051;" class = "status-bar">`+total_verified+`V </span>| 
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#FFCE00;" class = "status-bar"> `+total_pending+`P</span>
                                         <br/>
-                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#3FB223;" class = "status-bar">1A </span>| 
-                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#ADADAD;" class = "status-bar"> 1P</span>
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#3FB223;" class = "status-bar">0A </span>| 
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#ADADAD;" class = "status-bar"> 0P</span>
                                     </div>
                                       
                                 </div>
