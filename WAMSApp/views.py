@@ -1390,8 +1390,7 @@ class FetchProductListAPI(APIView):
             page = int(data['page'])
             
             search_list_base_product_objs = []
-            search_list_product_objs = []
-
+        
             product_objs_list = []
             base_product_objs_list = []
 
@@ -1433,6 +1432,7 @@ class FetchProductListAPI(APIView):
                     if has_atleast_one_image(product_obj)==True:
                         product_objs_list.exclude(pk=product_obj.pk)
 
+            search_list_product_objs = Product.objects.none()
             if len(chip_data) == 0:
                 search_list_product_objs = product_objs_list
                 for prod in product_objs_list:
@@ -1448,7 +1448,8 @@ class FetchProductListAPI(APIView):
                     )
                     logger.info(" Filtered Products %s",search_list_product_objs)
                     for prod in search:
-                        search_list_product_objs.append(prod)
+                        product_obj = Product.objects.filter(pk=prod.pk)
+                        search_list_product_objs|=product_obj
                         search_list_base_product_objs.append(prod.base_product)
                         search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
