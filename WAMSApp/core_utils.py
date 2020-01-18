@@ -267,12 +267,12 @@ def save_subimage(product_obj, image_url, index, channel):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error save_subimage: %s at %s", e, str(exc_tb.tb_lineno))
         
-def reset_sub_images(product_obj):
-    sub_images_objs = SubImages.objects.get(product=product_obj)
+def reset_sub_images(product_obj, channel_obj):
+    sub_images_objs = SubImages.objects.filter(product=product_obj, channel=channel_obj)
     
     sub_images_list = []
     for sub_images_obj in sub_images_objs:
-        sub_images_list += sub_images_list.sub_images.filter(is_sub_image=True)
+        sub_images_list += sub_images_obj.sub_images.filter(is_sub_image=True)
     
     sub_images_list = set(sub_images_list)
     
@@ -280,8 +280,8 @@ def reset_sub_images(product_obj):
         img.is_sub_image = False
         img.save()
 
-def reset_main_images(product_obj):
-    main_images_objs = MainImages.objects.filter(product=product_obj)
+def reset_main_images(product_obj, channel_obj):
+    main_images_objs = MainImages.objects.filter(product=product_obj, channel=channel_obj)
     
     main_images_list = []
     for main_images_obj in main_images_objs:

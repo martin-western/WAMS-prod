@@ -1085,16 +1085,14 @@ class FetchProductDetailsAPI(APIView):
             images = {}
 
             main_images_list = ImageBucket.objects.none()
-            main_images_objs = MainImages.objects.filter(product=product_obj)
-            for main_images_obj in main_images_objs:
-                main_images_list|=main_images_obj.main_images.all()
+            main_images_obj = MainImages.objects.get(product=product_obj,is_sourced=True)
+            main_images_list|=main_images_obj.main_images.all()
             main_images_list = main_images_list.distinct()
             images["main_images"] = create_response_images_main(main_images_list)
             
             sub_images_list = ImageBucket.objects.none()
-            sub_images_objs = SubImages.objects.filter(product=product_obj)
-            for sub_images_obj in sub_images_objs:
-                sub_images_list|=sub_images_obj.sub_images.all()
+            sub_images_obj = SubImages.objects.get(product=product_obj,is_sourced=True)
+            sub_images_list|=sub_images_obj.sub_images.all()
             sub_images_list = sub_images_list.distinct()
             images["sub_images"] = create_response_images_sub(sub_images_list)
             
@@ -1131,14 +1129,16 @@ class FetchProductDetailsAPI(APIView):
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
             repr_high_def_url = repr_image_url
             
-            if main_images_list.filter(is_main_image=True).count() > 0:
+            main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
+
+            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                 try:
-                    repr_image_url = main_images_list.filter(
+                    repr_image_url = main_images_obj.main_images.filter(
                         is_main_image=True)[0].image.mid_image.url
                 except Exception as e:
-                    repr_image_url = main_images_list.filter(is_main_image=True)[0].image.image.url
+                    repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
-                repr_high_def_url = main_images_list.filter(is_main_image=True)[0].image.image.url
+                repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
             response["repr_image_url"] = repr_image_url
             response["repr_high_def_url"] = repr_high_def_url
@@ -1522,12 +1522,14 @@ class FetchProductListAPI(APIView):
                         temp_dict3["channel_name"] = "Noon"
                         main_image_url = None
                         try:
-                            main_images_obj = MainImages.objects.get(product = product, channel="Noon")
+                            
+                            main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Noon")
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                                 main_image_url = main_image_obj.image.image.url
                         except Exception as e:
+                            logger.error("%s",str(e))
                             pass
                         temp_dict3["image_url"] = main_image_url
 
@@ -1544,7 +1546,7 @@ class FetchProductListAPI(APIView):
                         temp_dict3["channel_name"] = "Amazon UK"
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
                         try:
-                            main_images_obj = MainImages.objects.get(product = product, channel="Amazon UK")
+                            main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Amazon UK")
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
@@ -1566,7 +1568,7 @@ class FetchProductListAPI(APIView):
                         temp_dict3["channel_name"] = "Amazon UAE"
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
                         try:
-                            main_images_obj = MainImages.objects.get(product = product, channel="Amazon UAE")
+                            main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Amazon UAE")
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
@@ -1588,12 +1590,14 @@ class FetchProductListAPI(APIView):
                         temp_dict3["channel_name"] = "Ebay"
                         main_image_url = None
                         try:
-                            main_images_obj = MainImages.objects.get(product = product, channel="Ebay")
+                            main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Ebay")
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                                 main_image_url = main_image_obj.image.image.url
+                            logger.info("main image urll: %s", str(main_image_url))
                         except Exception as e:
+                            logger.error("Ebay %s",str(e))
                             pass
                         temp_dict3["image_url"] = main_image_url
 
@@ -2044,7 +2048,11 @@ class UpdateMainImageAPI(APIView):
             logger.info("UpdateMainImageAPI: %s", str(data))
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            reset_main_images(product_obj)
+            channel_obj = None
+            if data["channel_name"]!="":
+                channel_obj = Channel.objects.get(name=data["channel_name"])
+                
+            reset_main_images(product_obj, channel_obj)
 
             image_bucket_obj = ImageBucket.objects.get(
                 pk=int(data["checked_pk"]))
@@ -2090,7 +2098,10 @@ class UpdateSubImagesAPI(APIView):
             logger.info("UpdateSubImagesAPI: %s", str(data))
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            reset_sub_images(product_obj)
+            channel_obj = None
+            if data["channel_name"]!="":
+                channel_obj = Channel.objects.get(name=data["channel_name"])
+            reset_sub_images(product_obj, channel_obj)
 
             sub_images = json.loads(data["sub_images"])
             for sub_image in sub_images:

@@ -1693,6 +1693,7 @@ DecoupledEditor
     var checked_pk = $("input[name=group1]:checked").val();
     fd.append("checked_pk", checked_pk);
     fd.append("product_pk", window.location.pathname.split("/")[3]);
+    fd.append("channel_name", "Amazon UK");
 
     $.ajax({
       url: "/update-main-image/",
@@ -1808,6 +1809,7 @@ DecoupledEditor
 
     fd.append("sub_images", JSON.stringify(sub_image));
     fd.append("product_pk", window.location.pathname.split("/")[3]);
+    fd.append("channel_name", "Amazon UK");
 
     $.ajax({
       url: "/update-sub-images/",
@@ -1921,6 +1923,38 @@ DecoupledEditor
     var sale_from = $("#sale-from").val();
     var sale_end = $("#sale-end").val();
 
+    var dimensions = {
+      "package_length":"",
+      "package_length_metric":"",
+      "package_width":"",
+      "package_width_metric":"",
+      "package_height":"",
+      "package_height_metric":"",
+      "package_weight":"",
+      "package_weight_metric":"",
+      "package_quantity":"",
+      "shipping_weight":"",
+      "shipping_weight_metric":"",
+      "item_display_weight":"",
+      "item_display_weight_metric":"",
+      "item_display_volume":"",
+      "item_display_volume_metric":"",
+      "item_display_length":"",
+      "item_display_length_metric":"",
+      "item_weight":"",
+      "item_weight_metric":"",
+      "item_length":"",
+      "item_length_metric":"",
+      "item_width":"",
+      "item_width_metric":"",
+      "item_height":"",
+      "item_height_metric":"",
+      "item_display_width":"",
+      "item_display_width_metric":"",
+      "item_display_height":"",
+      "item_display_height_metric":""
+    }
+
     var special_feature_data = [];
     for (var i = 1; i <= special_feature_cnt; i++) {
       if ($("#special-feature-" + i).val() != "" && $("#special-feature-" + i).val() != undefined) {
@@ -1977,6 +2011,7 @@ DecoupledEditor
     amazon_uk_product_json["number_of_items"] = number_of_items;
     amazon_uk_product_json["condition_type"] = condition_type;
     amazon_uk_product_json["product_description"] = window.editor[0].getData();
+    amazon_uk_product_json["dimensions"] = dimensions
 
     console.log(amazon_uk_product_json);
     $.ajax({

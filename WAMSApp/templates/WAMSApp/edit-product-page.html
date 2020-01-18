@@ -1211,6 +1211,7 @@
     var checked_pk = $("input[name=group1]:checked").val();
     fd.append("checked_pk", checked_pk);
     fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("channel_name", "");
 
     $.ajax({
       url: "/update-main-image/",
@@ -1326,6 +1327,7 @@
 
     fd.append("sub_images", JSON.stringify(sub_image));
     fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("channel_name", "");
 
     $.ajax({
       url: "/update-sub-images/",
