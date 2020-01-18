@@ -1421,59 +1421,41 @@
           var html_string = "";
 
           for (var i = 0; i < products.length; i++) {
-            // var img_tag = "";
-            // if (products[i]["main_image"] != "") {
-            //   img_tag = `<img src="` + products[i]["main_image"] + `" style="height:3em;width:3em;">`;
-            // }
+
+            var base_product_pk = products[i]["base_product_pk"];
 
             var product_name = products[i]["product_name"].substring(0, 30);
             if (products[i]["product_name"].length > 30) {
               product_name += "...";
             }
 
-            //status_str = getStatus(products[i]["status"]);
-            child_products_html_string = "";
+            var child_products_html_string = "";
 
             var channel_products = products[i]["channel_products"];
 
-            var product_varients = products[i]["products"];
-
-            // var child_products_html_string = `
-            //   <div class="row margin-zero collapsible-body-row">
-            //       <div class="col s3 offset-s1 avenir-next center-align">
-            //         <p class="valign-wrapper">
-            //           Product Name
-            //         </p>
-            //       </div>
-            //       <div class="col s3 center-align">
-            //         <p>
-            //           Product ID
-            //         </p>
-            //       </div>
-            //       <div class="col s3 center-align">
-            //         <p>
-            //           Channel Name
-            //         </p>
-            //       </div>
-            //       <div class="col s2 center-align">
-            //         Action
-            //       </div>
-            //     </div>`;
+            var product_variants = products[i]["products"];
 
             if(channel_products.length==0)
               child_products_html_string = "";
 
 
-            product_varients_string = `  <div class="" style = "padding :0px 12px 20px 12px !important;">
+            product_variants_string = `  <div class="" style = "padding :0px 12px 20px 12px !important;">
                     
-                    <p class="" style = "margin-bottom:3px !important;font-size:12px;color:grey; transform:translateX(-10px)">Product Varients</p>
+                    <p class="" style = "margin-bottom:3px !important;font-size:12px;color:grey; transform:translateX(-10px)">Product Variants</p>
                     <div class = "" style = "">`;
 
-
-            for(var j = 0;j<product_varients.length;j++)
+            var total_verified = 0;
+            var total_pending = 0;
+            for(var j = 0;j<product_variants.length;j++)
             {
-              var statuscolor = (product_varients[j]["status"] == "Pending")?("#D9D9D9"):("#009051");
-               product_varients_string += `
+              var statuscolor = (product_variants[j]["status"] == "Pending")?("#D9D9D9"):("#009051");
+
+              if(product_variants[j]["status"] == "Verified")
+                total_verified += 1;
+              else
+                total_pending += 1;
+
+               product_variants_string += `
                       <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;margin-bottom:5px !important;">
                         
                         <div class = "col l3 s12">
@@ -1489,15 +1471,15 @@
                                 <div class = "col s10 padding-lr-zero">
 
                                           <div class = "thumbnail_container inline-block">
-                                          <img src="` + product_varients[j]["main_image"] + `" class = "thumbnail-img" />
+                                          <img src="` + product_variants[j]["main_image"] + `" class = "thumbnail-img" />
                                         </div>
                                         <div class = "product-name-container inline-block">
                                           <div class="product-info" style="width:100% !important;">
-                                            <p id="base-product-name-`+base_product_pk+`" class="title small-font">
-                                              `+product_varients[j]["product_name"]+` 
+                                            <p id="base-product-name-`+base_product_pk+`" class="title small-font"><a href="/ecommerce-listing/`+product_variants[j]["product_pk"]+`" target="_blank" class="title small-font">
+                                              `+product_variants[j]["product_name"]+`</a> 
                                             </p>
                                             <p id="seller-sku-`+base_product_pk+`" class="subtitle subtitle-font">
-                                              `+product_varients[j]["product_pk"]+`
+                                              `+product_variants[j]["product_pk"]+`
                                             </p>
                                           </div>
                                         </div>    
@@ -1521,7 +1503,7 @@
                                 </div>
                                  <div class = "col s5 padding-lr-zero">
                                        <div id="brand-name-`+base_product_pk+`" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
-                                   
+                                          `+product_variants[j]["channels_of_prod"]+`
                                         </div>
                                 </div>
                             </div>
@@ -1551,7 +1533,7 @@
                                 <div class = "col s6 padding-lr-zero">
 
                                   <a class="status-btn padding-lr-zero " base_product_pk = '`+base_product_pk+`' href="#edit-base-product-modal" style="position:relative;" class="">
-                                    <i class="material-icons statusbtn slite-top" title="Import" style="
+                                    <i class="material-icons statusbtn slite-top" style="
                                         color: white;
                                         background-color: `+statuscolor+`;
                                         padding: 10px;
@@ -1567,8 +1549,8 @@
                                 </div>
                                  <div class = "col s3 padding-lr-zero">
 
-                                      <a class="status-btn padding-lr-zero " base_product_pk = '`+base_product_pk+`' href="/edit-product/`+product_varients[j]["product_pk"]+`" style="position:relative;" class="">
-                                    <i class="material-icons statusbtn slite-top" title="Import" style="
+                                      <a class="status-btn padding-lr-zero " base_product_pk = '`+base_product_pk+`' href="/edit-product/`+product_variants[j]["product_pk"]+`" style="position:relative;" class="">
+                                    <i class="material-icons statusbtn slite-top" style="
                                         color: black;
                                         background-color: #FFFBA3;
                                         padding: 10px;
@@ -1609,11 +1591,11 @@
             //                     </i>
             //                   </a>
 
-            product_varients_string += `</div>
+            product_variants_string += `</div>
                     
                   </div>`;
 
-            child_products_html_string = product_varients_string;
+            child_products_html_string = product_variants_string;
 
             if(channel_products.length != 0)
             {
@@ -1681,7 +1663,7 @@
                                 <div class = "col s10 padding-lr-zero">
 
                                           <div class = "thumbnail_container inline-block">
-                                          <img src="` + channel_products[i]["image_url"] + `" class = "thumbnail-img" />
+                                          <img src="` + channel_products[j]["image_url"] + `" class = "thumbnail-img" />
                                         </div>
                                         <div class = "product-name-container inline-block">
                                           <div class="product-info" style="width:100% !important;">
@@ -1743,7 +1725,7 @@
                                 <div class = "col s6 padding-lr-zero">
 
                                   <a class="status-btn padding-lr-zero " base_product_pk = '`+base_product_pk+`' href="#edit-base-product-modal" style="position:relative;" class="">
-                                    <i class="material-icons statusbtn slite-top" title="Import" style="
+                                    <i class="material-icons statusbtn slite-top" style="
                                         color: white;
                                         background-color: #3FB223;
                                         padding: 10px;
@@ -1760,7 +1742,7 @@
                                  <div class = "col s3 padding-lr-zero">
 
                                       <a class="status-btn padding-lr-zero " base_product_pk = '`+base_product_pk+`' href="`+href_edit+`" style="position:relative;" class="">
-                                    <i class="material-icons statusbtn slite-top" title="Import" style="
+                                    <i class="material-icons statusbtn slite-top" style="
                                         color: black;
                                         background-color: #FFFBA3;
                                         padding: 10px;
@@ -1838,7 +1820,7 @@
                                 </div>
                                  <div class = "col s3">
                                   <div id="brand-name-`+base_product_pk+`" class="avenir-next-regular margin-left-zero left small-font padd-right">
-                                    `+product_varients.length+`
+                                    `+product_variants.length+`
                                   </div>
                                 </div>
                                  <div class = "col s5">
@@ -1873,11 +1855,11 @@
                                 <div class = "col s6">
 
                                       <div class = "inline-block" style = "color:#E2E2E2 !important;">
-                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#009051;" class = "status-bar">2V </span>| 
-                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#FFCE00;" class = "status-bar"> 1P</span>
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#009051;" class = "status-bar">`+total_verified+`V </span>| 
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#FFCE00;" class = "status-bar"> `+total_pending+`P</span>
                                         <br/>
-                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#3FB223;" class = "status-bar">1A </span>| 
-                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#ADADAD;" class = "status-bar"> 1P</span>
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#3FB223;" class = "status-bar">0A </span>| 
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#ADADAD;" class = "status-bar"> 0P</span>
                                     </div>
                                       
                                 </div>
