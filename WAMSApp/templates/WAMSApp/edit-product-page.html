@@ -557,8 +557,9 @@
 </div>
 
 
-<script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
+<!-- <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script> -->
 <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
+<script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.min2.js' %}"></script>
 <script type="text/javascript">
 
   $('.tabs').tabs();
@@ -1545,52 +1546,63 @@
             }
           }
 
+          var scale = 5;
+          var div = document.getElementById('pfl-div');
+          var canvas = document.createElement('canvas');
+          var h = div.scrollHeight;
+          var ratio = canvas.width/canvas.height;
+          var w = h * ratio;
+          canvas.width = scale*window.devicePixelRatio*div.scrollWidth;
+          canvas.height = scale*window.devicePixelRatio*div.scrollHeight;
+          canvas.style.width = w + 'px';
+          canvas.style.height = h + 'px';
+          var context = canvas.getContext('2d');
+          context.scale(scale, scale);
+
+          window.scrollTo(0,0);
+
           $('#pfl-div').css("display", "block");
 
-          html2canvas($("#pfl-div"), {
-            logging: true,
-            dpi: 600,
-            scale: 3,
-            onrendered: function (canvas) {
+          html2canvas(div, {canvas:canvas, scrollX:-10, scrollY:0}).then(function(canvas) {
 
-              $("#pfl-div").hide();
-              var image_data = canvas.toDataURL();
+            var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
 
-              var fd = new FormData();
-              fd.append('image_data', image_data);
-              fd.append('product_pk', window.location.pathname.split("/")[2]);
+            var image_data = dataURI;
 
-              $.ajax({
-                url: "/save-pfl-in-bucket/",
-                type: "POST",
-                headers: {
-                  'X-CSRFToken': getCsrfToken()
-                },
-                processData: false,
-                contentType: false,
-                data: fd,
-                success: function (response) {
-                  console.log("Success!", response);
-                  if (response["status"] == 200) {
-                    global_images["pfl_generated_images"] = [{
-                      "main-url": response["main-url"],
-                      "midimage-url": response["midimage-url"],
-                      "thumbnail-url": response["thumbnail-url"]
-                    }];
-                    if (global_image_key != "sub_images") {
-                      update_grid_images(global_image_key);
-                    }
+            var fd = new FormData();
+            fd.append('image_data', image_data);
+            fd.append('product_pk', global_pfl_pk);
 
-                    if (global_image_key == "pfl_generated_images") {
-                      $($(".miniimage")[0]).click();
-                    }
+            $.ajax({
+              url: "/save-pfl-in-bucket/",
+              type: "POST",
+              headers: {
+                'X-CSRFToken': getCsrfToken()
+              },
+              processData: false,
+              contentType: false,
+              data: fd,
+              success: function (response) {
+                console.log("Success!", response);
+                if (response["status"] == 200) {
+                  global_images["pfl_generated_images"] = [{
+                    "main-url": response["main-url"],
+                    "midimage-url": response["midimage-url"],
+                    "thumbnail-url": response["thumbnail-url"]
+                  }];
+                  if (global_image_key != "sub_images") {
+                    update_grid_images(global_image_key);
                   }
-                },
-                error: function (xhr, textstatus, errorthrown) {
-                  console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+
+                  if (global_image_key == "pfl_generated_images") {
+                    $($(".miniimage")[0]).click();
+                  }
                 }
-              });
-            }
+              },
+              error: function (xhr, textstatus, errorthrown) {
+                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+              }
+            });
           });
         }
       },
@@ -1671,6 +1683,7 @@
     });
 
     save_subimages_index();
+    save_pfl_image_to_bucket();
   }
 
 

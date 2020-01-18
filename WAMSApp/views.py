@@ -1085,14 +1085,20 @@ class FetchProductDetailsAPI(APIView):
             images = {}
 
             main_images_list = ImageBucket.objects.none()
-            main_images_obj = MainImages.objects.get(product=product_obj,is_sourced=True)
-            main_images_list|=main_images_obj.main_images.all()
+            try:
+                main_images_obj = MainImages.objects.get(product=product_obj,is_sourced=True)
+                main_images_list|=main_images_obj.main_images.all()
+            except Exception as e:
+                pass
             main_images_list = main_images_list.distinct()
             images["main_images"] = create_response_images_main(main_images_list)
             
             sub_images_list = ImageBucket.objects.none()
-            sub_images_obj = SubImages.objects.get(product=product_obj,is_sourced=True)
-            sub_images_list|=sub_images_obj.sub_images.all()
+            try:
+                sub_images_obj = SubImages.objects.get(product=product_obj,is_sourced=True)
+                sub_images_list|=sub_images_obj.sub_images.all()
+            except Exception as e:
+                pass
             sub_images_list = sub_images_list.distinct()
             images["sub_images"] = create_response_images_sub(sub_images_list)
             
@@ -1129,9 +1135,13 @@ class FetchProductDetailsAPI(APIView):
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
             repr_high_def_url = repr_image_url
             
-            main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
+            main_images_obj = None
+            try:
+                main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
+            except Exception as e:
+                pass
 
-            if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+            if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                 try:
                     repr_image_url = main_images_obj.main_images.filter(
                         is_main_image=True)[0].image.mid_image.url
@@ -2580,7 +2590,7 @@ class FetchPFLDetailsAPI(APIView):
                     pfl_product_features = []
 
                 pfl_product_name = pfl_obj.product.pfl_product_name
-                seller_sku = pfl_obj.product.seller_sku
+                seller_sku = pfl_obj.product.base_product.seller_sku
 
             external_images_bucket_list = []
             external_images_bucket_objs = pfl_obj.external_images_bucket.all()
@@ -2638,7 +2648,7 @@ class FetchPFLDetailsAPI(APIView):
                     product_main_image_url = Config.objects.all()[0].product_404_image.image.url
 
                 product_name_sap = pfl_obj.product.product_name_sap
-                seller_sku = pfl_obj.product.seller_sku
+                seller_sku = pfl_obj.product.base_product.seller_sku
 
             template_data = {
                 "container": {
