@@ -438,37 +438,6 @@
     </a>
 
     <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-       
-
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                timer
-            </i>
-        </a>
-
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i id="verified-icon" class="material-icons greenn" title="Verified" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                verified_user
-            </i>
-        </a>
 
         <a href="#!" id="main-image-select-save-btn" class="right"
             style="background-color: transparent;display: block;">
@@ -1500,45 +1469,45 @@
 
 
     function update_grid_images_main_images(key) {
-        // var html_string = "";
-        // for (var i = 0; i < global_images[key].length; i++) {
-        //     var checked = "";
-        //     if (global_images[key][i]["is_main_image"] == true) {
-        //         checked = "checked";
-        //     }
+        var html_string = "";
+        for (var i = 0; i < global_images[key].length; i++) {
+            var checked = "";
+            if (global_images[key][i]["is_main_image"] == true) {
+                checked = "checked";
+            }
 
-        //     if (i % 3 == 0) {
-        //         html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
-        //     }
+            if (i % 3 == 0) {
+                html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
+            }
 
-        //     html_string += `<div style=";position:relative;">
-        //                 <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
-        //                   <i class="material-icons redd" title="Delete Image" style="
-        //                     background-color: transparent;
-        //                     padding: 4px;
-        //                     color: gray;
-        //                     border-radius: 2px;
-        //                     margin-left: 4px;
-        //                     font-size: 10px;
-        //                     margin-right: 4px;
-        //                     display: block;
-        //                     margin-bottom: 5px;">
-        //                     close
-        //                   </i>
-        //                 </a>
-        //                 <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `"  style="width: 100%;object-fit:contain;">
-        //                 <label style="margin-left:0px !important;">
-        //                   <input value="`+ global_images[key][i]["pk"] + `" name="group1" type="radio" ` + checked + ` />
-        //                   <span class = "checkbox"></span>
-        //                 </label>
-        //               </div>`;
+            html_string += `<div style=";position:relative;">
+                        <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                          <i class="material-icons redd" title="Delete Image" style="
+                            background-color: transparent;
+                            padding: 4px;
+                            color: gray;
+                            border-radius: 2px;
+                            margin-left: 4px;
+                            font-size: 10px;
+                            margin-right: 4px;
+                            display: block;
+                            margin-bottom: 5px;">
+                            close
+                          </i>
+                        </a>
+                        <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `"  style="width: 100%;object-fit:contain;">
+                        <label style="margin-left:0px !important;">
+                          <input value="`+ global_images[key][i]["pk"] + `" name="group1" type="radio" ` + checked + ` />
+                          <span class = "checkbox"></span>
+                        </label>
+                      </div>`;
 
-        //     if (i % 3 == 2 || i == global_images[key].length - 1) {
-        //         html_string += "</div>";
-        //     }
-        // }
+            if (i % 3 == 2 || i == global_images[key].length - 1) {
+                html_string += "</div>";
+            }
+        }
 
-        // $("#graphics-section").html(html_string);
+        $("#graphics-section").html(html_string);
     }
 
 
@@ -1611,6 +1580,7 @@
         var checked_pk = $("input[name=group1]:checked").val();
         fd.append("checked_pk", checked_pk);
         fd.append("product_pk", window.location.pathname.split("/")[3]);
+        fd.append("channel_name", "Ebay");
 
         $.ajax({
             url: "/update-main-image/",
@@ -1641,45 +1611,45 @@
 
 
     function update_grid_images_sub_images(key) {
-        // var html_string = "";
-        // for (var i = 0; i < global_images[key].length; i++) {
-        //     var checked = "";
-        //     if (global_images[key][i]["is_sub_image"] == true) {
-        //         checked = "checked";
-        //     }
+        var html_string = "";
+        for (var i = 0; i < global_images[key].length; i++) {
+            var checked = "";
+            if (global_images[key][i]["is_sub_image"] == true) {
+                checked = "checked";
+            }
 
-        //     if (i % 3 == 0) {
-        //         html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
-        //     }
+            if (i % 3 == 0) {
+                html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
+            }
 
-        //     var sub_image_index = global_images[key][i]["sub_image_index"];
-        //     if (sub_image_index == 0)
-        //         sub_image_index = "-"
+            var sub_image_index = global_images[key][i]["sub_image_index"];
+            if (sub_image_index == 0)
+                sub_image_index = "-"
 
-        //     html_string += `<div class="" style="position:relative;">
-        //                 <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:4px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
-        //                   <i class="material-icons redd" title="Delete Image" style="
-        //                     background-color: transparent;
-        //                     padding: 4px;
-        //                     color: gray;
-        //                     border-radius: 2px;
-        //                     margin-left: 4px;
-        //                     font-size: 10px;
-        //                     margin-right: 4px;
-        //                     display: block;
-        //                     margin-bottom: 5px;">
-        //                     close
-        //                   </i>
-        //                 </a>
-        //                 <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
-        //                 <input value="`+ sub_image_index + `" id="subcheck_` + global_images[key][i]["pk"] + `" type="text">
-        //               </div>`;
+            html_string += `<div class="" style="position:relative;">
+                        <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:4px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                          <i class="material-icons redd" title="Delete Image" style="
+                            background-color: transparent;
+                            padding: 4px;
+                            color: gray;
+                            border-radius: 2px;
+                            margin-left: 4px;
+                            font-size: 10px;
+                            margin-right: 4px;
+                            display: block;
+                            margin-bottom: 5px;">
+                            close
+                          </i>
+                        </a>
+                        <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
+                        <input value="`+ sub_image_index + `" id="subcheck_` + global_images[key][i]["pk"] + `" type="text">
+                      </div>`;
 
-        //     if (i % 3 == 2 || i == global_images[key].length - 1) {
-        //         html_string += "</div>";
-        //     }
-        // }
-        // $("#graphics-section").html(html_string);
+            if (i % 3 == 2 || i == global_images[key].length - 1) {
+                html_string += "</div>";
+            }
+        }
+        $("#graphics-section").html(html_string);
     }
 
     function save_subimages_index() {
@@ -1726,6 +1696,7 @@
 
         fd.append("sub_images", JSON.stringify(sub_image));
         fd.append("product_pk", window.location.pathname.split("/")[3]);
+        fd.append("channel_name", "Ebay");
 
         $.ajax({
             url: "/update-sub-images/",
@@ -1756,49 +1727,46 @@
 
 
     function update_grid_images(key) {
-        // if (key == "all_images") {
-        //     $("#import-btn").attr("class", "disabled");
-        // }
-        // else {
-        //     $("#import-btn").attr("class", "modal-trigger");
-        // }
+        if (key == "all_images") {
+            $("#import-btn").attr("class", "disabled");
+        }
+        else {
+            $("#import-btn").attr("class", "modal-trigger");
+        }
 
-        // if (key == "main_images") {
-        //     update_grid_images_main_images(key);
-        //     return;
-        // }
+        if (key == "main_images") {
+            update_grid_images_main_images(key);
+            return;
+        }
+        if (key == "sub_images") {
+            update_grid_images_sub_images(key);
+            return;
+        }
 
+        var html_string = "";
+        for (var i = 0; i < global_images[key].length; i++) {
+            html_string += `<div class="col s4" style="padding:1em;">
+                        <div style="position:relative;">
+                          <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                            <i class="material-icons redd" title="Delete Image" style="
+                              background-color: transparent;
+                              padding: 4px;
+                              color: gray;
+                              border-radius: 2px;
+                              margin-left: 4px;
+                              font-size: 10px;
+                              margin-right: 4px;
+                              display: block;
+                              margin-bottom: 5px;">
+                              close
+                            </i> 
+                          </a> 
+                          <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
+                        </div>
+                      </div>`;
+        }
 
-        // if (key == "sub_images") {
-        //     update_grid_images_sub_images(key);
-        //     return;
-        // }
-
-
-        // var html_string = "";
-        // for (var i = 0; i < global_images[key].length; i++) {
-        //     html_string += `<div class="col s4" style="padding:1em;">
-        //                 <div style="position:relative;">
-        //                   <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
-        //                     <i class="material-icons redd" title="Delete Image" style="
-        //                       background-color: transparent;
-        //                       padding: 4px;
-        //                       color: gray;
-        //                       border-radius: 2px;
-        //                       margin-left: 4px;
-        //                       font-size: 10px;
-        //                       margin-right: 4px;
-        //                       display: block;
-        //                       margin-bottom: 5px;">
-        //                       close
-        //                     </i> 
-        //                   </a> 
-        //                   <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
-        //                 </div>
-        //               </div>`;
-        // }
-
-        // $("#graphics-section").html(html_string);
+        $("#graphics-section").html(html_string);
     }
 
 

@@ -456,37 +456,6 @@
     </a>
 
     <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-      
-
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                timer
-            </i>
-        </a>
-
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i id="verified-icon" class="material-icons greenn" title="Verified" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                verified_user
-            </i>
-        </a>
 
         <a href="#!" id="main-image-select-save-btn" class="right"
             style="background-color: transparent;display: block;">
@@ -1336,7 +1305,7 @@ success: function (response) {
     $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
     $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
     
-    // update_grid_images(global_image_key);
+    update_grid_images(global_image_key);
 
     M.updateTextFields();
     $('select').formSelect();
@@ -1648,6 +1617,7 @@ error: function (xhr, textstatus, errorthrown) {
         var checked_pk = $("input[name=group1]:checked").val();
         fd.append("checked_pk", checked_pk);
         fd.append("product_pk", window.location.pathname.split("/")[3]);
+        fd.append("channel_name", "Noon");
 
         $.ajax({
             url: "/update-main-image/",
@@ -1763,6 +1733,7 @@ error: function (xhr, textstatus, errorthrown) {
 
         fd.append("sub_images", JSON.stringify(sub_image));
         fd.append("product_pk", window.location.pathname.split("/")[3]);
+        fd.append("channel_name", "Noon");
 
         $.ajax({
             url: "/update-sub-images/",
@@ -1793,49 +1764,49 @@ error: function (xhr, textstatus, errorthrown) {
 
 
     function update_grid_images(key) {
-        // if (key == "all_images") {
-        //     $("#import-btn").attr("class", "disabled");
-        // }
-        // else {
-        //     $("#import-btn").attr("class", "modal-trigger");
-        // }
+        if (key == "all_images") {
+            $("#import-btn").attr("class", "disabled");
+        }
+        else {
+            $("#import-btn").attr("class", "modal-trigger");
+        }
 
-        // if (key == "main_images") {
-        //     update_grid_images_main_images(key);
-        //     return;
-        // }
-
-
-        // if (key == "sub_images") {
-        //     update_grid_images_sub_images(key);
-        //     return;
-        // }
+        if (key == "main_images") {
+            update_grid_images_main_images(key);
+            return;
+        }
 
 
-        // var html_string = "";
-        // for (var i = 0; i < global_images[key].length; i++) {
-        //     html_string += `<div class="col s4" style="padding:1em;">
-        //                 <div style="position:relative;">
-        //                   <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
-        //                     <i class="material-icons redd" title="Delete Image" style="
-        //                       background-color: transparent;
-        //                       padding: 4px;
-        //                       color: gray;
-        //                       border-radius: 2px;
-        //                       margin-left: 4px;
-        //                       font-size: 10px;
-        //                       margin-right: 4px;
-        //                       display: block;
-        //                       margin-bottom: 5px;">
-        //                       close
-        //                     </i> 
-        //                   </a> 
-        //                   <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
-        //                 </div>
-        //               </div>`;
-        // }
+        if (key == "sub_images") {
+            update_grid_images_sub_images(key);
+            return;
+        }
 
-        // $("#graphics-section").html(html_string);
+
+        var html_string = "";
+        for (var i = 0; i < global_images[key].length; i++) {
+            html_string += `<div class="col s4" style="padding:1em;">
+                        <div style="position:relative;">
+                          <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                            <i class="material-icons redd" title="Delete Image" style="
+                              background-color: transparent;
+                              padding: 4px;
+                              color: gray;
+                              border-radius: 2px;
+                              margin-left: 4px;
+                              font-size: 10px;
+                              margin-right: 4px;
+                              display: block;
+                              margin-bottom: 5px;">
+                              close
+                            </i> 
+                          </a> 
+                          <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
+                        </div>
+                      </div>`;
+        }
+
+        $("#graphics-section").html(html_string);
     }
 
 

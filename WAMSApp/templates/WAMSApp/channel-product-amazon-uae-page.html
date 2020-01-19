@@ -117,6 +117,12 @@
 
                 </div>
             </div> -->
+
+            <div class="row" style="position: relative;bottom: 15px;right: 5px;">
+                <div id="graphics-section" class="col s12" style="width: 94%;padding-top: 1.11em;">
+
+                </div>
+            </div>
         </div>
 
 
@@ -501,37 +507,6 @@
     </a>
 
     <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
-       
-
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i id="pending-icon" class="material-icons yelloww" title="Pending" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                timer
-            </i>
-        </a>
-
-        <a href="#!" class=" right" style="background-color: transparent;display: block;">
-            <i id="verified-icon" class="material-icons greenn" title="Verified" style="
-        background-color: #f7f7f7;
-        padding: 8px;
-        color: gray;
-        border-radius: 5px;
-        margin-left: 8px;
-        font-size: 20px;
-        margin-right: 9px;
-        display: block;
-        margin-bottom: 10px;">
-                verified_user
-            </i>
-        </a>
 
         <a href="#!" id="main-image-select-save-btn" class="right"
             style="background-color: transparent;display: block;">
@@ -1670,6 +1645,7 @@ function fetch_amazon_uae_product_images_details() {
         var checked_pk = $("input[name=group1]:checked").val();
         fd.append("checked_pk", checked_pk);
         fd.append("product_pk", window.location.pathname.split("/")[3]);
+        fd.append("channel_name", "Amazon UAE");
 
         $.ajax({
             url: "/update-main-image/",
@@ -1785,6 +1761,7 @@ function fetch_amazon_uae_product_images_details() {
 
         fd.append("sub_images", JSON.stringify(sub_image));
         fd.append("product_pk", window.location.pathname.split("/")[3]);
+        fd.append("channel_name", "Amazon UAE");
 
         $.ajax({
             url: "/update-sub-images/",

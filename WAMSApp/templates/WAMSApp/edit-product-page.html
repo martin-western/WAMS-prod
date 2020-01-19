@@ -557,8 +557,9 @@
 </div>
 
 
-<script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
+<!-- <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script> -->
 <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
+<script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.min2.js' %}"></script>
 <script type="text/javascript">
 
   $('.tabs').tabs();
@@ -1030,6 +1031,8 @@
             set_verify(false);
           }
 
+          $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
+
           M.updateTextFields();
           $('select').formSelect();
         }
@@ -1084,8 +1087,6 @@
         //   $('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
         // }
         // $('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
-
-        // $("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
 
         // M.updateTextFields();
         // $('select').formSelect();
@@ -1211,6 +1212,7 @@
     var checked_pk = $("input[name=group1]:checked").val();
     fd.append("checked_pk", checked_pk);
     fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("channel_name", "");
 
     $.ajax({
       url: "/update-main-image/",
@@ -1326,6 +1328,7 @@
 
     fd.append("sub_images", JSON.stringify(sub_image));
     fd.append("product_pk", window.location.pathname.split("/")[2]);
+    fd.append("channel_name", "");
 
     $.ajax({
       url: "/update-sub-images/",
@@ -1374,7 +1377,6 @@
       return;
     }
 
-
     var html_string = "";
     for (var i = 0; i < global_images[key].length; i++) {
       html_string += `<div class="col s4" style="padding:1em;">
@@ -1399,6 +1401,10 @@
     }
 
     $("#graphics-section").html(html_string);
+
+    if(key=="pfl_generated_images") {
+      $($(".miniimage")[0]).click();
+    }
   }
 
 
@@ -1545,50 +1551,62 @@
 
           $('#pfl-div').css("display", "block");
 
-          html2canvas($("#pfl-div"), {
-            logging: true,
-            dpi: 600,
-            scale: 3,
-            onrendered: function (canvas) {
+          //$('#pfl-div').show();
 
-              $("#pfl-div").hide();
-              var image_data = canvas.toDataURL();
+          var scale = 5;
+          var div = document.getElementById('pfl-div');
+          var canvas = document.createElement('canvas');
+          var h = div.scrollHeight;
+          var ratio = canvas.width/canvas.height;
+          var w = h * ratio;
+          canvas.width = scale*window.devicePixelRatio*div.scrollWidth;
+          canvas.height = scale*window.devicePixelRatio*div.scrollHeight;
+          canvas.style.width = w + 'px';
+          canvas.style.height = h + 'px';
+          var context = canvas.getContext('2d');
+          context.scale(scale, scale);
 
-              var fd = new FormData();
-              fd.append('image_data', image_data);
-              fd.append('product_pk', window.location.pathname.split("/")[2]);
+          window.scrollTo(0,0);
 
-              $.ajax({
-                url: "/save-pfl-in-bucket/",
-                type: "POST",
-                headers: {
-                  'X-CSRFToken': getCsrfToken()
-                },
-                processData: false,
-                contentType: false,
-                data: fd,
-                success: function (response) {
-                  console.log("Success!", response);
-                  if (response["status"] == 200) {
-                    global_images["pfl_generated_images"] = [{
-                      "main-url": response["main-url"],
-                      "midimage-url": response["midimage-url"],
-                      "thumbnail-url": response["thumbnail-url"]
-                    }];
-                    if (global_image_key != "sub_images") {
-                      update_grid_images(global_image_key);
-                    }
+          html2canvas(div, {canvas:canvas, scrollX:-10, scrollY:0}).then(function(canvas) {
 
-                    if (global_image_key == "pfl_generated_images") {
-                      $($(".miniimage")[0]).click();
-                    }
-                  }
-                },
-                error: function (xhr, textstatus, errorthrown) {
-                  console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+            $('#pfl-div').hide();
+
+            var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+
+            var image_data = dataURI;
+
+            var fd = new FormData();
+            fd.append('image_data', image_data);
+            fd.append('product_pk', window.location.pathname.split("/")[2]);
+
+            $.ajax({
+              url: "/save-pfl-in-bucket/",
+              type: "POST",
+              headers: {
+                'X-CSRFToken': getCsrfToken()
+              },
+              processData: false,
+              contentType: false,
+              data: fd,
+              success: function (response) {
+                console.log("Success!", response);
+                if (response["status"] == 200) {
+                  // global_images["pfl_generated_images"] = [{
+                  //   "main-url": response["main-url"],
+                  //   "midimage-url": response["midimage-url"],
+                  //   "thumbnail-url": response["thumbnail-url"]
+                  // }];
+                  // if (global_image_key != "sub_images") {
+                  //   update_grid_images(global_image_key);
+                  // }
+                  fetch_product_images_details();
                 }
-              });
-            }
+              },
+              error: function (xhr, textstatus, errorthrown) {
+                console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+              }
+            });
           });
         }
       },
@@ -1669,6 +1687,7 @@
     });
 
     save_subimages_index();
+    save_pfl_image_to_bucket();
   }
 
 
