@@ -450,6 +450,58 @@ for data in all_data_json:
             product_obj.save()
             channel_product_obj.save()
 
+            product_pk_mapping[data["pk"]] = product_obj.pk
             print("Product Cnt:", product_cnt)
     except Exception as e:
         print("Error Product Bucket", str(e))
+
+flyer_pk_mapping = {}
+flyer_cnt=0
+
+for data in all_data_json:
+    
+    try:
+        if data["model"] == "WAMSApp.flyer":
+            flyer_cnt+=1
+            
+            name = data["fields"]["name"]
+            template_data = data["fields"]["template_data"]
+            mode = data["fields"]["mode"]
+            
+            brand_pk = data["fields"]["brand"]["pk"]
+            brand_mapped_pk = brand_pk_mapping[brand_pk]
+            brand_obj = Brand.objects.get(pk=brand_mapped_pk)
+
+            flyer_image_pk = data["fields"]["flyer_image"]["pk"]
+            mapped_pk = image_pk_mapping[logo_pk]
+            flyer_image_obj = Image.objects.get(pk = mapped_pk)
+
+            product_bucket = data["fields"]["product_bucket"]
+            products = []
+            for product in product_bucket:
+                product_pk = product["pk"]
+                mapped_product_pk = product_pk_mapping[product_pk]
+                product_obj = Product.objects.get(pk=mapped_product_pk)
+                products.append(product_obj)
+
+            external_images_bucket = data["fields"]["external_images_bucket"]
+            external_images = []
+            for external_image in external_images_bucket:
+                external_image_pk = external_image["pk"]
+                mapped_external_image_pk = image_pk_mapping[external_image_pk]
+                external_image_obj = Image.objects.get(pk=mapped_external_image_pk)
+                external_images.append(external_image_obj)
+
+            background_images_bucket = data["fields"]["background_images_bucket"]
+            background_images = []
+            for background_image in background_images_bucket:
+                background_image_pk = background_image["pk"]
+                mapped_background_image_pk = image_pk_mapping[background_image_pk]
+                background_image_obj = Image.objects.get(pk=mapped_background_image_pk)
+                background_images.append(background_image_obj)
+
+
+            flyer_pk_mapping[data["pk"]] = image_bucket_obj.pk
+            print("Flyer Cnt:", flyer_cnt)
+    except Exception as e:
+        print("Error Flyer", str(e))
