@@ -21,7 +21,7 @@ for data in all_data_json:
     try:
         if data["model"] == "WAMSApp.image":
             image_cnt+=1
-            image_obj = Image.objects.create(image=data["fields"]["image"],
+            image_obj, created = Image.objects.get_or_create(image=data["fields"]["image"],
                                              mid_image=data["fields"]["mid_image"],
                                              thumbnail=data["fields"]["thumbnail"],
                                              description=data["fields"]["description"]
