@@ -61,10 +61,10 @@ for data in all_data_json:
         if data["model"] == "WAMSApp.brand":
             brand_cnt+=1
 
-            logo_pk = data["fields"]["logo"]["pk"]
+            logo_pk = data["fields"]["logo"]
             mapped_pk = image_pk_mapping[logo_pk]
             logo_obj = Image.objects.get(pk = mapped_pk)
-            organization_pk = data["fields"]["organization"]["pk"]
+            organization_pk = data["fields"]["organization"]
             organization_mapped_pk = image_pk_mapping[organization_pk]
             organization_obj = Organization.objects.get(pk = organization_mapped_pk)
 
@@ -111,7 +111,7 @@ for data in all_data_json:
         if data["model"] == "WAMSApp.backgroundimage":
             background_image_cnt+=1
             
-            image_pk = data["fields"]["image"]["pk"]
+            image_pk = data["fields"]["image"]
             mapped_pk = image_pk_mapping[image_pk]
             image_obj = Image.objects.get(pk=mapped_pk)
             
@@ -136,7 +136,7 @@ for data in all_data_json:
         if data["model"] == "WAMSApp.imagebucket":
             image_bucket_cnt+=1
             
-            image_pk = data["fields"]["image"]["pk"]
+            image_pk = data["fields"]["image"]
             mapped_pk = image_pk_mapping[image_pk]
             image_obj = Image.objects.get(pk=mapped_pk)
             description = data["fields"]["image"]["description"]
@@ -271,18 +271,18 @@ for data in all_data_json:
             barcode_string = data["fields"]["barcode_string"]
             outdoor_price = data["fields"]["outdoor_price"]
             
-            barcode_pk = data["fields"]["barcode"]["pk"]
+            barcode_pk = data["fields"]["barcode"]
             barcode_mapped_pk = image_pk_mapping[barcode_pk]
             barcode_obj = Image.objects.get(pk=barcode_mapped_pk)
 
-            brand_pk = data["fields"]["brand"]["pk"]
+            brand_pk = data["fields"]["brand"]
             brand_mapped_pk = brand_pk_mapping[brand_pk]
             brand_obj = Brand.objects.get(pk=brand_mapped_pk)
 
             main_images = data["fields"]["main_images"]
             main_image_buckets = []
             for main_image in main_images:
-                image_bucket_pk = main_image["pk"]
+                image_bucket_pk = main_image
                 mapped_image_bucket_pk = image_bucket_pk_mapping[image_bucket_pk]
                 image_bucket_obj = ImageBucket.objects.get(pk=mapped_image_bucket_pk)
                 main_image_buckets.append(image_bucket_obj)
@@ -290,7 +290,7 @@ for data in all_data_json:
             sub_images = data["fields"]["sub_images"]
             sub_image_buckets = []
             for sub_image in sub_images:
-                image_bucket_pk = sub_image["pk"]
+                image_bucket_pk = sub_image
                 mapped_image_bucket_pk = image_bucket_pk_mapping[image_bucket_pk]
                 image_bucket_obj = ImageBucket.objects.get(pk=mapped_image_bucket_pk)
                 sub_image_buckets.append(image_bucket_obj)            
@@ -500,18 +500,18 @@ for data in all_data_json:
             template_data = data["fields"]["template_data"]
             mode = data["fields"]["mode"]
             
-            brand_pk = data["fields"]["brand"]["pk"]
+            brand_pk = data["fields"]["brand"]
             brand_mapped_pk = brand_pk_mapping[brand_pk]
-            brand_obj = Brand.objects.get(pk=brand_mapped_pk)
+            brand_obj = Brand.objects.get(pk=int(brand_mapped_pk))
 
-            flyer_image_pk = data["fields"]["flyer_image"]["pk"]
+            flyer_image_pk = data["fields"]["flyer_image"]
             mapped_pk = image_pk_mapping[logo_pk]
             flyer_image_obj = Image.objects.get(pk = mapped_pk)
 
             product_bucket = data["fields"]["product_bucket"]
             products = []
             for product in product_bucket:
-                product_pk = product["pk"]
+                product_pk = product
                 mapped_product_pk = product_pk_mapping[product_pk]
                 product_obj = Product.objects.get(pk=mapped_product_pk)
                 products.append(product_obj)
@@ -519,7 +519,7 @@ for data in all_data_json:
             external_images_bucket = data["fields"]["external_images_bucket"]
             external_images = []
             for external_image in external_images_bucket:
-                external_image_pk = external_image["pk"]
+                external_image_pk = external_image
                 mapped_external_image_pk = image_pk_mapping[external_image_pk]
                 external_image_obj = Image.objects.get(pk=mapped_external_image_pk)
                 external_images.append(external_image_obj)
@@ -527,7 +527,7 @@ for data in all_data_json:
             background_images_bucket = data["fields"]["background_images_bucket"]
             background_images = []
             for background_image in background_images_bucket:
-                background_image_pk = background_image["pk"]
+                background_image_pk = background_image
                 mapped_background_image_pk = image_pk_mapping[background_image_pk]
                 background_image_obj = Image.objects.get(pk=mapped_background_image_pk)
                 background_images.append(background_image_obj)
