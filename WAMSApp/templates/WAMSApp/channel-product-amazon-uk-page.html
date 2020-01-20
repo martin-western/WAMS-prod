@@ -345,11 +345,12 @@
 
 
               
-              <ul class="collapsible">
+              <ul class="collapsible" style="box-shadow: none;
+              border: none;">
                 <li>
-                  <div class="collapsible-header"><i class="material-icons">filter_drama</i>Dimensions</div>
+                  <div class="collapsible-header"><i class="material-icons">arrow_drop_down</i>Dimensions</div>
                   <div class="collapsible-body">
-                    <p style = "margin-bottom: 0px !important;font-size: 10px !important;text-align: center; color: grey;">L - Lenght | B - Width | H - Height | W - Weight </p>
+                    <p style = "margin-bottom: 0px !important;font-size: 10px !important;text-align: center; color: grey;">L - Length | B - Breadth | H - Height | W - Weight </p>
                     <div style="padding:20px 40px 0px 40px !important;">
                       <div class="row" style="margin-bottom: 0px !important;">
                           <div class="col s12">
@@ -414,11 +415,11 @@
                               <div class="col s1" style="padding:0px !important;">
                                
                                 <select id = "package_weight_metric">
-                                  <option value="FT" selected>FT</option>
-                                  <option value="IN">IN</option>
-                                  <option value="CM">CM</option>
-                                  <option value="MM">MM</option>
-                                  <option value="M">M</option>
+                                  <option value="FT" selected>KG</option>
+                                  <option value="IN">LB</option>
+                                  <option value="CM">OZ</option>
+                                  <option value="MM">MG</option>
+                                  <option value="M">GR</option>
                                 </select>
                             </div>    
                               </div>
@@ -481,11 +482,11 @@
                               <div class="col s1" style="padding: 0px !important;">
                                
                                 <select id = "item_weight_metric">
-                                  <option value="FT" selected>FT</option>
-                                  <option value="IN">IN</option>
-                                  <option value="CM">CM</option>
-                                  <option value="MM">MM</option>
-                                  <option value="M">M</option>
+                                  <option value="FT" selected>KG</option>
+                                  <option value="IN">LB</option>
+                                  <option value="CM">OZ</option>
+                                  <option value="MM">MG</option>
+                                  <option value="M">GR</option>
                                 </select>
                             </div>  
                               </div>
@@ -548,11 +549,11 @@
                             <div class="col s1" style="padding: 0px !important;">
                              
                               <select id = "item_display_weight_metric">
-                                <option value="FT" selected>FT</option>
-                                <option value="IN">IN</option>
-                                <option value="CM">CM</option>
-                                <option value="MM">MM</option>
-                                <option value="M">M</option>
+                                <option value="FT" selected>KG</option>
+                                <option value="IN">LB</option>
+                                <option value="CM">OZ</option>
+                                <option value="MM">MG</option>
+                                <option value="M">GR</option>
                               </select>
                           </div>  
                            
@@ -567,9 +568,12 @@
                                 </div>
                             </div>  
                              <div class="col s6"  style="padding: 0px !important;">
-                               <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
-                                 <input placeholder="" id="item_display_volume_metric" type="text" class="validate" style="font-family: 'AvenirNext';">
-                               </div>
+                              
+                               <select id = "item_display_volume_metric">
+                                <option value="FT" selected>CC</option>
+                                <option value="IN">L</option>
+                                <option value="CM">CUBIC-M</option>
+                              </select>
                            </div>  
                              </div>
                          </div>
@@ -586,11 +590,11 @@
                            <div class="col s6"  style="padding: 0px !important;">
                             
                             <select id = "shipping_weight_metric">
-                              <option value="FT" selected>FT</option>
-                              <option value="IN">IN</option>
-                              <option value="CM">CM</option>
-                              <option value="MM">MM</option>
-                              <option value="M">M</option>
+                              <option value="FT" selected>KG</option>
+                              <option value="IN">LB</option>
+                              <option value="CM">OZ</option>
+                              <option value="MM">MG</option>
+                              <option value="M">GR</option>
                             </select>
                           </div>
                          </div>
@@ -602,8 +606,8 @@
                     <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Package Qty</p>
                      <div class="row">
                        <div class="col s12">
-                         <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
-                           <input placeholder="" id="package_quantity" type="text" class="validate" style="font-family: 'AvenirNext';">
+                         <div class="input-field"  style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                           <input placeholder="" id="package_quantity" type="number" class="validate" style="font-family: 'AvenirNext';">
                          </div>
                        </div>
                      </div>
