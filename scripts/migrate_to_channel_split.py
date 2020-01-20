@@ -500,8 +500,23 @@ for data in all_data_json:
                 background_image_obj = Image.objects.get(pk=mapped_background_image_pk)
                 background_images.append(background_image_obj)
 
+            flyer_obj = Flyer.objects.create(name=name,
+                                             template_data=template_data,
+                                             mode=mode,
+                                             brand=brand_obj,
+                                             flyer_image=flyer_image_obj
+                                             )
 
-            flyer_pk_mapping[data["pk"]] = image_bucket_obj.pk
+            for product in products:
+                flyer_obj.product_bucket.add(product)
+
+            for external_image in external_images:
+                flyer_obj.external_images_bucket.add(external_image)
+
+            for background_image in background_images:
+                flyer_obj.background_images_bucket.add(background_image)
+
+            flyer_pk_mapping[data["pk"]] = flyer_obj.pk
             print("Flyer Cnt:", flyer_cnt)
     except Exception as e:
         print("Error Flyer", str(e))
