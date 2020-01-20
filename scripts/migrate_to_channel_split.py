@@ -388,31 +388,37 @@ for data in all_data_json:
             amazon_uk_product["dimensions"] = dimensions
             channel_product_obj.amazon_uk_product_json = json.dumps(amazon_uk_product)
 
-            amazon_uae_product["product_name"] : product_name_amazon_uae
-            amazon_uae_product["product_description"] : product_description_amazon_uae
-            amazon_uae_product["product_attribute_list"] : product_attribute_list_amazon_uae
-            amazon_uae_product["created_date"] : created_date
-            amazon_uae_product["feed_product_type"] : feed_product_type
-            amazon_uae_product["recommended_browse_nodes"] : recommended_browse_nodes
-            amazon_uae_product["update_delete"] : update_delete
+            amazon_uae_product["product_name"] = product_name_amazon_uae
+            amazon_uae_product["product_description"] = product_description_amazon_uae
+            amazon_uae_product["product_attribute_list"] = product_attribute_list_amazon_uae
+            amazon_uae_product["created_date"] = created_date
+            amazon_uae_product["feed_product_type"] = feed_product_type
+            amazon_uae_product["recommended_browse_nodes"] = recommended_browse_nodes
+            amazon_uae_product["update_delete"] = update_delete
             
             channel_product_obj.amazon_uae_product_json = json.dumps(amazon_uae_product)
 
-            noon_product["product_name"] : product_name_noon
-            noon_product["product_description"] : product_description_noon
-            noon_product["product_attribute_list"] : product_attribute_list_noon
-            noon_product["created_date"] : created_date
-            noon_product["product_type"] : noon_product_type
-            noon_product["product_subtype"] : noon_product_subtype
-            noon_product["model_number"] : noon_model_number
-            noon_product["model_name"] : noon_model_name
-            noon_product["msrp_ae"] : noon_msrp_ae
-            noon_product["msrp_ae_unit"] : noon_msrp_ae_unit
+            noon_product["product_name"] = product_name_noon
+            noon_product["product_description"] = product_description_noon
+            noon_product["product_attribute_list"] = product_attribute_list_noon
+            noon_product["created_date"] = created_date
+            noon_product["product_type"] = noon_product_type
+            noon_product["product_subtype"] = noon_product_subtype
+            noon_product["model_number"] = noon_model_number
+            noon_product["model_name"] = noon_model_name
+            noon_product["msrp_ae"] = noon_msrp_ae
+            noon_product["msrp_ae_unit"] = noon_msrp_ae_unit
             
             channel_product_obj.noon_product_json = json.dumps(noon_product)
             
-            
+            ebay_product["product_name"] = product_name_ebay
+            ebay_product["product_description"] = product_description_ebay
+            ebay_product["product_attribute_list"] = product_attribute_list_noon
+            ebay_product["created_date"] = created_date
+            ebay_product["category"] = category
 
+            channel_product_obj.ebay_product_json = json.dumps(ebay_product)
+            
             base_product_obj.save()
             product_obj.save()
             channel_product_obj.save()
