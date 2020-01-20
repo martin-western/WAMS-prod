@@ -5,7 +5,7 @@ import urllib2
 f = open("scripts/17012020.json", "r")
 all_data_json = json.loads(f.read())
 f.close()
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 image_pk_mapping = {}
 image_cnt=0
 
