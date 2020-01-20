@@ -553,7 +553,8 @@ for data in all_data_json:
             flyer_pk_mapping[data["pk"]] = flyer_obj.pk
             print("Flyer Cnt:", flyer_cnt)
     except Exception as e:
-        print("Error Flyer", str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print("Error Flyer %s at %s", str(e), str(exc_tb.tb_lineno))
 
 f_flyer = open("files/flyer_pk_mapping.txt","w")
 flyer_pk_mapping_json = json.dumps(flyer_pk_mapping)
