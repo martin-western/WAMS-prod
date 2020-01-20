@@ -388,6 +388,16 @@ for data in all_data_json:
             amazon_uk_product["dimensions"] = dimensions
             channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
 
+            amazon_uae_product["product_name"] : product_name_amazon_uae
+            amazon_uae_product["product_description"] : product_description_amazon_uae
+            amazon_uae_product["product_attribute_list"] : product_attribute_list_amazon_uae
+            amazon_uae_product["created_date"] : created_date
+            amazon_uae_product["feed_product_type"] : feed_product_type
+            amazon_uae_product["recommended_browse_nodes"] : recommended_browse_nodes
+            amazon_uae_product["update_delete"] : update_delete
+            
+            channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
+
             print("Product Cnt:", product_cnt)
     except Exception as e:
         print("Error Product Bucket", str(e))
