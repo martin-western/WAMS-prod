@@ -343,6 +343,282 @@
                 <label for="condition-type">Condition Type</label>
               </div>
 
+
+              
+              <ul class="collapsible">
+                <li>
+                  <div class="collapsible-header"><i class="material-icons">filter_drama</i>Dimensions</div>
+                  <div class="collapsible-body">
+                    <p style = "margin-bottom: 0px !important;font-size: 10px !important;text-align: center; color: grey;">L - Lenght | B - Width | H - Height | W - Weight </p>
+                    <div style="padding:20px 40px 0px 40px !important;">
+                      <div class="row" style="margin-bottom: 0px !important;">
+                          <div class="col s12">
+                             <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Package ( L | B | H | W )</p>
+                              <div class="row">
+                                <div class="col s1" style="padding:0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                                    <input placeholder="" id="package_length" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                                </div>
+                                <!-- <div class="col s1" style="padding:0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                                    <input placeholder="" id="package_length_metric" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                                </div> -->
+
+                                <div class="col s1" style="padding:0px !important;">
+                                  <select id = "package_length_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                                </div>
+                               
+                                <div class="col s1 offset-s1" style="padding:0px !important;">
+                                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                      <input placeholder="" id="package_width" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                    </div>
+                                </div>
+                                <div class="col s1" style="padding:0px !important;">
+                                 
+                                  <select id = "package_width_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                              </div>
+                                <div class="col s1 offset-s1" style="padding:0px !important;">
+                                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                      <input placeholder="" id="package_height" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                    </div>
+                                </div>   
+                                <div class="col s1" style="padding:0px !important;">
+                                 
+                                  <select id = "package_height_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                              </div>   
+                                <div class="col s1 offset-s1" style="padding:0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                    <input placeholder="" id="package_weight" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                              </div>  
+                              <div class="col s1" style="padding:0px !important;">
+                               
+                                <select id = "package_weight_metric">
+                                  <option value="FT" selected>FT</option>
+                                  <option value="IN">IN</option>
+                                  <option value="CM">CM</option>
+                                  <option value="MM">MM</option>
+                                  <option value="M">M</option>
+                                </select>
+                            </div>    
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row" style="margin-bottom: 0px !important;">
+                          <div class="col s12">
+                             <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Item ( L | B | H | W )</p>
+                              <div class="row">
+                                <div class="col s1" style="padding: 0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                                    <input placeholder="" id="item_length" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                                </div>
+                                <div class="col s1" style="padding: 0px !important;">
+                                 
+                                  <select id = "item_length_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                                </div>
+                                <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                      <input placeholder="" id="item_width" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                    </div>
+                                </div>
+                                <div class="col s1"style="padding: 0px !important;" >
+                                  
+                                  <select id = "item_width_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                              </div>
+                                <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                      <input placeholder="" id="item_height" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                    </div>
+                                </div>    
+                                <div class="col s1" style="padding: 0px !important;">
+                                  
+                                  <select id = "item_height_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                              </div>  
+                                <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                    <input placeholder="" id="item_weight" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                              </div>  
+                              <div class="col s1" style="padding: 0px !important;">
+                               
+                                <select id = "item_weight_metric">
+                                  <option value="FT" selected>FT</option>
+                                  <option value="IN">IN</option>
+                                  <option value="CM">CM</option>
+                                  <option value="MM">MM</option>
+                                  <option value="M">M</option>
+                                </select>
+                            </div>  
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row" style="margin-bottom: 0px !important;">
+                        <div class="col s12">
+                           <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Item Display ( L | B | H | W )</p>
+                            <div class="row">
+                              <div class="col s1" style="padding: 0px !important;">
+                                <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                                  <input placeholder="" id="item_display_length" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                </div>
+                              </div>
+                              <div class="col s1" style="padding: 0px !important;">
+                               
+                                <select id = "item_display_length_metric">
+                                  <option value="FT" selected>FT</option>
+                                  <option value="IN">IN</option>
+                                  <option value="CM">CM</option>
+                                  <option value="MM">MM</option>
+                                  <option value="M">M</option>
+                                </select>
+                              </div>
+                              <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                    <input placeholder="" id="item_display_width" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                              </div>
+                              <div class="col s1" style="padding: 0px !important;">
+                               
+                                <select id = "item_display_width_metric">
+                                  <option value="FT" selected>FT</option>
+                                  <option value="IN">IN</option>
+                                  <option value="CM">CM</option>
+                                  <option value="MM">MM</option>
+                                  <option value="M">M</option>
+                                </select>
+                            </div>
+                              <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                    <input placeholder="" id="item_display_height" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                              </div>    
+                              <div class="col s1" style="padding: 0px !important;">
+                               
+                                <select id = "item_display_height_metric">
+                                  <option value="FT" selected>FT</option>
+                                  <option value="IN">IN</option>
+                                  <option value="CM">CM</option>
+                                  <option value="MM">MM</option>
+                                  <option value="M">M</option>
+                                </select>
+                            </div>    
+                              <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                  <input placeholder="" id="item_display_weight" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                </div>
+                            </div>  
+                            <div class="col s1" style="padding: 0px !important;">
+                             
+                              <select id = "item_display_weight_metric">
+                                <option value="FT" selected>FT</option>
+                                <option value="IN">IN</option>
+                                <option value="CM">CM</option>
+                                <option value="MM">MM</option>
+                                <option value="M">M</option>
+                              </select>
+                          </div>  
+                           
+                        </div>
+                        <div class="row">
+                          <div class="col s3" style="padding: 0px !important;">
+                            <p style = "margin-bottom: 0px !important;font-size: 10px !important;text-align: left;">Item Display Volume</p>
+                             <div class="row">
+                              <div class="col s6"  style="padding: 0px !important;">
+                                <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                  <input placeholder="" id="item_display_volume" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                </div>
+                            </div>  
+                             <div class="col s6"  style="padding: 0px !important;">
+                               <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                 <input placeholder="" id="item_display_volume_metric" type="text" class="validate" style="font-family: 'AvenirNext';">
+                               </div>
+                           </div>  
+                             </div>
+                         </div>
+                       
+                      
+                       <div class="col s3 offset-s1" style="padding: 0px; !important">
+                        <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Shipping Weight</p>
+                         <div class="row">
+                           <div class="col s6"  style="padding: 0px !important;">
+                             <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                               <input placeholder="" id="shipping_weight" type="text" class="validate" style="font-family: 'AvenirNext';">
+                             </div>
+                           </div>
+                           <div class="col s6"  style="padding: 0px !important;">
+                            
+                            <select id = "shipping_weight_metric">
+                              <option value="FT" selected>FT</option>
+                              <option value="IN">IN</option>
+                              <option value="CM">CM</option>
+                              <option value="MM">MM</option>
+                              <option value="M">M</option>
+                            </select>
+                          </div>
+                         </div>
+                      </div>
+
+
+                    
+                   <div class="col s3 offset-s1">
+                    <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Package Qty</p>
+                     <div class="row">
+                       <div class="col s12">
+                         <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                           <input placeholder="" id="package_quantity" type="text" class="validate" style="font-family: 'AvenirNext';">
+                         </div>
+                       </div>
+                     </div>
+                 </div>
+
+                </div>
+
+                    </div>
+                </div>
+
+                  </div>
+                </li>
+              </ul>
+
+
               <div class="col s12 toggle-s6-s12">
                 <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
                     Description</h6>
@@ -824,7 +1100,7 @@ DecoupledEditor
         product_pk: window.location.pathname.split("/")[3]
       },
       success: function (response) {
-        console.log("Success!", response);
+        console.log("Success! for dimensions", response);
         if(response["status"]==200)
         {
           global_product_id = response["product_id"];
@@ -1102,6 +1378,13 @@ DecoupledEditor
     $("#sale-end").val(global_details_amazon_uk["sale_end"]);
     window.editor[0].setData(global_details_amazon_uk["product_description"]);
     var special_feature_data = global_details_amazon_uk["special_features"];
+    var dim = global_details_amazon_uk["dimensions"];
+    console.log("dimessions" , dim);
+
+
+
+
+
     if(special_feature_data.length>0)
     {
       $("#special-feature-1").val(special_feature_data[0]);
@@ -1126,6 +1409,64 @@ DecoupledEditor
 
     var product_attributes_list = global_details_amazon_uk["product_attributes"];
     console.log(product_attributes_list);
+
+    $('#package_length').val(dim["package_length"]);
+
+    $('#package_length_metric').val(dim["package_length_metric"] );
+
+    $('#package_width').val(dim["package_width"] );
+
+    $('#package_width_metric').val(dim["package_width_metric"] );
+
+    $('#package_height').val(dim["package_height"] );
+
+    $('#package_height_metric').val(dim["package_height_metric"] );
+
+    $('#package_weight').val(dim["package_weight"] );
+
+    $('#package_weight_metric').val(dim["package_weight_metric"] );
+
+    $('#package_quantity').val(dim["package_quantity"] );
+
+    $('#shipping_weight').val(dim["shipping_weight"] );
+
+    $('#shipping_weight_metric').val(dim["shipping_weight_metric"] );
+
+    $('#item_display_weight').val(dim["item_display_weight"] );
+
+    $('#item_display_weight_metric').val(dim["item_display_weight_metric"] );
+
+    $('#item_display_volume').val(dim["item_display_volume"] );
+
+    $('#item_display_volume_metric').val(dim["item_display_volume_metric"] );
+
+    $('#item_display_length').val(dim["item_display_length"] );
+
+    $('#item_display_length_metric').val(dim["item_display_length_metric"] );
+
+    $('#item_weight').val(dim["item_weight"] );
+
+    $('#item_weight_metric').val(dim["item_weight_metric"] );
+
+    $('#item_length').val(dim["item_length"] );
+
+    $('#item_length_metric').val(dim["item_length_metric"] );
+
+    $('#item_width').val(dim["item_width"] );
+
+    $('#item_width_metric').val(dim["item_width_metric"] );
+
+    $('#item_height').val(dim["item_height"] );
+
+    $('#item_height_metric').val(dim["item_height_metric"] );
+
+    $('#item_display_width').val(dim["item_display_width"] );
+
+    $('#item_display_width_metric').val(dim["item_display_width_metric"] );
+
+    $('#item_display_height').val(dim["item_display_height"] );
+
+    $('#item_display_height_metric').val(dim["item_display_height_metric"]  );
     
     if(product_attributes_list.length>0)
     {
@@ -1172,7 +1513,9 @@ DecoupledEditor
   });
 
 
-
+  $(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
 
 
 
@@ -1894,35 +2237,35 @@ DecoupledEditor
     var sale_end = $("#sale-end").val();
 
     var dimensions = {
-      "package_length":"",
-      "package_length_metric":"",
-      "package_width":"",
-      "package_width_metric":"",
-      "package_height":"",
-      "package_height_metric":"",
-      "package_weight":"",
-      "package_weight_metric":"",
-      "package_quantity":"",
-      "shipping_weight":"",
-      "shipping_weight_metric":"",
-      "item_display_weight":"",
-      "item_display_weight_metric":"",
-      "item_display_volume":"",
-      "item_display_volume_metric":"",
-      "item_display_length":"",
-      "item_display_length_metric":"",
-      "item_weight":"",
-      "item_weight_metric":"",
-      "item_length":"",
-      "item_length_metric":"",
-      "item_width":"",
-      "item_width_metric":"",
-      "item_height":"",
-      "item_height_metric":"",
-      "item_display_width":"",
-      "item_display_width_metric":"",
-      "item_display_height":"",
-      "item_display_height_metric":""
+      "package_length": $('#package_length').val(),
+      "package_length_metric":$('#package_length_metric').val(),
+      "package_width":$('#package_width').val(),
+      "package_width_metric":$('#package_width_metric').val(),
+      "package_height":$('#package_height').val(),
+      "package_height_metric":$('#package_height_metric').val(),
+      "package_weight":$('#package_weight').val(),
+      "package_weight_metric":$('#package_weight_metric').val(),
+      "package_quantity":$('#package_quantity').val(),
+      "shipping_weight":$('#shipping_weight').val(),
+      "shipping_weight_metric":$('#shipping_weight_metric').val(),
+      "item_display_weight":$('#item_display_weight').val(),
+      "item_display_weight_metric":$('#item_display_weight_metric').val(),
+      "item_display_volume":$('#item_display_volume').val(),
+      "item_display_volume_metric":$('#item_display_volume_metric').val(),
+      "item_display_length":$('#item_display_length').val(),
+      "item_display_length_metric":$('#item_display_length_metric').val(),
+      "item_weight":$('#item_weight').val(),
+      "item_weight_metric":$('#item_weight_metric').val(),
+      "item_length":$('#item_length').val(),
+      "item_length_metric":$('#item_length_metric').val(),
+      "item_width":$('#item_width').val(),
+      "item_width_metric":$('#item_width_metric').val(),
+      "item_height":$('#item_height').val(),
+      "item_height_metric":$('#item_height_metric').val(),
+      "item_display_width":$('#item_display_width').val(),
+      "item_display_width_metric":$('#item_display_width_metric').val(),
+      "item_display_height":$('#item_display_height').val(),
+      "item_display_height_metric":$('#item_display_height_metric').val()
     }
 
     var special_feature_data = [];
