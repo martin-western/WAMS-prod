@@ -12,6 +12,7 @@ Channel.objects.create(name="Amazon UAE")
 Channel.objects.create(name="Ebay")
 Channel.objects.create(name="Noon")
 
+
 image_pk_mapping = {}
 image_cnt=0
 
@@ -30,6 +31,12 @@ for data in all_data_json:
     except Exception as e:
         print("Error Image", str(e))
 
+f_image = open("files/image_pk_mapping.txt","w")
+image_pk_mapping_json = json.dumps(image_pk_mapping)
+f_image.write(image_pk_mapping_json)
+f_image.close()
+
+
 organization_pk_mapping = {}
 organization_cnt=0
 
@@ -43,6 +50,12 @@ for data in all_data_json:
             print("Organization Cnt:", organization_cnt)
     except Exception as e:
         print("Error Organization", str(e))
+
+f_organization = open("files/organization_pk_mapping.txt","w")
+organization_pk_mapping_json = json.dumps(organization_pk_mapping)
+f_organization.write(organization_pk_mapping_json)
+f_organization.close()
+
 
 brand_pk_mapping = {}
 brand_cnt=0
@@ -70,6 +83,10 @@ for data in all_data_json:
     except Exception as e:
         print("Error Brnad", str(e))
 
+f_brand = open("files/brand_pk_mapping.txt","w")
+brand_pk_mapping_json = json.dumps(brand_pk_mapping)
+f_brand.write(brand_pk_mapping_json)
+f_brand.close()
 
 category_pk_mapping = {}
 category_cnt=0
@@ -84,6 +101,11 @@ for data in all_data_json:
             print("Category Cnt:", category_cnt)
     except Exception as e:
         print("Error Category", str(e))
+
+f_category = open("files/category_pk_mapping.txt","w")
+category_pk_mapping_json = json.dumps(category_pk_mapping)
+f_category.write(category_pk_mapping_json)
+f_category.close()
 
 background_image_pk_mapping ={}
 background_image_cnt=0
@@ -104,6 +126,11 @@ for data in all_data_json:
             print("Background Image Cnt:", background_image_cnt)
     except Exception as e:
         print("Error Background Image", str(e))
+
+f_background_image = open("files/background_image_pk_mapping.txt","w")
+background_image_pk_mapping_json = json.dumps(background_image_pk_mapping)
+f_background_image.write(background_image_pk_mapping_json)
+f_background_image.close()
 
 image_bucket_pk_mapping = {}
 image_bucket_cnt=0
@@ -132,6 +159,11 @@ for data in all_data_json:
             print("Image Bucket Cnt:", image_bucket_cnt)
     except Exception as e:
         print("Error Image Bucket", str(e))
+
+f_image_bucket = open("files/image_bucket_pk_mapping.txt","w")
+image_bucket_pk_mapping_json = json.dumps(image_bucket_pk_mapping)
+f_image_bucket.write(image_bucket_pk_mapping_json)
+f_image_bucket.close()
 
 product_pk_mapping = {}
 product_cnt=0
@@ -455,6 +487,11 @@ for data in all_data_json:
     except Exception as e:
         print("Error Product Bucket", str(e))
 
+f_product = open("files/product_pk_mapping.txt","w")
+product_pk_mapping_json = json.dumps(product_pk_mapping)
+f_product.write(product_pk_mapping_json)
+f_product.close()
+
 flyer_pk_mapping = {}
 flyer_cnt=0
 
@@ -522,3 +559,8 @@ for data in all_data_json:
             print("Flyer Cnt:", flyer_cnt)
     except Exception as e:
         print("Error Flyer", str(e))
+
+f_flyer = open("files/flyer_pk_mapping.txt","w")
+flyer_pk_mapping_json = json.dumps(flyer_pk_mapping)
+f_flyer.write(flyer_pk_mapping_json)
+f_flyer.close()
