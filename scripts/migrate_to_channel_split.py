@@ -6,13 +6,6 @@ f = open("scripts/17012020.json", "r")
 all_data_json = json.loads(f.read())
 f.close()
 
-
-Channel.objects.create(name="Amazon UK")
-Channel.objects.create(name="Amazon UAE")
-Channel.objects.create(name="Ebay")
-Channel.objects.create(name="Noon")
-
-
 image_pk_mapping = {}
 image_cnt=0
 
