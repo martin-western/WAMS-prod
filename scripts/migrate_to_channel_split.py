@@ -329,6 +329,64 @@ for data in all_data_json:
             noon_product = json.loads(channel_product.noon_product_json)
 
             amazon_uk_product["product_name"] = product_name_amazon_uk
+            amazon_uk_product["created_date"] = created_date
+            amazon_uk_product["condition_type"] = condition_type
+            amazon_uk_product["feed_product_type"] = feed_product_type
+            amazon_uk_product["update_delete"] = update_delete
+            amazon_uk_product["recommended_browse_nodes"] = recommended_browse_nodes
+            amazon_uk_product["search_terms"] = search_terms
+            amazon_uk_product["enclosure_material"] = enclosure_material
+            amazon_uk_product["cover_material_type"] = cover_material_type
+            amazon_uk_product["special_features"] = special_features
+            amazon_uk_product["product_description_amazon_uk"] = product_description_amazon_uk
+            amazon_uk_product["item_count"] = item_count
+            amazon_uk_product["item_count_metric"] = item_count_metric
+            amazon_uk_product["item_condition_note"] = item_condition_note
+            amazon_uk_product["max_order_quantity"] = max_order_quantity
+            amazon_uk_product["number_of_items"] = number_of_items
+            amazon_uk_product["wattage"] = wattage
+            amazon_uk_product["wattage_metric"] = wattage_metric
+            amazon_uk_product["parentage"] = parentage
+            amazon_uk_product["parent_sku"] = parent_sku
+            amazon_uk_product["relationship_type"] = relationship_type
+            amazon_uk_product["variation_theme"] = variation_theme
+            amazon_uk_product["sale_price"] = sale_price
+            amazon_uk_product["sale_from"] = sale_from
+            amazon_uk_product["sale_end"] = sale_end
+            amazon_uk_product["product_attribute_list"] = product_attribute_list_amazon_uk
+            
+            dimensions = {}
+            dimensions["package_length"] = package_length
+            dimensions["package_length_metric"] = package_length_metric
+            dimensions["package_width"] = package_width
+            dimensions["package_width_metric"] = package_width_metric
+            dimensions["package_height"] = package_height
+            dimensions["package_height_metric"] = package_height_metric
+            dimensions["package_weight"] = package_weight
+            dimensions["package_weight_metric"] = package_weight_metric
+            dimensions["shipping_weight"] = shipping_weight
+            dimensions["shipping_weight_metric"] = shipping_weight_metric
+            dimensions["item_display_weight"] = item_display_weight
+            dimensions["item_display_weight_metric"] = item_display_weight_metric
+            dimensions["item_display_volume"] = item_display_volume
+            dimensions["item_display_volume_metric"] = item_display_volume_metric
+            dimensions["item_display_length"] = item_display_length
+            dimensions["item_display_length_metric"] = item_display_length_metric
+            dimensions["item_weight"] = item_weight
+            dimensions["item_weight_metric"] = item_weight_metric
+            dimensions["item_length"] = item_length
+            dimensions["item_length_metric"] = item_length_metric
+            dimensions["item_width"] = package_length
+            dimensions["item_width_metric"] = item_width_metric
+            dimensions["item_height"] = item_height
+            dimensions["item_height_metric"] = item_height_metric
+            dimensions["item_display_width"] = item_display_width
+            dimensions["item_display_width_metric"] = item_display_width_metric
+            dimensions["item_display_height"] = item_display_height
+            dimensions["item_display_height_metric"] = item_display_height_metric
+            
+            amazon_uk_product["dimensions"] = dimensions
+            channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
 
             print("Product Cnt:", product_cnt)
     except Exception as e:
