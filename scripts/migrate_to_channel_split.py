@@ -516,6 +516,8 @@ for data in all_data_json:
             for background_image in background_images:
                 flyer_obj.background_images_bucket.add(background_image)
 
+            flyer_obj.save()
+            
             flyer_pk_mapping[data["pk"]] = flyer_obj.pk
             print("Flyer Cnt:", flyer_cnt)
     except Exception as e:
