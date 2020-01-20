@@ -333,7 +333,7 @@ for data in all_data_json:
             amazon_uk_product["cover_material_type"] = cover_material_type
             amazon_uk_product["special_features"] = special_features
             amazon_uk_product["product_description_amazon_uk"] = product_description_amazon_uk
-            if product_description_amazon_uk != None || product_description_amazon_uk != "":
+            if product_description_amazon_uk != None or product_description_amazon_uk != "":
                 channel_product_obj.is_amazon_uk_product_created=True
             amazon_uk_product["item_count"] = item_count
             amazon_uk_product["item_count_metric"] = item_count_metric
@@ -386,7 +386,7 @@ for data in all_data_json:
 
             amazon_uae_product["product_name"] = product_name_amazon_uae
             amazon_uae_product["product_description"] = product_description_amazon_uae
-            if product_description_amazon_uae != None || product_description_amazon_uae != "":
+            if product_description_amazon_uae != None or product_description_amazon_uae != "":
                 channel_product_obj.is_amazon_uae_product_created=True
             amazon_uae_product["product_attribute_list"] = product_attribute_list_amazon_uae
             amazon_uae_product["created_date"] = created_date
@@ -398,7 +398,7 @@ for data in all_data_json:
 
             noon_product["product_name"] = product_name_noon
             noon_product["product_description"] = product_description_noon
-            if product_description_noon != None || product_description_noon != "":
+            if product_description_noon != None or product_description_noon != "":
                 channel_product_obj.is_noon_product_created=True
             noon_product["product_attribute_list"] = product_attribute_list_noon
             noon_product["created_date"] = created_date
@@ -413,7 +413,7 @@ for data in all_data_json:
             
             ebay_product["product_name"] = product_name_ebay
             ebay_product["product_description"] = product_description_ebay
-            if product_description_ebay != None || product_description_ebay != "":
+            if product_description_ebay != None or product_description_ebay != "":
                 channel_product_obj.is_ebay_product_created=True
             ebay_product["product_attribute_list"] = product_attribute_list_noon
             ebay_product["created_date"] = created_date
@@ -517,7 +517,7 @@ for data in all_data_json:
                 flyer_obj.background_images_bucket.add(background_image)
 
             flyer_obj.save()
-            
+
             flyer_pk_mapping[data["pk"]] = flyer_obj.pk
             print("Flyer Cnt:", flyer_cnt)
     except Exception as e:
