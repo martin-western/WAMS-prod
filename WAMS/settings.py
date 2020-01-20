@@ -43,6 +43,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'WAMS.urls'
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10242880
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -65,24 +67,24 @@ WSGI_APPLICATION = 'WAMS.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'wamstest3',
-#         'USER': 'nisarg',
-#         'PASSWORD': 'nisargtike',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'wamstest3',
+        'USER': 'nisarg',
+        'PASSWORD': 'nisargtike',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
 
 
 # Password validation
