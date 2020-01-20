@@ -12,12 +12,6 @@ Channel.objects.create(name="Amazon UAE")
 Channel.objects.create(name="Ebay")
 Channel.objects.create(name="Noon")
 
-MainImages.objects.create(is_sourced=True)
-SubImages.objects.create(is_sourced=True)
-
-
-
-
 image_pk_mapping = {}
 image_cnt=0
 
@@ -339,6 +333,8 @@ for data in all_data_json:
             amazon_uk_product["cover_material_type"] = cover_material_type
             amazon_uk_product["special_features"] = special_features
             amazon_uk_product["product_description_amazon_uk"] = product_description_amazon_uk
+            if product_description_amazon_uk != None || product_description_amazon_uk != "":
+                channel_product_obj.is_amazon_uk_product_created=True
             amazon_uk_product["item_count"] = item_count
             amazon_uk_product["item_count_metric"] = item_count_metric
             amazon_uk_product["item_condition_note"] = item_condition_note
@@ -390,6 +386,8 @@ for data in all_data_json:
 
             amazon_uae_product["product_name"] = product_name_amazon_uae
             amazon_uae_product["product_description"] = product_description_amazon_uae
+            if product_description_amazon_uae != None || product_description_amazon_uae != "":
+                channel_product_obj.is_amazon_uae_product_created=True
             amazon_uae_product["product_attribute_list"] = product_attribute_list_amazon_uae
             amazon_uae_product["created_date"] = created_date
             amazon_uae_product["feed_product_type"] = feed_product_type
@@ -400,6 +398,8 @@ for data in all_data_json:
 
             noon_product["product_name"] = product_name_noon
             noon_product["product_description"] = product_description_noon
+            if product_description_noon != None || product_description_noon != "":
+                channel_product_obj.is_noon_product_created=True
             noon_product["product_attribute_list"] = product_attribute_list_noon
             noon_product["created_date"] = created_date
             noon_product["product_type"] = noon_product_type
@@ -413,12 +413,39 @@ for data in all_data_json:
             
             ebay_product["product_name"] = product_name_ebay
             ebay_product["product_description"] = product_description_ebay
+            if product_description_ebay != None || product_description_ebay != "":
+                channel_product_obj.is_ebay_product_created=True
             ebay_product["product_attribute_list"] = product_attribute_list_noon
             ebay_product["created_date"] = created_date
             ebay_product["category"] = category
 
             channel_product_obj.ebay_product_json = json.dumps(ebay_product)
             
+            main_images_obj = MainImages.objects.create(product=product_obj,is_sourced=True)
+
+            for main_image_bucket in main_image_buckets:
+                main_images_obj.main_images.add(main_image_bucket)
+
+            sub_images_obj = SubImages.objects.create(product=product_obj,is_sourced=True)
+
+            for sub_image_bucket in sub_image_buckets:
+                sub_images_obj.sub_images.add(sub_image_bucket)
+
+            product_obj["pfl_images"] = pfl_images
+            product_obj["white_background_images"] = white_background_images
+            product_obj["lifestyle_images"] = lifestyle_images
+            product_obj["certificate_images"] = certificate_images
+            product_obj["giftbox_images"] = giftbox_images
+            product_obj["diecut_images"] = diecut_images
+            product_obj["aplus_content_images"] = aplus_content_images
+            product_obj["ads_images"] = ads_images
+            product_obj["unedited_images"] = unedited_images
+            product_obj["pfl_generated_images"] = pfl_generated_images
+            product_obj["transparent_images"] = transparent_images
+
+            main_images_obj.save()
+            sub_images_obj.save()
+
             base_product_obj.save()
             product_obj.save()
             channel_product_obj.save()
