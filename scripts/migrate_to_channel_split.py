@@ -323,10 +323,10 @@ for data in all_data_json:
 
             channel_product_obj = product_obj.channel_product
 
-            amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
-            amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
-            ebay_product = json.loads(channel_product.ebay_product_json)
-            noon_product = json.loads(channel_product.noon_product_json)
+            amazon_uk_product = json.loads(channel_product_obj.amazon_uk_product_json)
+            amazon_uae_product = json.loads(channel_product_obj.amazon_uae_product_json)
+            ebay_product = json.loads(channel_product_obj.ebay_product_json)
+            noon_product = json.loads(channel_product_obj.noon_product_json)
 
             amazon_uk_product["product_name"] = product_name_amazon_uk
             amazon_uk_product["created_date"] = created_date
@@ -386,7 +386,7 @@ for data in all_data_json:
             dimensions["item_display_height_metric"] = item_display_height_metric
             
             amazon_uk_product["dimensions"] = dimensions
-            channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
+            channel_product_obj.amazon_uk_product_json = json.dumps(amazon_uk_product)
 
             amazon_uae_product["product_name"] : product_name_amazon_uae
             amazon_uae_product["product_description"] : product_description_amazon_uae
@@ -396,7 +396,7 @@ for data in all_data_json:
             amazon_uae_product["recommended_browse_nodes"] : recommended_browse_nodes
             amazon_uae_product["update_delete"] : update_delete
             
-            channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
+            channel_product_obj.amazon_uae_product_json = json.dumps(amazon_uae_product)
 
             noon_product["product_name"] : product_name_noon
             noon_product["product_description"] : product_description_noon
@@ -409,9 +409,13 @@ for data in all_data_json:
             noon_product["msrp_ae"] : noon_msrp_ae
             noon_product["msrp_ae_unit"] : noon_msrp_ae_unit
             
-            channel_product.noon_product_json = json.dumps(noon_product)
+            channel_product_obj.noon_product_json = json.dumps(noon_product)
             
             
+
+            base_product_obj.save()
+            product_obj.save()
+            channel_product_obj.save()
 
             print("Product Cnt:", product_cnt)
     except Exception as e:
