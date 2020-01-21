@@ -174,7 +174,7 @@ for data in all_data_json:
             product_cnt+=1
             
             created_date = datetime.datetime.strptime(
-                    data["fields"]["created_date"][:19], "%b %d, %Y")
+                    data["fields"]["created_date"][:10], "%Y-%m-%d")
             status = data["fields"]["status"]
             verified = data["fields"]["verified"]
             pfl_product_name = data["fields"]["pfl_product_name"]
