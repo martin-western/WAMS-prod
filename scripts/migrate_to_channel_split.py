@@ -158,10 +158,10 @@ for data in all_data_json:
             mapped_pk = image_pk_mapping[image_pk]
             image_obj = Image.objects.get(pk=mapped_pk)
 
-            description = data["fields"]["image"]["description"]
-            is_main_image = data["fields"]["image"]["is_main_image"]
-            is_sub_image = data["fields"]["image"]["is_sub_image"]
-            sub_image_index = data["fields"]["image"]["sub_image_index"]
+            description = data["fields"]["description"]
+            is_main_image = data["fields"]["is_main_image"]
+            is_sub_image = data["fields"]["is_sub_image"]
+            sub_image_index = data["fields"]["sub_image_index"]
             
             image_bucket_obj, created = ImageBucket.objects.get_or_create(image=image_obj,
                                                           description=description,
