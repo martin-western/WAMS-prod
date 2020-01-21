@@ -483,7 +483,7 @@ class Flyer(models.Model):
 
 class PFL(models.Model):
 
-    name = models.CharField(default="SamplePFL", max_length=200)
+    name = models.CharField(default="SamplePFL", max_length=300)
     product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
     product_image = models.ForeignKey(Image, null=True, blank=True, related_name="product_images", on_delete=models.SET_NULL)
     template_data = models.TextField(null=True, blank=True)
