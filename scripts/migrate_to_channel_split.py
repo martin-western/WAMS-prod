@@ -551,7 +551,7 @@ f_product.write(product_pk_mapping_json)
 f_product.close()
 
 f_sku = open("files/duplicate_seller_sku.txt","w")
-seller_sku_json = json.dumps(seller_sku_json)
+seller_sku_json = json.dumps(f_sku.read())
 f_sku.write(seller_sku_json)
 f_sku.close()
 

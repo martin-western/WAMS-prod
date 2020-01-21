@@ -314,7 +314,7 @@ class MaterialType(models.Model):
 
 class BaseProduct(models.Model):
 
-    base_product_name = models.CharField(max_length=200)
+    base_product_name = models.CharField(max_length=300)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     seller_sku = models.CharField(max_length=200, unique=True)
@@ -367,7 +367,7 @@ class Product(models.Model):
 
     #MISC
     base_product = models.ForeignKey(BaseProduct,null=True,blank=True,on_delete=models.SET_NULL)
-    product_name = models.CharField(max_length=200,null=True)
+    product_name = models.CharField(max_length=300,null=True)
     product_id = models.CharField(max_length=200,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
     created_date = models.DateTimeField()
@@ -378,10 +378,10 @@ class Product(models.Model):
     uuid = models.CharField(null=True,max_length=200)
 
     #PFL
-    pfl_product_name = models.CharField(max_length=250, default="")
+    pfl_product_name = models.CharField(max_length=300, default="")
     pfl_product_features = models.TextField(default="[]")
 
-    product_name_sap = models.CharField(max_length=200, default="")
+    product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
