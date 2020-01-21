@@ -10,7 +10,6 @@ f.close()
 
 image_pk_mapping = {}
 image_cnt=0
-
 for data in all_data_json:
     
     try:
@@ -64,11 +63,16 @@ for data in all_data_json:
             brand_cnt+=1
 
             logo_pk = data["fields"]["logo"]
-            mapped_pk = image_pk_mapping[logo_pk]
-            logo_obj = Image.objects.get(pk = mapped_pk)
+            logo_obj = None
+            if logo_pk!=None
+                mapped_pk = image_pk_mapping[logo_pk]
+                logo_obj = Image.objects.get(pk = mapped_pk)
+
             organization_pk = data["fields"]["organization"]
-            organization_mapped_pk = image_pk_mapping[organization_pk]
-            organization_obj = Organization.objects.get(pk = organization_mapped_pk)
+            organization_obj = None
+            if organization_pk!=None:
+                organization_mapped_pk = image_pk_mapping[organization_pk]
+                organization_obj = Organization.objects.get(pk = organization_mapped_pk)
 
             brand_obj = Brand.objects.create(name=data["fields"]["name"],
                                              logo = logo_obj,
@@ -115,8 +119,10 @@ for data in all_data_json:
             background_image_cnt+=1
             
             image_pk = data["fields"]["image"]
-            mapped_pk = image_pk_mapping[image_pk]
-            image_obj = Image.objects.get(pk=mapped_pk)
+            image_obj = None
+            if image_pk!=None:
+                mapped_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_pk)
             
             background_image_obj = BackgroundImage.objects.create(image=image_obj)
             background_image_pk_mapping[data["pk"]] = background_image_obj.pk
@@ -276,12 +282,17 @@ for data in all_data_json:
             outdoor_price = data["fields"]["outdoor_price"]
             
             barcode_pk = data["fields"]["barcode"]
-            barcode_mapped_pk = image_pk_mapping[barcode_pk]
-            barcode_obj = Image.objects.get(pk=barcode_mapped_pk)
+            barcode_obj = None
+            if barcode_pk!=None:
+                barcode_mapped_pk = image_pk_mapping[barcode_pk]
+                barcode_obj = Image.objects.get(pk=barcode_mapped_pk)
+
 
             brand_pk = data["fields"]["brand"]
-            brand_mapped_pk = brand_pk_mapping[brand_pk]
-            brand_obj = Brand.objects.get(pk=brand_mapped_pk)
+            brand_obj = None
+            if brand_pk!=None:
+                brand_mapped_pk = brand_pk_mapping[brand_pk]
+                brand_obj = Brand.objects.get(pk=brand_mapped_pk)
 
             main_images = data["fields"]["main_images"]
             main_image_buckets = []
@@ -510,8 +521,10 @@ for data in all_data_json:
             brand_obj = Brand.objects.get(pk=int(brand_mapped_pk))
 
             flyer_image_pk = data["fields"]["flyer_image"]
-            mapped_pk = image_pk_mapping[logo_pk]
-            flyer_image_obj = Image.objects.get(pk = mapped_pk)
+            flyer_image_obj = None
+            if flyer_image_pk!=None:
+                mapped_pk = image_pk_mapping[flyer_image_pk]
+                flyer_image_obj = Image.objects.get(pk = mapped_pk)
 
             product_bucket = data["fields"]["product_bucket"]
             products = []
