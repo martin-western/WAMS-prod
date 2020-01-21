@@ -64,7 +64,7 @@ for data in all_data_json:
 
             logo_pk = data["fields"]["logo"]
             logo_obj = None
-            if logo_pk!=None
+            if logo_pk!=None:
                 mapped_pk = image_pk_mapping[logo_pk]
                 logo_obj = Image.objects.get(pk = mapped_pk)
 
@@ -80,9 +80,12 @@ for data in all_data_json:
                                              )
 
             brand_pk_mapping[data["pk"]] = brand_obj.pk
-            print("Brand Cnt:", brand_cnt)
+            if brand_cnt%1000==0:
+                print("Brand Cnt:", brand_cnt)
     except Exception as e:
-        print("Error Brnad", str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print("Error in Brand %s at %s", str(e), str(exc_tb.tb_lineno))
+
 
 f_brand = open("files/brand_pk_mapping.txt","w")
 brand_pk_mapping_json = json.dumps(brand_pk_mapping)
@@ -148,6 +151,7 @@ for data in all_data_json:
             image_pk = data["fields"]["image"]
             mapped_pk = image_pk_mapping[image_pk]
             image_obj = Image.objects.get(pk=mapped_pk)
+
             description = data["fields"]["image"]["description"]
             is_main_image = data["fields"]["image"]["is_main_image"]
             is_sub_image = data["fields"]["image"]["is_sub_image"]
@@ -163,7 +167,8 @@ for data in all_data_json:
             if image_bucket_cnt%1000==0:
                 print("Image Bucket Cnt:", image_bucket_cnt)
     except Exception as e:
-        print("Error Image Bucket", str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print("Error in Image Bucket %s at %s", str(e), str(exc_tb.tb_lineno))
 
 f_image_bucket = open("files/image_bucket_pk_mapping.txt","w")
 image_bucket_pk_mapping_json = json.dumps(image_bucket_pk_mapping)
@@ -272,7 +277,11 @@ for data in all_data_json:
             variation_theme = data["fields"]["variation_theme"]
             
             standard_price = data["fields"]["standard_price"]
+            if standard_price!=None:
+                standard_price = float(standard_price)
             quantity = data["fields"]["quantity"]
+            if quantity!=None:
+                quantity = int(quantity)
             sale_price = data["fields"]["sale_price"]
             sale_from = data["fields"]["sale_from"]
             sale_end = data["fields"]["sale_end"]
@@ -348,8 +357,8 @@ for data in all_data_json:
                                                  product_name_sap=product_name_sap,
                                                  color_map=color_map,
                                                  color=color,
-                                                 standard_price=float(standard_price),
-                                                 quantity=int(quantity),
+                                                 standard_price=standard_price,
+                                                 quantity=quantity,
                                                  material_type=material_type_obj,
                                                  barcode=barcode_obj,
                                                  barcode_string=barcode_string,
