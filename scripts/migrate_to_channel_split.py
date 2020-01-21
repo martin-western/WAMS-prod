@@ -485,7 +485,8 @@ for data in all_data_json:
             if product_cnt%1000==0:
                 print("Product Cnt:", product_cnt)
     except Exception as e:
-        print("Error Product Bucket", str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print("Error in Product %s at %s", str(e), str(exc_tb.tb_lineno))
 
 f_product = open("files/product_pk_mapping.txt","w")
 product_pk_mapping_json = json.dumps(product_pk_mapping)
