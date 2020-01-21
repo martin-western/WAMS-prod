@@ -16,13 +16,15 @@ for data in all_data_json:
     try:
         if data["model"] == "WAMSApp.image":
             image_cnt+=1
-            image_obj = Image.objects.create(image=data["fields"]["image"],
+            image_obj, created = Image.objects.get_or_create(image=data["fields"]["image"],
                                              mid_image=data["fields"]["mid_image"],
                                              thumbnail=data["fields"]["thumbnail"],
                                              description=data["fields"]["description"]
                                              )
             image_pk_mapping[data["pk"]] = image_obj.pk
-            print("Image Cnt:", image_cnt)
+            #print("Image Cnt:", image_cnt)
+            if image_cnt%1000==0:
+                print("Image Cnt:", image_cnt)
     except Exception as e:
         print("Error Image", str(e))
 
@@ -93,7 +95,8 @@ for data in all_data_json:
             category_cnt+=1
             category_obj = Category.objects.create(name=data["fields"]["name"])
             category_pk_mapping[data["pk"]] = category_obj.pk
-            print("Category Cnt:", category_cnt)
+            if category_cnt%1000==0:
+                print("Category Cnt:", category_cnt)
     except Exception as e:
         print("Error Category", str(e))
 
@@ -151,7 +154,8 @@ for data in all_data_json:
                                                           sub_image_index=sub_image_index
                                                           )
             image_bucket_pk_mapping[data["pk"]] = image_bucket_obj.pk
-            print("Image Bucket Cnt:", image_bucket_cnt)
+            if image_bucket_cnt%1000==0:
+                print("Image Bucket Cnt:", image_bucket_cnt)
     except Exception as e:
         print("Error Image Bucket", str(e))
 
@@ -478,7 +482,8 @@ for data in all_data_json:
             channel_product_obj.save()
 
             product_pk_mapping[data["pk"]] = product_obj.pk
-            print("Product Cnt:", product_cnt)
+            if product_cnt%1000==0:
+                print("Product Cnt:", product_cnt)
     except Exception as e:
         print("Error Product Bucket", str(e))
 
