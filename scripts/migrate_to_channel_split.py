@@ -184,11 +184,20 @@ f_image_bucket.close()
 product_pk_mapping = {}
 product_cnt=0
 
+seller_sku_dict = {}
 for data in all_data_json:
     
     try:
         if data["model"] == "WAMSApp.product":
             product_cnt+=1
+
+            seller_sku = data["fields"]["seller_sku"]
+
+            if seller_sku not in seller_sku_dict:
+                seller_sku_dict[seller_sku] = 1
+            else:
+                seller_sku_dict[seller_sku] += 1
+                continue
             
             created_date = datetime.datetime.strptime(
                     data["fields"]["created_date"][:10], "%Y-%m-%d")
@@ -488,17 +497,39 @@ for data in all_data_json:
             for sub_image_bucket in sub_image_buckets:
                 sub_images_obj.sub_images.add(sub_image_bucket)
 
-            product_obj["pfl_images"] = pfl_images
-            product_obj["white_background_images"] = white_background_images
-            product_obj["lifestyle_images"] = lifestyle_images
-            product_obj["certificate_images"] = certificate_images
-            product_obj["giftbox_images"] = giftbox_images
-            product_obj["diecut_images"] = diecut_images
-            product_obj["aplus_content_images"] = aplus_content_images
-            product_obj["ads_images"] = ads_images
-            product_obj["unedited_images"] = unedited_images
-            product_obj["pfl_generated_images"] = pfl_generated_images
-            product_obj["transparent_images"] = transparent_images
+            for pfl_image in pfl_images:
+                product_obj.pfl_images.add(pfl_image)
+            
+            for white_background_image in white_background_images:
+                product_obj.white_background_images.add(white_background_image)
+            
+            for lifestyle_image in lifestyle_images:
+                product_obj.lifestyle_images.add(lifestyle_image)
+            
+            for certificate_image in certificate_images:
+                product_obj.certificate_images.add(certificate_image)
+            
+            for giftbox_image in giftbox_images:
+                product_obj.giftbox_image.add(giftbox_images)
+            
+            for diecut_image in diecut_images:
+                product_obj.diecut_images.add(diecut_image)
+            
+            for aplus_content_image in aplus_content_images:
+                product_obj.aplus_content_images.add(aplus_content_image)
+            
+            for ads_image in ads_images:
+                product_obj.ads_images.add(ads_image)
+            
+            for unedited_image in unedited_images:
+                product_obj.unedited_images.add(unedited_image)
+            
+            for pfl_generated_image in pfl_generated_images:
+                product_obj.pfl_generated_images.add(pfl_generated_image)
+            
+            for transparent_image in transparent_images:
+                product_obj.transparent_images.add(transparent_image)
+
 
             main_images_obj.save()
             sub_images_obj.save()
@@ -518,6 +549,11 @@ f_product = open("files/product_pk_mapping.txt","w")
 product_pk_mapping_json = json.dumps(product_pk_mapping)
 f_product.write(product_pk_mapping_json)
 f_product.close()
+
+f_sku = open("files/duplicate_seller_sku.txt","w")
+seller_sku_json = json.dumps(seller_sku_json)
+f_sku.write(seller_sku_json)
+f_sku.close()
 
 flyer_pk_mapping = {}
 flyer_cnt=0
