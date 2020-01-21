@@ -193,6 +193,9 @@ for data in all_data_json:
 
             seller_sku = data["fields"]["seller_sku"]
 
+            if seller_sku=="":
+                seller_sku = "UNDEFINED_"+str(product_cnt)
+                
             if seller_sku not in seller_sku_dict:
                 seller_sku_dict[seller_sku] = 1
             else:
@@ -551,7 +554,7 @@ f_product.write(product_pk_mapping_json)
 f_product.close()
 
 f_sku = open("files/duplicate_seller_sku.txt","w")
-seller_sku_json = json.dumps(f_sku.read())
+seller_sku_json = json.dumps(seller_sku_dict)
 f_sku.write(seller_sku_json)
 f_sku.close()
 
