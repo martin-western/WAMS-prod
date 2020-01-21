@@ -195,7 +195,7 @@ for data in all_data_json:
 
             if seller_sku=="":
                 seller_sku = "UNDEFINED_"+str(product_cnt)
-                
+
             if seller_sku not in seller_sku_dict:
                 seller_sku_dict[seller_sku] = 1
             else:
@@ -217,7 +217,7 @@ for data in all_data_json:
             
             product_id = data["fields"]["product_id"]
             product_id_type = data["fields"]["product_id_type"]
-            seller_sku = data["fields"]["seller_sku"]
+            #seller_sku = data["fields"]["seller_sku"]
             category = data["fields"]["category"]
             subtitle = data["fields"]["subtitle"]
             manufacturer = data["fields"]["manufacturer"]
