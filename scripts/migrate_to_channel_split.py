@@ -510,7 +510,7 @@ for data in all_data_json:
                 product_obj.certificate_images.add(certificate_image)
             
             for giftbox_image in giftbox_images:
-                product_obj.giftbox_image.add(giftbox_images)
+                product_obj.giftbox_images.add(giftbox_images)
             
             for diecut_image in diecut_images:
                 product_obj.diecut_images.add(diecut_image)
