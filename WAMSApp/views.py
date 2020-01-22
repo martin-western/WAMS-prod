@@ -1404,8 +1404,7 @@ class FetchProductListAPI(APIView):
             product_objs_list = []
             base_product_objs_list = []
 
-            base_product_objs_list = custom_permission_filter_base_products(request.user)
-            product_objs_list = custom_permission_filter_products(request.user)
+            (base_product_objs_list, product_objs_list) = custom_permission_filter_base_products_and_products(request.user)
 
             if filter_parameters['verified']:
                 product_objs_list = product_objs_list.filter(
@@ -1424,6 +1423,7 @@ class FetchProductListAPI(APIView):
             if filter_parameters["brand_name"] != "":
                 brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
                 base_product_objs_list = base_product_objs_list.filter(brand=brand_obj)
+                product_objs_list = product_objs_list.filter(base_product__brand=brand_obj)
 
             if filter_parameters["min_price"] != "":
                 product_objs_list = product_objs_list.filter(
@@ -1445,9 +1445,11 @@ class FetchProductListAPI(APIView):
             search_list_product_objs = Product.objects.none()
             if len(chip_data) == 0:
                 search_list_product_objs = product_objs_list
-                for prod in product_objs_list:
-                    search_list_base_product_objs.append(prod.base_product)
-                    search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
+                search_list_base_product_objs = base_product_objs_list
+                extra_prod = product_objs_list.exclude(base_product__in=search_list_base_product_objs)
+                for prod in extra_prod:
+                    search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
+                search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
             else:
                 for tag in chip_data:
                     search = product_objs_list.filter(
@@ -1461,7 +1463,7 @@ class FetchProductListAPI(APIView):
                         product_obj = Product.objects.filter(pk=prod.pk)
                         search_list_product_objs|=product_obj
                         search_list_base_product_objs.append(prod.base_product)
-                        search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
+                    search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
             products = []
 
@@ -1540,7 +1542,6 @@ class FetchProductListAPI(APIView):
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                                 main_image_url = main_image_obj.image.image.url
                         except Exception as e:
-                            logger.error("%s",str(e))
                             pass
                         temp_dict3["image_url"] = main_image_url
 
@@ -1608,7 +1609,6 @@ class FetchProductListAPI(APIView):
                                 main_image_url = main_image_obj.image.image.url
                             logger.info("main image urll: %s", str(main_image_url))
                         except Exception as e:
-                            logger.error("Ebay %s",str(e))
                             pass
                         temp_dict3["image_url"] = main_image_url
 
