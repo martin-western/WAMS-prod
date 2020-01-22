@@ -1533,7 +1533,8 @@ class FetchProductListAPI(APIView):
                         temp_dict3["product_pk"] = product_obj.pk
                         temp_dict3["channel_product_name"] = noon_product["product_name"]
                         temp_dict3["channel_name"] = "Noon"
-                        main_image_url = None
+                        main_image_url = Config.objects.all()[0].product_404_image.image.url
+                        
                         try:
                             
                             main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Noon")
@@ -1600,7 +1601,7 @@ class FetchProductListAPI(APIView):
                         temp_dict3["product_pk"] = product_obj.pk
                         temp_dict3["channel_product_name"] = ebay_product["product_name"]
                         temp_dict3["channel_name"] = "Ebay"
-                        main_image_url = None
+                        main_image_url = Config.objects.all()[0].product_404_image.image.url
                         try:
                             main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Ebay")
                             
@@ -1733,8 +1734,7 @@ class AddToExportAPI(APIView):
 
             export_obj = None
             if export_option == "New":
-                export_obj = ExportList.objects.create(
-                    title=export_title, user=request.user)
+                export_obj = ExportList.objects.create(title=export_title, user=request.user)
             else:
                 export_obj = ExportList.objects.get(pk=int(export_title_pk))
 
