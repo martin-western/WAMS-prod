@@ -21,7 +21,7 @@ from django.conf import settings
 
 
 from PIL import Image as IMage
-import StringIO
+from io import BytesIO as StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 import barcode
@@ -36,7 +36,7 @@ import xlrd
 import csv
 import datetime
 import boto3
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import pandas as pd
 import xml.dom.minidom
 
@@ -1225,7 +1225,7 @@ class SaveBaseProductAPI(APIView):
 
             dimensions = json.loads(data["dimensions"])
             old_dimensions = json.loads(base_product_obj.dimensions)
-            if len(dimensions.keys())==len(old_dimensions.keys()):
+            if len(list(dimensions.keys()))==len(list(old_dimensions.keys())):
                 for key in dimensions:
                     if key not in old_dimensions:
                         dimensions = old_dimensions
@@ -1447,7 +1447,7 @@ class FetchProductListAPI(APIView):
                 search_list_product_objs = product_objs_list
                 for prod in product_objs_list:
                     search_list_base_product_objs.append(prod.base_product)
-                    search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
+                search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
             else:
                 for tag in chip_data:
                     search = product_objs_list.filter(
@@ -3414,7 +3414,7 @@ class DownloadImagesS3API(APIView):
                 try:
                     if "url" not in link or link["url"]=="":
                         continue
-                    filename = urllib2.unquote(link["url"])
+                    filename = urllib.parse.unquote(link["url"])
                     filename = "/".join(filename.split("/")[3:])
                     temp_dict = {}
                     temp_dict["key"] = link["key"]
@@ -3862,7 +3862,7 @@ class SapIntegrationAPI(APIView):
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
 
-            print(json.dumps(content, indent=4, sort_keys=True))
+            print((json.dumps(content, indent=4, sort_keys=True)))
             
             logger.info("%s",type(content))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]

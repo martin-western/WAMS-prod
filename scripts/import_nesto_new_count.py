@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-import StringIO
+from io import BytesIO as StringIO
 from WAMSApp.models import *
 from PIL import Image as IMage
 from os import listdir, walk

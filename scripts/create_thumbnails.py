@@ -1,6 +1,6 @@
 from WAMSApp.models import *
 import urllib2
-import StringIO
+from io import BytesIO as StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import time
 

@@ -8,7 +8,7 @@ from django.utils import timezone
 #from WAMSApp.utils import *
 
 from PIL import Image as IMAGE
-import StringIO
+from io import BytesIO as StringIO
 import logging
 import sys
 import json
