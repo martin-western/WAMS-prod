@@ -54,7 +54,7 @@
   input[type=search]:focus:not([readonly]),
   textarea.materialize-textarea:focus:not([readonly])>label {
     border-bottom: 1px solid #512ea8 !important;
-    */ box-shadow: 0 1px 0 0 #f00 !important;
+    box-shadow: 0 1px 0 0 #f00 !important;
     /* border-bottom: none !important; */
     /* box-shadow: none !important; */
   }
@@ -1493,7 +1493,7 @@
                                         </div>
                                         <div class = "product-name-container inline-block">
                                           <div class="product-info" style="width:100% !important;">
-                                            <p id="base-product-name-`+ base_product_pk + `" class="title small-font truncate"  style = "width: 100px !important;"><a href="/ecommerce-listing/` + product_variants[j]["product_pk"] + `" target="_blank" class="title small-font">
+                                            <p id="base-product-name-`+ base_product_pk + `"  class="title small-font truncate"  style = "width: 100px !important;"><a href="/ecommerce-listing/` + product_variants[j]["product_pk"] + `" target="_blank" class="title small-font">
                                               `+ product_variants[j]["product_name"] + `
                                             </p>
                                             <p id="seller-sku-`+ base_product_pk + `" class="subtitle subtitle-font">
@@ -1683,7 +1683,7 @@
                                         </div>
                                         <div class = "product-name-container inline-block">
                                           <div class="product-info" style="width:100% !important;">
-                                            <p id="base-product-name-`+ base_product_pk + `" class="title small-font truncate" style = "width: 100px !important;">
+                                            <p id="base-product-name-`+ base_product_pk + `"  class="title small-font truncate" style = "width: 100px !important;">
                                               `+ channel_products[j]["channel_product_name"] + `
                                             </p>
                                             <p id="seller-sku-`+ base_product_pk + `" class="subtitle subtitle-font">
@@ -1813,7 +1813,7 @@
                                        
                                         <div class = "product-name-container inline-block">
                                           <div class="product-info">
-                                            <p id="base-product-name-`+ base_product_pk + `" class="title small-font truncate" style = "width: 150px !important;">
+                                            <p id="base-product-name-`+ base_product_pk + `" title = ` + product_name + ` class="title small-font truncate" style = "width: 150px !important;">
                                               `+ product_name + `
                                             </p>
                                             <p id="seller-sku-`+ base_product_pk + `" class="subtitle subtitle-font">
