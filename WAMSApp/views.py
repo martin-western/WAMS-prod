@@ -1070,7 +1070,7 @@ class FetchProductDetailsAPI(APIView):
                 response["special_features"] = json.loads(amazon_uk_product_dict["special_features"])
             except Exception as e:
                 response["special_features"] = []
-                
+
             response["ecommerce_dimensions"] = amazon_uk_product_dict["dimensions"]
 
             
@@ -1506,6 +1506,9 @@ class FetchProductListAPI(APIView):
                     temp_dict2["product_pk"] = product_obj.pk
                     temp_dict2["product_id"] = product_obj.product_id
                     temp_dict2["product_name"] = product_obj.product_name
+                    temp_dict2["product_price"] = product_obj.standard_price
+                    if temp_dict2["product_price"]==None:
+                        temp_dict2["product_price"] = "-"
                     temp_dict2["status"] = product_obj.status
 
                     main_images_list = ImageBucket.objects.none()
