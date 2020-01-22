@@ -1,6 +1,6 @@
 from WAMSApp.models import *
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import datetime
 import os
 
@@ -30,10 +30,10 @@ else:
                 image_pk_mapping[data["pk"]] = image_obj.pk
                 #print("Image Cnt:", image_cnt)
                 if image_cnt%1000==0:
-                    print("Image Cnt:", image_cnt)
+                    print(("Image Cnt:", image_cnt))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            print("Error Image %s at %s", str(e), str(exc_tb.tb_lineno))
+            print(("Error Image %s at %s", str(e), str(exc_tb.tb_lineno)))
 
     f_image = open("files/image_pk_mapping.txt","w")
     image_pk_mapping_json = json.dumps(image_pk_mapping)
@@ -50,9 +50,9 @@ for data in all_data_json:
             organization_cnt+=1
             organization_obj, created = Organization.objects.get_or_create(name=data["fields"]["name"])
             organization_pk_mapping[int(data["pk"])] = int(organization_obj.pk)
-            print("Organization Cnt:", organization_cnt)
+            print(("Organization Cnt:", organization_cnt))
     except Exception as e:
-        print("Error Organization", str(e))
+        print(("Error Organization", str(e)))
 
 
 brand_pk_mapping = {}
@@ -85,10 +85,10 @@ for data in all_data_json:
 
             brand_pk_mapping[int(data["pk"])] = int(brand_obj.pk)
             if brand_cnt%1000==0:
-                print("Brand Cnt:", brand_cnt)
+                print(("Brand Cnt:", brand_cnt))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        print("Error in Brand %s at %s", str(e), str(exc_tb.tb_lineno))
+        print(("Error in Brand %s at %s", str(e), str(exc_tb.tb_lineno)))
 
 
 f_brand = open("files/brand_pk_mapping.txt","w")
@@ -107,9 +107,9 @@ for data in all_data_json:
             category_obj, created = Category.objects.get_or_create(name=data["fields"]["name"])
             category_pk_mapping[int(data["pk"])] = int(category_obj.pk)
             if category_cnt%1000==0:
-                print("Category Cnt:", category_cnt)
+                print(("Category Cnt:", category_cnt))
     except Exception as e:
-        print("Error Category", str(e))
+        print(("Error Category", str(e)))
 
 f_category = open("files/category_pk_mapping.txt","w")
 category_pk_mapping_json = json.dumps(category_pk_mapping)
@@ -135,10 +135,10 @@ for data in all_data_json:
             background_image_obj, created = BackgroundImage.objects.get_or_create(image=image_obj)
             background_image_pk_mapping[int(data["pk"])] = int(background_image_obj.pk)
             
-            print("Background Image Cnt:", background_image_cnt)
+            print(("Background Image Cnt:", background_image_cnt))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        print("Error Background Image %s at %s", str(e), str(exc_tb.tb_lineno))
+        print(("Error Background Image %s at %s", str(e), str(exc_tb.tb_lineno)))
 
 f_background_image = open("files/background_image_pk_mapping.txt","w")
 background_image_pk_mapping_json = json.dumps(background_image_pk_mapping)
@@ -171,10 +171,10 @@ for data in all_data_json:
                                                           )
             image_bucket_pk_mapping[int(data["pk"])] = int(image_bucket_obj.pk)
             if image_bucket_cnt%1000==0:
-                print("Image Bucket Cnt:", image_bucket_cnt)
+                print(("Image Bucket Cnt:", image_bucket_cnt))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        print("Error in Image Bucket %s at %s", str(e), str(exc_tb.tb_lineno))
+        print(("Error in Image Bucket %s at %s", str(e), str(exc_tb.tb_lineno)))
 
 f_image_bucket = open("files/image_bucket_pk_mapping.txt","w")
 image_bucket_pk_mapping_json = json.dumps(image_bucket_pk_mapping)
@@ -232,7 +232,7 @@ for data in all_data_json:
             color = data["fields"]["color"]
             enclosure_material = data["fields"]["enclosure_material"]
             cover_material_type = data["fields"]["cover_material_type"]
-            special_features = data["fields"]["special_features"]
+            special_features = json.loads(data["fields"]["special_features"])
             
             noon_product_type = data["fields"]["noon_product_type"]
             noon_product_subtype = data["fields"]["noon_product_subtype"]
@@ -543,10 +543,10 @@ for data in all_data_json:
 
             product_pk_mapping[data["pk"]] = product_obj.pk
             if product_cnt%1000==0:
-                print("Product Cnt:", product_cnt)
+                print(("Product Cnt:", product_cnt))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        print("Error in Product %s at %s", str(e), str(exc_tb.tb_lineno))
+        print(("Error in Product %s at %s", str(e), str(exc_tb.tb_lineno)))
 
 f_product = open("files/product_pk_mapping.txt","w")
 product_pk_mapping_json = json.dumps(product_pk_mapping)
@@ -624,10 +624,10 @@ for data in all_data_json:
             flyer_obj.save()
 
             flyer_pk_mapping[data["pk"]] = flyer_obj.pk
-            print("Flyer Cnt:", flyer_cnt)
+            print(("Flyer Cnt:", flyer_cnt))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        print("Error Flyer %s at %s", str(e), str(exc_tb.tb_lineno))
+        print(("Error Flyer %s at %s", str(e), str(exc_tb.tb_lineno)))
 
 f_flyer = open("files/flyer_pk_mapping.txt","w")
 flyer_pk_mapping_json = json.dumps(flyer_pk_mapping)

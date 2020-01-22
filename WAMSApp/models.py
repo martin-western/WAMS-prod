@@ -190,34 +190,34 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
-    def save(self, *args, **kwargs):
-        try:  
-            size = 128, 128
-            thumb = IMAGE.open(self.image)
-            thumb.thumbnail(size)
-            infile = self.image.file.name
-            im_type = thumb.format 
-            thumb_io = StringIO.StringIO()
-            thumb.save(thumb_io, format=im_type)
+    # def save(self, *args, **kwargs):
+    #     try:  
+    #         size = 128, 128
+    #         thumb = IMAGE.open(self.image)
+    #         thumb.thumbnail(size)
+    #         infile = self.image.file.name
+    #         im_type = thumb.format 
+    #         thumb_io = StringIO.StringIO()
+    #         thumb.save(thumb_io, format=im_type)
 
-            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
+    #         thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
 
-            self.thumbnail = thumb_file
+    #         self.thumbnail = thumb_file
 
-            size2 = 512, 512
-            thumb2 = IMAGE.open(self.image)
-            thumb2.thumbnail(size2)
-            thumb_io2 = StringIO.StringIO()
-            thumb2.save(thumb_io2, format=im_type)
+    #         size2 = 512, 512
+    #         thumb2 = IMAGE.open(self.image)
+    #         thumb2.thumbnail(size2)
+    #         thumb_io2 = StringIO.StringIO()
+    #         thumb2.save(thumb_io2, format=im_type)
 
-            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
+    #         thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
 
-            self.mid_image = thumb_file2
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
+    #         self.mid_image = thumb_file2
+    #     except Exception as e:
+    #         exc_type, exc_obj, exc_tb = sys.exc_info()
+    #         logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
-        super(Image, self).save(*args, **kwargs)
+    #     super(Image, self).save(*args, **kwargs)
     
 
 class ImageBucket(models.Model):
