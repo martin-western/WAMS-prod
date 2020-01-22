@@ -18,7 +18,7 @@ def custom_permission_filter_base_products(user):
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
         base_product_objs = BaseProduct.objects.filter(brand__in=brands)
-        
+        logger.info("custom_permission_filter_base_products done")
         return base_product_objs
     
     except Exception as e:
@@ -31,19 +31,30 @@ def custom_permission_filter_products(user):
     try:
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
-        base_product_objs = BaseProduct.objects.filter(brand__in=brands)
-        
-        product_objs_list = Product.objects.none()
-        
-        for base_product_obj in base_product_objs:
-            product_objs_list |= Product.objects.filter(base_product=base_product_obj)
-            
+        product_objs_list = Product.objects.filter(base_product__brand__in=brands)
+        logger.info("custom_permission_filter_products done")
         return product_objs_list
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("custom_permission_filter_products: %s at %s", e, str(exc_tb.tb_lineno))
         return []
+
+
+def custom_permission_filter_base_products_and_products(user):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        brands = permission_obj.brands.all()
+        base_product_objs = BaseProduct.objects.filter(brand__in=brands)
+        product_objs_list = Product.objects.filter(base_product__brand__in=brands)
+        logger.info("custom_permission_filter_products done")
+        return (base_product_objs, product_objs_list)
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_filter_products: %s at %s", e, str(exc_tb.tb_lineno))
+        return ([], [])
 
 
 def custom_permission_filter_brands(user):

@@ -1066,7 +1066,11 @@ class FetchProductDetailsAPI(APIView):
             response["color"] = product_obj.color
 
             response["product_description_amazon_uk"] = amazon_uk_product_dict["product_description"]
-            response["special_features"] = amazon_uk_product_dict["special_features"]
+            try:
+                response["special_features"] = json.loads(amazon_uk_product_dict["special_features"])
+            except Exception as e:
+                response["special_features"] = []
+
             response["ecommerce_dimensions"] = amazon_uk_product_dict["dimensions"]
 
             
@@ -1404,8 +1408,7 @@ class FetchProductListAPI(APIView):
             product_objs_list = []
             base_product_objs_list = []
 
-            base_product_objs_list = custom_permission_filter_base_products(request.user)
-            product_objs_list = custom_permission_filter_products(request.user)
+            (base_product_objs_list, product_objs_list) = custom_permission_filter_base_products_and_products(request.user)
 
             if filter_parameters['verified']:
                 product_objs_list = product_objs_list.filter(
@@ -1424,6 +1427,7 @@ class FetchProductListAPI(APIView):
             if filter_parameters["brand_name"] != "":
                 brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
                 base_product_objs_list = base_product_objs_list.filter(brand=brand_obj)
+                product_objs_list = product_objs_list.filter(base_product__brand=brand_obj)
 
             if filter_parameters["min_price"] != "":
                 product_objs_list = product_objs_list.filter(
@@ -1445,8 +1449,10 @@ class FetchProductListAPI(APIView):
             search_list_product_objs = Product.objects.none()
             if len(chip_data) == 0:
                 search_list_product_objs = product_objs_list
-                for prod in product_objs_list:
-                    search_list_base_product_objs.append(prod.base_product)
+                search_list_base_product_objs = base_product_objs_list
+                extra_prod = product_objs_list.exclude(base_product__in=search_list_base_product_objs)
+                for prod in extra_prod:
+                    search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
                 search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
             else:
                 for tag in chip_data:
@@ -1461,7 +1467,7 @@ class FetchProductListAPI(APIView):
                         product_obj = Product.objects.filter(pk=prod.pk)
                         search_list_product_objs|=product_obj
                         search_list_base_product_objs.append(prod.base_product)
-                        search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
+                    search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
             products = []
 
@@ -1500,6 +1506,9 @@ class FetchProductListAPI(APIView):
                     temp_dict2["product_pk"] = product_obj.pk
                     temp_dict2["product_id"] = product_obj.product_id
                     temp_dict2["product_name"] = product_obj.product_name
+                    temp_dict2["product_price"] = product_obj.standard_price
+                    if temp_dict2["product_price"]==None:
+                        temp_dict2["product_price"] = "-"
                     temp_dict2["status"] = product_obj.status
 
                     main_images_list = ImageBucket.objects.none()
@@ -1531,7 +1540,8 @@ class FetchProductListAPI(APIView):
                         temp_dict3["product_pk"] = product_obj.pk
                         temp_dict3["channel_product_name"] = noon_product["product_name"]
                         temp_dict3["channel_name"] = "Noon"
-                        main_image_url = None
+                        main_image_url = Config.objects.all()[0].product_404_image.image.url
+                        
                         try:
                             
                             main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Noon")
@@ -1540,7 +1550,6 @@ class FetchProductListAPI(APIView):
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
                                 main_image_url = main_image_obj.image.image.url
                         except Exception as e:
-                            logger.error("%s",str(e))
                             pass
                         temp_dict3["image_url"] = main_image_url
 
@@ -1599,7 +1608,7 @@ class FetchProductListAPI(APIView):
                         temp_dict3["product_pk"] = product_obj.pk
                         temp_dict3["channel_product_name"] = ebay_product["product_name"]
                         temp_dict3["channel_name"] = "Ebay"
-                        main_image_url = None
+                        main_image_url = Config.objects.all()[0].product_404_image.image.url
                         try:
                             main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Ebay")
                             
@@ -1608,7 +1617,6 @@ class FetchProductListAPI(APIView):
                                 main_image_url = main_image_obj.image.image.url
                             logger.info("main image urll: %s", str(main_image_url))
                         except Exception as e:
-                            logger.error("Ebay %s",str(e))
                             pass
                         temp_dict3["image_url"] = main_image_url
 
@@ -1733,8 +1741,7 @@ class AddToExportAPI(APIView):
 
             export_obj = None
             if export_option == "New":
-                export_obj = ExportList.objects.create(
-                    title=export_title, user=request.user)
+                export_obj = ExportList.objects.create(title=export_title, user=request.user)
             else:
                 export_obj = ExportList.objects.get(pk=int(export_title_pk))
 

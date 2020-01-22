@@ -200,8 +200,8 @@
         input[type=number],
         input[type=search],
         textarea.materialize-textarea {
-            border: 1px solid #C6C6C6 !important;
-            border-radius: 5px !important;
+            border: 1px solid #c6c6c63d !important;
+            /* border-radius: 5px !important; */
             padding-left: 10px !important;
             font-family: 'AvenirNext' !important;
             box-sizing: border-box !important;

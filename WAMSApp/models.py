@@ -190,34 +190,34 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
-    # def save(self, *args, **kwargs):
-    #     try:  
-    #         size = 128, 128
-    #         thumb = IMAGE.open(self.image)
-    #         thumb.thumbnail(size)
-    #         infile = self.image.file.name
-    #         im_type = thumb.format 
-    #         thumb_io = StringIO.StringIO()
-    #         thumb.save(thumb_io, format=im_type)
+    def save(self, *args, **kwargs):
+        try:  
+            size = 128, 128
+            thumb = IMAGE.open(self.image)
+            thumb.thumbnail(size)
+            infile = self.image.file.name
+            im_type = thumb.format 
+            thumb_io = StringIO.StringIO()
+            thumb.save(thumb_io, format=im_type)
 
-    #         thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
+            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
 
-    #         self.thumbnail = thumb_file
+            self.thumbnail = thumb_file
 
-    #         size2 = 512, 512
-    #         thumb2 = IMAGE.open(self.image)
-    #         thumb2.thumbnail(size2)
-    #         thumb_io2 = StringIO.StringIO()
-    #         thumb2.save(thumb_io2, format=im_type)
+            size2 = 512, 512
+            thumb2 = IMAGE.open(self.image)
+            thumb2.thumbnail(size2)
+            thumb_io2 = StringIO.StringIO()
+            thumb2.save(thumb_io2, format=im_type)
 
-    #         thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
+            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
 
-    #         self.mid_image = thumb_file2
-    #     except Exception as e:
-    #         exc_type, exc_obj, exc_tb = sys.exc_info()
-    #         logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
+            self.mid_image = thumb_file2
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
-    #     super(Image, self).save(*args, **kwargs)
+        super(Image, self).save(*args, **kwargs)
     
 
 class ImageBucket(models.Model):
@@ -314,7 +314,7 @@ class MaterialType(models.Model):
 
 class BaseProduct(models.Model):
 
-    base_product_name = models.CharField(max_length=200)
+    base_product_name = models.CharField(max_length=300)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     seller_sku = models.CharField(max_length=200, unique=True)
@@ -367,7 +367,7 @@ class Product(models.Model):
 
     #MISC
     base_product = models.ForeignKey(BaseProduct,null=True,blank=True,on_delete=models.SET_NULL)
-    product_name = models.CharField(max_length=200,null=True)
+    product_name = models.CharField(max_length=300,null=True)
     product_id = models.CharField(max_length=200,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
     created_date = models.DateTimeField()
@@ -378,10 +378,10 @@ class Product(models.Model):
     uuid = models.CharField(null=True,max_length=200)
 
     #PFL
-    pfl_product_name = models.CharField(max_length=250, default="")
+    pfl_product_name = models.CharField(max_length=300, default="")
     pfl_product_features = models.TextField(default="[]")
 
-    product_name_sap = models.CharField(max_length=200, default="")
+    product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
@@ -483,7 +483,7 @@ class Flyer(models.Model):
 
 class PFL(models.Model):
 
-    name = models.CharField(default="SamplePFL", max_length=200)
+    name = models.CharField(default="SamplePFL", max_length=300)
     product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL)
     product_image = models.ForeignKey(Image, null=True, blank=True, related_name="product_images", on_delete=models.SET_NULL)
     template_data = models.TextField(null=True, blank=True)

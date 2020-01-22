@@ -2,56 +2,57 @@ from WAMSApp.models import *
 import json
 import urllib2
 import datetime
-
+import os
 
 f = open("scripts/17012020.json", "r")
 all_data_json = json.loads(f.read())
 f.close()
 
 image_pk_mapping = {}
-image_cnt=0
+if os.path.exists("files/image_pk_mapping.txt"):
+    f_image = open("files/image_pk_mapping.txt","r")
+    temp = json.loads(f_image.read())
+    for key in image_pk_mapping:
+        image_pk_mapping[int(key)] = int(image_pk_mapping[key])
+    f_image.close()
+else:
+    image_cnt=0
+    for data in all_data_json:
+        
+        try:
+            if data["model"] == "WAMSApp.image":
+                image_cnt+=1
+                image_obj, created = Image.objects.get_or_create(image=data["fields"]["image"],
+                                                 mid_image=data["fields"]["mid_image"],
+                                                 thumbnail=data["fields"]["thumbnail"],
+                                                 description=data["fields"]["description"]
+                                                 )
+                image_pk_mapping[data["pk"]] = image_obj.pk
+                #print("Image Cnt:", image_cnt)
+                if image_cnt%1000==0:
+                    print("Image Cnt:", image_cnt)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print("Error Image %s at %s", str(e), str(exc_tb.tb_lineno))
 
-for data in all_data_json:
-    
-    try:
-        if data["model"] == "WAMSApp.image":
-            image_cnt+=1
-            image_obj, created = Image.objects.get_or_create(image=data["fields"]["image"],
-                                             mid_image=data["fields"]["mid_image"],
-                                             thumbnail=data["fields"]["thumbnail"],
-                                             description=data["fields"]["description"]
-                                             )
-            image_pk_mapping[data["pk"]] = image_obj.pk
-            #print("Image Cnt:", image_cnt)
-            if image_cnt%1000==0:
-                print("Image Cnt:", image_cnt)
-    except Exception as e:
-        print("Error Image", str(e))
-
-f_image = open("files/image_pk_mapping.txt","w")
-image_pk_mapping_json = json.dumps(image_pk_mapping)
-f_image.write(image_pk_mapping_json)
-f_image.close()
+    f_image = open("files/image_pk_mapping.txt","w")
+    image_pk_mapping_json = json.dumps(image_pk_mapping)
+    f_image.write(image_pk_mapping_json)
+    f_image.close()
 
 
 organization_pk_mapping = {}
 organization_cnt=0
-
 for data in all_data_json:
     
     try:
         if data["model"] == "WAMSApp.organization":
             organization_cnt+=1
-            organization_obj = Organization.objects.create(name=data["fields"]["name"])
-            organization_pk_mapping[data["pk"]] = organization_obj.pk
+            organization_obj, created = Organization.objects.get_or_create(name=data["fields"]["name"])
+            organization_pk_mapping[int(data["pk"])] = int(organization_obj.pk)
             print("Organization Cnt:", organization_cnt)
     except Exception as e:
         print("Error Organization", str(e))
-
-f_organization = open("files/organization_pk_mapping.txt","w")
-organization_pk_mapping_json = json.dumps(organization_pk_mapping)
-f_organization.write(organization_pk_mapping_json)
-f_organization.close()
 
 
 brand_pk_mapping = {}
@@ -64,21 +65,31 @@ for data in all_data_json:
             brand_cnt+=1
 
             logo_pk = data["fields"]["logo"]
-            mapped_pk = image_pk_mapping[logo_pk]
-            logo_obj = Image.objects.get(pk = mapped_pk)
-            organization_pk = data["fields"]["organization"]
-            organization_mapped_pk = image_pk_mapping[organization_pk]
-            organization_obj = Organization.objects.get(pk = organization_mapped_pk)
+            logo_obj = None
+            if logo_pk!=None:
+                logo_pk = int(logo_pk)
+                mapped_pk = image_pk_mapping[logo_pk]
+                logo_obj = Image.objects.get(pk = mapped_pk)
 
-            brand_obj = Brand.objects.create(name=data["fields"]["name"],
+            organization_pk = data["fields"]["organization"]
+            organization_obj = None
+            if organization_pk!=None:
+                organization_pk = int(organization_pk)
+                organization_mapped_pk = organization_pk_mapping[organization_pk]
+                organization_obj = Organization.objects.get(pk = organization_mapped_pk)
+
+            brand_obj, created = Brand.objects.get_or_create(name=data["fields"]["name"],
                                              logo = logo_obj,
                                              organization=organization_obj
                                              )
 
-            brand_pk_mapping[data["pk"]] = brand_obj.pk
-            print("Brand Cnt:", brand_cnt)
+            brand_pk_mapping[int(data["pk"])] = int(brand_obj.pk)
+            if brand_cnt%1000==0:
+                print("Brand Cnt:", brand_cnt)
     except Exception as e:
-        print("Error Brnad", str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print("Error in Brand %s at %s", str(e), str(exc_tb.tb_lineno))
+
 
 f_brand = open("files/brand_pk_mapping.txt","w")
 brand_pk_mapping_json = json.dumps(brand_pk_mapping)
@@ -93,8 +104,8 @@ for data in all_data_json:
     try:
         if data["model"] == "WAMSApp.category":
             category_cnt+=1
-            category_obj = Category.objects.create(name=data["fields"]["name"])
-            category_pk_mapping[data["pk"]] = category_obj.pk
+            category_obj, created = Category.objects.get_or_create(name=data["fields"]["name"])
+            category_pk_mapping[int(data["pk"])] = int(category_obj.pk)
             if category_cnt%1000==0:
                 print("Category Cnt:", category_cnt)
     except Exception as e:
@@ -115,15 +126,19 @@ for data in all_data_json:
             background_image_cnt+=1
             
             image_pk = data["fields"]["image"]
-            mapped_pk = image_pk_mapping[image_pk]
-            image_obj = Image.objects.get(pk=mapped_pk)
+            image_obj = None
+            if image_pk!=None:
+                image_pk = int(image_pk)
+                mapped_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_pk)
             
-            background_image_obj = BackgroundImage.objects.create(image=image_obj)
-            background_image_pk_mapping[data["pk"]] = background_image_obj.pk
+            background_image_obj, created = BackgroundImage.objects.get_or_create(image=image_obj)
+            background_image_pk_mapping[int(data["pk"])] = int(background_image_obj.pk)
             
             print("Background Image Cnt:", background_image_cnt)
     except Exception as e:
-        print("Error Background Image", str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print("Error Background Image %s at %s", str(e), str(exc_tb.tb_lineno))
 
 f_background_image = open("files/background_image_pk_mapping.txt","w")
 background_image_pk_mapping_json = json.dumps(background_image_pk_mapping)
@@ -139,25 +154,27 @@ for data in all_data_json:
         if data["model"] == "WAMSApp.imagebucket":
             image_bucket_cnt+=1
             
-            image_pk = data["fields"]["image"]
+            image_pk = int(data["fields"]["image"])
             mapped_pk = image_pk_mapping[image_pk]
             image_obj = Image.objects.get(pk=mapped_pk)
-            description = data["fields"]["image"]["description"]
-            is_main_image = data["fields"]["image"]["is_main_image"]
-            is_sub_image = data["fields"]["image"]["is_sub_image"]
-            sub_image_index = data["fields"]["image"]["sub_image_index"]
+
+            description = data["fields"]["description"]
+            is_main_image = data["fields"]["is_main_image"]
+            is_sub_image = data["fields"]["is_sub_image"]
+            sub_image_index = data["fields"]["sub_image_index"]
             
-            image_bucket_obj = ImageBucket.objects.create(image=image_obj,
+            image_bucket_obj, created = ImageBucket.objects.get_or_create(image=image_obj,
                                                           description=description,
                                                           is_main_image=is_main_image,
                                                           is_sub_image=is_sub_image,
                                                           sub_image_index=sub_image_index
                                                           )
-            image_bucket_pk_mapping[data["pk"]] = image_bucket_obj.pk
+            image_bucket_pk_mapping[int(data["pk"])] = int(image_bucket_obj.pk)
             if image_bucket_cnt%1000==0:
                 print("Image Bucket Cnt:", image_bucket_cnt)
     except Exception as e:
-        print("Error Image Bucket", str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print("Error in Image Bucket %s at %s", str(e), str(exc_tb.tb_lineno))
 
 f_image_bucket = open("files/image_bucket_pk_mapping.txt","w")
 image_bucket_pk_mapping_json = json.dumps(image_bucket_pk_mapping)
@@ -167,11 +184,23 @@ f_image_bucket.close()
 product_pk_mapping = {}
 product_cnt=0
 
+seller_sku_dict = {}
 for data in all_data_json:
     
     try:
         if data["model"] == "WAMSApp.product":
             product_cnt+=1
+
+            seller_sku = data["fields"]["seller_sku"]
+
+            if seller_sku=="":
+                seller_sku = "UNDEFINED_"+str(product_cnt)
+
+            if seller_sku not in seller_sku_dict:
+                seller_sku_dict[seller_sku] = 1
+            else:
+                seller_sku_dict[seller_sku] += 1
+                continue
             
             created_date = datetime.datetime.strptime(
                     data["fields"]["created_date"][:10], "%Y-%m-%d")
@@ -188,7 +217,7 @@ for data in all_data_json:
             
             product_id = data["fields"]["product_id"]
             product_id_type = data["fields"]["product_id_type"]
-            seller_sku = data["fields"]["seller_sku"]
+            #seller_sku = data["fields"]["seller_sku"]
             category = data["fields"]["category"]
             subtitle = data["fields"]["subtitle"]
             manufacturer = data["fields"]["manufacturer"]
@@ -266,7 +295,11 @@ for data in all_data_json:
             variation_theme = data["fields"]["variation_theme"]
             
             standard_price = data["fields"]["standard_price"]
+            if standard_price!=None:
+                standard_price = float(standard_price)
             quantity = data["fields"]["quantity"]
+            if quantity!=None:
+                quantity = int(quantity)
             sale_price = data["fields"]["sale_price"]
             sale_from = data["fields"]["sale_from"]
             sale_end = data["fields"]["sale_end"]
@@ -276,12 +309,17 @@ for data in all_data_json:
             outdoor_price = data["fields"]["outdoor_price"]
             
             barcode_pk = data["fields"]["barcode"]
-            barcode_mapped_pk = image_pk_mapping[barcode_pk]
-            barcode_obj = Image.objects.get(pk=barcode_mapped_pk)
+            barcode_obj = None
+            if barcode_pk!=None:
+                barcode_mapped_pk = image_pk_mapping[barcode_pk]
+                barcode_obj = Image.objects.get(pk=barcode_mapped_pk)
+
 
             brand_pk = data["fields"]["brand"]
-            brand_mapped_pk = brand_pk_mapping[brand_pk]
-            brand_obj = Brand.objects.get(pk=brand_mapped_pk)
+            brand_obj = None
+            if brand_pk!=None:
+                brand_mapped_pk = brand_pk_mapping[brand_pk]
+                brand_obj = Brand.objects.get(pk=brand_mapped_pk)
 
             main_images = data["fields"]["main_images"]
             main_image_buckets = []
@@ -337,8 +375,8 @@ for data in all_data_json:
                                                  product_name_sap=product_name_sap,
                                                  color_map=color_map,
                                                  color=color,
-                                                 standard_price=float(standard_price),
-                                                 quantity=int(quantity),
+                                                 standard_price=standard_price,
+                                                 quantity=quantity,
                                                  material_type=material_type_obj,
                                                  barcode=barcode_obj,
                                                  barcode_string=barcode_string,
@@ -354,7 +392,7 @@ for data in all_data_json:
             noon_product = json.loads(channel_product_obj.noon_product_json)
 
             amazon_uk_product["product_name"] = product_name_amazon_uk
-            amazon_uk_product["created_date"] = created_date
+            amazon_uk_product["created_date"] = str(created_date)
             amazon_uk_product["condition_type"] = condition_type
             amazon_uk_product["feed_product_type"] = feed_product_type
             amazon_uk_product["update_delete"] = update_delete
@@ -420,7 +458,7 @@ for data in all_data_json:
             if product_description_amazon_uae != None or product_description_amazon_uae != "":
                 channel_product_obj.is_amazon_uae_product_created=True
             amazon_uae_product["product_attribute_list"] = product_attribute_list_amazon_uae
-            amazon_uae_product["created_date"] = created_date
+            amazon_uae_product["created_date"] = str(created_date)
             amazon_uae_product["feed_product_type"] = feed_product_type
             amazon_uae_product["recommended_browse_nodes"] = recommended_browse_nodes
             amazon_uae_product["update_delete"] = update_delete
@@ -432,7 +470,7 @@ for data in all_data_json:
             if product_description_noon != None or product_description_noon != "":
                 channel_product_obj.is_noon_product_created=True
             noon_product["product_attribute_list"] = product_attribute_list_noon
-            noon_product["created_date"] = created_date
+            noon_product["created_date"] = str(created_date)
             noon_product["product_type"] = noon_product_type
             noon_product["product_subtype"] = noon_product_subtype
             noon_product["model_number"] = noon_model_number
@@ -447,7 +485,7 @@ for data in all_data_json:
             if product_description_ebay != None or product_description_ebay != "":
                 channel_product_obj.is_ebay_product_created=True
             ebay_product["product_attribute_list"] = product_attribute_list_noon
-            ebay_product["created_date"] = created_date
+            ebay_product["created_date"] = str(created_date)
             ebay_product["category"] = category
 
             channel_product_obj.ebay_product_json = json.dumps(ebay_product)
@@ -462,17 +500,39 @@ for data in all_data_json:
             for sub_image_bucket in sub_image_buckets:
                 sub_images_obj.sub_images.add(sub_image_bucket)
 
-            product_obj["pfl_images"] = pfl_images
-            product_obj["white_background_images"] = white_background_images
-            product_obj["lifestyle_images"] = lifestyle_images
-            product_obj["certificate_images"] = certificate_images
-            product_obj["giftbox_images"] = giftbox_images
-            product_obj["diecut_images"] = diecut_images
-            product_obj["aplus_content_images"] = aplus_content_images
-            product_obj["ads_images"] = ads_images
-            product_obj["unedited_images"] = unedited_images
-            product_obj["pfl_generated_images"] = pfl_generated_images
-            product_obj["transparent_images"] = transparent_images
+            for pfl_image in pfl_images:
+                product_obj.pfl_images.add(pfl_image)
+            
+            for white_background_image in white_background_images:
+                product_obj.white_background_images.add(white_background_image)
+            
+            for lifestyle_image in lifestyle_images:
+                product_obj.lifestyle_images.add(lifestyle_image)
+            
+            for certificate_image in certificate_images:
+                product_obj.certificate_images.add(certificate_image)
+            
+            for giftbox_image in giftbox_images:
+                product_obj.giftbox_images.add(giftbox_image)
+            
+            for diecut_image in diecut_images:
+                product_obj.diecut_images.add(diecut_image)
+            
+            for aplus_content_image in aplus_content_images:
+                product_obj.aplus_content_images.add(aplus_content_image)
+            
+            for ads_image in ads_images:
+                product_obj.ads_images.add(ads_image)
+            
+            for unedited_image in unedited_images:
+                product_obj.unedited_images.add(unedited_image)
+            
+            for pfl_generated_image in pfl_generated_images:
+                product_obj.pfl_generated_images.add(pfl_generated_image)
+            
+            for transparent_image in transparent_images:
+                product_obj.transparent_images.add(transparent_image)
+
 
             main_images_obj.save()
             sub_images_obj.save()
@@ -493,6 +553,11 @@ product_pk_mapping_json = json.dumps(product_pk_mapping)
 f_product.write(product_pk_mapping_json)
 f_product.close()
 
+f_sku = open("files/duplicate_seller_sku.txt","w")
+seller_sku_json = json.dumps(seller_sku_dict)
+f_sku.write(seller_sku_json)
+f_sku.close()
+
 flyer_pk_mapping = {}
 flyer_cnt=0
 
@@ -511,8 +576,10 @@ for data in all_data_json:
             brand_obj = Brand.objects.get(pk=int(brand_mapped_pk))
 
             flyer_image_pk = data["fields"]["flyer_image"]
-            mapped_pk = image_pk_mapping[logo_pk]
-            flyer_image_obj = Image.objects.get(pk = mapped_pk)
+            flyer_image_obj = None
+            if flyer_image_pk!=None:
+                mapped_pk = image_pk_mapping[flyer_image_pk]
+                flyer_image_obj = Image.objects.get(pk = mapped_pk)
 
             product_bucket = data["fields"]["product_bucket"]
             products = []
