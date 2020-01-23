@@ -4,105 +4,385 @@
 
 {% load static %}
 
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/collapsible-cwsplit.css' %}">
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/materialize_override.css' %}"> -->
+
 <style type="text/css">
-ul.dropdown-content.select-dropdown li span {
+  label {
+    margin-bottom: 10px !important;
+  }
+
+  input {
+    margin-top: 4px !important;
+  }
+
+  .status-bar {
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  input:not([type]),
+  input[type=text],
+  input[type=password],
+  input[type=email],
+  input[type=url],
+  input[type=time],
+  input[type=date],
+  input[type=datetime],
+  input[type=datetime-local],
+  input[type=tel],
+  input[type=number],
+  input[type=search],
+  textarea.materialize-textarea {
+    border: 1px solid #C6C6C6 !important;
+    border-radius: 5px !important;
+    padding-left: 10px !important;
+    font-family: 'AvenirNext' !important;
+    font-weight:
+  }
+
+  input[type=text]:focus:not([readonly]),
+  input[type=password]:focus:not([readonly]),
+  input[type=email]:focus:not([readonly]),
+  input[type=url]:focus:not([readonly]),
+  input[type=time]:focus:not([readonly]),
+  input[type=date]:focus:not([readonly]),
+  input[type=datetime]:focus:not([readonly]),
+  input[type=datetime-local]:focus:not([readonly]),
+  input[type=tel]:focus:not([readonly]),
+  input[type=number]:focus:not([readonly]),
+  input[type=search]:focus:not([readonly]),
+  textarea.materialize-textarea:focus:not([readonly])>label {
+    border-bottom: 1px solid #512ea8 !important;
+    box-shadow: 0 1px 0 0 #f00 !important;
+    /* border-bottom: none !important; */
+    /* box-shadow: none !important; */
+  }
+
+  .no-border input {
+    border: 0px solid black !important;
+  }
+
+  .no-border input:focus {
+    border: 0px solid black !important;
+  }
+
+  input.active {
+    border-bottom-color: #512da8 !important;
+  }
+
+  .input-field:not(.image-section-dropdownchild) input:focus+label {
+    color: #512ea8 !important;
+  }
+
+
+  .search-input.focus input {
+    border-bottom: 1px solid white !important;
+    box-shadow: none !important;
+  }
+
+  .row .input-field:not(.search-input input) input:focus {
+    border-bottom: 1px solid #512ea8 !important;
+    box-shadow: 0 1px 0 0 #512ea8 !important;
+  }
+
+
+
+
+  ul.dropdown-content.select-dropdown li span {
     color: #521893;
     font-size: 14px;
-    font-family: 'AvenirNext'; 
-}
+    font-family: 'AvenirNext';
+  }
 
-.select-wrapper input.select-dropdown {
-  font-size: 14px;
-  font-family: 'AvenirNext'; 
-  color: #521893;
-}
-.filter-parameter {
-  color: #521893;
-  font-size: 14px;
-  font-family: 'AvenirNext'; 
-}
+  .margin-left-zero {
+    margin-left: 0px !important;
+  }
 
+  .padd-right {
+    margin-right: 20px !important;
+  }
 
-.input-field>label {
-  color: #521893;
-}
+  .select-wrapper input.select-dropdown {
+    font-size: 14px;
+    font-family: 'AvenirNext';
+    color: #521893;
+  }
 
-.input-field input:focus + label {
- color: #521893 !important;
-}
+  .filter-parameter {
+    color: #521893;
+    font-size: 14px;
+    font-family: 'AvenirNext';
+  }
 
-.input-field input[type=text]:focus {
-   border-bottom: 1px solid #000;
-   box-shadow: 0 1px 0 0 #000;
-}
+  .input-field>label {
+    color: #521893;
+  }
 
-.datepicker-date-display .date-text {
-  color: white;
-  font-size: 22px;
-}
+  .input-field input:focus+label {
+    color: #521893 !important;
+  }
 
-.datepicker-date-display .year-text {
-  color: white;
-  font-size: 14px;
-}
+  .input-field input[type=text]:focus {
+    border-bottom: 1px solid #000;
+    box-shadow: 0 1px 0 0 #000;
+  }
 
-.datepicker-date-display {
-  background-color: #521893;
-}
+  .datepicker-date-display .date-text {
+    color: white;
+    font-size: 22px;
+  }
 
-.datepicker-table td.is-today {
-  color: #521893;
-}
+  .datepicker-date-display .year-text {
+    color: white;
+    font-size: 14px;
+  }
 
-.datepicker-table td.is-selected {
-  background-color: #dfccea;
-}
+  .datepicker-date-display {
+    background-color: #521893;
+  }
 
-.datepicker-table td.is-selected {
-  color: #521893;
-}
+  .datepicker-table td.is-today {
+    color: #521893;
+  }
 
-.datepicker-cancel {
-  color: grey;
-}
+  .datepicker-table td.is-selected {
+    background-color: #dfccea;
+  }
 
-.datepicker-done {
-  color: #521893;
-  font-weight: bolder;
-}
+  .datepicker-table td.is-selected {
+    color: #521893;
+  }
 
-.exportt:hover {
-  background-color: #521893 !important;
-  color:white !important;
-}
+  .datepicker-cancel {
+    color: grey;
+  }
 
-.importt:hover {
-  background-color: #521893 !important;
-  color:white !important;
-}
+  .datepicker-done {
+    color: #521893;
+    font-weight: bolder;
+  }
 
-.filterr:hover {
-  background-color: #521893 !important;
-  color:white !important;
-}
+  .exportt:hover {
+    background-color: #521893 !important;
+    color: white !important;
+  }
 
-/*.checkbox-verified[type="checkbox"].filled-in:checked + label:after{
+  .importt:hover {
+    background-color: #521893 !important;
+    color: white !important;
+  }
+
+  .filterr:hover {
+    background-color: #521893 !important;
+    color: white !important;
+  }
+
+  .margin-btm-zero {
+    margin-bottom: 0px !important;
+  }
+
+  /*.checkbox-verified[type="checkbox"].filled-in:checked + label:after{
    border: 2px solid #521893;
    background-color: #521893;
 }*/
 
+  /* Sourav's code channel wise split*/
+
+  .avenir-next {
+    font-family: 'AvenirNext';
+  }
+
+  .padding-lr-zero {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+
+  .header {
+    font-size: 14px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+
+  .small-font {
+    font-size: 14px !important;
+  }
+
+  .subtitle-font {
+    font-size: 12px !important;
+  }
+
+  .avenir-next-regular {
+    font-family: 'AvenirNextRegular';
+  }
+
+  .purple-1 {
+    color: #521893;
+  }
+
+  .thumbnail-img {
+    width: 40px !important;
+    margin-left: 6px;
+    margin-right: 5px;
+  }
+
+  .margin-zero {
+    margin: 0;
+  }
+
+  .inline-block {
+    display: inline-block !important;
+  }
+
+  .padding-zero {
+    padding: 0;
+  }
+
+  .products-collapse-container {
+    border: none;
+    box-shadow: none;
+  }
+
+  .products-collapse-container>li {
+    border: none !important;
+    box-shadow: none;
+    margin-bottom: 10px;
+  }
+
+  .collapsible-header {
+    border: none;
+    border-radius: 5px;
+  }
+
+  .collapsible-header i {
+    width: 30px !important;
+  }
+
+  .collapsible-header .col {
+    padding: 0;
+  }
+
+  .collapsible-header .row {
+    width: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+
+  .collapsible-header .toggler-container {
+    padding: 0;
+  }
+
+  .product-name-container {
+    display: flex;
+  }
+
+  .product-info {
+    width: 85%;
+  }
+
+  .product-img {
+    width: 3em;
+    height: 3em;
+  }
+
+  .product-info .title {
+    font-family: 'AvenirNext';
+    letter-spacing: 0.5px;
+    font-weight: 100;
+    color: black;
+    margin: 0;
+  }
+
+  .product-info .subtitle {
+    font-family: 'AvenirNextRegular';
+    font-size: 12px;
+    color: gray;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+
+  .collapsible-body {
+    border: none;
+    background-color: white;
+    margin-top: 2px;
+    border-radius: 5px;
+    padding: .5rem .5rem 0 .5rem;
+  }
+
+
+  .slite-top {
+    position: relative;
+    ;
+    top: 10px !important;
+  }
+
+  .edit-icon {
+    color: gray;
+  }
+
+  .color-for-text {
+    color: #521893;
+  }
+
+  .color-for-back {
+    background-color: #521893;
+  }
+
+  .color-grey-for-back {
+    background-color: #EDEDED;
+  }
+
+  .collapsible-body-row {
+    border-bottom: 2px solid #F7F7F7;
+    display: flex;
+    align-items: center;
+  }
+
+  .base-product-modal-label {
+    color: black;
+  }
+
+  .base-product-modal-label span {
+    color: #009051;
+  }
+
+  .width-50 {
+    width: 50%;
+  }
+
+  .width-100 {
+    width: 100%;
+  }
+
+  .flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .flex-inside {}
+
+  .row-0-margin {
+    margin-bottom: 0em;
+  }
 </style>
 
-  <div class="row" style="margin-bottom: 0em;background-color: white !important;">
-    <div class="input-field col s10 search-input-div" style="padding: 0em;margin-top:0rem;margin-bottom: 0px;">
-      <i class="material-icons" style="z-index:100;position: absolute;margin-top: 0.4em;margin-left: 0.5em;color: grey !important;">search</i>
+<div class="row" style="margin-bottom: 0em;background-color: white !important;">
+  <div class="input-field col s10 search-input-div"
+    style="padding: 0em;margin-top:0rem;margin-bottom: 0px;border: none !important;">
+    <i class="material-icons"
+      style="z-index:100;position: absolute;margin-top: 0.4em;margin-left: 0.5em;color: grey !important;">search</i>
 
-      <div type="text" class="validate white search-input chips chips-placeholder" style="margin:0px;text-indent: 2.5em;box-shadow: none; border: none;outline: none;font-family: 'AvenirNextRegular';font-size: 14px;letter-spacing: 1px;"></div>
+    <div type="text" class="validate white search-input no-border chips chips-placeholder"
+      style="margin:0px;text-indent: 2.5em;box-shadow: none; border: none;outline: none;font-family: 'AvenirNextRegular';font-size: 14px;letter-spacing: 1px;">
     </div>
+  </div>
 
-    <div class="col s2 white user-icon-div">
-      <a href="/logout">
-        <i class="material-icons power_btn" style="
+  <div class="col s2 white user-icon-div">
+    <a href="/logout">
+      <i class="material-icons power_btn" style="
           position: absolute;
           top: 50%;right: 10%;    
           padding: 5px;   
@@ -111,11 +391,11 @@ ul.dropdown-content.select-dropdown li span {
           font-size: 18px;    
           border: 1px solid #d2dfeb;
           cursor: pointer">
-          settings_power
-        </i>
-      </a>
-      
-      <span style="
+        settings_power
+      </i>
+    </a>
+
+    <span style="
         margin-left: 2em;    
         position: absolute;   
         top: 60%;   
@@ -125,13 +405,13 @@ ul.dropdown-content.select-dropdown li span {
         padding-left: 18px;   
         font-family: 'AvenirNext';    
         text-transform: capitalize;" title="{{request.user.username}}">
-          {{request.user.username|slice:"0:10"}}
-      </span>
+      {{request.user.username|slice:"0:10"}}
+    </span>
 
-    </div>
   </div>
+</div>
 
-  <!-- <div class="row" style="margin-top: 1em;">
+<!-- <div class="row" style="margin-top: 1em;">
     <div class="input-field col s1">
       <label>
         <input id="status-verified" type="checkbox" />
@@ -174,38 +454,38 @@ ul.dropdown-content.select-dropdown li span {
   </div> -->
 
 
-  <div class="row" style = "margin : 20px 5px 0px 4px !important;">
-    <div class="col s6" style="position: relative;top: 20px;padding-left: 0px;font-family:'AvenirNext';">
-      <span id="total-products" style="font-family:'AvenirNext';"></span> Results   
-    </div>
-      
-    <div class="col s6" style="margin-bottom: 4px;padding-right:0px;">
-      <a id="export-btn" href="#export-modal" class="modal-trigger right">
-        <i class="material-icons exportt" title="Export" style="
+<div class="row" style="margin : 20px 5px 0px 4px !important;">
+  <div class="col s6" style="position: relative;top: 20px;padding-left: 0px;font-family:'AvenirNext';">
+    <span id="total-products" style="font-family:'AvenirNext';"></span> Results
+  </div>
+
+  <div class="col s6" style="margin-bottom: 4px;padding-right:0px;">
+    <a id="export-btn" href="#export-modal" class="modal-trigger right">
+      <i class="material-icons exportt" title="Export" style="
           color:gray;
           background-color: white;
           padding: 11px;
           border-radius: 5px;
           margin-left: 8px;
           font-size: 18px;">
-          dynamic_feed
-        </i>
-      </a>
+        dynamic_feed
+      </i>
+    </a>
 
-      <a id="import-btn" href="#import-modal" class="modal-trigger right">    
-        <i class="material-icons importt" title="Import" style="
+    <a id="import-btn" href="#import-modal" class="modal-trigger right">
+      <i class="material-icons importt" title="Import" style="
           color: gray;
           background-color: white;
           padding: 11px;
           border-radius: 5px;
           margin-left: 8px;
           font-size: 18px;">
-          merge_type
-        </i>    
-      </a>
+        merge_type
+      </i>
+    </a>
 
 
-      <a id="filter-btn" href="#filter-modal" class="filterr modal-trigger waves-effect waves-light right" style="
+    <a id="filter-btn" href="#filter-modal" class="filterr modal-trigger waves-effect waves-light right" style="
         position: relative;
         padding: 12px 30px 10px;   
         color: gray;    
@@ -214,227 +494,467 @@ ul.dropdown-content.select-dropdown li span {
         background-color: white;
         font-family: 'AvenirNextRegular';
         letter-spacing: 1px;">
-        Filter
-      </a>
-    </div>
-
-    <div class="col s12">
-
-      <div style="margin-top: 15px;">    
-        <div class="row product_row" style="margin-bottom: 10px;">    
-          <div class = "col s1 center" style="line-height: 100%;position: relative;">   
-            <label class="toggler-wrapper style-25">   
-              <input id="all-select-checkbox" type="checkbox" >   
-              <div class="toggler-slider">    
-                <div class="toggler-knob"></div>    
-              </div>    
-            </label>
-          </div>    
-          
-          <div class = "col s4" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Product Name</div>    
-          <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Brand</div>   
-          <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;">Date Created</div>   
-          <div class = "col s2 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;padding-right: 15px;">Status</div>
-          <div class = "col s1 center" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNext';color: #521893;padding-right: 15px;">Action</div>   
-        </div>
-      </div>
-      <div id = "product-table">
-      </div>  
-
-    </div>
-
-  </div>
-  
-  <div class="row">
-    <div class="col s12 center">
-      <br>
-      <a id="load-more-btn" href="#!" class="btn btn-small" style="display: none;background-color: #521893;">Load More</a>
-      <br><br>
-    </div>
+      Filter
+    </a>
   </div>
 
-  <div id="export-modal" class="modal" style="border-radius:5px;">
-    <div class="modal-content">
-      <h5 style="font-family: 'AvenirNext';font-size: 18px;">EXPORT PRODUCTS</h5>
-      <br>
-      <div class="row">
-        <div class="input-field col s6">
-          <select id="export-option">
-            <option value="New" selected style="font-family: 'AvenirNextRegular';">New</option>
-            <option value="Existing" style="font-family: 'AvenirNextRegular';">Existing</option>
-          </select>
-          <label>Existing/New</label>
-        </div>
+  <div class="col s12">
 
-        <div class="input-field col s6" id="new-export-div">
-          <input id="export-title" type="text" class="validate">
-          <label for="export-title">Export Title</label>
-        </div>
-
-        <div class="input-field col s6" id="existing-export-div" style="display: none;">
-          <select id="export-titles-list">
-          </select>
-          <label>Choose List</label>
-        </div>
-
-      </div>
-    </div>
-    <div class="modal-footer" style="margin-bottom: 20px;">
-      <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
-      <a id="add-to-export-btn" class="waves-effect btn-flat white-text" style="font-family: 'AvenirNext';background-color: #521893;border-radius: 2px;margin-right: 30px;">Add</a>
-    </div>
-  </div>
-
-
-
-  <div id="create-new-product-modal" class="modal" style="border-radius:5px;">
-    <div class="modal-content">
-      <h5 style="font-family: 'AvenirNext';font-size: 18px;">NEW PRODUCT</h5>
-      <br>
-      <div class="row">
-        
-        <div class="input-field col s12">
-          <input id="product-name" type="text" class="validate">
-          <label for="product-name" style="color:black;">Product Name<span style="color:#009051;">*</span></label>
-        </div>
-
-        <div class="input-field col s12">
-          <input id="seller-sku" type="text" class="validate">
-          <label for="seller-sku" style="color:black;">Seller SKU<span style="color:#009051;">*</span></label>
-        </div>
-
-        <div class="input-field col s12">
-          <input id="brand-name" type="text" class="validate">
-          <label for="brand-name" style="color:black;">Brand<span style="color:#009051;">*</span></label>
-        </div>
-      </div>
-
-    </div>
-    <div class="modal-footer" style="margin-bottom: 20px;">
-      <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
-      <a id="create-new-product-btn" href="#!" class="waves-effect btn-flat white-text" style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Create</a>
-    </div>
-  </div>
-
-
-  <div id="import-modal" class="modal" style="border-radius:5px;">
-    <div class="modal-content">
-      <h5 style="font-family: 'AvenirNext';font-size: 18px;">IMPORT ITEMS</h5>
-      <br>
-      <div class="row">
-        <div class="input-field col s6 dropdown_spam">
-          <select id="import-format">
-            <option value="Amazon UK" selected>Amazon UK</option>
-            <option value="Amazon UAE">Amazon UAE</option>
-          </select>
-          <label>Format</label>
-        </div>
-
-        
-        <div class="input-field col s6 dropdown_spam">
-          <select id="import-rule">
-            <!-- <option value="Full" selected>Full Overwrite</option> -->
-            <option value="Partial">Partial Overwrite</option>
-            <option value="Missing">Add to missing values only</option>
-          </select>
-          <label>Import Rule</label>
-        </div>
-
-
-        <div class="file-field input-field col s12">
-          <div class="btn" style = "background-color: #521893">
-            <span style="font-family: 'AvenirNext';color: white !important;">file</span>
-            <i class="material-icons right">call_merge</i>
-            <input id="import-file" type="file">
-          </div>
-          <div class="file-path-wrapper">
-            <input class="file-path validate" type="text">
+    <div style="margin-top: 15px;">
+      <div class="row product_row" style="margin-bottom: 10px;">
+        <div class="col s3" style="transform: translateY(4px);">
+          <div class="row" style="padding: 0px 20px 0px 20px !important; margin-bottom: 0px !important;">
+            <div class="col s2 padding-lr-zero">
+              <label class="toggler-wrapper style-25" style="position:relative;right:10px;">
+                <input class="product-checkmark" type="checkbox">
+                <div class="toggler-slider">
+                  <div class="toggler-knob"></div>
+                </div>
+              </label>
+            </div>
+            <div class="col s10" style="transform: translateY(4px);"></div>
+            Product Name
           </div>
         </div>
-
-        <div class="col s12">
-          <div id="loader-bar" class="progress" style="display: none;">
-              <div class="indeterminate"></div>
+        <div class="col s3 padding-lr-zero" style="transform: translateY(4px);">
+          <div class="row" style="padding: 0px 20px 0px 20px !important;  margin-bottom: 0px !important;">
+            <div class="col s4 padding-lr-zero">Brand</div>
+            <div class="col s3 padding-lr-zero">Variant</div>
+            <div class="col s5 padding-lr-zero">Channel</div>
+          </div>
+        </div>
+        <div class="col s3" style="transform: translateY(4px);">
+          <div class="row" style=" margin-bottom: 0px !important;">
+            <div class="col s6 padding-lr-zero">Warehouse</div>
+            <div class="col s6 padding-lr-zero">Price</div>
+          </div>
+        </div>
+        <div class="col s3" style="transform: translateY(4px);">
+          <div class="row" style=" margin-bottom: 0px !important;position: relative;right: 12px;">
+            <div class="col s6 padding-lr-zero">Status</div>
           </div>
         </div>
 
       </div>
     </div>
-    <div class="modal-footer" style="margin-bottom: 20px;">
-      <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
-      <a id="import-upload-btn" href="#!" class="waves-effect btn-flat white-text" style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Upload</a>
+    <div id="product-table">
     </div>
+
   </div>
 
+</div>
 
+<div class="row">
+  <div class="col s12 center">
+    <br>
+    <a id="load-more-btn" href="#!" class="btn btn-small" style="display: none;background-color: #521893;">Load More</a>
+    <br><br>
+  </div>
+</div>
 
-  <div id="filter-modal" class="modal" style="border-radius:5px;">
-    <div class="modal-content">
-      <h5 style="font-family: 'AvenirNext';font-size: 18px;">FILTER</h5>
-
-      <div class="row" style="margin-bottom: 0em;">
-        <div class="input-field col s4">
-          <label>
-            <input id="status-verified" class="filled-in" type="checkbox" />
-            <span class="filter-parameter">Verified</span>
-          </label>
-        </div>
-
-        <div class="input-field col s4">
-          <select id="brand-select">
-          </select>
-        </div>
-
-
-        <div class="input-field col s4">
-          <select id="has-image-select">
-            <option value="" selected>All</option>
-            <option value="1">With Images</option>
-            <option value="2">Without Images</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="row" style="margin-bottom: 0em;">
-        <div class="input-field col s4">
-          <input id="start-date" type="text" class="datepicker">
-          <label for="start-date" class="filter-parameter">Start Date</label>
-        </div>
-        <div class="input-field col s4">
-          <input id="end-date" type="text" class="datepicker">
-          <label for="end-date" class="filter-parameter">End Date</label>
-        </div>
-      </div>
-      
-      <div class="row" style="margin-bottom: 0em;">
-        <div class="input-field col s4">
-          <input id="min-price" type="number" class="validate">
-          <label for="min-price" class="filter-parameter">Min Price</label>
-        </div>
-
-        <div class="input-field col s4">
-          <input id="max-price" type="number" class="validate">
-          <label for="max-price" class="filter-parameter">Max Price</label>
-        </div>
-
+<div id="export-modal" class="modal" style="border-radius:5px;">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">EXPORT PRODUCTS</h5>
+    <br>
+    <div class="row">
+      <div class="input-field col s6">
+        <select id="export-option">
+          <option value="New" selected style="font-family: 'AvenirNextRegular';">New</option>
+          <option value="Existing" style="font-family: 'AvenirNextRegular';">Existing</option>
+        </select>
+        <label>Existing/New</label>
       </div>
 
+      <div class="input-field col s6" id="new-export-div">
+        <input id="export-title" type="text" class="validate">
+        <label for="export-title">Export Title</label>
+      </div>
 
-    </div>
-    <div class="modal-footer" style="margin-bottom: 20px;">
-      <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
-      <a id="apply-btn" href="#!" class="modal-close waves-effect btn-flat white-text" style="font-family: 'AvenirNext';background-color: #521893;border-radius: 2px;margin-right: 30px;">Apply</a>
+      <div class="input-field col s6" id="existing-export-div" style="display: none;">
+        <select id="export-titles-list">
+        </select>
+        <label>Choose List</label>
+      </div>
+
     </div>
   </div>
+  <div class="modal-footer" style="margin-bottom: 20px;">
+    <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+    <a id="add-to-export-btn" class="waves-effect btn-flat white-text"
+      style="font-family: 'AvenirNext';background-color: #521893;border-radius: 2px;margin-right: 30px;">Add</a>
+  </div>
+</div>
 
-  {% if perms.WAMSApp.add_product %}
-  <a href="#create-new-product-modal" class="modal-trigger btn-floating" style="position: fixed;right:1em;bottom:1em;background-color: #521893"><i class="material-icons">add</i></a>
-  {% endif %}
+
+<div id="create-new-base-product-modal" class="modal scroll-style-1" style="border-radius:5px;">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">NEW BASE PRODUCT</h5>
+    <br>
+    <div class="row">
+
+      <div class="input-field col s12">
+        <input id="product-name" placeholder="" type="text" class="validate">
+        <label for="product-name" style="">Product Name<span style="color:#009051;">*</span></label>
+      </div>
+
+      <div class="input-field col s12">
+        <input id="seller-sku" placeholder="" type="text" class="validate">
+        <label for="seller-sku" style="">Seller SKU<span style="color:#009051;">*</span></label>
+      </div>
+
+      <div class="input-field col s12">
+        <input id="brand-name" placeholder="" type="text" class="validate">
+        <label for="brand-name" style="">Brand<span style="color:#009051;">*</span></label>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer" style="margin-bottom: 20px;">
+    <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+    <a id="create-new-base-product-btn" href="#!" class="waves-effect btn-flat white-text"
+      style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Create</a>
+  </div>
+</div>
 
 
 
 
-  <!-- <amp-analytics type="gtag" data-credentials="include">
+
+<div id="create-new-channel-product-modal" class="modal" style="border-radius:5px;">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">NEW CHANNEL PRODUCT</h5>
+    <br>
+    <div class="row">
+      <div class="input-field col s12">
+        <select id="product-id-option">
+        </select>
+        <label for="product-id-option">Product Id</label>
+      </div>
+
+      <div class="input-field col s12">
+        <select id="channel-name-option">
+          <option value="amazon-uk">Amazon UK</option>
+          <option value="amazon-uae">Amazon UAE</option>
+          <option value="ebay">Ebay</option>
+          <option value="noon">Noon</option>
+        </select>
+        <label>Channel</label>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer" style="margin-bottom: 20px;">
+    <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+    <a id="create-new-channel-product-btn" href="#!" class="waves-effect btn-flat white-text"
+      style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Create</a>
+  </div>
+</div>
+<div id="edit-base-product-modal" class="modal" style="border-radius:5px;">
+  <div class="modal-content" style="padding: 0px !important;">
+    <div
+      style="background-color: #521893; width: 100%;display: flex;justify-content: space-between;align-items: center;padding:10px 0px 10px 0px !important;">
+      <div style="margin-left: 20px;" class="white-text"> <i class="material-icons"
+          style="position: relative;top: 3px !important;">add</i> <span
+          style="position: relative;bottom: 3px !important;">ADD PRODUCT</span> </div>
+      <div style="margin-right: 20px;" class="white-text"> <a class="modal-close white-text"
+          style="position: relative;top: 3px !important;"><i class="material-icons">cancel</i></a> </div>
+    </div>
+    <ul class="collapsible margin-zero">
+      <li>
+        <div class="collapsible-header color-grey-for-back  color-for-text">Product Identity</div>
+        <div class="collapsible-body">
+          <div style="padding:0px 40px 0px 40px !important;transform: translateY(-20px);">
+            <div class="row">
+              <div class="input-field col s12" style="margin-top: 60px !important;font-family: 'AvenirNext';">
+                <input placeholder="" id="edit-product-name" type="text" class="validate"
+                  style="font-family: 'AvenirNext';">
+                <label for="edit-product-name">Product Name</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="input-field col s6" style="font-family: 'AvenirNext';">
+                <input placeholder="" id="edit-seller-sku" type="text" class="validate"
+                  style="font-family: 'AvenirNext';">
+                <label for="edit-seller-sku">Seller SKU</label>
+              </div>
+              <div class="input-field col s6" style="font-family: 'AvenirNext';">
+                <input placeholder="" id="edit-manufacturer-part-number" type="text" class="validate"
+                  style="font-family: 'AvenirNext';">
+                <label for="edit-manufacturer-part-number">Manufacturer Part Number</label>
+              </div>
+            </div>
+            <div class="row" style="margin-bottom: 0px !important;">
+              <div class="input-field col s6" style="font-family: 'AvenirNext';">
+                <input placeholder="" id="edit-brand" type="text" class="validate" style="font-family: 'AvenirNext';">
+                <label for="edit-brand">Brand</label>
+              </div>
+              <div class="input-field col s6" style="font-family: 'AvenirNext';">
+                <input placeholder="" id="edit-manufacturer" type="text" class="validate"
+                  style="font-family: 'AvenirNext';">
+                <label for="edit-manufacturer">Manufacturer</label>
+              </div>
+            </div>
+          </div>
+          <div>
+          </div>
+      </li>
+      <li>
+        <div class="collapsible-header color-grey-for-back  color-for-text">Product Category</div>
+        <div class="collapsible-body">
+          <div style="padding:0px 40px 0px 40px !important;transform: translateY(-20px);">
+            <div class="row" style="margin-bottom: 0px !important;">
+              <div class="input-field col s6" style="margin-top: 60px !important;font-family: 'AvenirNext';">
+                <input placeholder="" id="edit-category" type="text" class="validate"
+                  style="font-family: 'AvenirNext';">
+                <label for="edit-category">Category</label>
+              </div>
+              <div class="input-field col s6" style="margin-top: 60px !important;font-family: 'AvenirNext';">
+                <input placeholder="" id="edit-subtitle" type="text" class="validate"
+                  style="font-family: 'AvenirNext';">
+                <label for="edit-subtitle">Subtitle</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="collapsible-header color-grey-for-back  color-for-text">Dimensions</div>
+        <div class="collapsible-body">
+          <div style="padding:20px 40px 0px 40px !important;">
+            <div class="row" style="margin-bottom: 0px !important;">
+              <div class="col s6">
+                <p style="margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;">EXPORT CARTON
+                  QUANTITY ( L | B | H )</p>
+                <div class="row">
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                      <input placeholder="" id="export-carton-qty-l" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                      <input placeholder="" id="export-carton-qty-b" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                      <input placeholder="" id="export-carton-qty-h" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col s6">
+                <p style="margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;">EXPORT CARTON CRM
+                  ( L | B | H )</p>
+                <div class="row">
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                      <input placeholder="" id="export-carton-crm-l" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                      <input placeholder="" id="export-carton-crm-b" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                      <input placeholder="" id="export-carton-crm-h" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row" style="margin-bottom: 0px !important;">
+              <div class="col s6">
+                <p style="margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;">PRODUCT DIMENSION
+                  ( L | B | H )</p>
+                <div class="row">
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                      <input placeholder="" id="product-dimension-l" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                      <input placeholder="" id="product-dimension-b" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                      <input placeholder="" id="product-dimension-h" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col s6">
+                <p style="margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;">GIFT BOX ( L | B
+                  | H )</p>
+                <div class="row">
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                      <input placeholder="" id="gift-box-l" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                      <input placeholder="" id="gift-box-b" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                  <div class="col s3">
+                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                      <input placeholder="" id="gift-box-h" type="text" class="validate"
+                        style="font-family: 'AvenirNext';">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="modal-footer" style=" background-color: #EDEDED;">
+    <a href="#!" class="add-product-btn waves-effect btn-flat white-text"
+      style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 10px;background-color: #521893">Add Variant</a>
+    <a id="save-base-product-btn" href="#!" class="waves-effect btn-flat white-text"
+      style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 10px;background-color: #521893">Save</a>
+  </div>
+</div>
+
+
+<div id="import-modal" class="modal" style="border-radius:5px;">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">IMPORT ITEMS</h5>
+    <br>
+    <div class="row">
+      <div class="input-field col s6 dropdown_spam">
+        <select id="import-format">
+          <option value="Amazon UK" selected>Amazon UK</option>
+          <option value="Amazon UAE">Amazon UAE</option>
+        </select>
+        <label>Format</label>
+      </div>
+
+
+      <div class="input-field col s6 dropdown_spam">
+        <select id="import-rule">
+          <!-- <option value="Full" selected>Full Overwrite</option> -->
+          <option value="Partial">Partial Overwrite</option>
+          <option value="Missing">Add to missing values only</option>
+        </select>
+        <label>Import Rule</label>
+      </div>
+
+
+      <div class="file-field input-field col s12">
+        <div class="btn" style="background-color: #521893">
+          <span style="font-family: 'AvenirNext';color: white !important;">file</span>
+          <i class="material-icons right">call_merge</i>
+          <input id="import-file" type="file">
+        </div>
+        <div class="file-path-wrapper">
+          <input class="file-path validate" type="text">
+        </div>
+      </div>
+
+      <div class="col s12">
+        <div id="loader-bar" class="progress" style="display: none;">
+          <div class="indeterminate"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer" style="margin-bottom: 20px;">
+    <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+    <a id="import-upload-btn" href="#!" class="waves-effect btn-flat white-text"
+      style="font-family: 'AvenirNext';border-radius: 2px;margin-right: 30px;background-color: #521893">Upload</a>
+  </div>
+</div>
+
+<div id="filter-modal" class="modal" style="border-radius:5px;">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">FILTER</h5>
+
+    <div class="row" style="margin-bottom: 0em;">
+      <div class="input-field col s4">
+        <label>
+          <input id="status-verified" class="filled-in" type="checkbox" />
+          <span class="filter-parameter">Verified</span>
+        </label>
+
+      </div>
+
+      <div class="input-field col s4">
+        <select id="brand-select">
+        </select>
+      </div>
+
+
+      <div class="input-field col s4">
+        <select id="has-image-select">
+          <option value="" selected>All</option>
+          <option value="1">With Images</option>
+          <option value="0">Without Images</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row" style="margin-bottom: 0em;">
+      <div class="input-field col s4">
+        <input id="start-date" type="text" class="datepicker">
+        <label for="start-date" class="filter-parameter">Start Date</label>
+      </div>
+      <div class="input-field col s4">
+        <input id="end-date" type="text" class="datepicker">
+        <label for="end-date" class="filter-parameter">End Date</label>
+      </div>
+    </div>
+
+    <div class="row" style="margin-bottom: 0em;">
+      <div class="input-field col s4">
+        <input id="min-price" type="number" class="validate">
+        <label for="min-price" class="filter-parameter">Min Price</label>
+      </div>
+
+      <div class="input-field col s4">
+        <input id="max-price" type="number" class="validate">
+        <label for="max-price" class="filter-parameter">Max Price</label>
+      </div>
+
+    </div>
+
+
+  </div>
+  <div class="modal-footer" style="margin-bottom: 20px;">
+    <a href="#!" class="modal-close waves-effect btn-flat" style="font-family: 'AvenirNext';">Close</a>
+    <a id="apply-btn" href="#!" class="modal-close waves-effect btn-flat white-text"
+      style="font-family: 'AvenirNext';background-color: #521893;border-radius: 2px;margin-right: 30px;">Apply</a>
+  </div>
+</div>
+
+{% if perms.WAMSApp.add_product %}
+<a href="#create-new-base-product-modal" class="modal-trigger btn-floating"
+  style="position: fixed;right:1em;bottom:1em;background-color: #521893"><i class="material-icons">add</i></a>
+{% endif %}
+
+
+
+
+<!-- <amp-analytics type="gtag" data-credentials="include">
     <script type="application/json">
       {
         "vars": {
@@ -466,24 +986,28 @@ ul.dropdown-content.select-dropdown li span {
 
 <script type="text/javascript">
 
+  $('.fixed-action-btn').floatingActionButton();
+
+
+  var global_products_list = [];
+  var global_products_dict = {};
+
+  var global_selected_base_product_pk = null;
+
   var page = 1;
 
-  function removeDefault()
-  {
+  function removeDefault() {
     let countchip = $('.chip').length;
-    if(countchip > 0)
-    {
-      $('input').attr("placeholder" , "");
+    if (countchip > 0) {
+      $('input').attr("placeholder", "");
     }
   }
 
-  function addDefault()
-  {
+  function addDefault() {
     let countchip = $('.chip').length;
-    console.log(countchip);
-    if(countchip == 0)
-    {
-      $($('input')[0]).attr("placeholder" , "Search by product name, product id or seller sku");
+
+    if (countchip == 0) {
+      $($('input')[0]).attr("placeholder", "Search by product name, product id or seller sku");
     }
   }
 
@@ -491,22 +1015,22 @@ ul.dropdown-content.select-dropdown li span {
   $('.chips-placeholder').chips({
     placeholder: 'Search by product name, product id or seller sku',
     onChipAdd: (event, chip) => {
-          chip_tags = [];
-          for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
-            chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
-          }
-          page = 1;
-          fetch_product_list();
-          removeDefault();
+      chip_tags = [];
+      for (i = 0; i < M.Chips.getInstance($('.chips')).chipsData.length; i++) {
+        chip_tags.push(M.Chips.getInstance($('.chips')).chipsData[i].tag);
+      }
+      page = 1;
+      fetch_product_list();
+      removeDefault();
     },
-    onChipDelete: (event , chip) => {
-        chip_tags = [];
-          for(i=0; i< M.Chips.getInstance($('.chips')).chipsData.length; i++){
-            chip_tags.push( M.Chips.getInstance($('.chips')).chipsData[i].tag );
-          }
-          page = 1;
-          fetch_product_list();
-          //addDefault();
+    onChipDelete: (event, chip) => {
+      chip_tags = [];
+      for (i = 0; i < M.Chips.getInstance($('.chips')).chipsData.length; i++) {
+        chip_tags.push(M.Chips.getInstance($('.chips')).chipsData[i].tag);
+      }
+      page = 1;
+      fetch_product_list();
+      //addDefault();
     }
   });
 
@@ -514,7 +1038,7 @@ ul.dropdown-content.select-dropdown li span {
 
   var filter_parameters = {}
 
-  $("#status-verified").change(function(e){
+  $("#status-verified").change(function (e) {
     check_filter_options();
     page = 1;
     fetch_product_list();
@@ -522,72 +1046,273 @@ ul.dropdown-content.select-dropdown li span {
 
 
   function getCsrfToken() {
-      var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
-      return CSRF_TOKEN;
-    }
+    var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+    return CSRF_TOKEN;
+  }
 
 
-  function fetch_export_list()
-  {
+  function fetch_export_list() {
     $.ajax({
       url: "/fetch-export-list/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       data: {},
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
         var export_list = response["export_list"];
         var html_string = "";
-        for(var i=0;i<export_list.length;i++)
-        {
-          html_string += `<option value="`+export_list[i]["pk"]+`">`+export_list[i]["title"]+`</option>`;
+        for (var i = 0; i < export_list.length; i++) {
+          html_string += `<option value="` + export_list[i]["pk"] + `">` + export_list[i]["title"] + `</option>`;
         }
         $("#export-titles-list").html(html_string);
         $('select').formSelect();
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   }
 
-  $("#export-btn").click(function(){
+
+
+  function save_base_product() {
+    var base_product_pk = global_selected_base_product_pk;
+    var base_product_name = $("#edit-product-name").val();
+    var seller_sku = $("#edit-seller-sku").val();
+    var brand_name = $("#edit-brand").val();
+    var manufacturer = $("#edit-manufacturer").val();
+    var manufacturer_part_number = $("#edit-manufacturer-part-number").val();
+    var category = $("#edit-category").val();
+    var subtitle = $("#edit-subtitle").val();
+
+    var dimensions = {
+      "export_carton_quantity_l": $('#export-carton-qty-l').val(),
+      "export_carton_quantity_l_metric": "",
+      "export_carton_quantity_b": $('#export-carton-qty-b').val(),
+      "export_carton_quantity_b_metric": "",
+      "export_carton_quantity_h": $('#export-carton-qty-h').val(),
+      "export_carton_quantity_h_metric": "",
+      "export_carton_crm_l": $('#export-carton-crm-l').val(),
+      "export_carton_crm_l_metric": "",
+      "export_carton_crm_b": $('#export-carton-crm-b').val(),
+      "export_carton_crm_b_metric": "",
+      "export_carton_crm_h": $('#export-carton-crm-h').val(),
+      "export_carton_crm_h_metric": "",
+      "product_dimension_l": $('#product-dimension-l').val(),
+      "product_dimension_l_metric": "",
+      "product_dimension_b": $('#product-dimension-b').val(),
+      "product_dimension_b_metric": "",
+      "product_dimension_h": $('#product-dimension-h').val(),
+      "product_dimension_h_metric": "",
+      "giftbox_l": $('#gift-box-l').val(),
+      "giftbox_l_metric": "",
+      "giftbox_b": $('#gift-box-b').val(),
+      "giftbox_b_metric": "",
+      "giftbox_h": $('#gift-box-h').val(),
+      "giftbox_h_metric": ""
+    };
+
+    $("#save-base-product-btn").attr("disabled", "disabled");
+
+    $.ajax({
+      url: "/save-base-product/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        "base_product_pk": base_product_pk,
+        "base_product_name": base_product_name,
+        "seller_sku": seller_sku,
+        "brand_name": brand_name,
+        "manufacturer": manufacturer,
+        "manufacturer_part_number": manufacturer_part_number,
+        "category": category,
+        "subtitle": subtitle,
+        "dimensions": JSON.stringify(dimensions)
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        $("#save-base-product-btn").removeAttr("disabled");
+        $("#edit-base-product-modal").modal("close");
+        if (response["status"] == 200) {
+          M.toast({ html: "Product saved successfully!" });
+
+          $("#base-product-name-" + base_product_pk).html(base_product_name);
+          $("#seller-sku-" + base_product_pk).html(seller_sku);
+          $("#brand-name-" + base_product_pk).html(brand_name);
+
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  $("#save-base-product-btn").click(function () {
+    console.log("hryry");
+    save_base_product();
+  });
+
+  $(document).on("click", ".base-product-edit-modal-btn", function () {
+
+    global_selected_base_product_pk = $(this).attr("base_product_pk");
+
+    console.log(global_selected_base_product_pk);
+    console.log(global_products_dict[global_selected_base_product_pk]);
+
+    $("#edit-product-name").val(global_products_dict[global_selected_base_product_pk]["product_name"]);
+    $("#edit-seller-sku").val(global_products_dict[global_selected_base_product_pk]["seller_sku"]);
+    $("#edit-brand").val(global_products_dict[global_selected_base_product_pk]["brand_name"]);
+    $("#edit-manufacturer").val(global_products_dict[global_selected_base_product_pk]["manufacturer"]);
+    $("#edit-manufacturer-part-number").val(global_products_dict[global_selected_base_product_pk]["manufacturer_part_number"]);
+    $("#edit-category").val(global_products_dict[global_selected_base_product_pk]["category"]);
+    $("#edit-subtitle").val(global_products_dict[global_selected_base_product_pk]["subtitle"]);
+
+
+    var dimensions = global_products_dict[global_selected_base_product_pk]["dimensions"];
+    //Dimensions
+    console.log(dimensions);
+    $('#export-carton-qty-l').val(dimensions["export_carton_quantity_l"])
+    $('#export-carton-qty-b').val(dimensions["export_carton_quantity_b"])
+    $('#export-carton-qty-h').val(dimensions["export_carton_quantity_h"])
+    $('#export-carton-crm-l').val(dimensions["export_carton_crm_l"])
+    $('#export-carton-crm-b').val(dimensions["export_carton_crm_b"])
+    $('#export-carton-crm-h').val(dimensions["export_carton_crm_h"])
+    $('#product-dimension-l').val(dimensions["product_dimension_l"])
+    $('#product-dimension-b').val(dimensions["product_dimension_b"])
+    $('#product-dimension-h').val(dimensions["product_dimension_h"])
+    $('#gift-box-l').val(dimensions["giftbox_l"])
+    $('#gift-box-b').val(dimensions["giftbox_b"])
+    $('#gift-box-h').val(dimensions["giftbox_h"])
+
+
+    var html_string = `
+      <div class="col s12">
+        <div class="flex-container">`
+
+    var products = global_products_dict[global_selected_base_product_pk]["products"];
+    for (var i = 0; i < products.length; i++) {
+      html_string += `
+        <div class="flex-inside">
+          <a href="/edit-product/`+ products[i]["product_pk"] + `" target="_blank">
+            <div class="card center">
+              <img src="`+ products[i]["main_image"] + `"
+                style="width: 10em;height:12em;object-fit:cover;object-position:50% 50%;">
+              <div class="card-text" style="padding: 0px 0px 8px 0px; transition: 0.15s padding ease-out">
+                <p style="margin-top:0em;margin-bottom:0em;text-align: left;margin-left:10px;color:#521893;font-size:14px;">
+                  `+ products[i]["product_name"] + `
+                </p>
+              </div>
+            </div>
+          </a>
+        </div>`;
+    }
+    html_string += `
+      <div class="flex-inside">
+        <a href="#!" class="add-product-btn" id="add-product-btn-`+ global_selected_base_product_pk + `">
+          <div class="card center valign-wrapper">
+            <div class="card-text">
+              <p style="margin-top:0em;margin-bottom:0em;text-align: center;color:#521893;font-size:14px;">
+                Add Product Variant
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>`;
+    html_string += `</div></div>`
+
+    $("#product-cards-modal").html(html_string);
+
+
+    $("select").formSelect();
+    M.updateTextFields();
+  });
+
+
+  $(document).on("click", ".create-new-channel-product-modal-btn", function () {
+    global_selected_base_product_pk = $(this).attr("base_product_pk");
+
+    var html_string = "";
+    var products = global_products_dict[global_selected_base_product_pk]["products"];
+    console.log(global_products_dict[global_selected_base_product_pk]);
+    for (var i = 0; i < products.length; i++) {
+      if (products[i]["product_id"] != null) {
+        html_string += `<option value="` + products[i]["product_pk"] + `">` + products[i]["product_name"] + ` | ` + products[i]["product_id"] + `</option>`;
+      }
+    }
+    $("#product-id-option").html(html_string);
+    $("select").formSelect();
+  });
+
+  $(document).on("click", ".add-product-btn", function () {
+
+    $.ajax({
+      url: "/create-new-product/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        "base_product_pk": global_selected_base_product_pk
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if (response["status"] == 200) {
+          window.location.pathname = "/edit-product/" + response["product_pk"];
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+
+  });
+
+
+  $("#create-new-channel-product-btn").click(function () {
+
+    var product_pk = $("#product-id-option").val();
+    var channel_name = $("#channel-name-option").val()
+
+    window.location.pathname = "/channel-product/" + channel_name + "/" + product_pk;
+  })
+
+
+  $("#export-btn").click(function () {
     fetch_export_list();
   });
 
 
-  $("input[id=all-select-checkbox]").on("change", function(){
-    if($("input[id=all-select-checkbox]:checked").length==1)
-    {
-     $("input[class=product-checkmark]").prop("checked", true);
+  $("input[id=all-select-checkbox]").on("change", function () {
+    if ($("input[id=all-select-checkbox]:checked").length == 1) {
+      $("input[class=product-checkmark]").prop("checked", true);
     }
-    else
-    {
-     $("input[class=product-checkmark]").prop("checked", false); 
+    else {
+      $("input[class=product-checkmark]").prop("checked", false);
     }
   });
 
-  $("#add-to-export-btn").click(function(){
+  $("#add-to-export-btn").click(function () {
 
     var export_option = $("#export-option").val();
     var export_title_pk = $("#export-titles-list").val();
     var export_title = $("#export-title").val().trim();
 
-    if(export_title=="" && export_option=="New")
-    {
-      M.toast({html: "Export Title cannot remain empty!"});
+    if (export_title == "" && export_option == "New") {
+      M.toast({ html: "Export Title cannot remain empty!" });
       return;
     }
-	
+
     var products = [];
-    $('input[class=product-checkmark]:checked').each(function() {
+    $('input[class=product-checkmark]:checked').each(function () {
       products.push($(this).attr('id').split("-")[1]);
     });
-    console.log(products);
 
-    if(products.length==0)
+    if (products.length == 0)
       return;
 
     $("#add-to-export-btn").attr("disabled", "disabled");
@@ -595,8 +1320,8 @@ ul.dropdown-content.select-dropdown li span {
     $.ajax({
       url: "/add-to-export/",
       type: "POST",
-      headers:{
-        'X-CSRFToken':getCsrfToken()
+      headers: {
+        'X-CSRFToken': getCsrfToken()
       },
       data: {
         export_option: export_option,
@@ -604,47 +1329,40 @@ ul.dropdown-content.select-dropdown li span {
         export_title: export_title,
         products: JSON.stringify(products)
       },
-      success: function(response) {
+      success: function (response) {
         console.log("Success!", response);
         $("#export-modal").modal("close");
         $("#add-to-export-btn").removeAttr("disabled");
 
-        if(response["status"]==200)
-        {
-          M.toast({html:"Products added to export list successfully!"});
+        if (response["status"] == 200) {
+          M.toast({ html: "Products added to export list successfully!" });
         }
-        else if(response["status"]==403)
-        {
-          M.toast({html:"You do not have permission to add products to export list!"});
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to add products to export list!" });
         }
-        else
-        {
-          M.toast({html:"Error adding products to export list!"}); 
+        else {
+          M.toast({ html: "Error adding products to export list!" });
         }
       },
-      error: function(xhr, textstatus, errorthrown) {
-        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
       }
     });
   });
 
-  $("#export-option").on('change', function(){
-    if($("#export-option").val()=="Existing")
-    {
+  $("#export-option").on('change', function () {
+    if ($("#export-option").val() == "Existing") {
       $("#new-export-div").hide();
       $("#existing-export-div").show();
     }
-    else
-    {
+    else {
       $("#existing-export-div").hide();
       $("#new-export-div").show();
     }
   });
 
-  function getStatus(e)
-  {
-    if(e == "Pending")
-    {
+  function getStatus(e) {
+    if (e == "Pending") {
       return `<a><i id = "pending-icon" class = "material-icons" title = "Pending" style = "
     background-color: #f7f7f7;
     border-radius: 5px;
@@ -663,7 +1381,7 @@ ul.dropdown-content.select-dropdown li span {
       " >
         timer
       </i></a>`
-    } 
+    }
     return `<i id = "pending-icon" class = "material-icons" title = "Verified" style = "
     background-color: #f7f7f7;
     border-radius: 5px;
@@ -681,37 +1399,38 @@ ul.dropdown-content.select-dropdown li span {
     top: 1px;
       " > 
         verified_user
-      </i>`; 
+      </i>`;
   }
 
-  function fetch_product_list()
-  {
-      filter_parameters['verified'] = $("#status-verified").is(":checked");
-      filter_parameters["start_date"] = $("#start-date").val();
-      filter_parameters["end_date"] = $("#end-date").val();
-      filter_parameters["brand_pk"] = $("#brand-select").val();
-      filter_parameters["has_image"] = $("#has-image-select").val();
-      filter_parameters["min_price"] = $("#min-price").val();
-      filter_parameters["max_price"] = $("#max-price").val();
+  function fetch_product_list() {
+    filter_parameters['verified'] = $("#status-verified").is(":checked");
+    filter_parameters["start_date"] = $("#start-date").val();
+    filter_parameters["end_date"] = $("#end-date").val();
+    filter_parameters["brand_name"] = $("#brand-select").val();
+    filter_parameters["has_image"] = $("#has-image-select").val();
+    filter_parameters["min_price"] = $("#min-price").val();
+    filter_parameters["max_price"] = $("#max-price").val();
 
-      // if (filter_parameters['verified']){
-      //   page = 1;
-      // }
+    // if (filter_parameters['verified']){
+    //   page = 1;
+    // }
 
-      $.ajax({
-        url: "/fetch-product-list/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        data: {
-          page: page,
-          filter_parameters: JSON.stringify(filter_parameters),
-          tags: JSON.stringify(chip_tags)
-        },
-        success: function(response) {
-          console.log("Success!", response);
+    $.ajax({
+      url: "/fetch-product-list/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        page: page,
+        filter_parameters: JSON.stringify(filter_parameters),
+        tags: JSON.stringify(chip_tags)
+      },
+      success: function (response) {
+        console.log("Success!", response);
 
+        if (response["status"] == 200) {
+          global_products_list = response["products"];
           var is_available = response["is_available"];
 
           $("#total-products").html(response["total_products"]);
@@ -720,89 +1439,510 @@ ul.dropdown-content.select-dropdown li span {
 
           var html_string = "";
 
-          for(var i=0;i<products.length;i++)
-          {
-            var img_tag = "";
-            if(products[i]["main_image"]!="")
-            {
-              img_tag = `<img src="`+products[i]["main_image"]+`" style="height:3em;width:3em;">`;
-            }
+          for (var i = 0; i < products.length; i++) {
 
-            var product_name = products[i]["product_name_amazon_uk"].substring(0, 30);
-            if(products[i]["product_name_amazon_uk"].length>30)
-            {
+            var base_product_pk = products[i]["base_product_pk"];
+
+            var product_name = products[i]["product_name"].substring(0, 30);
+            if (products[i]["product_name"].length > 30) {
               product_name += "...";
             }
 
-            status_str = getStatus(products[i]["status"]);
+            var child_products_html_string = "";
 
-            html_string += `<div class="row product_row" style="margin-top: 5px;position: relative;padding: 20px 0px 20px 0px;">
-                <div class = "col s1" style="line-height: 100%;margin-top: 8px;">
-                  <label class="toggler-wrapper style-25">
-                    <input class="product-checkmark" id = "checkmark-`+products[i]["product_pk"]+`" type="checkbox" >
-                    <div class="toggler-slider">
-                      <div class="toggler-knob"></div>
-                    </div>
-                  </label>
-                </div>
+            var channel_products = products[i]["channel_products"];
+
+            var product_variants = products[i]["products"];
+
+            if (channel_products.length == 0)
+              child_products_html_string = "";
 
 
-                <a target="_blank" href="/ecommerce-listing/`+products[i]["product_pk"]+`"><div class = "col s4" style="line-height: 100%;padding-top: 2px;">
-                  <div style="position: relative;">
-                    <div style="position: absolute;top: 50%;transform: translateY(-18%);">
-                    `+img_tag+`
+            product_variants_string = `  <div class="" style = "padding :0px 12px 20px 12px !important;">
+                    
+                    <p class="" style = "margin-bottom:3px !important;font-size:12px;color:grey; transform:translateX(-10px)">Product Variants</p>
+                    <div class = "" style = "">`;
+
+            var total_verified = 0;
+            var total_pending = 0;
+            for (var j = 0; j < product_variants.length; j++) {
+              var statuscolor = (product_variants[j]["status"] == "Pending") ? ("#D9D9D9") : ("#009051");
+
+              if (product_variants[j]["status"] == "Verified")
+                total_verified += 1;
+              else
+                total_pending += 1;
+
+              product_variants_string += `
+                      <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;margin-bottom:5px !important;">
+                        
+                        <div class = "col l3 s12">
+                            <div class = "row margin-btm-zero">
+                                <div class = "col s2 left">
+                                      <label class="toggler-wrapper style-25 slite-top" style="position:relative;right:20px;">
+                                        <input class="product-checkmark" id = "checkmark-`+ products[i]["base_product_pk"] + `" type="checkbox" >
+                                         <div class="toggler-slider">
+                                          <div class="toggler-knob"></div>
+                                        </div>
+                                      </label>       
+                                </div>
+                                <div class = "col s10 padding-lr-zero">
+
+                                          <div class = "thumbnail_container inline-block">
+                                          <img src="` + product_variants[j]["main_image"] + `" class = "thumbnail-img" />
+                                        </div>
+                                        <div class = "product-name-container inline-block">
+                                          <div class="product-info" style="width:100% !important;">
+                                            <p id="base-product-name-`+ base_product_pk + `"  class="title small-font black-text truncate"  style = "width: 100px !important;"><a href="/ecommerce-listing/` + product_variants[j]["product_pk"] + `" target="_blank" class="title black-text small-font">
+                                              `+ product_variants[j]["product_name"] + `
+                                            </p>
+                                            <p id="seller-sku-`+ base_product_pk + `" class="subtitle subtitle-font">
+                                              `+ product_variants[j]["product_id"] + `
+                                            </p>
+                                          </div>
+                                        </div>    
+
+                                </div>
+                            </div>
+                        </div>
+ 
+                        <div  class = "col l3 s12">
+
+                            <div class = "row margin-btm-zero">
+                                <div class = "col s4 padding-lr-zero">
+                                         <div id="brand-name-`+ base_product_pk + `" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                
+                                        </div>    
+                                </div>
+                                 <div class = "col s3 padding-lr-zero" >
+                                            <div id="brand-name-`+ base_product_pk + `" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                             
+                                            </div>
+                                </div>
+                                 <div class = "col s5 padding-lr-zero">
+                                       <div id="brand-name-`+ base_product_pk + `" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                          `+ product_variants[j]["channels_of_prod"] + `
+                                        </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                             <div class = "row margin-btm-zero">
+                                <div class = "col s6 padding-lr-zero">
+                                  <div id="brand-name-`+ base_product_pk + `" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                      -
+                                </div>
+                                </div>
+                                 <div class = "col s6 padding-lr-zero">
+                                  <div class="padding-lr-zero slite-top black-text avenir-next-regular margin-left-zero left small-font padd-right">
+                                          `+product_variants[j]["product_price"]+`
+                                  </div>
+                                </div>                         
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                              <div class = "row margin-btm-zero">
+                                <div class = "col s6 padding-lr-zero">
+
+                                  <a class="status-btn padding-lr-zero " base_product_pk = '`+ base_product_pk + `' href="#edit-base-product-modal" style="position:relative;" class="">
+                                    <i class="material-icons statusbtn slite-top" style="
+                                        color: white;
+                                        background-color: `+ statuscolor + `;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        position:relative;
+                                        top:3px !important;                      
+                                        font-size: 15px;
+                                        ">
+                                        check_circle
+                                    </i>
+                                  </a>
+
+                                </div>
+                                 <div class = "col s3 padding-lr-zero">
+
+                                      <a class="status-btn padding-lr-zero " base_product_pk = '`+ base_product_pk + `' href="/edit-product/` + product_variants[j]["product_pk"] + `" style="position:relative;" class="">
+                                    <i class="material-icons statusbtn slite-top" style="
+                                        color: black;
+                                        background-color: #FFFBA3;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        position:relative;
+                                        top:3px !important;
+                                       
+                                        font-size: 16px;
+                                        ">
+                                      border_color
+                                    </i>
+                                  </a>
+
+                                </div>
+                                 <div class = "col s3 padding-lr-zero">
+                               
+
+                                </div>
+                            </div>
+
+                        </div>
+                      </div>
+                    
+                 `
+            }
+
+            product_variants_string += `</div>
+                    
+                  </div>`;
+
+            child_products_html_string = product_variants_string;
+
+            if (channel_products.length != 0) {
+              child_products_html_string += ` <div class="" style = "padding :0px 12px 20px 12px !important;">
+                    
+                    <p class="" style = "margin-bottom:3px !important;font-size:12px;color:grey; transform:translateX(-10px)">Channels</p>
+                    <div class = "" style = "">`;
+
+            }
+
+            for (var j = 0; j < channel_products.length; j++) {
+              var href_edit = "#!";
+              if (channel_products[j]["channel_name"] == "Amazon UK") {
+                href_edit = "/channel-product/amazon-uk/" + channel_products[j]["product_pk"];
+              }
+              if (channel_products[j]["channel_name"] == "Amazon UAE") {
+                href_edit = "/channel-product/amazon-uae/" + channel_products[j]["product_pk"];
+              }
+              if (channel_products[j]["channel_name"] == "Ebay") {
+                href_edit = "/channel-product/ebay/" + channel_products[j]["product_pk"];
+              }
+              if (channel_products[j]["channel_name"] == "Noon") {
+                href_edit = "/channel-product/noon/" + channel_products[j]["product_pk"];
+              }
+
+              // <div class="col s3 offset-s1 avenir-next avenir-next-regular center-align">
+              //      <p class="valign-wrapper">
+              //        <img src="` + channel_products[i]["image_url"] + `" style="height:3em;width:3em;">&nbsp;&nbsp;
+              //        `+channel_products[j]["channel_product_name"]+`
+              //      </p>
+              //    </div>
+              //    <div class="col s3 avenir-next avenir-next-regular center-align">
+              //      <p>
+              //        `+channel_products[j]["product_id"]+`
+              //      </p>
+              //    </div>
+              //    <div class="col s3 avenir-next avenir-next-regular center-align">
+              //      <p>
+              //        `+channel_products[j]["channel_name"]+`
+              //      </p>
+              //    </div>
+              //    <div class="col s2 center-align">
+              //      <a href="`+href_edit+`"><i class="material-icons edit-icon" >edit</i></a>
+              //    </div>
+
+
+              child_products_html_string += `
+               
+                      <div class = "row" style = "padding:15px 10px 15px 10px !important;background-color:white;border-radius:5px;margin-bottom:5px !important;">
+                        
+                        <div class = "col l3 s12">
+                            <div class = "row margin-btm-zero">
+                                <div class = "col s2 left">
+                                      <label class="toggler-wrapper style-25 slite-top" style="position:relative;right:20px;">
+                                        <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                                         <div class="toggler-slider">
+                                          <div class="toggler-knob"></div>
+                                        </div>
+                                      </label>       
+                                </div>
+                                <div class = "col s10 padding-lr-zero">
+
+                                          <div class = "thumbnail_container inline-block">
+                                          <img src="` + channel_products[j]["image_url"] + `" class = "thumbnail-img" />
+                                        </div>
+                                        <div class = "product-name-container inline-block">
+                                          <div class="product-info" style="width:100% !important;">
+                                            <p id="base-product-name-`+ base_product_pk + `"  class="title small-font truncate" style = "width: 100px !important;">
+                                              `+ channel_products[j]["channel_product_name"] + `
+                                            </p>
+                                            <p id="seller-sku-`+ base_product_pk + `" class="subtitle subtitle-font">
+                                              `+ channel_products[j]["product_id"] + `
+                                            </p>
+                                          </div>
+                                        </div>    
+
+                                </div>
+                            </div>
+                        </div>
+ 
+                        <div  class = "col l3 s12">
+
+                            <div class = "row margin-btm-zero">
+                                <div class = "col s4 padding-lr-zero">
+                                         <div id="brand-name-`+ base_product_pk + `" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                       
+                                        </div>    
+                                </div>
+                                 <div class = "col s3 padding-lr-zero" >
+                                            <div id="brand-name-`+ base_product_pk + `" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                       
+                                            </div>
+                                </div>
+                                 <div class = "col s5 padding-lr-zero">
+                                       <div id="brand-name-`+ base_product_pk + `" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                        `+ channel_products[j]["channel_name"] + `
+                                        </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                             <div class = "row margin-btm-zero">
+                                <div class = "col s6 padding-lr-zero">
+                                  <div id="brand-name-`+ base_product_pk + `" class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                      -
+                                </div>
+                                </div>
+                                 <div class = "col s6 padding-lr-zero">
+                                  <div class="padding-lr-zero slite-top avenir-next-regular margin-left-zero left small-font padd-right">
+                                          -
+                                  </div>
+                                </div>                         
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                              <div class = "row margin-btm-zero">
+                                <div class = "col s6 padding-lr-zero">
+
+                                  <a class="status-btn padding-lr-zero " base_product_pk = '`+ base_product_pk + `' href="#edit-base-product-modal" style="position:relative;" class="">
+                                    <i class="material-icons statusbtn slite-top" style="
+                                        color: white;
+                                        background-color: #3FB223;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        position:relative;
+                                        top:3px !important;                      
+                                        font-size: 15px;
+                                        ">
+                                        dynamic_feed
+                                    </i>
+                                  </a>
+
+                                </div>
+                                 <div class = "col s3 padding-lr-zero">
+
+                                      <a class="status-btn padding-lr-zero " base_product_pk = '`+ base_product_pk + `' href="` + href_edit + `" style="position:relative;" class="">
+                                    <i class="material-icons statusbtn slite-top" style="
+                                        color: black;
+                                        background-color: #FFFBA3;
+                                        padding: 10px;
+                                        border-radius: 5px;
+                                        position:relative;
+                                        top:3px !important;
+                                       
+                                        font-size: 15px;
+                                        ">
+                                      border_color
+                                    </i>
+                                  </a>
+
+                                </div>
+                              
+                            </div>
+
+                        </div>
+                      </div>
+              `
+            }
+            child_products_html_string += `      </div>
+                    
+                  </div>`;
+
+            var base_product_pk = products[i]["base_product_pk"];
+            global_products_dict[base_product_pk] = products[i];
+
+            // <div class = "thumbnail_container inline-block">
+            //   <img src = "{% static 'WAMSApp/img/thumbnail.jpeg' %}" class = "thumbnail-img" />
+            // </div>
+
+            html_string += `
+                
+                <ul class="collapsible row products-collapse-container" style="margin-bottom:0em;">
+                  <li style="margin-bottom:0em;">
+                    <div class="collapsible-header active padding-lr-zero" >
+                      
+                      <div class = "row" style = "padding:0px 20px 0px 20px !important;">
+                        <div class = "col l3 s12">
+                            <div class = "row">
+                                <div class = "col s2">
+                                      <label class="toggler-wrapper style-25" style="position:relative;right:10px;">
+                                        <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                                         <div class="toggler-slider">
+                                          <div class="toggler-knob"></div>
+                                        </div>
+                                      </label>       
+                                </div>
+                                <div class = "col s10">
+
+                                       
+                                        <div class = "product-name-container inline-block">
+                                          <div class="product-info">
+                                            <p id="base-product-name-`+ base_product_pk + `" title = ` + product_name + ` class="title small-font truncate" style = "width: 150px !important;">
+                                              `+ product_name + `
+                                            </p>
+                                            <p id="seller-sku-`+ base_product_pk + `" class="subtitle subtitle-font">
+                                              `+ products[i]["seller_sku"] + `
+                                            </p>
+                                          </div>
+                                        </div>  
+
+                                </div>
+                            </div>
+                        </div>
+ 
+                        <div  class = "col l3 s12">
+
+                            <div class = "row">
+                                <div class = "col s4">
+                                       <div id="brand-name-`+ base_product_pk + `" class="col s1 avenir-next-regular margin-left-zero left small-font padd-right">
+                                          `+ products[i]["brand_name"] + `
+                                        </div>    
+                                </div>
+                                 <div class = "col s3">
+                                  <div id="brand-name-`+ base_product_pk + `" class="avenir-next-regular margin-left-zero left small-font padd-right">
+                                    `+ product_variants.length + `
+                                  </div>
+                                </div>
+                                 <div class = "col s5">
+                                  <div id="brand-name-`+ base_product_pk + `" class=" avenir-next-regular margin-left-zero left small-font padd-right">
+                                      `+ channel_products.length + `
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                             <div class = "row">
+                                <div class = "col s6">
+                                  <div id="brand-name-`+ base_product_pk + `" class="avenir-next-regular margin-left-zero left small-font padd-right">
+                                        -
+                                  </div>
+                                </div>
+                                 <div class = "col s6">
+                                  <div class="avenir-next-regular margin-left-zero left small-font padd-right">
+                                          -
+                                  </div>
+                                </div>                         
+                            </div>
+
+                        </div>
+
+                        <div class = "col l3 s12">
+
+                              <div class = "row">
+                                <div class = "col s6">
+
+                                      <div class = "inline-block" style = "color:#E2E2E2 !important;">
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#009051;" class = "status-bar">`+ total_verified + `V </span>| 
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#FFCE00;" class = "status-bar"> `+ total_pending + `P</span>
+                                        <br/>
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;color:#3FB223;" class = "status-bar">0A </span>| 
+                                        <span style = "margin-up:0px !important;margin-down:0px !important;margin-left:2px !important;color:#ADADAD;" class = "status-bar"> 0P</span>
+                                    </div>
+                                      
+                                </div>
+                                 <div class = "col s3">
+
+                              <a class="status-btn modal-trigger base-product-edit-modal-btn" base_product_pk = '`+ base_product_pk + `' href="#edit-base-product-modal" style="position:relative;">
+                                <i class="material-icons statusbtn" title="Edit Product" style="
+                                    color: black;
+                                    background-color: #FFFBA3;
+                                    padding: 10px;
+                                    border-radius: 5px;                                                    
+                                    font-size: 10px;">
+                                  border_color
+                                </i>
+                              </a>
+
+                                </div>
+                                 <div class = "col s3">
+                                  <a class="status-btn padding-lr-zero modal-trigger create-new-channel-product-modal-btn" base_product_pk = '`+ base_product_pk + `' href="#create-new-channel-product-modal">
+                                <i class="material-icons statusbtn" title="New Channel Product"  style="
+                                    color: white;
+                                    background-color: #677EFF;
+                                    padding: 10px;
+                                    border-radius: 5px;                          
+                                    margin-left:0px !important; 
+                                    font-size: 10px;">
+                                 add_circle_outline
+                                </i>
+                              </a>
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                      </div>
+
                     </div>
-                    <div style="position: absolute;left: 4rem;font-family:'AvenirNext';letter-spacing: 0.5px;font-weight: 100;color:black;" title="`+products[i]["product_name_amazon_uk"]+`">
-                      `+product_name+`
+                    <div class="collapsible-body" style = "background-color: #D8D6D6 !important;">
+                        `+ child_products_html_string + `
                     </div>
-                    <div style="position: absolute;font-family: 'AvenirNextRegular';left: 4rem;font-size: 12px;top: 1.2rem;color: gray;letter-spacing: 1px;">
-                    `+ products[i]["product_id"] +` | `+ products[i]["seller_sku"] +`
-                    </div>
-                  </div>
-                </div></a>
-                <div class = "col s2" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;text-align:center;">`+products[i]["brand"]+`</div>
-                <div class = "col s2 left" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;text-align:center;">`+products[i]["created_date"]+`</div>
-                <div class = "col s2" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;padding-right:15px;text-align:left;text-align:center;">`+status_str+`</div>
-                  
-                <div class = "col s1" style="line-height: 100%;padding-top: 2px;font-family:'AvenirNextRegular';margin-top: 8px;padding-right:15px;text-align:left;text-align:center;"><a href="/edit-product/`+products[i]["product_pk"]+`" target="_blank"><i class="material-icons">edit</i></a></div>
-                </div>`
+                  </li>
+              </ul>`
 
           }
-          
-          if(load_more_flag==true)
-          {
+
+          if (load_more_flag == true) {
             $("#product-table").append(html_string);
             load_more_flag = false;
           }
-          else
-          {
+          else {
             $("#product-table").html(html_string);
           }
 
-          if(is_available==true)
-          {
+          $('.collapsible').collapsible();
+
+          if (is_available == true) {
             $("#load-more-btn").show();
           }
-          else
-          {
-            $("#load-more-btn").hide(); 
+          else {
+            $("#load-more-btn").hide();
           }
 
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+          // $('.collapsible-header').click(function(e){ e.stopPropagation(); });  
+          $('.status-btn').click(() => {
+
+          })
         }
-      });
+
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
   }
 
-  $(document).on('click', '.clickable-row', function() {
-      window.location = $(this).data("href");
+  $(document).on('click', '.clickable-row', function () {
+    window.location = $(this).data("href");
   });
 
   //fetch_product_list();
 
 
-  $("#load-more-btn").click(function(){
+  $("#load-more-btn").click(function () {
     page++;
     $("#load-more-btn").hide();
     fetch_product_list();
@@ -812,7 +1952,7 @@ ul.dropdown-content.select-dropdown li span {
 
 
 
-  $("#import-upload-btn").click(function(){
+  $("#import-upload-btn").click(function () {
 
     var import_format = $("#import-format").val();
     var import_rule = $("#import-rule").val();
@@ -829,172 +1969,161 @@ ul.dropdown-content.select-dropdown li span {
     $("#loader-bar").show();
 
     $.ajax({
-        url: "/import-products/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        processData: false,
-        contentType: false,
-        data: fd,
-        success: function(response) {
-          console.log("Success!", response);
-          $("#import-upload-btn").removeAttr("disabled");
-          $("#loader-bar").hide();
-          if(response["status"]==200)
-          {
-            $("#import-modal").modal("close");
-            window.location.reload();
-          }
-          else if(response["status"]==403)
-          {
-            M.toast({html: "You do not have permission to import products!"});
-          }
-          else
-          {
-            M.toast({html: "Error importing products!"});
-          }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      url: "/import-products/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      processData: false,
+      contentType: false,
+      data: fd,
+      success: function (response) {
+        console.log("Success!", response);
+        $("#import-upload-btn").removeAttr("disabled");
+        $("#loader-bar").hide();
+        if (response["status"] == 200) {
+          $("#import-modal").modal("close");
+          window.location.reload();
         }
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to import products!" });
+        }
+        else {
+          M.toast({ html: "Error importing products!" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
     });
 
   });
 
 
-  $("#start-date").change(function(){
+  $("#start-date").change(function () {
     check_filter_options();
     fetch_product_list();
   });
 
 
-  $("#end-date").change(function(){
+  $("#end-date").change(function () {
     check_filter_options();
     fetch_product_list();
   });
 
 
-  function fetch_brands()
-  {
+  function fetch_brands() {
     $.ajax({
-        url: "/fetch-brands/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        data:{
+      url: "/fetch-brands/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
 
-        },
-        success: function(response) {
-          console.log("Success!", response);
-          if(response["status"]==200)
-          {
-            var html_string = "<option value='' selected>Brand</option>";
-            var brand_list = response["brand_list"];
-            for(var i=0;i<brand_list.length;i++)
-            {
-              html_string += `<option value="`+brand_list[i]["pk"]+`">`+brand_list[i]["name"]+`</option>`;
-            }
-            $("#brand-select").html(html_string);
-            $("select").formSelect();
-
-            var autocomplete_data = {};
-            for(var i=0;i<brand_list.length;i++)
-            {
-              autocomplete_data[brand_list[i]["name"]] = null; 
-            }
-
-            $('#brand-name').autocomplete({
-              data: autocomplete_data
-            });
-
-            fetch_product_list();
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if (response["status"] == 200) {
+          var html_string = "<option value='' selected>Brand</option>";
+          var brand_list = response["brand_list"];
+          for (var i = 0; i < brand_list.length; i++) {
+            html_string += `<option value="` + brand_list[i]["name"] + `">` + brand_list[i]["name"] + `</option>`;
           }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+          $("#brand-select").html(html_string);
+          $("#edit-brand").html(html_string);
+          $("select").formSelect();
+
+          var autocomplete_data = {};
+          for (var i = 0; i < brand_list.length; i++) {
+            autocomplete_data[brand_list[i]["name"]] = null;
+          }
+
+          $('#brand-name').autocomplete({
+            data: autocomplete_data
+          });
+
+          fetch_product_list();
         }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
     });
   }
 
   fetch_brands();
 
-  $("#brand-select").change(function(){
+  $("#brand-select").change(function () {
     check_filter_options();
     fetch_product_list();
   });
 
-  $("#has-image-select").change(function(){
+  $("#has-image-select").change(function () {
     check_filter_options();
     fetch_product_list();
   });
 
-  $("#min-price").change(function(){
+  $("#min-price").change(function () {
     check_filter_options();
     fetch_product_list();
   });
 
-  $("#max-price").change(function(){
+  $("#max-price").change(function () {
     check_filter_options();
     fetch_product_list();
   });
-  
 
-  function create_new_product()
-  {
+
+  function create_new_base_product() {
     var product_name = $("#product-name").val().trim();
     var seller_sku = $("#seller-sku").val().trim();
     var brand_name = $("#brand-name").val().trim();
 
-    if(product_name=="" || seller_sku=="" || brand_name=="")
-    {
-      M.toast({html: "Please fill all the details before creating new product"});
+    if (product_name == "" || seller_sku == "" || brand_name == "") {
+      M.toast({ html: "Please fill all the details before creating new product" });
       return;
     }
-    
     $.ajax({
-        url: "/create-new-product/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        data:{
-          product_name: product_name,
-          seller_sku: seller_sku,
-          brand_name: brand_name
-        },
-        success: function(response) {
-          console.log("Success!", response);
-          if(response["status"]==200)
-          {
-            window.location.href="/edit-product/"+response["product_pk"];
-          }
-          else if(response["status"]==409)
-          {
-            M.toast({html: "Duplicate product detected!"}); 
-          }
-          else if(response["status"]==403)
-          {
-            M.toast({html: "You do not have permission to create products!"}); 
-          }
-          else
-          {
-            M.toast({html: "Internal Server Error!"});  
-          }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+      url: "/create-new-base-product/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_name: product_name,
+        seller_sku: seller_sku,
+        brand_name: brand_name
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if (response["status"] == 200) {
+          M.toast({ html: "Base Product successfully created!" });
+          $("#create-new-base-product-modal").modal("close");
+          fetch_product_list();
+          //window.location.href = "/edit-product/" + response["product_pk"];
         }
+        else if (response["status"] == 409) {
+          M.toast({ html: "Duplicate product detected!" });
+        }
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to create products!" });
+        }
+        else {
+          M.toast({ html: "Internal Server Error!" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
     });
   }
 
-  $("#create-new-product-btn").click(function(){
-    create_new_product();
+  $("#create-new-base-product-btn").click(function () {
+    create_new_base_product();
   });
 
-  function check_filter_options()
-  {
+  function check_filter_options() {
     var brand_select = $("#brand-select").val();
     var has_image_select = $("#has-image-select").val();
     var start_date = $("#start-date").val();
@@ -1003,19 +2132,17 @@ ul.dropdown-content.select-dropdown li span {
     var max_price = $("#max-price").val();
     var is_verified = $("#status-verified").is(":checked");
 
-    if(brand_select!="" || has_image_select!="" || start_date!="" || end_date!="" || min_price!="" || max_price!="" || is_verified!=false)
-    {
+    if (brand_select != "" || has_image_select != "" || start_date != "" || end_date != "" || min_price != "" || max_price != "" || is_verified != false) {
       $("#filter-btn").css("background-color", "#521893");
       $("#filter-btn").css("color", "white");
     }
-    else
-    {
+    else {
       $("#filter-btn").css("background-color", "white");
       $("#filter-btn").css("color", "gray");
     }
   }
 
-  
+
 </script>
 
 {% endblock %}

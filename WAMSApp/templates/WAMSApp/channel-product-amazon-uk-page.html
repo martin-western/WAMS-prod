@@ -1,0 +1,2390 @@
+{% extends 'WAMSApp/base.html' %}
+
+{% block content %}
+
+{% load static %}
+
+<link rel = 'stylesheet' type="text/css" href="{% static 'WAMSApp/css/materialize_override.css' %}"/>
+<script src="https://cdn.ckeditor.com/ckeditor5/11.0.1/decoupled-document/ckeditor.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/document_editor.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/main.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'WAMSApp/css/dropdown.css' %}">
+
+  
+<div>
+    <div class="row main-div" style="margin: 0px 70px 0px 0px; padding: 20px 10px !important;" >
+   
+
+
+  <div class="col s4 image-section" style="padding-right: 0px;">
+
+            <div class="main-image" style="position: relative;">
+                <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
+                    style="position:absolute;right:0.5em;top:0.5em;z-index: 100;"><i class="material-icons"
+                   style="color: #521893;">file_download</i>
+               </a>
+            </div>
+
+            <div class = "image-section-dropdown">
+
+              <!--   <div id = "images-category">
+
+                  <a class='dropdown-trigger btn' href='#' data-target='dropdown1'>Drop Me!</a>
+
+                  <ul id='dropdown1' class='dropdown-content'>
+                    <li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li>
+                    <li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li><li><a href="#!">one</a></li>
+                    <li><a href="#!">two</a></li>
+                  </ul>
+                </div> -->
+
+                 <div class="input-field image-section-dropdownchild">
+                    <select id="images-category">
+                          <option value="All Images" id="all-images-option">All Images</option>
+                        <option value="Main Images" id="main-images-option">Main Images</option>
+                        <option value="Sub Images" id="sub-images-option">Sub Images</option>
+                        <!-- <option value="PFL Images" id="pfl-images-option">PFL Images</option>
+                        <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
+                        </option>
+                        <option value="White Background Images" id="white-background-images-option">White Background
+                            Images</option>
+                        <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
+                        <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
+                        <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
+                        <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
+                        <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
+                        <option value="Ads Images" id="ads-images-option">Ads Images</option>
+                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option> -->
+                    </select>
+                </div>
+
+
+
+                <div class="image-section-dropdownchild sidebtn">
+                   <a href="#upload-image-modal" id="upload-image-modal-btn" class="">
+                        <i class="material-icons" title="Add Image" style="
+                              color: gray;
+                              background-color: white;
+                              padding: 8px;">
+                              add_photo_alternate
+                        </i>
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="row" style="position: relative;bottom: 15px;right: 5px;">
+                <div id="graphics-section" class="col s12" style="width: 94%;padding-top: 1.11em;">
+
+                </div>
+            </div>
+
+             <!--  <div class="row image-section-dropdown" style="margin-bottom: 0px;">
+                <div class="input-field left-section col s7" style="
+                     position:relative;height: 50px !important;">
+                    <select id="images-category" style="padding-top: 20px;">
+                        <option value="All Images" id="all-images-option">All Images</option>
+                        <option value="Main Images" id="main-images-option">Main Images</option>
+                        <option value="Sub Images" id="sub-images-option">Sub Images</option>
+                        <option value="PFL Images" id="pfl-images-option">PFL Images</option>
+                        <option value="PFL Generated Images" id="pfl-generated-images-option">PFL Generated Images
+                        </option>
+                        <option value="White Background Images" id="white-background-images-option">White Background
+                            Images</option>
+                        <option value="Lifestyle Images" id="lifestyle-images-option">Lifestyle Images</option>
+                        <option value="Certificate Images" id="certificate-images-option">Certificate Images</option>
+                        <option value="Giftbox Images" id="giftbox-images-option">Giftbox Images</option>
+                        <option value="Diecut Images" id="diecut-images-option">Diecut Images</option>
+                        <option value="A+ Content Images" id="aplus-content-images-option">A+ Content Images</option>
+                        <option value="Ads Images" id="ads-images-option">Ads Images</option>
+                        <option value="Unedited Images" id="unedited-images-option">Unedited Images</option>
+                    </select>
+                </div>
+
+                <div class="col s3">
+                    <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
+                        <i class="material-icons" title="Add Image" style="
+                              color: gray;
+                              background-color: white;
+                              padding: 8px;
+                              margin-top: 15px;">
+                              add_photo_alternate
+                        </i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="row" style="position: relative;bottom: 15px;right: 5px;">
+                <div id="graphics-section" class="col s12" style="width: 94%;padding-top: 1.11em;">
+
+                </div>
+            </div> -->
+        </div>
+ 
+
+    <!-- <div class="row" style="margin:0px;margin-left: 100px;"> -->
+   <!--  <div class="col s4 image-section" style="height: 90vh;">
+      <div class="main-image" style="position: relative;">
+        <a id="download-image-btn" href="#!" class="right btn-floating btn-small white"
+          style="position:absolute;right:5em;top:0em;z-index: 100;"><i class="material-icons"
+            style="color: #521893;">file_download</i></a>
+      </div>
+
+      <div class="row image-section-dropdown" style="margin-bottom: 0px;">
+        <div class="input-field left-section col s7" style="
+          width: 21vw;
+          border: none; 
+          background-color: 
+          white;height: 40px; 
+          font-size: 14px !important;
+          margin-left: 10px;">
+          <select id="images-category">
+            <option value="All Images" id="all-images-option">All Images</option>
+            <option value="Main Images" id="main-images-option">Main Images</option>
+            <option value="Sub Images" id="sub-images-option">Sub Images</option>
+          </select>
+        </div>
+
+        <div class="col s3">
+          <a href="#upload-image-modal" id="import-btn" class="modal-trigger">
+            <i class="material-icons" title="Add Image" style="
+              color: gray;
+              background-color: white;
+              padding: 8px;
+              margin-top: 15px;">
+              add_photo_alternate
+            </i>pp
+          </a>
+        </div>
+      </div>
+
+      <div class="row" style="position: relative;bottom: 15px;right: 5px;">
+        <div id="graphics-section" class="col s12" style="width: 94%;padding-top: 1.11em;">
+
+        </div>
+      </div>
+    </div> -->
+
+    <div id="collapse-div" class="col s8 center collapse-div-container"
+      style="transition: width 0.5s;">
+
+      <div class="collapse-div" style = "padding-right:0px !important;overflow-x:hidden  !important;">
+        <div class="scroll-style-1 ">
+          <h6 style="color: #521893;margin: 30px 0px 30px 0px !important;">Amazon UK</h6>
+          <div class="row margin-zero collapse-div-row-container">
+            
+              <div class="input-field col s6  toggle-s6-s12">
+                <input placeholder="" id="product-name" type="text">
+                <label for="product-name">Product Name</label>
+              </div>
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" disabled id="product-id" type="text" class="grey-text">
+                <label for="product-id">Product ID</label>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="feed-product-type" type="text">
+                <label for="feed-product-type">Feed Product Type</label>
+              </div>
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="variation-theme" type="text">
+                <label for="variation-theme">Variation Theme</label>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <select id="update-delete">
+                  <option value="Update" >Update</option>
+                  <option value="Delete">Delete</option>
+                </select>
+                <label for="update-delete">Update Delete</label>
+              </div>
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="recommended-browse-nodes" type="text">
+                <label for="recommended-browse-nodes">Recommended Browse Nodes</label>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="search-terms" type="text">
+                <label for="search-terms">Search Terms</label>
+              </div>
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="enclosure-material" type="text">
+                <label for="enclosure-material">Enclosure Material</label>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="cover-material-type" class="black-text" type="text">
+                <label for="cover-material-type">Cover Material Type</label>
+              </div>
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="sale-price" type="number">
+                <label for="sale-price">Sale Price</label>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="sale-from" type="date">
+                <label for="sale-from">Sale From</label>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="sale-end" type="date">
+                <label for="sale-end">Sale End</label>
+              </div>
+
+
+              <div class = "col s12" style="padding-left: 0px !important;">
+                <div class="input-field col s10">
+                    <input placeholder="" id="product-attribute-amazon-uk-1" type="text">
+                    <label for="product-attribute-amazon-uk-1">Product Attribute</label>
+                </div>
+
+                <div class="input-field col s2">
+                    <a id="add-product-attribute-amazon-uk-btn" href="#!" class="btn-floating blue"
+                        style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                            class="material-icons">add</i></a>
+                </div>
+              </div>  
+              <div class="col s12" id = "product-attributes-amazon-uk-div" style="padding-left: 0px !important;"></div>
+            
+
+              <div class = "col s12" style="padding-left: 0px !important;">
+              <div class="input-field col s10">
+                <input  placeholder="" id="special-feature-1" type="text">
+                <label for="special-feature-1">Special Feature</label>
+              </div>
+
+              <div class="input-field col s2">
+                <a id="add-special-feature-btn" href="#!" class="btn-floating blue"
+                  style="background-color: #512ea8 !important; transform: scale(0.7);box-shadow: none;"><i
+                    class="material-icons">add</i></a>
+              </div>
+              </div>
+
+              <div class="col s12"  style="padding-left: 0px !important;"  id = "special-features-div">
+              </div>
+
+              <div class="input-field col s4 toggle-s6-s12"  style="padding: 0px 20px 0px 40px  !important;" >
+                <input placeholder="" id="wattage" type="number">
+                <label for="wattage">Wattage</label>
+              </div>
+
+              
+
+              <div class="input-field col s2 toggle-s6-s12" style="padding: 0px 40px 0px 10px !important;" >
+                <select id="wattage-metric">
+                  <option selected value="">Unit</option>
+                  <option value="volts">V</option>
+                  <option value="Watts">W</option>
+                  <option value="Kilowatts">KW</option>
+                </select>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input disabled placeholder="" id="material-type" type="text" class="grey-text">
+                <label for="material-type">Material Type</label>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="parentage" type="text">
+                <label for="parentage">Parentage</label>
+              </div>
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="parent-sku" type="text">
+                <label for="parent-sku">Parent SKU</label>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="relationship-type" type="text">
+                <label for="relationship-type">Relationship Type</label>
+              </div>
+
+              <div class="input-field col s4 toggle-s6-s12" style="padding: 0px 20px 0px 40px  !important;">
+                <input placeholder="" id="item-count" type="number">
+                <label for="item-count">Item Count</label>
+              </div>
+
+              <div class="input-field col s2 toggle-s6-s12" style="padding: 0px 40px 0px 10px !important;">
+                <select id="item-count-metric">
+                  <option selected value="">Unit</option>
+                  <option value="Bag">Bag</option>
+                  <option value="Box">Box</option>
+                  <option value="Dzn">Dzn</option>
+                  <option value="Mah">Mah</option>
+                  <option value="Pieces">Pieces</option>
+                  <option value="Packet">Packet</option>
+                </select>
+              </div>
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="item-condition-note" type="text">
+                <label for="item-condition-note">Item Condition Note</label>
+              </div>
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="max-order-quantity" type="number">
+                <label for="max-order-quantity">Max Order Quantity</label>
+              </div>
+
+
+              <div class="input-field col s6 toggle-s6-s12">
+                <input placeholder="" id="number-of-items" type="number">
+                <label for="number-of-items">Number of Items</label>
+              </div>
+              <div class="input-field col s6 toggle-s6-s12">
+                <select id="condition-type">
+                  <option value="New" >New</option>
+                  <option value="Old">Old</option>
+                </select>
+                <label for="condition-type">Condition Type</label>
+              </div>
+
+
+              
+              <ul class="collapsible" style="box-shadow: none;
+              border: none;">
+                <li>
+                  <div class="collapsible-header"><i class="material-icons">arrow_drop_down</i>Dimensions</div>
+                  <div class="collapsible-body">
+                    <p style = "margin-bottom: 0px !important;font-size: 10px !important;text-align: center; color: grey;">L - Length | B - Breadth | H - Height | W - Weight </p>
+                    <div style="padding:20px 40px 0px 40px !important;">
+                      <div class="row" style="margin-bottom: 0px !important;">
+                          <div class="col s12">
+                             <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Package ( L | B | H | W )</p>
+                              <div class="row">
+                                <div class="col s1" style="padding:0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                                    <input placeholder="" id="package_length" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                                </div>
+                                <!-- <div class="col s1" style="padding:0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                                    <input placeholder="" id="package_length_metric" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                                </div> -->
+
+                                <div class="col s1" style="padding:0px !important;">
+                                  <select id = "package_length_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                                </div>
+                               
+                                <div class="col s1 offset-s1" style="padding:0px !important;">
+                                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                      <input placeholder="" id="package_width" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                    </div>
+                                </div>
+                                <div class="col s1" style="padding:0px !important;">
+                                 
+                                  <select id = "package_width_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                              </div>
+                                <div class="col s1 offset-s1" style="padding:0px !important;">
+                                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                      <input placeholder="" id="package_height" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                    </div>
+                                </div>   
+                                <div class="col s1" style="padding:0px !important;">
+                                 
+                                  <select id = "package_height_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                              </div>   
+                                <div class="col s1 offset-s1" style="padding:0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                    <input placeholder="" id="package_weight" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                              </div>  
+                              <div class="col s1" style="padding:0px !important;">
+                               
+                                <select id = "package_weight_metric">
+                                  <option value="FT" selected>KG</option>
+                                  <option value="IN">LB</option>
+                                  <option value="CM">OZ</option>
+                                  <option value="MM">MG</option>
+                                  <option value="M">GR</option>
+                                </select>
+                            </div>    
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row" style="margin-bottom: 0px !important;">
+                          <div class="col s12">
+                             <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Item ( L | B | H | W )</p>
+                              <div class="row">
+                                <div class="col s1" style="padding: 0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                                    <input placeholder="" id="item_length" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                                </div>
+                                <div class="col s1" style="padding: 0px !important;">
+                                 
+                                  <select id = "item_length_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                                </div>
+                                <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                      <input placeholder="" id="item_width" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                    </div>
+                                </div>
+                                <div class="col s1"style="padding: 0px !important;" >
+                                  
+                                  <select id = "item_width_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                              </div>
+                                <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                    <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                      <input placeholder="" id="item_height" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                    </div>
+                                </div>    
+                                <div class="col s1" style="padding: 0px !important;">
+                                  
+                                  <select id = "item_height_metric">
+                                    <option value="FT" selected>FT</option>
+                                    <option value="IN">IN</option>
+                                    <option value="CM">CM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="M">M</option>
+                                  </select>
+                              </div>  
+                                <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                    <input placeholder="" id="item_weight" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                              </div>  
+                              <div class="col s1" style="padding: 0px !important;">
+                               
+                                <select id = "item_weight_metric">
+                                  <option value="FT" selected>KG</option>
+                                  <option value="IN">LB</option>
+                                  <option value="CM">OZ</option>
+                                  <option value="MM">MG</option>
+                                  <option value="M">GR</option>
+                                </select>
+                            </div>  
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row" style="margin-bottom: 0px !important;">
+                        <div class="col s12">
+                           <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Item Display ( L | B | H | W )</p>
+                            <div class="row">
+                              <div class="col s1" style="padding: 0px !important;">
+                                <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                                  <input placeholder="" id="item_display_length" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                </div>
+                              </div>
+                              <div class="col s1" style="padding: 0px !important;">
+                               
+                                <select id = "item_display_length_metric">
+                                  <option value="FT" selected>FT</option>
+                                  <option value="IN">IN</option>
+                                  <option value="CM">CM</option>
+                                  <option value="MM">MM</option>
+                                  <option value="M">M</option>
+                                </select>
+                              </div>
+                              <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                    <input placeholder="" id="item_display_width" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                              </div>
+                              <div class="col s1" style="padding: 0px !important;">
+                               
+                                <select id = "item_display_width_metric">
+                                  <option value="FT" selected>FT</option>
+                                  <option value="IN">IN</option>
+                                  <option value="CM">CM</option>
+                                  <option value="MM">MM</option>
+                                  <option value="M">M</option>
+                                </select>
+                            </div>
+                              <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                  <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                    <input placeholder="" id="item_display_height" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                  </div>
+                              </div>    
+                              <div class="col s1" style="padding: 0px !important;">
+                               
+                                <select id = "item_display_height_metric">
+                                  <option value="FT" selected>FT</option>
+                                  <option value="IN">IN</option>
+                                  <option value="CM">CM</option>
+                                  <option value="MM">MM</option>
+                                  <option value="M">M</option>
+                                </select>
+                            </div>    
+                              <div class="col s1 offset-s1" style="padding: 0px !important;">
+                                <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                  <input placeholder="" id="item_display_weight" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                </div>
+                            </div>  
+                            <div class="col s1" style="padding: 0px !important;">
+                             
+                              <select id = "item_display_weight_metric">
+                                <option value="FT" selected>KG</option>
+                                <option value="IN">LB</option>
+                                <option value="CM">OZ</option>
+                                <option value="MM">MG</option>
+                                <option value="M">GR</option>
+                              </select>
+                          </div>  
+                           
+                        </div>
+                        <div class="row">
+                          <div class="col s3" style="padding: 0px !important;">
+                            <p style = "margin-bottom: 0px !important;font-size: 10px !important;text-align: left;">Item Display Volume</p>
+                             <div class="row">
+                              <div class="col s6"  style="padding: 0px !important;">
+                                <div class="input-field" style="font-family: 'AvenirNext'; margin-top: 0px !important;">
+                                  <input placeholder="" id="item_display_volume" type="text" class="validate" style="font-family: 'AvenirNext';">
+                                </div>
+                            </div>  
+                             <div class="col s6"  style="padding: 0px !important;">
+                              
+                               <select id = "item_display_volume_metric">
+                                <option value="FT" selected>CC</option>
+                                <option value="IN">L</option>
+                                <option value="CM">CUBIC-M</option>
+                              </select>
+                           </div>  
+                             </div>
+                         </div>
+                       
+                      
+                       <div class="col s3 offset-s1" style="padding: 0px; !important">
+                        <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Shipping Weight</p>
+                         <div class="row">
+                           <div class="col s6"  style="padding: 0px !important;">
+                             <div class="input-field" style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                               <input placeholder="" id="shipping_weight" type="text" class="validate" style="font-family: 'AvenirNext';">
+                             </div>
+                           </div>
+                           <div class="col s6"  style="padding: 0px !important;">
+                            
+                            <select id = "shipping_weight_metric">
+                              <option value="FT" selected>KG</option>
+                              <option value="IN">LB</option>
+                              <option value="CM">OZ</option>
+                              <option value="MM">MG</option>
+                              <option value="M">GR</option>
+                            </select>
+                          </div>
+                         </div>
+                      </div>
+
+
+                    
+                   <div class="col s3 offset-s1">
+                    <p style = "margin-bottom: 0px !important;font-size: 10px !important;margin-left: 12px;text-align: left;">Package Qty</p>
+                     <div class="row">
+                       <div class="col s12">
+                         <div class="input-field"  style="font-family: 'AvenirNext';margin-top: 0px !important;">
+                           <input placeholder="" id="package_quantity" type="number" class="validate" style="font-family: 'AvenirNext';">
+                         </div>
+                       </div>
+                     </div>
+                 </div>
+
+                </div>
+
+                    </div>
+                </div>
+
+                  </div>
+                </li>
+              </ul>
+
+
+              <div class="col s12 toggle-s6-s12">
+                <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                    Description</h6>
+
+
+               
+                    <div class="document-editor">
+                        <div class="document-editor__toolbar"></div>
+                        <div class="document-editor__editable-container">
+                            <div class="document-editor__editable" 
+                            style="width: 100% !important;">
+                            </div>
+                        </div>
+                    </div>
+
+            </div> 
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sidebar2" class="col s4" style="background-color: white;display: none;">
+      <div class="row">
+        <div class="input-field col s12" style="margin-top: 30px !important;">
+          <select id="reference-channel">
+            <option value = "" selected>Select Channel</option>
+            <option order = "1" value="">Amazon UAE</option>
+            <option order = "2" value="">Ebay</option>
+            <option order = "3" value="">Noon</option>
+          </select>
+          <label>Channels</label>
+        </div>
+        <div class = "toggle_btw_forms">
+          <div id = "toggle_btw_forms1" style = "display: none;">
+
+            <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
+              <div class="input-field col s12">
+                  <input placeholder="" disabled id="uae-sidenav-product-name" type="text">
+                  <label for="uae-sidenav-product-name">Product Name</label>
+              </div>
+              <div class="input-field col s12">
+                  <input placeholder="" disabled id="uae-sidenav-feed-product-type" type="text">
+                  <label for="uae-sidenav-feed-product-type">Feed Product Type</label>
+              </div>
+              <div class="input-field col s12">
+                <input placeholder="" disabled id="uae-sidenav-update-delete" type="text">
+                <label for="uae-sidenav-update-delete">Update Delete</label>
+              </div>
+              <div class="input-field col s12">
+                <input placeholder="" disabled id="uae-sidenav-recommended-browse-nodes" type="text">
+                <label for="uae-sidenav-recommended-browse-nodes">Recommended Browse Nodes</label>
+              </div>
+           
+              <!-- <div class="input-field col s12">
+                <textarea placeholder="" disabled id="uae-sidenav-description" class="materialize-textarea"></textarea>
+                <label for="uae-sidenav-description">Description</label>
+              </div>   -->
+              <div class="input-field col s12" id = "uae-sidenav-product-attributes">
+               
+              </div>   
+              <div class="col s12 toggle-s6-s12">
+                <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                    Description</h6>
+
+
+            
+                    <div class="document-editor">
+                        <div class="document-editor__toolbar clone2_toolbar"></div>
+                        <div class="document-editor__editable-container clone2_container">
+                            <div class="document-editor__editable clone2_editable" 
+                            style="width: 100% !important;">
+                            </div>
+                        </div>
+                    </div>
+
+            </div>        
+          </div>
+          </div>
+
+          <div id = "toggle_btw_forms2" style="display: none;">
+            <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
+            <div class="input-field col s12 m6">
+              <input placeholder="" disabled id="ebay-sidenav-product-name" type="text">
+              <label for="ebay-sidenav-product-name">Product Name</label>
+          </div>
+          
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="ebay-sidenav-category" type="text">
+            <label for="ebay-sidenav-category">Category</label>
+          </div>
+          <div class="input-field col s12" id = "ebay-sidenav-product-attributes">
+               
+          </div> 
+          <div class="col s12 toggle-s6-s12">
+            <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                Description</h6>
+
+
+        
+                <div class="document-editor">
+                    <div class="document-editor__toolbar clone3_toolbar"></div>
+                    <div class="document-editor__editable-container clone3_container">
+                        <div class="document-editor__editable clone3_editable" 
+                        style="width: 100% !important;">
+                        </div>
+                    </div>
+                </div>
+
+        </div>     
+          </div>
+       </div>
+
+        <div id = "toggle_btw_forms3" style="display: none;">
+          <div class = "row" style = "max-height: 80vh; overflow-y: scroll;overflow-x: hidden;">
+            <div class="input-field col s12 m6">
+              <input placeholder="" disabled id="noon-sidenav-product-name" type="text">
+              <label for="noon-sidenav-product-name">Product Name</label>
+          </div>
+          <div class="input-field col s12 m6">
+              <input placeholder="" disabled id="noon-sidenav-product-type" type="text">
+              <label for="noon-sidenav-product-type">Product Type</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-product-sub-type" type="text">
+            <label for="noon-sidenav-product-sub-type">Product Sub Type</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-mobileno" type="text">
+            <label for="noon-sidenav-mobileno">Mobile No</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-msrpae" type="text">
+            <label for="noon-sidenav-msrpae">MSRP AE</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-model-name" type="text">
+            <label for="noon-sidenav-model-name">Model Name</label>
+          </div>
+          <div class="input-field col s12 m6">
+            <input placeholder="" disabled id="noon-sidenav-msrpae-unit" type="text">
+            <label for="noon-sidenav-msrpae-unit">MSRP AE UNIT</label>
+          </div>
+        
+          <div class="input-field col s12" id = "noon-sidenav-product-attributes">
+          </div>
+          <div class="col s12 toggle-s6-s12">
+            <h6 class="grey-text left-align" style="padding-left: 50px;font-size: 1rem;margin-bottom: 30px !important;font-size: 12px !important;">Product
+                Description</h6>
+
+
+        
+                <div class="document-editor">
+                    <div class="document-editor__toolbar clone4_toolbar"></div>
+                    <div class="document-editor__editable-container clone4_container">
+                        <div class="document-editor__editable clone4_editable" 
+                        style="width: 100% !important;">
+                        </div>
+                    </div>
+                </div>
+
+        </div> 
+          </div>     
+      </div>
+      </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="upload-image-modal" class="modal">
+  <div class="modal-content">
+    <h4 style="font-family:'AvenirNext';font-size:18px;">Upload Image</h4>
+    <div class="file-field input-field">
+      <div class="btn" style="background-color: #512da8">
+        <span style="font-size:14px;">File</span>
+
+
+        <input id="product-image-input" type="file" multiple>
+      </div>
+      <div class="file-path-wrapper">
+        <input class="file-path validate" type="text">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    <a id="upload-image-btn" href="#!" class="waves-effect waves-green btn-flat blue white-text"
+      style="background-color:#009051 !important ;">Upload</a>
+    <div class="progress" id="upload-preloader"
+      style="display:none;margin: 0px !important;background-color: white !important;">
+      <div class="indeterminate" style="background-color: #512de8;"></div>
+    </div>
+  </div>
+</div>
+
+
+<div id="delete-image-modal" class="modal">
+  <div class="modal-content">
+    <h4 style="font-family:'AvenirNext';font-size:18px;">Are you sure you want to delete the image?</h4>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    <a id="delete-image-btn" href="#!" class="red waves-effect waves-red btn-flat white-text">Delete</a>
+  </div>
+</div>
+
+
+<div class="toolbar"
+    style="position: fixed; top: 0px; right: 0px;padding:20px 5px 20px 5px; height: 100vh; background-color: white;">
+    <a class="right" href="#!" onclick="window.close()"
+        style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons redd" title="Close" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+            close
+        </i>
+    </a>
+    </br>
+
+    <a class="right" href="/products" style="background-color: transparent;display: block;cursor: pointer;">
+        <i class="material-icons homee" title="Products" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+            select_all
+        </i>
+    </a>
+
+    </br>
+
+     <a class="right button-collapse show-on-large" href="#" id="open-it-btn" style="background-color: transparent;display: block;cursor: pointer;" visible="no">
+        <i class="material-icons sidebare bluee" title="Products" style="
+      background-color: #f7f7f7;
+      padding: 8px;
+      color: gray;
+      border-radius: 5px;
+      margin-left: 8px;
+      font-size: 20px;
+      margin-right: 9px;
+      display: block;
+      margin-bottom: 10px;">
+            keyboard_arrow_left
+        </i>
+    </a>
+
+    <div style="background-color: transparent; position: absolute;bottom: 15px;right: 4px;">
+
+        <a href="#!" id="main-image-select-save-btn" class="right"
+            style="background-color: transparent;display: block;">
+            <i class="material-icons bluee" title="Set Cover Image" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+                burst_mode
+            </i>
+        </a>
+
+        <a href="#download-export-list-modal" class="modal-trigger right" style="background-color: transparent;">
+            <i class="material-icons greenn" title="Export Product Details" style="
+        background-color: #f7f7f7;
+        padding: 8px;
+        color: gray;
+        border-radius: 5px;
+        margin-left: 8px;
+        font-size: 20px;
+        margin-right: 9px;
+        display: block;
+        margin-bottom: 10px;">
+                file_download
+            </i>
+        </a>
+
+        {% if perms.WAMSApp.change_product %}
+        <a href="#!" id="save-btn" class="right" style="background-color: transparent;">
+            <i class="material-icons purplee" title="Save" style="
+          background-color: #f7f7f7;
+          padding: 8px;
+          color: gray;
+          border-radius: 5px;
+          margin-left: 8px;
+          font-size: 20px;
+          margin-right: 9px;
+          display: block;
+          margin-bottom: 10px;">
+                save
+            </i>
+        </a>
+        {% endif %}
+    </div>
+</div>  
+
+<div id="download-export-list-modal" class="modal" style="border-radius: 5px;">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px;">EXPORT PRODUCT</h5>
+    <br>
+    <div class="row">
+      <div class="input-field col s6" style="padding-left: 0em !important;">
+        <select id="export-format">
+          <option value="Amazon UK" selected>Amazon UK</option>
+          <option value="Amazon UAE">Amazon UAE</option>
+          <option value="Ebay">Ebay</option>
+          <option value="Noon">Noon</option>
+          <!-- <option value="Ebay" style="font-family: 'AvenirNextRegular';">Ebay</option>   -->
+        </select>
+        <label style="margin-left: 0em !important;">Export Format</label>
+      </div>
+
+      <div class="input-field col s6">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="margin-bottom: 15px">
+    <a href="#!" class="modal-close waves-effect btn-flat" style="margin-right: 20px;">Close</a>
+    <a id="download-product-btn" href="#!" class="waves-effect btn-flat white-text"
+      style="margin-right: 20px;background-color: #521893 !important;">Download</a>
+  </div>
+</div>
+
+
+<script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.js' %}"></script>
+<script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
+<script type="text/javascript">
+
+  
+  function getCsrfToken() {
+    var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+    return CSRF_TOKEN;
+  }
+
+  //Initiate
+  $('.tabs').tabs();
+  $('.chips').chips();
+  $('select').formSelect();
+  $(document).ready(function(){
+    $('.modal').modal();
+  });
+  $('body').css('background-color', '#ebebeb');
+  $('.sidenav').sidenav({ edge: 'left' });
+
+
+
+  $("#open-it-btn").click(function () {  
+    if ($(this).attr("visible") == "no") {
+      $( ".toggle-s6-s12" ).each(function( index ) {
+        $(this).addClass("s12");
+      });
+      $(this).attr("visible", "yes");
+      $("#collapse-div").attr("class", "col s4 center");
+      $("#sidebar2").show(600);
+      console.log($(this));
+      $(this).children().text("keyboard_arrow_right");
+    }
+    else {
+      $(this).attr("visible", "no");
+      $( ".toggle-s6-s12" ).each(function( index ) {
+        $(this).removeClass("s12");
+      });
+      $("#sidebar2").hide();
+      $("#collapse-div").attr("class", "col s8 center");
+      $(".main-div").css('margin-right' , '70px');
+      $(this).children().text("keyboard_arrow_left");
+    }
+  })
+
+
+  window.editor = []
+
+DecoupledEditor
+    .create(document.querySelector('.document-editor__editable'), {
+        cloudServices: {
+        }
+    })
+    .then(editor => {
+        const toolbarContainer = document.querySelector('.document-editor__toolbar');
+
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+        //editor.isReadOnly = !response['edit_access'];
+        window.editor.push(editor);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+DecoupledEditor
+    .create(document.querySelector('.clone2_editable'), {
+        cloudServices: {
+        }
+    })
+    .then(editor => {
+        const toolbarContainer = document.querySelector('.clone2_toolbar');
+
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+        //editor.isReadOnly = !response['edit_access'];
+        window.editor.push(editor);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+DecoupledEditor
+    .create(document.querySelector('.clone3_editable'), {
+        cloudServices: {
+        }
+    })
+    .then(editor => {
+        const toolbarContainer = document.querySelector('.clone3_toolbar');
+
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+        //editor.isReadOnly = !response['edit_access'];
+        window.editor.push(editor);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+
+
+
+DecoupledEditor
+    .create(document.querySelector('.clone4_editable'), {
+        cloudServices: {
+        }
+    })
+    .then(editor => {
+        const toolbarContainer = document.querySelector('.clone4_toolbar');
+
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+        //editor.isReadOnly = !response['edit_access'];
+        window.editor.push(editor);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+
+   
+
+
+  var global_details_amazon_uk = {};
+  var global_details_amazon_uae = {};
+  var global_details_ebay = {};
+  var global_details_noon = {};
+  var global_product_id = "";
+  var global_material_type = "";
+  var global_images = {};
+  var global_image_key = "all_images";
+  
+  function fetch_details_amazon_uk()
+  {
+    console.log("Here");
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uk/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success! for dimensions", response);
+        if(response["status"]==200)
+        {
+          global_product_id = response["product_id"];
+          global_details_amazon_uk = response["amazon_uk_product_json"];
+          global_material_type = response["material_type"];
+          global_images = response["images"];
+          update_grid_images("all_images");
+          render_amazon_uk();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+
+        console.log("heye");
+        console.log(global_details_amazon_uk);
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  var product_attribute_uk_cnt = 1;
+    var val_to_fill = "";
+    $("#add-product-attribute-uk-btn").click(function () {
+        if(val_to_fill == null)return;
+
+        product_attribute_uk_cnt++;
+
+        var html_string = `<div>
+                         <div class="input-field col s10">
+                           <input id="product-attribute-uk-`+ product_attribute_ebay_cnt + `" type="text" >
+                        
+                         </div>
+                         <div class="input-field col s2">
+                           <a href="#!" class="remove-product-attribute-uk-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
+                         </div>
+                       </div>`
+        $("#product-attributes-uk-div").append(html_string);
+        $('#product-attribute-uk-'+product_attribute_uk_cnt).val(val_to_fill);
+        val_to_fill = "";   
+    });
+
+    $(document).on("click", ".remove-product-attribute-uk-btn", function () {
+        $(this).parent().parent().remove();
+    });
+
+  function fill_side_form_uae(){
+    var data = global_details_amazon_uae;
+    $('#uae-sidenav-product-name').val(data["product_name"]);
+    window.editor[1].setData(data["product_description"]);
+    $('#uae-sidenav-recommended-browse-nodes').val(data["recommended_browse_nodes"]);
+    $('#uae-sidenav-update-delete').val(data["update_delete"]);
+    $('#uae-sidenav-feed-product-type').val(data["feed_product_type"]);
+    // $('#uae-sidenav-product-id').val(data["product_id"]);
+  
+    // $("#uae-sidenav-description").val(data["product_description"]);
+    console.log(data["product_attributes"]);
+
+   if(data["product_attributes"].length > 0)
+    {
+       $('#uae-sidenav-product-attributes').append(`
+                  <p style = "margin-left: 20px;
+                    color: grey;
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder = "" disabled id="uae-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
+                
+                  </div>        
+       `);
+                  
+        for(var i = 1;i<data["product_attributes"].length;i++)
+        {
+          $('#uae-sidenav-product-attributes').append(`
+
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder="" disabled id="uae-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
+                  </div>        
+ 
+          `);
+        }
+
+    }
+  }
+
+  function fetch_details_amazon_uae()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uae/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_amazon_uae = response["amazon_uae_product_json"];
+          // render_amazon_uk();
+          fill_side_form_uae();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+        console.log("uae");
+        console.log(global_details_amazon_uae);
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+
+  function fill_side_form_noon(){
+      var data = global_details_noon;
+      console.log("aa toh rha h" , data);
+      $('#noon-sidenav-product-name').val(data["product_name"]);
+      $('#noon-sidenav-product-type').val(data["product_type"]);
+      $('#noon-sidenav-product-sub-type').val(data["product_subtype"]);
+      $('#noon-sidenav-mobileno').val(data["model_number"]);
+      $('#noon-sidenav-msrpae').val(data["msrp_ae"]);
+      $('#noon-sidenav-model-name').val(data["model_name"]);
+      $('#noon-sidenav-msrpae-unit').val(data["msrp_ae_unit"]);
+    window.editor[3].setData(data["product_description"]);
+      
+   if(data["product_attributes"].length > 0)
+    {
+       $('#noon-sidenav-product-attributes').append(`
+                  <p style = "margin-left: 20px;
+                    color: grey;
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder = "" disabled id="noon-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
+                
+                  </div>        
+       `);
+                  
+        for(var i = 1;i<data["product_attributes"].length;i++)
+        {
+          $('#noon-sidenav-product-attributes').append(`
+
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder="" disabled id="noon-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
+                  </div>        
+ 
+          `);
+        }
+
+    }
+  }
+
+  function fetch_details_noon()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-noon/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_noon = response["noon_product_json"];
+          // render_amazon_uk();
+          fill_side_form_noon();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  function fill_side_form_ebay()
+  {
+    var data = global_details_ebay;
+    $('#ebay-sidenav-product-name').val(data["product_name"]);
+    // $('#ebay-sidenav-description').val(data["product_description"]);
+    // $('#ebay-sidenav-category').val(data[""]);
+    $('#ebay-sidenav-category').val(data["category"]);
+    window.editor[2].setData(data["product_description"]);
+
+    if(data["product_attributes"].length > 0)
+    {
+       $('#ebay-sidenav-product-attributes').append(`
+                  <p style = "margin-left: 20px;
+                    color: grey;
+                    margin-bottom: 0px;font-size:12px;">Product Attributes</p>
+                  <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder = "" disabled id="ebay-sidenav-product-atrribute-0" type="text" value = "`+ data["product_attributes"][0] +`">
+                
+                  </div>        
+       `);
+                  
+        for(var i = 1;i<data["product_attributes"].length;i++)
+        {
+          $('#ebay-sidenav-product-attributes').append(`
+
+                 <div class="input-field col s12" style = "margin-top : 0px !important; margin-bottom : 0px !important;padding:0px !important;">
+                    <input placeholder="" disabled id="ebay-sidenav-product-atrribute-" `+i+` type="text" value = "`+ data["product_attributes"][i] +`">
+                  </div>        
+ 
+          `);
+        }
+
+    }
+  }
+
+  function fetch_details_ebay()
+  {
+    $.ajax({
+      url: "/fetch-channel-product-ebay/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if(response["status"]==200)
+        {
+          global_details_ebay = response["ebay_product_json"];
+          
+          fill_side_form_ebay();
+        }
+        else
+        {
+          M.toast({ html: "Internal Server" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  
+  fetch_details_amazon_uk();
+  fetch_amazon_uk_product_images_details();
+  fetch_details_amazon_uae();
+  fetch_details_ebay();
+  fetch_details_noon();
+  
+  function render_amazon_uk()
+  {
+
+    $("#product-id").val(global_product_id);
+    $("#material-type").val(global_material_type);
+    $("#product-name").val(global_details_amazon_uk["product_name"]);
+    $("#feed-product-type").val(global_details_amazon_uk["feed_product_type"]);
+    $("#variation-theme").val(global_details_amazon_uk["variation_theme"]);
+    $("#update-delete").val(global_details_amazon_uk["update_delete"]);
+    $("#recommended-browse-nodes").val(global_details_amazon_uk["recommended_browse_nodes"]);
+    $("#search-terms").val(global_details_amazon_uk["search_terms"]);
+    $("#enclosure-material").val(global_details_amazon_uk["enclosure_material"]);
+    $("#cover-material-type").val(global_details_amazon_uk["cover_material_type"]);
+    $("#sale-price").val(global_details_amazon_uk["sale_price"]);
+    $("#sale-from").val(global_details_amazon_uk["sale_from"]);
+    $("#sale-end").val(global_details_amazon_uk["sale_end"]);
+    window.editor[0].setData(global_details_amazon_uk["product_description"]);
+    var special_feature_data = global_details_amazon_uk["special_features"];
+    var dim = global_details_amazon_uk["dimensions"];
+    console.log("dimessions" , dim);
+
+
+
+
+
+    if(special_feature_data.length>0)
+    {
+      $("#special-feature-1").val(special_feature_data[0]);
+    }
+    for(var i=1;i<special_feature_data.length;i++)
+    {
+      $("#add-special-feature-btn").click();
+      $("#special-feature-" + (i+1)).val(special_feature_data[i]);
+    }
+    
+    $("#wattage").val(global_details_amazon_uk["wattage"]);
+    $("#wattage-metric").val(global_details_amazon_uk["wattage_metric"]);
+    $("#parentage").val(global_details_amazon_uk["parentage"]);
+    $("#parent-sku").val(global_details_amazon_uk["parent_sku"]);
+    $("#relationship-type").val(global_details_amazon_uk["relationship_type"]);
+    $("#item-count").val(global_details_amazon_uk["item_count"]);
+    $("#item-count-metric").val(global_details_amazon_uk["item_count_metric"]);
+    $("#item-condition-note").val(global_details_amazon_uk["item_condition_note"]);
+    $("#max-order-quantity").val(global_details_amazon_uk["max_order_quantity"]);
+    $("#number-of-items").val(global_details_amazon_uk["number_of_items"]);
+    $("#condition-type").val(global_details_amazon_uk["condition_type"]);
+
+    var product_attributes_list = global_details_amazon_uk["product_attributes"];
+    console.log(product_attributes_list);
+
+    $('#package_length').val(dim["package_length"]);
+
+    $('#package_length_metric').val(dim["package_length_metric"] );
+
+    $('#package_width').val(dim["package_width"] );
+
+    $('#package_width_metric').val(dim["package_width_metric"] );
+
+    $('#package_height').val(dim["package_height"] );
+
+    $('#package_height_metric').val(dim["package_height_metric"] );
+
+    $('#package_weight').val(dim["package_weight"] );
+
+    $('#package_weight_metric').val(dim["package_weight_metric"] );
+
+    $('#package_quantity').val(dim["package_quantity"] );
+
+    $('#shipping_weight').val(dim["shipping_weight"] );
+
+    $('#shipping_weight_metric').val(dim["shipping_weight_metric"] );
+
+    $('#item_display_weight').val(dim["item_display_weight"] );
+
+    $('#item_display_weight_metric').val(dim["item_display_weight_metric"] );
+
+    $('#item_display_volume').val(dim["item_display_volume"] );
+
+    $('#item_display_volume_metric').val(dim["item_display_volume_metric"] );
+
+    $('#item_display_length').val(dim["item_display_length"] );
+
+    $('#item_display_length_metric').val(dim["item_display_length_metric"] );
+
+    $('#item_weight').val(dim["item_weight"] );
+
+    $('#item_weight_metric').val(dim["item_weight_metric"] );
+
+    $('#item_length').val(dim["item_length"] );
+
+    $('#item_length_metric').val(dim["item_length_metric"] );
+
+    $('#item_width').val(dim["item_width"] );
+
+    $('#item_width_metric').val(dim["item_width_metric"] );
+
+    $('#item_height').val(dim["item_height"] );
+
+    $('#item_height_metric').val(dim["item_height_metric"] );
+
+    $('#item_display_width').val(dim["item_display_width"] );
+
+    $('#item_display_width_metric').val(dim["item_display_width_metric"] );
+
+    $('#item_display_height').val(dim["item_display_height"] );
+
+    $('#item_display_height_metric').val(dim["item_display_height_metric"]  );
+    
+    if(product_attributes_list.length>0)
+    {
+      $("#product-attribute-amazon-uk-1").val(product_attributes_list[0]);
+    }
+    for(var i=1;i<product_attributes_list.length;i++)
+    {
+      $("#add-product-attribute-amazon-uk-btn").click();
+      $("#product-attribute-amazon-uk-" + (i+1)).val(product_attributes_list[i]);
+    }
+
+    M.updateTextFields();
+    $("select").formSelect();
+
+  }
+
+
+  var global_verification_status = false;
+  var global_delete_image_pk = null;
+
+  //Page reload prevent logic
+  let savecounter = false;
+  $('#save-btn').click(() => {
+    savecounter = false;
+  })
+
+  $('input').click(function () {
+    savecounter = true;
+  })
+
+
+  $(document).on('change','#reference-channel',function(){
+      console.log("clicked");
+      $('#reference-channel option').each(function() {
+        if ($(this).is(':selected')) {
+          var order = $(this).attr("order");
+          $("#toggle_btw_forms"+order).css("display","block");
+        }
+        else{
+          var order = $(this).attr("order");
+          $("#toggle_btw_forms"+order).css("display","none");
+        }
+    });
+  });
+
+
+  $(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
+
+
+
+  function preventDefault() {
+    if (savecounter) {
+      alert('Please save the details before refreshing!');
+    }
+    else {
+      window.close();
+    }
+  }
+
+  $('#close-btn').click(function () {
+    preventDefault();
+  })
+
+
+  $("#download-product-btn").click(function () {
+
+    var export_format = $("#export-format").val();
+
+    $.ajax({
+      url: "/download-product/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3],
+        export_format: export_format
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        $("#download-export-list-modal").modal("close");
+        var file_path = response["file_path"]
+        window.open(file_path);
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+
+  });
+
+  window.addEventListener('beforeunload', function (e) {
+    if (savecounter) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+    else
+      window.close();
+  });
+
+  $("#pending-icon").click(function () {
+    if (global_verification_status) {
+      call_verify_api(0);
+    }
+  });
+
+  $("#verified-icon").click(function () {
+    if (!global_verification_status) {
+      call_verify_api(1);
+    }
+  });
+
+  function call_verify_api(verify) {
+    var fd = new FormData()
+    fd.append("product_pk", window.location.pathname.split("/")[3]);
+    fd.append("verify", verify);
+
+    $.ajax({
+      url: "/verify-product/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      processData: false,
+      contentType: false,
+      data: fd,
+      success: function (response) {
+        console.log("Success!", response);
+        if (response["status"] == 200) {
+          if (verify == 1) {
+            set_verify(true);
+            global_verification_status = true;
+            M.toast({ html: "Product status changed to verified" });
+          }
+          else {
+            set_verify(false);
+            global_verification_status = false;
+            M.toast({ html: "Product status changed to pending" });
+          }
+        }
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have access to update the status!" });
+        }
+        else {
+          M.toast({ html: "Error updating the status!" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+  $(document).ready(function () {
+    $('.tabs').tabs();
+  });
+
+  $('#barcode-string').characterCounter();
+
+  $("#download-image-btn").click(function () {
+
+    $("#download-image-btn").attr("disabled", "disabled");
+    var high_def_url = $($(".preview-img")[0]).attr("high_def_url");
+    var image_links = [];
+    image_links.push({
+      "key": "high_def_url",
+      "url": high_def_url
+    })
+
+    $.ajax({
+      url: "/download-images-s3/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        links: JSON.stringify(image_links)
+      },
+      success: function (response) {
+        console.log("Success! ", response);
+        $("#download-image-btn").removeAttr("disabled");
+        if (response["status"] == 200) {
+          var local_link = response["local_links"][0]["url"];
+
+          var a = document.createElement('a');
+          a.href = local_link;
+          var filename = high_def_url.split("/")[high_def_url.split("/").length - 1];
+          a.download = filename;
+          a.click();
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+        $("#download-image-btn").removeAttr("disabled");
+      }
+    });
+  });
+
+  $("#heading-title").html("PRODUCT FORM");
+
+  function fetch_amazon_uk_product_images_details() {
+
+    $.ajax({
+      url: "/fetch-channel-product-amazon-uk/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        product_pk: window.location.pathname.split("/")[3]
+      },
+      success: function (response) {
+        console.log("Success!", response);
+
+        if (response["status"] == 200) {
+          $('.material-placeholder').remove();
+          $('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
+          $('.materialboxed').materialbox();
+
+          global_images = response["images"];
+          console.log("global_images ", global_images)
+
+          $("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
+          $("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
+          $("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
+          
+          update_grid_images(global_image_key);
+
+          M.updateTextFields();
+          $('select').formSelect();
+        }
+        else {
+          M.toast({ html: "Error fetching images information" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+
+  $("#upload-image-btn").click(function () {
+
+
+    console.log("upload image");
+    $("#upload-image-btn").attr("disabled", "disabled");
+    $("#upload-preloader").show();
+
+    product_pk = window.location.pathname.split("/")[3];
+
+    var fd = new FormData();
+
+    fd.append("product_pk", product_pk);
+    var product_image_input = document.getElementById("product-image-input");
+    fd.append('image_count', product_image_input.files.length);
+
+    for (var i = 0; i < product_image_input.files.length; i++) {
+      fd.append('image_' + i, product_image_input.files[i]);
+    }
+
+
+    fd.append('image_category', global_image_key);
+    fd.append('channel_name', "Amazon UK");
+
+    $.ajax({
+      url: "/upload-product-image/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      processData: false,
+      contentType: false,
+      data: fd,
+      success: function (response) {
+        console.log("Success!", response);
+        console.log(response);
+        $("#upload-preloader").hide();
+        $("#upload-image-btn").removeAttr("disabled");
+
+        if (response["status"] == 200) {
+          $("#upload-image-modal").modal("close");
+          M.toast({ html: "Successfully uploaded images!" });
+          fetch_amazon_uk_product_images_details();
+        }
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to upload images!" });
+        }
+        else {
+          M.toast({ html: "Error uploading images!" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+        $("#upload-preloader").hide();
+      }
+    });
+  })
+
+  function set_verify(verified) {
+    if (verified == true) {
+      $("#pending-icon").css("background-color", "#f7f7f7");
+      $("#pending-icon").css("color", "gray");
+      $("#verified-icon").css("background-color", "#009051");
+      $("#verified-icon").css("color", "white");
+    }
+    else {
+      $("#verified-icon").css("background-color", "#f7f7f7");
+      $("#verified-icon").css("color", "gray");
+      $("#pending-icon").css("background-color", "orange");
+      $("#pending-icon").css("color", "white");
+    }
+  }
+
+  var product_attribute_amazon_uk_cnt = 1;
+  $("#add-product-attribute-amazon-uk-btn").click(function () {
+    product_attribute_amazon_uk_cnt++;
+
+    var html_string = `<div>
+                         <div class="input-field col s10">
+                           <input id="product-attribute-amazon-uk-`+ product_attribute_amazon_uk_cnt + `" type="text" >
+                          
+                         </div>
+                         <div class="input-field col s2">
+                           <a href="#!" class="remove-product-attribute-amazon-uk-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
+                         </div>
+                       </div>`
+    $("#product-attributes-amazon-uk-div").append(html_string);
+  });
+
+  $(document).on("click", ".remove-product-attribute-amazon-uk-btn", function () {
+    $(this).parent().parent().remove();
+  });
+
+
+  var product_attribute_amazon_uae_cnt = 1;
+  $("#add-product-attribute-amazon-uae-btn").click(function () {
+    product_attribute_amazon_uae_cnt++;
+
+    var html_string = `<div>
+                         <div class="input-field col s9">
+                           <input id="product-attribute-amazon-uae-`+ product_attribute_amazon_uae_cnt + `" type="text" >
+                          
+                         </div>
+                         <div class="input-field col s1">
+                           <a href="#!" class="remove-product-attribute-amazon-uae-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
+                         </div>
+                      </div>`
+    $("#product-attributes-amazon-uae-div").append(html_string);
+  });
+
+  $(document).on("click", ".remove-product-attribute-amazon-uae-btn", function () {
+    $(this).parent().parent().remove();
+  });
+
+
+  var product_attribute_ebay_cnt = 1;
+  $("#add-product-attribute-ebay-btn").click(function () {
+    product_attribute_ebay_cnt++;
+
+    var html_string = `<div>
+                         <div class="input-field col s9">
+                           <input id="product-attribute-ebay-`+ product_attribute_ebay_cnt + `" type="text" >
+                           <label for="product-attribute-ebay-`+ product_attribute_ebay_cnt + `">Product Attribute</label>
+                         </div>
+                         <div class="input-field col s1">
+                           <a href="#!" class="remove-product-attribute-ebay-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
+                         </div>
+                       </div>`
+    $("#product-attributes-ebay-div").append(html_string);
+  });
+
+  $(document).on("click", ".remove-product-attribute-ebay-btn", function () {
+    $(this).parent().parent().remove();
+  });
+
+
+
+
+  var product_attribute_noon_cnt = 1;
+  $("#add-product-attribute-noon-btn").click(function () {
+    product_attribute_noon_cnt++;
+
+    var html_string = `<div>
+                         <div class="input-field col s9">
+                           <input id="product-attribute-noon-`+ product_attribute_noon_cnt + `" type="text" >
+                           <label for="product-attribute-noon-`+ product_attribute_noon_cnt + `">Product Attribute</label>
+                         </div>
+                         <div class="input-field col s1">
+                           <a href="#!" class="remove-product-attribute-noon-btn btn-floating red" style="background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
+                         </div>
+                       </div>`
+    $("#product-attributes-noon-div").append(html_string);
+  });
+
+  $(document).on("click", ".remove-product-attribute-noon-btn", function () {
+    $(this).parent().parent().remove();
+  });
+
+
+
+
+  var special_feature_cnt = 1;
+  $("#add-special-feature-btn").click(function () {
+    special_feature_cnt++;
+
+    var html_string = `<div>
+                           <div class="input-field col s10">
+                             <input id="special-feature-`+ special_feature_cnt + `" type="text" >
+                           </div>
+
+                           <div class="input-field col s2">
+                             <a href="#!" class="remove-special-feature-btn btn-floating blue" style = "background-color: red !important; transform: scale(0.7);box-shadow: none;"><i class="material-icons">delete</i></a>
+                           </div>
+                        </div>`
+    $("#special-features-div").append(html_string);
+  });
+
+  $(document).on("click", ".remove-special-feature-btn", function () {
+    $(this).parent().parent().remove();
+    special_feature_cnt--;
+  });
+
+
+  function update_grid_images_main_images(key) {
+    var html_string = "";
+    for (var i = 0; i < global_images[key].length; i++) {
+      var checked = "";
+      if (global_images[key][i]["is_main_image"] == true) {
+        checked = "checked";
+      }
+
+      if (i % 3 == 0) {
+        html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
+      }
+
+      html_string += `<div style=";position:relative;">
+                        <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                          <i class="material-icons redd" title="Delete Image" style="
+                            background-color: transparent;
+                            padding: 4px;
+                            color: gray;
+                            border-radius: 2px;
+                            margin-left: 4px;
+                            font-size: 10px;
+                            margin-right: 4px;
+                            display: block;
+                            margin-bottom: 5px;">
+                            close
+                          </i>
+                        </a>
+                        <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `"  style="width: 100%;object-fit:contain;">
+                        <label style="margin-left:0px !important;">
+                          <input value="`+ global_images[key][i]["pk"] + `" name="group1" type="radio" ` + checked + ` />
+                          <span class = "checkbox"></span>
+                        </label>
+                      </div>`;
+
+      if (i % 3 == 2 || i == global_images[key].length - 1) {
+        html_string += "</div>";
+      }
+    }
+
+    $("#graphics-section").html(html_string);
+  }
+
+
+  $(document).on('click', '.miniimage', function () {
+    let url = $(this).attr('midimage_url');
+    let high_def_url = $(this).attr('high_def_url');
+    $('.material-placeholder').remove();
+    $('.main-image').append(`<img class = "preview-img materialboxed" src = '` + url + `' high_def_url="` + high_def_url + `">`)
+    $('.materialboxed').materialbox();
+  });
+
+  $(document).on("click", ".delete-image-modal-btn", function () {
+    global_delete_image_pk = this.id.split("-")[1];
+  })
+
+  $("#delete-image-btn").click(function () {
+    delete_image();
+  })
+
+  function delete_image() {
+    var image_type = "";
+    if (global_image_key == "sub_images" || global_image_key == "main_images") {
+      image_type = "main_sub";
+    }
+    else {
+      image_type = "other";
+    }
+
+    var fd = new FormData();
+    fd.append("image_pk", global_delete_image_pk);
+    fd.append("image_type", image_type);
+
+    $.ajax({
+      url: "/delete-image/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      processData: false,
+      contentType: false,
+      data: fd,
+      success: function (response) {
+        console.log("Success!", response);
+        if (response["status"] == 200) {
+          M.toast({ html: "Image successfully deleted!" });
+          $("#delete-image-modal").modal("close");
+          fetch_product_images_details();
+        }
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to delete images!" });
+        }
+        else {
+          M.toast({ html: "Error deleting image!" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+
+  $("#main-image-select-save-btn").click(function () {
+
+    if (global_image_key != "main_images") {
+      return;
+    }
+
+    var fd = new FormData();
+
+    var checked_pk = $("input[name=group1]:checked").val();
+    fd.append("checked_pk", checked_pk);
+    fd.append("product_pk", window.location.pathname.split("/")[3]);
+    fd.append("channel_name", "Amazon UK");
+
+    $.ajax({
+      url: "/update-main-image/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      processData: false,
+      contentType: false,
+      data: fd,
+      success: function (response) {
+        console.log("Success!", response);
+        if (response["status"] == 200) {
+          M.toast({ html: "Main image updated successfully!" });
+        }
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to update main image!" });
+        }
+        else {
+          M.toast({ html: "Error updating main image!" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  });
+
+
+  function update_grid_images_sub_images(key) {
+    var html_string = "";
+    for (var i = 0; i < global_images[key].length; i++) {
+      var checked = "";
+      if (global_images[key][i]["is_sub_image"] == true) {
+        checked = "checked";
+      }
+
+      if (i % 3 == 0) {
+        html_string += "<div class='flex-container-space-btw' style='margin-top:0em;margin-bottom:0em;padding-top:0em !important;padding-bottom:0em !important;width:25.5vw !important;'>";
+      }
+
+      var sub_image_index = global_images[key][i]["sub_image_index"];
+      if (sub_image_index == 0)
+        sub_image_index = "-"
+
+      html_string += `<div class="" style="position:relative;">
+                        <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:4px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                          <i class="material-icons redd" title="Delete Image" style="
+                            background-color: transparent;
+                            padding: 4px;
+                            color: gray;
+                            border-radius: 2px;
+                            margin-left: 4px;
+                            font-size: 10px;
+                            margin-right: 4px;
+                            display: block;
+                            margin-bottom: 5px;">
+                            close
+                          </i>
+                        </a>
+                        <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
+                        <input value="`+ sub_image_index + `" id="subcheck_` + global_images[key][i]["pk"] + `" type="text">
+                      </div>`;
+
+      if (i % 3 == 2 || i == global_images[key].length - 1) {
+        html_string += "</div>";
+      }
+    }
+    $("#graphics-section").html(html_string);
+  }
+
+  function save_subimages_index() {
+    if (global_image_key != "sub_images") {
+      return;
+    }
+    var fd = new FormData();
+
+    var sub_image = [];
+    var key = "sub_images";
+
+    // Check for condition
+    var unique_sub_index = [];
+    for (var i = 0; i < global_images[key].length; i++) {
+      var sub_image_index = $("#subcheck_" + global_images[key][i]["pk"]).val().trim();
+      if (sub_image_index != "-" && sub_image_index != "") {
+        sub_image_index = parseInt(sub_image_index);
+        if (sub_image_index >= 1 && sub_image_index <= 8) {
+          console.log("Key: ", sub_image_index);
+          if (unique_sub_index.includes(sub_image_index)) {
+            M.toast({ html: "Sub Image indices must be unique" })
+            return;
+          }
+
+          unique_sub_index.push(sub_image_index);
+        }
+        else {
+          M.toast({ html: "Sub Image indices must be between 1 to 8" })
+          return;
+        }
+      }
+    }
+
+
+    for (var i = 0; i < global_images[key].length; i++) {
+      var temp_dict = {};
+      temp_dict["pk"] = global_images[key][i]["pk"];
+      var sub_image_index = $("#subcheck_" + global_images[key][i]["pk"]).val();
+      if (sub_image_index == "" || sub_image_index == "-")
+        sub_image_index = "0"
+      temp_dict["sub_image_index"] = sub_image_index;
+      sub_image.push(temp_dict);
+    }
+
+    fd.append("sub_images", JSON.stringify(sub_image));
+    fd.append("product_pk", window.location.pathname.split("/")[3]);
+    fd.append("channel_name", "Amazon UK");
+
+    $.ajax({
+      url: "/update-sub-images/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      processData: false,
+      contentType: false,
+      data: fd,
+      success: function (response) {
+        console.log("Success!", response);
+        if (response["status"] == 200) {
+          M.toast({ html: "Sub images updated successfully!" });
+        }
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission to update sub images!" });
+        }
+        else {
+          M.toast({ html: "Error updating sub images!" });
+        }
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+  }
+
+
+  function update_grid_images(key) {
+    console.log(key);
+    if (key == "all_images") {
+      $("#upload-image-modal-btn").attr("class", "disabled");
+    }
+    else {
+      $("#upload-image-modal-btn").attr("class", "modal-trigger");
+    }
+
+    if (key == "main_images") {
+      update_grid_images_main_images(key);
+      return;
+    }
+
+
+    if (key == "sub_images") {
+      update_grid_images_sub_images(key);
+      return;
+    }
+
+
+    var html_string = "";
+    for (var i = 0; i < global_images[key].length; i++) {
+      html_string += `<div class="col s4" style="padding:1em;">
+                        <div style="position:relative;">
+                          <a href="#delete-image-modal" id="delimg-`+ global_images[key][i]["pk"] + `" class="delete-image-modal-btn modal-trigger right" style="position:absolute;top:4px;right:2px;z-index:100;background-color: transparent;display: block;cursor: pointer;" title="Delete Image">
+                            <i class="material-icons redd" title="Delete Image" style="
+                              background-color: transparent;
+                              padding: 4px;
+                              color: gray;
+                              border-radius: 2px;
+                              margin-left: 4px;
+                              font-size: 10px;
+                              margin-right: 4px;
+                              display: block;
+                              margin-bottom: 5px;">
+                              close
+                            </i> 
+                          </a> 
+                          <img class="miniimage" src="`+ global_images[key][i]["thumbnail-url"] + `" midimage_url="` + global_images[key][i]["midimage-url"] + `" high_def_url="` + global_images[key][i]["main-url"] + `" style="width: 100%;object-fit:contain;">
+                        </div>
+                      </div>`;
+    }
+
+    $("#graphics-section").html(html_string);
+  }
+
+
+
+  $("#images-category").change(function () {
+    if ($("#images-category").val() == "All Images") {
+      update_grid_images("all_images");
+      global_image_key = "all_images";
+    }
+    else if ($("#images-category").val() == "Main Images") {
+      update_grid_images("main_images");
+      global_image_key = "main_images";
+    }
+    else if ($("#images-category").val() == "Sub Images") {
+      update_grid_images("sub_images");
+      global_image_key = "sub_images";
+    }
+    console.log(global_image_key);
+  });
+
+
+  function save_product_amazon_uk() {
+
+    $("#save-btn").attr("disabled", "disabled");
+
+    var product_pk = window.location.pathname.split("/")[3];
+
+    var product_name = $("#product-name").val();
+    var feed_product_type = $("#feed-product-type").val();
+    var variation_theme = $("#variation-theme").val();
+    var update_delete = $("#update-delete").val();
+    var recommended_browse_nodes = $("#recommended-browse-nodes").val();
+    var search_terms = $("#search-terms").val();
+    var enclosure_material = $("#enclosure-material").val();
+    var cover_material_type = $("#cover-material-type").val();
+    var sale_price = $("#sale-price").val();
+    var sale_from = $("#sale-from").val();
+    var sale_end = $("#sale-end").val();
+
+    var dimensions = {
+      "package_length": $('#package_length').val(),
+      "package_length_metric":$('#package_length_metric').val(),
+      "package_width":$('#package_width').val(),
+      "package_width_metric":$('#package_width_metric').val(),
+      "package_height":$('#package_height').val(),
+      "package_height_metric":$('#package_height_metric').val(),
+      "package_weight":$('#package_weight').val(),
+      "package_weight_metric":$('#package_weight_metric').val(),
+      "package_quantity":$('#package_quantity').val(),
+      "shipping_weight":$('#shipping_weight').val(),
+      "shipping_weight_metric":$('#shipping_weight_metric').val(),
+      "item_display_weight":$('#item_display_weight').val(),
+      "item_display_weight_metric":$('#item_display_weight_metric').val(),
+      "item_display_volume":$('#item_display_volume').val(),
+      "item_display_volume_metric":$('#item_display_volume_metric').val(),
+      "item_display_length":$('#item_display_length').val(),
+      "item_display_length_metric":$('#item_display_length_metric').val(),
+      "item_weight":$('#item_weight').val(),
+      "item_weight_metric":$('#item_weight_metric').val(),
+      "item_length":$('#item_length').val(),
+      "item_length_metric":$('#item_length_metric').val(),
+      "item_width":$('#item_width').val(),
+      "item_width_metric":$('#item_width_metric').val(),
+      "item_height":$('#item_height').val(),
+      "item_height_metric":$('#item_height_metric').val(),
+      "item_display_width":$('#item_display_width').val(),
+      "item_display_width_metric":$('#item_display_width_metric').val(),
+      "item_display_height":$('#item_display_height').val(),
+      "item_display_height_metric":$('#item_display_height_metric').val()
+    }
+
+    var special_feature_data = [];
+    for (var i = 1; i <= special_feature_cnt; i++) {
+      if ($("#special-feature-" + i).val() != "" && $("#special-feature-" + i).val() != undefined) {
+        special_feature_data.push($("#special-feature-" + i).val());
+      }
+    }
+    // special_feature_data = JSON.stringify(special_feature_data);
+
+    var wattage = $("#wattage").val();
+    var wattage_metric = $("#wattage-metric").val();
+    var parentage = $("#parentage").val();
+    var parent_sku = $("#parent-sku").val();
+    var relationship_type = $("#relationship-type").val();
+    var item_count = $("#item-count").val();
+    var item_count_metric = $("#item-count-metric").val();
+    var item_condition_note = $("#item-condition-note").val();
+    var max_order_quantity = $("#max-order-quantity").val();
+    var number_of_items = $("#number-of-items").val();
+    var condition_type = $("#condition-type").val();
+
+    var product_attribute_data_amazon_uk = [];
+    for (var i = 1; i <= product_attribute_amazon_uk_cnt; i++) {
+      if ($("#product-attribute-amazon-uk-" + i).val() != "" && $("#product-attribute-amazon-uk-" + i).val() != undefined) {
+        product_attribute_data_amazon_uk.push($("#product-attribute-amazon-uk-" + i).val());
+      }
+    }
+    // product_attribute_data_amazon_uk = JSON.stringify(product_attribute_data_amazon_uk);
+
+
+    amazon_uk_product_json = {}
+
+    amazon_uk_product_json["product_name"] = product_name;
+    amazon_uk_product_json["product_attributes"] = product_attribute_data_amazon_uk
+    amazon_uk_product_json["feed_product_type"] = feed_product_type;
+    amazon_uk_product_json["variation_theme"]  = variation_theme;
+    amazon_uk_product_json["update_delete"] = update_delete;
+    amazon_uk_product_json["recommended_browse_nodes"] = recommended_browse_nodes;
+    amazon_uk_product_json["search_terms"] = search_terms;
+    amazon_uk_product_json["enclosure_material"] = enclosure_material;
+    amazon_uk_product_json["cover_material_type"] = cover_material_type;
+    amazon_uk_product_json["sale_price"] = sale_price;
+    amazon_uk_product_json["sale_from"] = sale_from;
+    amazon_uk_product_json["sale_end"] = sale_end;
+    amazon_uk_product_json["special_features"] = special_feature_data;
+    amazon_uk_product_json["wattage"] = wattage;
+    amazon_uk_product_json["wattage_metric"] = wattage_metric;
+    amazon_uk_product_json["parentage"] = parentage;
+    amazon_uk_product_json["parent_sku"] = parent_sku;
+    amazon_uk_product_json["relationship_type"] = relationship_type;
+    amazon_uk_product_json["item_count"] = item_count;
+    amazon_uk_product_json["item_count_metric"] = item_count_metric;
+    amazon_uk_product_json["item_condition_note"] = item_condition_note;
+    amazon_uk_product_json["max_order_quantity"] = max_order_quantity;
+    amazon_uk_product_json["number_of_items"] = number_of_items;
+    amazon_uk_product_json["condition_type"] = condition_type;
+    amazon_uk_product_json["product_description"] = window.editor[0].getData();
+    amazon_uk_product_json["dimensions"] = dimensions
+
+    console.log(amazon_uk_product_json);
+    $.ajax({
+      url: "/save-channel-product-amazon-uk/",
+      type: "POST",
+      headers: {
+        'X-CSRFToken': getCsrfToken()
+      },
+      data: {
+        amazon_uk_product_json : JSON.stringify(amazon_uk_product_json),
+        product_pk : product_pk
+      },
+      success: function (response) {
+        console.log("Success!", response);
+        if (response["status"] == 200) {
+          // global_details_amazon_uk = amazon_uk_product_json;
+          // render_amazon_uk();
+          M.toast({ html: "Product saved successfully!" });
+        }
+        else if (response["status"] == 403) {
+          M.toast({ html: "You do not have permission for saving product!" });
+        }
+        else {
+          M.toast({ html: "Error saving product!" });
+        }
+        $("#save-btn").removeAttr("disabled");
+      },
+      error: function (xhr, textstatus, errorthrown) {
+        console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+      }
+    });
+
+  }
+
+
+  $('document').ready(()=>{
+    window.editor[1].isReadOnly = true
+    window.editor[2].isReadOnly = true
+    window.editor[3].isReadOnly = true
+  })
+
+ 
+  $("#save-btn").click(function () {
+    console.log("Hii");
+    save_product_amazon_uk();
+  });
+
+
+  $(window).keydown(function (event) {
+    console.log(event.which, event.keyCode, event.ctrlKey);
+    if (event.which == 83 && event.ctrlKey) {
+      event.preventDefault();
+      save_product();
+      return false;
+    }
+  });
+</script>
+
+{% endblock %}

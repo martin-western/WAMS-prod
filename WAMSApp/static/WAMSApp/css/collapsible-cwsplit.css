@@ -1,0 +1,236 @@
+/*.collapsible-body-cwplit
+{
+	background-color: #D8D6D6 !important;				
+}
+
+.collapsible-body-cwplit .inside-container
+{
+	margin: 0px 0px 20px 0px !important;
+	display: block !important;
+	width: 100% !important;
+}
+
+.collapsible-body-cwplit .inside-container .row
+{
+	background-color: white !important;
+	border-radius: 5px !important;
+	padding: 15px 0px 15px 0px !important;
+}
+
+.collapsible-body-cwplit .inside-container .row .col
+{
+	padding: 0px !important;
+}
+
+.collapsible-body-cwplit .inside-container .row .middle
+{
+	margin-top: 15px !important;
+}
+
+.collapsible-body{
+	padding: 0px !important;
+}*/
+
+$.ajax({
+	url: "/fetch-product-details/",
+	type: "POST",
+	headers: {
+		'X-CSRFToken': getCsrfToken()
+	},
+	data: {
+		pk: window.location.pathname.split("/")[3]
+	},
+	success: function (response) {
+		console.log("Success!", response);
+
+		global_verification_status = response["verified"];
+
+		if (response["verified"] == true) {
+			set_verify(true);
+		}
+		else {
+			set_verify(false);
+		}
+
+		$("#pfl-product-name").val(response["pfl_product_name"])
+		var pfl_product_features = response["pfl_product_features"]
+		$('.material-placeholder').remove();
+		$('.main-image').append(`<img class = "preview-img materialboxed" src='` + response["repr_image_url"] + `' high_def_url="` + response["repr_high_def_url"] + `">`)
+		$('.materialboxed').materialbox();
+
+		for (var i = 0; i < pfl_product_features.length; i++) {
+			$("#pfl-feature-" + (i + 1)).val(pfl_product_features[i]);
+			if ((i + 1) != pfl_product_features.length) {
+				$("#add-feature-btn").click();
+			}
+		}
+
+		$("#product-name-amazon-uk").val(response["product_name_amazon_uk"]);
+		$("#product-name-amazon-uae").val(response["product_name_amazon_uae"]);
+		$("#product-name-sap").val(response["product_name_sap"]);
+		$("#product-name-ebay").val(response["product_name_ebay"]);
+		$("#product-name-noon").val(response["product_name_noon"]);
+		$("#category").val(response["category"]);
+		$("#subtitle").val(response["subtitle"]);
+		$("#brand-name").val(response["brand"]);
+		$("#manufacturer").val(response["manufacturer"]);
+		$("#product-id").val(response["product_id"]);
+		$("#product-id-type").val(response["product_id_type"]);
+		$("#seller-sku").val(response["seller_sku"]);
+		$("#manufacturer-part-number").val(response["manufacturer_part_number"]);
+		$("#barcode-string").val(response["barcode_string"]);
+		$("#noon-product-type").val(response["noon_product_type"]);
+		$("#noon-product-subtype").val(response["noon_product_subtype"]);
+		$("#noon-model-name").val(response["noon_model_name"]);
+		$("#noon-model-number").val(response["noon_model_number"]);
+
+		$("#condition-type").val(response["condition_type"]);
+		$("#feed-product-type").val(response["feed_product_type"]);
+		$("#update-delete").val(response["update_delete"]);
+		$("#recommended-browse-nodes").val(response["recommended_browse_nodes"]);
+
+
+		window.editor[0].setData(response["product_description_amazon_uk"]);
+		window.editor[1].setData(response["product_description_amazon_uae"]);
+		window.editor[2].setData(response["product_description_ebay"]);
+		window.editor[3].setData(response["product_description_noon"]);
+
+
+		var product_attribute_list_amazon_uk = response["product_attribute_list_amazon_uk"];
+		if (product_attribute_list_amazon_uk.length > 0) {
+			$("#product-attribute-amazon-uk-1").val(product_attribute_list_amazon_uk[0]);
+		}
+		for (var i = 1; i < product_attribute_list_amazon_uk.length; i++) {
+			$("#add-product-attribute-amazon-uk-btn").click();
+			$("#product-attribute-amazon-uk-" + (i + 1)).val(product_attribute_list_amazon_uk[i]);
+		}
+
+		var product_attribute_list_amazon_uae = response["product_attribute_list_amazon_uae"];
+		if (product_attribute_list_amazon_uae.length > 0) {
+			$("#product-attribute-amazon-uae-1").val(product_attribute_list_amazon_uae[0]);
+		}
+		for (var i = 1; i < product_attribute_list_amazon_uae.length; i++) {
+			$("#add-product-attribute-amazon-uae-btn").click();
+			$("#product-attribute-amazon-uae-" + (i + 1)).val(product_attribute_list_amazon_uae[i]);
+		}
+
+		var product_attribute_list_ebay = response["product_attribute_list_ebay"];
+		if (product_attribute_list_ebay.length > 0) {
+			$("#product-attribute-ebay-1").val(product_attribute_list_ebay[0]);
+		}
+		for (var i = 1; i < product_attribute_list_ebay.length; i++) {
+			$("#add-product-attribute-ebay-btn").click();
+			$("#product-attribute-ebay-" + (i + 1)).val(product_attribute_list_ebay[i]);
+		}
+
+		var product_attribute_list_noon = response["product_attribute_list_noon"];
+		if (product_attribute_list_noon.length > 0) {
+			$("#product-attribute-noon-1").val(product_attribute_list_noon[0]);
+		}
+		for (var i = 1; i < product_attribute_list_noon.length; i++) {
+			$("#add-product-attribute-noon-btn").click();
+			$("#product-attribute-noon-" + (i + 1)).val(product_attribute_list_noon[i]);
+		}
+
+		$("#search-terms").val(response["search_terms"]);
+		$("#color-map").val(response["color_map"]);
+		$("#color").val(response["color"]);
+		$("#enclosure-material").val(response["enclosure_material"]);
+		$("#cover-material-type").val(response["cover_material_type"]);
+
+		var special_features = response["special_features"];
+		if (special_features.length > 0) {
+			$("#special-feature-1").val(special_features[0]);
+		}
+		for (var i = 1; i < special_features.length; i++) {
+			$("#add-special-feature-btn").click();
+			$("#special-feature-" + (i + 1)).val(special_features[i]);
+		}
+
+		$("#special-feature").val(response["special_features"]);
+		$("#package-length").val(response["package_length"]);
+		$("#package-length-metric").val(response["package_length_metric"]);
+		$("#package-width").val(response["package_width"]);
+		$("#package-width-metric").val(response["package_width_metric"]);
+		$("#package-height").val(response["package_height"]);
+		$("#package-height-metric").val(response["package_height_metric"]);
+		$("#package-weight").val(response["package_weight"]);
+		$("#package-weight-metric").val(response["package_weight_metric"]);
+		$("#shipping-weight").val(response["shipping_weight"]);
+		$("#shipping-weight-metric").val(response["shipping_weight_metric"]);
+		$("#item-display-weight").val(response["item_display_weight"]);
+		$("#item-display-weight-metric").val(response["item_display_weight_metric"]);
+		$("#item-display-volume").val(response["item_display_volume"]);
+		$("#item-display-volume-metric").val(response["item_display_volume_metric"]);
+		$("#item-display-length").val(response["item_display_length"]);
+		$("#item-display-length-metric").val(response["item_display_length_metric"]);
+		$("#item-weight").val(response["item_weight"]);
+		$("#item-weight-metric").val(response["item_weight_metric"]);
+		$("#item-length").val(response["item_length"]);
+		$("#item-length-metric").val(response["item_length_metric"]);
+		$("#item-width").val(response["item_width"]);
+		$("#item-width-metric").val(response["item_width_metric"]);
+		$("#item-height").val(response["item_height"]);
+		$("#item-height-metric").val(response["item_height_metric"]);
+		$("#item-display-width").val(response["item_display_width"]);
+		$("#item-display-width-metric").val(response["item_display_width_metric"]);
+		$("#item-display-height").val(response["item_display_height"]);
+		$("#item-display-height-metric").val(response["item_display_height_metric"]);
+		$("#item-count").val(response["item_count"]);
+		$("#item-count-metric").val(response["item_count_metric"]);
+		$("#item-condition-note").val(response["item_condition_note"]);
+		$("#max-order-quantity").val(response["max_order_quantity"]);
+		$("#number-of-items").val(response["number_of_items"]);
+		$("#wattage").val(response["wattage"]);
+		$("#wattage-metric").val(response["wattage_metric"]);
+		$("#material-type").val(response["material_type"]);
+		$("#parentage").val(response["parentage"]);
+		$("#parent-sku").val(response["parent_sku"]);
+		$("#relationship-type").val(response["relationship_type"]);
+		$("#variation-theme").val(response["variation_theme"]);
+		$("#standard-price").val(response["standard_price"]);
+		$("#quantity").val(response["quantity"]);
+		$("#sale-price").val(response["sale_price"]);
+		$("#sale-from").val(response["sale_from"]);
+		$("#sale-end").val(response["sale_end"]);
+
+		$("#noon-msrp-ae").val(response["noon_msrp_ae"]);
+		$("#noon-msrp-ae-unit").val(response["noon_msrp_ae_unit"]);
+
+		$("#factory-notes").val(response["factory_notes"]);
+
+
+		global_images = response["images"];
+
+		$("#all-images-option").html("All Images (" + global_images["all_images"].length + ")");
+		$("#main-images-option").html("Main Images (" + global_images["main_images"].length + ")");
+		$("#sub-images-option").html("Sub Images (" + global_images["sub_images"].length + ")");
+		$("#pfl-images-option").html("PFL Images (" + global_images["pfl_images"].length + ")");
+		$("#pfl-generated-images-option").html("PFL Generated Images (" + global_images["pfl_generated_images"].length + ")");
+		$("#white-background-images-option").html("White Background Images (" + global_images["white_background_images"].length + ")");
+		$("#lifestyle-images-option").html("Lifestyle Images (" + global_images["lifestyle_images"].length + ")");
+		$("#certificate-images-option").html("Certificate Images (" + global_images["certificate_images"].length + ")");
+		$("#giftbox-images-option").html("Giftbox Images (" + global_images["giftbox_images"].length + ")");
+		$("#diecut-images-option").html("Diecut Images (" + global_images["diecut_images"].length + ")");
+		$("#aplus-content-images-option").html("A+ Content Images (" + global_images["aplus_content_images"].length + ")");
+		$("#ads-images-option").html("Ads Images (" + global_images["ads_images"].length + ")");
+		$("#unedited-images-option").html("Unedited Images (" + global_images["unedited_images"].length + ")");
+
+		update_grid_images(global_image_key);
+
+		$('#brand-image-img').attr("src", response["brand_logo"]);
+		if (global_images["main_images"].length > 0) {
+			$('#pfl-product-image-preview-img').attr("src", global_images["main_images"][0]["main-url"]);
+		}
+		$('#barcode-image-preview-img').attr("src", response["barcode_image_url"]);
+
+		$("#pfl-editor-link").attr("href", "/pfl/" + response["pfl_pk"]);
+
+		M.updateTextFields();
+		$('select').formSelect();
+	},
+	error: function (xhr, textstatus, errorthrown) {
+		console.log("Please report this error: " + errorthrown + xhr.status + xhr.responseText);
+	}
+});
+}

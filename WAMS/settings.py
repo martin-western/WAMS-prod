@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'WAMSApp',
     'storages',
+    'django_extensions',
     'corsheaders'
 ]
 
@@ -42,6 +43,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'WAMS.urls'
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10242880
 
 TEMPLATES = [
     {
@@ -64,6 +67,7 @@ WSGI_APPLICATION = 'WAMS.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+
 """
 DATABASES = {
     'default': {
@@ -73,16 +77,18 @@ DATABASES = {
 }
 """
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wams_prod2',
+        'NAME': 'wamstest',
         'USER': 'nisarg',
         'PASSWORD': 'nisargtike',
         'HOST': 'localhost',
         'PORT': '3306',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import os
 import sys
-import StringIO
+from io import BytesIO as StringIO
 import glob
 from WAMSApp.models import *
 from PIL import Image as IMage

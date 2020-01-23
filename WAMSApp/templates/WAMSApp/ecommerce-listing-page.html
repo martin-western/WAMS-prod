@@ -961,7 +961,7 @@
                   </tr>
                   <tr>
                     <td class="dimension-tab-info">Item Dimensions (L x B x H)</td>
-                    <td class="dimension-tab-info-value" id="item-dimensions">24 centimeters</td>
+                    <td class="dimension-tab-info-value" id="item-dimensions"></td>
                   </tr>
 
                 </tbody>
@@ -973,11 +973,11 @@
                   <tr>
                     <td class="dimension-tab-info">Item Display (L x B x H)</td class="dimension-tab-info">
 
-                    <td class="dimension-tab-info-value" id="item-display-dimensions">24 centimeters</td>
+                    <td class="dimension-tab-info-value" id="item-display-dimensions"></td>
                   </tr>
                   <tr>
                     <td class="dimension-tab-info">Item Weight (L x B x H)</td class="dimension-tab-info">
-                    <td class="dimension-tab-info-value" id="item-weight-dimensions">24 grams</td>
+                    <td class="dimension-tab-info-value" id="item-weight-dimensions"></td>
                   </tr>
                 </tbody>
               </table>
@@ -1103,7 +1103,7 @@
         'X-CSRFToken': getCsrfToken()
       },
       data: {
-        pk: window.location.pathname.split("/")[2]
+        product_pk: window.location.pathname.split("/")[2]
       },
       success: function (response) {
         console.log("Success!", response);
@@ -1212,13 +1212,15 @@
           $("#special-features-list").append(`<li>` + special_features[i] + `</li>`);
         }
 
-        $("#package-dimensions").html(response["package_length"] + ` ` + response["package_length_metric"] + ` ` + response["package_width"] + ` ` + response["package_width_metric"] + ` ` + response["package_height"] + ` ` + response["package_height_metric"]);
+        var dimensions = response["ecommerce_dimensions"];
 
-        $("#item-dimensions").html(response["item_length"] + ` ` + response["item_length_metric"] + ` ` + response["item_width"] + ` ` + response["item_width_metric"] + ` ` + response["item_height"] + ` ` + response["item_height_metric"]);
+        $("#package-dimensions").html(dimensions["package_length"] + ` ` + dimensions["package_length_metric"] + ` ` + dimensions["package_width"] + ` ` + dimensions["package_width_metric"] + ` ` + dimensions["package_height"] + ` ` + dimensions["package_height_metric"]);
 
-        $("#item-display-dimensions").html(response["item_display_length"] + ` ` + response["item_display_length_metric"] + ` ` + response["item_display_width"] + ` ` + response["item_display_width_metric"] + ` ` + response["item_display_height"] + ` ` + response["item_display_height_metric"]);
+        $("#item-dimensions").html(dimensions["item_length"] + ` ` + dimensions["item_length_metric"] + ` ` + dimensions["item_width"] + ` ` + dimensions["item_width_metric"] + ` ` + dimensions["item_height"] + ` ` + dimensions["item_height_metric"]);
 
-        $("#item-weight-dimensions").html(response["item_display_weight"] + ` ` + response["item_display_weight_metric"] + ` ` + response["item_display_volume"] + ` ` + response["item_display_volume_metric"] + ` ` + response["item_weight"] + ` ` + response["item_weight_metric"]);
+        $("#item-display-dimensions").html(dimensions["item_display_length"] + ` ` + dimensions["item_display_length_metric"] + ` ` + dimensions["item_display_width"] + ` ` + dimensions["item_display_width_metric"] + ` ` + dimensions["item_display_height"] + ` ` + dimensions["item_display_height_metric"]);
+
+        $("#item-weight-dimensions").html(dimensions["item_display_weight"] + ` ` + dimensions["item_display_weight_metric"] + ` ` + dimensions["item_display_volume"] + ` ` + dimensions["item_display_volume_metric"] + ` ` + dimensions["item_weight"] + ` ` + dimensions["item_weight_metric"]);
 
         M.updateTextFields();
         $('select').formSelect();

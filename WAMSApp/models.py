@@ -5,29 +5,146 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+#from WAMSApp.utils import *
 
-from PIL import Image as IMage
-import StringIO
+from PIL import Image as IMAGE
+from io import BytesIO as StringIO
 import logging
 import sys
 import json
+import uuid
 
 logger = logging.getLogger(__name__)
 
-####################################################
+noon_product_json = {
+    
+    "product_name" : "",
+    "product_type" : "",
+    "product_subtype" : "",
+    "model_number" : "",
+    "model_name" : "",
+    "msrp_ae" : "",
+    "msrp_ae_unit" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : ""
+}
 
-def compress(image_path):
-    try:
-        im = IMage.open(image_path)
-        basewidth = 1024
-        wpercent = (basewidth / float(im.size[0]))
-        hsize = int((float(im.size[1]) * float(wpercent)))
-        im = im.resize((basewidth, hsize), IMage.ANTIALIAS)
-        im.save(image_path, optimize=True, quality=100)
-    except Exception as e:
-        print("Error", str(e))
-###################################################
+amazon_uk_product_json = {
 
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : "",
+    "parentage" : "",
+    "parent_sku" : "",
+    "relationship_type" : "",
+    "variation_theme" : "",
+    "feed_product_type" : "",
+    "update_delete" : "",
+    "recommended_browse_nodes" : "",
+    "search_terms" : "",
+    "enclosure_material" : "",
+    "cover_material_type" : "",
+    "special_features" : [],
+    "sale_price" : "",
+    "sale_from" : "",
+    "sale_end" :  "",
+    "wattage" : "",
+    "wattage_metric" : "",
+    "item_count" : "",
+    "item_count_metric" : "",
+    "item_condition_note" : "",
+    "max_order_quantity" : "",
+    "number_of_items" : "",
+    "condition_type" : "",
+    "dimensions": {
+        "package_length":"",
+        "package_length_metric":"",
+        "package_width":"",
+        "package_width_metric":"",
+        "package_height":"",
+        "package_height_metric":"",
+        "package_weight":"",
+        "package_weight_metric":"",
+        "package_quantity":"",
+        "shipping_weight":"",
+        "shipping_weight_metric":"",
+        "item_display_weight":"",
+        "item_display_weight_metric":"",
+        "item_display_volume":"",
+        "item_display_volume_metric":"",
+        "item_display_length":"",
+        "item_display_length_metric":"",
+        "item_weight":"",
+        "item_weight_metric":"",
+        "item_length":"",
+        "item_length_metric":"",
+        "item_width":"",
+        "item_width_metric":"",
+        "item_height":"",
+        "item_height_metric":"",
+        "item_display_width":"",
+        "item_display_width_metric":"",
+        "item_display_height":"",
+        "item_display_height_metric":""
+    }
+}
+
+amazon_uae_product_json = {
+
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : "",
+    "feed_product_type" : "",
+    "recommended_browse_nodes" : "",
+    "update_delete" : ""
+  
+}
+
+ebay_product_json = {
+
+    "category" : "",
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : ""
+        
+}
+
+base_dimensions_json = {
+    "export_carton_quantity_l": "",
+    "export_carton_quantity_l_metric": "",
+    "export_carton_quantity_b": "",
+    "export_carton_quantity_b_metric": "",
+    "export_carton_quantity_h": "",
+    "export_carton_quantity_h_metric": "",
+    "export_carton_crm_l": "",
+    "export_carton_crm_l_metric": "",
+    "export_carton_crm_b": "",
+    "export_carton_crm_b_metric": "",
+    "export_carton_crm_h": "",
+    "export_carton_crm_h_metric": "",
+    "product_dimension_l": "",
+    "product_dimension_l_metric": "",
+    "product_dimension_b": "",
+    "product_dimension_b_metric": "",
+    "product_dimension_h": "",
+    "product_dimension_h_metric": "",
+    "giftbox_l": "",
+    "giftbox_l_metric": "",
+    "giftbox_b": "",
+    "giftbox_b_metric": "",
+    "giftbox_h": "",
+    "giftbox_h_metric": ""
+}
+
+noon_product_json  = json.dumps(noon_product_json)
+amazon_uk_product_json = json.dumps(amazon_uk_product_json)
+amazon_uae_product_json = json.dumps(amazon_uae_product_json)
+ebay_product_json = json.dumps(ebay_product_json)
+base_dimensions_json = json.dumps(base_dimensions_json)
 
 class ContentManager(User):
 
@@ -59,7 +176,6 @@ class ContentExecutive(User):
         verbose_name_plural = "ContentExecutives"
 
 
-
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -74,40 +190,35 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
-    def save(self, *args, **kwargs):
-        try:  
-            size = 128, 128
-            thumb = IMage.open(self.image)
-            thumb.thumbnail(size)
-            infile = self.image.file.name
-            im_type = thumb.format 
-            thumb_io = StringIO.StringIO()
-            thumb.save(thumb_io, format=im_type)
+    # def save(self, *args, **kwargs):
+    #     try:  
+    #         size = 128, 128
+    #         thumb = IMAGE.open(self.image)
+    #         thumb.thumbnail(size)
+    #         infile = self.image.file.name
+    #         im_type = thumb.format 
+    #         thumb_io = StringIO.StringIO()
+    #         thumb.save(thumb_io, format=im_type)
 
-            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
+    #         thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
 
-            self.thumbnail = thumb_file
+    #         self.thumbnail = thumb_file
 
+    #         size2 = 512, 512
+    #         thumb2 = IMAGE.open(self.image)
+    #         thumb2.thumbnail(size2)
+    #         thumb_io2 = StringIO.StringIO()
+    #         thumb2.save(thumb_io2, format=im_type)
 
+    #         thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
 
+    #         self.mid_image = thumb_file2
+    #     except Exception as e:
+    #         exc_type, exc_obj, exc_tb = sys.exc_info()
+    #         logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
-            size2 = 512, 512
-            thumb2 = IMage.open(self.image)
-            thumb2.thumbnail(size2)
-            thumb_io2 = StringIO.StringIO()
-            thumb2.save(thumb_io2, format=im_type)
-
-            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
-
-            self.mid_image = thumb_file2
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
-
-        super(Image, self).save(*args, **kwargs)
-        #compress("."+self.image.url)
-
-
+    #     super(Image, self).save(*args, **kwargs)
+    
 
 class ImageBucket(models.Model):
 
@@ -126,8 +237,7 @@ class ImageBucket(models.Model):
 
     def save(self, *args, **kwargs):
         super(ImageBucket, self).save(*args, **kwargs)
-        #compress("."+self.image.image.url)
-
+        
 
 class Organization(models.Model):
 
@@ -136,6 +246,18 @@ class Organization(models.Model):
     class Meta:
         verbose_name = "Organization"
         verbose_name_plural = "Organization"
+
+    def __str__(self):
+        return str(self.name)
+
+
+class Channel(models.Model):
+    
+    name = models.CharField(unique=True,max_length=200)
+        
+    class Meta:
+        verbose_name = "Channel"
+        verbose_name_plural = "Channels"
 
     def __str__(self):
         return str(self.name)
@@ -153,7 +275,6 @@ class Brand(models.Model):
 
     def __str__(self):
         return str(self.name)
-
 
 class Category(models.Model):
 
@@ -191,125 +312,82 @@ class MaterialType(models.Model):
         return str(self.name)
 
 
-class Product(models.Model):
+class BaseProduct(models.Model):
 
-    #MISC
+    base_product_name = models.CharField(max_length=300)
     created_date = models.DateTimeField()
-    status = models.CharField(default="Pending", max_length=100)
-    verified = models.BooleanField(default=False)
-
-    #PFL
-    pfl_product_name = models.CharField(max_length=250, default="")
-    pfl_product_features = models.TextField(default="[]")
-
-    #Vital
-    product_name_sap = models.CharField(max_length=300, default="")
-    product_name_amazon_uk = models.CharField(max_length=300, default="")
-    product_name_amazon_uae = models.CharField(max_length=300, default="")
-    product_name_ebay = models.CharField(max_length=300, default="")
-    product_name_noon = models.CharField(max_length=300, default="")
-
-    product_id = models.CharField(max_length=100, unique=True)
-    product_id_type = models.CharField(max_length=100, default="")
-    seller_sku = models.CharField(max_length=100, default="")
-    category = models.CharField(max_length=300, default="")
-    subtitle = models.CharField(max_length=300, default="")
+    modified_date = models.DateTimeField()
+    seller_sku = models.CharField(max_length=200, unique=True)
+    category = models.CharField(max_length=200, default="")
+    subtitle = models.CharField(max_length=200, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
-    condition_type = models.CharField(max_length=100, default="New")
-    feed_product_type = models.CharField(max_length=100, default="")
-    update_delete = models.CharField(max_length=100, default="Update")
-    recommended_browse_nodes = models.CharField(max_length=100, default="")
-    noon_product_type = models.CharField(default="", max_length=200)
-    noon_product_subtype = models.CharField(default="", max_length=200)
-    noon_model_number = models.CharField(default="", max_length=100)
-    noon_model_name = models.CharField(default="", max_length=300)
+
+    dimensions = models.TextField(blank=True, default=base_dimensions_json)
+    
+    class Meta:
+        verbose_name = "BaseProduct"
+        verbose_name_plural = "BaseProducts"
+
+    def __str__(self):
+        return str(self.base_product_name)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.modified_date = timezone.now()
+        else:
+            self.modified_date = timezone.now()
+        
+        super(BaseProduct, self).save(*args, **kwargs)
 
 
-    noon_msrp_ae = models.IntegerField(null=True, blank=True, default=None)
-    noon_msrp_ae_unit = models.CharField(max_length=100, default="")
+class ChannelProduct(models.Model):
+    
+    # product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
+    noon_product_json = models.TextField(blank=True,default=noon_product_json)
+    is_noon_product_created = models.BooleanField(default=False)
+    amazon_uk_product_json = models.TextField(blank=True,default=amazon_uk_product_json)
+    is_amazon_uk_product_created = models.BooleanField(default=False)
+    amazon_uae_product_json = models.TextField(blank=True,default=amazon_uae_product_json)
+    is_amazon_uae_product_created = models.BooleanField(default=False)
+    ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
+    is_ebay_product_created = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = "ChannelProduct"
+        verbose_name_plural = "ChannelProducts"
 
-    #Information
-    product_description_amazon_uk = models.TextField(default="")
-    product_description_amazon_uae = models.TextField(default="")
-    product_description_ebay = models.TextField(default="")
-    product_description_noon = models.TextField(default="")
+    def __str__(self):
+        return str(self.pk)
 
-    product_attribute_list_amazon_uk = models.TextField(default="[]")
-    product_attribute_list_amazon_uae = models.TextField(default="[]")
-    product_attribute_list_ebay = models.TextField(default="[]")
-    product_attribute_list_noon = models.TextField(default="[]")
+class Product(models.Model):
 
-    search_terms = models.CharField(max_length=300, default="")
+    #MISC
+    base_product = models.ForeignKey(BaseProduct,null=True,blank=True,on_delete=models.SET_NULL)
+    product_name = models.CharField(max_length=300,null=True)
+    product_id = models.CharField(max_length=200,null=True)
+    product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
+    created_date = models.DateTimeField()
+    modified_date = models.DateTimeField()
+    
+    status = models.CharField(default="Pending", max_length=100)
+    verified = models.BooleanField(default=False)
+    uuid = models.CharField(null=True,max_length=200)
+
+    #PFL
+    pfl_product_name = models.CharField(max_length=300, default="")
+    pfl_product_features = models.TextField(default="[]")
+
+    product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
     color = models.CharField(max_length=100, default="")
-    enclosure_material = models.CharField(max_length=100, default="")
-    cover_material_type = models.CharField(max_length=100, default="")
-    special_features = models.TextField(default="[]")
-
-
-    #Dimensions
-    package_length = models.FloatField(null=True, blank=True)
-    package_length_metric = models.CharField(max_length=100, default="")
-    package_width = models.FloatField(null=True, blank=True)
-    package_width_metric = models.CharField(max_length=100, default="")
-    package_height = models.FloatField(null=True, blank=True)
-    package_height_metric = models.CharField(max_length=100, default="")
-    package_weight = models.FloatField(null=True, blank=True)
-    package_weight_metric = models.CharField(max_length=100, default="")
-    shipping_weight = models.FloatField(null=True, blank=True)
-    shipping_weight_metric = models.CharField(max_length=100, default="")
-    item_display_weight = models.FloatField(null=True, blank=True)
-    item_display_weight_metric = models.CharField(max_length=100, default="")
-    item_display_volume = models.FloatField(null=True, blank=True)
-    item_display_volume_metric = models.CharField(max_length=100, default="")
-    item_display_length = models.FloatField(null=True, blank=True)
-    item_display_length_metric = models.CharField(max_length=100, default="")
-    item_weight = models.FloatField(null=True, blank=True)
-    item_weight_metric = models.CharField(max_length=100, default="")
-    item_length = models.FloatField(null=True, blank=True)
-    item_length_metric = models.CharField(max_length=100, default="")
-    item_width = models.FloatField(null=True, blank=True) 
-    item_width_metric = models.CharField(max_length=100, default="")
-    item_height = models.FloatField(null=True, blank=True)
-    item_height_metric = models.CharField(max_length=100, default="")
-    item_display_width = models.FloatField(null=True, blank=True)
-    item_display_width_metric = models.CharField(max_length=100, default="")
-    item_display_height = models.FloatField(null=True, blank=True)
-    item_display_height_metric = models.CharField(max_length=100, default="")
-    item_count = models.FloatField(null=True, blank=True)
-    item_count_metric = models.CharField(max_length=100, default="")
-
-
-    #Attributes
-    item_condition_note = models.TextField(default="")
-    max_order_quantity = models.IntegerField(null=True, blank=True)
-    number_of_items = models.IntegerField(null=True, blank=True)
-    wattage = models.FloatField(null=True, blank=True)
-    wattage_metric = models.CharField(max_length=100, default="")
-    material_type = models.CharField(max_length=100, default="")
-
-
-    #Variation
-    parentage = models.CharField(max_length=100, default="")
-    parent_sku = models.CharField(max_length=100, default="")
-    relationship_type = models.CharField(max_length=100, default="")
-    variation_theme = models.CharField(max_length=100, default="")
-
-
-    #Offer
+    material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
     quantity = models.IntegerField(null=True, blank=True)
-    sale_price = models.FloatField(null=True, blank=True)
-    sale_from = models.DateField(null=True, blank=True)
-    sale_end = models.DateField(null=True, blank=True)
 
-
-    #Graphics
-    main_images = models.ManyToManyField(ImageBucket, related_name="main_images", blank=True)
-    sub_images = models.ManyToManyField(ImageBucket, related_name="sub_images", blank=True)
     pfl_images = models.ManyToManyField(Image, related_name="pfl_images", blank=True)
     white_background_images = models.ManyToManyField(Image, related_name="white_background_images", blank=True)
     lifestyle_images = models.ManyToManyField(Image, related_name="lifestyle_images", blank=True)
@@ -328,39 +406,67 @@ class Product(models.Model):
     barcode_string = models.CharField(max_length=100, default="")
     outdoor_price = models.FloatField(null=True, blank=True)
 
-    factory_notes = models.TextField(default="[]")
+    channel_product = models.ForeignKey(ChannelProduct, null=True, blank=True, on_delete=models.SET_NULL)
+    factory_notes = models.TextField(null=True,blank=True)
     
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
 
     def __str__(self):
-        return str(self.product_id)
+        return str(self.product_name)
 
 
     def save(self, *args, **kwargs):
-        if self.pk == None:
+        
+        if self.pk != None:
+            self.modified_date = timezone.now()
+        else:
             self.created_date = timezone.now()
+            self.modified_date = timezone.now()
+        
+        if self.uuid == None:
+            self.uuid = uuid.uuid4()
+
+        if self.channel_product == None:
+            channel_product_obj = ChannelProduct.objects.create()
+            self.channel_product = channel_product_obj
+        
         super(Product, self).save(*args, **kwargs)
 
 
+class MainImages(models.Model):
 
+    product = models.ForeignKey(Product,null=True, blank=True, on_delete=models.SET_NULL)
+    main_images = models.ManyToManyField(ImageBucket, related_name="main_images", blank=True)
+    channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
+    is_sourced = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "MainImages"
+
+    def __str__(self):
+        return str(self.pk)
+
+class SubImages(models.Model):
+
+    product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
+    sub_images = models.ManyToManyField(ImageBucket, related_name="sub_images", blank=True)
+    channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
+    is_sourced = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "SubImages"
+
+    def __str__(self):
+        return str(self.pk)
+    
 
 class Flyer(models.Model):
 
-    name = models.CharField(default="SampleFlyer", max_length=300)
+    name = models.CharField(default="SampleFlyer", max_length=200)
     product_bucket = models.ManyToManyField(Product, blank=True)
     template_data = models.TextField(null=True, blank=True)
-    """
-    {
-        "row": 4,
-        "column": 3,
-        "data": [
-            [{"image_pk":2, "product_title": "Geepas Juicer", "price":100}, {}, {}],
-            [{}, {}, {}]
-        ]
-    }
-    """
     external_images_bucket = models.ManyToManyField(Image, blank=True)
     flyer_image = models.ForeignKey(Image, null=True, blank=True, related_name="flyer_images", on_delete=models.SET_NULL)
     background_images_bucket = models.ManyToManyField(Image, blank=True, related_name="background_images_bucket")
@@ -393,7 +499,7 @@ class PFL(models.Model):
 
 class ExportList(models.Model):
 
-    title = models.CharField(default="SampleExportList", max_length=300)
+    title = models.CharField(default="SampleExportList", max_length=200)
     products = models.ManyToManyField(Product, blank=True)
     created_date = models.DateTimeField()
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
@@ -407,7 +513,7 @@ class ExportList(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk == None:
-            self.created_date = timezone.now()
+            self.created_date = timezone.now
         super(ExportList, self).save(*args, **kwargs)
 
 
@@ -424,11 +530,11 @@ class Config(models.Model):
         return "Configuration"
 
 
-
 class CustomPermission(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     brands = models.ManyToManyField(Brand, blank=True)
+    channels = models.ManyToManyField(Channel, blank=True)
 
     class Meta:
         verbose_name = "CustomPermission"
@@ -441,7 +547,7 @@ class CustomPermission(models.Model):
 class EbayCategory(models.Model):
 
     category_id = models.CharField(default="", max_length=100)
-    name = models.CharField(default="", max_length=300)
+    name = models.CharField(default="", max_length=200)
 
     class Meta:
         verbose_name = "EbayCategory"

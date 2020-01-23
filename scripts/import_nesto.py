@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import os
 import sys
-import StringIO
+from io import BytesIO as StringIO
 from WAMSApp.models import *
 from PIL import Image as IMage
 from django.core.files.uploadedfile import InMemoryUploadedFile
