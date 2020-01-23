@@ -506,7 +506,7 @@
           <div class="row" style="padding: 0px 20px 0px 20px !important; margin-bottom: 0px !important;">
             <div class="col s2 padding-lr-zero">
               <label class="toggler-wrapper style-25" style="position:relative;right:10px;">
-                <input class="product-checkmark" id="checkmark-`+ products[i][" product_pk"] + `" type="checkbox">
+                <input class="product-checkmark" type="checkbox">
                 <div class="toggler-slider">
                   <div class="toggler-knob"></div>
                 </div>
@@ -1480,7 +1480,7 @@
                             <div class = "row margin-btm-zero">
                                 <div class = "col s2 left">
                                       <label class="toggler-wrapper style-25 slite-top" style="position:relative;right:20px;">
-                                        <input class="product-checkmark" id = "checkmark-`+ products[i]["product_pk"] + `" type="checkbox" >
+                                        <input class="product-checkmark" id = "checkmark-`+ products[i]["base_product_pk"] + `" type="checkbox" >
                                          <div class="toggler-slider">
                                           <div class="toggler-knob"></div>
                                         </div>
@@ -1595,20 +1595,6 @@
                  `
             }
 
-            // <a class="status-btn padding-lr-zero" base_product_pk = '`+base_product_pk+`' href="#create-new-base-product-modal" class="">
-            //                     <i class="material-icons statusbtn" title="Import" style="
-            //                         color: white;
-            //                         background-color: #677EFF;
-            //                         padding: 10px;
-            //                         border-radius: 5px;
-            //                         position:relative;
-            //                         top:6px !important;
-            //                         margin-left:0px !important; 
-            //                         font-size: 10px;">
-            //                      add_circle_outline
-            //                     </i>
-            //                   </a>
-
             product_variants_string += `</div>
                     
                   </div>`;
@@ -1622,9 +1608,6 @@
                     <div class = "" style = "">`;
 
             }
-
-            console.log("channel product");
-            console.log(channel_products);
 
             for (var j = 0; j < channel_products.length; j++) {
               var href_edit = "#!";
