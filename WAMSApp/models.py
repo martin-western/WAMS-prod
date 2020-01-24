@@ -1,3 +1,4 @@
+from auditlog.registry import auditlog
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -574,3 +575,15 @@ class BackgroundImage(models.Model):
 def update_stock(sender, instance, **kwargs):
     if PFL.objects.filter(product=instance).exists()==False:
         PFL.objects.create(product=instance, name=str(instance.product_name_sap)+"_PFL")
+
+
+auditlog.register(Product)
+auditlog.register(BackgroundImage)
+auditlog.register(BaseProduct)
+auditlog.register(ChannelProduct)
+auditlog.register(Flyer)
+auditlog.register(ExportList)
+auditlog.register(MainImages)
+auditlog.register(SubImages)
+
+

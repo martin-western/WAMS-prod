@@ -28,7 +28,8 @@ INSTALLED_APPS = [
     'WAMSApp',
     'storages',
     'django_extensions',
-    'corsheaders'
+    'corsheaders',
+    'auditlog'
 ]
 
 MIDDLEWARE = [
@@ -40,6 +41,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'auditlog.middleware.AuditlogMiddleware',
 ]
 
 ROOT_URLCONF = 'WAMS.urls'
