@@ -1,3 +1,4 @@
+from auditlog.models import AuditlogHistoryField
 from auditlog.registry import auditlog
 from django.db import models
 from django.contrib.auth.models import User
@@ -409,7 +410,9 @@ class Product(models.Model):
 
     channel_product = models.ForeignKey(ChannelProduct, null=True, blank=True, on_delete=models.SET_NULL)
     factory_notes = models.TextField(null=True,blank=True)
-    
+    history = AuditlogHistoryField()
+
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
