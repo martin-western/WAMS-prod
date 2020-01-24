@@ -1,0 +1,82 @@
+Possibilities:
+
+1. Created
+2. Updated/Edited
+3. Deleted
+4. Downloaded
+
+Entry View :
+///////////////////////////////////////////////////
+
+Priyanka Updated Product Name of Product_ID from old value to new value.
+
+Eg. : Priyanka updated name for the product with Id DU756 
+
+//////////////////////////////////////////////////
+
+UI View :
+/////////////////////////////////////////
+
+Side Nav Option: Activity Log
+
+No.|User|ModelName|ObjectIdentifier|DateTime|Type|Actions
+
+Click Action -> Modal -> Information about Event
+
+Modal depends on type
+
+Type1: Creation
+Type2: Updation
+Type3: Deletion
+Type4: Download
+
+Modal Type1 - Creation:  
+{
+	"model": "",
+	"attributes": "modal.__dict__"
+}
+
+Modal Type2 - Updation:  
+{
+	"model": "",
+	"attributes": [
+		{
+			"attribute_name" : "",
+			"old_value" : "",
+			"new_value" : ""
+		},
+		{
+			"attribute_name" : "",
+			"old_value" : "",
+			"new_value" : ""
+		}.
+	]
+}
+
+Modal Type3 - Deletion:  
+{
+	"model": "",
+	"attributes": "modal.__dict__"
+}
+
+Modal Type4 - Download:  
+{
+	"model": "",
+	"files": [
+		{
+			"name" : "",
+			"url" : "",
+			"size" : "",
+		}, 
+				{
+			"name" : "",
+			"url" : "",
+			"size" : "",
+		}, 
+		]
+}
+
+
+////////////////////////////////////////
+
+ 
