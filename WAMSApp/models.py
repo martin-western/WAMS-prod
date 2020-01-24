@@ -192,34 +192,34 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
-    # def save(self, *args, **kwargs):
-    #     try:  
-    #         size = 128, 128
-    #         thumb = IMAGE.open(self.image)
-    #         thumb.thumbnail(size)
-    #         infile = self.image.file.name
-    #         im_type = thumb.format 
-    #         thumb_io = StringIO.StringIO()
-    #         thumb.save(thumb_io, format=im_type)
+    def save(self, *args, **kwargs):
+        try:  
+            size = 128, 128
+            thumb = IMAGE.open(self.image)
+            thumb.thumbnail(size)
+            infile = self.image.file.name
+            im_type = thumb.format 
+            thumb_io = StringIO.StringIO()
+            thumb.save(thumb_io, format=im_type)
 
-    #         thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
+            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
 
-    #         self.thumbnail = thumb_file
+            self.thumbnail = thumb_file
 
-    #         size2 = 512, 512
-    #         thumb2 = IMAGE.open(self.image)
-    #         thumb2.thumbnail(size2)
-    #         thumb_io2 = StringIO.StringIO()
-    #         thumb2.save(thumb_io2, format=im_type)
+            size2 = 512, 512
+            thumb2 = IMAGE.open(self.image)
+            thumb2.thumbnail(size2)
+            thumb_io2 = StringIO.StringIO()
+            thumb2.save(thumb_io2, format=im_type)
 
-    #         thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
+            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
 
-    #         self.mid_image = thumb_file2
-    #     except Exception as e:
-    #         exc_type, exc_obj, exc_tb = sys.exc_info()
-    #         logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
+            self.mid_image = thumb_file2
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
-    #     super(Image, self).save(*args, **kwargs)
+        super(Image, self).save(*args, **kwargs)
     
 
 class ImageBucket(models.Model):
@@ -327,7 +327,8 @@ class BaseProduct(models.Model):
     manufacturer_part_number = models.CharField(max_length=200, default="")
 
     dimensions = models.TextField(blank=True, default=base_dimensions_json)
-    
+    history = AuditlogHistoryField()
+
     class Meta:
         verbose_name = "BaseProduct"
         verbose_name_plural = "BaseProducts"
@@ -345,6 +346,8 @@ class BaseProduct(models.Model):
         
         super(BaseProduct, self).save(*args, **kwargs)
 
+auditlog.register(BaseProduct)
+
 
 class ChannelProduct(models.Model):
     
@@ -357,6 +360,8 @@ class ChannelProduct(models.Model):
     is_amazon_uae_product_created = models.BooleanField(default=False)
     ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
     is_ebay_product_created = models.BooleanField(default=False)
+
+    history = AuditlogHistoryField()
 
     class Meta:
         verbose_name = "ChannelProduct"
@@ -446,6 +451,8 @@ class MainImages(models.Model):
     channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
     is_sourced = models.BooleanField(default=False)
 
+    history = AuditlogHistoryField()
+
     class Meta:
         verbose_name = "MainImages"
 
@@ -458,6 +465,8 @@ class SubImages(models.Model):
     sub_images = models.ManyToManyField(ImageBucket, related_name="sub_images", blank=True)
     channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
     is_sourced = models.BooleanField(default=False)
+
+    history = AuditlogHistoryField()
 
     class Meta:
         verbose_name = "SubImages"
@@ -476,6 +485,8 @@ class Flyer(models.Model):
     background_images_bucket = models.ManyToManyField(Image, blank=True, related_name="background_images_bucket")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     mode = models.CharField(max_length=100, default="A4 Portrait")
+
+    history = AuditlogHistoryField()
 
     class Meta:
         verbose_name = "Flyer"
@@ -508,6 +519,8 @@ class ExportList(models.Model):
     created_date = models.DateTimeField()
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
+    history = AuditlogHistoryField()
+    
     class Meta:
         verbose_name = "ExportList"
         verbose_name_plural = "ExportLists"
@@ -581,8 +594,18 @@ def update_stock(sender, instance, **kwargs):
 
 
 auditlog.register(Product)
-auditlog.register(BackgroundImage)
-auditlog.register(BaseProduct)
+auditlog.register(Product.pfl_images.through)
+auditlog.register(Product.white_background_images.through)
+auditlog.register(Product.lifestyle_images.through)
+auditlog.register(Product.certificate_images.through)
+auditlog.register(Product.giftbox_images.through)
+auditlog.register(Product.diecut_images.through)
+auditlog.register(Product.aplus_content_images.through)
+auditlog.register(Product.ads_images.through)
+auditlog.register(Product.unedited_images.through)
+auditlog.register(Product.pfl_generated_images.through)
+auditlog.register(Product.transparent_images.through)
+
 auditlog.register(ChannelProduct)
 auditlog.register(Flyer)
 auditlog.register(ExportList)
