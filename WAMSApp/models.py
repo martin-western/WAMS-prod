@@ -23,6 +23,8 @@ noon_product_json = {
     "product_name" : "",
     "product_type" : "",
     "product_subtype" : "",
+    "category" : "",
+    "sub_category" : "",
     "model_number" : "",
     "model_name" : "",
     "msrp_ae" : "",
@@ -37,6 +39,8 @@ amazon_uk_product_json = {
     "product_name" : "",
     "product_description" : "",
     "product_attribute_list" : [],
+    "category" : "",
+    "sub_category" : "",
     "created_date" : "",
     "parentage" : "",
     "parent_sku" : "",
@@ -98,6 +102,8 @@ amazon_uae_product_json = {
     "product_name" : "",
     "product_description" : "",
     "product_attribute_list" : [],
+    "category" : "",
+    "sub_category" : "",
     "created_date" : "",
     "feed_product_type" : "",
     "recommended_browse_nodes" : "",
@@ -108,6 +114,7 @@ amazon_uae_product_json = {
 ebay_product_json = {
 
     "category" : "",
+    "sub_category" : "",
     "product_name" : "",
     "product_description" : "",
     "product_attribute_list" : [],
@@ -321,6 +328,7 @@ class BaseProduct(models.Model):
     modified_date = models.DateTimeField()
     seller_sku = models.CharField(max_length=200, unique=True)
     category = models.CharField(max_length=200, default="")
+    sub_category = models.CharField(max_length=200, default="")
     subtitle = models.CharField(max_length=200, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
@@ -346,7 +354,7 @@ class BaseProduct(models.Model):
         
         super(BaseProduct, self).save(*args, **kwargs)
 
-auditlog.register(BaseProduct)
+auditlog.register(BaseProduct, exclude_fields=['modified_date' , 'created_date'])
 
 
 class ChannelProduct(models.Model):
@@ -368,9 +376,11 @@ class ChannelProduct(models.Model):
         verbose_name_plural = "ChannelProducts"
 
     def __str__(self):
-        return str(self.pk)
+        product = Product.objects.get(channel_product = self)
+        return str(product.product_name)
 
-auditlog.register(ChannelProduct)
+auditlog.register(ChannelProduct, exclude_fields = ['is_noon_product_created', 'is_amazon_uk_product_created',
+                                                    'is_amazon_uae_product_created', 'is_ebay_product_created'])
 
 class Product(models.Model):
 
@@ -445,7 +455,7 @@ class Product(models.Model):
         
         super(Product, self).save(*args, **kwargs)
 
-auditlog.register(Product)
+auditlog.register(Product, exclude_fields=['modified_date' , 'created_date' , 'uuid', 'base_product'])
 
 auditlog.register(Product.pfl_images.through)
 auditlog.register(Product.white_background_images.through)
@@ -469,12 +479,12 @@ class MainImages(models.Model):
     history = AuditlogHistoryField()
 
     class Meta:
-        verbose_name = "MainImages"
+        verbose_name_plural = "MainImages"
 
     def __str__(self):
-        return str(self.pk)
+        return str(self.product.product_name)
 
-auditlog.register(MainImages)
+auditlog.register(MainImages, exclude_fields = ['is_sourced'])
 auditlog.register(MainImages.main_images.through)
 
 class SubImages(models.Model):
@@ -487,12 +497,12 @@ class SubImages(models.Model):
     history = AuditlogHistoryField()
 
     class Meta:
-        verbose_name = "SubImages"
+        verbose_name_plural = "SubImages"
 
     def __str__(self):
-        return str(self.pk)
+        return str(self.product.product_name)
     
-auditlog.register(SubImages)
+auditlog.register(SubImages, exclude_fields=['is_sourced'])
 auditlog.register(SubImages.sub_images.through)
 
 class Flyer(models.Model):
@@ -515,7 +525,7 @@ class Flyer(models.Model):
     def __str__(self):
         return str(self.name)
 
-auditlog.register(Flyer)
+auditlog.register(Flyer, exclude_fields=['template_data','background_images_bucket'])
 auditlog.register(Flyer.product_bucket.through)
 
 class PFL(models.Model):
@@ -556,7 +566,7 @@ class ExportList(models.Model):
         super(ExportList, self).save(*args, **kwargs)
 
 
-auditlog.register(ExportList)
+auditlog.register(ExportList, exclude_fields=['created_date'])
 auditlog.register(ExportList.products.through)
 
 class Config(models.Model):

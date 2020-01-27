@@ -14,6 +14,12 @@ class BaseProductAdmin(admin.ModelAdmin):
 class FlyerAdmin(admin.ModelAdmin):
     list_display = ('name', 'brand')
 
+class MainImagesAdmin(admin.ModelAdmin):
+    list_display = ('product', 'channel')
+
+class SubImagesAdmin(admin.ModelAdmin):
+    list_display = ('product', 'channel')
+
 admin.site.register(ContentExecutive)
 admin.site.register(ContentManager)
 admin.site.register(Product, ProductAdmin)
@@ -33,6 +39,6 @@ admin.site.register(EbayCategory)
 admin.site.register(BaseProduct, BaseProductAdmin)
 admin.site.register(Channel)
 admin.site.register(ChannelProduct)
-admin.site.register(MainImages)
-admin.site.register(SubImages)
+admin.site.register(MainImages, MainImagesAdmin)
+admin.site.register(SubImages, SubImagesAdmin)
 admin.site.register(BackgroundImage)
