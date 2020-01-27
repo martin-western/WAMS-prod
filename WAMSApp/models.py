@@ -31,7 +31,9 @@ noon_product_json = {
     "msrp_ae_unit" : "",
     "product_description" : "",
     "product_attribute_list" : [],
-    "created_date" : ""
+    "created_date" : "",
+    "is_active" : "",
+    "http_link": ""
 }
 
 amazon_uk_product_json = {
@@ -94,7 +96,9 @@ amazon_uk_product_json = {
         "item_display_width_metric":"",
         "item_display_height":"",
         "item_display_height_metric":""
-    }
+    },
+    "is_active" : "",
+    "http_link": ""
 }
 
 amazon_uae_product_json = {
@@ -107,8 +111,9 @@ amazon_uae_product_json = {
     "created_date" : "",
     "feed_product_type" : "",
     "recommended_browse_nodes" : "",
-    "update_delete" : ""
-  
+    "update_delete" : "",
+    "is_active" : "",
+    "http_link": ""
 }
 
 ebay_product_json = {
@@ -118,8 +123,9 @@ ebay_product_json = {
     "product_name" : "",
     "product_description" : "",
     "product_attribute_list" : [],
-    "created_date" : ""
-        
+    "created_date" : "",
+    "is_active" : "",
+    "http_link": ""
 }
 
 base_dimensions_json = {
@@ -395,6 +401,7 @@ class Product(models.Model):
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
+    factory_code = models.CharField(null=True,max_length=200)
 
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
