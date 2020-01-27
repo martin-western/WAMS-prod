@@ -474,6 +474,9 @@ class MainImages(models.Model):
     def __str__(self):
         return str(self.pk)
 
+auditlog.register(MainImages)
+auditlog.register(MainImages.main_images.through)
+
 class SubImages(models.Model):
 
     product = models.ForeignKey(Product,null=True, blank=True, related_name="product", on_delete=models.SET_NULL)
@@ -489,6 +492,8 @@ class SubImages(models.Model):
     def __str__(self):
         return str(self.pk)
     
+auditlog.register(SubImages)
+auditlog.register(SubImages.sub_images.through)
 
 class Flyer(models.Model):
 
@@ -510,6 +515,8 @@ class Flyer(models.Model):
     def __str__(self):
         return str(self.name)
 
+auditlog.register(Flyer)
+auditlog.register(Flyer.product_bucket.through)
 
 class PFL(models.Model):
 
@@ -549,6 +556,8 @@ class ExportList(models.Model):
         super(ExportList, self).save(*args, **kwargs)
 
 
+auditlog.register(ExportList)
+auditlog.register(ExportList.products.through)
 
 class Config(models.Model):
 
@@ -600,8 +609,6 @@ class BackgroundImage(models.Model):
     def __str__(self):
         return str(self.pk)
 
-
-
 @receiver(post_save, sender=Product, dispatch_uid="create_pfl")
 def update_stock(sender, instance, **kwargs):
     if PFL.objects.filter(product=instance).exists()==False:
@@ -609,9 +616,103 @@ def update_stock(sender, instance, **kwargs):
 
 
 
-auditlog.register(Flyer)
-auditlog.register(ExportList)
-auditlog.register(MainImages)
-auditlog.register(SubImages)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
