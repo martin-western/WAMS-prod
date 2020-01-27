@@ -370,6 +370,8 @@ class ChannelProduct(models.Model):
     def __str__(self):
         return str(self.pk)
 
+auditlog.register(ChannelProduct)
+
 class Product(models.Model):
 
     #MISC
@@ -443,6 +445,19 @@ class Product(models.Model):
         
         super(Product, self).save(*args, **kwargs)
 
+auditlog.register(Product)
+
+auditlog.register(Product.pfl_images.through)
+auditlog.register(Product.white_background_images.through)
+auditlog.register(Product.lifestyle_images.through)
+auditlog.register(Product.certificate_images.through)
+auditlog.register(Product.giftbox_images.through)
+auditlog.register(Product.diecut_images.through)
+auditlog.register(Product.aplus_content_images.through)
+auditlog.register(Product.ads_images.through)
+auditlog.register(Product.unedited_images.through)
+auditlog.register(Product.pfl_generated_images.through)
+auditlog.register(Product.transparent_images.through)
 
 class MainImages(models.Model):
 
@@ -593,20 +608,7 @@ def update_stock(sender, instance, **kwargs):
         PFL.objects.create(product=instance, name=str(instance.product_name_sap)+"_PFL")
 
 
-auditlog.register(Product)
-auditlog.register(Product.pfl_images.through)
-auditlog.register(Product.white_background_images.through)
-auditlog.register(Product.lifestyle_images.through)
-auditlog.register(Product.certificate_images.through)
-auditlog.register(Product.giftbox_images.through)
-auditlog.register(Product.diecut_images.through)
-auditlog.register(Product.aplus_content_images.through)
-auditlog.register(Product.ads_images.through)
-auditlog.register(Product.unedited_images.through)
-auditlog.register(Product.pfl_generated_images.through)
-auditlog.register(Product.transparent_images.through)
 
-auditlog.register(ChannelProduct)
 auditlog.register(Flyer)
 auditlog.register(ExportList)
 auditlog.register(MainImages)
