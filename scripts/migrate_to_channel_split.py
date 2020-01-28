@@ -401,7 +401,7 @@ for data in all_data_json:
             amazon_uk_product["enclosure_material"] = enclosure_material
             amazon_uk_product["cover_material_type"] = cover_material_type
             amazon_uk_product["special_features"] = special_features
-            amazon_uk_product["product_description_amazon_uk"] = product_description_amazon_uk
+            amazon_uk_product["product_description"] = product_description_amazon_uk
             if product_description_amazon_uk != None or product_description_amazon_uk != "":
                 channel_product_obj.is_amazon_uk_product_created=True
             amazon_uk_product["item_count"] = item_count

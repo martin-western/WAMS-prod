@@ -54,3 +54,21 @@ for i in range(rows):
 	except Exception as e:
 		print(str(e))
 		pass
+
+from WAMSApp.models import *
+
+product_objs = Product.objects.all()
+cnt=0
+for prod in product_objs:
+
+	try :
+
+		channel_product = prod.channel_product
+		uk = json.loads(channel_product.amazon_uk_product_json)
+		uk["product_description"] = uk["product_description_amazon_uk"]
+		channel_product.amazon_uk_product_json = json.dumps(uk)
+		channel_product.save()
+		cnt+=1
+		print("Cnt: ",cnt)
+	except Exception as e:
+		pass
