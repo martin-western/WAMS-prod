@@ -3,13 +3,15 @@ from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
 from WAMSApp.utils import *
+from WAMSApp.serializers import UserSerializer, UserSerializerWithToken
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import permissions, status
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
@@ -140,6 +142,26 @@ def ChannelProductEbayPage(request, pk):
 @login_required(login_url='/login/')
 def ChannelProductNoonPage(request, pk):
     return render(request, 'WAMSApp/channel-product-noon-page.html')
+
+
+@api_view(['GET'])
+def current_user(request):
+    
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
+
+
+class UserList(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = UserSerializerWithToken(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class LoginSubmitAPI(APIView):
 

@@ -10,6 +10,9 @@ urlpatterns = [
     url(r'^login-submit/$', views.LoginSubmit),
     url(r'^logout/$', views.Logout),
 
+    url(r'^current_user/', views.current_user),
+    url(r'^users/', views.UserList.as_view()),
+
     url(r'^fetch-constant-values/$', views.FetchConstantValues),
     url(r'^create-new-base-product/$', views.CreateNewBaseProduct),
     url(r'^create-new-product/$', views.CreateNewProduct),
