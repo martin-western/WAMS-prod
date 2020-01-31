@@ -401,6 +401,7 @@ class Product(models.Model):
     product_name = models.CharField(max_length=300,null=True)
     product_id = models.CharField(max_length=200,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
+    product_description = models.TextField(blank=True)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     
