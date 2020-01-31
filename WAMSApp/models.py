@@ -1,3 +1,5 @@
+from auditlog.models import AuditlogHistoryField
+from auditlog.registry import auditlog
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -21,13 +23,17 @@ noon_product_json = {
     "product_name" : "",
     "product_type" : "",
     "product_subtype" : "",
+    "category" : "",
+    "sub_category" : "",
     "model_number" : "",
     "model_name" : "",
     "msrp_ae" : "",
     "msrp_ae_unit" : "",
     "product_description" : "",
     "product_attribute_list" : [],
-    "created_date" : ""
+    "created_date" : "",
+    "is_active" : "",
+    "http_link": ""
 }
 
 amazon_uk_product_json = {
@@ -35,6 +41,8 @@ amazon_uk_product_json = {
     "product_name" : "",
     "product_description" : "",
     "product_attribute_list" : [],
+    "category" : "",
+    "sub_category" : "",
     "created_date" : "",
     "parentage" : "",
     "parent_sku" : "",
@@ -88,7 +96,9 @@ amazon_uk_product_json = {
         "item_display_width_metric":"",
         "item_display_height":"",
         "item_display_height_metric":""
-    }
+    },
+    "is_active" : "",
+    "http_link": ""
 }
 
 amazon_uae_product_json = {
@@ -96,21 +106,26 @@ amazon_uae_product_json = {
     "product_name" : "",
     "product_description" : "",
     "product_attribute_list" : [],
+    "category" : "",
+    "sub_category" : "",
     "created_date" : "",
     "feed_product_type" : "",
     "recommended_browse_nodes" : "",
-    "update_delete" : ""
-  
+    "update_delete" : "",
+    "is_active" : "",
+    "http_link": ""
 }
 
 ebay_product_json = {
 
     "category" : "",
+    "sub_category" : "",
     "product_name" : "",
     "product_description" : "",
     "product_attribute_list" : [],
-    "created_date" : ""
-        
+    "created_date" : "",
+    "is_active" : "",
+    "http_link": ""
 }
 
 base_dimensions_json = {
@@ -148,6 +163,9 @@ base_dimensions_json = json.dumps(base_dimensions_json)
 
 class ContentManager(User):
 
+    image = models.ImageField(upload_to='',null=True)
+    contact_number = models.CharField(max_length=200, default="")
+
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.set_password(self.password)
@@ -162,6 +180,9 @@ class ContentManager(User):
 
 
 class ContentExecutive(User):
+
+    image = models.ImageField(upload_to='',null=True)
+    contact_number = models.CharField(max_length=200, default="")
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -190,34 +211,34 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
-    # def save(self, *args, **kwargs):
-    #     try:  
-    #         size = 128, 128
-    #         thumb = IMAGE.open(self.image)
-    #         thumb.thumbnail(size)
-    #         infile = self.image.file.name
-    #         im_type = thumb.format 
-    #         thumb_io = StringIO.StringIO()
-    #         thumb.save(thumb_io, format=im_type)
+    def save(self, *args, **kwargs):
+        try:  
+            size = 128, 128
+            thumb = IMAGE.open(self.image)
+            thumb.thumbnail(size)
+            infile = self.image.file.name
+            im_type = thumb.format 
+            thumb_io = StringIO.StringIO()
+            thumb.save(thumb_io, format=im_type)
 
-    #         thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
+            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
 
-    #         self.thumbnail = thumb_file
+            self.thumbnail = thumb_file
 
-    #         size2 = 512, 512
-    #         thumb2 = IMAGE.open(self.image)
-    #         thumb2.thumbnail(size2)
-    #         thumb_io2 = StringIO.StringIO()
-    #         thumb2.save(thumb_io2, format=im_type)
+            size2 = 512, 512
+            thumb2 = IMAGE.open(self.image)
+            thumb2.thumbnail(size2)
+            thumb_io2 = StringIO.StringIO()
+            thumb2.save(thumb_io2, format=im_type)
 
-    #         thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
+            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
 
-    #         self.mid_image = thumb_file2
-    #     except Exception as e:
-    #         exc_type, exc_obj, exc_tb = sys.exc_info()
-    #         logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
+            self.mid_image = thumb_file2
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
-    #     super(Image, self).save(*args, **kwargs)
+        super(Image, self).save(*args, **kwargs)
     
 
 class ImageBucket(models.Model):
@@ -319,13 +340,15 @@ class BaseProduct(models.Model):
     modified_date = models.DateTimeField()
     seller_sku = models.CharField(max_length=200, unique=True)
     category = models.CharField(max_length=200, default="")
+    sub_category = models.CharField(max_length=200, default="")
     subtitle = models.CharField(max_length=200, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
 
     dimensions = models.TextField(blank=True, default=base_dimensions_json)
-    
+    history = AuditlogHistoryField()
+
     class Meta:
         verbose_name = "BaseProduct"
         verbose_name_plural = "BaseProducts"
@@ -343,6 +366,8 @@ class BaseProduct(models.Model):
         
         super(BaseProduct, self).save(*args, **kwargs)
 
+auditlog.register(BaseProduct, exclude_fields=['modified_date' , 'created_date'])
+
 
 class ChannelProduct(models.Model):
     
@@ -356,12 +381,18 @@ class ChannelProduct(models.Model):
     ebay_product_json = models.TextField(blank=True,default=ebay_product_json)
     is_ebay_product_created = models.BooleanField(default=False)
 
+    history = AuditlogHistoryField()
+
     class Meta:
         verbose_name = "ChannelProduct"
         verbose_name_plural = "ChannelProducts"
 
     def __str__(self):
-        return str(self.pk)
+        product = Product.objects.get(channel_product = self)
+        return str(product.product_name)
+
+auditlog.register(ChannelProduct, exclude_fields = ['is_noon_product_created', 'is_amazon_uk_product_created',
+                                                    'is_amazon_uae_product_created', 'is_ebay_product_created'])
 
 class Product(models.Model):
 
@@ -370,12 +401,14 @@ class Product(models.Model):
     product_name = models.CharField(max_length=300,null=True)
     product_id = models.CharField(max_length=200,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
+    product_description = models.TextField(blank=True)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
+    factory_code = models.CharField(null=True,max_length=200)
 
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
@@ -408,7 +441,9 @@ class Product(models.Model):
 
     channel_product = models.ForeignKey(ChannelProduct, null=True, blank=True, on_delete=models.SET_NULL)
     factory_notes = models.TextField(null=True,blank=True)
-    
+    history = AuditlogHistoryField()
+
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
@@ -434,6 +469,19 @@ class Product(models.Model):
         
         super(Product, self).save(*args, **kwargs)
 
+auditlog.register(Product, exclude_fields=['modified_date' , 'created_date' , 'uuid', 'base_product'])
+
+auditlog.register(Product.pfl_images.through)
+auditlog.register(Product.white_background_images.through)
+auditlog.register(Product.lifestyle_images.through)
+auditlog.register(Product.certificate_images.through)
+auditlog.register(Product.giftbox_images.through)
+auditlog.register(Product.diecut_images.through)
+auditlog.register(Product.aplus_content_images.through)
+auditlog.register(Product.ads_images.through)
+auditlog.register(Product.unedited_images.through)
+auditlog.register(Product.pfl_generated_images.through)
+auditlog.register(Product.transparent_images.through)
 
 class MainImages(models.Model):
 
@@ -442,11 +490,16 @@ class MainImages(models.Model):
     channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
     is_sourced = models.BooleanField(default=False)
 
+    history = AuditlogHistoryField()
+
     class Meta:
-        verbose_name = "MainImages"
+        verbose_name_plural = "MainImages"
 
     def __str__(self):
-        return str(self.pk)
+        return str(self.product.product_name)
+
+auditlog.register(MainImages, exclude_fields = ['is_sourced'])
+auditlog.register(MainImages.main_images.through)
 
 class SubImages(models.Model):
 
@@ -455,12 +508,16 @@ class SubImages(models.Model):
     channel = models.ForeignKey(Channel,null=True, blank=True, on_delete=models.SET_NULL)
     is_sourced = models.BooleanField(default=False)
 
+    history = AuditlogHistoryField()
+
     class Meta:
-        verbose_name = "SubImages"
+        verbose_name_plural = "SubImages"
 
     def __str__(self):
-        return str(self.pk)
+        return str(self.product.product_name)
     
+auditlog.register(SubImages, exclude_fields=['is_sourced'])
+auditlog.register(SubImages.sub_images.through)
 
 class Flyer(models.Model):
 
@@ -473,6 +530,8 @@ class Flyer(models.Model):
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     mode = models.CharField(max_length=100, default="A4 Portrait")
 
+    history = AuditlogHistoryField()
+
     class Meta:
         verbose_name = "Flyer"
         verbose_name_plural = "Flyers"
@@ -480,6 +539,8 @@ class Flyer(models.Model):
     def __str__(self):
         return str(self.name)
 
+auditlog.register(Flyer, exclude_fields=['template_data','background_images_bucket'])
+auditlog.register(Flyer.product_bucket.through)
 
 class PFL(models.Model):
 
@@ -504,6 +565,8 @@ class ExportList(models.Model):
     created_date = models.DateTimeField()
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
+    history = AuditlogHistoryField()
+    
     class Meta:
         verbose_name = "ExportList"
         verbose_name_plural = "ExportLists"
@@ -517,6 +580,8 @@ class ExportList(models.Model):
         super(ExportList, self).save(*args, **kwargs)
 
 
+auditlog.register(ExportList, exclude_fields=['created_date'])
+auditlog.register(ExportList.products.through)
 
 class Config(models.Model):
 
@@ -568,9 +633,110 @@ class BackgroundImage(models.Model):
     def __str__(self):
         return str(self.pk)
 
-
-
 @receiver(post_save, sender=Product, dispatch_uid="create_pfl")
 def update_stock(sender, instance, **kwargs):
     if PFL.objects.filter(product=instance).exists()==False:
         PFL.objects.create(product=instance, name=str(instance.product_name_sap)+"_PFL")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

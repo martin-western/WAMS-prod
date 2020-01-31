@@ -207,7 +207,7 @@ for data in all_data_json:
             status = data["fields"]["status"]
             verified = data["fields"]["verified"]
             pfl_product_name = data["fields"]["pfl_product_name"]
-            pfl_product_features = data["fields"]["pfl_product_features"]
+            pfl_product_features = json.loads(data["fields"]["pfl_product_features"])
             
             product_name_sap = data["fields"]["product_name_sap"]
             product_name_amazon_uk = data["fields"]["product_name_amazon_uk"]
@@ -401,7 +401,7 @@ for data in all_data_json:
             amazon_uk_product["enclosure_material"] = enclosure_material
             amazon_uk_product["cover_material_type"] = cover_material_type
             amazon_uk_product["special_features"] = special_features
-            amazon_uk_product["product_description_amazon_uk"] = product_description_amazon_uk
+            amazon_uk_product["product_description"] = product_description_amazon_uk
             if product_description_amazon_uk != None or product_description_amazon_uk != "":
                 channel_product_obj.is_amazon_uk_product_created=True
             amazon_uk_product["item_count"] = item_count
