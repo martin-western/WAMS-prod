@@ -163,8 +163,8 @@ base_dimensions_json = json.dumps(base_dimensions_json)
 
 class ContentManager(User):
 
-    image = models.ImageField(upload_to='',null=True)
-    contact_number = models.CharField(max_length=200, default="")
+    image = models.ImageField(upload_to='',null=True,blank=True)
+    contact_number = models.CharField(max_length=200, default="",null=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -181,8 +181,8 @@ class ContentManager(User):
 
 class ContentExecutive(User):
 
-    image = models.ImageField(upload_to='',null=True)
-    contact_number = models.CharField(max_length=200, default="")
+    image = models.ImageField(upload_to='',null=True,blank=True)
+    contact_number = models.CharField(max_length=200, default="",null=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
