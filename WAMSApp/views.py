@@ -1022,9 +1022,6 @@ class FetchEbayChannelProductAPI(APIView):
 
 class FetchProductDetailsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1408,8 +1405,8 @@ class SaveProductAPI(APIView):
 
 class FetchProductListAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    # authentication_classes = (
+    #     CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1420,11 +1417,10 @@ class FetchProductListAPI(APIView):
             data = request.data
             logger.info("FetchProductListAPI: %s", str(data))
 
-            filter_parameters = json.loads(data['filter_parameters'])
-            chip_data = json.loads(data['tags'])
+            filter_parameters = data["filter_parameters"]
+            chip_data = data["tags"]
 
             page = int(data['page'])
-            
             search_list_base_product_objs = []
         
             product_objs_list = []
@@ -1451,13 +1447,13 @@ class FetchProductListAPI(APIView):
                 base_product_objs_list = base_product_objs_list.filter(brand=brand_obj)
                 product_objs_list = product_objs_list.filter(base_product__brand=brand_obj)
 
-            if filter_parameters["min_price"] != "":
-                product_objs_list = product_objs_list.filter(
-                    standard_price__gte=int(filter_parameters["min_price"]))
+            # if filter_parameters["min_price"] != "":
+            #     product_objs_list = product_objs_list.filter(
+            #         standard_price__gte=int(filter_parameters["min_price"]))
 
-            if filter_parameters["max_price"] != "":
-                product_objs_list = product_objs_list.filter(
-                    standard_price__lte=int(filter_parameters["max_price"]))
+            # if filter_parameters["max_price"] != "":
+            #     product_objs_list = product_objs_list.filter(
+            #         standard_price__lte=int(filter_parameters["max_price"]))
 
             if filter_parameters["has_image"] == "1":
                 for product_obj in product_objs_list:
