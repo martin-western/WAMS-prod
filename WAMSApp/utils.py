@@ -8,6 +8,14 @@ from WAMSApp.amazon_uk import *
 from WAMSApp.amazon_uae import *
 from WAMSApp.ebay import *
 from WAMSApp.noon import *
+from WAMSApp.serializers import UserSerializer
+
+
+def my_jwt_response_handler(token, user=None, request=None):
+    return {
+        'token': token,
+        'user': UserSerializer(user, context={'request': request}).data
+    }
 
 def compress(image_path):
     
