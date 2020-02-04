@@ -10,7 +10,9 @@ from WAMSApp.ebay import *
 from WAMSApp.noon import *
 from WAMSApp.serializers import UserSerializer
 import requests
-
+import xmltodict
+import json
+from django.utils import timezone
 
 def my_jwt_response_handler(token, user=None, request=None):
     return {
@@ -86,15 +88,23 @@ def decode_base64_file(data):
 
 def fetch_prices(product_id):
     try:
+
+        # Check if Cached
+        product_obj = Product.objects.get(base_product__seller_sku=product_id)
+        curr_time = timezone.now()
+        if (product_obj.sap_cache_time-curr_time).seconds<86400:
+            warehouse_information = json.loads(product_obj.sap_cache)
+            return warehouse_information
+
         url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-        company_codes = ["1070","1000","6000","5550","5600","7000","5110","5100","3050","2100","5700","1100","3000","5000"] 
+        company_codes = ["1070","1000"] 
         
         warehouse_information = []
 
         for company_code in company_codes:
-            
+            warehouse_dict = {}
             body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
             <soapenv:Header />
             <soapenv:Body>
@@ -142,28 +152,51 @@ def fetch_prices(product_id):
             qty=0.0
 
             warehouse_dict["company_code"] = company_code
-            for item in items:
-                temp_price = item["EX_EA"]
+            
+            if isinstance(items, dict):
+                temp_price = items["EX_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     EX_EA = max(temp_price, EX_EA)
-                temp_price = item["IC_EA"]
+                temp_price = items["IC_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     IC_EA = max(temp_price, IC_EA)
-                temp_price = item["OD_EA"]
+                temp_price = items["OD_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     OD_EA = max(temp_price, OD_EA)
-                temp_price = item["RET_EA"]
+                temp_price = items["RET_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     RET_EA = max(temp_price, RET_EA)
-                temp_qty += item["TOT_QTY"]
+                temp_qty = items["TOT_QTY"]
                 if temp_qty!=None:
                     temp_qty = float(temp_qty)
                     qty = max(temp_qty, qty)
-                    
+            else:
+                for item in items:
+                    temp_price = item["EX_EA"]
+                    if temp_price!=None:
+                        temp_price = float(temp_price)
+                        EX_EA = max(temp_price, EX_EA)
+                    temp_price = item["IC_EA"]
+                    if temp_price!=None:
+                        temp_price = float(temp_price)
+                        IC_EA = max(temp_price, IC_EA)
+                    temp_price = item["OD_EA"]
+                    if temp_price!=None:
+                        temp_price = float(temp_price)
+                        OD_EA = max(temp_price, OD_EA)
+                    temp_price = item["RET_EA"]
+                    if temp_price!=None:
+                        temp_price = float(temp_price)
+                        RET_EA = max(temp_price, RET_EA)
+                    temp_qty = item["TOT_QTY"]
+                    if temp_qty!=None:
+                        temp_qty = float(temp_qty)
+                        qty = max(temp_qty, qty)
+                        
             prices = {}
             prices["EX_EA"] = str(EX_EA)
             prices["IC_EA"] = str(IC_EA)
@@ -174,9 +207,12 @@ def fetch_prices(product_id):
 
             warehouse_information.append(warehouse_dict)
 
+        product_obj.sap_cache = json.dumps(warehouse_information)
+        product_obj.sap_cache_time = curr_time
+        product_obj.save()
         return warehouse_information
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Fetch Prices: %s at %s", e, str(exc_tb.tb_lineno))
-        return 0
+        return []

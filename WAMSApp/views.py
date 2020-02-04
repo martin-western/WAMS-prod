@@ -278,9 +278,14 @@ class CreateNewBaseProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_name = convert_to_ascii(data["product_name"])
+            product_name = convert_to_ascii(data["base_product_name"])
             seller_sku = convert_to_ascii(data["seller_sku"])
             brand_name = convert_to_ascii(data["brand_name"])
+            category = convert_to_ascii(data["category"])
+            sub_category = convert_to_ascii(data["sub_category"])
+            manufacturer = convert_to_ascii(data["manufacturer"])
+            manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
+            dimensions = data["dimensions"]
 
             # Checking brand permission
             brand_obj = None
@@ -306,7 +311,12 @@ class CreateNewBaseProductAPI(APIView):
 
             base_product_obj = BaseProduct.objects.create(base_product_name=product_name,
                                               seller_sku=seller_sku,
-                                              brand=brand_obj)
+                                              brand=brand_obj,
+                                              category=category,
+                                              sub_category=sub_category,
+                                              manufacturer=manufacturer,
+                                              manufacturer_part_number=manufacturer_part_number,
+                                              dimensions=dimensions)
 
             product_obj = Product.objects.create(product_name=product_name,
                                               base_product=base_product_obj)
@@ -1030,6 +1040,7 @@ class FetchProductDetailsAPI(APIView):
             else:
                 response["brand_name"] = brand_obj.name
             
+            response["base_product_name"] = base_product_obj.base_product_name
             response["category"] = base_product_obj.category
             response["subtitle"] = base_product_obj.subtitle
             response["sub_category"] = base_product_obj.sub_category
@@ -1206,6 +1217,7 @@ class SaveBaseProductAPI(APIView):
             manufacturer = convert_to_ascii(data["manufacturer"])
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
             category = convert_to_ascii(data["category"])
+            sub_category = convert_to_ascii(data["sub_category"])
             subtitle = convert_to_ascii(data["subtitle"])
             
 
@@ -1233,6 +1245,7 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.manufacturer = manufacturer
             base_product_obj.manufacturer_part_number = manufacturer_part_number
             base_product_obj.category = category
+            base_product_obj.sub_category = sub_category
             base_product_obj.subtitle = subtitle
             base_product_obj.dimensions = dimensions
             
@@ -1291,7 +1304,7 @@ class SaveProductAPI(APIView):
                 return Response(data=response)
 
             product_name = convert_to_ascii(data["product_name"])
-            barcode_string = convert_to_ascii(data["barcode_string"])
+            barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
             standard_price = None if data["standard_price"] == "" else float(data["standard_price"])
@@ -1304,7 +1317,7 @@ class SaveProductAPI(APIView):
             material_type_obj , created = MaterialType.objects.get_or_create(name=material_type)
             
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
-            pfl_product_features = convert_to_ascii(data["pfl_product_features"])
+            pfl_product_features = data["pfl_product_features"]
 
             factory_notes = convert_to_ascii(data["factory_notes"])
 
@@ -1316,7 +1329,7 @@ class SaveProductAPI(APIView):
                     
                     thumb = EAN.save('temp_image')
                     thumb = IMage.open(open(thumb, "rb"))
-                    thumb_io = StringIO.StringIO()
+                    thumb_io = StringIO.BytesIO()
                     thumb.save(thumb_io, format='PNG')
                     thumb_file = InMemoryUploadedFile(thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
 
@@ -1470,6 +1483,7 @@ class FetchProductListAPI(APIView):
 
                 temp_dict["seller_sku"] = base_product_obj.seller_sku
                 temp_dict["category"] = base_product_obj.category
+                temp_dict["sub_category"] = base_product_obj.sub_category
                 temp_dict["subtitle"] = base_product_obj.subtitle
                 temp_dict["dimensions"] = json.loads(base_product_obj.dimensions)
                 
@@ -1603,7 +1617,7 @@ class FetchProductListAPI(APIView):
 
                         temp_dict["channel_products"].append(temp_dict3)
 
-                    warehouses_information = fetch_prices(product_obj.product_id)
+                    warehouses_information = fetch_prices(product_obj.base_product.seller_sku)
                     temp_dict2["warehouses_information"] = []
                     temp_dict2["warehouses_information"] = warehouses_information
 

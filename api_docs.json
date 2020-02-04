@@ -1,8 +1,43 @@
 /create-new-base-product/
 {
-    "product_name": "",
-    "seller_sku": "",
-    "brand_name": ""
+    "product_name" : "",
+    "seller_sku" : "",
+    "brand_name" : "",
+    "category" : "",
+    "sub_category" : "",
+    "manufacturer" : "",
+    "manufacturer_part_number" : "",
+    "dimensions": {
+        "package_length":"",
+        "package_length_metric":"",
+        "package_width":"",
+        "package_width_metric":"",
+        "package_height":"",
+        "package_height_metric":"",
+        "package_weight":"",
+        "package_weight_metric":"",
+        "package_quantity":"",
+        "shipping_weight":"",
+        "shipping_weight_metric":"",
+        "item_display_weight":"",
+        "item_display_weight_metric":"",
+        "item_display_volume":"",
+        "item_display_volume_metric":"",
+        "item_display_length":"",
+        "item_display_length_metric":"",
+        "item_weight":"",
+        "item_weight_metric":"",
+        "item_length":"",
+        "item_length_metric":"",
+        "item_width":"",
+        "item_width_metric":"",
+        "item_height":"",
+        "item_height_metric":"",
+        "item_display_width":"",
+        "item_display_width_metric":"",
+        "item_display_height":"",
+        "item_display_height_metric":""
+    }
 }
 {
     "product_pk": "",
