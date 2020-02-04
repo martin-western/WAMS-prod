@@ -1068,6 +1068,7 @@ class FetchProductDetailsAPI(APIView):
             
             response["category"] = base_product_obj.category
             response["subtitle"] = base_product_obj.subtitle
+            response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
