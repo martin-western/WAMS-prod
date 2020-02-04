@@ -46,10 +46,10 @@ import xml.dom.minidom
 logger = logging.getLogger(__name__)
 
 
-class CsrfExemptSessionAuthentication(SessionAuthentication):
+# class CsrfExemptSessionAuthentication(SessionAuthentication):
 
-    def enforce_csrf(self, request):
-        return
+#     def enforce_csrf(self, request):
+#         return
 
 
 def Login(request):
@@ -165,9 +165,6 @@ class UserList(APIView):
 
 class LoginSubmitAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -194,9 +191,6 @@ class LoginSubmitAPI(APIView):
 
 
 class FetchConstantValuesAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -268,9 +262,6 @@ class FetchConstantValuesAPI(APIView):
 
 class CreateNewBaseProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -332,9 +323,6 @@ class CreateNewBaseProductAPI(APIView):
 
 class CreateNewProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -386,9 +374,6 @@ class CreateNewProductAPI(APIView):
 
 
 class SaveNoonChannelProductAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -455,9 +440,6 @@ class SaveNoonChannelProductAPI(APIView):
 
 class SaveAmazonUKChannelProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -523,9 +505,6 @@ class SaveAmazonUKChannelProductAPI(APIView):
 
 class SaveAmazonUAEChannelProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -588,9 +567,6 @@ class SaveAmazonUAEChannelProductAPI(APIView):
         return Response(data=response)
 
 class SaveEbayChannelProductAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -656,9 +632,6 @@ class SaveEbayChannelProductAPI(APIView):
         return Response(data=response)
 
 class FetchNoonChannelProductAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -748,9 +721,6 @@ class FetchNoonChannelProductAPI(APIView):
 
 class FetchAmazonUKChannelProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -838,9 +808,6 @@ class FetchAmazonUKChannelProductAPI(APIView):
         return Response(data=response)
 
 class FetchAmazonUAEChannelProductAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -930,9 +897,6 @@ class FetchAmazonUAEChannelProductAPI(APIView):
     
 
 class FetchEbayChannelProductAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1205,9 +1169,6 @@ class FetchProductDetailsAPI(APIView):
 
 class SaveBaseProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1287,9 +1248,6 @@ class SaveBaseProductAPI(APIView):
 
 
 class SaveProductAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1406,9 +1364,6 @@ class SaveProductAPI(APIView):
 
 
 class FetchProductListAPI(APIView):
-
-    # authentication_classes = (
-    #     CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1652,6 +1607,8 @@ class FetchProductListAPI(APIView):
                         temp_dict["channel_products"].append(temp_dict3)
 
                     temp_dict2["channels_of_prod"] = channels_of_prod
+                    temp_dict2["active_channels"] = active_channels
+                    temp_dict2["inactive_channels"] = channels_of_prod - active_channels
                     temp_dict["products"].append(temp_dict2)
 
                 products.append(temp_dict)
@@ -1673,9 +1630,6 @@ class FetchProductListAPI(APIView):
 
 
 class FetchExportListAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1746,9 +1700,6 @@ class FetchExportListAPI(APIView):
 
 class AddToExportAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1790,9 +1741,6 @@ class AddToExportAPI(APIView):
 
 class FetchExportProductListAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1833,9 +1781,6 @@ class FetchExportProductListAPI(APIView):
 
 
 class DownloadExportListAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1882,9 +1827,6 @@ class DownloadExportListAPI(APIView):
 
 class DownloadProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1923,9 +1865,6 @@ class DownloadProductAPI(APIView):
 
 class ImportProductsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1959,9 +1898,6 @@ class ImportProductsAPI(APIView):
 
 
 class UploadProductImageAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -2078,9 +2014,6 @@ class UploadProductImageAPI(APIView):
 
 class UpdateMainImageAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2128,9 +2061,6 @@ class UpdateMainImageAPI(APIView):
 
 class UpdateSubImagesAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2177,9 +2107,6 @@ class UpdateSubImagesAPI(APIView):
 
 
 class CreateFlyerAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -2424,9 +2351,6 @@ class CreateFlyerAPI(APIView):
 
 class FetchFlyerDetailsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2561,9 +2485,6 @@ class FetchFlyerDetailsAPI(APIView):
 
 class CreatePFLAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2590,9 +2511,6 @@ class CreatePFLAPI(APIView):
 
 
 class FetchPFLDetailsAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -2743,9 +2661,6 @@ class FetchPFLDetailsAPI(APIView):
 
 class FetchProductListFlyerPFLAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2817,9 +2732,6 @@ class FetchProductListFlyerPFLAPI(APIView):
 
 
 class AddProductFlyerBucketAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -2921,9 +2833,6 @@ class AddProductFlyerBucketAPI(APIView):
 
 class AddProductPFLBucketAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2972,9 +2881,6 @@ class AddProductPFLBucketAPI(APIView):
 
 
 class FetchProductDetailsFlyerPFLAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3078,9 +2984,6 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
 
 class SaveFlyerTemplateAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3109,9 +3012,6 @@ class SaveFlyerTemplateAPI(APIView):
 
 
 class SavePFLTemplateAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3155,9 +3055,6 @@ class SavePFLTemplateAPI(APIView):
 
 class UploadImageExternalBucketFlyerAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3183,9 +3080,6 @@ class UploadImageExternalBucketFlyerAPI(APIView):
 
 
 class UploadImageExternalBucketPFLAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3215,9 +3109,6 @@ class UploadImageExternalBucketPFLAPI(APIView):
 
 
 class FetchPFLListAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3307,9 +3198,6 @@ class FetchPFLListAPI(APIView):
 
 class FetchFlyerListAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3392,9 +3280,6 @@ class FetchFlyerListAPI(APIView):
 
 class UploadNewFlyerBGImageAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3424,9 +3309,6 @@ class UploadNewFlyerBGImageAPI(APIView):
 
 
 class DownloadImagesS3API(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3477,9 +3359,6 @@ class DownloadImagesS3API(APIView):
 
 class FetchBrandsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3507,9 +3386,6 @@ class FetchBrandsAPI(APIView):
         return Response(data=response)
 
 class FetchChannelsAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3539,9 +3415,6 @@ class FetchChannelsAPI(APIView):
 
 
 class SavePFLInBucketAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3587,9 +3460,6 @@ class SavePFLInBucketAPI(APIView):
 
 class SaveFlyerInBucketAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3617,9 +3487,6 @@ class SaveFlyerInBucketAPI(APIView):
 
 
 class VerifyProductAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3658,9 +3525,6 @@ class VerifyProductAPI(APIView):
 
 class DeleteImageAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3692,9 +3556,6 @@ class DeleteImageAPI(APIView):
 
 
 class RemoveProductFromExportListAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3731,9 +3592,6 @@ class RemoveProductFromExportListAPI(APIView):
 
 
 class UploadFlyerExternalImagesAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3778,9 +3636,6 @@ class UploadFlyerExternalImagesAPI(APIView):
 
 class UploadPFLExternalImagesAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3822,9 +3677,6 @@ class UploadPFLExternalImagesAPI(APIView):
         return Response(data=response)
 
 class SapIntegrationAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3922,9 +3774,6 @@ class SapIntegrationAPI(APIView):
 
 
 class FetchUserProfileAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
