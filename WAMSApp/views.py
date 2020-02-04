@@ -1291,7 +1291,7 @@ class SaveProductAPI(APIView):
                 return Response(data=response)
 
             product_name = convert_to_ascii(data["product_name"])
-            barcode_string = convert_to_ascii(data["barcode_string"])
+            barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
             standard_price = None if data["standard_price"] == "" else float(data["standard_price"])
@@ -1316,7 +1316,7 @@ class SaveProductAPI(APIView):
                     
                     thumb = EAN.save('temp_image')
                     thumb = IMage.open(open(thumb, "rb"))
-                    thumb_io = StringIO.StringIO()
+                    thumb_io = StringIO.BytesIO()
                     thumb.save(thumb_io, format='PNG')
                     thumb_file = InMemoryUploadedFile(thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
 
