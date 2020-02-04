@@ -146,23 +146,23 @@ def fetch_prices(product_id):
             warehouse_dict["company_code"] = company_code
             
             if isinstance(items, dict):
-                temp_price = item["EX_EA"]
+                temp_price = items["EX_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     EX_EA = max(temp_price, EX_EA)
-                temp_price = item["IC_EA"]
+                temp_price = items["IC_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     IC_EA = max(temp_price, IC_EA)
-                temp_price = item["OD_EA"]
+                temp_price = items["OD_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     OD_EA = max(temp_price, OD_EA)
-                temp_price = item["RET_EA"]
+                temp_price = items["RET_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     RET_EA = max(temp_price, RET_EA)
-                temp_qty = item["TOT_QTY"]
+                temp_qty = items["TOT_QTY"]
                 if temp_qty!=None:
                     temp_qty = float(temp_qty)
                     qty = max(temp_qty, qty)
