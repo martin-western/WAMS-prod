@@ -1550,11 +1550,14 @@ class FetchProductListAPI(APIView):
                             0].product_404_image.image.url
 
                     channels_of_prod =0
+                    active_channels = 0
 
                     if product_obj.channel_product.is_noon_product_created == True:
                         
                         channels_of_prod +=1
                         noon_product = json.loads(product_obj.channel_product.noon_product_json)
+                        if noon_product["is_active"] == True:
+                            active_channels +=1
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
                         temp_dict3["product_pk"] = product_obj.pk
@@ -1579,6 +1582,8 @@ class FetchProductListAPI(APIView):
                         
                         channels_of_prod +=1
                         amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
+                        if amazon_uk_product["is_active"] == True:
+                            active_channels +=1
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
                         temp_dict3["product_pk"] = product_obj.pk
@@ -1601,6 +1606,8 @@ class FetchProductListAPI(APIView):
                         
                         channels_of_prod +=1
                         amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
+                        if amazon_uae_product["is_active"] == True:
+                            active_channels +=1
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
                         temp_dict3["product_pk"] = product_obj.pk
@@ -1623,6 +1630,8 @@ class FetchProductListAPI(APIView):
                         
                         channels_of_prod +=1
                         ebay_product = json.loads(product_obj.channel_product.ebay_product_json)
+                        if ebay_product["is_active"] == True:
+                            active_channels +=1
                         temp_dict3 = {}
                         temp_dict3["product_id"] = product_obj.product_id
                         temp_dict3["product_pk"] = product_obj.pk
