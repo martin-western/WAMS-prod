@@ -285,7 +285,7 @@ class CreateNewBaseProductAPI(APIView):
             sub_category = convert_to_ascii(data["sub_category"])
             manufacturer = convert_to_ascii(data["manufacturer"])
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
-            dimensions = data["dimensions"]
+            base_dimensions = data["base_dimensions"]
 
             # Checking brand permission
             brand_obj = None
@@ -316,7 +316,7 @@ class CreateNewBaseProductAPI(APIView):
                                               sub_category=sub_category,
                                               manufacturer=manufacturer,
                                               manufacturer_part_number=manufacturer_part_number,
-                                              dimensions=dimensions)
+                                              dimensions=base_dimensions)
 
             product_obj = Product.objects.create(product_name=product_name,
                                               base_product=base_product_obj)
@@ -1047,7 +1047,7 @@ class FetchProductDetailsAPI(APIView):
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
-            response["dimensions"] = json.loads(base_product_obj.dimensions)
+            response["base_dimensions"] = json.loads(base_product_obj.dimensions)
 
             response["product_name"] = product_obj.product_name
             response["product_name_sap"] = product_obj.product_name_sap

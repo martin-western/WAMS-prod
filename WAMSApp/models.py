@@ -211,7 +211,6 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
-"""
     def save(self, *args, **kwargs):
         try:  
             size = 128, 128
@@ -240,7 +239,6 @@ class Image(models.Model):
             logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
-"""
 
 class ImageBucket(models.Model):
 
