@@ -3820,6 +3820,7 @@ class FetchUserProfileAPI(APIView):
 
 SapIntegration = SapIntegrationAPI.as_view()
 
+FetchUserProfile = FetchUserProfileAPI.as_view()
 
 LoginSubmit = LoginSubmitAPI.as_view()
 
@@ -3918,6 +3919,4 @@ FetchEbayChannelProduct = FetchEbayChannelProductAPI.as_view()
 FetchNoonChannelProduct = FetchNoonChannelProductAPI.as_view()
 
 SaveBaseProduct = SaveBaseProductAPI.as_view()
-
-FetchUserProfile = FetchUserProfileAPI.as_view()
 
