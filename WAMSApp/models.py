@@ -211,6 +211,7 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
+"""
     def save(self, *args, **kwargs):
         try:  
             size = 128, 128
@@ -239,7 +240,7 @@ class Image(models.Model):
             logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
-    
+"""
 
 class ImageBucket(models.Model):
 
@@ -388,8 +389,11 @@ class ChannelProduct(models.Model):
         verbose_name_plural = "ChannelProducts"
 
     def __str__(self):
-        product = Product.objects.get(channel_product = self)
-        return str(product.product_name)
+        try:
+            product = Product.objects.get(channel_product = self)
+            return str(product.product_name)
+        except Exception as e:
+            return str(self.pk)
 
 auditlog.register(ChannelProduct, exclude_fields = ['is_noon_product_created', 'is_amazon_uk_product_created',
                                                     'is_amazon_uae_product_created', 'is_ebay_product_created'])

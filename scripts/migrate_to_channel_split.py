@@ -9,7 +9,7 @@ all_data_json = json.loads(f.read())
 f.close()
 
 image_pk_mapping = {}
-if os.path.exists("files/image_pk_mapping.txt"):
+if os.path.exists("files/i1mage_pk_mapping.txt"):
     f_image = open("files/image_pk_mapping.txt","r")
     temp = json.loads(f_image.read())
     for key in image_pk_mapping:
@@ -350,7 +350,7 @@ for data in all_data_json:
             pfl_generated_images = data["fields"]["pfl_generated_images"]
             transparent_images = data["fields"]["transparent_images"]
 
-            base_product_obj = BaseProduct.objects.create(seller_sku=seller_sku,
+            base_product_obj,created = BaseProduct.objects.get_or_create(seller_sku=seller_sku,
                                                           brand=brand_obj,
                                                           base_product_name=product_name_sap,
                                                           created_date=created_date,
@@ -363,7 +363,7 @@ for data in all_data_json:
             product_id_type_obj , created = ProductIDType.objects.get_or_create(name=product_id_type)
             material_type_obj , created = MaterialType.objects.get_or_create(name=material_type)
 
-            product_obj = Product.objects.create(base_product=base_product_obj,
+            product_obj,created = Product.objects.get_or_create(base_product=base_product_obj,
                                                  product_name=product_name_sap,
                                                  product_id=product_id,
                                                  product_id_type=product_id_type_obj,
@@ -605,7 +605,7 @@ for data in all_data_json:
                 background_image_obj = Image.objects.get(pk=mapped_background_image_pk)
                 background_images.append(background_image_obj)
 
-            flyer_obj = Flyer.objects.create(name=name,
+            flyer_obj,created = Flyer.objects.get_or_create(name=name,
                                              template_data=template_data,
                                              mode=mode,
                                              brand=brand_obj,
