@@ -1,0 +1,2018 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.shortcuts import render
+
+# Create your views here.
+
+
+from django.http import HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
+
+from WAMSApp.models import *
+from WAMSApp.utils import *
+from dealshub.models import *
+
+from django.shortcuts import render, HttpResponse, get_object_or_404
+from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.decorators import login_required
+
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
+from django.core.files.storage import default_storage
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.db.models import Count
+from django.conf import settings
+
+
+from PIL import Image as IMage
+try:
+    import StringIO
+except ImportError:
+    from io import StringIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
+import barcode
+from barcode.writer import ImageWriter
+
+import xmltodict
+
+import requests
+import json
+import os
+import xlrd
+import csv
+import datetime
+import boto3
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
+import pandas as pd
+import xml.dom.minidom
+
+
+logger = logging.getLogger(__name__)
+
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return
+
+
+class FecthProductDetailsAPI(APIView):
+    # Fetching the details of a particular product based on its
+    # id --> product_id
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def fetch_price(self,product_id):
+        try:
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            company_code = "1070" # GEEPAS
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+            print((json.dumps(content, indent=4, sort_keys=True)))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            price = 0
+            temp_price = 0
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    price = max(temp_price, price)
+            return float(price)
+        except Exception as e:
+            #print "Error: "+str(e)
+            return 0
+
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            """
+            {
+                "price": "999.70",
+                "currency": "AED",
+                "minLimit": "1",
+                "maxLimit": "5",
+
+                "productDispDetails": [
+                    "Brand new and high quality",
+                    "Made of supreme quality, durable EVA crush resistant, anti-shock material.",
+                    "Soft inner cloth lining, one mesh pocket inside.",
+                    "Compact and functional hard case keeps items safe and extremely portable.",
+                    "Force Touch trackpad (13-inch model)"
+                ]
+            }
+
+            """
+            data = request.data
+            logger.info("FecthProductDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+
+            temp_product_obj = DealsHubProduct.objects.get(
+                product__uuid=data["uuid"])
+            product_obj = temp_product_obj.product
+            base_product_obj = product_obj.base_product
+
+            response["category"] = str(temp_product_obj.category)
+            response["subCategory"] = str(temp_product_obj.sub_category)
+            response["id"] = temp_product_obj.pk
+            response["uuid"] = data["uuid"]
+            #response["heroImageUrl"] = ""
+            response["name"] = product_obj.product_name
+            response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+            response["currency"] = "AED"
+            response["minLimit"] = "1"
+            response["maxLimit"] = "5"
+            response["productImagesUrl"] = []
+            product_description = [
+                "Brand new and high quality",
+                "Made of supreme quality, durable EVA crush resistant, anti-shock material.",
+                "Soft inner cloth lining, one mesh pocket inside.",
+                "Compact and functional hard case keeps items safe and extremely portable.",
+                "Force Touch trackpad (13-inch model)"
+            ]
+
+            try:
+                product_description = json.loads(product_obj.channel_product.amazon_uk_product_json)["product_description"]
+            except Exception as e:
+                pass
+            """
+            response["productDispDetails"] = [
+                "Brand new and high quality",
+                "Made of supreme quality, durable EVA crush resistant, anti-shock material.",
+                "Soft inner cloth lining, one mesh pocket inside.",
+                "Compact and functional hard case keeps items safe and extremely portable.",
+                "Force Touch trackpad (13-inch model)"
+            ]
+            """
+            response["productDispDetails"] = product_description
+            """
+            response["productImagesUrl"] =  [{
+                     "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg",
+                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg"
+                    },
+                    {
+                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png",
+                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png"
+                    },
+                    {
+                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg",
+                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg"
+                    },
+                    {
+                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg",
+                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg"
+                    },
+                    {
+                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg",
+                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg"
+                    }]
+
+            """
+            response["productImagesUrl"] = []
+            images = {}
+
+            main_images_list = ImageBucket.objects.none()
+            main_images_obj = MainImages.objects.get(
+                product=product_obj, is_sourced=True)
+            try:
+                main_images_obj = MainImages.objects.get(
+                    product=product_obj, is_sourced=True)
+                print(main_images_obj)
+                main_images_list |= main_images_obj.main_images.all()
+            except Exception as e:
+                pass
+            main_images_list = main_images_list.distinct()
+            images["main_images"] = create_response_images_main(
+                main_images_list)
+            response["heroImageUrl"] = images["main_images"][0]["main-url"]
+
+#	    response["heroImageUrl"] = "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/1.jpg"
+            response["subtitle"] = base_product_obj.subtitle
+            response["seller_sku"] = base_product_obj.seller_sku
+            response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
+            response["manufacturer"] = base_product_obj.manufacturer
+            response["dimensions"] = json.loads(base_product_obj.dimensions)
+
+            response["product_name"] = product_obj.product_name
+            response["product_name_sap"] = product_obj.product_name_sap
+            response["product_id"] = product_obj.product_id
+            response["barcode_string"] = product_obj.barcode_string
+            response["standard_price"] = "" if product_obj.standard_price == None else product_obj.standard_price
+            response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
+            response["factory_notes"] = product_obj.factory_notes
+            response["verified"] = product_obj.verified
+            response["color_map"] = product_obj.color_map
+            response["color"] = product_obj.color
+
+            if product_obj.product_id_type != None:
+                response["product_id_type"] = product_obj.product_id_type.name
+            else:
+                response["product_id_type"] = ""
+
+            if product_obj.material_type != None:
+                response["material_type"] = product_obj.material_type.name
+            else:
+                response["material_type"] = ""
+
+            images = {}
+
+            main_images_list = ImageBucket.objects.none()
+            main_images_obj = MainImages.objects.get(
+                product=product_obj, is_sourced=True)
+            try:
+                main_images_obj = MainImages.objects.get(
+                    product=product_obj, is_sourced=True)
+                
+                main_images_list |= main_images_obj.main_images.all()
+            except Exception as e:
+                pass
+            main_images_list = main_images_list.distinct()
+            images["main_images"] = create_response_images_main(
+                main_images_list)
+
+            sub_images_list = ImageBucket.objects.none()
+            # sub_images_obj = SubImages.objects.get(
+            #     product=product_obj, is_sourced=True)
+            try:
+                sub_images_obj = SubImages.objects.get(
+                    product=product_obj, is_sourced=True)
+                sub_images_list |= sub_images_obj.sub_images.all()
+            except Exception as e:
+                pass
+            sub_images_list = sub_images_list.distinct()
+            images["sub_images"] = create_response_images_sub(sub_images_list)
+            
+            for temp_image in images["sub_images"]:
+                temp_images = {}
+                temp_images["original"] = temp_image["main-url"]
+                temp_images["thumbnail"] = temp_image["thumbnail-url"]
+                response["productImagesUrl"].append(temp_images)
+            response["productImagesUrl"].append({"original":response["heroImageUrl"], "thumbnail":response["heroImageUrl"]})
+            """
+            response["productImagesUrl"] =  [{
+                        "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg",
+                     "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg"
+                   },
+                   {
+                   "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png",
+                   "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png"
+                    },
+                    {
+                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg",
+                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg"
+                    },
+                    {
+                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg",
+                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg"
+                    },
+                    {
+                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg",
+                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg"
+                    }]
+            """
+            response["productProperties"] = json.loads(
+                temp_product_obj.properties)
+
+            repr_image_url = Config.objects.all(
+            )[0].product_404_image.image.url
+            repr_high_def_url = repr_image_url
+
+            main_images_obj = None
+            try:
+                main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
+            except Exception as e:
+                pass
+
+            if main_images_obj != None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                try:
+                    repr_image_url = main_images_obj.main_images.filter(
+                        is_main_image=True)[0].image.mid_image.url
+                except Exception as e:
+                    repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[
+                        0].image.image.url
+
+                repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[
+                    0].image.image.url
+
+            response["repr_image_url"] = repr_image_url
+            response["repr_high_def_url"] = repr_high_def_url
+
+            try:
+                response["barcode_image_url"] = product_obj.barcode.image.url
+            except Exception as e:
+                response["barcode_image_url"] = ""
+
+            response["images"] = images
+
+            response['status'] = 200
+            logger.info("Passing response %s", str(response))
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FecthProductDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+FecthProductDetails = FecthProductDetailsAPI.as_view()
+
+"""
+class FetchCarouselAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchCarouselAPI: %s", str(data))
+
+            carousel_obj = [
+                {
+                    "productName": "Airfryer Mechanical - 3.4 L, 1300 W AF 3501 - M Black",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Puma",
+                    "price": "2,239",
+                    "prevPrice": "3,300",
+                    "currency": "AED",
+                    "discount": "15",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1568636323/N28431691A_1.jpg",
+                    "id": 1
+                },
+                {
+                    "productName": "2-Slice Bread Toaster, 700W TA01105 Milk White",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Provogue",
+                    "price": "4,000",
+                    "prevPrice": "4,500",
+                    "currency": "AED",
+                    "discount": "15",
+                    "rating": "3.9",
+                    "totalRatings": "1,772",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1571139454/N29227703A_8.jpg",
+                    "id": 2
+                },
+                {
+                    "productName": "6-Piece Granite/Marble Coated Aluminium Cookware Set… ",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Reebok",
+                    "price": "3,999",
+                    "prevPrice": "4,700",
+                    "currency": "AED",
+                    "discount": "28",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1574085587/N17109502A_15.jpg",
+                    "id": 3
+                },
+                {
+                    "productName": "Realme 5s (Crystal Blue, 128 GB)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Sparx",
+                    "price": "1,200",
+                    "prevPrice": "1,800",
+                    "currency": "AED",
+                    "discount": "10",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k2jbyq80pkrrdj/mobile-refurbished/v/w/c/x-128-u-rmx1901-realme-8-original-imafgzg9yvran9r3.jpeg?q=70",
+                    "id": 4
+                },
+                {
+                    "productName": "Realme X (Space Blue, 128 GB)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Reebok",
+                    "price": "3,999",
+                    "prevPrice": "5,600",
+                    "currency": "AED",
+                    "discount": "28",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k1fbmvk0/mobile/k/b/e/mi-redmi-8-mzb8250in-original-imafhyabpggagngr.jpeg?q=70",
+                    "id": 5
+                },
+                {
+                    "productName": "Lenovo Ideapad 130 Core i5 8th Gen - (8 GB/1 TB HDD/Windows 10 Home/2 GB Graphics) 130-15IKB Laptop  (15.6 inch, Black, 2.1 kg)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Women's Fashion",
+                    "brand": "vaidehi",
+                    "price": "2,000",
+                    "prevPrice": "2,900",
+                    "currency": "AED",
+                    "discount": "10",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/jz7az680/computer/b/3/k/lenovo-na-laptop-original-imafj9wscwkeyu45.jpeg?q=70",
+                    "id": 6
+                },
+                {
+                    "productName": "Amayra Women's Cotton Anarkali Kurti(Blue)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Women's Fashion",
+                    "brand": "Amarya",
+                    "price": "4,099",
+                    "prevPrice": "4,199",
+                    "currency": "AED",
+                    "discount": "20",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/150/150/k0wqwsw0/wall-clock/g/g/b/round-wall-clock-957-gold-analog-ajanta-original-imafkhkfdempaphb.jpeg?q=70",
+                    "id": 7
+                },
+                {
+                    "productName": "Garment Steamer, 1.3 L Capacity, 1800W HY - 288 Black",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Women's Fashion",
+                    "brand": "Sparx",
+                    "price": "999",
+                    "prevPrice": "1,099",
+                    "currency": "AED",
+                    "discount": "10",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1570427257/N28431698A_1.jpg",
+                    "id": 8
+                }
+            ]
+            response['carousel'] = carousel_obj
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FecthProductDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+"""
+
+class FetchCarouselAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+    def fetch_price(self,product_id):
+        try:
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            company_code = "1070" # GEEPAS
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+            print((json.dumps(content, indent=4, sort_keys=True)))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            price = 0
+            temp_price = 0
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    price = max(temp_price, price)
+            return float(price)
+        except Exception as e:
+            #print "Error: "+str(e)
+            return 0
+    def get(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchCarouselAPI: %s", str(data))
+            product_pks = [942, 943, 944,950,951,957,958,959,961,966]
+            carousel_obj = []
+            for product_pk in product_pks:
+                prod_obj = Product.objects.get(pk = product_pk)
+                temp_dict={}
+                temp_dict["productName"] = prod_obj.product_name
+                temp_dict["productCategory"] = prod_obj.base_product.category
+                temp_dict["productSubCategory"] = prod_obj.base_product.subtitle
+                temp_dict["brand"] = str(prod_obj.base_product.brand)
+                temp_dict["price"] = self.fetch_price(prod_obj.base_product.seller_sku)
+                temp_dict["prevPrice"] = self.fetch_price(prod_obj.base_product.seller_sku)
+                temp_dict["currency"] = "AED"
+                temp_dict["discount"] = "0%"
+                temp_dict["rating"] = "3.5"
+                temp_dict["totalRatings"] = "356"
+                temp_dict["uuid"] = prod_obj.uuid
+                
+                main_images_list = ImageBucket.objects.none()
+                main_images_objs = MainImages.objects.filter(product=prod_obj)
+                for main_images_obj in main_images_objs:
+                    main_images_list |= main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                if main_images_list.filter(is_main_image=True).count() > 0:
+                    try:
+                        temp_dict["heroImage"] = main_images_list.filter(is_main_image=True)[
+                            0].image.thumbnail.url
+                    except Exception as e:
+                        temp_dict["heroImage"] = Config.objects.all()[
+                            0].product_404_image.image.url
+                else:
+                    temp_dict["heroImage"] = Config.objects.all()[
+                        0].product_404_image.image.url
+                temp_dict["id"] = prod_obj.pk
+                carousel_obj.append(temp_dict)
+            # carousel_obj = [
+            #     {
+            #         "productName": "Geepas GA1959 Dual USB Travel Charger",
+            #         "productCategory": "Electronics",
+            #         "productSubCategory": "Plugs",
+            #         "brand": "Geepas",
+            #         "price": "2,239",
+            #         "prevPrice": "3,300",
+            #         "currency": "AED",
+            #         "discount": "15",
+            #         "rating": "4.5",
+            #         "totalRatings": "5,372",
+            #         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569504920GA1959-2.jpg",
+            #         "id": 1
+            #     },
+            #     {
+            #         "productName": "Geepas GA1960 4 USB Travel Charger",
+            #         "productCategory": "Electronics",
+            #         "productSubCategory": "Plugs",
+            #         "brand": "Geepas",
+            #         "price": "4,000",
+            #         "prevPrice": "4,500",
+            #         "currency": "AED",
+            #         "discount": "15",
+            #         "rating": "3.9",
+            #         "totalRatings": "1,772",
+            #         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
+            #         "id": 2
+            #     },
+            #     {
+            #         "productName": "Geepas GA4069 Electric Adaptor ",
+            #         "productCategory": "Electronics",
+            #         "productSubCategory": "Adaptor",
+            #         "brand": "Geepas",
+            #         "price": "3,999",
+            #         "prevPrice": "4,700",
+            #         "currency": "AED",
+            #         "discount": "28",
+            #         "rating": "4.5",
+            #         "totalRatings": "5,372",
+            #         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505070GA4069.jpg",
+            #         "id": 3
+            #     },
+            #     {
+            #         "productName": "Geepas GA58018 UK-type Adaptor, 3-way Extension",
+            #         "productCategory": "Electronics",
+            #         "productSubCategory": "Adaptor",
+            #         "brand": "Geepas",
+            #         "price": "1,200",
+            #         "prevPrice": "1,800",
+            #         "currency": "AED",
+            #         "discount": "10",
+            #         "rating": "4.5",
+            #         "totalRatings": "5,372",
+            #         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505474GA58018%20(1).jpg",
+            #         "id": 4
+            #     },
+            #     {
+            #         "productName": "Realme X (Space Blue, 128 GB)",
+            #         "productCategory": "Fashion",
+            #         "productSubCategory": "Men's Fashion",
+            #         "brand": "Reebok",
+            #         "price": "3,999",
+            #         "prevPrice": "5,600",
+            #         "currency": "AED",
+            #         "discount": "28",
+            #         "rating": "4.5",
+            #         "totalRatings": "5,372",
+            #         "heroImage": "https://rukminim1.flixcart.com/image/312/312/k1fbmvk0/mobile/k/b/e/mi-redmi-8-mzb8250in-original-imafhyabpggagngr.jpeg?q=70",
+            #         "id": 5
+            #     },
+            #     {
+            #         "productName": "Lenovo Ideapad 130 Core i5 8th Gen - (8 GB/1 TB HDD/Windows 10 Home/2 GB Graphics) 130-15IKB Laptop  (15.6 inch, Black, 2.1 kg)",
+            #         "productCategory": "Fashion",
+            #         "productSubCategory": "Women's Fashion",
+            #         "brand": "vaidehi",
+            #         "price": "2,000",
+            #         "prevPrice": "2,900",
+            #         "currency": "AED",
+            #         "discount": "10",
+            #         "rating": "4.5",
+            #         "totalRatings": "5,372",
+            #         "heroImage": "https://rukminim1.flixcart.com/image/312/312/jz7az680/computer/b/3/k/lenovo-na-laptop-original-imafj9wscwkeyu45.jpeg?q=70",
+            #         "id": 6
+            #     },
+            #     {
+            #         "productName": "Amayra Women's Cotton Anarkali Kurti(Blue)",
+            #         "productCategory": "Fashion",
+            #         "productSubCategory": "Women's Fashion",
+            #         "brand": "Amarya",
+            #         "price": "4,099",
+            #         "prevPrice": "4,199",
+            #         "currency": "AED",
+            #         "discount": "20",
+            #         "rating": "4.5",
+            #         "totalRatings": "5,372",
+            #         "heroImage": "https://rukminim1.flixcart.com/image/150/150/k0wqwsw0/wall-clock/g/g/b/round-wall-clock-957-gold-analog-ajanta-original-imafkhkfdempaphb.jpeg?q=70",
+            #         "id": 7
+            #     },
+            #     {
+            #         "productName": "Garment Steamer, 1.3 L Capacity, 1800W HY - 288 Black",
+            #         "productCategory": "Fashion",
+            #         "productSubCategory": "Women's Fashion",
+            #         "brand": "Sparx",
+            #         "price": "999",
+            #         "prevPrice": "1,099",
+            #         "currency": "AED",
+            #         "discount": "10",
+            #         "rating": "4.5",
+            #         "totalRatings": "5,372",
+            #         "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1570427257/N28431698A_1.jpg",
+            #         "id": 8
+            #     }
+            # ]
+            response['carousel'] = carousel_obj
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FecthCarouselProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+FetchCarousel = FetchCarouselAPI.as_view()
+
+
+class FetchCategoryGridBannerCardsAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchCarouselAPI: %s", str(data))
+
+            carousel_obj = [
+                {
+                    "src": "wp-content/uploads/2018/04/cat-22-330x308.png",
+                    "alt": "Home &amp; Audio Enternteinment",
+                    "title": "Home &amp; Audio Enternteinment"
+                },
+                {
+                    "src": "wp-content/uploads/2018/04/cat-2-330x308.png",
+                    "alt": "Smartphones &amp; Tablets",
+                    "title": "Smartphones &amp; Tablets"
+                },
+                {
+                    "src": "wp-content/uploads/2018/04/cat-3-330x308.png",
+                    "alt": "Desktop PCs &amp; Laptops",
+                    "title": "Desktop PCs &amp; Laptops"
+                },
+                {
+                    "src": "wp-content/uploads/2018/04/cat-4-330x308.png",
+                    "alt": "Video Games &amp; Consoles",
+                    "title": "Video Games &amp; Consoles"
+                },
+                {
+                    "src": "wp-content/uploads/2018/04/cat-5-330x308.png",
+                    "alt": "Gadgets &amp; Accesories",
+                    "title": "Gadgets &amp; Accesories"
+                },
+                {
+                    "src": "wp-content/uploads/2018/04/cat-6-330x308.png",
+                    "alt": "Photo Cameras",
+                    "title": "Photo Cameras"
+                }
+            ]
+            response['cards'] = carousel_obj
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FecthProductDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchCategoryGridBannerCards = FetchCategoryGridBannerCardsAPI.as_view()
+
+
+class FetchCategoriesAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchCategoriesAPI: %s", str(data))
+            temp_categories = Category.objects.all()
+            categories_obj = []
+            for category in temp_categories:
+                temp_dict = {}
+                temp_dict["name"] = category.name
+                temp_dict["catId"] = category.category_id
+                temp_dict["subCategories"] = []
+                for sub_category in category.sub_categories.all():
+                    temp_sub_category_dict = {}
+                    temp_sub_category_dict["name"] = sub_category.name
+                    temp_sub_category_dict["catId"] = sub_category.sub_category
+                    temp_dict["subCategories"].append(temp_sub_category_dict)
+                categories_obj.append(temp_dict)
+            categories_obj = [
+                {
+                    "name": "electronics",
+                    "catId": "fw-234",
+                    "subCategories": [
+                        {
+                            "catId": "",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "fashion",
+                    "catId": "",
+                    "subCategories": [
+                        {
+                            "catId": "",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "home and kitchen",
+                    "catId": "",
+                    "subCategories": [
+                        {
+                            "catId": "",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "beauty and fragrance",
+                    "catId": "",
+                    "subCategories": [
+                        {
+                            "catId": "",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "baby and kids",
+                    "catId": "",
+                    "subCategories": [
+                        {
+                            "catId": "",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "deals",
+                    "catId": "",
+                    "subCategories": [
+                        {
+                            "catId": "",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+
+            response['categories'] = categories_obj
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoriesAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchCategories = FetchCategoriesAPI.as_view()
+
+
+class FetchDashboardBannerDetailsAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchDashboardBannerDetailsAPI: %s", str(data))
+
+            banner_details = [
+                {
+                    "id": "1",
+                    "imgUrl": "https://rukminim1.flixcart.com/flap/1688/280/image/614f5288d387863b.jpg?q=50"
+                },
+                {
+                    "id": "2",
+                    "imgUrl": "https://rukminim1.flixcart.com/flap/1688/280/image/fe0fdf911e24c3b7.jpg?q=50"
+                },
+                {
+                    "id": "3",
+                    "imgUrl": "https://rukminim1.flixcart.com/flap/1688/280/image/4a4a041b1cb541f4.jpg?q=50"
+                }
+            ]
+            response['banner_details'] = banner_details
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDashboardBannerDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchDashboardBannerDetails = FetchDashboardBannerDetailsAPI.as_view()
+
+
+class FetchBannerDealsAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchBannerDealsAPI: %s", str(data))
+
+            banner_deals = [
+                {
+                    "id": "1",
+                    "dispImageUrl": "wp-content/uploads/2016/02/cameras.jpg",
+                    "displaytext": "Catch <strong>Hottest</strong> Deals in Cameras Category",
+                    "currency": "AED",
+                    "price": "219.19"
+                },
+                {
+                    "id": "2",
+                    "dispImageUrl": "wp-content/uploads/2016/02/DesktopPC-e1523629711911.jpg",
+                    "displaytext": "Tablets, Smartphones and more",
+                    "currency": "AED",
+                    "price": "749.49"
+                },
+                {
+                    "id": "3",
+                    "dispImageUrl": "wp-content/uploads/2016/02/cameras.jpg",
+                    "displaytext": "Catch <strong>Hottest</strong> Deals in Cameras Category",
+                    "currency": "AED",
+                    "price": "219.19"
+                }
+            ]
+            response['banner_deals'] = banner_deals
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBannerDealsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchBannerDeals = FetchBannerDealsAPI.as_view()
+# FetchBatchDiscountDeals
+
+
+class FetchBatchDiscountDealsAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchBatchDiscountDealsAPI: %s", str(data))
+
+            batch_discount_deals = {
+                "id": "8564",
+                "counter": {
+                    "timeToEnd": "Wed Jan 16 2020 20:47:52 GMT+0530",
+                    "originalPrice": "99"
+                },
+                "products": [
+                    {
+                        "productName": "Geepas GAC9602 Air Cooler 70L",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Cooler",
+                        "brand": "Geepas",
+                        "price": "2,239",
+                        "prevPrice": "3,300",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
+                        "id": 28
+                    },
+                    {
+                        "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Cooler",
+                        "brand": "Geepas",
+                        "price": "4,000",
+                        "prevPrice": "4,500",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "3.9",
+                        "totalRatings": "1,772",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
+                        "id": 21
+                    },
+                    {
+                        "productName": "Geepas GA1960 4 USB Travel Charger ",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Plugs",
+                        "brand": "Geepas",
+                        "price": "3,999",
+                        "prevPrice": "4,700",
+                        "currency": "AED",
+                        "discount": "28",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
+                        "id": 13
+                    },
+                    {
+                        "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Cooler",
+                        "brand": "Geepas",
+                        "price": "1,200",
+                        "prevPrice": "1,800",
+                        "currency": "AED",
+                        "discount": "10",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
+                        "id": 36
+                    },
+                    {
+                        "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Cooler",
+                        "brand": "Geepas",
+                        "price": "3,999",
+                        "prevPrice": "5,600",
+                        "currency": "AED",
+                        "discount": "28",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
+                        "id": 27
+                    }
+                ]
+            }
+            response['batch_discount_deals'] = batch_discount_deals
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBatchDiscountDealsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchBatchDiscountDeals = FetchBatchDiscountDealsAPI.as_view()
+
+# FetchSpecialDiscountProduct
+
+
+class FetchSpecialDiscountProductAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchSpecialDiscountProductAPI: %s", str(data))
+
+            special_discount_deals = {
+                "id": "789",
+                "discountDealImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/console.png",
+                "name": "Game Console Controller + USB 3.0 Cable",
+                "price": "90",
+                "currency": "AED",
+                "totalUnits": "25",
+                "soldUnits": "9",
+                "counter": {
+                    "timeToEnd": "Wed Jan 16 2020 20:47:52 GMT+0530",
+                    "originalPrice": "99"
+                }
+            }
+            response['special_discount_deals'] = special_discount_deals
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSpecialDiscountProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchSpecialDiscountProduct = FetchSpecialDiscountProductAPI.as_view()
+
+
+# FetchSchedularProducts
+
+class FetchSchedularProductsAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchSchedularProductsAPI: %s", str(data))
+
+            schedular_products = [
+                {
+                    "id": "1",
+                    "schedularImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/console-banner.png",
+                    "schedularGraphicsText": "https://wig-wams-s3-bucket.s3.amazonaws.com/deals-text.png",
+                    "schedularProductImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/console.png",
+                    "category": "electronics",
+                    "subCategory": "gaming",
+                    "name": "Game Console Controller + USB 3.0 Cable",
+                    "price": "90",
+                    "currency": "AED",
+                    "totalUnits": "25",
+                    "soldUnits": "9",
+                    "counter": {
+                        "timeToEnd": "Wed Jan 16 2020 19:57:52",
+                        "originalPrice": "99"
+                    }
+                },
+                {
+                    "id": "2",
+                    "schedularImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/tv-schedular.png",
+                    "schedularGraphicsText": "https://wig-wams-s3-bucket.s3.amazonaws.com/deals-text.png",
+                    "schedularProductImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/tv.png",
+                    "category": "electronics",
+                    "subCategory": "television",
+                    "name": "Widescreen 4K SUHD TV",
+                    "price": "3299.00",
+                    "currency": "AED",
+                    "totalUnits": "32",
+                    "soldUnits": "5"
+                },
+                {
+                    "id": "3",
+                    "schedularImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/console-banner.png",
+                    "schedularGraphicsText": "https://wig-wams-s3-bucket.s3.amazonaws.com/deals-text.png",
+                    "schedularProductImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/console.png",
+                    "category": "electronics",
+                    "subCategory": "gaming",
+                    "name": "Game Console Controller + USB 3.0 Cable",
+                    "price": "90",
+                    "currency": "AED",
+                    "totalUnits": "25",
+                    "soldUnits": "9",
+                    "counter": {
+                        "timeToEnd": "Wed Jan 16 2020 14:47:52 GMT+0530",
+                        "originalPrice": "99"
+                    }
+                },
+                {
+                    "id": "4",
+                    "schedularImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/console-banner.png",
+                    "schedularGraphicsText": "https://wig-wams-s3-bucket.s3.amazonaws.com/deals-text.png",
+                    "schedularProductImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/console.png",
+                    "category": "electronics",
+                    "subCategory": "gaming",
+                    "name": "Game Console Controller + USB 3.0 Cable",
+                    "price": "90",
+                    "currency": "AED",
+                    "totalUnits": "25",
+                    "soldUnits": "9",
+                    "counter": {
+                        "timeToEnd": "Wed Jan 16 2020 20:47:52 GMT+0530",
+                        "originalPrice": "99"
+                    }
+                }
+            ]
+            response['schedular_products'] = schedular_products
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSchedularProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchSchedularProducts = FetchSchedularProductsAPI.as_view()
+
+
+class FetchFeaturedProductsAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchFeaturedProductsAPI: %s", str(data))
+            
+            """
+            featured_products = [
+                {
+                    "productName": "Airfryer Mechanical - 3.4 L, 1300 W AF 3501 - M Black",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Puma",
+                    "price": "500",
+                    "prevPrice": "3,300",
+                    "currency": "AED",
+                    "discount": "15",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1568636323/N28431691A_1.jpg",
+                    "id": 1
+                },
+                {
+                    "productName": "2-Slice Bread Toaster, 700W TA01105 Milk White",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Provogue",
+                    "price": "4,000",
+                    "prevPrice": "4,500",
+                    "currency": "AED",
+                    "discount": "15",
+                    "rating": "3.9",
+                    "totalRatings": "1,772",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1571139454/N29227703A_8.jpg",
+                    "id": 2
+                },
+                {
+                    "productName": "6-Piece Granite/Marble Coated Aluminium Cookware Set… ",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Reebok",
+                    "price": "3,999",
+                    "prevPrice": "4,700",
+                    "currency": "AED",
+                    "discount": "28",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1574085587/N17109502A_15.jpg",
+                    "id": 3
+                },
+                {
+                    "productName": "Realme 5s (Crystal Blue, 128 GB)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Sparx",
+                    "price": "1,200",
+                    "prevPrice": "1,800",
+                    "currency": "AED",
+                    "discount": "10",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k2jbyq80pkrrdj/mobile-refurbished/v/w/c/x-128-u-rmx1901-realme-8-original-imafgzg9yvran9r3.jpeg?q=70",
+                    "id": 4
+                },
+                {
+                    "productName": "Realme X (Space Blue, 128 GB)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Reebok",
+                    "price": "3,999",
+                    "prevPrice": "5,600",
+                    "currency": "AED",
+                    "discount": "28",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k1fbmvk0/mobile/k/b/e/mi-redmi-8-mzb8250in-original-imafhyabpggagngr.jpeg?q=70",
+                    "id": 5
+                }
+            ]
+            """
+
+            featured_products = [
+                {
+                    "productName": "Geepas GAC9602 Air Cooler 70L",
+                    "productCategory": "Electronics",
+                    "productSubCategory": "Cooler",
+                    "brand": "Geepas",
+                    "price": "500",
+                    "prevPrice": "3,300",
+                    "currency": "AED",
+                    "discount": "15",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
+                    "id": 28
+                },
+                {
+                    "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
+                    "productCategory": "Electronics",
+                    "productSubCategory": "Cooler",
+                    "brand": "Geepas",
+                    "price": "255",
+                    "prevPrice": "4,500",
+                    "currency": "AED",
+                    "discount": "15",
+                    "rating": "3.9",
+                    "totalRatings": "1,772",
+                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
+                    "id": 21
+                },
+                {
+                    "productName": "Geepas GA1960 4 USB Travel Charger ",
+                    "productCategory": "Electronics",
+                    "productSubCategory": "Plugs",
+                    "brand": "Geepas",
+                    "price": "18",
+                    "prevPrice": "4,700",
+                    "currency": "AED",
+                    "discount": "28",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
+                    "id": 13
+                },
+                {
+                    "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
+                    "productCategory": "Electronics",
+                    "productSubCategory": "Cooler",
+                    "brand": "Geepas",
+                    "price": "760",
+                    "prevPrice": "1,800",
+                    "currency": "AED",
+                    "discount": "10",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
+                    "id": 36
+                },
+                {
+                    "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
+                    "productCategory": "Electronics",
+                    "productSubCategory": "Cooler",
+                    "brand": "Geepas",
+                    "price": "27",
+                    "prevPrice": "5,600",
+                    "currency": "AED",
+                    "discount": "28",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
+                    "id": 27
+                }
+            ]
+            response['featured_products'] = featured_products
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchFeaturedProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchFeaturedProducts = FetchFeaturedProductsAPI.as_view()
+
+
+# FetchOnSaleProducts
+
+
+class FetchOnSaleProductsAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchOnSaleProductsAPI: %s", str(data))
+
+            on_sale_products = [
+                {
+                    "productName": "Lenovo Ideapad 130 Core i5 8th Gen - (8 GB/1 TB HDD/Windows 10 Home/2 GB Graphics) 130-15IKB Laptop  (15.6 inch, Black, 2.1 kg)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Women's Fashion",
+                    "brand": "vaidehi",
+                    "price": "2,000",
+                    "prevPrice": "2,900",
+                    "currency": "AED",
+                    "discount": "10",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/jz7az680/computer/b/3/k/lenovo-na-laptop-original-imafj9wscwkeyu45.jpeg?q=70",
+                    "id": 6
+                },
+                {
+                    "productName": "Amayra Women's Cotton Anarkali Kurti(Blue)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Women's Fashion",
+                    "brand": "Amarya",
+                    "price": "4,099",
+                    "prevPrice": "4,199",
+                    "currency": "AED",
+                    "discount": "20",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/150/150/k0wqwsw0/wall-clock/g/g/b/round-wall-clock-957-gold-analog-ajanta-original-imafkhkfdempaphb.jpeg?q=70",
+                    "id": 7
+                },
+                {
+                    "productName": "Garment Steamer, 1.3 L Capacity, 1800W HY - 288 Black",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Women's Fashion",
+                    "brand": "Sparx",
+                    "price": "999",
+                    "prevPrice": "1,099",
+                    "currency": "AED",
+                    "discount": "10",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1570427257/N28431698A_1.jpg",
+                    "id": 8
+                }
+            ]
+            response['on_sale_products'] = on_sale_products
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOnSaleProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchOnSaleProducts = FetchOnSaleProductsAPI.as_view()
+
+# FetchTopRatedProducts
+
+
+class FetchTopRatedProductsAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchTopRatedProductsAPI: %s", str(data))
+
+            top_rated_products = [
+                {
+                    "productName": "Amayra Women's Cotton Anarkali Kurti(Blue)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Women's Fashion",
+                    "brand": "Amarya",
+                    "price": "4,099",
+                    "prevPrice": "4,199",
+                    "currency": "AED",
+                    "discount": "20",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/150/150/k0wqwsw0/wall-clock/g/g/b/round-wall-clock-957-gold-analog-ajanta-original-imafkhkfdempaphb.jpeg?q=70",
+                    "id": 7
+                },
+                {
+                    "productName": "2-Slice Bread Toaster, 700W TA01105 Milk White",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Provogue",
+                    "price": "4,000",
+                    "prevPrice": "4,500",
+                    "currency": "AED",
+                    "discount": "15",
+                    "rating": "3.9",
+                    "totalRatings": "1,772",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1571139454/N29227703A_8.jpg",
+                    "id": 2
+                },
+                {
+                    "productName": "6-Piece Granite/Marble Coated Aluminium Cookware Set… ",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Reebok",
+                    "price": "3,999",
+                    "prevPrice": "4,700",
+                    "currency": "AED",
+                    "discount": "28",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1574085587/N17109502A_15.jpg",
+                    "id": 3
+                },
+                {
+                    "productName": "Realme 5s (Crystal Blue, 128 GB)",
+                    "productCategory": "Fashion",
+                    "productSubCategory": "Men's Fashion",
+                    "brand": "Sparx",
+                    "price": "1,200",
+                    "prevPrice": "1,800",
+                    "currency": "AED",
+                    "discount": "10",
+                    "rating": "4.5",
+                    "totalRatings": "5,372",
+                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k2jbyq80pkrrdj/mobile-refurbished/v/w/c/x-128-u-rmx1901-realme-8-original-imafgzg9yvran9r3.jpeg?q=70",
+                    "id": 4
+                }
+            ]
+            response['top_rated_products'] = top_rated_products
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchTopRatedProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchTopRatedProducts = FetchTopRatedProductsAPI.as_view()
+
+
+# Search
+"""
+class SearchAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchAPI: %s", str(data))
+
+            search = {
+         "query": "macbook",
+      "category": "laptops",
+      "filters": [
+        {
+          "id": "1",
+          "name": "brand",
+          "values": [
+            "Apple",
+            "Samsung",
+            "Dell",
+            "Micosoft",
+            "iBall"
+          ]
+        },
+        {
+          "id": "2",
+          "name": "cpu type",
+          "values": [
+            "Intel Core i5",
+            "Intel Core i7"
+          ]
+        },
+        {
+          "id": "3",
+          "name": "weight",
+          "values": [
+            "Up to 0.9 kg",
+            "1 - 1.4 kg",
+            "2 - 2.5 kg",
+            "2.5 kg and more"
+          ]
+        },
+        {
+          "id": "4",
+          "name": "OS",
+          "values": [
+            "Windows",
+            "Linux",
+            "DoS",
+            "MacOS"
+          ]
+        }
+      ],
+      "products": [
+        {
+          "name": "MacBook Air 13.3-Inch Retina Display, Core i5 with 1.6GHz Dual Core Processor/8GB RAM/128GB SSD/Intel UHD Graphics 617/English Keyboard -  2019 Space Grey",
+          "brand": "Puma",
+          "price": "2,239",
+          "prevPrice": "3,300",
+          "currency": "AED",
+          "discount": "15",
+          "rating": "5",
+          "totalRatings": "5,372",
+          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/s/v/n/apple-na-thin-and-light-laptop-original-imafgwevstseefc9.jpeg?q=70",
+          "id": 1
+        },
+        {
+          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
+          "brand": "Provogue",
+          "price": "4,000",
+          "prevPrice": "4,500",
+          "currency": "AED",
+          "discount": "15",
+          "rating": "2",
+          "totalRatings": "1,772",
+          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
+          "id": 2
+        },
+        {
+          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
+          "brand": "Provogue",
+          "price": "4,000",
+          "prevPrice": "4,500",
+          "currency": "AED",
+          "discount": "15",
+          "rating": "1",
+          "totalRatings": "1,772",
+          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
+          "id": 3
+        },
+        {
+          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
+          "brand": "Provogue",
+          "price": "4,000",
+          "prevPrice": "4,500",
+          "currency": "AED",
+          "discount": "15",
+          "rating": "2",
+          "totalRatings": "1,772",
+          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
+          "id": 4
+        },
+        {
+          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
+          "brand": "Provogue",
+          "price": "4,000",
+          "prevPrice": "4,500",
+          "currency": "AED",
+          "discount": "15",
+          "rating": "3",
+          "totalRatings": "1,772",
+          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
+          "id": 5
+        },
+        {
+          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
+          "brand": "Provogue",
+          "price": "4,000",
+          "prevPrice": "4,500",
+          "currency": "AED",
+          "discount": "15",
+          "rating": "2",
+          "totalRatings": "1,772",
+          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
+          "id": 6
+        },
+        {
+          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
+          "brand": "Provogue",
+          "price": "4,000",
+          "prevPrice": "4,500",
+          "currency": "AED",
+          "discount": "15",
+          "rating": "3",
+          "totalRatings": "1,772",
+          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
+          "id": 7
+        },
+        {
+          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
+          "brand": "Provogue",
+          "price": "4,000",
+          "prevPrice": "4,500",
+          "currency": "AED",
+          "discount": "15",
+          "rating": "2",
+          "totalRatings": "1,772",
+          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
+          "id": 8
+        }
+      ]
+    }
+            response['search'] = search
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+"""
+
+
+class SearchAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def fetch_price(self,product_id):
+        try:
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            company_code = "1070" # GEEPAS
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+            print((json.dumps(content, indent=4, sort_keys=True)))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            price = 0
+            temp_price = 0
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    price = max(temp_price, price)
+            return float(price)
+        except Exception as e:
+            #print "Error: "+str(e)
+            return 0
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SearchAPI: %s", str(data))
+            query_string_name = data.get("name", "")
+            query_string_category = data.get("category", "")
+            search = {}
+            if query_string_name == '':
+                response['status'] = 404
+                return Response(data=response)
+            products_by_category = Product.objects.filter(base_product__brand__name="Geepas")
+            if query_string_category!="ALL":
+                query_string_category = query_string_category.replace("-", " ")
+                products_by_category = products_by_category.filter(base_product__category__icontains = query_string_category)
+            products_by_name = products_by_category.filter(product_name__icontains=query_string_name)
+            products = []
+            filters = []
+            logger.info("products by category %s", str(products_by_category))
+            for product in products_by_name:
+                temp_dict = {}
+                temp_dict["name"] = product.product_name
+                temp_dict["brand"] = str(product.base_product.brand)
+                temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
+                temp_dict["prevPrice"] = self.fetch_price(product.base_product.seller_sku)
+                temp_dict["currency"] = "AED"
+                temp_dict["discount"] = "10%"
+                temp_dict["rating"] = "4.5"
+                temp_dict["totalRatings"] = "453"
+                temp_dict["uuid"] = product.uuid
+                
+                main_images_list = ImageBucket.objects.none()
+                main_images_objs = MainImages.objects.filter(product=product)
+                for main_images_obj in main_images_objs:
+                    main_images_list |= main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                if main_images_list.filter(is_main_image=True).count() > 0:
+                    try:
+                        temp_dict["heroImageUrl"] = main_images_list.filter(is_main_image=True)[
+                            0].image.thumbnail.url
+                    except Exception as e:
+                       temp_dict["heroImageUrl"] = Config.objects.all()[
+                            0].product_404_image.image.url
+                else:
+                    temp_dict["heroImageUrl"] = Config.objects.all()[
+                        0].product_404_image.image.url
+                temp_dict["id"] = product.pk
+               
+                dealshub_product = DealsHubProduct.objects.get(product=product)
+                category = dealshub_product.category
+                if category!=None:
+                    sub_categories = category.sub_categories.all()
+                    for sub_category in sub_categories:
+                        temp_dict_filter = {}
+                        temp_dict_filter["id"] = sub_category.pk
+                        temp_dict_filter["name"] = sub_category.name
+                        temp_dict_filter["values"] = []
+                        properties = sub_category.properties.all()
+                        for prop in properties:
+                            if prop.label in temp_dict_filter["values"]:
+                                temp_dict_filter["values"].append(prop.label)
+                        if sub_category.pk not in [x["id"] for x in filters ]:
+                            filters.append(temp_dict_filter)
+                if main_images_list.filter(is_main_image=True).count() > 0:
+                    products.append(temp_dict)
+            """
+            dealshub_product = DealsHubProduct.objects.get(product=product)
+            category = dealshub_product.category
+            if category!=None:
+                sub_categories = category.sub_categories.all()
+                for sub_category in sub_categories:
+                    temp_dict_filter = {}
+                    temp_dict_filter["id"] = sub_category.pk
+                    temp_dict_filter["name"] = sub_category.name
+                    temp_dict_filter["values"] = []
+                    properties = sub_category.properties.all()
+                    for prop in properties:
+                        temp_dict_filter["values"].append(prop.label)
+                    filters.append(temp_dict_filter)
+            """
+            search['filters'] = filters
+            search['category'] = query_string_category
+            search['products'] = products
+            response['search'] = search
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+Search = SearchAPI.as_view()
+
+
+# class AddProductAPI(APIView):
+#     authentication_classes = (
+#         CsrfExemptSessionAuthentication, BasicAuthentication)
+
+#     def post(self, request, *args, **kwargs):
+
+#         response['status'] = 500
+#         try:
+
+#             # if request.user.has_perm('WAMSApp.change_product') == False:
+#             #     logger.warning("SaveProductAPI Restricted Access!")
+#             #     response['status'] = 403
+#             #     return Response(data=response)
+
+#             data = request.data
+#             logger.info("AddProductAPI: %s", str(data))
+
+#             if not isinstance(data, dict):
+#                 data = json.loads(data)
+
+#             # Check for duplicate
+#             product_id = data["product_id"]
+
+#             product_obj = Product.objects.get(pk=int(data["product_pk"]))
+
+#             # Checking brand permission
+#             try:
+#                 permissible_brands = custom_permission_filter_brands(
+#                     request.user)
+#                 brand_obj = Brand.objects.get(
+#                     name=product_obj.base_product.brand.name)
+#                 if brand_obj not in permissible_brands:
+#                     logger.warning("SaveProductAPI Restricted Access Brand!")
+#                     response['status'] = 403
+#                     return Response(data=response)
+#             except Exception as e:
+#                 logger.error("SaveProductAPI Restricted Access Brand!")
+#                 response['status'] = 403
+#                 return Response(data=response)
+
+#             if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1:
+#                 logger.warning("Duplicate product detected!")
+#                 response['status'] = 409
+#                 return Response(data=response)
+
+#             product_name = convert_to_ascii(data["product_name"])
+#             barcode_string = convert_to_ascii(data["barcode_string"])
+#             color = convert_to_ascii(data["color"])
+#             color_map = convert_to_ascii(data["color_map"])
+#             standard_price = None if data["standard_price"] == "" else float(
+#                 data["standard_price"])
+#             quantity = None if data["quantity"] == "" else int(
+#                 data["quantity"])
+
+#             product_id_type = convert_to_ascii(data["product_id_type"])
+#             product_id_type_obj, created = ProductIDType.objects.get_or_create(
+#                 name=product_id_type)
+
+#             material_type = convert_to_ascii(data["material_type"])
+#             material_type_obj, created = MaterialType.objects.get_or_create(
+#                 name=material_type)
+
+#             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
+#             pfl_product_features = convert_to_ascii(
+#                 data["pfl_product_features"])
+
+#             factory_notes = convert_to_ascii(data["factory_notes"])
+
+#             product_obj.product_id = product_id
+
+#             try:
+#                 if product_obj.barcode_string != barcode_string and barcode_string != "":
+#                     EAN = barcode.ean.EuropeanArticleNumber13(
+#                         str(barcode_string), writer=ImageWriter())
+
+#                     thumb = EAN.save('temp_image')
+#                     thumb = IMage.open(open(thumb, "rb"))
+#                     thumb_io = StringIO.StringIO()
+#                     thumb.save(thumb_io, format='PNG')
+#                     thumb_file = InMemoryUploadedFile(
+#                         thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
+
+#                     barcode_image = Image.objects.create(image=thumb_file)
+#                     product_obj.barcode = barcode_image
+#                     product_obj.barcode_string = barcode_string
+
+#                     try:
+#                         import os
+#                         os.remove("temp_image.png")
+#                     except Exception as e:
+#                         exc_type, exc_obj, exc_tb = sys.exc_info()
+#                         logger.warning("AddProductAPI: %s at %s",
+#                                        e, str(exc_tb.tb_lineno))
+
+#             except Exception as e:
+#                 exc_type, exc_obj, exc_tb = sys.exc_info()
+#                 logger.error("AddProductAPI: %s at %s",
+#                              e, str(exc_tb.tb_lineno))
+
+#             product_obj.product_name = product_name
+
+#             product_obj.product_id_type = product_id_type_obj
+#             product_obj.color_map = color_map
+#             product_obj.color = color
+
+#             product_obj.material_type = material_type_obj
+#             product_obj.standard_price = standard_price
+#             product_obj.quantity = quantity
+
+#             product_obj.pfl_product_name = pfl_product_name
+#             product_obj.pfl_product_features = pfl_product_features
+
+#             product_obj.factory_notes = factory_notes
+
+#             product_obj.save()
+
+#             response['status'] = 200
+
+
+# AddProduct = AddProductAPI.as_view()

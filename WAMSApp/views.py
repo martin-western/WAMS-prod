@@ -1286,9 +1286,6 @@ class SaveBaseProductAPI(APIView):
 
 class SaveProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
