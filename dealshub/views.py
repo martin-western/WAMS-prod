@@ -21,6 +21,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import AllowAny
+
 
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
@@ -48,6 +50,8 @@ import xlrd
 import csv
 import datetime
 import boto3
+import uuid
+
 try:
     import urllib.request as urllib2
 except ImportError:
@@ -511,6 +515,7 @@ class FetchCarouselAPI(APIView):
 class FetchCarouselAPI(APIView):
     authentication_classes = (
         CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
     def fetch_price(self,product_id):
         try:
             url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
@@ -609,120 +614,7 @@ class FetchCarouselAPI(APIView):
                         0].product_404_image.image.url
                 temp_dict["id"] = prod_obj.pk
                 carousel_obj.append(temp_dict)
-            # carousel_obj = [
-            #     {
-            #         "productName": "Geepas GA1959 Dual USB Travel Charger",
-            #         "productCategory": "Electronics",
-            #         "productSubCategory": "Plugs",
-            #         "brand": "Geepas",
-            #         "price": "2,239",
-            #         "prevPrice": "3,300",
-            #         "currency": "AED",
-            #         "discount": "15",
-            #         "rating": "4.5",
-            #         "totalRatings": "5,372",
-            #         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569504920GA1959-2.jpg",
-            #         "id": 1
-            #     },
-            #     {
-            #         "productName": "Geepas GA1960 4 USB Travel Charger",
-            #         "productCategory": "Electronics",
-            #         "productSubCategory": "Plugs",
-            #         "brand": "Geepas",
-            #         "price": "4,000",
-            #         "prevPrice": "4,500",
-            #         "currency": "AED",
-            #         "discount": "15",
-            #         "rating": "3.9",
-            #         "totalRatings": "1,772",
-            #         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-            #         "id": 2
-            #     },
-            #     {
-            #         "productName": "Geepas GA4069 Electric Adaptor ",
-            #         "productCategory": "Electronics",
-            #         "productSubCategory": "Adaptor",
-            #         "brand": "Geepas",
-            #         "price": "3,999",
-            #         "prevPrice": "4,700",
-            #         "currency": "AED",
-            #         "discount": "28",
-            #         "rating": "4.5",
-            #         "totalRatings": "5,372",
-            #         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505070GA4069.jpg",
-            #         "id": 3
-            #     },
-            #     {
-            #         "productName": "Geepas GA58018 UK-type Adaptor, 3-way Extension",
-            #         "productCategory": "Electronics",
-            #         "productSubCategory": "Adaptor",
-            #         "brand": "Geepas",
-            #         "price": "1,200",
-            #         "prevPrice": "1,800",
-            #         "currency": "AED",
-            #         "discount": "10",
-            #         "rating": "4.5",
-            #         "totalRatings": "5,372",
-            #         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505474GA58018%20(1).jpg",
-            #         "id": 4
-            #     },
-            #     {
-            #         "productName": "Realme X (Space Blue, 128 GB)",
-            #         "productCategory": "Fashion",
-            #         "productSubCategory": "Men's Fashion",
-            #         "brand": "Reebok",
-            #         "price": "3,999",
-            #         "prevPrice": "5,600",
-            #         "currency": "AED",
-            #         "discount": "28",
-            #         "rating": "4.5",
-            #         "totalRatings": "5,372",
-            #         "heroImage": "https://rukminim1.flixcart.com/image/312/312/k1fbmvk0/mobile/k/b/e/mi-redmi-8-mzb8250in-original-imafhyabpggagngr.jpeg?q=70",
-            #         "id": 5
-            #     },
-            #     {
-            #         "productName": "Lenovo Ideapad 130 Core i5 8th Gen - (8 GB/1 TB HDD/Windows 10 Home/2 GB Graphics) 130-15IKB Laptop  (15.6 inch, Black, 2.1 kg)",
-            #         "productCategory": "Fashion",
-            #         "productSubCategory": "Women's Fashion",
-            #         "brand": "vaidehi",
-            #         "price": "2,000",
-            #         "prevPrice": "2,900",
-            #         "currency": "AED",
-            #         "discount": "10",
-            #         "rating": "4.5",
-            #         "totalRatings": "5,372",
-            #         "heroImage": "https://rukminim1.flixcart.com/image/312/312/jz7az680/computer/b/3/k/lenovo-na-laptop-original-imafj9wscwkeyu45.jpeg?q=70",
-            #         "id": 6
-            #     },
-            #     {
-            #         "productName": "Amayra Women's Cotton Anarkali Kurti(Blue)",
-            #         "productCategory": "Fashion",
-            #         "productSubCategory": "Women's Fashion",
-            #         "brand": "Amarya",
-            #         "price": "4,099",
-            #         "prevPrice": "4,199",
-            #         "currency": "AED",
-            #         "discount": "20",
-            #         "rating": "4.5",
-            #         "totalRatings": "5,372",
-            #         "heroImage": "https://rukminim1.flixcart.com/image/150/150/k0wqwsw0/wall-clock/g/g/b/round-wall-clock-957-gold-analog-ajanta-original-imafkhkfdempaphb.jpeg?q=70",
-            #         "id": 7
-            #     },
-            #     {
-            #         "productName": "Garment Steamer, 1.3 L Capacity, 1800W HY - 288 Black",
-            #         "productCategory": "Fashion",
-            #         "productSubCategory": "Women's Fashion",
-            #         "brand": "Sparx",
-            #         "price": "999",
-            #         "prevPrice": "1,099",
-            #         "currency": "AED",
-            #         "discount": "10",
-            #         "rating": "4.5",
-            #         "totalRatings": "5,372",
-            #         "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1570427257/N28431698A_1.jpg",
-            #         "id": 8
-            #     }
-            # ]
+
             response['carousel'] = carousel_obj
             response['status'] = 200
         except Exception as e:
@@ -2016,3 +1908,177 @@ Search = SearchAPI.as_view()
 
 
 # AddProduct = AddProductAPI.as_view()
+
+
+class CreateAdminCategoryAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("CreateAdminCategoryAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            for key in data:
+                logger.info("CreateAdminCategoryAPI KEY: %s", str(key))
+
+            name = data["name"]
+            listing_type = data["listingType"]
+            products = json.loads(data["products"])
+            
+            section_obj = Section.objects.create(uuid=str(uuid.uuid4()), name=name, listing_type=listing_type, created_by=request.user, modified_by=request.user)
+            for product in products:
+                product_obj = Product.objects.get(uuid=product)
+                section_obj.products.add(product_obj)
+
+            section_obj.save()
+
+            response['uuid'] = str(section_obj.uuid)
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchAdminCategoriesAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchAdminCategoriesAPI: %s", str(data))
+
+            section_objs = Section.objects.all()
+
+            section_list = []
+            
+            for section_obj in section_objs:
+                temp_dict = {}
+                temp_dict["uuid"] = str(section_obj.uuid)
+                temp_dict["name"] = str(section_obj.name)
+                temp_dict["listingType"] = str(section_obj.listing_type)
+                temp_dict["createdBy"] = str(section_obj.created_by)
+                temp_dict["modifiedBy"] = str(section_obj.modified_by)
+                temp_dict["createdOn"] = str(section_obj.created_date)
+                temp_dict["modifiedOn"] = str(section_obj.modified_date)
+                temp_products = []
+                for prod in section_obj.products.all():
+                    temp_dict2 = {}
+                    temp_dict2["thumbnailImageUrl"] = ""
+                    temp_dict2["name"] = str(prod.product_name)
+                    temp_dict2["displayId"] = str(prod.product_id)
+                    temp_dict2["uuid"] = str(prod.uuid)
+                    temp_products.append(temp_dict2)
+                temp_dict["products"] = temp_products
+                temp_dict["isPublished"] = section_obj.is_published
+                section_list.append(temp_dict)
+
+            response['section_list'] = section_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAdminCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateAdminCategoryAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateAdminCategoryAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            name = data["name"]
+            listing_type = data["listingType"]
+            is_published = data["isPublished"]
+            products = json.loads(data["products"])
+            
+            section_obj = Section.objects.get(uuid=uuid)
+            section_obj.name = name
+            section_obj.listing_type = listing_type
+            section_obj.is_published = is_published
+            section_obj.modified_by = request.user
+            section_obj.products.clear()
+            for product in products:
+                product_obj = Product.objects.get(uuid=product)
+                section_obj.products.add(product_obj)
+
+            section_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteAdminCategoryAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("DeleteAdminCategoryAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            
+            Section.objects.get(uuid=uuid).delete()
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class PublishAdminCategoryAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("DeleteAdminCategoryAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            
+            section_obj = Section.objects.get(uuid=uuid)
+            section_obj.is_published = True
+            section_obj.save()
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+CreateAdminCategory = CreateAdminCategoryAPI.as_view()
+
+FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
+
+UpdateAdminCategory = UpdateAdminCategoryAPI.as_view()
+
+DeleteAdminCategory = DeleteAdminCategoryAPI.as_view()
+
+PublishAdminCategory = PublishAdminCategoryAPI.as_view()

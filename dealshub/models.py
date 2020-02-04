@@ -105,6 +105,36 @@ class DealsHubProduct(models.Model):
         super(DealsHubProduct, self).save(*args, **kwargs)
         
 
+class Section(models.Model):
+
+    uuid = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=300, default="")
+    is_published = models.BooleanField(default=False)
+    listing_type = models.CharField(default="Carousel", max_length=200)
+    products = models.ManyToManyField(Product, blank=True)
+    created_date = models.DateTimeField()
+    modified_date = models.DateTimeField() 
+    created_by = models.ForeignKey(User, related_name="created_by", null=True, blank=True, on_delete=models.SET_NULL)
+    modified_by = models.ForeignKey(User, related_name="modified_by", null=True, blank=True, on_delete=models.SET_NULL)
+
+    class Meta:
+        verbose_name = "Section"
+        verbose_name_plural = "Sections"
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.modified_date = timezone.now()
+        else:
+            self.modified_date = timezone.now()
+
+        if self.uuid == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(Section, self).save(*args, **kwargs)
+
+
 @receiver(pre_delete, sender=DealsHubProduct)
 def update_dealshub_product_table(sender, instance, **kwargs):
     #success = delete_product_in_dealshub(instance.product.uuid)

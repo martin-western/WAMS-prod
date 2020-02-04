@@ -84,7 +84,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wamstest2',
+        'NAME': 'wamstest',
         'USER': 'nisarg',
         'PASSWORD': 'nisargtike',
         'HOST': 'localhost',
@@ -165,7 +165,7 @@ APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
 
 LOGFILE_SIZE = 20 * 1024 * 1024
 LOGFILE_COUNT = 5
-LOGFILE_APP = 'WAMSApp'
+LOGFILE_APP = 'dealshub'
 
 LOGGING = {
     'version': 1,

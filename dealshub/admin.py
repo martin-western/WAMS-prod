@@ -40,3 +40,4 @@ class DealsHubProductAdmin(admin.ModelAdmin):
 
 admin.site.register(Property, PropertyAdmin)
 admin.site.register(DealsHubProduct, DealsHubProductAdmin)
+admin.site.register(Section)
