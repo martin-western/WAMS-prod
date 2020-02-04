@@ -443,6 +443,8 @@ class Product(models.Model):
     factory_notes = models.TextField(null=True,blank=True)
     history = AuditlogHistoryField()
 
+    sap_cache = models.TextField(default="[]")
+    sap_cache_time = models.DateTimeField(default=timezone.now)
 
     class Meta:
         verbose_name = "Product"
