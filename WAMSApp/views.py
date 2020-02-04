@@ -278,15 +278,15 @@ class CreateNewBaseProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_name = convert_to_ascii(data["product_name"])
+            product_name = convert_to_ascii(data["base_product_name"])
             seller_sku = convert_to_ascii(data["seller_sku"])
             brand_name = convert_to_ascii(data["brand_name"])
             category = convert_to_ascii(data["category"])
             sub_category = convert_to_ascii(data["sub_category"])
             manufacturer = convert_to_ascii(data["manufacturer"])
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
-            dimensions = convert_to_ascii(data["dimensions"])
-            
+            dimensions = data["dimensions"]
+
             # Checking brand permission
             brand_obj = None
             try:
@@ -1040,6 +1040,7 @@ class FetchProductDetailsAPI(APIView):
             else:
                 response["brand_name"] = brand_obj.name
             
+            response["base_product_name"] = base_product_obj.base_product_name
             response["category"] = base_product_obj.category
             response["subtitle"] = base_product_obj.subtitle
             response["sub_category"] = base_product_obj.sub_category
