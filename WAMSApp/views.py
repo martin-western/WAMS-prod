@@ -3910,8 +3910,42 @@ class SapIntegrationAPI(APIView):
         return Response(data=response)
 
 
+class FetchUserProfileAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            
+            content_manager = ContentManager.objects.get(username=request.user.username)
+
+            response["contact_number"] = content_manager.contact_number
+            response["username"] = content_manager.username
+            response["email"] = content_manager.email
+            
+            response["img_url"] = None
+            
+            if content_manager.image!=None:
+                response["img_url"] = content_manager.image.url
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchUserProfileAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
+FetchUserProfile = FetchUserProfileAPI.as_view()
 
 LoginSubmit = LoginSubmitAPI.as_view()
 

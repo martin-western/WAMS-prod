@@ -5,12 +5,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-# from WAMSApp.utils import *
-
 from django.db.models.signals import pre_delete
 
 from PIL import Image as IMAGE
-#import StringIO
 import logging
 import sys
 import json
@@ -69,7 +66,7 @@ class PossibleValues(models.Model):
     prop = models.ForeignKey(Property, blank=True,
                              default='', on_delete=models.CASCADE)
     name = models.CharField(max_length=256, blank=True, default='')
-    lable = models.CharField(max_length=256, blank=True, default='')
+    label = models.CharField(max_length=256, blank=True, default='')
     value = models.CharField(max_length=256, blank=True, default='')
     unit = models.CharField(max_length=256, blank=True, default='')
 
@@ -87,7 +84,7 @@ class DealsHubProduct(models.Model):
         Category, on_delete=models.CASCADE, blank=True,null=True)
     sub_category = models.ForeignKey(
         SubCategory, on_delete=models.CASCADE, blank=True, null=True)
-    properties = models.TextField(null=True, blank=True, default="")
+    properties = models.TextField(null=True, blank=True, default="{}")
 
     class Meta:
         verbose_name = "DealsHub Product"
