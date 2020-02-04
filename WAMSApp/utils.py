@@ -91,7 +91,7 @@ def fetch_prices(product_id):
         url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-        company_codes = ["1070","1000","6000","5550","5600","7000","5110","5100","3050","2100","5700","1100","3000","5000"] 
+        company_codes = ["1070","1000","6000"] 
         
         warehouse_information = []
 
