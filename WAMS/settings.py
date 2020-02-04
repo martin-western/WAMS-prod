@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'auditlog',
     'WAMSApp',
+    'dealshub',
     'storages',
     'django_extensions',
     'corsheaders'
@@ -164,7 +165,7 @@ APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
 
 LOGFILE_SIZE = 20 * 1024 * 1024
 LOGFILE_COUNT = 5
-LOGFILE_APP = 'WAMSApp'
+LOGFILE_APP = 'dealshub'
 
 LOGGING = {
     'version': 1,
