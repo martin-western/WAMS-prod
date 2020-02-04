@@ -281,7 +281,12 @@ class CreateNewBaseProductAPI(APIView):
             product_name = convert_to_ascii(data["product_name"])
             seller_sku = convert_to_ascii(data["seller_sku"])
             brand_name = convert_to_ascii(data["brand_name"])
-
+            category = convert_to_ascii(data["category"])
+            sub_category = convert_to_ascii(data["sub_category"])
+            manufacturer = convert_to_ascii(data["manufacturer"])
+            manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
+            dimensions = convert_to_ascii(data["dimensions"])
+            
             # Checking brand permission
             brand_obj = None
             try:
@@ -306,7 +311,12 @@ class CreateNewBaseProductAPI(APIView):
 
             base_product_obj = BaseProduct.objects.create(base_product_name=product_name,
                                               seller_sku=seller_sku,
-                                              brand=brand_obj)
+                                              brand=brand_obj,
+                                              category=category,
+                                              sub_category=sub_category,
+                                              manufacturer=manufacturer,
+                                              manufacturer_part_number=manufacturer_part_number,
+                                              dimensions=dimensions)
 
             product_obj = Product.objects.create(product_name=product_name,
                                               base_product=base_product_obj)
@@ -1206,6 +1216,7 @@ class SaveBaseProductAPI(APIView):
             manufacturer = convert_to_ascii(data["manufacturer"])
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
             category = convert_to_ascii(data["category"])
+            sub_category = convert_to_ascii(data["sub_category"])
             subtitle = convert_to_ascii(data["subtitle"])
             
 
@@ -1233,6 +1244,7 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.manufacturer = manufacturer
             base_product_obj.manufacturer_part_number = manufacturer_part_number
             base_product_obj.category = category
+            base_product_obj.sub_category = sub_category
             base_product_obj.subtitle = subtitle
             base_product_obj.dimensions = dimensions
             
@@ -1470,6 +1482,7 @@ class FetchProductListAPI(APIView):
 
                 temp_dict["seller_sku"] = base_product_obj.seller_sku
                 temp_dict["category"] = base_product_obj.category
+                temp_dict["sub_category"] = base_product_obj.sub_category
                 temp_dict["subtitle"] = base_product_obj.subtitle
                 temp_dict["dimensions"] = json.loads(base_product_obj.dimensions)
                 
