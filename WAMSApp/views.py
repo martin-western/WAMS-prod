@@ -1235,7 +1235,8 @@ class SaveBaseProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            base_product_obj = BaseProduct.objects.get(pk=int(data["base_product_pk"]))
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+            base_product_obj = Product.base_product
             
             base_product_name = convert_to_ascii(data["base_product_name"])
             seller_sku = convert_to_ascii(data["seller_sku"])
