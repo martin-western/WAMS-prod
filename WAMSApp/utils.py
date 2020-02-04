@@ -12,7 +12,7 @@ from WAMSApp.serializers import UserSerializer
 import requests
 import xmltodict
 import json
-
+from django.utils import timezone
 
 def my_jwt_response_handler(token, user=None, request=None):
     return {
@@ -88,6 +88,14 @@ def decode_base64_file(data):
 
 def fetch_prices(product_id):
     try:
+
+        # Check if Cached
+        product_obj = Product.objects.get(product_id=product_id)
+        curr_time = timezone.now()
+        if (product_obj.sap_cache_time-curr_time).seconds<86400:
+            warehouse_information = json.loads(product_obj.sap_cache)
+            return warehouse_information
+
         url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
@@ -199,6 +207,8 @@ def fetch_prices(product_id):
 
             warehouse_information.append(warehouse_dict)
 
+        product_obj.sap_cache = json.dumps(warehouse_information)
+        product_obj.save()
         return warehouse_information
 
     except Exception as e:
