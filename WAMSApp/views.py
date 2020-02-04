@@ -1604,7 +1604,8 @@ class FetchProductListAPI(APIView):
                         temp_dict["channel_products"].append(temp_dict3)
 
                     warehouses_information = fetch_prices(product_obj.product_id)
-                    temp_dict2["warehouses_information"] =warehouses_information
+                    temp_dict2["warehouses_information"] = []
+                    temp_dict2["warehouses_information"] = warehouses_information
 
                     temp_dict2["channels_of_prod"] = channels_of_prod
                     temp_dict2["active_channels"] = active_channels
