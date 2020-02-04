@@ -1493,17 +1493,14 @@ class FetchProductListAPI(APIView):
 
                     main_images_list = main_images_list.distinct()
                     
+                    temp_dict2["main_images"] = []
+
                     if main_images_list.filter(is_main_image=True).count() > 0:
                         try:
-                            temp_dict2["main_image"] = main_images_list.filter(is_main_image=True)[
-                                0].image.thumbnail.url
+                            temp_dict2["main_images"] = create_response_images_main(main_images_list.filter(is_main_image=True))
                         except Exception as e:
-                            temp_dict2["main_image"] = Config.objects.all()[
-                                0].product_404_image.image.url
-                    else:
-                        temp_dict2["main_image"] = Config.objects.all()[
-                            0].product_404_image.image.url
-
+                            pass
+            
                     channels_of_prod =0
                     active_channels = 0
 
