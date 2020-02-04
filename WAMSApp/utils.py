@@ -9,6 +9,7 @@ from WAMSApp.amazon_uae import *
 from WAMSApp.ebay import *
 from WAMSApp.noon import *
 from WAMSApp.serializers import UserSerializer
+import requests
 
 
 def my_jwt_response_handler(token, user=None, request=None):
