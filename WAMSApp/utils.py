@@ -144,7 +144,8 @@ def fetch_prices(product_id):
             qty=0.0
 
             warehouse_dict["company_code"] = company_code
-            for item in items:
+            
+            if isinstance(items, dict):
                 temp_price = item["EX_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
@@ -161,11 +162,33 @@ def fetch_prices(product_id):
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     RET_EA = max(temp_price, RET_EA)
-                temp_qty += item["TOT_QTY"]
+                temp_qty = item["TOT_QTY"]
                 if temp_qty!=None:
                     temp_qty = float(temp_qty)
                     qty = max(temp_qty, qty)
-                    
+            else:
+                for item in items:
+                    temp_price = item["EX_EA"]
+                    if temp_price!=None:
+                        temp_price = float(temp_price)
+                        EX_EA = max(temp_price, EX_EA)
+                    temp_price = item["IC_EA"]
+                    if temp_price!=None:
+                        temp_price = float(temp_price)
+                        IC_EA = max(temp_price, IC_EA)
+                    temp_price = item["OD_EA"]
+                    if temp_price!=None:
+                        temp_price = float(temp_price)
+                        OD_EA = max(temp_price, OD_EA)
+                    temp_price = item["RET_EA"]
+                    if temp_price!=None:
+                        temp_price = float(temp_price)
+                        RET_EA = max(temp_price, RET_EA)
+                    temp_qty = item["TOT_QTY"]
+                    if temp_qty!=None:
+                        temp_qty = float(temp_qty)
+                        qty = max(temp_qty, qty)
+                        
             prices = {}
             prices["EX_EA"] = str(EX_EA)
             prices["IC_EA"] = str(IC_EA)
@@ -181,4 +204,4 @@ def fetch_prices(product_id):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Fetch Prices: %s at %s", e, str(exc_tb.tb_lineno))
-        return 0
+        return []
