@@ -10,6 +10,8 @@ from WAMSApp.ebay import *
 from WAMSApp.noon import *
 from WAMSApp.serializers import UserSerializer
 import requests
+import xmltodict
+import json
 
 
 def my_jwt_response_handler(token, user=None, request=None):
