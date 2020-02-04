@@ -96,7 +96,7 @@ def fetch_prices(product_id):
         warehouse_information = []
 
         for company_code in company_codes:
-            
+            warehouse_dict = {}
             body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
             <soapenv:Header />
             <soapenv:Body>
