@@ -1013,7 +1013,7 @@ class FetchBaseProductDetailsAPI(APIView):
             permissible_brands = custom_permission_filter_brands(request.user)
 
             if brand_obj not in permissible_brands:
-                logger.warning("FetchProductDetails Restricted Access!")
+                logger.warning("FetchBaseProductDetailsAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -1126,7 +1126,9 @@ class FetchProductDetailsAPI(APIView):
             else:
                 response["material_type"] = ""
             
-            
+            warehouses_information = fetch_prices(product_obj.base_product.seller_sku)
+            response["warehouses_information"] = []
+            response["warehouses_information"] = warehouses_information
 
             images = {}
 

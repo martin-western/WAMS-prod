@@ -545,6 +545,18 @@
             }  
         ]
     },
+    "warehouses_information":[
+        {
+            "company_code" : "",
+            "prices" : {
+                "EX_EA" : "",
+                "OD_EA" : "",
+                "RET_EA" : "",
+                "IC_EA" : ""
+            },
+            "qty" : ""
+        }
+    ],
     "status": ""
 }
 
