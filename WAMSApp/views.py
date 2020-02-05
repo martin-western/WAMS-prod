@@ -994,6 +994,53 @@ class FetchEbayChannelProductAPI(APIView):
 
         return Response(data=response)
 
+class FetchBaseProductDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchBaseProductDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchProductDetails Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            if brand_obj == None:
+                response["brand_name"] = ""
+            else:
+                response["brand_name"] = brand_obj.name
+            
+            response["base_product_name"] = base_product_obj.base_product_name
+            response["category"] = base_product_obj.category
+            response["subtitle"] = base_product_obj.subtitle
+            response["sub_category"] = base_product_obj.sub_category
+            response["seller_sku"] = base_product_obj.seller_sku
+            response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
+            response["manufacturer"] = base_product_obj.manufacturer
+            response["base_dimensions"] = json.loads(base_product_obj.dimensions)
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBaseProductDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchProductDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1208,8 +1255,7 @@ class SaveBaseProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            base_product_obj = Product.base_product
+            base_product_obj = BaseProduct.objects.get(pk=int(data["base_product_pk"]))
             
             base_product_name = convert_to_ascii(data["base_product_name"])
             seller_sku = convert_to_ascii(data["seller_sku"])
@@ -1220,8 +1266,8 @@ class SaveBaseProductAPI(APIView):
             sub_category = convert_to_ascii(data["sub_category"])
             subtitle = convert_to_ascii(data["subtitle"])
             
-
             dimensions = json.loads(data["dimensions"])
+            
             old_dimensions = json.loads(base_product_obj.dimensions)
             if len(list(dimensions.keys()))==len(list(old_dimensions.keys())):
                 for key in dimensions:
@@ -1231,8 +1277,6 @@ class SaveBaseProductAPI(APIView):
             else:
                 dimensions = old_dimensions
             dimensions = json.dumps(dimensions)
-
-           
 
             if BaseProduct.objects.filter(seller_sku=seller_sku).exclude(pk=data["base_product_pk"]).count() >= 1 :
                 logger.warning("Duplicate product detected!")
@@ -3829,6 +3873,8 @@ FetchConstantValues = FetchConstantValuesAPI.as_view()
 CreateNewProduct = CreateNewProductAPI.as_view()
 
 CreateNewBaseProduct = CreateNewBaseProductAPI.as_view()
+
+FetchBaseProductDetailsAPI = FetchBaseProductDetailsAPI.as_view()
 
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 

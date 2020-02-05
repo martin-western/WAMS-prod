@@ -165,7 +165,7 @@ APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
 
 LOGFILE_SIZE = 20 * 1024 * 1024
 LOGFILE_COUNT = 5
-LOGFILE_APP = 'dealshub'
+LOGFILE_APP = 'WAMSApp'
 
 LOGGING = {
     'version': 1,

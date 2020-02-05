@@ -19,6 +19,7 @@ urlpatterns = [
 
     url(r'^edit-product/(?P<pk>[\w-]+)/$', views.EditProductPage),
     url(r'^fetch-product-details/$', views.FetchProductDetails),
+    url(r'^fetch-base-product-details/$', views.FetchBaseProductDetailsAPI),
     url(r'^save-product/$', views.SaveProduct),
 
     # url(r'^save-pfl-image/', views.SavePflImage),
