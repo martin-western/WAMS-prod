@@ -670,7 +670,13 @@
                         }
                     ],
                     "status": "",
-                    "main_image": "",
+                    "main_images": [
+                        {
+                            "main_image" : "",
+                            "thumbnail_url" : "",
+                            "midimage_url" : ""
+                        }
+                    ],
                     "channels_of_prod": ""
                 }
             ],

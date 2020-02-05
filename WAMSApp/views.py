@@ -1512,7 +1512,8 @@ class FetchProductListAPI(APIView):
                 temp_dict["product_name"] = base_product_obj.base_product_name
                 temp_dict["manufacturer"] = base_product_obj.manufacturer
                 temp_dict["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
-                
+                temp_dict["base_main_images"] = []
+
                 if base_product_obj.brand != None:
                     temp_dict["brand_name"] = base_product_obj.brand.name
                 else:
@@ -1555,7 +1556,9 @@ class FetchProductListAPI(APIView):
 
                     if main_images_list.filter(is_main_image=True).count() > 0:
                         try:
-                            temp_dict2["main_images"] = create_response_images_main(main_images_list.filter(is_main_image=True))
+                            main_images = create_response_images_main(main_images_list.filter(is_main_image=True))
+                            temp_dict2["main_images"] = main_images
+                            temp_dict["base_main_images"].append(main_images)
                         except Exception as e:
                             pass
             

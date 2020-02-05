@@ -5,4 +5,6 @@ log/*
 files/*
 static/*
 WAMSApp/migrations/*
+dealshub/migrations/*
 WAMS/settings.py
+*.sql
