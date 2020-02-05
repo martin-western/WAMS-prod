@@ -31,4 +31,6 @@ urlpatterns = [
     url(r'^delete-admin-category/$', views.DeleteAdminCategory),
     url(r'^publish-admin-category/$', views.PublishAdminCategory),
 
+    url(r'^unpublish-admin-category/$', views.UnPublishAdminCategory),
+    url(r'^section-bulk-upload/$', views.SectionBulkUploadAPI),
 ]
