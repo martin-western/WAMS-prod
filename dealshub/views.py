@@ -1961,6 +1961,8 @@ class CreateAdminCategoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            data = data["sectionData"]
+
             for key in data:
                 logger.info("CreateAdminCategoryAPI KEY: %s", str(key))
 
@@ -2037,6 +2039,11 @@ class UpdateAdminCategoryAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateAdminCategoryAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data = data["sectionData"]
 
             uuid = data["uuid"]
             name = data["name"]
