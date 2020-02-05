@@ -166,6 +166,7 @@ APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
 LOGFILE_SIZE = 20 * 1024 * 1024
 LOGFILE_COUNT = 5
 LOGFILE_APP = 'WAMSApp'
+LOGFILE_APP2 = 'dealshub'
 
 LOGGING = {
     'version': 1,
@@ -192,6 +193,11 @@ LOGGING = {
     },
     'loggers': {
         LOGFILE_APP: {
+            'handlers': ['applog'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        LOGFILE_APP2: {
             'handlers': ['applog'],
             'level': 'INFO',
             'propagate': True,
