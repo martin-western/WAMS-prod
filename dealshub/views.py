@@ -69,11 +69,9 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
         return
 
 
-class FecthProductDetailsAPI(APIView):
-    # Fetching the details of a particular product based on its
-    # id --> product_id
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+class FetchProductDetailsAPI(APIView):
+   
+    permission_classes = [AllowAny]
 
     def fetch_price(self,product_id):
         try:
@@ -140,25 +138,8 @@ class FecthProductDetailsAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-            """
-            {
-                "price": "999.70",
-                "currency": "AED",
-                "minLimit": "1",
-                "maxLimit": "5",
-
-                "productDispDetails": [
-                    "Brand new and high quality",
-                    "Made of supreme quality, durable EVA crush resistant, anti-shock material.",
-                    "Soft inner cloth lining, one mesh pocket inside.",
-                    "Compact and functional hard case keeps items safe and extremely portable.",
-                    "Force Touch trackpad (13-inch model)"
-                ]
-            }
-
-            """
             data = request.data
-            logger.info("FecthProductDetailsAPI: %s", str(data))
+            logger.info("FetchProductDetailsAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -173,7 +154,6 @@ class FecthProductDetailsAPI(APIView):
             response["subCategory"] = str(temp_product_obj.sub_category)
             response["id"] = temp_product_obj.pk
             response["uuid"] = data["uuid"]
-            #response["heroImageUrl"] = ""
             response["name"] = product_obj.product_name
             response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
             response["currency"] = "AED"
@@ -192,39 +172,9 @@ class FecthProductDetailsAPI(APIView):
                 product_description = json.loads(product_obj.channel_product.amazon_uk_product_json)["product_description"]
             except Exception as e:
                 pass
-            """
-            response["productDispDetails"] = [
-                "Brand new and high quality",
-                "Made of supreme quality, durable EVA crush resistant, anti-shock material.",
-                "Soft inner cloth lining, one mesh pocket inside.",
-                "Compact and functional hard case keeps items safe and extremely portable.",
-                "Force Touch trackpad (13-inch model)"
-            ]
-            """
+            
             response["productDispDetails"] = product_description
-            """
-            response["productImagesUrl"] =  [{
-                     "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg"
-                    }]
-
-            """
+            
             response["productImagesUrl"] = []
             images = {}
 
@@ -243,7 +193,6 @@ class FecthProductDetailsAPI(APIView):
                 main_images_list)
             response["heroImageUrl"] = images["main_images"][0]["main-url"]
 
-#	    response["heroImageUrl"] = "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/1.jpg"
             response["subtitle"] = base_product_obj.subtitle
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
@@ -288,8 +237,6 @@ class FecthProductDetailsAPI(APIView):
                 main_images_list)
 
             sub_images_list = ImageBucket.objects.none()
-            # sub_images_obj = SubImages.objects.get(
-            #     product=product_obj, is_sourced=True)
             try:
                 sub_images_obj = SubImages.objects.get(
                     product=product_obj, is_sourced=True)
@@ -305,28 +252,7 @@ class FecthProductDetailsAPI(APIView):
                 temp_images["thumbnail"] = temp_image["thumbnail-url"]
                 response["productImagesUrl"].append(temp_images)
             response["productImagesUrl"].append({"original":response["heroImageUrl"], "thumbnail":response["heroImageUrl"]})
-            """
-            response["productImagesUrl"] =  [{
-                        "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg",
-                     "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg"
-                   },
-                   {
-                   "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png",
-                   "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg"
-                    }]
-            """
+            
             response["productProperties"] = json.loads(
                 temp_product_obj.properties)
 
@@ -366,17 +292,16 @@ class FecthProductDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FecthProductDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+            logger.error("FetchProductDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-FecthProductDetails = FecthProductDetailsAPI.as_view()
+FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 """
 class FetchCarouselAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -513,9 +438,9 @@ class FetchCarouselAPI(APIView):
 """
 
 class FetchCarouselAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    
     permission_classes = [AllowAny]
+    
     def fetch_price(self,product_id):
         try:
             url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
@@ -619,7 +544,7 @@ class FetchCarouselAPI(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FecthCarouselProductAPI: %s at %s",
+            logger.error("FetchCarouselProductAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
@@ -629,8 +554,8 @@ FetchCarousel = FetchCarouselAPI.as_view()
 
 
 class FetchCategoryGridBannerCardsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -679,7 +604,7 @@ class FetchCategoryGridBannerCardsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FecthProductDetailsAPI: %s at %s",
+            logger.error("FetchProductDetailsAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
@@ -688,8 +613,8 @@ FetchCategoryGridBannerCards = FetchCategoryGridBannerCardsAPI.as_view()
 
 
 class FetchCategoriesAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -790,8 +715,8 @@ FetchCategories = FetchCategoriesAPI.as_view()
 
 
 class FetchDashboardBannerDetailsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -831,8 +756,8 @@ FetchDashboardBannerDetails = FetchDashboardBannerDetailsAPI.as_view()
 
 
 class FetchBannerDealsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -878,12 +803,10 @@ class FetchBannerDealsAPI(APIView):
 
 
 FetchBannerDeals = FetchBannerDealsAPI.as_view()
-# FetchBatchDiscountDeals
 
 
 class FetchBatchDiscountDealsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -990,8 +913,7 @@ FetchBatchDiscountDeals = FetchBatchDiscountDealsAPI.as_view()
 
 
 class FetchSpecialDiscountProductAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1029,11 +951,8 @@ class FetchSpecialDiscountProductAPI(APIView):
 FetchSpecialDiscountProduct = FetchSpecialDiscountProductAPI.as_view()
 
 
-# FetchSchedularProducts
-
 class FetchSchedularProductsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1125,8 +1044,7 @@ FetchSchedularProducts = FetchSchedularProductsAPI.as_view()
 
 
 class FetchFeaturedProductsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1302,8 +1220,7 @@ FetchFeaturedProducts = FetchFeaturedProductsAPI.as_view()
 
 
 class FetchOnSaleProductsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1375,8 +1292,7 @@ FetchOnSaleProducts = FetchOnSaleProductsAPI.as_view()
 
 
 class FetchTopRatedProductsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1462,8 +1378,7 @@ FetchTopRatedProducts = FetchTopRatedProductsAPI.as_view()
 # Search
 """
 class SearchAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1630,8 +1545,7 @@ class SearchAPI(APIView):
 
 
 class SearchAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def fetch_price(self,product_id):
         try:
@@ -2072,6 +1986,60 @@ class PublishAdminCategoryAPI(APIView):
         return Response(data=response)
 
 
+class FetchBrandsCarouselAPI(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchBrandsCarouselAPI: %s", str(data))
+
+            brands_carousel = [
+                {
+                  "id": "1",
+                  "name": "geepas",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/geepas-logo.png"
+                },
+                {
+                  "id": "2",
+                  "name": "krypton",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/krypton-logo.png"
+                },
+                {
+                  "id": "3",
+                  "name": "olsenmark",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/olsenmark-logo.png"
+                },
+                {
+                  "id": "4",
+                  "name": "geepas",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/geepas-logo.png"
+                },
+                {
+                  "id": "5",
+                  "name": "krypton",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/krypton-logo.png"
+                },
+                {
+                  "id": "6",
+                  "name": "olsenmark",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/olsenmark-logo.png"
+                }]
+                
+            response['brands_carousel'] = brands_carousel
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBrandsCarouselAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2082,3 +2050,5 @@ UpdateAdminCategory = UpdateAdminCategoryAPI.as_view()
 DeleteAdminCategory = DeleteAdminCategoryAPI.as_view()
 
 PublishAdminCategory = PublishAdminCategoryAPI.as_view()
+
+FetchBrandsCarousel = FetchBrandsCarouselAPI.as_view()

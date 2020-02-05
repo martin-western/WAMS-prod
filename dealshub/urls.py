@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 
 
 urlpatterns = [
-    url(r'^fetch-product-details/$', views.FecthProductDetails),
+    url(r'^fetch-product-details/$', views.FetchProductDetails),
     url(r'^fetch-carousel/$', views.FetchCarousel),
     url(r'^fetch-categories/$', views.FetchCategories),
 
@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^fetch-featured-products/$', views.FetchFeaturedProducts),
     url(r'^fetch-on-sale-products/$', views.FetchOnSaleProducts),
     url(r'^fetch-top-rated-products/$', views.FetchTopRatedProducts),
+    url(r'^fetch-brands-carousel/$', views.FetchBrandsCarousel),
     url(r'^search/$', views.Search),
 
     url(r'^create-admin-category/$', views.CreateAdminCategory),
