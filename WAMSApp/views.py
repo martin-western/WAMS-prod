@@ -1579,6 +1579,7 @@ class FetchProductListAPI(APIView):
                         temp_dict3["product_pk"] = product_obj.pk
                         temp_dict3["channel_product_name"] = noon_product["product_name"]
                         temp_dict3["channel_name"] = "Noon"
+                        temp_dict3["is_active"] = noon_product["is_active"]
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
                         
                         try:
@@ -1605,6 +1606,7 @@ class FetchProductListAPI(APIView):
                         temp_dict3["product_pk"] = product_obj.pk
                         temp_dict3["channel_product_name"] = amazon_uk_product["product_name"]
                         temp_dict3["channel_name"] = "Amazon UK"
+                        temp_dict3["is_active"] = amazon_uk_product["is_active"]
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
                         try:
                             main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Amazon UK")
@@ -1629,6 +1631,7 @@ class FetchProductListAPI(APIView):
                         temp_dict3["product_pk"] = product_obj.pk
                         temp_dict3["channel_product_name"] = amazon_uae_product["product_name"]
                         temp_dict3["channel_name"] = "Amazon UAE"
+                        temp_dict3["is_active"] = amazon_uae_product["is_active"]
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
                         try:
                             main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Amazon UAE")
@@ -1653,6 +1656,7 @@ class FetchProductListAPI(APIView):
                         temp_dict3["product_pk"] = product_obj.pk
                         temp_dict3["channel_product_name"] = ebay_product["product_name"]
                         temp_dict3["channel_name"] = "Ebay"
+                        temp_dict3["is_active"] = ebay_product["is_active"]
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
                         try:
                             main_images_obj = MainImages.objects.get(product = product_obj, channel__name="Ebay")
