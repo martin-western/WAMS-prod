@@ -24,7 +24,7 @@ for image_obj in image_objs:
         if infile.split(".")[-1].lower()=="png":
             im_type = "PNG" 
         print("im_type", im_type)
-        thumb_io = StringIO.StringIO()
+        thumb_io = StringIO.BytesIO()
         thumb.save(thumb_io, format=im_type)
 
         thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)

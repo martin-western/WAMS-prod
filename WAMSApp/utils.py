@@ -90,7 +90,7 @@ def fetch_prices(product_id):
     try:
 
         # Check if Cached
-        product_obj = Product.objects.get(base_product__seller_sku=product_id)
+        product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
         curr_time = timezone.now()
         if (product_obj.sap_cache_time-curr_time).seconds<86400:
             warehouse_information = json.loads(product_obj.sap_cache)

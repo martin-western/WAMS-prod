@@ -32,10 +32,7 @@ from django.conf import settings
 
 
 from PIL import Image as IMage
-try:
-    import StringIO
-except ImportError:
-    from io import StringIO
+from io import BytesIO as StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 import barcode

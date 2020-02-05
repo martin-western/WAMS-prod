@@ -268,7 +268,7 @@ class CreateNewBaseProductAPI(APIView):
         response['status'] = 500
         try:
             if request.user.has_perm('WAMSApp.add_product') == False:
-                logger.warning("CreateNewProductAPI Restricted Access!")
+                logger.warning("CreateNewBaseProductAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -1595,7 +1595,6 @@ class FetchProductListAPI(APIView):
                     if product_obj.channel_product.is_amazon_uk_product_created == True:
                         
                         channels_of_prod +=1
-                        logger.info("Error HERE :        %s",product_obj.pk)
                         amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
                         if amazon_uk_product["is_active"] == True:
                             active_channels +=1
