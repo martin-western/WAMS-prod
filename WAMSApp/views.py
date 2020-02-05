@@ -1558,7 +1558,8 @@ class FetchProductListAPI(APIView):
                         try:
                             main_images = create_response_images_main(main_images_list.filter(is_main_image=True))
                             temp_dict2["main_images"] = main_images
-                            temp_dict["base_main_images"].append(main_images)
+                            for main_image in main_images:
+                                temp_dict["base_main_images"].append(main_image)
                         except Exception as e:
                             pass
             
