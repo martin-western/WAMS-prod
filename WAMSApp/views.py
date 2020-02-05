@@ -1266,7 +1266,7 @@ class SaveBaseProductAPI(APIView):
             sub_category = convert_to_ascii(data["sub_category"])
             subtitle = convert_to_ascii(data["subtitle"])
             
-            dimensions = json.loads(data["dimensions"])
+            dimensions = data["base_dimensions"]
             
             old_dimensions = json.loads(base_product_obj.dimensions)
             if len(list(dimensions.keys()))==len(list(old_dimensions.keys())):
