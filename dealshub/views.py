@@ -1968,7 +1968,7 @@ class CreateAdminCategoryAPI(APIView):
 
             name = data["name"]
             listing_type = data["listingType"]
-            products = json.loads(data["products"])
+            products = data["products"]
             
             section_obj = Section.objects.create(uuid=str(uuid.uuid4()), name=name, listing_type=listing_type, created_by=request.user, modified_by=request.user)
             for product in products:
@@ -2049,13 +2049,13 @@ class UpdateAdminCategoryAPI(APIView):
             name = data["name"]
             listing_type = data["listingType"]
             is_published = data["isPublished"]
-            products = json.loads(data["products"])
+            products = data["products"]
             
             section_obj = Section.objects.get(uuid=uuid)
             section_obj.name = name
             section_obj.listing_type = listing_type
             section_obj.is_published = is_published
-            section_obj.modified_by = request.user
+            section_obj.modified_by = None
             section_obj.products.clear()
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
