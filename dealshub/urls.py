@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 
 urlpatterns = [
     url(r'^fetch-product-details/$', views.FetchProductDetails),
-    url(r'^fetch-carousel/$', views.FetchCarousel),
+    url(r'^fetch-sections-products/$', views.FetchSectionsProducts),
     url(r'^fetch-categories/$', views.FetchCategories),
 
     url(r'^fetch-category-grid-banner-cards/$',

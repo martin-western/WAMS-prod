@@ -152,7 +152,7 @@ class FetchProductDetailsAPI(APIView):
 
             response["category"] = str(temp_product_obj.category)
             response["subCategory"] = str(temp_product_obj.sub_category)
-            response["id"] = temp_product_obj.pk
+            response["id"] = temp_product_obj.product.uuid
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
             response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
@@ -437,7 +437,124 @@ class FetchCarouselAPI(APIView):
         return Response(data=response)
 """
 
-class FetchCarouselAPI(APIView):
+# class FetchCarouselAPI(APIView):
+    
+#     permission_classes = [AllowAny]
+    
+#     def fetch_price(self,product_id):
+#         try:
+#             url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+#             headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+#             credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+#             company_code = "1070" # GEEPAS
+#             body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+#             <soapenv:Header />
+#             <soapenv:Body>
+#             <urn:ZAPP_STOCK_PRICE>
+#              <IM_MATNR>
+#               <item>
+#                <MATNR>""" + product_id + """</MATNR>
+#               </item>
+#              </IM_MATNR>
+#              <IM_VKORG>
+#               <item>
+#                <VKORG>""" + company_code + """</VKORG>
+#               </item>
+#              </IM_VKORG>
+#              <T_DATA>
+#               <item>
+#                <MATNR></MATNR>
+#                <MAKTX></MAKTX>
+#                <LGORT></LGORT>
+#                <CHARG></CHARG>
+#                <SPART></SPART>
+#                <MEINS></MEINS>
+#                <ATP_QTY></ATP_QTY>
+#                <TOT_QTY></TOT_QTY>
+#                <CURRENCY></CURRENCY>
+#                <IC_EA></IC_EA>
+#                <OD_EA></OD_EA>
+#                <EX_EA></EX_EA>
+#                <RET_EA></RET_EA>
+#                <WERKS></WERKS>
+#               </item>
+#              </T_DATA>
+#             </urn:ZAPP_STOCK_PRICE>
+#             </soapenv:Body>
+#             </soapenv:Envelope>"""
+#             response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+#             content = response2.content
+#             content = xmltodict.parse(content)
+#             content = json.loads(json.dumps(content))
+#             print((json.dumps(content, indent=4, sort_keys=True)))
+#             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+#             price = 0
+#             temp_price = 0
+#             for item in items:
+#                 temp_price = item["EX_EA"]
+#                 if temp_price!=None:
+#                     temp_price = float(temp_price)
+#                     price = max(temp_price, price)
+#             return float(price)
+#         except Exception as e:
+#             #print "Error: "+str(e)
+#             return 0
+#     def get(self, request, *args, **kwargs):
+#         response = {}
+#         response['status'] = 500
+#         try:
+#             data = request.data
+#             logger.info("FetchCarouselAPI: %s", str(data))
+#             product_pks = [942, 943, 944,950,951,957,958,959,961,966]
+#             carousel_obj = []
+#             for product_pk in product_pks:
+#                 prod_obj = Product.objects.get(pk = product_pk)
+#                 temp_dict={}
+#                 temp_dict["productName"] = prod_obj.product_name
+#                 temp_dict["productCategory"] = prod_obj.base_product.category
+#                 temp_dict["productSubCategory"] = prod_obj.base_product.subtitle
+#                 temp_dict["brand"] = str(prod_obj.base_product.brand)
+#                 temp_dict["price"] = self.fetch_price(prod_obj.base_product.seller_sku)
+#                 temp_dict["prevPrice"] = self.fetch_price(prod_obj.base_product.seller_sku)
+#                 temp_dict["currency"] = "AED"
+#                 temp_dict["discount"] = "0%"
+#                 temp_dict["rating"] = "3.5"
+#                 temp_dict["totalRatings"] = "356"
+#                 temp_dict["uuid"] = prod_obj.uuid
+                
+#                 main_images_list = ImageBucket.objects.none()
+#                 main_images_objs = MainImages.objects.filter(product=prod_obj)
+#                 for main_images_obj in main_images_objs:
+#                     main_images_list |= main_images_obj.main_images.all()
+#                 main_images_list = main_images_list.distinct()
+#                 if main_images_list.filter(is_main_image=True).count() > 0:
+#                     try:
+#                         temp_dict["heroImage"] = main_images_list.filter(is_main_image=True)[
+#                             0].image.thumbnail.url
+#                     except Exception as e:
+#                         temp_dict["heroImage"] = Config.objects.all()[
+#                             0].product_404_image.image.url
+#                 else:
+#                     temp_dict["heroImage"] = Config.objects.all()[
+#                         0].product_404_image.image.url
+#                 temp_dict["id"] = prod_obj.pk
+#                 carousel_obj.append(temp_dict)
+
+#             response['carousel'] = carousel_obj
+#             response['status'] = 200
+#         except Exception as e:
+#             exc_type, exc_obj, exc_tb = sys.exc_info()
+#             logger.error("FetchCarouselProductAPI: %s at %s",
+#                          e, str(exc_tb.tb_lineno))
+#         return Response(data=response)
+
+
+
+# FetchCarousel = FetchCarouselAPI.as_view()
+
+
+
+class FetchSectionsProductsAPI(APIView):
     
     permission_classes = [AllowAny]
     
@@ -504,53 +621,59 @@ class FetchCarouselAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchCarouselAPI: %s", str(data))
-            product_pks = [942, 943, 944,950,951,957,958,959,961,966]
-            carousel_obj = []
-            for product_pk in product_pks:
-                prod_obj = Product.objects.get(pk = product_pk)
-                temp_dict={}
-                temp_dict["productName"] = prod_obj.product_name
-                temp_dict["productCategory"] = prod_obj.base_product.category
-                temp_dict["productSubCategory"] = prod_obj.base_product.subtitle
-                temp_dict["brand"] = str(prod_obj.base_product.brand)
-                temp_dict["price"] = self.fetch_price(prod_obj.base_product.seller_sku)
-                temp_dict["prevPrice"] = self.fetch_price(prod_obj.base_product.seller_sku)
-                temp_dict["currency"] = "AED"
-                temp_dict["discount"] = "0%"
-                temp_dict["rating"] = "3.5"
-                temp_dict["totalRatings"] = "356"
-                temp_dict["uuid"] = prod_obj.uuid
-                
-                main_images_list = ImageBucket.objects.none()
-                main_images_objs = MainImages.objects.filter(product=prod_obj)
-                for main_images_obj in main_images_objs:
-                    main_images_list |= main_images_obj.main_images.all()
-                main_images_list = main_images_list.distinct()
-                if main_images_list.filter(is_main_image=True).count() > 0:
-                    try:
-                        temp_dict["heroImage"] = main_images_list.filter(is_main_image=True)[
-                            0].image.thumbnail.url
-                    except Exception as e:
-                        temp_dict["heroImage"] = Config.objects.all()[
-                            0].product_404_image.image.url
-                else:
-                    temp_dict["heroImage"] = Config.objects.all()[
-                        0].product_404_image.image.url
-                temp_dict["id"] = prod_obj.pk
-                carousel_obj.append(temp_dict)
+            logger.info("FetchSectionsProductsAPI: %s", str(data))
 
-            response['carousel'] = carousel_obj
+            section_objs = Section.objects.filter(is_published=True)
+
+            section_list =  []
+
+            for section_obj in section_objs:
+                product_objs = section_obj.products.all()
+                temp_dict = {}
+                temp_dict["section-name"] = section_obj.name
+                temp_dict["productsArray"] = []
+                for product_obj in product_objs:
+                    temp_dict2 = {}
+                    temp_dict2["productName"] = product_obj.product_name
+                    temp_dict2["productCategory"] = product_obj.base_product.category
+                    temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
+                    temp_dict2["brand"] = str(product_obj.base_product.brand)
+                    temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                    temp_dict2["prevPrice"] = temp_dict2["price"]
+                    temp_dict2["currency"] = "AED"
+                    temp_dict2["discount"] = "10"
+                    temp_dict2["rating"] = "4.5"
+                    temp_dict2["totalRatings"] = "5,372"
+                    temp_dict2["id"] = str(product_obj.uuid)
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_objs = MainImages.objects.filter(product=product_obj)
+                    for main_images_obj in main_images_objs:
+                        main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = main_images_list.distinct()
+                    if main_images_list.filter(is_main_image=True).count() > 0:
+                        try:
+                            temp_dict2["heroImage"] = main_images_list.filter(is_main_image=True)[
+                                0].image.thumbnail.url
+                        except Exception as e:
+                            temp_dict2["heroImage"] = Config.objects.all()[
+                                0].product_404_image.image.url
+                    else:
+                        temp_dict2["heroImage"] = Config.objects.all()[
+                            0].product_404_image.image.url
+
+
+                    temp_dict["productsArray"].append(temp_dict2)
+                section_list.append(temp_dict)
+
+            response['section_list'] = section_list
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCarouselProductAPI: %s at %s",
+            logger.error("FetchSectionsProductsAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
-
-
-FetchCarousel = FetchCarouselAPI.as_view()
+FetchSectionsProducts = FetchSectionsProductsAPI.as_view()
 
 
 class FetchCategoryGridBannerCardsAPI(APIView):
@@ -564,7 +687,7 @@ class FetchCategoryGridBannerCardsAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchCarouselAPI: %s", str(data))
+            logger.info("FetchCategoryGridBannerCardsAPI: %s", str(data))
 
             carousel_obj = [
                 {
@@ -604,7 +727,7 @@ class FetchCategoryGridBannerCardsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchProductDetailsAPI: %s at %s",
+            logger.error("FetchCategoryGridBannerCardsAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
@@ -836,7 +959,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
-                        "id": 28
+                        "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
                     },
                     {
                         "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
@@ -850,7 +973,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "3.9",
                         "totalRatings": "1,772",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                        "id": 21
+                        "id": "9259d36f-4356-450a-a0d1-17193aded65b"
                     },
                     {
                         "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -864,7 +987,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-                        "id": 13
+                        "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
                     },
                     {
                         "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
@@ -878,7 +1001,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
-                        "id": 36
+                        "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
                     },
                     {
                         "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
@@ -892,7 +1015,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
-                        "id": 27
+                        "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
                     }
                 ]
             }
@@ -1143,7 +1266,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "4.5",
                     "totalRatings": "5,372",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
-                    "id": 28
+                    "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
                 },
                 {
                     "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
@@ -1157,7 +1280,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "3.9",
                     "totalRatings": "1,772",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                    "id": 21
+                    "id": "9259d36f-4356-450a-a0d1-17193aded65b"
                 },
                 {
                     "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -1171,7 +1294,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "4.5",
                     "totalRatings": "5,372",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-                    "id": 13
+                    "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
                 },
                 {
                     "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
@@ -1185,7 +1308,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "4.5",
                     "totalRatings": "5,372",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
-                    "id": 36
+                    "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
                 },
                 {
                     "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
@@ -1199,7 +1322,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "4.5",
                     "totalRatings": "5,372",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
-                    "id": 27
+                    "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
                 }
             ]
             response['featured_products'] = featured_products
@@ -1637,6 +1760,7 @@ class SearchAPI(APIView):
                 temp_dict["rating"] = "4.5"
                 temp_dict["totalRatings"] = "453"
                 temp_dict["uuid"] = product.uuid
+                temp_dict["id"] = product.uuid
                 
                 main_images_list = ImageBucket.objects.none()
                 main_images_objs = MainImages.objects.filter(product=product)
@@ -1653,7 +1777,6 @@ class SearchAPI(APIView):
                 else:
                     temp_dict["heroImageUrl"] = Config.objects.all()[
                         0].product_404_image.image.url
-                temp_dict["id"] = product.pk
                
                 dealshub_product = DealsHubProduct.objects.get(product=product)
                 category = dealshub_product.category
@@ -2029,7 +2152,7 @@ class FetchBrandsCarouselAPI(APIView):
                   "name": "olsenmark",
                   "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/olsenmark-logo.png"
                 }]
-                
+
             response['brands_carousel'] = brands_carousel
 
             response['status'] = 200
