@@ -223,7 +223,7 @@ REST_FRAMEWORK = {
 
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'WAMSApp.utils.my_jwt_response_handler',
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=1800),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=15552000),
 }
 
 CORS_ORIGIN_ALLOW_ALL = True

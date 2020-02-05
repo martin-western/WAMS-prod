@@ -67,7 +67,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 
 class FetchProductDetailsAPI(APIView):
-   
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
     permission_classes = [AllowAny]
 
     def fetch_price(self,product_id):
@@ -553,6 +553,7 @@ class FetchCarouselAPI(APIView):
 
 class FetchSectionsProductsAPI(APIView):
     
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
     
     def fetch_price(self,product_id):
@@ -627,7 +628,7 @@ class FetchSectionsProductsAPI(APIView):
             for section_obj in section_objs:
                 product_objs = section_obj.products.all()
                 temp_dict = {}
-                temp_dict["section-name"] = section_obj.name
+                temp_dict["sectionName"] = section_obj.name
                 temp_dict["productsArray"] = []
                 for product_obj in product_objs:
                     temp_dict2 = {}
@@ -675,6 +676,7 @@ FetchSectionsProducts = FetchSectionsProductsAPI.as_view()
 
 class FetchCategoryGridBannerCardsAPI(APIView):
     
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -734,6 +736,7 @@ FetchCategoryGridBannerCards = FetchCategoryGridBannerCardsAPI.as_view()
 
 class FetchCategoriesAPI(APIView):
     
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -836,6 +839,7 @@ FetchCategories = FetchCategoriesAPI.as_view()
 
 class FetchDashboardBannerDetailsAPI(APIView):
     
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -877,6 +881,7 @@ FetchDashboardBannerDetails = FetchDashboardBannerDetailsAPI.as_view()
 
 class FetchBannerDealsAPI(APIView):
 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -926,6 +931,7 @@ FetchBannerDeals = FetchBannerDealsAPI.as_view()
 
 
 class FetchBatchDiscountDealsAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -1034,6 +1040,7 @@ FetchBatchDiscountDeals = FetchBatchDiscountDealsAPI.as_view()
 
 class FetchSpecialDiscountProductAPI(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
@@ -1073,7 +1080,7 @@ FetchSpecialDiscountProduct = FetchSpecialDiscountProductAPI.as_view()
 
 class FetchSchedularProductsAPI(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1165,6 +1172,7 @@ FetchSchedularProducts = FetchSchedularProductsAPI.as_view()
 
 class FetchFeaturedProductsAPI(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
@@ -1341,6 +1349,7 @@ FetchFeaturedProducts = FetchFeaturedProductsAPI.as_view()
 
 class FetchOnSaleProductsAPI(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
@@ -1413,7 +1422,7 @@ FetchOnSaleProducts = FetchOnSaleProductsAPI.as_view()
 
 class FetchTopRatedProductsAPI(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1666,6 +1675,7 @@ class SearchAPI(APIView):
 
 class SearchAPI(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def fetch_price(self,product_id):
         try:
@@ -1746,6 +1756,7 @@ class SearchAPI(APIView):
             products = []
             filters = []
             logger.info("products by category %s", str(products_by_category))
+            logger.info("products by name %s", str(products_by_name))
             for product in products_by_name:
                 temp_dict = {}
                 temp_dict["name"] = product.product_name
@@ -1947,6 +1958,7 @@ Search = SearchAPI.as_view()
 class CreateAdminCategoryAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -1985,6 +1997,7 @@ class CreateAdminCategoryAPI(APIView):
 class FetchAdminCategoriesAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def get(self, request, *args, **kwargs):
         response = {}
@@ -2029,6 +2042,7 @@ class FetchAdminCategoriesAPI(APIView):
 class UpdateAdminCategoryAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -2070,6 +2084,7 @@ class UpdateAdminCategoryAPI(APIView):
 class DeleteAdminCategoryAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -2092,6 +2107,7 @@ class DeleteAdminCategoryAPI(APIView):
 class PublishAdminCategoryAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -2113,8 +2129,33 @@ class PublishAdminCategoryAPI(APIView):
         return Response(data=response)
 
 
+class UnPublishAdminCategoryAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UnPublishAdminCategoryAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            
+            section_obj = Section.objects.get(uuid=uuid)
+            section_obj.is_published = False
+            section_obj.save()
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 class FetchBrandsCarouselAPI(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
@@ -2168,6 +2209,43 @@ class FetchBrandsCarouselAPI(APIView):
         return Response(data=response)
 
 
+class SectionBulkUploadAPI(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SectionBulkUploadAPI: %s", str(data))
+
+            path = default_storage.save('tmp/temp-section.xlsx', data["import_file"])
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            uuid = data["uuid"]
+            section_obj = Section.objects.get(uuid=uuid)
+
+            for i in range(rows):
+                try:
+                    product_id = dfs.iloc[i][0]
+                    product_obj = Product.objects.get(uuid=product)
+                    section_obj.products.add(product_obj)
+                except Exception as e:
+                    pass
+                    
+            section_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SectionBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
 FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
@@ -2178,4 +2256,8 @@ DeleteAdminCategory = DeleteAdminCategoryAPI.as_view()
 
 PublishAdminCategory = PublishAdminCategoryAPI.as_view()
 
+UnPublishAdminCategory = UnPublishAdminCategoryAPI.as_view()
+
 FetchBrandsCarousel = FetchBrandsCarouselAPI.as_view()
+
+SectionBulkUpload = SectionBulkUploadAPI.as_view()
