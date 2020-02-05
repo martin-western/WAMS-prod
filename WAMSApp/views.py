@@ -1595,6 +1595,7 @@ class FetchProductListAPI(APIView):
                     if product_obj.channel_product.is_amazon_uk_product_created == True:
                         
                         channels_of_prod +=1
+                        logger.info("Error HERE :        %s",product_obj.pk)
                         amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
                         if amazon_uk_product["is_active"] == True:
                             active_channels +=1
@@ -1780,6 +1781,8 @@ class AddToExportAPI(APIView):
             export_option = data["export_option"]
             export_title_pk = data["export_title_pk"]
             export_title = convert_to_ascii(data["export_title"])
+            channel_name = data["channel_name"]
+            channel_obj = Channel.objects.get(name=channel_name)
             products = json.loads(data["products"])
 
             export_obj = None
@@ -1791,6 +1794,7 @@ class AddToExportAPI(APIView):
             for product_pk in products:
                 product = Product.objects.get(pk=int(product_pk))
                 export_obj.products.add(product)
+                export_obj.channel = channel_obj
                 export_obj.save()
 
             response['status'] = 200
@@ -1814,21 +1818,61 @@ class FetchExportProductListAPI(APIView):
             logger.info("FetchExportProductListAPI: %s", str(data))
 
             export_obj = ExportList.objects.get(pk=int(data["export_pk"]))
+            channel_name = export_obj.channel.name
             products = export_obj.products.all()
 
+            temp_dict = {}
             product_list = []
             for product in products:
-                temp_dict = {}
-                temp_dict["product_name"] = product.product_name
-                temp_dict["product_name_sap"] = product.product_name_sap
-                temp_dict["product_id"] = product.product_id
-                temp_dict["product_pk"] = product.pk
-                if product.main_images.filter(is_main_image=True).count() > 0:
-                    temp_dict['product_image_url'] = product.main_images.filter(is_main_image=True)[
-                        0].image.mid_image.url
-                else:
-                    temp_dict['product_image_url'] = Config.objects.all()[
-                        0].product_404_image.image.url
+                channel_product = product.channel_product
+                if channel_name == "Amazon UK":
+                    amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
+                    temp_dict["amazon_uk_product"] = amazon_uk_product
+                    main_images_list = ImageBucket.objects.none()
+                    try:
+                        main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
+                        main_images_list=main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
+                        temp_dict["main_images"] = create_response_images_main(main_images_list)
+                    except Exception as e:
+                        temp_dict["main_images"] = []
+                        pass
+                elif channel_name == "Amazon UAE":
+                    amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
+                    temp_dict["amazon_uae_product"] = amazon_uae_product
+                    main_images_list = ImageBucket.objects.none()
+                    try:
+                        main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
+                        main_images_list=main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
+                        temp_dict["main_images"] = create_response_images_main(main_images_list)
+                    except Exception as e:
+                        temp_dict["main_images"] = []
+                        pass
+                elif channel_name == "Noon":
+                    noon_product = json.loads(channel_product.noon_product_json)
+                    temp_dict["noon_product"] = noon_product
+                    main_images_list = ImageBucket.objects.none()
+                    try:
+                        main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
+                        main_images_list=main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
+                        temp_dict["main_images"] = create_response_images_main(main_images_list)
+                    except Exception as e:
+                        temp_dict["main_images"] = []
+                        pass
+                elif channel_name == "Ebay":
+                    ebay_product = json.loads(channel_product.ebay_product_json)
+                    temp_dict["ebay_product"] = ebay_product
+                    main_images_list = ImageBucket.objects.none()
+                    try:
+                        main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
+                        main_images_list=main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
+                        temp_dict["main_images"] = create_response_images_main(main_images_list)
+                    except Exception as e:
+                        temp_dict["main_images"] = []
+                        pass
 
                 product_list.append(temp_dict)
 

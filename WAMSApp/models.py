@@ -568,6 +568,7 @@ class ExportList(models.Model):
     products = models.ManyToManyField(Product, blank=True)
     created_date = models.DateTimeField()
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    channel = models.ForeignKey(Channel,null=True,blank=True, on_delete=models.SET_NULL)
 
     history = AuditlogHistoryField()
     
