@@ -1976,7 +1976,19 @@ class FetchAdminCategoriesAPI(APIView):
                 temp_products = []
                 for prod in section_obj.products.all():
                     temp_dict2 = {}
-                    temp_dict2["thumbnailImageUrl"] = ""
+
+                    main_images_list = ImageBucket.objects.none()
+                    try:
+                        main_images_obj = MainImages.objects.get(
+                            product=prod, is_sourced=True)
+                        main_images_list |= main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
+                        images = create_response_images_main(main_images_list)
+                        temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
+                    except Exception as e:
+                        temp_dict2["thumbnailImageUrl"] = ""
+
+                    
                     temp_dict2["name"] = str(prod.product_name)
                     temp_dict2["displayId"] = str(prod.product_id)
                     temp_dict2["uuid"] = str(prod.uuid)
@@ -2183,16 +2195,40 @@ class SectionBulkUploadAPI(APIView):
             uuid = data["uuid"]
             section_obj = Section.objects.get(uuid=uuid)
 
+            products = []
+            unsuccessful_count = 0
             for i in range(rows):
                 try:
                     product_id = dfs.iloc[i][0]
                     product_obj = Product.objects.get(product_id=product_id)
                     section_obj.products.add(product_obj)
+
+                    temp_dict2 = {}
+
+                    main_images_list = ImageBucket.objects.none()
+                    try:
+                        main_images_obj = MainImages.objects.get(
+                            product=product_obj, is_sourced=True)
+                        main_images_list |= main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
+                        images = create_response_images_main(main_images_list)
+                        temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
+                    except Exception as e:
+                        temp_dict2["thumbnailImageUrl"] = ""
+
+                    temp_dict2["name"] = str(product_obj.product_name)
+                    temp_dict2["displayId"] = str(product_obj.product_id)
+                    temp_dict2["uuid"] = str(product_obj.uuid)
+                    products.append(temp_dict2)
+
                 except Exception as e:
-                    pass
+                    unsuccessful_count += 1
                     
             section_obj.save()
 
+            response["products"] = products
+            response["unsuccessful_count"] = unsuccessful_count
+            response["filepath"] = path 
             response['status'] = 200
 
         except Exception as e:

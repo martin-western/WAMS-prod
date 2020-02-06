@@ -142,6 +142,7 @@ class DealsBanner(models.Model):
     is_published = models.BooleanField(default=False)
 
 
+
 @receiver(pre_delete, sender=DealsHubProduct)
 def update_dealshub_product_table(sender, instance, **kwargs):
     #success = delete_product_in_dealshub(instance.product.uuid)
