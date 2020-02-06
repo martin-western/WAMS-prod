@@ -2289,9 +2289,9 @@ class FetchDealsBannerAPI(APIView):
                 temp_dict["uid"] = deals_banner_obj.uuid
                 temp_dict["isPublished"] = deals_banner_obj.is_published
                 if deals_banner_obj.image!=None:
-                    temp_dict["dispImageUrl"] = deals_banner_obj.image.thumbnail.url
+                    temp_dict["url"] = deals_banner_obj.image.thumbnail.url
                 else:
-                    temp_dict["dispImageUrl"] = ""
+                    temp_dict["url"] = ""
                 banner_deals.append(temp_dict)
             
             response['banner_deals'] = banner_deals
@@ -2437,9 +2437,9 @@ class FetchFullBannerAdAPI(APIView):
                 temp_dict["uuid"] = full_banner_ad_obj.uuid
                 temp_dict["isPublished"] = full_banner_ad_obj.is_published
                 if full_banner_ad_obj.image!=None:
-                    temp_dict["dispImageUrl"] = full_banner_ad_obj.image.thumbnail.url
+                    temp_dict["url"] = full_banner_ad_obj.image.thumbnail.url
                 else:
-                    temp_dict["dispImageUrl"] = ""
+                    temp_dict["url"] = ""
                 banner_deals.append(temp_dict)
             
             response['full_banner_ads'] = banner_deals
