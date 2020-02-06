@@ -1787,7 +1787,7 @@ class AddToExportAPI(APIView):
             export_title = convert_to_ascii(data["export_title"])
             channel_name = data["channel_name"]
             channel_obj = Channel.objects.get(name=channel_name)
-            products = json.loads(data["products"])
+            products = data["products"]
 
             export_obj = None
             if export_option == "New":
