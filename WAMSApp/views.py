@@ -1103,6 +1103,7 @@ class FetchProductDetailsAPI(APIView):
             response["standard_price"] = "" if product_obj.standard_price == None else product_obj.standard_price
             response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
             response["factory_notes"] = product_obj.factory_notes
+            response["factory_code"] = product_obj.factory_code
             response["verified"] = product_obj.verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
@@ -1751,8 +1752,8 @@ class FetchExportListAPI(APIView):
                 temp_dict["created_date"] = str(
                     export_list_obj.created_date.strftime("%d %b, %Y"))
                 temp_dict["pk"] = export_list_obj.pk
-                temp_dict[
-                    "product_count"] = export_list_obj.products.all().count()
+                temp_dict["product_count"] = export_list_obj.products.all().count()
+                temp_dict["channel_name"] = export_list_obj.channel.name
                 export_list.append(temp_dict)
 
             response["export_list"] = export_list
