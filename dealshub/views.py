@@ -2285,14 +2285,18 @@ class FetchDealsBannerAPI(APIView):
             banner_deals = []
 
             for deals_banner_obj in deals_banner_objs:
-                temp_dict = {}
-                temp_dict["uid"] = deals_banner_obj.uuid
-                temp_dict["isPublished"] = deals_banner_obj.is_published
-                if deals_banner_obj.image!=None:
-                    temp_dict["url"] = deals_banner_obj.image.thumbnail.url
-                else:
-                    temp_dict["url"] = ""
-                banner_deals.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["uid"] = deals_banner_obj.uuid
+                    temp_dict["isPublished"] = deals_banner_obj.is_published
+                    if deals_banner_obj.image!=None:
+                        temp_dict["url"] = deals_banner_obj.image.thumbnail.url
+                    else:
+                        temp_dict["url"] = ""
+                    banner_deals.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchDealsBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
             
             response['banner_deals'] = banner_deals
             response['status'] = 200
