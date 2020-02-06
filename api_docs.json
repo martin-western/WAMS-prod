@@ -641,6 +641,19 @@
     "status": ""
 }
 
+/upload-product-image/
+{
+    "product_pk": "",
+    "image_count" : "",
+    "channel_name" : "",
+    "image_1" : "",
+    "image_2" : "",
+    "image_cnt" : "",
+    "image_category" : ""
+}
+{
+    "status" : ""
+}
 -----------------------------------------------------
 /add-to-export/
 {
