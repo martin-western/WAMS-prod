@@ -1835,6 +1835,7 @@ class FetchExportProductListAPI(APIView):
                 if channel_name == "Amazon UK":
                     amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
                     temp_dict["amazon_uk_product"] = amazon_uk_product
+                    temp_dict["product_id"] = product.product_id
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
@@ -1847,6 +1848,7 @@ class FetchExportProductListAPI(APIView):
                 elif channel_name == "Amazon UAE":
                     amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                     temp_dict["amazon_uae_product"] = amazon_uae_product
+                    temp_dict["product_id"] = product.product_id
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
@@ -1859,6 +1861,7 @@ class FetchExportProductListAPI(APIView):
                 elif channel_name == "Noon":
                     noon_product = json.loads(channel_product.noon_product_json)
                     temp_dict["noon_product"] = noon_product
+                    temp_dict["product_id"] = product.product_id
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
@@ -1871,6 +1874,7 @@ class FetchExportProductListAPI(APIView):
                 elif channel_name == "Ebay":
                     ebay_product = json.loads(channel_product.ebay_product_json)
                     temp_dict["ebay_product"] = ebay_product
+                    temp_dict["product_id"] = product.product_id
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
