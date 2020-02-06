@@ -642,11 +642,17 @@
 }
 
 -----------------------------------------------------
-/fetch-export-list/
+/add-to-export/
 {
-    
+    "export_option": "",
+    "export_title_pk" : "",
+    "export_title" : "",
+    "channel_name" : "",
+    "products" : ""
 }
-
+{
+    "status" : ""
+}
 
 /fetch-product-list/
 {
