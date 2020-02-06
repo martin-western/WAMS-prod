@@ -1791,7 +1791,7 @@ class AddToExportAPI(APIView):
 
             export_obj = None
             if export_option == "New":
-                export_obj = ExportList.objects.create(title=export_title, user=request.user)
+                export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
             else:
                 export_obj = ExportList.objects.get(pk=int(export_title_pk))
 
