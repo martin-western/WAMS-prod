@@ -581,7 +581,7 @@ class ExportList(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk == None:
-            self.created_date = timezone.now
+            self.created_date = timezone.now()
         super(ExportList, self).save(*args, **kwargs)
 
 
