@@ -222,7 +222,7 @@ class Image(models.Model):
             thumb_io = BytesIO()
             thumb.save(thumb_io, format=im_type)
 
-            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
+            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
 
             self.thumbnail = thumb_file
 
@@ -232,7 +232,7 @@ class Image(models.Model):
             thumb_io2 = BytesIO()
             thumb2.save(thumb_io2, format=im_type)
 
-            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
+            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
 
             self.mid_image = thumb_file2
         except Exception as e:
