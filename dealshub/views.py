@@ -2177,7 +2177,7 @@ class FetchBrandsCarouselAPI(APIView):
 
 class SectionBulkUploadAPI(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2239,7 +2239,7 @@ class SectionBulkUploadAPI(APIView):
 
 
 class CreateDealsBannerAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -2268,7 +2268,7 @@ class CreateDealsBannerAPI(APIView):
 
 
 class FetchDealsBannerAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -2280,6 +2280,8 @@ class FetchDealsBannerAPI(APIView):
             data = request.data
             logger.info("FetchDealsBannerAPI: %s", str(data))
 
+            resolution = data["resolution"]
+
             deals_banner_objs = DealsBanner.objects.all()
 
             banner_deals = []
@@ -2290,7 +2292,10 @@ class FetchDealsBannerAPI(APIView):
                     temp_dict["uid"] = deals_banner_obj.uuid
                     temp_dict["isPublished"] = deals_banner_obj.is_published
                     if deals_banner_obj.image!=None:
-                        temp_dict["url"] = deals_banner_obj.image.thumbnail.url
+                        if resolution=="low":
+                            temp_dict["url"] = deals_banner_obj.image.thumbnail.url
+                        else:
+                            temp_dict["url"] = deals_banner_obj.image.image.url
                     else:
                         temp_dict["url"] = ""
                     banner_deals.append(temp_dict)
@@ -2309,7 +2314,7 @@ class FetchDealsBannerAPI(APIView):
 
 
 class DeleteDealsBannerAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -2334,7 +2339,7 @@ class DeleteDealsBannerAPI(APIView):
 
 
 class PublishDealsBannerAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -2362,7 +2367,7 @@ class PublishDealsBannerAPI(APIView):
 
 
 class UnPublishDealsBannerAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -2391,7 +2396,7 @@ class UnPublishDealsBannerAPI(APIView):
 
 
 class CreateFullBannerAdAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -2420,7 +2425,7 @@ class CreateFullBannerAdAPI(APIView):
 
 
 class FetchFullBannerAdAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -2457,7 +2462,7 @@ class FetchFullBannerAdAPI(APIView):
 
 
 class DeleteFullBannerAdAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -2484,6 +2489,7 @@ class DeleteFullBannerAdAPI(APIView):
 class PublishFullBannerAdAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
@@ -2510,7 +2516,7 @@ class PublishFullBannerAdAPI(APIView):
 
 
 class UnPublishFullBannerAdAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
