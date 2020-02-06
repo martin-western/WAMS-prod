@@ -2253,6 +2253,9 @@ class CreateDealsBannerAPI(APIView):
 
             image = data["image"]
 
+            if image=="" or image=="undefined" or image==None:
+                return Response(data=response)
+
             image_obj = Image.objects.create(image=image)
 
             deals_banner_obj = DealsBanner.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
