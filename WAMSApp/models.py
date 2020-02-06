@@ -10,7 +10,8 @@ from django.utils import timezone
 #from WAMSApp.utils import *
 
 from PIL import Image as IMAGE
-from io import BytesIO as StringIO
+#from io import BytesIO as StringIO
+from io import BytesIO
 import logging
 import sys
 import json
@@ -218,7 +219,7 @@ class Image(models.Model):
             thumb.thumbnail(size)
             infile = self.image.file.name
             im_type = thumb.format 
-            thumb_io = StringIO.BytesIO()
+            thumb_io = BytesIO()
             thumb.save(thumb_io, format=im_type)
 
             thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
@@ -228,7 +229,7 @@ class Image(models.Model):
             size2 = 512, 512
             thumb2 = IMAGE.open(self.image)
             thumb2.thumbnail(size2)
-            thumb_io2 = StringIO.BytesIO()
+            thumb_io2 = BytesIO()
             thumb2.save(thumb_io2, format=im_type)
 
             thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
