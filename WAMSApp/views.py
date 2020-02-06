@@ -1755,7 +1755,6 @@ class FetchExportListAPI(APIView):
                     export_list_obj.created_date.strftime("%d %b, %Y"))
                 temp_dict["pk"] = export_list_obj.pk
                 temp_dict["product_count"] = export_list_obj.products.all().count()
-                logger.info("HEREEEEEEEEEE %s",export_list_obj)
                 temp_dict["channel_name"] = export_list_obj.channel.name
                 export_list.append(temp_dict)
 
