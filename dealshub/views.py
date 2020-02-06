@@ -2280,6 +2280,8 @@ class FetchDealsBannerAPI(APIView):
             data = request.data
             logger.info("FetchDealsBannerAPI: %s", str(data))
 
+            resolution = data["resolution"]
+
             deals_banner_objs = DealsBanner.objects.all()
 
             banner_deals = []
@@ -2290,7 +2292,10 @@ class FetchDealsBannerAPI(APIView):
                     temp_dict["uid"] = deals_banner_obj.uuid
                     temp_dict["isPublished"] = deals_banner_obj.is_published
                     if deals_banner_obj.image!=None:
-                        temp_dict["url"] = deals_banner_obj.image.thumbnail.url
+                        if resolution=="low":
+                            temp_dict["url"] = deals_banner_obj.image.thumbnail.url
+                        else:
+                            temp_dict["url"] = deals_banner_obj.image.image.url
                     else:
                         temp_dict["url"] = ""
                     banner_deals.append(temp_dict)
