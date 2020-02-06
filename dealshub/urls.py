@@ -14,7 +14,6 @@ urlpatterns = [
         views.FetchCategoryGridBannerCards),
 
     url(r'^fetch-dashboard-banner-details/$', views.FetchDashboardBannerDetails),
-    url(r'^fetch-banner-deals/$', views.FetchBannerDeals),
     url(r'^fetch-batch-discount-deals/$', views.FetchBatchDiscountDeals),
     url(r'^fetch-special-discount-product/$',
         views.FetchSpecialDiscountProduct),
@@ -32,5 +31,11 @@ urlpatterns = [
     url(r'^publish-admin-category/$', views.PublishAdminCategory),
 
     url(r'^unpublish-admin-category/$', views.UnPublishAdminCategory),
-    url(r'^section-bulk-upload/$', views.SectionBulkUploadAPI),
+    url(r'^section-bulk-upload/$', views.SectionBulkUpload),
+
+    url(r'^create-deals-banner/$', views.CreateDealsBanner),
+    url(r'^fetch-deals-banner/$', views.FetchDealsBanner),
+    url(r'^delete-deals-banner/$', views.DeleteDealsBanner),
+    url(r'^publish-deals-banner/$', views.PublishDealsBanner),
+    url(r'^unpublish-deals-banner/$', views.UnPublishDealsBanner)
 ]

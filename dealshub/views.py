@@ -188,7 +188,11 @@ class FetchProductDetailsAPI(APIView):
             main_images_list = main_images_list.distinct()
             images["main_images"] = create_response_images_main(
                 main_images_list)
-            response["heroImageUrl"] = images["main_images"][0]["main-url"]
+            try:
+                logger.info("images %s", str(images))
+                response["heroImageUrl"] = images["main_images"][0]["main_url"]
+            except Exception as e:
+                response["heroImageUrl"] = ""
 
             response["subtitle"] = base_product_obj.subtitle
             response["seller_sku"] = base_product_obj.seller_sku
@@ -245,8 +249,8 @@ class FetchProductDetailsAPI(APIView):
             
             for temp_image in images["sub_images"]:
                 temp_images = {}
-                temp_images["original"] = temp_image["main-url"]
-                temp_images["thumbnail"] = temp_image["thumbnail-url"]
+                temp_images["original"] = temp_image["main_url"]
+                temp_images["thumbnail"] = temp_image["thumbnail_url"]
                 response["productImagesUrl"].append(temp_images)
             response["productImagesUrl"].append({"original":response["heroImageUrl"], "thumbnail":response["heroImageUrl"]})
             
@@ -877,57 +881,6 @@ class FetchDashboardBannerDetailsAPI(APIView):
 
 
 FetchDashboardBannerDetails = FetchDashboardBannerDetailsAPI.as_view()
-
-
-class FetchBannerDealsAPI(APIView):
-
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchBannerDealsAPI: %s", str(data))
-
-            banner_deals = [
-                {
-                    "id": "1",
-                    "dispImageUrl": "wp-content/uploads/2016/02/cameras.jpg",
-                    "displaytext": "Catch <strong>Hottest</strong> Deals in Cameras Category",
-                    "currency": "AED",
-                    "price": "219.19"
-                },
-                {
-                    "id": "2",
-                    "dispImageUrl": "wp-content/uploads/2016/02/DesktopPC-e1523629711911.jpg",
-                    "displaytext": "Tablets, Smartphones and more",
-                    "currency": "AED",
-                    "price": "749.49"
-                },
-                {
-                    "id": "3",
-                    "dispImageUrl": "wp-content/uploads/2016/02/cameras.jpg",
-                    "displaytext": "Catch <strong>Hottest</strong> Deals in Cameras Category",
-                    "currency": "AED",
-                    "price": "219.19"
-                }
-            ]
-            response['banner_deals'] = banner_deals
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchBannerDealsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-FetchBannerDeals = FetchBannerDealsAPI.as_view()
 
 
 class FetchBatchDiscountDealsAPI(APIView):
@@ -1744,11 +1697,12 @@ class SearchAPI(APIView):
             logger.info("SearchAPI: %s", str(data))
             query_string_name = data.get("name", "")
             query_string_category = data.get("category", "")
+            query_string_brand = data.get("brand", "geepas")
             search = {}
             if query_string_name == '':
                 response['status'] = 404
                 return Response(data=response)
-            products_by_category = Product.objects.filter(base_product__brand__name="Geepas")
+            products_by_category = Product.objects.filter(base_product__brand__name=query_string_brand)
             if query_string_category!="ALL":
                 query_string_category = query_string_category.replace("-", " ")
                 products_by_category = products_by_category.filter(base_product__category__icontains = query_string_category)
@@ -1979,7 +1933,7 @@ class CreateAdminCategoryAPI(APIView):
             listing_type = data["listingType"]
             products = data["products"]
             
-            section_obj = Section.objects.create(uuid=str(uuid.uuid4()), name=name, listing_type=listing_type, created_by=request.user, modified_by=request.user)
+            section_obj = Section.objects.create(uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
                 section_obj.products.add(product_obj)
@@ -2222,6 +2176,7 @@ class SectionBulkUploadAPI(APIView):
             logger.info("SectionBulkUploadAPI: %s", str(data))
 
             path = default_storage.save('tmp/temp-section.xlsx', data["import_file"])
+            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
@@ -2246,6 +2201,154 @@ class SectionBulkUploadAPI(APIView):
         return Response(data=response)
 
 
+
+class CreateDealsBannerAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateDealsBannerAPI: %s", str(data))
+
+            image = data["image"]
+
+            image_obj = Image.objects.create(image=image)
+
+            deals_banner_obj = DealsBanner.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            
+            response['uuid'] = deals_banner_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchDealsBannerAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchDealsBannerAPI: %s", str(data))
+
+            deals_banner_objs = DealsBanner.objects.all()
+
+            banner_deals = []
+
+            for deals_banner_obj in deals_banner_objs:
+                temp_dict = {}
+                temp_dict["uuid"] = deals_banner_obj.uuid
+                temp_dict["isPublished"] = deals_banner_obj.is_published
+                if deals_banner_obj.image!=None:
+                    temp_dict["dispImageUrl"] = deals_banner_obj.image.url
+                else:
+                    temp_dict["dispImageUrl"] = ""
+                banner_deals.append(temp_dict)
+            
+            response['banner_deals'] = banner_deals
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteDealsBannerAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteDealsBannerAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            DealsBanner.objects.get(uuid=uuid).delete()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class PublishDealsBannerAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("PublishDealsBannerAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            deals_banner_obj = DealsBanner.objects.get(uuid=uuid)
+            deals_banner_obj.is_published = True
+            deals_banner_obj.save()
+            
+            response['uuid'] = deals_banner_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PublishDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UnPublishDealsBannerAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UnPublishDealsBannerAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            deals_banner_obj = DealsBanner.objects.get(uuid=uuid)
+            deals_banner_obj.is_published = False
+            deals_banner_obj.save()
+            
+            response['uuid'] = deals_banner_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
 FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
@@ -2261,3 +2364,13 @@ UnPublishAdminCategory = UnPublishAdminCategoryAPI.as_view()
 FetchBrandsCarousel = FetchBrandsCarouselAPI.as_view()
 
 SectionBulkUpload = SectionBulkUploadAPI.as_view()
+
+CreateDealsBanner = CreateDealsBannerAPI.as_view()
+
+FetchDealsBanner = FetchDealsBannerAPI.as_view()
+
+DeleteDealsBanner = DeleteDealsBannerAPI.as_view()
+
+PublishDealsBanner = PublishDealsBannerAPI.as_view()
+
+UnPublishDealsBanner = UnPublishDealsBannerAPI.as_view()
