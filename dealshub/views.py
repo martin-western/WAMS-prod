@@ -2288,7 +2288,7 @@ class FetchDealsBannerAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = deals_banner_obj.uuid
                 temp_dict["isPublished"] = deals_banner_obj.is_published
-                if deals_banner_obj.thumbnail!=None:
+                if deals_banner_obj.image!=None:
                     temp_dict["dispImageUrl"] = deals_banner_obj.image.thumbnail.url
                 else:
                     temp_dict["dispImageUrl"] = ""
