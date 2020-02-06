@@ -93,8 +93,8 @@ def fetch_prices(product_id):
         product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
         curr_time = timezone.now()
         if (product_obj.sap_cache_time-curr_time).seconds<86400:
-            warehouse_information = json.loads(product_obj.sap_cache)
-            return warehouse_information
+             warehouse_information = json.loads(product_obj.sap_cache)
+             return warehouse_information
 
         url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
