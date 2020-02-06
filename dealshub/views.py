@@ -2231,7 +2231,7 @@ class SectionBulkUploadAPI(APIView):
             for i in range(rows):
                 try:
                     product_id = dfs.iloc[i][0]
-                    product_obj = Product.objects.get(uuid=product)
+                    product_obj = Product.objects.get(product_id=product_id)
                     section_obj.products.add(product_obj)
                 except Exception as e:
                     pass
