@@ -1366,6 +1366,7 @@ class SaveProductAPI(APIView):
             pfl_product_features = data["pfl_product_features"]
 
             factory_notes = convert_to_ascii(data["factory_notes"])
+            factory_code = convert_to_ascii(data["factory_code"])
 
             product_obj.product_id = product_id
 
@@ -1410,6 +1411,7 @@ class SaveProductAPI(APIView):
             product_obj.pfl_product_features = pfl_product_features
 
             product_obj.factory_notes = factory_notes
+            product_obj.factory_code = factory_code
             
             product_obj.save()
 
