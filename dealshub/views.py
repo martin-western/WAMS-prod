@@ -2286,12 +2286,12 @@ class FetchDealsBannerAPI(APIView):
 
             for deals_banner_obj in deals_banner_objs:
                 temp_dict = {}
-                temp_dict["uuid"] = deals_banner_obj.uuid
+                temp_dict["uid"] = deals_banner_obj.uuid
                 temp_dict["isPublished"] = deals_banner_obj.is_published
                 if deals_banner_obj.image!=None:
-                    temp_dict["dispImageUrl"] = deals_banner_obj.image.thumbnail.url
+                    temp_dict["url"] = deals_banner_obj.image.thumbnail.url
                 else:
-                    temp_dict["dispImageUrl"] = ""
+                    temp_dict["url"] = ""
                 banner_deals.append(temp_dict)
             
             response['banner_deals'] = banner_deals
@@ -2385,6 +2385,154 @@ class UnPublishDealsBannerAPI(APIView):
         return Response(data=response)
 
 
+
+class CreateFullBannerAdAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateFullBannerAdAPI: %s", str(data))
+
+            image = data["image"]
+
+            image_obj = Image.objects.create(image=image)
+
+            full_banner_ad_obj = FullBannerAd.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            
+            response['uuid'] = full_banner_ad_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateFullBannerAdAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchFullBannerAdAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchFullBannerAdAPI: %s", str(data))
+
+            full_banner_ad_objs = FullBannerAd.objects.all()
+
+            banner_deals = []
+
+            for full_banner_ad_obj in full_banner_ad_objs:
+                temp_dict = {}
+                temp_dict["uuid"] = full_banner_ad_obj.uuid
+                temp_dict["isPublished"] = full_banner_ad_obj.is_published
+                if full_banner_ad_obj.image!=None:
+                    temp_dict["url"] = full_banner_ad_obj.image.thumbnail.url
+                else:
+                    temp_dict["url"] = ""
+                banner_deals.append(temp_dict)
+            
+            response['full_banner_ads'] = banner_deals
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteFullBannerAdAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteFullBannerAdAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            FullBannerAd.objects.get(uuid=uuid).delete()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteFullBannerAdAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class PublishFullBannerAdAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("PublishFullBannerAdAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            full_banner_ad_obj = FullBannerAd.objects.get(uuid=uuid)
+            full_banner_ad_obj.is_published = True
+            full_banner_ad_obj.save()
+            
+            response['uuid'] = full_banner_ad_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PublishFullBannerAdAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UnPublishFullBannerAdAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UnPublishFullBannerAdAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            full_banner_ad_obj = FullBannerAd.objects.get(uuid=uuid)
+            full_banner_ad_obj.is_published = False
+            full_banner_ad_obj.save()
+            
+            response['uuid'] = full_banner_ad_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishFullBannerAdAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
 FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
@@ -2410,3 +2558,14 @@ DeleteDealsBanner = DeleteDealsBannerAPI.as_view()
 PublishDealsBanner = PublishDealsBannerAPI.as_view()
 
 UnPublishDealsBanner = UnPublishDealsBannerAPI.as_view()
+
+
+CreateFullBannerAd = CreateFullBannerAdAPI.as_view()
+
+FetchFullBannerAd = FetchFullBannerAdAPI.as_view()
+
+DeleteFullBannerAd = DeleteFullBannerAdAPI.as_view()
+
+PublishFullBannerAd = PublishFullBannerAdAPI.as_view()
+
+UnPublishFullBannerAd = UnPublishFullBannerAdAPI.as_view()
