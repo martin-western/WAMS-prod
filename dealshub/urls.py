@@ -54,4 +54,6 @@ urlpatterns = [
     url(r'^create-category-grid-banner/$', views.CreateCategoryGridBanner),
     url(r'^fetch-category-grid-banner/$', views.FetchCategoryGridBanner),
     url(r'^delete-category-grid-banner/$', views.DeleteCategoryGridBanner),
+
+    url(r'^delete-product-from-section/$', views.DeleteProductFromSection),   
 ]
