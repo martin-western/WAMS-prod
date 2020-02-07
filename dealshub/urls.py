@@ -43,5 +43,9 @@ urlpatterns = [
     url(r'^fetch-full-banner-ad/$', views.FetchFullBannerAd),
     url(r'^delete-full-banner-ad/$', views.DeleteFullBannerAd),
     url(r'^publish-full-banner-ad/$', views.PublishFullBannerAd),
-    url(r'^unpublish-full-banner-ad/$', views.UnPublishFullBannerAd)
+    url(r'^unpublish-full-banner-ad/$', views.UnPublishFullBannerAd),
+
+    url(r'^create-dealshub-product/$', views.CreateDealsHubProduct),
+    url(r'^publish-dealshub-product/$', views.PublishDealsHubProduct),
+    url(r'^unpublish-dealshub-product/$', views.UnPublishDealsHubProduct),    
 ]

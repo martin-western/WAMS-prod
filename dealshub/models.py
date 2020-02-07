@@ -85,6 +85,7 @@ class DealsHubProduct(models.Model):
     sub_category = models.ForeignKey(
         SubCategory, on_delete=models.CASCADE, blank=True, null=True)
     properties = models.TextField(null=True, blank=True, default="{}")
+    is_published = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "DealsHub Product"

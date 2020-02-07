@@ -450,6 +450,8 @@ class Product(models.Model):
     sap_cache = models.TextField(default="[]")
     sap_cache_time = models.DateTimeField(default=timezone.now)
 
+    is_dealshub_product_created = models.BooleanField(default=False)
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
