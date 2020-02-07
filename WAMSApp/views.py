@@ -1227,6 +1227,69 @@ class FetchProductDetailsAPI(APIView):
 
         return Response(data=response)
 
+class FetchDealsHubProductsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchDealsHubProductsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_objs_list = []
+
+            (base_product_objs_list, product_objs_list) = custom_permission_filter_base_products_and_products(request.user)
+
+            product_objs_list = product_objs_list.filter(is_dealshub_product_created=True)
+
+            paginator = Paginator(product_objs_list, 20)
+            product_objs_list = paginator.page(page)
+
+            products = []
+
+            for product_obj in product_objs_list:
+                
+                temp_dict ={}
+                temp_dict["product_pk"] = product_obj.product_pk
+                temp_dict["product_id"] = product_obj.product_id
+                temp_dict["brand_name"] = product_obj.base_product.brand.name
+                
+                repr_image_url = Config.objects.all()[0].product_404_image.image.url
+                repr_high_def_url = repr_image_url
+                
+                main_images_obj = None
+                try:
+                    main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
+                except Exception as e:
+                    pass
+
+                if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                    try:
+                        repr_image_url = main_images_obj.main_images.filter(
+                            is_main_image=True)[0].image.mid_image.url
+                    except Exception as e:
+                        repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+
+                    repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+
+                temp_dict["repr_image_url"] = repr_image_url
+                temp_dict["repr_high_def_url"] = repr_high_def_url
+
+                product.append(temp_dict)
+
+            response['products'] = products
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealsHubProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 class SaveBaseProductAPI(APIView):
 
@@ -4026,3 +4089,4 @@ FetchNoonChannelProduct = FetchNoonChannelProductAPI.as_view()
 
 SaveBaseProduct = SaveBaseProductAPI.as_view()
 
+FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
