@@ -655,7 +655,7 @@ class FetchSectionsProductsAPI(APIView):
                     if main_images_list.filter(is_main_image=True).count() > 0:
                         try:
                             temp_dict2["heroImage"] = main_images_list.filter(is_main_image=True)[
-                                0].image.thumbnail.url
+                                0].image.mid_image.url
                         except Exception as e:
                             temp_dict2["heroImage"] = Config.objects.all()[
                                 0].product_404_image.image.url
@@ -914,7 +914,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674764GEEPAS_MODEL_GAC9602_STRAIGHT.jpg",
                         "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
                     },
                     {
@@ -928,7 +928,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "15",
                         "rating": "3.9",
                         "totalRatings": "1,772",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505981GAC9433_3.JPG",
                         "id": "9259d36f-4356-450a-a0d1-17193aded65b"
                     },
                     {
@@ -942,7 +942,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "28",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505000GA1960-2.jpg",
                         "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
                     },
                     {
@@ -956,7 +956,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "10",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569677989GACW1818HCS-.jpg",
                         "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
                     },
                     {
@@ -970,7 +970,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "28",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674206GAC9580-1.jpg",
                         "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
                     }
                 ]

@@ -49,7 +49,7 @@ def export_amazon_uk(products):
                 common_row[0] = base_product.seller_sku
                 common_row[1] = "" if base_product.brand==None else base_product.brand.name
                 common_row[2] = product.product_id
-                common_row[3] = product.product_id_type.name
+                common_row[3] = str(product.product_id_type)
                 common_row[4] = amazon_uk_product["product_name"]
                 common_row[5] = base_product.manufacturer
                 common_row[6] = amazon_uk_product["recommended_browse_nodes"]
@@ -78,13 +78,15 @@ def export_amazon_uk(products):
                 common_row[46] = "" if product.color_map==None else str(product.color_map)
                 common_row[49] = "" if product.material_type==None else str(product.material_type.name)
 
+                """
                 special_features = json.loads(product.special_features)
                 row_cnt = 0
                 if len(special_features) > 0:
                     for special_feature in special_features[:5]:
                         common_row[50+row_cnt] = special_feature
                         row_cnt += 1
-
+                """
+                """
                 common_row[83] = amazon_uk_product["item_width_metric"]
                 common_row[84] = amazon_uk_product["item_width"]
                 common_row[85] = amazon_uk_product["item_height"]
@@ -116,39 +118,46 @@ def export_amazon_uk(products):
                 common_row[187] = str(amazon_uk_product["sale_from"])
                 common_row[188] = str(amazon_uk_product["sale_end"])
                 common_row[189] = amazon_uk_product["condition_type"]
-
+                """
+                
                 # Graphics Part
-                main_image_url = None
-                main_images_obj = MainImages.objects.get(product = product, channel="Amazon UK")
+                try:
+                    main_image_url = None
+                    main_images_obj = MainImages.objects.get(product = product, channel__name="Amazon UK")
                 
-                if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                    main_image_url = main_image_obj.image.image.url
+                    if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                        main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                        main_image_url = main_image_obj.image.image.url
         
-                common_row[9] = str(main_image_url)
-                
-                image_cnt = 10
-                sub_images_objs = SubImages.objects.filter(product = product, is_sourced=True)
-                
-                for sub_images_obj in sub_images_objs:
-                    if sub_images_obj.sub_images.filter(is_sub_image=True).count() > 0:
-                        for img in sub_images_obj.sub_images.filter(is_sub_image=True).order_by('sub_image_index')[:8]:
-                            common_row[image_cnt] = str(img.image.image.url)
-                            image_cnt += 1
+                    common_row[9] = str(main_image_url)
+                except Exception as e:
+                    pass
+
+                try:
+                    image_cnt = 10
+                    sub_images_objs = SubImages.objects.filter(product = product, channel__name="Amazon UK", is_sourced=True)
+
+                    for sub_images_obj in sub_images_objs:
+                        if sub_images_obj.sub_images.filter(is_sub_image=True).count() > 0:
+                            for img in sub_images_obj.sub_images.filter(is_sub_image=True).order_by('sub_image_index')[:8]:
+                                common_row[image_cnt] = str(img.image.image.url)
+                                image_cnt += 1
+                except Exception as e:
+                    pass
 
                 data_row_2 = []
                 for k in common_row:
                     if k==None:
                         data_row_2.append("")
                     elif isinstance(k, int)==False:
-                        l = k.encode('utf-8').strip()
+                        l = k
                         data_row_2.append(l)
                     else:
                         data_row_2.append(k)
 
                 colnum = 0
                 for k in data_row_2:
-                    worksheet.write(rownum, colnum, k.encode("ascii", "ignore"))
+                    worksheet.write(rownum, colnum, k)
                     colnum += 1
                 rownum += 1
                 success_products += 1
