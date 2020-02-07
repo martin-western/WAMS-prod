@@ -1246,9 +1246,9 @@ class FetchDealsHubProductsAPI(APIView):
 
             product_objs_list = product_objs_list.filter(is_dealshub_product_created=True)
 
+            page = int(data['page'])
             paginator = Paginator(product_objs_list, 20)
             product_objs_list = paginator.page(page)
-
             products = []
 
             for product_obj in product_objs_list:
