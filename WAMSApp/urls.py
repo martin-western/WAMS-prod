@@ -120,4 +120,6 @@ urlpatterns = [
     url(r'^sap-integration/$',views.SapIntegration),
     url(r'^fetch-user-profile/$',views.FetchUserProfile),
 
+    url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
