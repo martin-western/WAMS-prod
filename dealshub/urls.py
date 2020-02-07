@@ -50,6 +50,8 @@ urlpatterns = [
     url(r'^create-dealshub-product/$', views.CreateDealsHubProduct),
     url(r'^publish-dealshub-product/$', views.PublishDealsHubProduct),
     url(r'^unpublish-dealshub-product/$', views.UnPublishDealsHubProduct),
+    url(r'^publish-dealshub-products/$', views.PublishDealsHubProducts),
+    url(r'^unpublish-dealshub-products/$', views.UnPublishDealsHubProducts),
 
     url(r'^create-category-grid-banner/$', views.CreateCategoryGridBanner),
     url(r'^fetch-category-grid-banner/$', views.FetchCategoryGridBanner),

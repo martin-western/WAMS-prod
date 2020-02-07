@@ -751,7 +751,7 @@ class FetchSectionsProductsLimitAPI(APIView):
             data = request.data
             logger.info("FetchSectionsProductsLimitAPI: %s", str(data))
 
-            section_objs = Section.objects.filter(is_published=True).order_by("-pk")
+            section_objs = Section.objects.filter(is_published=True)
 
             section_list =  []
 
@@ -3057,7 +3057,7 @@ class FetchHomePageSchedularAPI(APIView):
                     temp_dict = {}
                     temp_dict["uid"] = home_page_schedular_obj.uuid
                     temp_dict["isPublished"] = home_page_schedular_obj.is_published
-                    if deals_banner_obj.image!=None:
+                    if home_page_schedular_obj.image!=None:
                         if resolution=="low":
                             temp_dict["url"] = home_page_schedular_obj.image.thumbnail.url
                         else:
@@ -3106,6 +3106,52 @@ class DeleteHomePageSchedularAPI(APIView):
 
 
 
+class PublishDealsHubProductsAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PublishDealsHubProductsAPI: %s", str(data))
+            product_pk_list = data["product_pk_list"]
+            for product_pk in product_pk_list:
+                product_obj = Product.objects.get(pk=product_pk)
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.is_published = True
+                dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PublishDealsHubProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UnPublishDealsHubProductsAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UnPublishDealsHubProductsAPI: %s", str(data))
+            product_pk_list = data["product_pk_list"]
+            for product_pk in product_pk_list:
+                product_obj = Product.objects.get(pk=product_pk)
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.is_published = False
+                dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishDealsHubProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
 
 
 
@@ -3171,3 +3217,7 @@ CreateHomePageSchedular = CreateHomePageSchedularAPI.as_view()
 FetchHomePageSchedular = FetchHomePageSchedularAPI.as_view()
 
 DeleteHomePageSchedular = DeleteHomePageSchedularAPI.as_view()
+
+PublishDealsHubProducts = PublishDealsHubProductsAPI.as_view()
+
+UnPublishDealsHubProducts = UnPublishDealsHubProductsAPI.as_view()
