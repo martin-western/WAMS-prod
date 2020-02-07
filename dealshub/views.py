@@ -2921,7 +2921,7 @@ class FetchCategoryGridBannerAPI(APIView):
                     temp_dict = {}
                     temp_dict["uid"] = category_grid_banner_obj.uuid
                     temp_dict["isPublished"] = category_grid_banner_obj.is_published
-                    if deals_banner_obj.image!=None:
+                    if category_grid_banner_obj.image!=None:
                         if resolution=="low":
                             temp_dict["url"] = category_grid_banner_obj.image.thumbnail.url
                         else:
@@ -3001,6 +3001,118 @@ class DeleteProductFromSectionAPI(APIView):
 
 
 
+class CreateHomePageSchedularAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateHomePageSchedularAPI: %s", str(data))
+
+            image = data["image"]
+
+            if image=="" or image=="undefined" or image==None:
+                return Response(data=response)
+
+            image_obj = Image.objects.create(image=image)
+
+            home_page_schedular_obj = HomePageSchedular.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            
+            response['uuid'] = home_page_schedular_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateHomePageSchedularAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchHomePageSchedularAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchHomePageSchedularAPI: %s", str(data))
+
+            resolution = data.get("resolution", "low")
+
+            home_page_schedular_objs = HomePageSchedular.objects.all()
+
+            home_page_schedulars = []
+
+            for home_page_schedular_obj in home_page_schedular_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["uid"] = home_page_schedular_obj.uuid
+                    temp_dict["isPublished"] = home_page_schedular_obj.is_published
+                    if deals_banner_obj.image!=None:
+                        if resolution=="low":
+                            temp_dict["url"] = home_page_schedular_obj.image.thumbnail.url
+                        else:
+                            temp_dict["url"] = home_page_schedular_obj.image.image.url
+                    else:
+                        temp_dict["url"] = ""
+                    home_page_schedulars.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchHomePageSchedularAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response['home_page_schedulars'] = home_page_schedulars
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchHomePageSchedularAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteHomePageSchedularAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteHomePageSchedularAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            HomePageSchedular.objects.get(uuid=uuid).delete()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteHomePageSchedularAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+
+
+
+
+
+
+
+
 
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
@@ -3053,3 +3165,9 @@ FetchCategoryGridBanner = FetchCategoryGridBannerAPI.as_view()
 DeleteCategoryGridBanner = DeleteCategoryGridBannerAPI.as_view()
 
 DeleteProductFromSection = DeleteProductFromSectionAPI.as_view()
+
+CreateHomePageSchedular = CreateHomePageSchedularAPI.as_view()
+
+FetchHomePageSchedular = FetchHomePageSchedularAPI.as_view()
+
+DeleteHomePageSchedular = DeleteHomePageSchedularAPI.as_view()
