@@ -2921,7 +2921,7 @@ class FetchCategoryGridBannerAPI(APIView):
                     temp_dict = {}
                     temp_dict["uid"] = category_grid_banner_obj.uuid
                     temp_dict["isPublished"] = category_grid_banner_obj.is_published
-                    if deals_banner_obj.image!=None:
+                    if category_grid_banner_obj.image!=None:
                         if resolution=="low":
                             temp_dict["url"] = category_grid_banner_obj.image.thumbnail.url
                         else:
