@@ -2933,7 +2933,7 @@ class FetchCategoryGridBannerAPI(APIView):
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchCategoryGridBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
             
-            response['banner_deals'] = banner_deals
+            response['banner_deals'] = category_grid_banners
             response['status'] = 200
 
         except Exception as e:
