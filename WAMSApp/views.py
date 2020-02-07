@@ -1254,7 +1254,7 @@ class FetchDealsHubProductsAPI(APIView):
             for product_obj in product_objs_list:
                 
                 temp_dict ={}
-                temp_dict["product_pk"] = product_obj.product_pk
+                temp_dict["product_pk"] = product_obj.pk
                 temp_dict["product_id"] = product_obj.product_id
                 temp_dict["brand_name"] = product_obj.base_product.brand.name
                 
@@ -1279,7 +1279,7 @@ class FetchDealsHubProductsAPI(APIView):
                 temp_dict["repr_image_url"] = repr_image_url
                 temp_dict["repr_high_def_url"] = repr_high_def_url
 
-                product.append(temp_dict)
+                products.append(temp_dict)
 
             response['products'] = products
             response['status'] = 200
@@ -1384,6 +1384,7 @@ class SaveProductAPI(APIView):
                 return Response(data=response)
 
             data = request.data
+            logger.info("Save called!!")
             logger.info("SaveProductAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -1412,6 +1413,8 @@ class SaveProductAPI(APIView):
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
                 return Response(data=response)
+
+            logger.info("After IF")
 
             product_name = convert_to_ascii(data["product_name"])
             barcode_string = data["barcode_string"]
