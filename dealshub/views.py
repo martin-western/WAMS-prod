@@ -751,7 +751,7 @@ class FetchSectionsProductsLimitAPI(APIView):
             data = request.data
             logger.info("FetchSectionsProductsLimitAPI: %s", str(data))
 
-            section_objs = Section.objects.filter(is_published=True).order_by("-pk")
+            section_objs = Section.objects.filter(is_published=True)
 
             section_list =  []
 
