@@ -2695,10 +2695,10 @@ class FetchFullBannerAdAPI(APIView):
 
             for full_banner_ad_obj in full_banner_ad_objs:
                 temp_dict = {}
-                temp_dict["uuid"] = full_banner_ad_obj.uuid
+                temp_dict["uid"] = full_banner_ad_obj.uuid
                 temp_dict["isPublished"] = full_banner_ad_obj.is_published
                 if full_banner_ad_obj.image!=None:
-                    temp_dict["url"] = full_banner_ad_obj.image.thumbnail.url
+                    temp_dict["url"] = full_banner_ad_obj.image.image.url
                 else:
                     temp_dict["url"] = ""
                 banner_deals.append(temp_dict)
