@@ -24,6 +24,7 @@ noon_product_json = {
     "product_name" : "",
     "product_type" : "",
     "product_subtype" : "",
+    "parent_sku" : "",
     "category" : "",
     "sub_category" : "",
     "model_number" : "",

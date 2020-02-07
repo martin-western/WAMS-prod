@@ -1104,6 +1104,7 @@ class FetchProductDetailsAPI(APIView):
             response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
             response["factory_notes"] = product_obj.factory_notes
             response["factory_code"] = product_obj.factory_code
+            response["is_dealshub_product_created"] = product_obj.is_dealshub_product_created
             response["verified"] = product_obj.verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
