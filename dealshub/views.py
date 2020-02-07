@@ -881,7 +881,7 @@ class FetchSectionProductsAPI(APIView):
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
             temp_dict["productsArray"] = []
-            for product_obj in product_objs[:12]:
+            for product_obj in product_objs:
                 temp_dict2 = {}
                 temp_dict2["productName"] = product_obj.product_name
                 temp_dict2["productCategory"] = product_obj.base_product.category
