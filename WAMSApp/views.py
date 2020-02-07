@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
+from dealshub.models import DealsHubProduct
 from WAMSApp.utils import *
 from WAMSApp.serializers import UserSerializer, UserSerializerWithToken
 
@@ -1257,7 +1258,11 @@ class FetchDealsHubProductsAPI(APIView):
                 temp_dict["product_pk"] = product_obj.pk
                 temp_dict["product_id"] = product_obj.product_id
                 temp_dict["brand_name"] = product_obj.base_product.brand.name
-                
+                channel_status = DealsHubProduct.objects.get(product=product_obj).is_published
+                temp_dict["channel_status"] = "active" if channel_status==True else "inactive"
+                temp_dict["category"] = product_obj.base_product.category
+                temp_dict["sub_category"] = product_obj.base_product.sub_category
+
                 repr_image_url = Config.objects.all()[0].product_404_image.image.url
                 repr_high_def_url = repr_image_url
                 
