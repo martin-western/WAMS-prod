@@ -678,6 +678,253 @@ class FetchSectionsProductsAPI(APIView):
 FetchSectionsProducts = FetchSectionsProductsAPI.as_view()
 
 
+
+
+class FetchSectionsProductsLimitAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    
+    def fetch_price(self,product_id):
+        try:
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            company_code = "1070" # GEEPAS
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+            print((json.dumps(content, indent=4, sort_keys=True)))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            price = 0
+            temp_price = 0
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    price = max(temp_price, price)
+            return float(price)
+        except Exception as e:
+            #print "Error: "+str(e)
+            return 0
+    def get(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSectionsProductsLimitAPI: %s", str(data))
+
+            section_objs = Section.objects.filter(is_published=True).order_by("-pk")
+
+            section_list =  []
+
+            for section_obj in section_objs:
+                product_objs = section_obj.products.all()
+                temp_dict = {}
+                temp_dict["sectionName"] = section_obj.name
+                temp_dict["productsArray"] = []
+                for product_obj in product_objs[:12]:
+                    temp_dict2 = {}
+                    temp_dict2["productName"] = product_obj.product_name
+                    temp_dict2["productCategory"] = product_obj.base_product.category
+                    temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
+                    temp_dict2["brand"] = str(product_obj.base_product.brand)
+                    temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                    temp_dict2["prevPrice"] = temp_dict2["price"]
+                    temp_dict2["currency"] = "AED"
+                    temp_dict2["discount"] = "10"
+                    temp_dict2["rating"] = "4.5"
+                    temp_dict2["totalRatings"] = "5,372"
+                    temp_dict2["id"] = str(product_obj.uuid)
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_objs = MainImages.objects.filter(product=product_obj)
+                    for main_images_obj in main_images_objs:
+                        main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = main_images_list.distinct()
+                    if main_images_list.filter(is_main_image=True).count() > 0:
+                        try:
+                            temp_dict2["heroImage"] = main_images_list.filter(is_main_image=True)[
+                                0].image.mid_image.url
+                        except Exception as e:
+                            temp_dict2["heroImage"] = Config.objects.all()[
+                                0].product_404_image.image.url
+                    else:
+                        temp_dict2["heroImage"] = Config.objects.all()[
+                            0].product_404_image.image.url
+
+
+                    temp_dict["productsArray"].append(temp_dict2)
+                section_list.append(temp_dict)
+
+            response['section_list'] = section_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSectionsProductsLimitAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+FetchSectionsProductsLimit = FetchSectionsProductsLimitAPI.as_view()
+
+
+
+
+class FetchSectionProductsAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    
+    def fetch_price(self,product_id):
+        try:
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            company_code = "1070" # GEEPAS
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+            print((json.dumps(content, indent=4, sort_keys=True)))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            price = 0
+            temp_price = 0
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    price = max(temp_price, price)
+            return float(price)
+        except Exception as e:
+            #print "Error: "+str(e)
+            return 0
+    def get(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSectionProductsAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            section_obj = Section.objects.get(uuid=uuid)
+            product_objs = section_obj.products.all()
+            temp_dict = {}
+            temp_dict["sectionName"] = section_obj.name
+            temp_dict["productsArray"] = []
+            for product_obj in product_objs[:12]:
+                temp_dict2 = {}
+                temp_dict2["productName"] = product_obj.product_name
+                temp_dict2["productCategory"] = product_obj.base_product.category
+                temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
+                temp_dict2["brand"] = str(product_obj.base_product.brand)
+                temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                temp_dict2["prevPrice"] = temp_dict2["price"]
+                temp_dict2["currency"] = "AED"
+                temp_dict2["discount"] = "10"
+                temp_dict2["rating"] = "4.5"
+                temp_dict2["totalRatings"] = "5,372"
+                temp_dict2["id"] = str(product_obj.uuid)
+                main_images_list = ImageBucket.objects.none()
+                main_images_objs = MainImages.objects.filter(product=product_obj)
+                for main_images_obj in main_images_objs:
+                    main_images_list |= main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                if main_images_list.filter(is_main_image=True).count() > 0:
+                    try:
+                        temp_dict2["heroImage"] = main_images_list.filter(is_main_image=True)[
+                            0].image.mid_image.url
+                    except Exception as e:
+                        temp_dict2["heroImage"] = Config.objects.all()[
+                            0].product_404_image.image.url
+                else:
+                    temp_dict2["heroImage"] = Config.objects.all()[
+                        0].product_404_image.image.url
+
+
+                temp_dict["productsArray"].append(temp_dict2)
+
+            response['sectionData'] = temp_dict
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSectionProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+FetchSectionProducts = FetchSectionProductsAPI.as_view()
+
+
+
 class FetchCategoryGridBannerCardsAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,)

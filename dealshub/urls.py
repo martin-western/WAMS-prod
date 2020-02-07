@@ -8,6 +8,8 @@ from django.http import HttpResponseRedirect
 urlpatterns = [
     url(r'^fetch-product-details/$', views.FetchProductDetails),
     url(r'^fetch-sections-products/$', views.FetchSectionsProducts),
+    url(r'^fetch-sections-products-limit/$', views.FetchSectionsProductsLimit),
+    url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-categories/$', views.FetchCategories),
 
     url(r'^fetch-category-grid-banner-cards/$',
@@ -47,5 +49,5 @@ urlpatterns = [
 
     url(r'^create-dealshub-product/$', views.CreateDealsHubProduct),
     url(r'^publish-dealshub-product/$', views.PublishDealsHubProduct),
-    url(r'^unpublish-dealshub-product/$', views.UnPublishDealsHubProduct),    
+    url(r'^unpublish-dealshub-product/$', views.UnPublishDealsHubProduct),
 ]
