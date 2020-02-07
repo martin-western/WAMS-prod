@@ -738,3 +738,20 @@
     "total_products": "",
     "status": ""
 }
+
+/fetch-dealshub-products/
+{
+    "page" : ""
+}
+{
+    "products" : [
+        {
+        "product_pk" : "",
+        "product_name" : "",
+        "brand_name" : "",
+        "repr_image_url" : "",
+        "repr_high_def_url" : ""
+        },
+    ],
+    "status" : ""
+}
