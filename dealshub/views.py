@@ -2910,7 +2910,7 @@ class FetchCategoryGridBannerAPI(APIView):
             data = request.data
             logger.info("FetchCategoryGridBannerAPI: %s", str(data))
 
-            resolution = data["resolution"]
+            resolution = data.get("resolution", "low")
 
             category_grid_banner_objs = CategoryGridBanner.objects.all()
 
