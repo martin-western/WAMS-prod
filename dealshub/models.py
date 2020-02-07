@@ -150,6 +150,13 @@ class FullBannerAd(models.Model):
     is_published = models.BooleanField(default=False)
 
 
+class CategoryGridBanner(models.Model):
+
+    uuid = models.CharField(max_length=200, unique=True)
+    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    is_published = models.BooleanField(default=False)
+
+
 
 @receiver(pre_delete, sender=DealsHubProduct)
 def update_dealshub_product_table(sender, instance, **kwargs):

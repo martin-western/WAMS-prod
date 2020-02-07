@@ -885,16 +885,15 @@ class FetchSectionProductsAPI(APIView):
             temp_dict["productsArray"] = []
             for product_obj in product_objs:
                 temp_dict2 = {}
-                temp_dict2["productName"] = product_obj.product_name
-                temp_dict2["productCategory"] = product_obj.base_product.category
-                temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
+                temp_dict2["name"] = product_obj.product_name
                 temp_dict2["brand"] = str(product_obj.base_product.brand)
                 temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
                 temp_dict2["prevPrice"] = temp_dict2["price"]
                 temp_dict2["currency"] = "AED"
-                temp_dict2["discount"] = "10"
+                temp_dict2["discount"] = "10%"
                 temp_dict2["rating"] = "4.5"
                 temp_dict2["totalRatings"] = "5,372"
+                temp_dict2["uuid"] = str(product_obj.uuid)
                 temp_dict2["id"] = str(product_obj.uuid)
                 main_images_list = ImageBucket.objects.none()
                 main_images_objs = MainImages.objects.filter(product=product_obj)
@@ -903,13 +902,13 @@ class FetchSectionProductsAPI(APIView):
                 main_images_list = main_images_list.distinct()
                 if main_images_list.filter(is_main_image=True).count() > 0:
                     try:
-                        temp_dict2["heroImage"] = main_images_list.filter(is_main_image=True)[
+                        temp_dict2["heroImageUrl"] = main_images_list.filter(is_main_image=True)[
                             0].image.mid_image.url
                     except Exception as e:
-                        temp_dict2["heroImage"] = Config.objects.all()[
+                        temp_dict2["heroImageUrl"] = Config.objects.all()[
                             0].product_404_image.image.url
                 else:
-                    temp_dict2["heroImage"] = Config.objects.all()[
+                    temp_dict2["heroImageUrl"] = Config.objects.all()[
                         0].product_404_image.image.url
 
 
@@ -2866,6 +2865,115 @@ class UnPublishDealsHubProductAPI(APIView):
         return Response(data=response)
 
 
+class CreateCategoryGridBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateCategoryGridBannerAPI: %s", str(data))
+
+            image = data["image"]
+
+            if image=="" or image=="undefined" or image==None:
+                return Response(data=response)
+
+            image_obj = Image.objects.create(image=image)
+
+            category_grid_banner_obj = CategoryGridBanner.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            
+            response['uuid'] = category_grid_banner_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateCategoryGridBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchCategoryGridBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchCategoryGridBannerAPI: %s", str(data))
+
+            resolution = data["resolution"]
+
+            category_grid_banner_objs = CategoryGridBanner.objects.all()
+
+            category_grid_banners = []
+
+            for category_grid_banner_obj in category_grid_banner_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["uid"] = category_grid_banner_obj.uuid
+                    temp_dict["isPublished"] = category_grid_banner_obj.is_published
+                    if deals_banner_obj.image!=None:
+                        if resolution=="low":
+                            temp_dict["url"] = category_grid_banner_obj.image.thumbnail.url
+                        else:
+                            temp_dict["url"] = category_grid_banner_obj.image.image.url
+                    else:
+                        temp_dict["url"] = ""
+                    category_grid_banners.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCategoryGridBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response['banner_deals'] = banner_deals
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoryGridBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteCategoryGridBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteCategoryGridBannerAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            CategoryGridBanner.objects.get(uuid=uuid).delete()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteCategoryGridBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+
+
+
+
+
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
 FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
@@ -2908,3 +3016,9 @@ CreateDealsHubProduct = CreateDealsHubProductAPI.as_view()
 PublishDealsHubProduct = PublishDealsHubProductAPI.as_view()
 
 UnPublishDealsHubProduct = UnPublishDealsHubProductAPI.as_view()
+
+CreateCategoryGridBanner = CreateCategoryGridBannerAPI.as_view()
+
+FetchCategoryGridBanner = FetchCategoryGridBannerAPI.as_view()
+
+DeleteCategoryGridBanner = DeleteCategoryGridBannerAPI.as_view()
