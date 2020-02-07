@@ -1712,6 +1712,8 @@ class SearchAPI(APIView):
             logger.info("products by category %s", str(products_by_category))
             logger.info("products by name %s", str(products_by_name))
             for product in products_by_name:
+                if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
+                    continue
                 temp_dict = {}
                 temp_dict["name"] = product.product_name
                 temp_dict["brand"] = str(product.base_product.brand)
@@ -2546,6 +2548,75 @@ class UnPublishFullBannerAdAPI(APIView):
         return Response(data=response)
 
 
+class CreateDealsHubProductAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("CreateDealsHubProductAPI: %s", str(data))
+            product_pk = data["product_pk"]
+            product_obj = Product.objects.get(pk=product_pk)
+            product_obj.is_dealshub_product_created = True
+            product_obj.save()
+            if(DealsHubProduct.objects.filter(product=product_obj).exists()==False):
+                DealsHubProduct.objects.create(product=product_obj)
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateDealsHubProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class PublishDealsHubProductAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PublishDealsHubProductAPI: %s", str(data))
+            product_pk = data["product_pk"]
+            product_obj = Product.objects.get(pk=product_pk)
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            dealshub_product_obj.is_published = True
+            dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PublishDealsHubProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UnPublishDealsHubProductAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UnPublishDealsHubProductAPI: %s", str(data))
+            product_pk = data["product_pk"]
+            product_obj = Product.objects.get(pk=product_pk)
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            dealshub_product_obj.is_published = False
+            dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishDealsHubProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
 FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
@@ -2582,3 +2653,9 @@ DeleteFullBannerAd = DeleteFullBannerAdAPI.as_view()
 PublishFullBannerAd = PublishFullBannerAdAPI.as_view()
 
 UnPublishFullBannerAd = UnPublishFullBannerAdAPI.as_view()
+
+CreateDealsHubProduct = CreateDealsHubProductAPI.as_view()
+
+PublishDealsHubProduct = PublishDealsHubProductAPI.as_view()
+
+UnPublishDealsHubProduct = UnPublishDealsHubProductAPI.as_view()
