@@ -1541,7 +1541,7 @@ class FetchProductListAPI(APIView):
                 temp_dict["category"] = base_product_obj.category
                 temp_dict["sub_category"] = base_product_obj.sub_category
                 temp_dict["subtitle"] = base_product_obj.subtitle
-                temp_dict["dimensions"] = json.loads(base_product_obj.dimensions)
+                temp_dict["dimensions"] = json.dumps(base_product_obj.dimensions)
                 
                 product_objs = search_list_product_objs.filter(base_product = base_product_obj)
 
