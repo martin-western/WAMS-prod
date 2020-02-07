@@ -633,6 +633,7 @@ class FetchSectionsProductsAPI(APIView):
                 product_objs = section_obj.products.all()
                 temp_dict = {}
                 temp_dict["sectionName"] = section_obj.name
+                temp_dict["uid"] = section_obj.uuid
                 temp_dict["productsArray"] = []
                 for product_obj in product_objs:
                     temp_dict2 = {}
@@ -758,6 +759,7 @@ class FetchSectionsProductsLimitAPI(APIView):
                 product_objs = section_obj.products.all()
                 temp_dict = {}
                 temp_dict["sectionName"] = section_obj.name
+                temp_dict["uid"] = section_obj.uuid
                 temp_dict["productsArray"] = []
                 for product_obj in product_objs[:12]:
                     temp_dict2 = {}
@@ -875,7 +877,7 @@ class FetchSectionProductsAPI(APIView):
             data = request.data
             logger.info("FetchSectionProductsAPI: %s", str(data))
 
-            uuid = data["uuid"]
+            uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
             product_objs = section_obj.products.all()
             temp_dict = {}
