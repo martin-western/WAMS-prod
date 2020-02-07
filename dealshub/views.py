@@ -633,6 +633,7 @@ class FetchSectionsProductsAPI(APIView):
                 product_objs = section_obj.products.all()
                 temp_dict = {}
                 temp_dict["sectionName"] = section_obj.name
+                temp_dict["uid"] = section_obj.uuid
                 temp_dict["productsArray"] = []
                 for product_obj in product_objs:
                     temp_dict2 = {}
@@ -758,6 +759,7 @@ class FetchSectionsProductsLimitAPI(APIView):
                 product_objs = section_obj.products.all()
                 temp_dict = {}
                 temp_dict["sectionName"] = section_obj.name
+                temp_dict["uid"] = section_obj.uuid
                 temp_dict["productsArray"] = []
                 for product_obj in product_objs[:12]:
                     temp_dict2 = {}
@@ -875,7 +877,7 @@ class FetchSectionProductsAPI(APIView):
             data = request.data
             logger.info("FetchSectionProductsAPI: %s", str(data))
 
-            uuid = data["uuid"]
+            uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
             product_objs = section_obj.products.all()
             temp_dict = {}
@@ -2695,10 +2697,10 @@ class FetchFullBannerAdAPI(APIView):
 
             for full_banner_ad_obj in full_banner_ad_objs:
                 temp_dict = {}
-                temp_dict["uuid"] = full_banner_ad_obj.uuid
+                temp_dict["uid"] = full_banner_ad_obj.uuid
                 temp_dict["isPublished"] = full_banner_ad_obj.is_published
                 if full_banner_ad_obj.image!=None:
-                    temp_dict["url"] = full_banner_ad_obj.image.thumbnail.url
+                    temp_dict["url"] = full_banner_ad_obj.image.image.url
                 else:
                     temp_dict["url"] = ""
                 banner_deals.append(temp_dict)
