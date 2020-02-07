@@ -2933,7 +2933,7 @@ class FetchCategoryGridBannerAPI(APIView):
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchCategoryGridBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
             
-            response['banner_deals'] = category_grid_banners
+            response['category_grid_banners'] = category_grid_banners
             response['status'] = 200
 
         except Exception as e:
@@ -2968,6 +2968,35 @@ class DeleteCategoryGridBannerAPI(APIView):
         return Response(data=response)
 
 
+
+class DeleteProductFromSectionAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteProductFromSectionAPI: %s", str(data))
+
+            section_uuid = data["sectionUuid"]
+            product_uuid = data["productUuid"]
+
+            section_obj = Section.objects.get(uuid=section_uuid)
+            product_obj = Product.objects.get(uuid=product_uuid)
+            section_obj.products.remove(product_obj)
+            section_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteProductFromSectionAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
 
 
 
@@ -3022,3 +3051,5 @@ CreateCategoryGridBanner = CreateCategoryGridBannerAPI.as_view()
 FetchCategoryGridBanner = FetchCategoryGridBannerAPI.as_view()
 
 DeleteCategoryGridBanner = DeleteCategoryGridBannerAPI.as_view()
+
+DeleteProductFromSection = DeleteProductFromSectionAPI.as_view()
