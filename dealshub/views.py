@@ -3057,7 +3057,7 @@ class FetchHomePageSchedularAPI(APIView):
                     temp_dict = {}
                     temp_dict["uid"] = home_page_schedular_obj.uuid
                     temp_dict["isPublished"] = home_page_schedular_obj.is_published
-                    if deals_banner_obj.image!=None:
+                    if home_page_schedular_obj.image!=None:
                         if resolution=="low":
                             temp_dict["url"] = home_page_schedular_obj.image.thumbnail.url
                         else:
