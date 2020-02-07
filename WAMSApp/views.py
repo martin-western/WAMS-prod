@@ -1483,11 +1483,8 @@ class FetchProductListAPI(APIView):
                     if has_atleast_one_image(product_obj)==True:
                         product_objs_list.exclude(pk=product_obj.pk)
 
-            logger.info("something 1")
-            logger.info("product list 111 %s", str(product_objs_list))
-
             search_list_product_objs = Product.objects.none()
-            logger.info("chip_data %s", str(chip_data))
+            
             if len(chip_data) == 0:
                 search_list_product_objs = product_objs_list
                 search_list_base_product_objs = base_product_objs_list
@@ -1503,7 +1500,7 @@ class FetchProductListAPI(APIView):
                         Q(product_id__icontains=tag) |
                         Q(base_product__seller_sku__icontains=tag)
                     )
-                    logger.info(" Filtered Products %s", search)
+                    
                     for prod in search:
                         product_obj = Product.objects.filter(pk=prod.pk)
                         search_list_product_objs|=product_obj
@@ -1511,7 +1508,6 @@ class FetchProductListAPI(APIView):
                     search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
 
-            logger.info("search_list_base_product_objs  222: %s", str(search_list_base_product_objs))
             products = []
 
             paginator = Paginator(search_list_base_product_objs, 20)
@@ -1552,6 +1548,7 @@ class FetchProductListAPI(APIView):
                     temp_dict2["product_id"] = product_obj.product_id
                     temp_dict2["product_name"] = product_obj.product_name
                     temp_dict2["product_price"] = product_obj.standard_price
+                    temp_dict2["is_dealshub_product_created"] = product_obj.is_dealshub_product_created
                     if temp_dict2["product_price"]==None:
                         temp_dict2["product_price"] = "-"
                     temp_dict2["status"] = product_obj.status
@@ -3358,9 +3355,6 @@ class FetchFlyerListAPI(APIView):
 
                     for product in flyer_obj.product_bucket.all():
                         for chip in chip_data:
-                            logger.info("Chip %s, product %s, flyer_obj %s", str(
-                                chip), str(product), str(flyer_obj))
-
                             if (chip.lower() in product.product_name_sap.lower() or
                                     chip.lower() in product.product_name.lower() or
                                     chip.lower() in product.product_id.lower() or
@@ -3878,7 +3872,6 @@ class SapIntegrationAPI(APIView):
 
             print((json.dumps(content, indent=4, sort_keys=True)))
             
-            logger.info("%s",type(content))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             
             qty=0.0
