@@ -285,7 +285,7 @@ class CreateNewBaseProductAPI(APIView):
             sub_category = convert_to_ascii(data["sub_category"])
             manufacturer = convert_to_ascii(data["manufacturer"])
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
-            base_dimensions = data["base_dimensions"]
+            base_dimensions = json.dumps(data["base_dimensions"])
 
             # Checking brand permission
             brand_obj = None
@@ -1482,7 +1482,11 @@ class FetchProductListAPI(APIView):
                     if has_atleast_one_image(product_obj)==True:
                         product_objs_list.exclude(pk=product_obj.pk)
 
+            logger.info("something 1")
+            logger.info("product list 111 %s", str(product_objs_list))
+
             search_list_product_objs = Product.objects.none()
+            logger.info("chip_data %s", str(chip_data))
             if len(chip_data) == 0:
                 search_list_product_objs = product_objs_list
                 search_list_base_product_objs = base_product_objs_list
@@ -1498,13 +1502,15 @@ class FetchProductListAPI(APIView):
                         Q(product_id__icontains=tag) |
                         Q(base_product__seller_sku__icontains=tag)
                     )
-                    logger.info(" Filtered Products %s",search_list_product_objs)
+                    logger.info(" Filtered Products %s", search)
                     for prod in search:
                         product_obj = Product.objects.filter(pk=prod.pk)
                         search_list_product_objs|=product_obj
                         search_list_base_product_objs.append(prod.base_product)
                     search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
+
+            logger.info("search_list_base_product_objs  222: %s", str(search_list_base_product_objs))
             products = []
 
             paginator = Paginator(search_list_base_product_objs, 20)
@@ -1690,6 +1696,7 @@ class FetchProductListAPI(APIView):
             response["is_available"] = is_available
             response["total_products"] = len(search_list_base_product_objs)
             response["products"] = products
+            logger.info("Response products %s", str(products))
             response['status'] = 200
 
         except Exception as e:

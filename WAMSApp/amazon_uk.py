@@ -78,47 +78,52 @@ def export_amazon_uk(products):
                 common_row[46] = "" if product.color_map==None else str(product.color_map)
                 common_row[49] = "" if product.material_type==None else str(product.material_type.name)
 
-                """
-                special_features = json.loads(product.special_features)
+                
+                try:
+                    special_features = json.loads(amazon_uk_product["special_features"])
+                except Exception as e:
+                    special_features = amazon_uk_product["special_features"]
+                logger.info("special_features: %s", str(special_features))
                 row_cnt = 0
                 if len(special_features) > 0:
                     for special_feature in special_features[:5]:
+                        logger.info("special_features iter %s", special_feature)
                         common_row[50+row_cnt] = special_feature
                         row_cnt += 1
-                """
-                """
-                common_row[83] = amazon_uk_product["item_width_metric"]
-                common_row[84] = amazon_uk_product["item_width"]
-                common_row[85] = amazon_uk_product["item_height"]
-                common_row[88] = amazon_uk_product["item_height_metric"]
-                common_row[90] = amazon_uk_product["item_length_metric"]
-                common_row[91] = amazon_uk_product["item_length"]
-                common_row[95] = amazon_uk_product["shipping_weight"]
-                common_row[96] = amazon_uk_product["shipping_weight_metric"]
-                common_row[97] = amazon_uk_product["item_display_length"]
-                common_row[98] = amazon_uk_product["item_display_length_metric"]
-                common_row[99] = amazon_uk_product["item_display_width"] 
-                common_row[100] = amazon_uk_product["item_display_width_metric"]
-                common_row[101] = amazon_uk_product["item_display_height"]
-                common_row[102] = amazon_uk_product["item_display_height_metric"]
-                common_row[105] = amazon_uk_product["item_display_weight"]
-                common_row[106] = amazon_uk_product["item_display_weight_metric"]
-                common_row[109] = amazon_uk_product["item_display_volume"]
-                common_row[110] = amazon_uk_product["item_display_volume_metric"]
-                common_row[116] = amazon_uk_product["package_weight_metric"]
-                common_row[117] = amazon_uk_product["package_height_metric"]
-                common_row[118] = amazon_uk_product["package_weight"]
-                common_row[119] = amazon_uk_product["package_length"]
-                common_row[120] = amazon_uk_product["package_width"]
-                common_row[121] = amazon_uk_product["package_height"]
+                
+                
+                common_row[83] = amazon_uk_product["dimensions"]["item_width_metric"]
+                common_row[84] = amazon_uk_product["dimensions"]["item_width"]
+                common_row[85] = amazon_uk_product["dimensions"]["item_height"]
+                common_row[88] = amazon_uk_product["dimensions"]["item_height_metric"]
+                common_row[90] = amazon_uk_product["dimensions"]["item_length_metric"]
+                common_row[91] = amazon_uk_product["dimensions"]["item_length"]
+                common_row[95] = amazon_uk_product["dimensions"]["shipping_weight"]
+                common_row[96] = amazon_uk_product["dimensions"]["shipping_weight_metric"]
+                common_row[97] = amazon_uk_product["dimensions"]["item_display_length"]
+                common_row[98] = amazon_uk_product["dimensions"]["item_display_length_metric"]
+                common_row[99] = amazon_uk_product["dimensions"]["item_display_width"] 
+                common_row[100] = amazon_uk_product["dimensions"]["item_display_width_metric"]
+                common_row[101] = amazon_uk_product["dimensions"]["item_display_height"]
+                common_row[102] = amazon_uk_product["dimensions"]["item_display_height_metric"]
+                common_row[105] = amazon_uk_product["dimensions"]["item_display_weight"]
+                common_row[106] = amazon_uk_product["dimensions"]["item_display_weight_metric"]
+                common_row[109] = amazon_uk_product["dimensions"]["item_display_volume"]
+                common_row[110] = amazon_uk_product["dimensions"]["item_display_volume_metric"]
+                common_row[116] = amazon_uk_product["dimensions"]["package_weight_metric"]
+                common_row[117] = amazon_uk_product["dimensions"]["package_height_metric"]
+                common_row[118] = amazon_uk_product["dimensions"]["package_weight"]
+                common_row[119] = amazon_uk_product["dimensions"]["package_length"]
+                common_row[120] = amazon_uk_product["dimensions"]["package_width"]
+                common_row[121] = amazon_uk_product["dimensions"]["package_height"]
 
-                common_row[164] = amazon_uk_product["item_weight"]
-                common_row[165] = amazon_uk_product["item_weight_metric"]
+                common_row[164] = amazon_uk_product["dimensions"]["item_weight"]
+                common_row[165] = amazon_uk_product["dimensions"]["item_weight_metric"]
                 common_row[186] = "" if amazon_uk_product["sale_price"]==None else str(amazon_uk_product["sale_price"])
                 common_row[187] = str(amazon_uk_product["sale_from"])
                 common_row[188] = str(amazon_uk_product["sale_end"])
                 common_row[189] = amazon_uk_product["condition_type"]
-                """
+                
                 
                 # Graphics Part
                 try:
