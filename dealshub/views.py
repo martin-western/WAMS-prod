@@ -868,7 +868,7 @@ class FetchSectionProductsAPI(APIView):
         except Exception as e:
             #print "Error: "+str(e)
             return 0
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
