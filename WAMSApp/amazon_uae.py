@@ -49,19 +49,20 @@ def export_amazon_uae(products):
             common_row[13] = product.quantity
             common_row[14] = amazon_uae_product["update_delete"]
 
-            common_row[16] = "" if base_product.package_height == None else str(
-                base_product.package_height)
-            common_row[17] = "" if base_product.package_length == None else str(
-                base_product.package_length)
-            common_row[18] = base_product.package_length_metric
-            common_row[19] = "" if base_product.package_width == None else str(
-                base_product.package_width)
-            #common_row[20] = base_product.fulfillment_centre_id
-            #common_row[21] = base_product.package_dimension_unit_of_measure
-            common_row[22] = "" if base_product.package_weight == None else str(
-                base_product.package_weight)
-            common_row[23] = base_product.package_weight_metric
-            common_row[24] = base_product.package_quantity
+            # dimensions = json.loads(base_product.dimensions)
+            # common_row[16] = "" if dimensions["package_height"] == None else str(
+            #     dimensions["package_height"])
+            # common_row[17] = "" if base_product.package_length == None else str(
+            #     base_product.package_length)
+            # common_row[18] = base_product.package_length_metric
+            # common_row[19] = "" if base_product.package_width == None else str(
+            #     base_product.package_width)
+            # #common_row[20] = base_product.fulfillment_centre_id
+            # #common_row[21] = base_product.package_dimension_unit_of_measure
+            # common_row[22] = "" if base_product.package_weight == None else str(
+            #     base_product.package_weight)
+            # common_row[23] = base_product.package_weight_metric
+            # common_row[24] = base_product.package_quantity
 
             # Graphics Part
             main_image_url = None
