@@ -1257,6 +1257,7 @@ class FetchDealsHubProductsAPI(APIView):
                 temp_dict ={}
                 temp_dict["product_pk"] = product_obj.pk
                 temp_dict["product_id"] = product_obj.product_id
+                temp_dict["product_name"] = product_obj.product_name
                 temp_dict["brand_name"] = product_obj.base_product.brand.name
                 channel_status = DealsHubProduct.objects.get(product=product_obj).is_published
                 temp_dict["channel_status"] = "active" if channel_status==True else "inactive"
@@ -1448,9 +1449,10 @@ class SaveProductAPI(APIView):
                     
                     thumb = EAN.save('temp_image')
                     thumb = IMage.open(open(thumb, "rb"))
-                    thumb_io = StringIO.BytesIO()
+                    from io import BytesIO
+                    thumb_io = BytesIO()
                     thumb.save(thumb_io, format='PNG')
-                    thumb_file = InMemoryUploadedFile(thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
+                    thumb_file = InMemoryUploadedFile(thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.getbuffer().nbytes, None)
 
                     barcode_image = Image.objects.create(image=thumb_file)
                     product_obj.barcode = barcode_image
@@ -1618,6 +1620,10 @@ class FetchProductListAPI(APIView):
                     temp_dict2["product_pk"] = product_obj.pk
                     temp_dict2["product_id"] = product_obj.product_id
                     temp_dict2["product_name"] = product_obj.product_name
+                    temp_dict2["brand_name"] = str(product_obj.base_product.brand)
+                    temp_dict2["sub_category"] = base_product_obj.sub_category
+                    temp_dict2["subtitle"] = base_product_obj.subtitle
+                    temp_dict2["category"] = base_product_obj.category
                     temp_dict2["product_price"] = product_obj.standard_price
                     temp_dict2["is_dealshub_product_created"] = product_obj.is_dealshub_product_created
                     if temp_dict2["product_price"]==None:
@@ -1657,6 +1663,9 @@ class FetchProductListAPI(APIView):
                         temp_dict3["channel_product_name"] = noon_product["product_name"]
                         temp_dict3["channel_name"] = "Noon"
                         temp_dict3["is_active"] = noon_product["is_active"]
+                        temp_dict3["sub_category"] = base_product_obj.sub_category
+                        temp_dict3["subtitle"] = base_product_obj.subtitle
+                        temp_dict3["category"] = base_product_obj.category
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
                         
                         try:
@@ -1693,6 +1702,9 @@ class FetchProductListAPI(APIView):
                                 main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
+                        temp_dict3["sub_category"] = base_product_obj.sub_category
+                        temp_dict3["subtitle"] = base_product_obj.subtitle
+                        temp_dict3["category"] = base_product_obj.category
                         temp_dict3["image_url"] = main_image_url
 
                         temp_dict["channel_products"].append(temp_dict3)
@@ -1718,6 +1730,9 @@ class FetchProductListAPI(APIView):
                                 main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
+                        temp_dict3["sub_category"] = base_product_obj.sub_category
+                        temp_dict3["subtitle"] = base_product_obj.subtitle
+                        temp_dict3["category"] = base_product_obj.category
                         temp_dict3["image_url"] = main_image_url
 
                         temp_dict["channel_products"].append(temp_dict3)
@@ -1744,6 +1759,9 @@ class FetchProductListAPI(APIView):
                             logger.info("main image urll: %s", str(main_image_url))
                         except Exception as e:
                             pass
+                        temp_dict3["sub_category"] = base_product_obj.sub_category
+                        temp_dict3["subtitle"] = base_product_obj.subtitle
+                        temp_dict3["category"] = base_product_obj.category
                         temp_dict3["image_url"] = main_image_url
 
                         temp_dict["channel_products"].append(temp_dict3)
@@ -1912,6 +1930,7 @@ class FetchExportProductListAPI(APIView):
                     amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
                     temp_dict["amazon_uk_product"] = amazon_uk_product
                     temp_dict["product_id"] = product.product_id
+                    temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
@@ -1925,6 +1944,7 @@ class FetchExportProductListAPI(APIView):
                     amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                     temp_dict["amazon_uae_product"] = amazon_uae_product
                     temp_dict["product_id"] = product.product_id
+                    temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
@@ -1938,6 +1958,7 @@ class FetchExportProductListAPI(APIView):
                     noon_product = json.loads(channel_product.noon_product_json)
                     temp_dict["noon_product"] = noon_product
                     temp_dict["product_id"] = product.product_id
+                    temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
@@ -1951,6 +1972,7 @@ class FetchExportProductListAPI(APIView):
                     ebay_product = json.loads(channel_product.ebay_product_json)
                     temp_dict["ebay_product"] = ebay_product
                     temp_dict["product_id"] = product.product_id
+                    temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)

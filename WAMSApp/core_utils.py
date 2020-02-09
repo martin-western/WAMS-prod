@@ -46,8 +46,8 @@ def custom_permission_filter_base_products_and_products(user):
     try:
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
-        base_product_objs = BaseProduct.objects.filter(brand__in=brands)
-        product_objs_list = Product.objects.filter(base_product__brand__in=brands)
+        base_product_objs = BaseProduct.objects.filter(brand__in=brands).order_by('-pk')
+        product_objs_list = Product.objects.filter(base_product__brand__in=brands).order_by('-pk')
         logger.info("custom_permission_filter_products done")
         return (base_product_objs, product_objs_list)
     
