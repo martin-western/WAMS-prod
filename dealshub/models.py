@@ -140,6 +140,7 @@ class DealsBanner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
 
 
@@ -147,6 +148,7 @@ class FullBannerAd(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
 
 
@@ -154,6 +156,7 @@ class CategoryGridBanner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
 
 
@@ -161,6 +164,7 @@ class HomePageSchedular(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
 
 

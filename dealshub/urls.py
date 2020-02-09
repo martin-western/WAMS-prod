@@ -61,5 +61,10 @@ urlpatterns = [
     
     url(r'^create-home-page-schedular/$', views.CreateHomePageSchedular),
     url(r'^fetch-home-page-schedular/$', views.FetchHomePageSchedular),
-    url(r'^delete-home-page-schedular/$', views.DeleteHomePageSchedular), 
+    url(r'^delete-home-page-schedular/$', views.DeleteHomePageSchedular),
+
+    url(r'^update-link-deals-banner/$', views.UpdateLinkDealsBanner),
+    url(r'^update-link-full-banner-ad/$', views.UpdateLinkFullBannerAd),
+    url(r'^update-link-category-grid-banner/$', views.UpdateLinkCategoryGridBanner),
+    url(r'^update-link-home-page-schedular/$', views.UpdateLinkHomePageSchedular)
 ]

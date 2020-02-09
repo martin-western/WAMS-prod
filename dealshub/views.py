@@ -2543,6 +2543,7 @@ class FetchDealsBannerAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["uid"] = deals_banner_obj.uuid
+                    temp_dict["httpLink"] = deals_banner_obj.http_link
                     temp_dict["isPublished"] = deals_banner_obj.is_published
                     if deals_banner_obj.image!=None:
                         if resolution=="low":
@@ -2697,6 +2698,7 @@ class FetchFullBannerAdAPI(APIView):
             for full_banner_ad_obj in full_banner_ad_objs:
                 temp_dict = {}
                 temp_dict["uid"] = full_banner_ad_obj.uuid
+                temp_dict["httpLink"] = full_banner_ad_obj.http_link
                 temp_dict["isPublished"] = full_banner_ad_obj.is_published
                 if full_banner_ad_obj.image!=None:
                     temp_dict["url"] = full_banner_ad_obj.image.image.url
@@ -2920,6 +2922,7 @@ class FetchCategoryGridBannerAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["uid"] = category_grid_banner_obj.uuid
+                    temp_dict["httpLink"] = category_grid_banner_obj.http_link
                     temp_dict["isPublished"] = category_grid_banner_obj.is_published
                     if category_grid_banner_obj.image!=None:
                         if resolution=="low":
@@ -3056,6 +3059,7 @@ class FetchHomePageSchedularAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["uid"] = home_page_schedular_obj.uuid
+                    temp_dict["httpLink"] = home_page_schedular_obj.http_link
                     temp_dict["isPublished"] = home_page_schedular_obj.is_published
                     if home_page_schedular_obj.image!=None:
                         if resolution=="low":
@@ -3154,6 +3158,118 @@ class UnPublishDealsHubProductsAPI(APIView):
         return Response(data=response)
 
 
+class UpdateLinkDealsBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateLinkDealsBannerAPI: %s", str(data))
+
+            http_link = data["httpLink"]
+            uuid = data["uuid"]
+
+            deals_banner_obj = DealsBanner.objects.get(uuid=uuid)
+            deals_banner_obj.http_link = http_link
+            deals_banner_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLinkDealsBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateLinkFullBannerAdAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateLinkFullBannerAdAPI: %s", str(data))
+
+            http_link = data["httpLink"]
+            uuid = data["uuid"]
+
+            full_banner_ad_obj = FullBannerAd.objects.get(uuid=uuid)
+            full_banner_ad_obj.http_link = http_link
+            full_banner_ad_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLinkFullBannerAdAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateLinkCategoryGridBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateLinkCategoryGridBannerAPI: %s", str(data))
+
+            http_link = data["httpLink"]
+            uuid = data["uuid"]
+
+            category_grid_banner_obj = CategoryGridBanner.objects.get(uuid=uuid)
+            category_grid_banner_obj.http_link = http_link
+            category_grid_banner_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLinkCategoryGridBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateLinkHomePageSchedularAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateLinkHomePageSchedularAPI: %s", str(data))
+
+            http_link = data["httpLink"]
+            uuid = data["uuid"]
+
+            home_page_schedular_obj = HomePageSchedular.objects.get(uuid=uuid)
+            home_page_schedular_obj.http_link = http_link
+            home_page_schedular_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLinkHomePageSchedularAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 
 
@@ -3221,3 +3337,11 @@ DeleteHomePageSchedular = DeleteHomePageSchedularAPI.as_view()
 PublishDealsHubProducts = PublishDealsHubProductsAPI.as_view()
 
 UnPublishDealsHubProducts = UnPublishDealsHubProductsAPI.as_view()
+
+UpdateLinkDealsBanner = UpdateLinkDealsBannerAPI.as_view()
+
+UpdateLinkFullBannerAd = UpdateLinkFullBannerAdAPI.as_view()
+
+UpdateLinkCategoryGridBanner = UpdateLinkCategoryGridBannerAPI.as_view()
+
+UpdateLinkHomePageSchedular = UpdateLinkHomePageSchedularAPI.as_view()
