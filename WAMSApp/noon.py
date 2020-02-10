@@ -56,8 +56,8 @@ def export_noon(products):
                 common_row[2] = noon_product["product_subtype"]
                 
                 common_row[3] = product.product_id
-                common_row[4] = product.seller_sku
-                common_row[5] = base_product.parent_sku
+                common_row[4] = base_product.seller_sku
+                # common_row[5] = noon_product["parent_sku"]
                 common_row[6] = "" if base_product.brand==None else str(base_product.brand.name)
                 common_row[7] = noon_product["product_name"]
                 common_row[8] = "china"
@@ -65,8 +65,9 @@ def export_noon(products):
                 common_row[10] = noon_product["model_name"]
                 common_row[11] = str(product.color)
                 common_row[12] = str(product.color_map)
-                common_row[13] = "" if base_product.item_length==None else str(base_product.item_length)
-                common_row[14] = str(base_product.item_length_metric)
+                # dimensions = json.loads(base_product.dimensions)
+                # common_row[13] = "" if base_product.item_length==None else str(base_product.item_length)
+                # common_row[14] = str(base_product.item_length_metric)
 
                 if product.material_type != None:
                     common_row[26] = str(product.material_type.name)
@@ -90,12 +91,9 @@ def export_noon(products):
                 except Exception as e:
                     pass
 
-
                 common_row[44] = feature1
                 common_row[45] = feature2
                 common_row[46] = feature3
-
-
 
                 # Graphics Part
                 main_image_url = None
@@ -132,11 +130,14 @@ def export_noon(products):
                     colnum += 1
                 rownum += 1
                 success_products += 1
+            
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Loop export_noon: %s at %s | Product PK: %s", e, str(
                     exc_tb.tb_lineno), str(product.pk))
+        
         workbook.close()
+    
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("export_noon: %s at %s", e, str(exc_tb.tb_lineno))

@@ -32,10 +32,7 @@ from django.conf import settings
 
 
 from PIL import Image as IMage
-try:
-    import StringIO
-except ImportError:
-    from io import StringIO
+from io import BytesIO as StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 import barcode
@@ -69,11 +66,9 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
         return
 
 
-class FecthProductDetailsAPI(APIView):
-    # Fetching the details of a particular product based on its
-    # id --> product_id
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+class FetchProductDetailsAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
 
     def fetch_price(self,product_id):
         try:
@@ -140,25 +135,8 @@ class FecthProductDetailsAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-            """
-            {
-                "price": "999.70",
-                "currency": "AED",
-                "minLimit": "1",
-                "maxLimit": "5",
-
-                "productDispDetails": [
-                    "Brand new and high quality",
-                    "Made of supreme quality, durable EVA crush resistant, anti-shock material.",
-                    "Soft inner cloth lining, one mesh pocket inside.",
-                    "Compact and functional hard case keeps items safe and extremely portable.",
-                    "Force Touch trackpad (13-inch model)"
-                ]
-            }
-
-            """
             data = request.data
-            logger.info("FecthProductDetailsAPI: %s", str(data))
+            logger.info("FetchProductDetailsAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -171,9 +149,8 @@ class FecthProductDetailsAPI(APIView):
 
             response["category"] = str(temp_product_obj.category)
             response["subCategory"] = str(temp_product_obj.sub_category)
-            response["id"] = temp_product_obj.pk
+            response["id"] = temp_product_obj.product.uuid
             response["uuid"] = data["uuid"]
-            #response["heroImageUrl"] = ""
             response["name"] = product_obj.product_name
             response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
             response["currency"] = "AED"
@@ -192,39 +169,9 @@ class FecthProductDetailsAPI(APIView):
                 product_description = json.loads(product_obj.channel_product.amazon_uk_product_json)["product_description"]
             except Exception as e:
                 pass
-            """
-            response["productDispDetails"] = [
-                "Brand new and high quality",
-                "Made of supreme quality, durable EVA crush resistant, anti-shock material.",
-                "Soft inner cloth lining, one mesh pocket inside.",
-                "Compact and functional hard case keeps items safe and extremely portable.",
-                "Force Touch trackpad (13-inch model)"
-            ]
-            """
+            
             response["productDispDetails"] = product_description
-            """
-            response["productImagesUrl"] =  [{
-                     "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg"
-                    }]
-
-            """
+            
             response["productImagesUrl"] = []
             images = {}
 
@@ -241,9 +188,12 @@ class FecthProductDetailsAPI(APIView):
             main_images_list = main_images_list.distinct()
             images["main_images"] = create_response_images_main(
                 main_images_list)
-            response["heroImageUrl"] = images["main_images"][0]["main-url"]
+            try:
+                logger.info("images %s", str(images))
+                response["heroImageUrl"] = images["main_images"][0]["main_url"]
+            except Exception as e:
+                response["heroImageUrl"] = ""
 
-#	    response["heroImageUrl"] = "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/1.jpg"
             response["subtitle"] = base_product_obj.subtitle
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
@@ -288,8 +238,6 @@ class FecthProductDetailsAPI(APIView):
                 main_images_list)
 
             sub_images_list = ImageBucket.objects.none()
-            # sub_images_obj = SubImages.objects.get(
-            #     product=product_obj, is_sourced=True)
             try:
                 sub_images_obj = SubImages.objects.get(
                     product=product_obj, is_sourced=True)
@@ -301,32 +249,11 @@ class FecthProductDetailsAPI(APIView):
             
             for temp_image in images["sub_images"]:
                 temp_images = {}
-                temp_images["original"] = temp_image["main-url"]
-                temp_images["thumbnail"] = temp_image["thumbnail-url"]
+                temp_images["original"] = temp_image["main_url"]
+                temp_images["thumbnail"] = temp_image["thumbnail_url"]
                 response["productImagesUrl"].append(temp_images)
             response["productImagesUrl"].append({"original":response["heroImageUrl"], "thumbnail":response["heroImageUrl"]})
-            """
-            response["productImagesUrl"] =  [{
-                        "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg",
-                     "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription.jpg"
-                   },
-                   {
-                   "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png",
-                   "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/ForDescription-1.png"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/5-100x100.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/3-100x100.jpg"
-                    },
-                    {
-                    "original": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg",
-                    "thumbnail": "https://demo2.madrasthemes.com/electro/wp-content/uploads/2016/03/2-100x100.jpg"
-                    }]
-            """
+            
             response["productProperties"] = json.loads(
                 temp_product_obj.properties)
 
@@ -366,17 +293,16 @@ class FecthProductDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FecthProductDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+            logger.error("FetchProductDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-FecthProductDetails = FecthProductDetailsAPI.as_view()
+FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 """
 class FetchCarouselAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -512,10 +438,128 @@ class FetchCarouselAPI(APIView):
         return Response(data=response)
 """
 
-class FetchCarouselAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+# class FetchCarouselAPI(APIView):
+    
+#     permission_classes = [AllowAny]
+    
+#     def fetch_price(self,product_id):
+#         try:
+#             url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+#             headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+#             credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+#             company_code = "1070" # GEEPAS
+#             body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+#             <soapenv:Header />
+#             <soapenv:Body>
+#             <urn:ZAPP_STOCK_PRICE>
+#              <IM_MATNR>
+#               <item>
+#                <MATNR>""" + product_id + """</MATNR>
+#               </item>
+#              </IM_MATNR>
+#              <IM_VKORG>
+#               <item>
+#                <VKORG>""" + company_code + """</VKORG>
+#               </item>
+#              </IM_VKORG>
+#              <T_DATA>
+#               <item>
+#                <MATNR></MATNR>
+#                <MAKTX></MAKTX>
+#                <LGORT></LGORT>
+#                <CHARG></CHARG>
+#                <SPART></SPART>
+#                <MEINS></MEINS>
+#                <ATP_QTY></ATP_QTY>
+#                <TOT_QTY></TOT_QTY>
+#                <CURRENCY></CURRENCY>
+#                <IC_EA></IC_EA>
+#                <OD_EA></OD_EA>
+#                <EX_EA></EX_EA>
+#                <RET_EA></RET_EA>
+#                <WERKS></WERKS>
+#               </item>
+#              </T_DATA>
+#             </urn:ZAPP_STOCK_PRICE>
+#             </soapenv:Body>
+#             </soapenv:Envelope>"""
+#             response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+#             content = response2.content
+#             content = xmltodict.parse(content)
+#             content = json.loads(json.dumps(content))
+#             print((json.dumps(content, indent=4, sort_keys=True)))
+#             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+#             price = 0
+#             temp_price = 0
+#             for item in items:
+#                 temp_price = item["EX_EA"]
+#                 if temp_price!=None:
+#                     temp_price = float(temp_price)
+#                     price = max(temp_price, price)
+#             return float(price)
+#         except Exception as e:
+#             #print "Error: "+str(e)
+#             return 0
+#     def get(self, request, *args, **kwargs):
+#         response = {}
+#         response['status'] = 500
+#         try:
+#             data = request.data
+#             logger.info("FetchCarouselAPI: %s", str(data))
+#             product_pks = [942, 943, 944,950,951,957,958,959,961,966]
+#             carousel_obj = []
+#             for product_pk in product_pks:
+#                 prod_obj = Product.objects.get(pk = product_pk)
+#                 temp_dict={}
+#                 temp_dict["productName"] = prod_obj.product_name
+#                 temp_dict["productCategory"] = prod_obj.base_product.category
+#                 temp_dict["productSubCategory"] = prod_obj.base_product.subtitle
+#                 temp_dict["brand"] = str(prod_obj.base_product.brand)
+#                 temp_dict["price"] = self.fetch_price(prod_obj.base_product.seller_sku)
+#                 temp_dict["prevPrice"] = self.fetch_price(prod_obj.base_product.seller_sku)
+#                 temp_dict["currency"] = "AED"
+#                 temp_dict["discount"] = "0%"
+#                 temp_dict["rating"] = "3.5"
+#                 temp_dict["totalRatings"] = "356"
+#                 temp_dict["uuid"] = prod_obj.uuid
+                
+#                 main_images_list = ImageBucket.objects.none()
+#                 main_images_objs = MainImages.objects.filter(product=prod_obj)
+#                 for main_images_obj in main_images_objs:
+#                     main_images_list |= main_images_obj.main_images.all()
+#                 main_images_list = main_images_list.distinct()
+#                 if main_images_list.filter(is_main_image=True).count() > 0:
+#                     try:
+#                         temp_dict["heroImage"] = main_images_list.filter(is_main_image=True)[
+#                             0].image.thumbnail.url
+#                     except Exception as e:
+#                         temp_dict["heroImage"] = Config.objects.all()[
+#                             0].product_404_image.image.url
+#                 else:
+#                     temp_dict["heroImage"] = Config.objects.all()[
+#                         0].product_404_image.image.url
+#                 temp_dict["id"] = prod_obj.pk
+#                 carousel_obj.append(temp_dict)
+
+#             response['carousel'] = carousel_obj
+#             response['status'] = 200
+#         except Exception as e:
+#             exc_type, exc_obj, exc_tb = sys.exc_info()
+#             logger.error("FetchCarouselProductAPI: %s at %s",
+#                          e, str(exc_tb.tb_lineno))
+#         return Response(data=response)
+
+
+
+# FetchCarousel = FetchCarouselAPI.as_view()
+
+
+
+class FetchSectionsProductsAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
+    
     def fetch_price(self,product_id):
         try:
             url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
@@ -579,58 +623,313 @@ class FetchCarouselAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchCarouselAPI: %s", str(data))
-            product_pks = [942, 943, 944,950,951,957,958,959,961,966]
-            carousel_obj = []
-            for product_pk in product_pks:
-                prod_obj = Product.objects.get(pk = product_pk)
-                temp_dict={}
-                temp_dict["productName"] = prod_obj.product_name
-                temp_dict["productCategory"] = prod_obj.base_product.category
-                temp_dict["productSubCategory"] = prod_obj.base_product.subtitle
-                temp_dict["brand"] = str(prod_obj.base_product.brand)
-                temp_dict["price"] = self.fetch_price(prod_obj.base_product.seller_sku)
-                temp_dict["prevPrice"] = self.fetch_price(prod_obj.base_product.seller_sku)
-                temp_dict["currency"] = "AED"
-                temp_dict["discount"] = "0%"
-                temp_dict["rating"] = "3.5"
-                temp_dict["totalRatings"] = "356"
-                temp_dict["uuid"] = prod_obj.uuid
-                
+            logger.info("FetchSectionsProductsAPI: %s", str(data))
+
+            section_objs = Section.objects.filter(is_published=True)
+
+            section_list =  []
+
+            for section_obj in section_objs:
+                product_objs = section_obj.products.all()
+                temp_dict = {}
+                temp_dict["sectionName"] = section_obj.name
+                temp_dict["uid"] = section_obj.uuid
+                temp_dict["productsArray"] = []
+                for product_obj in product_objs:
+                    temp_dict2 = {}
+                    temp_dict2["productName"] = product_obj.product_name
+                    temp_dict2["productCategory"] = product_obj.base_product.category
+                    temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
+                    temp_dict2["brand"] = str(product_obj.base_product.brand)
+                    temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                    temp_dict2["prevPrice"] = temp_dict2["price"]
+                    temp_dict2["currency"] = "AED"
+                    temp_dict2["discount"] = "10"
+                    temp_dict2["rating"] = "4.5"
+                    temp_dict2["totalRatings"] = "5,372"
+                    temp_dict2["id"] = str(product_obj.uuid)
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_objs = MainImages.objects.filter(product=product_obj)
+                    for main_images_obj in main_images_objs:
+                        main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = main_images_list.distinct()
+                    if main_images_list.filter(is_main_image=True).count() > 0:
+                        try:
+                            temp_dict2["heroImage"] = main_images_list.filter(is_main_image=True)[
+                                0].image.mid_image.url
+                        except Exception as e:
+                            temp_dict2["heroImage"] = Config.objects.all()[
+                                0].product_404_image.image.url
+                    else:
+                        temp_dict2["heroImage"] = Config.objects.all()[
+                            0].product_404_image.image.url
+
+
+                    temp_dict["productsArray"].append(temp_dict2)
+                section_list.append(temp_dict)
+
+            response['section_list'] = section_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSectionsProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+FetchSectionsProducts = FetchSectionsProductsAPI.as_view()
+
+
+
+
+class FetchSectionsProductsLimitAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    
+    def fetch_price(self,product_id):
+        try:
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            company_code = "1070" # GEEPAS
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+            print((json.dumps(content, indent=4, sort_keys=True)))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            price = 0
+            temp_price = 0
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    price = max(temp_price, price)
+            return float(price)
+        except Exception as e:
+            #print "Error: "+str(e)
+            return 0
+    def get(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSectionsProductsLimitAPI: %s", str(data))
+
+            section_objs = Section.objects.filter(is_published=True)
+
+            section_list =  []
+
+            for section_obj in section_objs:
+                product_objs = section_obj.products.all()
+                temp_dict = {}
+                temp_dict["sectionName"] = section_obj.name
+                temp_dict["uid"] = section_obj.uuid
+                temp_dict["productsArray"] = []
+                for product_obj in product_objs[:12]:
+                    temp_dict2 = {}
+                    temp_dict2["productName"] = product_obj.product_name
+                    temp_dict2["productCategory"] = product_obj.base_product.category
+                    temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
+                    temp_dict2["brand"] = str(product_obj.base_product.brand)
+                    temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                    temp_dict2["prevPrice"] = temp_dict2["price"]
+                    temp_dict2["currency"] = "AED"
+                    temp_dict2["discount"] = "10"
+                    temp_dict2["rating"] = "4.5"
+                    temp_dict2["totalRatings"] = "5,372"
+                    temp_dict2["id"] = str(product_obj.uuid)
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_objs = MainImages.objects.filter(product=product_obj)
+                    for main_images_obj in main_images_objs:
+                        main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = main_images_list.distinct()
+                    if main_images_list.filter(is_main_image=True).count() > 0:
+                        try:
+                            temp_dict2["heroImage"] = main_images_list.filter(is_main_image=True)[
+                                0].image.mid_image.url
+                        except Exception as e:
+                            temp_dict2["heroImage"] = Config.objects.all()[
+                                0].product_404_image.image.url
+                    else:
+                        temp_dict2["heroImage"] = Config.objects.all()[
+                            0].product_404_image.image.url
+
+
+                    temp_dict["productsArray"].append(temp_dict2)
+                section_list.append(temp_dict)
+
+            response['section_list'] = section_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSectionsProductsLimitAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+FetchSectionsProductsLimit = FetchSectionsProductsLimitAPI.as_view()
+
+
+
+
+class FetchSectionProductsAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    
+    def fetch_price(self,product_id):
+        try:
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            company_code = "1070" # GEEPAS
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+            print((json.dumps(content, indent=4, sort_keys=True)))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            price = 0
+            temp_price = 0
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    price = max(temp_price, price)
+            return float(price)
+        except Exception as e:
+            #print "Error: "+str(e)
+            return 0
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSectionProductsAPI: %s", str(data))
+
+            uuid = data["sectionUuid"]
+            section_obj = Section.objects.get(uuid=uuid)
+            product_objs = section_obj.products.all()
+            temp_dict = {}
+            temp_dict["sectionName"] = section_obj.name
+            temp_dict["productsArray"] = []
+            for product_obj in product_objs:
+                temp_dict2 = {}
+                temp_dict2["name"] = product_obj.product_name
+                temp_dict2["brand"] = str(product_obj.base_product.brand)
+                temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                temp_dict2["prevPrice"] = temp_dict2["price"]
+                temp_dict2["currency"] = "AED"
+                temp_dict2["discount"] = "10%"
+                temp_dict2["rating"] = "4.5"
+                temp_dict2["totalRatings"] = "5,372"
+                temp_dict2["uuid"] = str(product_obj.uuid)
+                temp_dict2["id"] = str(product_obj.uuid)
                 main_images_list = ImageBucket.objects.none()
-                main_images_objs = MainImages.objects.filter(product=prod_obj)
+                main_images_objs = MainImages.objects.filter(product=product_obj)
                 for main_images_obj in main_images_objs:
                     main_images_list |= main_images_obj.main_images.all()
                 main_images_list = main_images_list.distinct()
                 if main_images_list.filter(is_main_image=True).count() > 0:
                     try:
-                        temp_dict["heroImage"] = main_images_list.filter(is_main_image=True)[
-                            0].image.thumbnail.url
+                        temp_dict2["heroImageUrl"] = main_images_list.filter(is_main_image=True)[
+                            0].image.mid_image.url
                     except Exception as e:
-                        temp_dict["heroImage"] = Config.objects.all()[
+                        temp_dict2["heroImageUrl"] = Config.objects.all()[
                             0].product_404_image.image.url
                 else:
-                    temp_dict["heroImage"] = Config.objects.all()[
+                    temp_dict2["heroImageUrl"] = Config.objects.all()[
                         0].product_404_image.image.url
-                temp_dict["id"] = prod_obj.pk
-                carousel_obj.append(temp_dict)
 
-            response['carousel'] = carousel_obj
+
+                temp_dict["productsArray"].append(temp_dict2)
+
+            response['sectionData'] = temp_dict
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FecthCarouselProductAPI: %s at %s",
+            logger.error("FetchSectionProductsAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
+FetchSectionProducts = FetchSectionProductsAPI.as_view()
 
-
-FetchCarousel = FetchCarouselAPI.as_view()
 
 
 class FetchCategoryGridBannerCardsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -639,7 +938,7 @@ class FetchCategoryGridBannerCardsAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchCarouselAPI: %s", str(data))
+            logger.info("FetchCategoryGridBannerCardsAPI: %s", str(data))
 
             carousel_obj = [
                 {
@@ -679,7 +978,7 @@ class FetchCategoryGridBannerCardsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FecthProductDetailsAPI: %s at %s",
+            logger.error("FetchCategoryGridBannerCardsAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
@@ -688,8 +987,9 @@ FetchCategoryGridBannerCards = FetchCategoryGridBannerCardsAPI.as_view()
 
 
 class FetchCategoriesAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -790,8 +1090,9 @@ FetchCategories = FetchCategoriesAPI.as_view()
 
 
 class FetchDashboardBannerDetailsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -830,60 +1131,9 @@ class FetchDashboardBannerDetailsAPI(APIView):
 FetchDashboardBannerDetails = FetchDashboardBannerDetailsAPI.as_view()
 
 
-class FetchBannerDealsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchBannerDealsAPI: %s", str(data))
-
-            banner_deals = [
-                {
-                    "id": "1",
-                    "dispImageUrl": "wp-content/uploads/2016/02/cameras.jpg",
-                    "displaytext": "Catch <strong>Hottest</strong> Deals in Cameras Category",
-                    "currency": "AED",
-                    "price": "219.19"
-                },
-                {
-                    "id": "2",
-                    "dispImageUrl": "wp-content/uploads/2016/02/DesktopPC-e1523629711911.jpg",
-                    "displaytext": "Tablets, Smartphones and more",
-                    "currency": "AED",
-                    "price": "749.49"
-                },
-                {
-                    "id": "3",
-                    "dispImageUrl": "wp-content/uploads/2016/02/cameras.jpg",
-                    "displaytext": "Catch <strong>Hottest</strong> Deals in Cameras Category",
-                    "currency": "AED",
-                    "price": "219.19"
-                }
-            ]
-            response['banner_deals'] = banner_deals
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchBannerDealsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-FetchBannerDeals = FetchBannerDealsAPI.as_view()
-# FetchBatchDiscountDeals
-
-
 class FetchBatchDiscountDealsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -912,8 +1162,8 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
-                        "id": 28
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674764GEEPAS_MODEL_GAC9602_STRAIGHT.jpg",
+                        "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
                     },
                     {
                         "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
@@ -926,8 +1176,8 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "15",
                         "rating": "3.9",
                         "totalRatings": "1,772",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                        "id": 21
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505981GAC9433_3.JPG",
+                        "id": "9259d36f-4356-450a-a0d1-17193aded65b"
                     },
                     {
                         "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -940,8 +1190,8 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "28",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-                        "id": 13
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505000GA1960-2.jpg",
+                        "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
                     },
                     {
                         "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
@@ -954,8 +1204,8 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "10",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
-                        "id": 36
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569677989GACW1818HCS-.jpg",
+                        "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
                     },
                     {
                         "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
@@ -968,8 +1218,8 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "discount": "28",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
-                        "id": 27
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674206GAC9580-1.jpg",
+                        "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
                     }
                 ]
             }
@@ -990,8 +1240,8 @@ FetchBatchDiscountDeals = FetchBatchDiscountDealsAPI.as_view()
 
 
 class FetchSpecialDiscountProductAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
@@ -1029,12 +1279,9 @@ class FetchSpecialDiscountProductAPI(APIView):
 FetchSpecialDiscountProduct = FetchSpecialDiscountProductAPI.as_view()
 
 
-# FetchSchedularProducts
-
 class FetchSchedularProductsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1125,8 +1372,8 @@ FetchSchedularProducts = FetchSchedularProductsAPI.as_view()
 
 
 class FetchFeaturedProductsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
@@ -1225,7 +1472,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "4.5",
                     "totalRatings": "5,372",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
-                    "id": 28
+                    "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
                 },
                 {
                     "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
@@ -1239,7 +1486,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "3.9",
                     "totalRatings": "1,772",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                    "id": 21
+                    "id": "9259d36f-4356-450a-a0d1-17193aded65b"
                 },
                 {
                     "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -1253,7 +1500,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "4.5",
                     "totalRatings": "5,372",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-                    "id": 13
+                    "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
                 },
                 {
                     "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
@@ -1267,7 +1514,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "4.5",
                     "totalRatings": "5,372",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
-                    "id": 36
+                    "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
                 },
                 {
                     "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
@@ -1281,7 +1528,7 @@ class FetchFeaturedProductsAPI(APIView):
                     "rating": "4.5",
                     "totalRatings": "5,372",
                     "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
-                    "id": 27
+                    "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
                 }
             ]
             response['featured_products'] = featured_products
@@ -1302,8 +1549,8 @@ FetchFeaturedProducts = FetchFeaturedProductsAPI.as_view()
 
 
 class FetchOnSaleProductsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
@@ -1375,9 +1622,8 @@ FetchOnSaleProducts = FetchOnSaleProductsAPI.as_view()
 
 
 class FetchTopRatedProductsAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1462,8 +1708,7 @@ FetchTopRatedProducts = FetchTopRatedProductsAPI.as_view()
 # Search
 """
 class SearchAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1630,8 +1875,8 @@ class SearchAPI(APIView):
 
 
 class SearchAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def fetch_price(self,product_id):
         try:
@@ -1700,11 +1945,12 @@ class SearchAPI(APIView):
             logger.info("SearchAPI: %s", str(data))
             query_string_name = data.get("name", "")
             query_string_category = data.get("category", "")
+            query_string_brand = data.get("brand", "geepas")
             search = {}
             if query_string_name == '':
                 response['status'] = 404
                 return Response(data=response)
-            products_by_category = Product.objects.filter(base_product__brand__name="Geepas")
+            products_by_category = Product.objects.filter(base_product__brand__name=query_string_brand)
             if query_string_category!="ALL":
                 query_string_category = query_string_category.replace("-", " ")
                 products_by_category = products_by_category.filter(base_product__category__icontains = query_string_category)
@@ -1712,7 +1958,10 @@ class SearchAPI(APIView):
             products = []
             filters = []
             logger.info("products by category %s", str(products_by_category))
+            logger.info("products by name %s", str(products_by_name))
             for product in products_by_name:
+                if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
+                    continue
                 temp_dict = {}
                 temp_dict["name"] = product.product_name
                 temp_dict["brand"] = str(product.base_product.brand)
@@ -1723,6 +1972,7 @@ class SearchAPI(APIView):
                 temp_dict["rating"] = "4.5"
                 temp_dict["totalRatings"] = "453"
                 temp_dict["uuid"] = product.uuid
+                temp_dict["id"] = product.uuid
                 
                 main_images_list = ImageBucket.objects.none()
                 main_images_objs = MainImages.objects.filter(product=product)
@@ -1739,7 +1989,6 @@ class SearchAPI(APIView):
                 else:
                     temp_dict["heroImageUrl"] = Config.objects.all()[
                         0].product_404_image.image.url
-                temp_dict["id"] = product.pk
                
                 dealshub_product = DealsHubProduct.objects.get(product=product)
                 category = dealshub_product.category
@@ -1913,6 +2162,7 @@ Search = SearchAPI.as_view()
 class CreateAdminCategoryAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -1924,14 +2174,16 @@ class CreateAdminCategoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            data = data["sectionData"]
+
             for key in data:
                 logger.info("CreateAdminCategoryAPI KEY: %s", str(key))
 
             name = data["name"]
             listing_type = data["listingType"]
-            products = json.loads(data["products"])
+            products = data["products"]
             
-            section_obj = Section.objects.create(uuid=str(uuid.uuid4()), name=name, listing_type=listing_type, created_by=request.user, modified_by=request.user)
+            section_obj = Section.objects.create(uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
                 section_obj.products.add(product_obj)
@@ -1949,6 +2201,7 @@ class CreateAdminCategoryAPI(APIView):
 class FetchAdminCategoriesAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def get(self, request, *args, **kwargs):
         response = {}
@@ -1973,7 +2226,19 @@ class FetchAdminCategoriesAPI(APIView):
                 temp_products = []
                 for prod in section_obj.products.all():
                     temp_dict2 = {}
-                    temp_dict2["thumbnailImageUrl"] = ""
+
+                    main_images_list = ImageBucket.objects.none()
+                    try:
+                        main_images_obj = MainImages.objects.get(
+                            product=prod, is_sourced=True)
+                        main_images_list |= main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
+                        images = create_response_images_main(main_images_list)
+                        temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
+                    except Exception as e:
+                        temp_dict2["thumbnailImageUrl"] = ""
+
+                    
                     temp_dict2["name"] = str(prod.product_name)
                     temp_dict2["displayId"] = str(prod.product_id)
                     temp_dict2["uuid"] = str(prod.uuid)
@@ -1993,6 +2258,7 @@ class FetchAdminCategoriesAPI(APIView):
 class UpdateAdminCategoryAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -2001,17 +2267,22 @@ class UpdateAdminCategoryAPI(APIView):
             data = request.data
             logger.info("UpdateAdminCategoryAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data = data["sectionData"]
+
             uuid = data["uuid"]
             name = data["name"]
             listing_type = data["listingType"]
             is_published = data["isPublished"]
-            products = json.loads(data["products"])
+            products = data["products"]
             
             section_obj = Section.objects.get(uuid=uuid)
             section_obj.name = name
             section_obj.listing_type = listing_type
             section_obj.is_published = is_published
-            section_obj.modified_by = request.user
+            section_obj.modified_by = None
             section_obj.products.clear()
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
@@ -2029,6 +2300,7 @@ class UpdateAdminCategoryAPI(APIView):
 class DeleteAdminCategoryAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -2051,6 +2323,7 @@ class DeleteAdminCategoryAPI(APIView):
 class PublishAdminCategoryAPI(APIView):
 
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -2072,6 +2345,937 @@ class PublishAdminCategoryAPI(APIView):
         return Response(data=response)
 
 
+class UnPublishAdminCategoryAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UnPublishAdminCategoryAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            
+            section_obj = Section.objects.get(uuid=uuid)
+            section_obj.is_published = False
+            section_obj.save()
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchBrandsCarouselAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchBrandsCarouselAPI: %s", str(data))
+
+            brands_carousel = [
+                {
+                  "id": "1",
+                  "name": "geepas",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/geepas-logo.png"
+                },
+                {
+                  "id": "2",
+                  "name": "krypton",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/krypton-logo.png"
+                },
+                {
+                  "id": "3",
+                  "name": "olsenmark",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/olsenmark-logo.png"
+                },
+                {
+                  "id": "4",
+                  "name": "geepas",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/geepas-logo.png"
+                },
+                {
+                  "id": "5",
+                  "name": "krypton",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/krypton-logo.png"
+                },
+                {
+                  "id": "6",
+                  "name": "olsenmark",
+                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/olsenmark-logo.png"
+                }]
+
+            response['brands_carousel'] = brands_carousel
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBrandsCarouselAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class SectionBulkUploadAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SectionBulkUploadAPI: %s", str(data))
+
+            path = default_storage.save('tmp/temp-section.xlsx', data["import_file"])
+            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            uuid = data["uuid"]
+            section_obj = Section.objects.get(uuid=uuid)
+
+            products = []
+            unsuccessful_count = 0
+            for i in range(rows):
+                try:
+                    product_id = dfs.iloc[i][0]
+                    product_obj = Product.objects.get(product_id=product_id)
+                    section_obj.products.add(product_obj)
+
+                    temp_dict2 = {}
+
+                    main_images_list = ImageBucket.objects.none()
+                    try:
+                        main_images_obj = MainImages.objects.get(
+                            product=product_obj, is_sourced=True)
+                        main_images_list |= main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
+                        images = create_response_images_main(main_images_list)
+                        temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
+                    except Exception as e:
+                        temp_dict2["thumbnailImageUrl"] = ""
+
+                    temp_dict2["name"] = str(product_obj.product_name)
+                    temp_dict2["displayId"] = str(product_obj.product_id)
+                    temp_dict2["uuid"] = str(product_obj.uuid)
+                    products.append(temp_dict2)
+
+                except Exception as e:
+                    unsuccessful_count += 1
+                    
+            section_obj.save()
+
+            response["products"] = products
+            response["unsuccessful_count"] = unsuccessful_count
+            response["filepath"] = path 
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SectionBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+class CreateDealsBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateDealsBannerAPI: %s", str(data))
+
+            image = data["image"]
+
+            if image=="" or image=="undefined" or image==None:
+                return Response(data=response)
+
+            image_obj = Image.objects.create(image=image)
+
+            deals_banner_obj = DealsBanner.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            
+            response['uuid'] = deals_banner_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchDealsBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchDealsBannerAPI: %s", str(data))
+
+            resolution = data["resolution"]
+
+            deals_banner_objs = DealsBanner.objects.all()
+
+            banner_deals = []
+
+            for deals_banner_obj in deals_banner_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["uid"] = deals_banner_obj.uuid
+                    temp_dict["httpLink"] = deals_banner_obj.http_link
+                    temp_dict["isPublished"] = deals_banner_obj.is_published
+                    if deals_banner_obj.image!=None:
+                        if resolution=="low":
+                            temp_dict["url"] = deals_banner_obj.image.thumbnail.url
+                        else:
+                            temp_dict["url"] = deals_banner_obj.image.image.url
+                    else:
+                        temp_dict["url"] = ""
+                    banner_deals.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchDealsBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response['banner_deals'] = banner_deals
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteDealsBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteDealsBannerAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            DealsBanner.objects.get(uuid=uuid).delete()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class PublishDealsBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("PublishDealsBannerAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            deals_banner_obj = DealsBanner.objects.get(uuid=uuid)
+            deals_banner_obj.is_published = True
+            deals_banner_obj.save()
+            
+            response['uuid'] = deals_banner_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PublishDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UnPublishDealsBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UnPublishDealsBannerAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            deals_banner_obj = DealsBanner.objects.get(uuid=uuid)
+            deals_banner_obj.is_published = False
+            deals_banner_obj.save()
+            
+            response['uuid'] = deals_banner_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+class CreateFullBannerAdAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateFullBannerAdAPI: %s", str(data))
+
+            image = data["image"]
+
+            image_obj = Image.objects.create(image=image)
+
+            full_banner_ad_obj = FullBannerAd.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            
+            response['uuid'] = full_banner_ad_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateFullBannerAdAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchFullBannerAdAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchFullBannerAdAPI: %s", str(data))
+
+            full_banner_ad_objs = FullBannerAd.objects.all()
+
+            banner_deals = []
+
+            for full_banner_ad_obj in full_banner_ad_objs:
+                temp_dict = {}
+                temp_dict["uid"] = full_banner_ad_obj.uuid
+                temp_dict["httpLink"] = full_banner_ad_obj.http_link
+                temp_dict["isPublished"] = full_banner_ad_obj.is_published
+                if full_banner_ad_obj.image!=None:
+                    temp_dict["url"] = full_banner_ad_obj.image.image.url
+                else:
+                    temp_dict["url"] = ""
+                banner_deals.append(temp_dict)
+            
+            response['full_banner_ads'] = banner_deals
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealsBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteFullBannerAdAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteFullBannerAdAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            FullBannerAd.objects.get(uuid=uuid).delete()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteFullBannerAdAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class PublishFullBannerAdAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("PublishFullBannerAdAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            full_banner_ad_obj = FullBannerAd.objects.get(uuid=uuid)
+            full_banner_ad_obj.is_published = True
+            full_banner_ad_obj.save()
+            
+            response['uuid'] = full_banner_ad_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PublishFullBannerAdAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UnPublishFullBannerAdAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UnPublishFullBannerAdAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            full_banner_ad_obj = FullBannerAd.objects.get(uuid=uuid)
+            full_banner_ad_obj.is_published = False
+            full_banner_ad_obj.save()
+            
+            response['uuid'] = full_banner_ad_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishFullBannerAdAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class CreateDealsHubProductAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("CreateDealsHubProductAPI: %s", str(data))
+            product_pk = data["product_pk"]
+            product_obj = Product.objects.get(pk=product_pk)
+            product_obj.is_dealshub_product_created = True
+            product_obj.save()
+            if(DealsHubProduct.objects.filter(product=product_obj).exists()==False):
+                DealsHubProduct.objects.create(product=product_obj)
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateDealsHubProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class PublishDealsHubProductAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PublishDealsHubProductAPI: %s", str(data))
+            product_pk = data["product_pk"]
+            product_obj = Product.objects.get(pk=product_pk)
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            dealshub_product_obj.is_published = True
+            dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PublishDealsHubProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UnPublishDealsHubProductAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UnPublishDealsHubProductAPI: %s", str(data))
+            product_pk = data["product_pk"]
+            product_obj = Product.objects.get(pk=product_pk)
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            dealshub_product_obj.is_published = False
+            dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishDealsHubProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class CreateCategoryGridBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateCategoryGridBannerAPI: %s", str(data))
+
+            image = data["image"]
+
+            if image=="" or image=="undefined" or image==None:
+                return Response(data=response)
+
+            image_obj = Image.objects.create(image=image)
+
+            category_grid_banner_obj = CategoryGridBanner.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            
+            response['uuid'] = category_grid_banner_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateCategoryGridBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchCategoryGridBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchCategoryGridBannerAPI: %s", str(data))
+
+            resolution = data.get("resolution", "low")
+
+            category_grid_banner_objs = CategoryGridBanner.objects.all()
+
+            category_grid_banners = []
+
+            for category_grid_banner_obj in category_grid_banner_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["uid"] = category_grid_banner_obj.uuid
+                    temp_dict["httpLink"] = category_grid_banner_obj.http_link
+                    temp_dict["isPublished"] = category_grid_banner_obj.is_published
+                    if category_grid_banner_obj.image!=None:
+                        if resolution=="low":
+                            temp_dict["url"] = category_grid_banner_obj.image.thumbnail.url
+                        else:
+                            temp_dict["url"] = category_grid_banner_obj.image.image.url
+                    else:
+                        temp_dict["url"] = ""
+                    category_grid_banners.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCategoryGridBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response['category_grid_banners'] = category_grid_banners
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoryGridBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteCategoryGridBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteCategoryGridBannerAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            CategoryGridBanner.objects.get(uuid=uuid).delete()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteCategoryGridBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+class DeleteProductFromSectionAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteProductFromSectionAPI: %s", str(data))
+
+            section_uuid = data["sectionUuid"]
+            product_uuid = data["productUuid"]
+
+            section_obj = Section.objects.get(uuid=section_uuid)
+            product_obj = Product.objects.get(uuid=product_uuid)
+            section_obj.products.remove(product_obj)
+            section_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteProductFromSectionAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+
+class CreateHomePageSchedularAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateHomePageSchedularAPI: %s", str(data))
+
+            image = data["image"]
+
+            if image=="" or image=="undefined" or image==None:
+                return Response(data=response)
+
+            image_obj = Image.objects.create(image=image)
+
+            home_page_schedular_obj = HomePageSchedular.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            
+            response['uuid'] = home_page_schedular_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateHomePageSchedularAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchHomePageSchedularAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchHomePageSchedularAPI: %s", str(data))
+
+            resolution = data.get("resolution", "low")
+
+            home_page_schedular_objs = HomePageSchedular.objects.all()
+
+            home_page_schedulars = []
+
+            for home_page_schedular_obj in home_page_schedular_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["uid"] = home_page_schedular_obj.uuid
+                    temp_dict["httpLink"] = home_page_schedular_obj.http_link
+                    temp_dict["isPublished"] = home_page_schedular_obj.is_published
+                    if home_page_schedular_obj.image!=None:
+                        if resolution=="low":
+                            temp_dict["url"] = home_page_schedular_obj.image.thumbnail.url
+                        else:
+                            temp_dict["url"] = home_page_schedular_obj.image.image.url
+                    else:
+                        temp_dict["url"] = ""
+                    home_page_schedulars.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchHomePageSchedularAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response['home_page_schedulars'] = home_page_schedulars
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchHomePageSchedularAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteHomePageSchedularAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteHomePageSchedularAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            HomePageSchedular.objects.get(uuid=uuid).delete()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteHomePageSchedularAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+
+class PublishDealsHubProductsAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PublishDealsHubProductsAPI: %s", str(data))
+            product_pk_list = data["product_pk_list"]
+            for product_pk in product_pk_list:
+                product_obj = Product.objects.get(pk=product_pk)
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.is_published = True
+                dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PublishDealsHubProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UnPublishDealsHubProductsAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UnPublishDealsHubProductsAPI: %s", str(data))
+            product_pk_list = data["product_pk_list"]
+            for product_pk in product_pk_list:
+                product_obj = Product.objects.get(pk=product_pk)
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.is_published = False
+                dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishDealsHubProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateLinkDealsBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateLinkDealsBannerAPI: %s", str(data))
+
+            http_link = data["httpLink"]
+            uuid = data["uuid"]
+
+            deals_banner_obj = DealsBanner.objects.get(uuid=uuid)
+            deals_banner_obj.http_link = http_link
+            deals_banner_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLinkDealsBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateLinkFullBannerAdAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateLinkFullBannerAdAPI: %s", str(data))
+
+            http_link = data["httpLink"]
+            uuid = data["uuid"]
+
+            full_banner_ad_obj = FullBannerAd.objects.get(uuid=uuid)
+            full_banner_ad_obj.http_link = http_link
+            full_banner_ad_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLinkFullBannerAdAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateLinkCategoryGridBannerAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateLinkCategoryGridBannerAPI: %s", str(data))
+
+            http_link = data["httpLink"]
+            uuid = data["uuid"]
+
+            category_grid_banner_obj = CategoryGridBanner.objects.get(uuid=uuid)
+            category_grid_banner_obj.http_link = http_link
+            category_grid_banner_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLinkCategoryGridBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateLinkHomePageSchedularAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateLinkHomePageSchedularAPI: %s", str(data))
+
+            http_link = data["httpLink"]
+            uuid = data["uuid"]
+
+            home_page_schedular_obj = HomePageSchedular.objects.get(uuid=uuid)
+            home_page_schedular_obj.http_link = http_link
+            home_page_schedular_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLinkHomePageSchedularAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+
+
+
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2082,3 +3286,62 @@ UpdateAdminCategory = UpdateAdminCategoryAPI.as_view()
 DeleteAdminCategory = DeleteAdminCategoryAPI.as_view()
 
 PublishAdminCategory = PublishAdminCategoryAPI.as_view()
+
+UnPublishAdminCategory = UnPublishAdminCategoryAPI.as_view()
+
+FetchBrandsCarousel = FetchBrandsCarouselAPI.as_view()
+
+SectionBulkUpload = SectionBulkUploadAPI.as_view()
+
+CreateDealsBanner = CreateDealsBannerAPI.as_view()
+
+FetchDealsBanner = FetchDealsBannerAPI.as_view()
+
+DeleteDealsBanner = DeleteDealsBannerAPI.as_view()
+
+PublishDealsBanner = PublishDealsBannerAPI.as_view()
+
+UnPublishDealsBanner = UnPublishDealsBannerAPI.as_view()
+
+
+CreateFullBannerAd = CreateFullBannerAdAPI.as_view()
+
+FetchFullBannerAd = FetchFullBannerAdAPI.as_view()
+
+DeleteFullBannerAd = DeleteFullBannerAdAPI.as_view()
+
+PublishFullBannerAd = PublishFullBannerAdAPI.as_view()
+
+UnPublishFullBannerAd = UnPublishFullBannerAdAPI.as_view()
+
+CreateDealsHubProduct = CreateDealsHubProductAPI.as_view()
+
+PublishDealsHubProduct = PublishDealsHubProductAPI.as_view()
+
+UnPublishDealsHubProduct = UnPublishDealsHubProductAPI.as_view()
+
+CreateCategoryGridBanner = CreateCategoryGridBannerAPI.as_view()
+
+FetchCategoryGridBanner = FetchCategoryGridBannerAPI.as_view()
+
+DeleteCategoryGridBanner = DeleteCategoryGridBannerAPI.as_view()
+
+DeleteProductFromSection = DeleteProductFromSectionAPI.as_view()
+
+CreateHomePageSchedular = CreateHomePageSchedularAPI.as_view()
+
+FetchHomePageSchedular = FetchHomePageSchedularAPI.as_view()
+
+DeleteHomePageSchedular = DeleteHomePageSchedularAPI.as_view()
+
+PublishDealsHubProducts = PublishDealsHubProductsAPI.as_view()
+
+UnPublishDealsHubProducts = UnPublishDealsHubProductsAPI.as_view()
+
+UpdateLinkDealsBanner = UpdateLinkDealsBannerAPI.as_view()
+
+UpdateLinkFullBannerAd = UpdateLinkFullBannerAdAPI.as_view()
+
+UpdateLinkCategoryGridBanner = UpdateLinkCategoryGridBannerAPI.as_view()
+
+UpdateLinkHomePageSchedular = UpdateLinkHomePageSchedularAPI.as_view()

@@ -86,20 +86,24 @@ def export_ebay(products):
                 # Graphics Part
                 images_link = []
 
-                main_images_list = ImageBucket.objects.none()
-                main_images_obj = MainImages.objects.get(product = product, channel="Ebay")
 
-                main_images_list = main_images_obj.main_images.filter(is_main_image=True).distinct()
-                sub_images_list = main_images_obj.main_images.filter(is_sub_image=True).distinct()
+                try:
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_obj = MainImages.objects.get(product = product, channel__name="Ebay")
 
-                for main_image in main_images_list:
-                    images_link.append(str(main_image.image.image.url))
+                    main_images_list = main_images_obj.main_images.filter(is_main_image=True).distinct()
+                    sub_images_list = main_images_obj.main_images.filter(is_sub_image=True).distinct()
+
+                    for main_image in main_images_list:
+                        images_link.append(str(main_image.image.image.url))
                 
-                for sub_image in sub_images_list:
-                    images_link.append(str(sub_image.image.image.url))
+                    for sub_image in sub_images_list:
+                        images_link.append(str(sub_image.image.image.url))
                 
-                pic_url = "|".join(images_link)
-                common_row[6] = pic_url
+                    pic_url = "|".join(images_link)
+                    common_row[6] = pic_url
+                except Exception as e:
+                    pass
 
                 colnum = 0
                 for row in common_row:

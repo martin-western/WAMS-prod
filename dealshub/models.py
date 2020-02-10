@@ -14,7 +14,7 @@ import json
 import uuid
 
 
-from WAMSApp.models import Product
+from WAMSApp.models import Product, Image
 from dealshub.synchronization import *
 
 logger = logging.getLogger(__name__)
@@ -85,6 +85,7 @@ class DealsHubProduct(models.Model):
     sub_category = models.ForeignKey(
         SubCategory, on_delete=models.CASCADE, blank=True, null=True)
     properties = models.TextField(null=True, blank=True, default="{}")
+    is_published = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "DealsHub Product"
@@ -133,6 +134,39 @@ class Section(models.Model):
             self.uuid = str(uuid.uuid4())
         
         super(Section, self).save(*args, **kwargs)
+
+
+class DealsBanner(models.Model):
+
+    uuid = models.CharField(max_length=200, unique=True)
+    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    http_link = models.TextField(default="")
+    is_published = models.BooleanField(default=False)
+
+
+class FullBannerAd(models.Model):
+
+    uuid = models.CharField(max_length=200, unique=True)
+    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    http_link = models.TextField(default="")
+    is_published = models.BooleanField(default=False)
+
+
+class CategoryGridBanner(models.Model):
+
+    uuid = models.CharField(max_length=200, unique=True)
+    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    http_link = models.TextField(default="")
+    is_published = models.BooleanField(default=False)
+
+
+class HomePageSchedular(models.Model):
+
+    uuid = models.CharField(max_length=200, unique=True)
+    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    http_link = models.TextField(default="")
+    is_published = models.BooleanField(default=False)
+
 
 
 @receiver(pre_delete, sender=DealsHubProduct)

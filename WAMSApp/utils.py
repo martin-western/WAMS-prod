@@ -90,17 +90,17 @@ def fetch_prices(product_id):
     try:
 
         # Check if Cached
-        product_obj = Product.objects.get(base_product__seller_sku=product_id)
+        product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
         curr_time = timezone.now()
         if (product_obj.sap_cache_time-curr_time).seconds<86400:
-            warehouse_information = json.loads(product_obj.sap_cache)
-            return warehouse_information
+             warehouse_information = json.loads(product_obj.sap_cache)
+             return warehouse_information
 
         url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         company_codes = ["1070","1000"] 
-        
+
         warehouse_information = []
 
         for company_code in company_codes:
@@ -150,7 +150,7 @@ def fetch_prices(product_id):
             OD_EA = 0.0
             RET_EA = 0.0
             qty=0.0
-
+            
             warehouse_dict["company_code"] = company_code
             
             if isinstance(items, dict):
@@ -196,20 +196,22 @@ def fetch_prices(product_id):
                     if temp_qty!=None:
                         temp_qty = float(temp_qty)
                         qty = max(temp_qty, qty)
-                        
+            
             prices = {}
             prices["EX_EA"] = str(EX_EA)
             prices["IC_EA"] = str(IC_EA)
             prices["OD_EA"] = str(OD_EA)
             prices["RET_EA"] = str(RET_EA)
+            
             warehouse_dict["prices"] = prices
             warehouse_dict["qty"] = qty
-
+            
             warehouse_information.append(warehouse_dict)
 
         product_obj.sap_cache = json.dumps(warehouse_information)
         product_obj.sap_cache_time = curr_time
         product_obj.save()
+        
         return warehouse_information
 
     except Exception as e:

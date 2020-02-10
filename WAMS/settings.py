@@ -165,7 +165,8 @@ APP_LOG_FILENAME = os.path.join(BASE_DIR, 'log/app.log')
 
 LOGFILE_SIZE = 20 * 1024 * 1024
 LOGFILE_COUNT = 5
-LOGFILE_APP = 'dealshub'
+LOGFILE_APP = 'WAMSApp'
+LOGFILE_APP2 = 'dealshub'
 
 LOGGING = {
     'version': 1,
@@ -195,6 +196,11 @@ LOGGING = {
             'handlers': ['applog'],
             'level': 'INFO',
             'propagate': True,
+        },
+        LOGFILE_APP2: {
+            'handlers': ['applog'],
+            'level': 'INFO',
+            'propagate': True,
         }
     }
 }
@@ -217,7 +223,7 @@ REST_FRAMEWORK = {
 
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'WAMSApp.utils.my_jwt_response_handler',
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=1800),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=15552000),
 }
 
 CORS_ORIGIN_ALLOW_ALL = True

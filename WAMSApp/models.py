@@ -10,7 +10,8 @@ from django.utils import timezone
 #from WAMSApp.utils import *
 
 from PIL import Image as IMAGE
-from io import BytesIO as StringIO
+#from io import BytesIO as StringIO
+from io import BytesIO
 import logging
 import sys
 import json
@@ -23,6 +24,7 @@ noon_product_json = {
     "product_name" : "",
     "product_type" : "",
     "product_subtype" : "",
+    "parent_sku" : "",
     "category" : "",
     "sub_category" : "",
     "model_number" : "",
@@ -211,7 +213,6 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
-"""
     def save(self, *args, **kwargs):
         try:  
             size = 128, 128
@@ -219,20 +220,20 @@ class Image(models.Model):
             thumb.thumbnail(size)
             infile = self.image.file.name
             im_type = thumb.format 
-            thumb_io = StringIO.StringIO()
+            thumb_io = BytesIO()
             thumb.save(thumb_io, format=im_type)
 
-            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.len, None)
+            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
 
             self.thumbnail = thumb_file
 
             size2 = 512, 512
             thumb2 = IMAGE.open(self.image)
             thumb2.thumbnail(size2)
-            thumb_io2 = StringIO.StringIO()
+            thumb_io2 = BytesIO()
             thumb2.save(thumb_io2, format=im_type)
 
-            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.len, None)
+            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
 
             self.mid_image = thumb_file2
         except Exception as e:
@@ -240,7 +241,6 @@ class Image(models.Model):
             logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
-"""
 
 class ImageBucket(models.Model):
 
@@ -450,6 +450,8 @@ class Product(models.Model):
     sap_cache = models.TextField(default="[]")
     sap_cache_time = models.DateTimeField(default=timezone.now)
 
+    is_dealshub_product_created = models.BooleanField(default=False)
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
@@ -570,6 +572,7 @@ class ExportList(models.Model):
     products = models.ManyToManyField(Product, blank=True)
     created_date = models.DateTimeField()
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    channel = models.ForeignKey(Channel,null=True,blank=True, on_delete=models.SET_NULL)
 
     history = AuditlogHistoryField()
     
@@ -582,7 +585,7 @@ class ExportList(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk == None:
-            self.created_date = timezone.now
+            self.created_date = timezone.now()
         super(ExportList, self).save(*args, **kwargs)
 
 
