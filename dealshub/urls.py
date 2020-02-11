@@ -66,5 +66,9 @@ urlpatterns = [
     url(r'^update-link-deals-banner/$', views.UpdateLinkDealsBanner),
     url(r'^update-link-full-banner-ad/$', views.UpdateLinkFullBannerAd),
     url(r'^update-link-category-grid-banner/$', views.UpdateLinkCategoryGridBanner),
-    url(r'^update-link-home-page-schedular/$', views.UpdateLinkHomePageSchedular)
+    url(r'^update-link-home-page-schedular/$', views.UpdateLinkHomePageSchedular),
+
+    url(r'^fetch-heading-data/$', views.FetchHeadingData),
+    url(r'^fetch-heading-category-list/$', views.FetchHeadingCategoryList),
+    url(r'^create-heading-data/$', views.CreateHeadingData)
 ]
