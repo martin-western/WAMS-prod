@@ -342,7 +342,6 @@ class BaseProduct(models.Model):
     seller_sku = models.CharField(max_length=200, unique=True)
     category = models.CharField(max_length=200, default="")
     sub_category = models.CharField(max_length=200, default="")
-    subtitle = models.CharField(max_length=200, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")

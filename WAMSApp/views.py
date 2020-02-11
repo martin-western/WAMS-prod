@@ -1025,7 +1025,6 @@ class FetchBaseProductDetailsAPI(APIView):
             
             response["base_product_name"] = base_product_obj.base_product_name
             response["category"] = base_product_obj.category
-            response["subtitle"] = base_product_obj.subtitle
             response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
@@ -1090,7 +1089,6 @@ class FetchProductDetailsAPI(APIView):
             
             response["base_product_name"] = base_product_obj.base_product_name
             response["category"] = base_product_obj.category
-            response["subtitle"] = base_product_obj.subtitle
             response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
@@ -1336,7 +1334,6 @@ class SaveBaseProductAPI(APIView):
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
             category = convert_to_ascii(data["category"])
             sub_category = convert_to_ascii(data["sub_category"])
-            subtitle = convert_to_ascii(data["subtitle"])
             
             dimensions = data["base_dimensions"]
             
@@ -1362,7 +1359,6 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.manufacturer_part_number = manufacturer_part_number
             base_product_obj.category = category
             base_product_obj.sub_category = sub_category
-            base_product_obj.subtitle = subtitle
             base_product_obj.dimensions = dimensions
             
             base_product_obj.save()
@@ -1609,7 +1605,6 @@ class FetchProductListAPI(APIView):
                 temp_dict["seller_sku"] = base_product_obj.seller_sku
                 temp_dict["category"] = base_product_obj.category
                 temp_dict["sub_category"] = base_product_obj.sub_category
-                temp_dict["subtitle"] = base_product_obj.subtitle
                 temp_dict["dimensions"] = json.dumps(base_product_obj.dimensions)
                 
                 product_objs = search_list_product_objs.filter(base_product = base_product_obj)
@@ -1622,7 +1617,6 @@ class FetchProductListAPI(APIView):
                     temp_dict2["product_name"] = product_obj.product_name
                     temp_dict2["brand_name"] = str(product_obj.base_product.brand)
                     temp_dict2["sub_category"] = base_product_obj.sub_category
-                    temp_dict2["subtitle"] = base_product_obj.subtitle
                     temp_dict2["category"] = base_product_obj.category
                     temp_dict2["product_price"] = product_obj.standard_price
                     temp_dict2["is_dealshub_product_created"] = product_obj.is_dealshub_product_created
@@ -1664,7 +1658,6 @@ class FetchProductListAPI(APIView):
                         temp_dict3["channel_name"] = "Noon"
                         temp_dict3["is_active"] = noon_product["is_active"]
                         temp_dict3["sub_category"] = base_product_obj.sub_category
-                        temp_dict3["subtitle"] = base_product_obj.subtitle
                         temp_dict3["category"] = base_product_obj.category
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
                         
@@ -1703,7 +1696,6 @@ class FetchProductListAPI(APIView):
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
-                        temp_dict3["subtitle"] = base_product_obj.subtitle
                         temp_dict3["category"] = base_product_obj.category
                         temp_dict3["image_url"] = main_image_url
 
@@ -1731,7 +1723,6 @@ class FetchProductListAPI(APIView):
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
-                        temp_dict3["subtitle"] = base_product_obj.subtitle
                         temp_dict3["category"] = base_product_obj.category
                         temp_dict3["image_url"] = main_image_url
 
@@ -1760,7 +1751,6 @@ class FetchProductListAPI(APIView):
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
-                        temp_dict3["subtitle"] = base_product_obj.subtitle
                         temp_dict3["category"] = base_product_obj.category
                         temp_dict3["image_url"] = main_image_url
 
