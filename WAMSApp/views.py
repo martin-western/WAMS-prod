@@ -3953,7 +3953,7 @@ class SapIntegrationAPI(APIView):
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
 
-            print((json.dumps(content, indent=4, sort_keys=True)))
+            # print((json.dumps(content, indent=4, sort_keys=True)))
             
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             
