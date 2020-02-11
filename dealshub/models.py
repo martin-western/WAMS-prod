@@ -14,7 +14,7 @@ import json
 import uuid
 
 
-from WAMSApp.models import Product, Image
+from WAMSApp.models import Product, Image, Brand
 from dealshub.synchronization import *
 
 logger = logging.getLogger(__name__)
@@ -166,6 +166,23 @@ class HomePageSchedular(models.Model):
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
+
+
+class ImageLink(models.Model):
+
+    uuid = models.CharField(max_length=200, unique=True)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, null=True)
+    http_link = models.TextField(default="")
+
+
+
+class DealsHubHeading(models.Model):
+
+    uuid = models.CharField(max_length=200, unique=True)
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200, default="")
+    categories = models.ManyToManyField(Category, blank=True)
+    image_links = models.ManyToManyField(ImageLink, blank=True)
 
 
 
