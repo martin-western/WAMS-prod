@@ -367,6 +367,19 @@
 
 -----------------------------------------------------
 
+/fetch-user-profile/
+{
+
+}
+{
+    "contact_number" : "",
+    "username" : "",
+    "email" : "",
+    "img_url" : "",
+    "status": ""
+}
+
+
 /fetch-product-details/
 {
     "product_pk": ""
