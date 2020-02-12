@@ -3481,11 +3481,15 @@ class SaveHeadingDataAPI(APIView):
             logger.info("SaveHeadingDataAPI: %s", str(data))
 
             uuid = data["uuid"]
+
             dealshub_heading_obj = DealsHubHeading.objects.get(uuid=uuid)
+
+            heading_name = data["headingName"]
 
             category_uuid_list = data["categoryList"]
 
             dealshub_heading_obj.categories.clear()            
+            dealshub_heading_obj.name = heading_name
             for uuid in category_uuid_list:
                 category_obj = Category.objects.get(uuid=uuid)
                 dealshub_heading_obj.categories.add(category_obj)
