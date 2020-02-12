@@ -3363,9 +3363,9 @@ class FetchHeadingDataAdminAPI(APIView):
                 image_link_objs = dealshub_heading_obj.image_links.all()
                 for image_link_obj in image_link_objs:
                     temp_dict4 = {}
-                    temp_dict4["imageUrl"] = image_link_obj.image.image.url
+                    temp_dict4["url"] = image_link_obj.image.image.url
                     temp_dict4["httpLink"] = image_link_obj.http_link
-                    temp_dict4["uuid"] = image_link_obj.uuid
+                    temp_dict4["uid"] = image_link_obj.uuid
                     image_list.append(temp_dict4)
                 temp_dict["imageList"] = image_list
 
@@ -3480,18 +3480,20 @@ class SaveHeadingDataAPI(APIView):
             data = request.data
             logger.info("SaveHeadingDataAPI: %s", str(data))
 
-            uuid = data["uuid"]
+            data = data["dataObj"]
 
-            dealshub_heading_obj = DealsHubHeading.objects.get(uuid=uuid)
+            uuid1 = data["uuid"]
+
+            dealshub_heading_obj = DealsHubHeading.objects.get(uuid=uuid1)
 
             heading_name = data["headingName"]
 
-            category_uuid_list = data["categoryList"]
+            category_list = data["categoryList"]
 
             dealshub_heading_obj.categories.clear()            
             dealshub_heading_obj.name = heading_name
-            for uuid in category_uuid_list:
-                category_obj = Category.objects.get(uuid=uuid)
+            for category in category_list:
+                category_obj = Category.objects.get(category_id=category["uuid"])
                 dealshub_heading_obj.categories.add(category_obj)
 
             dealshub_heading_obj.save()
@@ -3517,20 +3519,27 @@ class UploadImageHeadingAPI(APIView):
             data = request.data
             logger.info("UploadImageHeadingAPI: %s", str(data))
 
-            uuid = data["uuid"]
+            uuid1 = data["uuid"]
             image = data["image"]
 
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
-            dealshub_heading_obj = DealsHubHeading.objects.get(uuid=uuid)
+            dealshub_heading_obj = DealsHubHeading.objects.get(uuid=uuid1)
 
             image_obj = Image.objects.create(image=image)
-            image_link_obj = ImageLink.objects.create(image=image, uuid=str(uuid.uuid4()))
+            url = image_obj.image.url
+            image_link_obj = ImageLink.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
             dealshub_heading_obj.image_links.add(image_link_obj)
             dealshub_heading_obj.save()
 
-            response["uuid"] = image_link_obj.uuid
+
+            dataObj = {
+                "uid": image_link_obj.uuid,
+                "url": url,
+                "httpLink": ""
+            }
+            response["dataObj"] = dataObj
             response['status'] = 200
 
         except Exception as e:

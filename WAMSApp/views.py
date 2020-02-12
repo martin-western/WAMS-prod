@@ -1438,6 +1438,8 @@ class SaveProductAPI(APIView):
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = data["pfl_product_features"]
 
+            logger.info("pfl_product_features type  %s", str(type(pfl_product_features)))
+
             factory_notes = convert_to_ascii(data["factory_notes"])
             factory_code = convert_to_ascii(data["factory_code"])
 
@@ -1482,7 +1484,7 @@ class SaveProductAPI(APIView):
             product_obj.quantity = quantity
             
             product_obj.pfl_product_name = pfl_product_name
-            product_obj.pfl_product_features = pfl_product_features
+            product_obj.pfl_product_features = json.dumps(pfl_product_features)
 
             product_obj.factory_notes = factory_notes
             product_obj.factory_code = factory_code
@@ -1783,7 +1785,7 @@ class FetchProductListAPI(APIView):
             response["is_available"] = is_available
             response["total_products"] = len(search_list_base_product_objs)
             response["products"] = products
-            logger.info("Response products %s", str(products))
+            #logger.info("Response products %s", str(products))
             response['status'] = 200
 
         except Exception as e:
