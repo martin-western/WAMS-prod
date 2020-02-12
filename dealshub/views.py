@@ -3287,6 +3287,7 @@ class FetchHeadingDataAPI(APIView):
             dealshub_heading_objs = DealsHubHeading.objects.filter(brand__name=brand_name)
             heading_list = []
             for dealshub_heading_obj in dealshub_heading_objs:
+                logger.info("heading data")
                 temp_dict = {}
                 temp_dict["headingName"] = dealshub_heading_obj.name
                 category_list = []
@@ -3295,12 +3296,12 @@ class FetchHeadingDataAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["categoryName"] = category_obj.name
                     sub_category_list = []
-                    sub_category_objs = subCategory.objects.filter(category=category_obj)
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     for sub_category_obj in sub_category_objs:
                         temp_dict3 = {}
                         temp_dict3["subcategoryName"] = sub_category_obj.name
                         sub_category_list.append(temp_dict3)
-                    temp_dict2["subcategoryList"] = sub_category_obj
+                    temp_dict2["subcategoryList"] = sub_category_list
                     category_list.append(temp_dict2)
                 temp_dict["categoryList"] = category_list
                 
@@ -3309,7 +3310,7 @@ class FetchHeadingDataAPI(APIView):
                 for image_link_obj in image_link_objs:
                     temp_dict4 = {}
                     temp_dict4["imageUrl"] = image_link_obj.image.image.url
-                    temp_dict4["http_link"] = image_link_obj.http_link
+                    temp_dict4["httpLink"] = image_link_obj.http_link
                     image_list.append(temp_dict4)
                 temp_dict["imageList"] = image_list
 
@@ -3320,6 +3321,7 @@ class FetchHeadingDataAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Not catching")
             logger.error("FetchHeadingDataAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
