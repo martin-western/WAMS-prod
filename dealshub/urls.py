@@ -73,5 +73,8 @@ urlpatterns = [
     url(r'^delete-heading/$', views.DeleteHeading),
     url(r'^fetch-heading-category-list/$', views.FetchHeadingCategoryList),
     url(r'^create-heading-data/$', views.CreateHeadingData),
-    url(r'^save-heading-data/$', views.SaveHeadingData)
+    url(r'^save-heading-data/$', views.SaveHeadingData),
+    url(r'^upload-image-heading/$', views.UploadImageHeading),
+    url(r'^update-image-heading/$', views.UpdateImageHeadingLink),
+    url(r'^delete-image-heading/$', views.DeleteImageHeading),
 ]

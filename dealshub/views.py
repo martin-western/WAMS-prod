@@ -3500,6 +3500,93 @@ class SaveHeadingDataAPI(APIView):
         return Response(data=response)
 
 
+class UploadImageHeadingAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UploadImageHeadingAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            image = data["image"]
+
+            if image=="" or image=="undefined" or image==None:
+                return Response(data=response)
+
+            dealshub_heading_obj = DealsHubHeading.objects.get(uuid=uuid)
+
+            image_obj = Image.objects.create(image=image)
+            image_link_obj = ImageLink.objects.create(image=image, uuid=str(uuid.uuid4()))
+            dealshub_heading_obj.image_links.add(image_link_obj)
+            dealshub_heading_obj.save()
+
+            response["uuid"] = image_link_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadImageHeadingAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateImageHeadingLinkAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateImageHeadingLinkAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            http_link = data["httpLink"]
+
+            image_link_obj = ImageLink.objects.get(uuid=uuid)
+            image_link_obj.http_link = http_link
+            image_link_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateImageHeadingLinkAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteImageHeadingAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteImageHeadingAPI: %s", str(data))
+
+            uuid = data["uuid"]
+
+            ImageLink.objects.get(uuid=uuid).delete()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteImageHeadingAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -3581,3 +3668,9 @@ DeleteHeading = DeleteHeadingAPI.as_view()
 CreateHeadingData = CreateHeadingDataAPI.as_view()
 
 SaveHeadingData = SaveHeadingDataAPI.as_view()
+
+UploadImageHeading = UploadImageHeadingAPI.as_view()
+
+UpdateImageHeadingLink = UpdateImageHeadingLinkAPI.as_view()
+
+DeleteImageHeading = DeleteImageHeadingAPI.as_view()
