@@ -69,6 +69,9 @@ urlpatterns = [
     url(r'^update-link-home-page-schedular/$', views.UpdateLinkHomePageSchedular),
 
     url(r'^fetch-heading-data/$', views.FetchHeadingData),
+    url(r'^fetch-heading-data-admin/$', views.FetchHeadingDataAdmin),
+    url(r'^delete-heading/$', views.DeleteHeading),
     url(r'^fetch-heading-category-list/$', views.FetchHeadingCategoryList),
-    url(r'^create-heading-data/$', views.CreateHeadingData)
+    url(r'^create-heading-data/$', views.CreateHeadingData),
+    url(r'^save-heading-data/$', views.SaveHeadingData)
 ]
