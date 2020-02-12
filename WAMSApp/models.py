@@ -642,6 +642,23 @@ class BackgroundImage(models.Model):
     def __str__(self):
         return str(self.pk)
 
+
+class RequestHelp(models.Model):
+
+    uuid = models.CharField(default="", max_length=200, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    message = models.TextField(default="")
+    created_date = models.DateTimeField()
+    page = models.CharField(default="NA", max_length=200)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.uuid = str(uuid.uuid4())
+        super(RequestHelp, self).save(*args, **kwargs)
+
+
+
 @receiver(post_save, sender=Product, dispatch_uid="create_pfl")
 def update_stock(sender, instance, **kwargs):
     if PFL.objects.filter(product=instance).exists()==False:

@@ -4015,6 +4015,35 @@ class FetchUserProfileAPI(APIView):
         return Response(data=response)
 
 
+class CreateRequestHelpAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("CreateRequestHelpAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            message = data["message"]
+            page = data["page"]
+
+            RequestHelp.objects.create(message=message, page=page)
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchUserProfileAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -4120,3 +4149,5 @@ FetchNoonChannelProduct = FetchNoonChannelProductAPI.as_view()
 SaveBaseProduct = SaveBaseProductAPI.as_view()
 
 FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
+
+CreateRequestHelp = CreateRequestHelpAPI.as_view()

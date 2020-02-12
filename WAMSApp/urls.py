@@ -122,4 +122,6 @@ urlpatterns = [
 
     url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
 
+    url(r'^create-request-help/$',views.CreateRequestHelp),    
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
