@@ -3455,8 +3455,8 @@ class CreateHeadingDataAPI(APIView):
             brand_name = data["brandName"]
             heading_name = data["headingName"]
             brand_obj = Brand.objects.get(name=brand_name)
-            uuid = str(uuid.uuid4())
-            dealshub_heading_obj = DealsHubHeading.objects.create(brand=brand_obj, name=heading_name, uuid=uuid)
+            uuid1 = str(uuid.uuid4())
+            dealshub_heading_obj = DealsHubHeading.objects.create(brand=brand_obj, name=heading_name, uuid=uuid1)
 
             response["uuid"] = dealshub_heading_obj.uuid
             response['status'] = 200
