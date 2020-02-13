@@ -2135,13 +2135,36 @@ class UploadProductImageAPI(APIView):
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
                     if data["channel_name"] == "" or data["channel_name"] == None:
+                        
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Amazon UK")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Amazon UAE")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Ebay")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Noon")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
                     else:
                         channel_obj = Channel.objects.get(name=data["channel_name"])
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                    
-                    main_images_obj.main_images.add(image_bucket_obj)
-                    main_images_obj.save()
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
 
                 if main_images_obj.main_images.all().count() == image_count:
                     image_bucket_obj = main_images_obj.main_images.all()[0]
@@ -3987,16 +4010,21 @@ class FetchUserProfileAPI(APIView):
         try:
             data = request.data
             
-            content_manager = ContentManager.objects.get(username=request.user.username)
+            content_manager = OmnyCommUser.objects.get(username=request.user.username)
 
             response["contact_number"] = content_manager.contact_number
+            response["designation"] = content_manager.designation
             response["username"] = content_manager.username
             response["email"] = content_manager.email
+            permissible_brands = custom_permission_filter_brands(request.user)
+            response["permissible_brands"] = []
+            for brand in permissible_brands:
+                response["permissible_brands"].append(brand.name)
             
             response["img_url"] = None
             
             if content_manager.image!=None:
-                response["img_url"] = content_manager.image.url
+                response["img_url"] = content_manager.image.image.url
 
             response['status'] = 200
         except Exception as e:
@@ -4015,17 +4043,6 @@ class FetchAuditLogsByUserAPI(APIView):
         
         try:
             data = request.data
-            
-            content_manager = ContentManager.objects.get(username=request.user.username)
-
-            response["contact_number"] = content_manager.contact_number
-            response["username"] = content_manager.username
-            response["email"] = content_manager.email
-            
-            response["img_url"] = None
-            
-            if content_manager.image!=None:
-                response["img_url"] = content_manager.image.url
 
             response['status'] = 200
         except Exception as e:
