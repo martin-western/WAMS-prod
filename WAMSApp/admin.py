@@ -20,8 +20,7 @@ class MainImagesAdmin(admin.ModelAdmin):
 class SubImagesAdmin(admin.ModelAdmin):
     list_display = ('product', 'channel')
 
-admin.site.register(ContentExecutive)
-admin.site.register(ContentManager)
+admin.site.register(OmnyCommUser)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ExportList)
 admin.site.register(Image)

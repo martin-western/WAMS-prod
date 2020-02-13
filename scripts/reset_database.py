@@ -15,7 +15,7 @@ b2 = Brand.objects.create(name="Royalford")
 
 
 # Create Content Manager
-cm = ContentManager.objects.create(username="priyanka", password="p7165wig")
+cm = OmnyCommUser.objects.create(username="priyanka", password="p7165wig")
 # Give All permission
 
 user = User.objects.get(username="priyanka")

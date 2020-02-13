@@ -11,14 +11,24 @@ logger = logging.getLogger(__name__)
 
 def export_amazon_uae(products):
     try:
-        fw = open("./files/csv/export-list-amazon-uae.csv", mode='w')
-        writer = csv.writer(fw, delimiter=',', quotechar='"',
-                            quoting=csv.QUOTE_MINIMAL)
+        try:
+            os.system("rm ./files/csv/export-list-amazon-uae.xlsx")
+        except Exception as e:
+            logger.warning("Delete old xlsx %s", str(e))
 
-        with open('./WAMSApp/static/WAMSApp/csv/amazon_uae.csv', 'rt')as f:
+        workbook = xlsxwriter.Workbook('./files/csv/export-list-amazon-uae.xlsx')
+        worksheet = workbook.add_worksheet()
+
+        rownum = 0
+        colnum = 0
+        with open('./WAMSApp/static/WAMSApp/csv/amazon_uae.csv','rt')as f:
             data = csv.reader(f)
             for row in data:
-                writer.writerow(row)
+                colnum = 0
+                for rowdata in row:
+                    worksheet.write(rownum, colnum, rowdata, cell_format)
+                    colnum += 1
+                rownum += 1
 
         for product in products:
             base_product = product.base_product
@@ -88,8 +98,12 @@ def export_amazon_uae(products):
                 else:
                     data_row_2.append(k)
 
-            writer.writerow(data_row_2)
-
+            colnum = 0
+            for k in data_row_2:
+                worksheet.write(rownum, colnum, k)
+                colnum += 1
+            rownum += 1
+            
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("export_amazon_uae: %s at %s", e, str(exc_tb.tb_lineno))

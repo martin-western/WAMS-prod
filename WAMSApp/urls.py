@@ -122,6 +122,7 @@ urlpatterns = [
 
     url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
 
+    url(r'^fetch-audit-logs-by-user/$',views.FetchAuditLogsByUser), 
     url(r'^create-request-help/$',views.CreateRequestHelp),    
 
     url(r'^fetch-channel-product-list/$',views.FetchChannelProductList)  
