@@ -1924,9 +1924,9 @@ class FetchExportProductListAPI(APIView):
             channel_name = export_obj.channel.name
             products = export_obj.products.all()
 
-            temp_dict = {}
             product_list = []
             for product in products:
+                temp_dict = {}
                 channel_product = product.channel_product
                 if channel_name == "Amazon UK":
                     amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
