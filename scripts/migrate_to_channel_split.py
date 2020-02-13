@@ -254,10 +254,10 @@ for data in all_data_json:
             product_description_ebay = data["fields"]["product_description_ebay"]
             product_description_noon = data["fields"]["product_description_noon"]
             
-            product_attribute_list_amazon_uk = data["fields"]["product_attribute_list_amazon_uk"]
-            product_attribute_list_amazon_uae = data["fields"]["product_attribute_list_amazon_uae"]
-            product_attribute_list_ebay = data["fields"]["product_attribute_list_ebay"]
-            product_attribute_list_noon = data["fields"]["product_attribute_list_noon"]
+            product_attribute_list_amazon_uk = json.loads(data["fields"]["product_attribute_list_amazon_uk"])
+            product_attribute_list_amazon_uae = json.loads(data["fields"]["product_attribute_list_amazon_uae"])
+            product_attribute_list_ebay = json.loads(data["fields"]["product_attribute_list_ebay"])
+            product_attribute_list_noon = json.loads(data["fields"]["product_attribute_list_noon"])
             
             package_length = data["fields"]["package_length"]
             package_length_metric = data["fields"]["package_length_metric"]
