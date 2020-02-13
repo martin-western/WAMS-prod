@@ -110,7 +110,7 @@ def PFLDashboardPage(request):
     return render(request, 'WAMSApp/pfl-dashboard.html')
 
 
-@login_required(login_url='/login/')
+#@login_required(login_url='/login/')
 def FlyerPage(request, pk):
     flyer_obj = Flyer.objects.get(pk=int(pk))
     if flyer_obj.mode=="A4 Portrait":
@@ -2617,7 +2617,7 @@ class CreateFlyerAPI(APIView):
 
 
 class FetchFlyerDetailsAPI(APIView):
-
+    permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2928,6 +2928,7 @@ class FetchPFLDetailsAPI(APIView):
 
 class FetchProductListFlyerPFLAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3479,7 +3480,7 @@ class FetchFlyerListAPI(APIView):
             permissible_brands = custom_permission_filter_brands(request.user)
             flyer_objs = Flyer.objects.filter(brand__in=permissible_brands)
 
-            chip_data = json.loads(data["tags"])
+            chip_data = data["tags"]
 
             if len(chip_data) > 0:
                 flyer_objs = Flyer.objects.all()
