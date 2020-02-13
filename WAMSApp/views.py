@@ -4024,7 +4024,7 @@ class FetchUserProfileAPI(APIView):
             response["img_url"] = None
             
             if content_manager.image!=None:
-                response["img_url"] = content_manager.image.url
+                response["img_url"] = content_manager.image.image.url
 
             response['status'] = 200
         except Exception as e:

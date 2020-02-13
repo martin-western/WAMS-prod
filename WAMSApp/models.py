@@ -165,7 +165,7 @@ base_dimensions_json = json.dumps(base_dimensions_json)
 
 class OmnyCommUser(User):
 
-    image = models.ImageField(upload_to='',null=True,blank=True)
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
 
