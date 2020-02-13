@@ -124,4 +124,6 @@ urlpatterns = [
 
     url(r'^create-request-help/$',views.CreateRequestHelp),    
 
+    url(r'^fetch-channel-product-list/$',views.FetchChannelProductList)  
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
