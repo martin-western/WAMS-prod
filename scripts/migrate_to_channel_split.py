@@ -5,7 +5,7 @@ import urllib.request, urllib.error, urllib.parse
 import datetime
 import os
 
-f = open("scripts/03022020.json", "r")
+f = open("scripts/13022020.json", "r")
 all_data_json = json.loads(f.read())
 f.close()
 
