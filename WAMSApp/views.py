@@ -1881,7 +1881,7 @@ class AddToExportAPI(APIView):
             data = request.data
             logger.info("AddToExportAPI: %s", str(data))
 
-            select_all = data["select_all"]
+            select_all = data.get("select_all", False)
             export_option = data["export_option"]
             export_title_pk = data["export_title_pk"]
             export_title = data["export_title"]
@@ -4136,6 +4136,7 @@ class FetchChannelProductListAPI(APIView):
             search_list_product_objs = product_objs_list
             
             if len(chip_data) > 0:
+                search_list_product_objs = Product.objects.none()
                 for tag in chip_data:
                     search = product_objs_list.filter(
                         Q(product_name__icontains=tag) |
