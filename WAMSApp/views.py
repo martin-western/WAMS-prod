@@ -1434,6 +1434,8 @@ class SaveProductAPI(APIView):
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = data["pfl_product_features"]
 
+            logger.info("pfl_product_features type  %s", str(type(pfl_product_features)))
+
             factory_notes = convert_to_ascii(data["factory_notes"])
             factory_code = convert_to_ascii(data["factory_code"])
 
@@ -1478,7 +1480,7 @@ class SaveProductAPI(APIView):
             product_obj.quantity = quantity
             
             product_obj.pfl_product_name = pfl_product_name
-            product_obj.pfl_product_features = pfl_product_features
+            product_obj.pfl_product_features = json.dumps(pfl_product_features)
 
             product_obj.factory_notes = factory_notes
             product_obj.factory_code = factory_code
@@ -1773,7 +1775,7 @@ class FetchProductListAPI(APIView):
             response["is_available"] = is_available
             response["total_products"] = len(search_list_base_product_objs)
             response["products"] = products
-            logger.info("Response products %s", str(products))
+            #logger.info("Response products %s", str(products))
             response['status'] = 200
 
         except Exception as e:
@@ -4034,6 +4036,34 @@ class FetchAuditLogsByUserAPI(APIView):
         return Response(data=response)
 
 
+class CreateRequestHelpAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("CreateRequestHelpAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            message = data["message"]
+            page = data["page"]
+
+            RequestHelp.objects.create(message=message, page=page)
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateRequestHelpAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -4141,3 +4171,5 @@ SaveBaseProduct = SaveBaseProductAPI.as_view()
 FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
 
 FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
+
+CreateRequestHelp = CreateRequestHelpAPI.as_view()

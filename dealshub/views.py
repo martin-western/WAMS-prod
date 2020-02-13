@@ -3270,11 +3270,334 @@ class UpdateLinkHomePageSchedularAPI(APIView):
         return Response(data=response)
 
 
+class FetchHeadingDataAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchHeadingDataAPI: %s", str(data))
+
+            brand_name = data["brandName"]
+            dealshub_heading_objs = DealsHubHeading.objects.filter(brand__name=brand_name)
+            heading_list = []
+            for dealshub_heading_obj in dealshub_heading_objs:
+                logger.info("heading data")
+                temp_dict = {}
+                temp_dict["headingName"] = dealshub_heading_obj.name
+                category_list = []
+                category_objs = dealshub_heading_obj.categories.all()
+                for category_obj in category_objs:
+                    temp_dict2 = {}
+                    temp_dict2["categoryName"] = category_obj.name
+                    sub_category_list = []
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict3 = {}
+                        temp_dict3["subcategoryName"] = sub_category_obj.name
+                        sub_category_list.append(temp_dict3)
+                    temp_dict2["subcategoryList"] = sub_category_list
+                    category_list.append(temp_dict2)
+                temp_dict["categoryList"] = category_list
+                
+                image_list = []
+                image_link_objs = dealshub_heading_obj.image_links.all()
+                for image_link_obj in image_link_objs:
+                    temp_dict4 = {}
+                    temp_dict4["imageUrl"] = image_link_obj.image.image.url
+                    temp_dict4["httpLink"] = image_link_obj.http_link
+                    image_list.append(temp_dict4)
+                temp_dict["imageList"] = image_list
+
+                heading_list.append(temp_dict)
+
+            response["headingList"] = heading_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Not catching")
+            logger.error("FetchHeadingDataAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
 
 
 
 
 
+class FetchHeadingDataAdminAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchHeadingDataAdminAPI: %s", str(data))
+
+            brand_name = data["brandName"]
+            dealshub_heading_objs = DealsHubHeading.objects.filter(brand__name=brand_name)
+            heading_list = []
+            for dealshub_heading_obj in dealshub_heading_objs:
+                temp_dict = {}
+                temp_dict["headingName"] = dealshub_heading_obj.name
+                temp_dict["uuid"] = dealshub_heading_obj.uuid
+                category_list = []
+                category_objs = dealshub_heading_obj.categories.all()
+                for category_obj in category_objs:
+                    temp_dict2 = {}
+                    temp_dict2["key"] = category_obj.category_id+"|"+category_obj.name
+
+                    category_list.append(temp_dict2)
+                temp_dict["categoryList"] = category_list
+                
+                image_list = []
+                image_link_objs = dealshub_heading_obj.image_links.all()
+                for image_link_obj in image_link_objs:
+                    temp_dict4 = {}
+                    temp_dict4["url"] = image_link_obj.image.image.url
+                    temp_dict4["httpLink"] = image_link_obj.http_link
+                    temp_dict4["uid"] = image_link_obj.uuid
+                    image_list.append(temp_dict4)
+                temp_dict["imageList"] = image_list
+
+                heading_list.append(temp_dict)
+
+            response["headingList"] = heading_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchHeadingDataAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+
+class FetchHeadingCategoryListAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchHeadingCategoryListAPI: %s", str(data))
+
+            #brand_name = data["brandName"]
+            
+            category_list = []
+            category_objs = Category.objects.all()
+            for category_obj in category_objs:
+                temp_dict = {}
+                temp_dict["name"] = category_obj.name
+                temp_dict["uuid"] = category_obj.category_id+"|"+category_obj.name
+                category_list.append(temp_dict)
+            
+            response["categoryList"] = category_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchHeadingCategoryListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteHeadingAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteHeadingAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            
+            DealsHubHeading.objects.get(uuid=uuid).delete()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteHeadingAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class CreateHeadingDataAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateHeadingDataAPI: %s", str(data))
+
+            brand_name = data["brandName"]
+            heading_name = data["headingName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+            uuid1 = str(uuid.uuid4())
+            dealshub_heading_obj = DealsHubHeading.objects.create(brand=brand_obj, name=heading_name, uuid=uuid1)
+
+            response["uuid"] = dealshub_heading_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateHeadingDataAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class SaveHeadingDataAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SaveHeadingDataAPI: %s", str(data))
+
+            data = data["dataObj"]
+
+            uuid1 = data["uuid"]
+
+            dealshub_heading_obj = DealsHubHeading.objects.get(uuid=uuid1)
+
+            heading_name = data["headingName"]
+
+            category_list = data["categoryList"]
+
+            dealshub_heading_obj.categories.clear()            
+            dealshub_heading_obj.name = heading_name
+            for category in category_list:
+                category_obj = Category.objects.get(category_id=category["key"].split("|")[0])
+                dealshub_heading_obj.categories.add(category_obj)
+
+            dealshub_heading_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveHeadingDataAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UploadImageHeadingAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UploadImageHeadingAPI: %s", str(data))
+
+            uuid1 = data["uuid"]
+            image = data["image"]
+
+            if image=="" or image=="undefined" or image==None:
+                return Response(data=response)
+
+            dealshub_heading_obj = DealsHubHeading.objects.get(uuid=uuid1)
+
+            image_obj = Image.objects.create(image=image)
+            url = image_obj.image.url
+            image_link_obj = ImageLink.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            dealshub_heading_obj.image_links.add(image_link_obj)
+            dealshub_heading_obj.save()
+
+
+            dataObj = {
+                "uid": image_link_obj.uuid,
+                "url": url,
+                "httpLink": ""
+            }
+            response["dataObj"] = dataObj
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadImageHeadingAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateImageHeadingLinkAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateImageHeadingLinkAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            http_link = data["httpLink"]
+
+            image_link_obj = ImageLink.objects.get(uuid=uuid)
+            image_link_obj.http_link = http_link
+            image_link_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateImageHeadingLinkAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteImageHeadingAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteImageHeadingAPI: %s", str(data))
+
+            uuid = data["uuid"]
+
+            ImageLink.objects.get(uuid=uuid).delete()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteImageHeadingAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
 
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
@@ -3345,3 +3668,21 @@ UpdateLinkFullBannerAd = UpdateLinkFullBannerAdAPI.as_view()
 UpdateLinkCategoryGridBanner = UpdateLinkCategoryGridBannerAPI.as_view()
 
 UpdateLinkHomePageSchedular = UpdateLinkHomePageSchedularAPI.as_view()
+
+FetchHeadingData = FetchHeadingDataAPI.as_view()
+
+FetchHeadingDataAdmin = FetchHeadingDataAdminAPI.as_view()
+
+FetchHeadingCategoryList = FetchHeadingCategoryListAPI.as_view()
+
+DeleteHeading = DeleteHeadingAPI.as_view()
+
+CreateHeadingData = CreateHeadingDataAPI.as_view()
+
+SaveHeadingData = SaveHeadingDataAPI.as_view()
+
+UploadImageHeading = UploadImageHeadingAPI.as_view()
+
+UpdateImageHeadingLink = UpdateImageHeadingLinkAPI.as_view()
+
+DeleteImageHeading = DeleteImageHeadingAPI.as_view()
