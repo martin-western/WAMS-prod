@@ -1881,6 +1881,7 @@ class AddToExportAPI(APIView):
             data = request.data
             logger.info("AddToExportAPI: %s", str(data))
 
+            select_all = data["select_all"]
             export_option = data["export_option"]
             export_title_pk = data["export_title_pk"]
             export_title = data["export_title"]
@@ -1888,17 +1889,65 @@ class AddToExportAPI(APIView):
             channel_obj = Channel.objects.get(name=channel_name)
             products = data["products"]
 
-            export_obj = None
-            if export_option == "New":
-                export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
-            else:
-                export_obj = ExportList.objects.get(pk=int(export_title_pk))
+            if select_all==True:
+                filter_parameters = data["filter_parameters"]
+                chip_data = data["tags"]
 
-            for product_pk in products:
-                product = Product.objects.get(pk=int(product_pk))
-                export_obj.products.add(product)
-                export_obj.channel = channel_obj
-                export_obj.save()
+                search_list_product_objs = []
+            
+                permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+                brands = permission_obj.brands.all()
+
+                if filter_parameters["brand_name"] != "":
+                    brands = brands.filter(name__icontains=filter_parameters["brand_name"])              
+
+                product_objs_list = Product.objects.filter(base_product__brand__in=brands).order_by('-pk')
+                if channel_name=="Amazon UK":
+                    product_objs_list = product_objs_list.filter(channel_product__is_amazon_uk_product_created=True)
+                elif channel_name=="Amazon UAE":
+                    product_objs_list = product_objs_list.filter(channel_product__is_amazon_uae_product_created=True)
+                elif channel_name=="Ebay":
+                    product_objs_list = product_objs_list.filter(channel_product__is_ebay_product_created=True)
+                elif channel_name=="Noon":
+                    product_objs_list = product_objs_list.filter(channel_product__is_noon_product_created=True)
+
+                search_list_product_objs = product_objs_list
+                
+                if len(chip_data) > 0:
+                    for tag in chip_data:
+                        search = product_objs_list.filter(
+                            Q(product_name__icontains=tag) |
+                            Q(product_name_sap__icontains=tag) |
+                            Q(product_id__icontains=tag) |
+                            Q(base_product__seller_sku__icontains=tag)
+                        )
+
+                        for prod in search:
+                            product_obj = Product.objects.filter(pk=prod.pk)
+                            search_list_product_objs|=product_obj
+
+                export_obj = None
+                if export_option == "New":
+                    export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
+                else:
+                    export_obj = ExportList.objects.get(pk=int(export_title_pk))
+
+                for product_obj in search_list_product_objs:
+                    export_obj.products.add(product_obj)
+                    export_obj.channel = channel_obj
+                    export_obj.save()
+            else:
+                export_obj = None
+                if export_option == "New":
+                    export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
+                else:
+                    export_obj = ExportList.objects.get(pk=int(export_title_pk))
+
+                for product_pk in products:
+                    product = Product.objects.get(pk=int(product_pk))
+                    export_obj.products.add(product)
+                    export_obj.channel = channel_obj
+                    export_obj.save()
 
             response['status'] = 200
 
