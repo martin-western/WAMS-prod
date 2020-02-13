@@ -163,41 +163,23 @@ amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
 
-class ContentManager(User):
+class OmnyCommUser(User):
 
     image = models.ImageField(upload_to='',null=True,blank=True)
-    contact_number = models.CharField(max_length=200, default="",null=True)
+    contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
+    designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.set_password(self.password)
-        super(ContentManager, self).save(*args, **kwargs)
+        super(OmnyCommUser, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.username
 
     class Meta:
-        verbose_name = "ContentManager"
-        verbose_name_plural = "ContentManagers"
-
-
-class ContentExecutive(User):
-
-    image = models.ImageField(upload_to='',null=True,blank=True)
-    contact_number = models.CharField(max_length=200, default="",null=True)
-
-    def save(self, *args, **kwargs):
-        if self.pk == None:
-            self.set_password(self.password)
-        super(ContentExecutive, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.username
-
-    class Meta:
-        verbose_name = "ContentExecutive"
-        verbose_name_plural = "ContentExecutives"
-
+        verbose_name = "OmnyCommUser"
+        verbose_name_plural = "OmnyCommUser"
 
 class Image(models.Model):
 
@@ -342,7 +324,6 @@ class BaseProduct(models.Model):
     seller_sku = models.CharField(max_length=200, unique=True)
     category = models.CharField(max_length=200, default="")
     sub_category = models.CharField(max_length=200, default="")
-    subtitle = models.CharField(max_length=200, default="")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")

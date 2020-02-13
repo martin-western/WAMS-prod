@@ -1025,7 +1025,6 @@ class FetchBaseProductDetailsAPI(APIView):
             
             response["base_product_name"] = base_product_obj.base_product_name
             response["category"] = base_product_obj.category
-            response["subtitle"] = base_product_obj.subtitle
             response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
@@ -1090,7 +1089,6 @@ class FetchProductDetailsAPI(APIView):
             
             response["base_product_name"] = base_product_obj.base_product_name
             response["category"] = base_product_obj.category
-            response["subtitle"] = base_product_obj.subtitle
             response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
@@ -1336,7 +1334,6 @@ class SaveBaseProductAPI(APIView):
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
             category = convert_to_ascii(data["category"])
             sub_category = convert_to_ascii(data["sub_category"])
-            subtitle = convert_to_ascii(data["subtitle"])
             
             dimensions = data["base_dimensions"]
             
@@ -1362,7 +1359,6 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.manufacturer_part_number = manufacturer_part_number
             base_product_obj.category = category
             base_product_obj.sub_category = sub_category
-            base_product_obj.subtitle = subtitle
             base_product_obj.dimensions = dimensions
             
             base_product_obj.save()
@@ -1611,7 +1607,6 @@ class FetchProductListAPI(APIView):
                 temp_dict["seller_sku"] = base_product_obj.seller_sku
                 temp_dict["category"] = base_product_obj.category
                 temp_dict["sub_category"] = base_product_obj.sub_category
-                temp_dict["subtitle"] = base_product_obj.subtitle
                 temp_dict["dimensions"] = json.dumps(base_product_obj.dimensions)
                 
                 product_objs = search_list_product_objs.filter(base_product = base_product_obj)
@@ -1624,7 +1619,6 @@ class FetchProductListAPI(APIView):
                     temp_dict2["product_name"] = product_obj.product_name
                     temp_dict2["brand_name"] = str(product_obj.base_product.brand)
                     temp_dict2["sub_category"] = base_product_obj.sub_category
-                    temp_dict2["subtitle"] = base_product_obj.subtitle
                     temp_dict2["category"] = base_product_obj.category
                     temp_dict2["product_price"] = product_obj.standard_price
                     temp_dict2["is_dealshub_product_created"] = product_obj.is_dealshub_product_created
@@ -1666,7 +1660,6 @@ class FetchProductListAPI(APIView):
                         temp_dict3["channel_name"] = "Noon"
                         temp_dict3["is_active"] = noon_product["is_active"]
                         temp_dict3["sub_category"] = base_product_obj.sub_category
-                        temp_dict3["subtitle"] = base_product_obj.subtitle
                         temp_dict3["category"] = base_product_obj.category
                         main_image_url = Config.objects.all()[0].product_404_image.image.url
                         
@@ -1705,7 +1698,6 @@ class FetchProductListAPI(APIView):
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
-                        temp_dict3["subtitle"] = base_product_obj.subtitle
                         temp_dict3["category"] = base_product_obj.category
                         temp_dict3["image_url"] = main_image_url
 
@@ -1733,7 +1725,6 @@ class FetchProductListAPI(APIView):
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
-                        temp_dict3["subtitle"] = base_product_obj.subtitle
                         temp_dict3["category"] = base_product_obj.category
                         temp_dict3["image_url"] = main_image_url
 
@@ -1762,7 +1753,6 @@ class FetchProductListAPI(APIView):
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
-                        temp_dict3["subtitle"] = base_product_obj.subtitle
                         temp_dict3["category"] = base_product_obj.category
                         temp_dict3["image_url"] = main_image_url
 
@@ -2194,13 +2184,36 @@ class UploadProductImageAPI(APIView):
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
                     if data["channel_name"] == "" or data["channel_name"] == None:
+                        
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Amazon UK")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Amazon UAE")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Ebay")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Noon")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
                     else:
                         channel_obj = Channel.objects.get(name=data["channel_name"])
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                    
-                    main_images_obj.main_images.add(image_bucket_obj)
-                    main_images_obj.save()
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
 
                 if main_images_obj.main_images.all().count() == image_count:
                     image_bucket_obj = main_images_obj.main_images.all()[0]
@@ -4014,7 +4027,7 @@ class SapIntegrationAPI(APIView):
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
 
-            print((json.dumps(content, indent=4, sort_keys=True)))
+            # print((json.dumps(content, indent=4, sort_keys=True)))
             
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             
@@ -4046,11 +4059,16 @@ class FetchUserProfileAPI(APIView):
         try:
             data = request.data
             
-            content_manager = ContentManager.objects.get(username=request.user.username)
+            content_manager = OmnyCommUser.objects.get(username=request.user.username)
 
             response["contact_number"] = content_manager.contact_number
+            response["designation"] = content_manager.designation
             response["username"] = content_manager.username
             response["email"] = content_manager.email
+            permissible_brands = custom_permission_filter_brands(request.user)
+            response["permissible_brands"] = []
+            for brand in permissible_brands:
+                response["permissible_brands"].append(brand.name)
             
             response["img_url"] = None
             
@@ -4061,6 +4079,24 @@ class FetchUserProfileAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUserProfileAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchAuditLogsByUserAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAuditLogsByUserAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -4329,6 +4365,8 @@ FetchNoonChannelProduct = FetchNoonChannelProductAPI.as_view()
 SaveBaseProduct = SaveBaseProductAPI.as_view()
 
 FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
+
+FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 
 CreateRequestHelp = CreateRequestHelpAPI.as_view()
 
