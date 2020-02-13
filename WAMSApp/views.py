@@ -2135,13 +2135,36 @@ class UploadProductImageAPI(APIView):
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
                     if data["channel_name"] == "" or data["channel_name"] == None:
+                        
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Amazon UK")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Amazon UAE")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Ebay")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        channel_obj = Channel.objects.get(name="Noon")
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+                        
                     else:
                         channel_obj = Channel.objects.get(name=data["channel_name"])
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                    
-                    main_images_obj.main_images.add(image_bucket_obj)
-                    main_images_obj.save()
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
 
                 if main_images_obj.main_images.all().count() == image_count:
                     image_bucket_obj = main_images_obj.main_images.all()[0]
