@@ -75,6 +75,6 @@ urlpatterns = [
     url(r'^create-heading-data/$', views.CreateHeadingData),
     url(r'^save-heading-data/$', views.SaveHeadingData),
     url(r'^upload-image-heading/$', views.UploadImageHeading),
-    url(r'^update-image-heading/$', views.UpdateImageHeadingLink),
+    url(r'^update-image-heading-link/$', views.UpdateImageHeadingLink),
     url(r'^delete-image-heading/$', views.DeleteImageHeading),
 ]

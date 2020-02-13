@@ -3353,8 +3353,7 @@ class FetchHeadingDataAdminAPI(APIView):
                 category_objs = dealshub_heading_obj.categories.all()
                 for category_obj in category_objs:
                     temp_dict2 = {}
-                    temp_dict2["categoryName"] = category_obj.name
-                    temp_dict2["uuid"] = category_obj.category_id
+                    temp_dict2["key"] = category_obj.category_id+"|"+category_obj.name
 
                     category_list.append(temp_dict2)
                 temp_dict["categoryList"] = category_list
@@ -3402,7 +3401,7 @@ class FetchHeadingCategoryListAPI(APIView):
             for category_obj in category_objs:
                 temp_dict = {}
                 temp_dict["name"] = category_obj.name
-                temp_dict["uuid"] = category_obj.category_id
+                temp_dict["uuid"] = category_obj.category_id+"|"+category_obj.name
                 category_list.append(temp_dict)
             
             response["categoryList"] = category_list
@@ -3493,7 +3492,7 @@ class SaveHeadingDataAPI(APIView):
             dealshub_heading_obj.categories.clear()            
             dealshub_heading_obj.name = heading_name
             for category in category_list:
-                category_obj = Category.objects.get(category_id=category["uuid"])
+                category_obj = Category.objects.get(category_id=category["key"].split("|")[0])
                 dealshub_heading_obj.categories.add(category_obj)
 
             dealshub_heading_obj.save()
