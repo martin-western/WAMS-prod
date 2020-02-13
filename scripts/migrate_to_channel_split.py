@@ -355,10 +355,40 @@ for data in all_data_json:
                                                           base_product_name=product_name_sap,
                                                           created_date=created_date,
                                                           category=category,
-                                                          subtitle=subtitle,
+                                                          sub_category=subtitle,
                                                           manufacturer=manufacturer,
                                                           manufacturer_part_number=manufacturer_part_number
                                                           )
+
+            base_dimensions ={}
+            base_dimensions_json = {
+                "export_carton_quantity_l": "",
+                "export_carton_quantity_l_metric": "",
+                "export_carton_quantity_b": "",
+                "export_carton_quantity_b_metric": "",
+                "export_carton_quantity_h": "",
+                "export_carton_quantity_h_metric": "",
+                "export_carton_crm_l": "",
+                "export_carton_crm_l_metric": "",
+                "export_carton_crm_b": "",
+                "export_carton_crm_b_metric": "",
+                "export_carton_crm_h": "",
+                "export_carton_crm_h_metric": "",
+                "product_dimension_l": item_length,
+                "product_dimension_l_metric": item_length_metric,
+                "product_dimension_b": item_width,
+                "product_dimension_b_metric": item_width_metric,
+                "product_dimension_h": item_height,
+                "product_dimension_h_metric": item_height_metric,
+                "giftbox_l": package_length,
+                "giftbox_l_metric": package_length_metric,
+                "giftbox_b": package_width,
+                "giftbox_b_metric": package_width_metric,
+                "giftbox_h": package_height,
+                "giftbox_h_metric": package_height_metric
+            }
+
+            base_product_obj.dimensions = json.dumps(base_dimensions)
 
             product_id_type_obj , created = ProductIDType.objects.get_or_create(name=product_id_type)
             material_type_obj , created = MaterialType.objects.get_or_create(name=material_type)
@@ -392,6 +422,8 @@ for data in all_data_json:
             noon_product = json.loads(channel_product_obj.noon_product_json)
 
             amazon_uk_product["product_name"] = product_name_amazon_uk
+            amazon_uk_product["category"] = category
+            amazon_uk_product["sub_category"] = subtitle
             amazon_uk_product["created_date"] = str(created_date)
             amazon_uk_product["condition_type"] = condition_type
             amazon_uk_product["feed_product_type"] = feed_product_type
@@ -454,6 +486,8 @@ for data in all_data_json:
             channel_product_obj.amazon_uk_product_json = json.dumps(amazon_uk_product)
 
             amazon_uae_product["product_name"] = product_name_amazon_uae
+            amazon_uae_product["category"] = category
+            amazon_uae_product["sub_category"] = subtitle
             amazon_uae_product["product_description"] = product_description_amazon_uae
             if product_description_amazon_uae != None or product_description_amazon_uae != "":
                 channel_product_obj.is_amazon_uae_product_created=True
@@ -466,6 +500,8 @@ for data in all_data_json:
             channel_product_obj.amazon_uae_product_json = json.dumps(amazon_uae_product)
 
             noon_product["product_name"] = product_name_noon
+            noon_product["category"] = category
+            noon_product["sub_category"] = subtitle
             noon_product["product_description"] = product_description_noon
             if product_description_noon != None or product_description_noon != "":
                 channel_product_obj.is_noon_product_created=True
@@ -481,6 +517,8 @@ for data in all_data_json:
             channel_product_obj.noon_product_json = json.dumps(noon_product)
             
             ebay_product["product_name"] = product_name_ebay
+            ebay_product["category"] = category
+            ebay_uk_product["sub_category"] = subtitle
             ebay_product["product_description"] = product_description_ebay
             if product_description_ebay != None or product_description_ebay != "":
                 channel_product_obj.is_ebay_product_created=True
