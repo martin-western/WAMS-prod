@@ -4010,14 +4010,16 @@ class FetchUserProfileAPI(APIView):
         try:
             data = request.data
             
-            content_manager = ContentManager.objects.get(username=request.user.username)
+            content_manager = OmnyCommUser.objects.get(username=request.user.username)
 
             response["contact_number"] = content_manager.contact_number
             response["designation"] = content_manager.designation
             response["username"] = content_manager.username
             response["email"] = content_manager.email
             permissible_brands = custom_permission_filter_brands(request.user)
-            responsep["permissible_brands"] = permissible_brands
+            response["permissible_brands"] = []
+            for brand in permissible_brands:
+                response["permissible_brands"].append(brand.name)
             
             response["img_url"] = None
             
@@ -4041,17 +4043,6 @@ class FetchAuditLogsByUserAPI(APIView):
         
         try:
             data = request.data
-            
-            content_manager = ContentManager.objects.get(username=request.user.username)
-
-            response["contact_number"] = content_manager.contact_number
-            response["username"] = content_manager.username
-            response["email"] = content_manager.email
-            
-            response["img_url"] = None
-            
-            if content_manager.image!=None:
-                response["img_url"] = content_manager.image.url
 
             response['status'] = 200
         except Exception as e:
