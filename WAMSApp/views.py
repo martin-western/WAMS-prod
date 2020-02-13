@@ -4105,13 +4105,13 @@ class FetchChannelProductListAPI(APIView):
             paginator = Paginator(search_list_product_objs, 20)
             product_objs = paginator.page(page)
 
-            amazon_uk_product_json = json.loads(product_obj.channel_product.amazon_uk_product_json)
-            amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
-            ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
-            noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
 
             for product_obj in product_objs:
                 temp_dict = {}
+                amazon_uk_product_json = json.loads(product_obj.channel_product.amazon_uk_product_json)
+                amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
+                ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
+                noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
                 temp_dict["product_pk"] = product_obj.pk
                 if channel_name=="Amazon UK":
                     temp_dict["product_name"] = amazon_uk_product_json["product_name"]
@@ -4134,12 +4134,12 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["sub_category"] = noon_product_json["sub_category"]
                     temp_dict["is_active"] = noon_product_json["is_active"]
 
-                temp_dict["seller_sku"] = product_obj.base_product_obj.seller_sku
+                temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                 
                 
 
-                if product_obj.base_product_obj.brand != None:
-                    temp_dict["brand_name"] = product_obj.base_product_obj.brand.name
+                if product_obj.base_product.brand != None:
+                    temp_dict["brand_name"] = product_obj.base_product.brand.name
                 else:
                     temp_dict["brand_name"] = "-"
 
@@ -4150,8 +4150,8 @@ class FetchChannelProductListAPI(APIView):
 
                 main_images_list = main_images_list.distinct()
                 
-                if len(product_404_image)>0:
-                    temp_dict["main_image"] = main_images_list[0].image.image.image.url
+                if len(main_images_list)>0:
+                    temp_dict["main_image"] = main_images_list[0].image.image.url
                 else: 
                     temp_dict["main_image"] = Config.objects.all()[0].product_404_image.image.url
 
@@ -4165,6 +4165,7 @@ class FetchChannelProductListAPI(APIView):
             response["total_products"] = len(search_list_product_objs)
             response["products"] = products
 
+            logger.info("products list response: %s", str(response))
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
