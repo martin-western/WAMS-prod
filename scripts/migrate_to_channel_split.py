@@ -518,7 +518,7 @@ for data in all_data_json:
             
             ebay_product["product_name"] = product_name_ebay
             ebay_product["category"] = category
-            ebay_uk_product["sub_category"] = subtitle
+            ebay_product["sub_category"] = subtitle
             ebay_product["product_description"] = product_description_ebay
             if product_description_ebay != None or product_description_ebay != "":
                 channel_product_obj.is_ebay_product_created=True
