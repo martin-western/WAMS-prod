@@ -490,15 +490,45 @@ for data in all_data_json:
 
             channel_product_obj.ebay_product_json = json.dumps(ebay_product)
             
-            main_images_obj = MainImages.objects.create(product=product_obj,is_sourced=True)
+            main_images_objs = []
 
-            for main_image_bucket in main_image_buckets:
-                main_images_obj.main_images.add(main_image_bucket)
+            main_images_objs.append(MainImages.objects.create(product=product_obj,is_sourced=True))
+            
+            channel_obj,created = Channel.objects.get_or_create(name="Amazon UK")
+            main_images_objs.append(MainImages.objects.create(product=product_obj,channel=channel_obj))
+            
+            channel_obj,created = Channel.objects.get_or_create(name="Amazon UAE")
+            main_images_objs.append(MainImages.objects.create(product=product_obj,channel=channel_obj))
+            
+            channel_obj,created = Channel.objects.get_or_create(name="Ebay")
+            main_images_objs.append(MainImages.objects.create(product=product_obj,channel=channel_obj))
+            
+            channel_obj,created = Channel.objects.get_or_create(name="Noon")
+            main_images_objs.append(MainImages.objects.create(product=product_obj,channel=channel_obj))
 
-            sub_images_obj = SubImages.objects.create(product=product_obj,is_sourced=True)
+            for main_images_obj in main_images_objs:
+                for main_image_bucket in main_image_buckets:
+                    main_images_obj.main_images.add(main_image_bucket)
 
-            for sub_image_bucket in sub_image_buckets:
-                sub_images_obj.sub_images.add(sub_image_bucket)
+            sub_images_objs = []
+
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,is_sourced=True))
+            
+            channel_obj,created = Channel.objects.get_or_create(name="Amazon UK")
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
+            
+            channel_obj,created = Channel.objects.get_or_create(name="Amazon UAE")
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
+            
+            channel_obj,created = Channel.objects.get_or_create(name="Ebay")
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
+            
+            channel_obj,created = Channel.objects.get_or_create(name="Noon")
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
+
+            for sub_images_obj in sub_images_objs:
+                for sub_image_bucket in sub_image_buckets:
+                    sub_images_obj.sub_images.add(sub_image_bucket)
 
             for pfl_image in pfl_images:
                 product_obj.pfl_images.add(pfl_image)
