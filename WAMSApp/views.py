@@ -2159,7 +2159,7 @@ class UploadProductImageAPI(APIView):
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
                         main_images_obj.main_images.add(image_bucket_obj)
                         main_images_obj.save()
-                        
+
                     else:
                         channel_obj = Channel.objects.get(name=data["channel_name"])
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
@@ -4013,8 +4013,11 @@ class FetchUserProfileAPI(APIView):
             content_manager = ContentManager.objects.get(username=request.user.username)
 
             response["contact_number"] = content_manager.contact_number
+            response["designation"] = content_manager.designation
             response["username"] = content_manager.username
             response["email"] = content_manager.email
+            permissible_brands = custom_permission_filter_brands(request.user)
+            responsep["permissible_brands"] = permissible_brands
             
             response["img_url"] = None
             

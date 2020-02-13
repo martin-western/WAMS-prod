@@ -167,6 +167,7 @@ class ContentManager(User):
 
     image = models.ImageField(upload_to='',null=True,blank=True)
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
+    designation = models.CharField(max_length=200, default="",blank=True,null=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -185,6 +186,7 @@ class ContentExecutive(User):
 
     image = models.ImageField(upload_to='',null=True,blank=True)
     contact_number = models.CharField(max_length=200, default="",null=True)
+    designation = models.CharField(max_length=200, default="",null=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
