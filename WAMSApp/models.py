@@ -163,24 +163,6 @@ amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
 
-class OmnyCommUser(User):
-
-    image = models.ImageField(upload_to='',null=True,blank=True)
-    contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
-    designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
-
-    def save(self, *args, **kwargs):
-        if self.pk == None:
-            self.set_password(self.password)
-        super(OmnyCommUser, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.username
-
-    class Meta:
-        verbose_name = "OmnyCommUser"
-        verbose_name_plural = "OmnyCommUser"
-
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -223,6 +205,24 @@ class Image(models.Model):
             logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
+
+class OmnyCommUser(User):
+
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
+    contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
+    designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.set_password(self.password)
+        super(OmnyCommUser, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        verbose_name = "OmnyCommUser"
+        verbose_name_plural = "OmnyCommUser"
 
 class ImageBucket(models.Model):
 
