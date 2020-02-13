@@ -203,8 +203,15 @@ for data in all_data_json:
                 seller_sku_dict[seller_sku] += 1
                 continue
             
-            created_date = datetime.datetime.strptime(
+            created_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+            try:
+                created_date = datetime.datetime.strptime(
                     data["fields"]["created_date"][:10], "%Y-%m-%d")
+            except Exception as e:
+                print(str(e))
+                pass
+
             status = data["fields"]["status"]
             verified = data["fields"]["verified"]
             pfl_product_name = data["fields"]["pfl_product_name"]
@@ -340,16 +347,92 @@ for data in all_data_json:
 
 
             pfl_images = data["fields"]["pfl_images"]
+            pfl_images_objs = []
+            for pfl_image in pfl_images:
+                image_pk = pfl_image
+                mapped_pfl_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_pfl_image_pk)
+                pfl_images_objs.append(image_obj)
+            
             white_background_images = data["fields"]["white_background_images"]
+            white_background_images_objs = []
+            for white_background_image in white_background_images:
+                image_pk = white_background_image
+                mapped_white_background_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_white_background_image_pk)
+                white_background_images_objs.append(image_obj)
+
             lifestyle_images = data["fields"]["lifestyle_images"]
+            lifestyle_images_objs = []
+            for lifestyle_image in lifestyle_images:
+                image_pk = lifestyle_image
+                mapped_lifestyle_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_lifestyle_image_pk)
+                lifestyle_images_objs.append(image_obj)
+
             certificate_images = data["fields"]["certificate_images"]
+            certificate_images_objs = []
+            for certificate_image in certificate_images:
+                image_pk = certificate_image
+                mapped_certificate_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_certificate_image_pk)
+                certificate_images_objs.append(image_obj)
+
             giftbox_images = data["fields"]["giftbox_images"]
+            giftbox_images_objs = []
+            for giftbox_image in giftbox_images:
+                image_pk = giftbox_image
+                mapped_giftbox_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_giftbox_image_pk)
+                giftbox_images_objs.append(image_obj)
+
             diecut_images = data["fields"]["diecut_images"]
+            diecut_images_objs = []
+            for diecut_image in diecut_images:
+                image_pk = diecut_image
+                mapped_diecut_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_diecut_image_pk)
+                diecut_images_objs.append(image_obj)
+
             aplus_content_images = data["fields"]["aplus_content_images"]
+            aplus_content_images_objs = []
+            for aplus_content_image in aplus_content_images:
+                image_pk = aplus_content_image
+                mapped_aplus_content_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_aplus_content_image_pk)
+                aplus_content_images_objs.append(image_obj)
+
             ads_images = data["fields"]["ads_images"]
+            ads_images_objs = []
+            for ads_image in ads_images:
+                image_pk = ads_image
+                mapped_ads_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_ads_image_pk)
+                ads_images_objs.append(image_obj)
+
             unedited_images = data["fields"]["unedited_images"]
+            unedited_images_objs = []
+            for unedited_image in unedited_images:
+                image_pk = unedited_image
+                mapped_unedited_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_unedited_image_pk)
+                unedited_images_objs.append(image_obj)
+
             pfl_generated_images = data["fields"]["pfl_generated_images"]
+            pfl_generated_images_objs = []
+            for pfl_generated_image in pfl_generated_images:
+                image_pk = pfl_generated_image
+                mapped_pfl_generated_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_pfl_generated_image_pk)
+                pfl_generated_images_objs.append(image_obj)
+
             transparent_images = data["fields"]["transparent_images"]
+            transparent_images_objs = []
+            for transparent_image in transparent_images:
+                image_pk = transparent_image
+                mapped_transparent_image_pk = image_pk_mapping[image_pk]
+                image_obj = Image.objects.get(pk=mapped_transparent_image_pk)
+                transparent_images_objs.append(image_obj)
 
             base_product_obj,created = BaseProduct.objects.get_or_create(seller_sku=seller_sku,
                                                           brand=brand_obj,
@@ -519,7 +602,7 @@ for data in all_data_json:
             
             ebay_product["product_name"] = product_name_ebay
             ebay_product["category"] = category
-            ebay_uk_product["sub_category"] = subtitle
+            ebay_product["sub_category"] = subtitle
             ebay_product["product_description"] = product_description_ebay
             if product_description_ebay != None or product_description_ebay != "":
                 channel_product_obj.is_ebay_product_created=True
@@ -530,76 +613,67 @@ for data in all_data_json:
             channel_product_obj.ebay_product_json = json.dumps(ebay_product)
             
             main_images_objs = []
+            sub_images_objs = []
 
             main_images_objs.append(MainImages.objects.create(product=product_obj,is_sourced=True))
             
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,is_sourced=True))
+            
             channel_obj,created = Channel.objects.get_or_create(name="Amazon UK")
             main_images_objs.append(MainImages.objects.create(product=product_obj,channel=channel_obj))
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
             
             channel_obj,created = Channel.objects.get_or_create(name="Amazon UAE")
             main_images_objs.append(MainImages.objects.create(product=product_obj,channel=channel_obj))
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
             
             channel_obj,created = Channel.objects.get_or_create(name="Ebay")
             main_images_objs.append(MainImages.objects.create(product=product_obj,channel=channel_obj))
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
             
             channel_obj,created = Channel.objects.get_or_create(name="Noon")
             main_images_objs.append(MainImages.objects.create(product=product_obj,channel=channel_obj))
+            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
 
             for main_images_obj in main_images_objs:
                 for main_image_bucket in main_image_buckets:
                     main_images_obj.main_images.add(main_image_bucket)
 
-            sub_images_objs = []
-
-            sub_images_objs.append(SubImages.objects.create(product=product_obj,is_sourced=True))
-            
-            channel_obj,created = Channel.objects.get_or_create(name="Amazon UK")
-            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
-            
-            channel_obj,created = Channel.objects.get_or_create(name="Amazon UAE")
-            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
-            
-            channel_obj,created = Channel.objects.get_or_create(name="Ebay")
-            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
-            
-            channel_obj,created = Channel.objects.get_or_create(name="Noon")
-            sub_images_objs.append(SubImages.objects.create(product=product_obj,channel=channel_obj))
-
             for sub_images_obj in sub_images_objs:
                 for sub_image_bucket in sub_image_buckets:
                     sub_images_obj.sub_images.add(sub_image_bucket)
 
-            for pfl_image in pfl_images:
+            for pfl_image in pfl_images_objs:
                 product_obj.pfl_images.add(pfl_image)
             
-            for white_background_image in white_background_images:
+            for white_background_image in white_background_images_objs:
                 product_obj.white_background_images.add(white_background_image)
             
-            for lifestyle_image in lifestyle_images:
+            for lifestyle_image in lifestyle_images_objs:
                 product_obj.lifestyle_images.add(lifestyle_image)
             
-            for certificate_image in certificate_images:
+            for certificate_image in certificate_images_objs:
                 product_obj.certificate_images.add(certificate_image)
             
-            for giftbox_image in giftbox_images:
+            for giftbox_image in giftbox_images_objs:
                 product_obj.giftbox_images.add(giftbox_image)
             
-            for diecut_image in diecut_images:
+            for diecut_image in diecut_images_objs:
                 product_obj.diecut_images.add(diecut_image)
             
-            for aplus_content_image in aplus_content_images:
+            for aplus_content_image in aplus_content_images_objs:
                 product_obj.aplus_content_images.add(aplus_content_image)
             
-            for ads_image in ads_images:
+            for ads_image in ads_images_objs:
                 product_obj.ads_images.add(ads_image)
             
-            for unedited_image in unedited_images:
+            for unedited_image in unedited_images_objs:
                 product_obj.unedited_images.add(unedited_image)
             
-            for pfl_generated_image in pfl_generated_images:
+            for pfl_generated_image in pfl_generated_images_objs:
                 product_obj.pfl_generated_images.add(pfl_generated_image)
             
-            for transparent_image in transparent_images:
+            for transparent_image in transparent_images_objs:
                 product_obj.transparent_images.add(transparent_image)
 
 
