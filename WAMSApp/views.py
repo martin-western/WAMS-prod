@@ -1914,9 +1914,9 @@ class FetchExportProductListAPI(APIView):
             channel_name = export_obj.channel.name
             products = export_obj.products.all()
 
-            temp_dict = {}
             product_list = []
             for product in products:
+                temp_dict = {}
                 channel_product = product.channel_product
                 if channel_name == "Amazon UK":
                     amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
@@ -4064,6 +4064,135 @@ class CreateRequestHelpAPI(APIView):
         return Response(data=response)
 
 
+class FetchChannelProductListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchChannelProductListAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            filter_parameters = data["filter_parameters"]
+            channel_name = data["channel_name"]
+            chip_data = data["tags"]
+
+            page = int(data['page'])
+
+            search_list_product_objs = []
+        
+            permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            brands = permission_obj.brands.all()
+
+            if filter_parameters["brand_name"] != "":
+                brands = brands.filter(name__icontains=filter_parameters["brand_name"])              
+
+            product_objs_list = Product.objects.filter(base_product__brand__in=brands).order_by('-pk')
+            if channel_name=="Amazon UK":
+                product_objs_list = product_objs_list.filter(channel_product__is_amazon_uk_product_created=True)
+            elif channel_name=="Amazon UAE":
+                product_objs_list = product_objs_list.filter(channel_product__is_amazon_uae_product_created=True)
+            elif channel_name=="Ebay":
+                product_objs_list = product_objs_list.filter(channel_product__is_ebay_product_created=True)
+            elif channel_name=="Noon":
+                product_objs_list = product_objs_list.filter(channel_product__is_noon_product_created=True)
+
+            search_list_product_objs = product_objs_list
+            
+            if len(chip_data) > 0:
+                for tag in chip_data:
+                    search = product_objs_list.filter(
+                        Q(product_name__icontains=tag) |
+                        Q(product_name_sap__icontains=tag) |
+                        Q(product_id__icontains=tag) |
+                        Q(base_product__seller_sku__icontains=tag)
+                    )
+                    
+                    for prod in search:
+                        product_obj = Product.objects.filter(pk=prod.pk)
+                        search_list_product_objs|=product_obj
+
+
+            products = []
+
+            paginator = Paginator(search_list_product_objs, 20)
+            product_objs = paginator.page(page)
+
+
+            for product_obj in product_objs:
+                temp_dict = {}
+                amazon_uk_product_json = json.loads(product_obj.channel_product.amazon_uk_product_json)
+                amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
+                ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
+                noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
+                temp_dict["product_pk"] = product_obj.pk
+                if channel_name=="Amazon UK":
+                    temp_dict["product_name"] = amazon_uk_product_json["product_name"]
+                    temp_dict["category"] = amazon_uk_product_json["category"]
+                    temp_dict["sub_category"] = amazon_uk_product_json["sub_category"]
+                    temp_dict["is_active"] = amazon_uk_product_json["is_active"]
+                if channel_name=="Amazon UAE":
+                    temp_dict["product_name"] = amazon_uae_product_json["product_name"]
+                    temp_dict["category"] = amazon_uae_product_json["category"]
+                    temp_dict["sub_category"] = amazon_uae_product_json["sub_category"]
+                    temp_dict["is_active"] = amazon_uae_product_json["is_active"]
+                if channel_name=="Ebay":
+                    temp_dict["product_name"] = ebay_product_json["product_name"]
+                    temp_dict["category"] = ebay_product_json["category"]
+                    temp_dict["sub_category"] = ebay_product_json["sub_category"]
+                    temp_dict["is_active"] = ebay_product_json["is_active"]
+                if channel_name=="Noon":
+                    temp_dict["product_name"] = noon_product_json["product_name"]
+                    temp_dict["category"] = noon_product_json["category"]
+                    temp_dict["sub_category"] = noon_product_json["sub_category"]
+                    temp_dict["is_active"] = noon_product_json["is_active"]
+
+                temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                
+                
+
+                if product_obj.base_product.brand != None:
+                    temp_dict["brand_name"] = product_obj.base_product.brand.name
+                else:
+                    temp_dict["brand_name"] = "-"
+
+                main_images_list = ImageBucket.objects.none()
+                main_images_objs = MainImages.objects.filter(product=product_obj)
+                for main_images_obj in main_images_objs:
+                    main_images_list |= main_images_obj.main_images.all()
+
+                main_images_list = main_images_list.distinct()
+                
+                if len(main_images_list)>0:
+                    temp_dict["main_image"] = main_images_list[0].image.image.url
+                else: 
+                    temp_dict["main_image"] = Config.objects.all()[0].product_404_image.image.url
+
+                products.append(temp_dict)
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_products"] = len(search_list_product_objs)
+            response["products"] = products
+
+            logger.info("products list response: %s", str(response))
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchChannelProductListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -4173,3 +4302,5 @@ FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
 FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 
 CreateRequestHelp = CreateRequestHelpAPI.as_view()
+
+FetchChannelProductList = FetchChannelProductListAPI.as_view()
