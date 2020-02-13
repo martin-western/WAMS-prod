@@ -1,4 +1,5 @@
 from WAMSApp.models import *
+from dealshub.models import *
 import json
 import urllib.request, urllib.error, urllib.parse
 import datetime
@@ -608,6 +609,8 @@ for data in all_data_json:
             base_product_obj.save()
             product_obj.save()
             channel_product_obj.save()
+
+            DealsHubProduct.objects.create(product=product_obj)
 
             product_pk_mapping[data["pk"]] = product_obj.pk
             if product_cnt%1000==0:
