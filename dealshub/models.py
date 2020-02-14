@@ -109,6 +109,7 @@ class DealsHubProduct(models.Model):
 class Section(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=300, default="")
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
@@ -139,6 +140,7 @@ class Section(models.Model):
 class DealsBanner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
@@ -147,6 +149,7 @@ class DealsBanner(models.Model):
 class FullBannerAd(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
@@ -155,6 +158,7 @@ class FullBannerAd(models.Model):
 class CategoryGridBanner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
@@ -163,6 +167,7 @@ class CategoryGridBanner(models.Model):
 class HomePageSchedular(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
