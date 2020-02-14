@@ -40,7 +40,7 @@ for i in range(rows):
     
         brand_obj = Brand.objects.get(name="Geepas")
 
-    
+        
         base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
         base_product_obj.base_product_name = product_title
         base_product_obj.brand=brand_obj
