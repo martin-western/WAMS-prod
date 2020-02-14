@@ -147,8 +147,8 @@ class FetchProductDetailsAPI(APIView):
             product_obj = temp_product_obj.product
             base_product_obj = product_obj.base_product
 
-            response["category"] = str(temp_product_obj.category)
-            response["subCategory"] = str(temp_product_obj.sub_category)
+            response["category"] = None if temp_product_obj.category==None else temp_product_obj.category
+            response["subCategory"] = None if temp_product_obj.sub_category==None else temp_product_obj.sub_category
             response["id"] = temp_product_obj.product.uuid
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
@@ -194,7 +194,7 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["heroImageUrl"] = ""
 
-            response["subtitle"] = base_product_obj.subtitle
+            response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
