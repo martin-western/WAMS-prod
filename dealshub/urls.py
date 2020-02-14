@@ -77,4 +77,6 @@ urlpatterns = [
     url(r'^upload-image-heading/$', views.UploadImageHeading),
     url(r'^update-image-heading-link/$', views.UpdateImageHeadingLink),
     url(r'^delete-image-heading/$', views.DeleteImageHeading),
+
+    url(r'^fetch-user-brand/$', views.FetchUserBrand),    
 ]
