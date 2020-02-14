@@ -517,8 +517,8 @@ for data in all_data_json:
             amazon_uk_product["enclosure_material"] = enclosure_material
             amazon_uk_product["cover_material_type"] = cover_material_type
             amazon_uk_product["special_features"] = special_features
-            amazon_uk_product["product_description_amazon_uk"] = product_description_amazon_uk
-            if product_description_amazon_uk != None or product_description_amazon_uk != "":
+            amazon_uk_product["product_description"] = product_description_amazon_uk
+            if product_description_amazon_uk != None and product_description_amazon_uk != "":
                 channel_product_obj.is_amazon_uk_product_created=True
             amazon_uk_product["item_count"] = item_count
             amazon_uk_product["item_count_metric"] = item_count_metric
@@ -573,7 +573,7 @@ for data in all_data_json:
             amazon_uae_product["category"] = category
             amazon_uae_product["sub_category"] = subtitle
             amazon_uae_product["product_description"] = product_description_amazon_uae
-            if product_description_amazon_uae != None or product_description_amazon_uae != "":
+            if product_description_amazon_uae != None and product_description_amazon_uae != "":
                 channel_product_obj.is_amazon_uae_product_created=True
             amazon_uae_product["product_attribute_list"] = product_attribute_list_amazon_uae
             amazon_uae_product["created_date"] = str(created_date)
@@ -587,7 +587,7 @@ for data in all_data_json:
             noon_product["category"] = category
             noon_product["sub_category"] = subtitle
             noon_product["product_description"] = product_description_noon
-            if product_description_noon != None or product_description_noon != "":
+            if product_description_noon != None and product_description_noon != "":
                 channel_product_obj.is_noon_product_created=True
             noon_product["product_attribute_list"] = product_attribute_list_noon
             noon_product["created_date"] = str(created_date)
@@ -604,7 +604,7 @@ for data in all_data_json:
             ebay_product["category"] = category
             ebay_product["sub_category"] = subtitle
             ebay_product["product_description"] = product_description_ebay
-            if product_description_ebay != None or product_description_ebay != "":
+            if product_description_ebay != None and product_description_ebay != "":
                 channel_product_obj.is_ebay_product_created=True
             ebay_product["product_attribute_list"] = product_attribute_list_noon
             ebay_product["created_date"] = str(created_date)

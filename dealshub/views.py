@@ -618,14 +618,17 @@ class FetchSectionsProductsAPI(APIView):
         except Exception as e:
             #print "Error: "+str(e)
             return 0
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
             data = request.data
             logger.info("FetchSectionsProductsAPI: %s", str(data))
 
-            section_objs = Section.objects.filter(is_published=True)
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            section_objs = Section.objects.filter(brand=brand_obj, is_published=True)
 
             section_list =  []
 
@@ -744,14 +747,17 @@ class FetchSectionsProductsLimitAPI(APIView):
         except Exception as e:
             #print "Error: "+str(e)
             return 0
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
             data = request.data
             logger.info("FetchSectionsProductsLimitAPI: %s", str(data))
 
-            section_objs = Section.objects.filter(is_published=True)
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            section_objs = Section.objects.filter(brand=brand_obj, is_published=True)
 
             section_list =  []
 
@@ -2174,7 +2180,10 @@ class CreateAdminCategoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            brand_name = data["brandName"]
             data = data["sectionData"]
+            
+            brand_obj = Brand.objects.get(name=brand_name)
 
             for key in data:
                 logger.info("CreateAdminCategoryAPI KEY: %s", str(key))
@@ -2183,7 +2192,7 @@ class CreateAdminCategoryAPI(APIView):
             listing_type = data["listingType"]
             products = data["products"]
             
-            section_obj = Section.objects.create(uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
+            section_obj = Section.objects.create(brand=brand_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
                 section_obj.products.add(product_obj)
@@ -2203,14 +2212,17 @@ class FetchAdminCategoriesAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
             data = request.data
             logger.info("FetchAdminCategoriesAPI: %s", str(data))
 
-            section_objs = Section.objects.all()
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            section_objs = Section.objects.filter(brand=brand_obj)
 
             section_list = []
             
@@ -2506,9 +2518,12 @@ class CreateDealsBannerAPI(APIView):
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
             image_obj = Image.objects.create(image=image)
 
-            deals_banner_obj = DealsBanner.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            deals_banner_obj = DealsBanner.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = deals_banner_obj.uuid
             response['status'] = 200
@@ -2534,8 +2549,10 @@ class FetchDealsBannerAPI(APIView):
             logger.info("FetchDealsBannerAPI: %s", str(data))
 
             resolution = data["resolution"]
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
 
-            deals_banner_objs = DealsBanner.objects.all()
+            deals_banner_objs = DealsBanner.objects.filter(brand=brand_obj)
 
             banner_deals = []
 
@@ -2664,9 +2681,12 @@ class CreateFullBannerAdAPI(APIView):
 
             image = data["image"]
 
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
             image_obj = Image.objects.create(image=image)
 
-            full_banner_ad_obj = FullBannerAd.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            full_banner_ad_obj = FullBannerAd.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = full_banner_ad_obj.uuid
             response['status'] = 200
@@ -2691,7 +2711,10 @@ class FetchFullBannerAdAPI(APIView):
             data = request.data
             logger.info("FetchFullBannerAdAPI: %s", str(data))
 
-            full_banner_ad_objs = FullBannerAd.objects.all()
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            full_banner_ad_objs = FullBannerAd.objects.filter(brand=brand_obj)
 
             banner_deals = []
 
@@ -2885,9 +2908,12 @@ class CreateCategoryGridBannerAPI(APIView):
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
             image_obj = Image.objects.create(image=image)
 
-            category_grid_banner_obj = CategoryGridBanner.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            category_grid_banner_obj = CategoryGridBanner.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = category_grid_banner_obj.uuid
             response['status'] = 200
@@ -2913,8 +2939,11 @@ class FetchCategoryGridBannerAPI(APIView):
             logger.info("FetchCategoryGridBannerAPI: %s", str(data))
 
             resolution = data.get("resolution", "low")
+            brand_name = data["brandName"]
 
-            category_grid_banner_objs = CategoryGridBanner.objects.all()
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            category_grid_banner_objs = CategoryGridBanner.objects.filter(brand=brand_obj)
 
             category_grid_banners = []
 
@@ -3018,13 +3047,16 @@ class CreateHomePageSchedularAPI(APIView):
             logger.info("CreateHomePageSchedularAPI: %s", str(data))
 
             image = data["image"]
+            brand_name = data["brandName"]
 
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
+            brand_obj = Brand.objects.get(name=brand_name)
+
             image_obj = Image.objects.create(image=image)
 
-            home_page_schedular_obj = HomePageSchedular.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            home_page_schedular_obj = HomePageSchedular.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = home_page_schedular_obj.uuid
             response['status'] = 200
@@ -3050,8 +3082,9 @@ class FetchHomePageSchedularAPI(APIView):
             logger.info("FetchHomePageSchedularAPI: %s", str(data))
 
             resolution = data.get("resolution", "low")
+            brand_name = data["brandName"]
 
-            home_page_schedular_objs = HomePageSchedular.objects.all()
+            home_page_schedular_objs = HomePageSchedular.objects.filter(brand__name=brand_name)
 
             home_page_schedulars = []
 
