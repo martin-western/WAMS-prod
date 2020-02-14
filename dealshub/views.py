@@ -3633,6 +3633,31 @@ class DeleteImageHeadingAPI(APIView):
         return Response(data=response)
 
 
+class FetchUserBrandAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchUserBrandAPI: %s", str(data))
+
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            brand_name = custom_permission_obj.brands.all()[0].name
+            
+            response["brandName"] = brand_name
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchUserBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
 FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
@@ -3719,3 +3744,5 @@ UploadImageHeading = UploadImageHeadingAPI.as_view()
 UpdateImageHeadingLink = UpdateImageHeadingLinkAPI.as_view()
 
 DeleteImageHeading = DeleteImageHeadingAPI.as_view()
+
+FetchUserBrand = FetchUserBrandAPI.as_view()
