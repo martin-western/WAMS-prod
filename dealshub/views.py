@@ -618,7 +618,7 @@ class FetchSectionsProductsAPI(APIView):
         except Exception as e:
             #print "Error: "+str(e)
             return 0
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
@@ -747,7 +747,7 @@ class FetchSectionsProductsLimitAPI(APIView):
         except Exception as e:
             #print "Error: "+str(e)
             return 0
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
@@ -2211,7 +2211,7 @@ class FetchAdminCategoriesAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
