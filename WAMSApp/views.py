@@ -4011,11 +4011,13 @@ class FetchUserProfileAPI(APIView):
             data = request.data
             
             content_manager = OmnyCommUser.objects.get(username=request.user.username)
-
+      
             response["contact_number"] = content_manager.contact_number
             response["designation"] = content_manager.designation
             response["username"] = content_manager.username
-            response["email"] = content_manager.email
+            response["first_name"] = content_manager.first_name
+            response["last_name"] = content_manager.last_name
+            response["email"] = "" if content_manager.email==None else content_manager.email
             permissible_brands = custom_permission_filter_brands(request.user)
             response["permissible_brands"] = []
             for brand in permissible_brands:
