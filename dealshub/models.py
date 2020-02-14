@@ -32,6 +32,14 @@ class Category(models.Model):
         verbose_name = "Category"
         verbose_name_plural = "Categories"
 
+    def save(self, *args, **kwargs):
+        
+        if self.pk ==None:
+            uuid1 = uuid.uuid4()
+            self.category_id=uuid1
+        
+        super(Category, self).save(*args, **kwargs)
+
 
 class SubCategory(models.Model):
     category = models.ForeignKey(

@@ -56,3 +56,31 @@ for i in range(rows):
         pass
 
 
+from WAMSApp.models import *
+from dealshub.models import *
+
+DealsHubProduct.objects.filter(product__base_product__brand__name="Geepas").update(is_published=True)
+cnt=0
+for p in ps:
+    p.is_published=True
+    p.save()
+    cnt+=1
+    print("Cnt : ",cnt)
+
+
+from WAMSApp.models import Product
+from dealshub.models import DealsHubProduct, Category, SubCategory
+prods = Product.objects.filter(base_product__brand__name="Geepas")
+for prod in prods:
+    category_obj = None
+    category = prod.base_product.category
+    if category!="":
+        category_obj, created = Category.objects.get_or_create(name=category)
+    sub_category_obj = None
+    sub_category = prod.base_product.sub_category
+    if sub_category!="":
+        sub_category_obj, created = SubCategory.objects.get_or_create(name=sub_category, category=category_obj)
+    d = DealsHubProduct.objects.filter(product=prod)[0]
+    d.category = category_obj
+    d.sub_category = sub_category_obj
+    d.save()
