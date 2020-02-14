@@ -2180,8 +2180,9 @@ class CreateAdminCategoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            data = data["sectionData"]
             brand_name = data["brandName"]
+            data = data["sectionData"]
+            
             brand_obj = Brand.objects.get(name=brand_name)
 
             for key in data:
