@@ -3646,7 +3646,8 @@ class FetchUserBrandAPI(APIView):
             data = request.data
             logger.info("FetchUserBrandAPI: %s", str(data))
 
-            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            username = data["userName"]
+            custom_permission_obj = CustomPermission.objects.get(user__username=username)
             brand_name = custom_permission_obj.brands.all()[0].name
             
             response["brandName"] = brand_name
