@@ -1971,7 +1971,10 @@ class SearchAPI(APIView):
                 temp_dict = {}
                 temp_dict["name"] = product.product_name
                 temp_dict["brand"] = str(product.base_product.brand)
-                temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
+                if(product.base_product.brand.name=="Geepas"):
+                    temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
+                else:
+                    temp_dict["price"] = product.standard_price
                 temp_dict["prevPrice"] = self.fetch_price(product.base_product.seller_sku)
                 temp_dict["currency"] = "AED"
                 temp_dict["discount"] = "10%"
