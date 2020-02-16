@@ -1841,7 +1841,7 @@ class FetchExportListAPI(APIView):
                     export_list_obj.created_date.strftime("%d %b, %Y"))
                 temp_dict["pk"] = export_list_obj.pk
                 temp_dict["product_count"] = export_list_obj.products.all().count()
-                temp_dict["channel_name"] = export_list_obj.channel.name
+                temp_dict["channel_name"] = str(export_list_obj.channel)
                 export_list.append(temp_dict)
 
             response["export_list"] = export_list
