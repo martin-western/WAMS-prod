@@ -110,7 +110,7 @@ def PFLDashboardPage(request):
     return render(request, 'WAMSApp/pfl-dashboard.html')
 
 
-@login_required(login_url='/login/')
+#@login_required(login_url='/login/')
 def FlyerPage(request, pk):
     flyer_obj = Flyer.objects.get(pk=int(pk))
     if flyer_obj.mode=="A4 Portrait":
@@ -1841,7 +1841,7 @@ class FetchExportListAPI(APIView):
                     export_list_obj.created_date.strftime("%d %b, %Y"))
                 temp_dict["pk"] = export_list_obj.pk
                 temp_dict["product_count"] = export_list_obj.products.all().count()
-                temp_dict["channel_name"] = export_list_obj.channel.name
+                temp_dict["channel_name"] = str(export_list_obj.channel)
                 export_list.append(temp_dict)
 
             response["export_list"] = export_list
@@ -1871,6 +1871,7 @@ class AddToExportAPI(APIView):
             data = request.data
             logger.info("AddToExportAPI: %s", str(data))
 
+            select_all = data.get("select_all", False)
             export_option = data["export_option"]
             export_title_pk = data["export_title_pk"]
             export_title = data["export_title"]
@@ -1878,17 +1879,65 @@ class AddToExportAPI(APIView):
             channel_obj = Channel.objects.get(name=channel_name)
             products = data["products"]
 
-            export_obj = None
-            if export_option == "New":
-                export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
-            else:
-                export_obj = ExportList.objects.get(pk=int(export_title_pk))
+            if select_all==True:
+                filter_parameters = data["filter_parameters"]
+                chip_data = data["tags"]
 
-            for product_pk in products:
-                product = Product.objects.get(pk=int(product_pk))
-                export_obj.products.add(product)
-                export_obj.channel = channel_obj
-                export_obj.save()
+                search_list_product_objs = []
+            
+                permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+                brands = permission_obj.brands.all()
+
+                if filter_parameters["brand_name"] != "":
+                    brands = brands.filter(name__icontains=filter_parameters["brand_name"])              
+
+                product_objs_list = Product.objects.filter(base_product__brand__in=brands).order_by('-pk')
+                if channel_name=="Amazon UK":
+                    product_objs_list = product_objs_list.filter(channel_product__is_amazon_uk_product_created=True)
+                elif channel_name=="Amazon UAE":
+                    product_objs_list = product_objs_list.filter(channel_product__is_amazon_uae_product_created=True)
+                elif channel_name=="Ebay":
+                    product_objs_list = product_objs_list.filter(channel_product__is_ebay_product_created=True)
+                elif channel_name=="Noon":
+                    product_objs_list = product_objs_list.filter(channel_product__is_noon_product_created=True)
+
+                search_list_product_objs = product_objs_list
+                
+                if len(chip_data) > 0:
+                    for tag in chip_data:
+                        search = product_objs_list.filter(
+                            Q(product_name__icontains=tag) |
+                            Q(product_name_sap__icontains=tag) |
+                            Q(product_id__icontains=tag) |
+                            Q(base_product__seller_sku__icontains=tag)
+                        )
+
+                        for prod in search:
+                            product_obj = Product.objects.filter(pk=prod.pk)
+                            search_list_product_objs|=product_obj
+
+                export_obj = None
+                if export_option == "New":
+                    export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
+                else:
+                    export_obj = ExportList.objects.get(pk=int(export_title_pk))
+
+                for product_obj in search_list_product_objs:
+                    export_obj.products.add(product_obj)
+                    export_obj.channel = channel_obj
+                    export_obj.save()
+            else:
+                export_obj = None
+                if export_option == "New":
+                    export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
+                else:
+                    export_obj = ExportList.objects.get(pk=int(export_title_pk))
+
+                for product_pk in products:
+                    product = Product.objects.get(pk=int(product_pk))
+                    export_obj.products.add(product)
+                    export_obj.channel = channel_obj
+                    export_obj.save()
 
             response['status'] = 200
 
@@ -2581,7 +2630,7 @@ class CreateFlyerAPI(APIView):
 
 
 class FetchFlyerDetailsAPI(APIView):
-
+    permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2892,6 +2941,7 @@ class FetchPFLDetailsAPI(APIView):
 
 class FetchProductListFlyerPFLAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3443,7 +3493,7 @@ class FetchFlyerListAPI(APIView):
             permissible_brands = custom_permission_filter_brands(request.user)
             flyer_objs = Flyer.objects.filter(brand__in=permissible_brands)
 
-            chip_data = json.loads(data["tags"])
+            chip_data = data["tags"]
 
             if len(chip_data) > 0:
                 flyer_objs = Flyer.objects.all()
@@ -4012,16 +4062,18 @@ class FetchUserProfileAPI(APIView):
             
             content_manager = OmnyCommUser.objects.get(username=request.user.username)
 
-            response["contact_number"] = content_manager.contact_number
-            response["designation"] = content_manager.designation
+            response["contact_number"] = "" if content_manager.contact_number==None else content_manager.contact_number
+            response["designation"] = "" if content_manager.designation==None else content_manager.designation
             response["username"] = content_manager.username
-            response["email"] = content_manager.email
+            response["first_name"] = content_manager.first_name
+            response["last_name"] = content_manager.last_name
+            response["email"] = "" if content_manager.email==None else content_manager.email
             permissible_brands = custom_permission_filter_brands(request.user)
             response["permissible_brands"] = []
             for brand in permissible_brands:
                 response["permissible_brands"].append(brand.name)
             
-            response["img_url"] = None
+            response["img_url"] = ""
             
             if content_manager.image!=None:
                 response["img_url"] = content_manager.image.image.url
@@ -4123,6 +4175,7 @@ class FetchChannelProductListAPI(APIView):
             search_list_product_objs = product_objs_list
             
             if len(chip_data) > 0:
+                search_list_product_objs = Product.objects.none()
                 for tag in chip_data:
                     search = product_objs_list.filter(
                         Q(product_name__icontains=tag) |

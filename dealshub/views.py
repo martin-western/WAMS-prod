@@ -147,12 +147,17 @@ class FetchProductDetailsAPI(APIView):
             product_obj = temp_product_obj.product
             base_product_obj = product_obj.base_product
 
-            response["category"] = str(temp_product_obj.category)
-            response["subCategory"] = str(temp_product_obj.sub_category)
+            response["category"] = None if temp_product_obj.category==None else temp_product_obj.category
+            response["subCategory"] = None if temp_product_obj.sub_category==None else temp_product_obj.sub_category
             response["id"] = temp_product_obj.product.uuid
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
-            response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+
+            if(product_obj.base_product.brand.name=="Geepas"):
+                response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+            else:
+                response["price"] = product_obj.standard_price
+            
             response["currency"] = "AED"
             response["minLimit"] = "1"
             response["maxLimit"] = "5"
@@ -194,7 +199,7 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["heroImageUrl"] = ""
 
-            response["subtitle"] = base_product_obj.subtitle
+            response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
@@ -618,14 +623,17 @@ class FetchSectionsProductsAPI(APIView):
         except Exception as e:
             #print "Error: "+str(e)
             return 0
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
             data = request.data
             logger.info("FetchSectionsProductsAPI: %s", str(data))
 
-            section_objs = Section.objects.filter(is_published=True)
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            section_objs = Section.objects.filter(brand=brand_obj, is_published=True)
 
             section_list =  []
 
@@ -641,7 +649,12 @@ class FetchSectionsProductsAPI(APIView):
                     temp_dict2["productCategory"] = product_obj.base_product.category
                     temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
                     temp_dict2["brand"] = str(product_obj.base_product.brand)
-                    temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                    
+                    if(product.base_product.brand.name=="Geepas"):
+                        temp_dict2["price"] = self.fetch_price(product.base_product.seller_sku)
+                    else:
+                        temp_dict2["price"] = product.standard_price
+
                     temp_dict2["prevPrice"] = temp_dict2["price"]
                     temp_dict2["currency"] = "AED"
                     temp_dict2["discount"] = "10"
@@ -744,14 +757,17 @@ class FetchSectionsProductsLimitAPI(APIView):
         except Exception as e:
             #print "Error: "+str(e)
             return 0
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
             data = request.data
             logger.info("FetchSectionsProductsLimitAPI: %s", str(data))
 
-            section_objs = Section.objects.filter(is_published=True)
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            section_objs = Section.objects.filter(brand=brand_obj, is_published=True)
 
             section_list =  []
 
@@ -767,7 +783,11 @@ class FetchSectionsProductsLimitAPI(APIView):
                     temp_dict2["productCategory"] = product_obj.base_product.category
                     temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
                     temp_dict2["brand"] = str(product_obj.base_product.brand)
-                    temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+
+                    if(product_obj.base_product.brand.name=="Geepas"):
+                        temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                    else:
+                        temp_dict2["price"] = product_obj.standard_price
                     temp_dict2["prevPrice"] = temp_dict2["price"]
                     temp_dict2["currency"] = "AED"
                     temp_dict2["discount"] = "10"
@@ -1383,154 +1403,245 @@ class FetchFeaturedProductsAPI(APIView):
 
             data = request.data
             logger.info("FetchFeaturedProductsAPI: %s", str(data))
+            brand_name = data["brandName"]
+            featured_products = []
+            if brand_name.lower()=="geepas":
+                featured_products = [
+                    {
+                        "productName": "Geepas GAC9602 Air Cooler 70L",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Cooler",
+                        "brand": "Geepas",
+                        "price": "500",
+                        "prevPrice": "3,300",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
+                        "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
+                    },
+                    {
+                        "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Cooler",
+                        "brand": "Geepas",
+                        "price": "255",
+                        "prevPrice": "4,500",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "3.9",
+                        "totalRatings": "1,772",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
+                        "id": "9259d36f-4356-450a-a0d1-17193aded65b"
+                    },
+                    {
+                        "productName": "Geepas GA1960 4 USB Travel Charger ",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Plugs",
+                        "brand": "Geepas",
+                        "price": "18",
+                        "prevPrice": "4,700",
+                        "currency": "AED",
+                        "discount": "28",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
+                        "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
+                    },
+                    {
+                        "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Cooler",
+                        "brand": "Geepas",
+                        "price": "760",
+                        "prevPrice": "1,800",
+                        "currency": "AED",
+                        "discount": "10",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
+                        "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
+                    },
+                    {
+                        "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
+                        "productCategory": "Electronics",
+                        "productSubCategory": "Cooler",
+                        "brand": "Geepas",
+                        "price": "27",
+                        "prevPrice": "5,600",
+                        "currency": "AED",
+                        "discount": "28",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
+                        "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
+                    }
+                ]
+            elif brand_name.lower()=="pex":
+                featured_products = [
+                    {
+                        "productName": "Pex antiseptic disinfectant 500 ml",
+                        "productCategory": "Cleaning Products",
+                        "productSubCategory": "Cleaning Products",
+                        "brand": "Pex",
+                        "price": "12",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD150_1_FlM0XTE.jpg",
+                        "id": "379e83c4-7f21-4291-8329-3d7ede846d69"
+                    },
+                    {
+                        "productName": "Pex Active Air Freshener Lavender 550 ml",
+                        "productCategory": "Cleaning Products",
+                        "productSubCategory": "Cleaning Products",
+                        "brand": "Pex",
+                        "price": "30",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AL555_1_ph0QKB8.jpg",
+                        "id": "8dc7b633-dfcf-4d3b-a39d-770edc545b03"
+                    },
+                    {
+                        "productName": "Pex antiseptic disinfectant 5 ltr",
+                        "productCategory": "Cleaning Products",
+                        "productSubCategory": "Cleaning Products",
+                        "brand": "Pex",
+                        "price": "43",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD2500_1_hxCL5xe.jpg",
+                        "id": "cf2b5ddc-5737-4fa5-a777-059699a3d480"
+                    }
+                ]
+            elif brand_name.lower()=="aqua":
+                featured_products = [
+                    {
+                        "productName": "Aqua Dish Wash liquid Lemon 1Ltr",
+                        "productCategory": "Cleaning Products",
+                        "productSubCategory": "Cleaning Products",
+                        "brand": "Aqua",
+                        "price": "5",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881003_1.jpg",
+                        "id": "f4c15dce-23a1-456c-a5ab-3592b14c67a1"
+                    },
+                    {
+                        "productName": "Aqua Hand Wash Liquid Rose 5 Ltr",
+                        "productCategory": "Cleaning Products",
+                        "productSubCategory": "Cleaning Products",
+                        "brand": "Aqua",
+                        "price": "10",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881034_1.jpg",
+                        "id": "52c47297-dcd8-4809-89af-051c7ac3b244"
+                    },
+                    {
+                        "productName": "Aqua Glass Cleaner Liquid 650 Ml",
+                        "productCategory": "Cleaning Products",
+                        "productSubCategory": "Cleaning Products",
+                        "brand": "Aqua",
+                        "price": "5",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881171_1.jpg",
+                        "id": "d696bd92-7fd9-4d76-b53c-93ce5e69a991"
+                    },
+                    {
+                        "productName": "Aqua Antiseptic Disinfectant Liquid 5 ltr",
+                        "productCategory": "Cleaning Products",
+                        "productSubCategory": "Cleaning Products",
+                        "brand": "Aqua",
+                        "price": "6",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881218_1.jpg",
+                        "id": "55d7b55c-0060-4e94-90d0-021a74b6fd0d"
+                    }
+                ]
+            elif brand_name.lower()=="future-lux":
+                featured_products = [
+                    {
+                        "productName": "24 Watt LED Panel Light Square Warm White Colour with Inbuilt Driver",
+                        "productCategory": "Lights and Fixtures",
+                        "productSubCategory": "Lights and Fixtures",
+                        "brand": "Future Lux",
+                        "price": "32.5",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDWWPANELSQR_1.jpg",
+                        "id": "11fc3bc2-5ba1-44ac-ab42-c99330ae2cdc"
+                    },
+                    {
+                        "productName": "Wooden Type Wall Light Fitting Cylindrical Shape",
+                        "productCategory": "Lights and Fixtures",
+                        "productSubCategory": "Lights and Fixtures",
+                        "brand": "Future Lux",
+                        "price": "84.5",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD3009_1.jpg",
+                        "id": "2648adbc-e4ff-4693-8c01-a0f93b6f3c11"
+                    },
+                    {
+                        "productName": "Brass Chandelier Bell Type Modern Design E14 Lamp",
+                        "productCategory": "Lights and Fixtures",
+                        "productSubCategory": "Lights and Fixtures",
+                        "brand": "Future Lux",
+                        "price": "1430",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD1515_1.jpg",
+                        "id": "f73325fd-bc46-4be5-8c96-705e80b6be94"
+                    },
+                    {
+                        "productName": "Hanging Type Decorative Interior Light",
+                        "productCategory": "Lights and Fixtures",
+                        "productSubCategory": "Lights and Fixtures",
+                        "brand": "Future Lux",
+                        "price": "780",
+                        "prevPrice": "20",
+                        "currency": "AED",
+                        "discount": "15",
+                        "rating": "4.5",
+                        "totalRatings": "5,372",
+                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDHL2451_1.jpg",
+                        "id": "e9001f29-3313-4056-9dec-b1b4cef64d17"
+                    }
+                ]
             
-            """
-            featured_products = [
-                {
-                    "productName": "Airfryer Mechanical - 3.4 L, 1300 W AF 3501 - M Black",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Puma",
-                    "price": "500",
-                    "prevPrice": "3,300",
-                    "currency": "AED",
-                    "discount": "15",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1568636323/N28431691A_1.jpg",
-                    "id": 1
-                },
-                {
-                    "productName": "2-Slice Bread Toaster, 700W TA01105 Milk White",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Provogue",
-                    "price": "4,000",
-                    "prevPrice": "4,500",
-                    "currency": "AED",
-                    "discount": "15",
-                    "rating": "3.9",
-                    "totalRatings": "1,772",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1571139454/N29227703A_8.jpg",
-                    "id": 2
-                },
-                {
-                    "productName": "6-Piece Granite/Marble Coated Aluminium Cookware Set… ",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Reebok",
-                    "price": "3,999",
-                    "prevPrice": "4,700",
-                    "currency": "AED",
-                    "discount": "28",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1574085587/N17109502A_15.jpg",
-                    "id": 3
-                },
-                {
-                    "productName": "Realme 5s (Crystal Blue, 128 GB)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Sparx",
-                    "price": "1,200",
-                    "prevPrice": "1,800",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k2jbyq80pkrrdj/mobile-refurbished/v/w/c/x-128-u-rmx1901-realme-8-original-imafgzg9yvran9r3.jpeg?q=70",
-                    "id": 4
-                },
-                {
-                    "productName": "Realme X (Space Blue, 128 GB)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Reebok",
-                    "price": "3,999",
-                    "prevPrice": "5,600",
-                    "currency": "AED",
-                    "discount": "28",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k1fbmvk0/mobile/k/b/e/mi-redmi-8-mzb8250in-original-imafhyabpggagngr.jpeg?q=70",
-                    "id": 5
-                }
-            ]
-            """
-
-            featured_products = [
-                {
-                    "productName": "Geepas GAC9602 Air Cooler 70L",
-                    "productCategory": "Electronics",
-                    "productSubCategory": "Cooler",
-                    "brand": "Geepas",
-                    "price": "500",
-                    "prevPrice": "3,300",
-                    "currency": "AED",
-                    "discount": "15",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
-                    "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
-                },
-                {
-                    "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
-                    "productCategory": "Electronics",
-                    "productSubCategory": "Cooler",
-                    "brand": "Geepas",
-                    "price": "255",
-                    "prevPrice": "4,500",
-                    "currency": "AED",
-                    "discount": "15",
-                    "rating": "3.9",
-                    "totalRatings": "1,772",
-                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                    "id": "9259d36f-4356-450a-a0d1-17193aded65b"
-                },
-                {
-                    "productName": "Geepas GA1960 4 USB Travel Charger ",
-                    "productCategory": "Electronics",
-                    "productSubCategory": "Plugs",
-                    "brand": "Geepas",
-                    "price": "18",
-                    "prevPrice": "4,700",
-                    "currency": "AED",
-                    "discount": "28",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-                    "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
-                },
-                {
-                    "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
-                    "productCategory": "Electronics",
-                    "productSubCategory": "Cooler",
-                    "brand": "Geepas",
-                    "price": "760",
-                    "prevPrice": "1,800",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
-                    "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
-                },
-                {
-                    "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
-                    "productCategory": "Electronics",
-                    "productSubCategory": "Cooler",
-                    "brand": "Geepas",
-                    "price": "27",
-                    "prevPrice": "5,600",
-                    "currency": "AED",
-                    "discount": "28",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
-                    "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
-                }
-            ]
             response['featured_products'] = featured_products
 
             response['status'] = 200
@@ -1965,7 +2076,10 @@ class SearchAPI(APIView):
                 temp_dict = {}
                 temp_dict["name"] = product.product_name
                 temp_dict["brand"] = str(product.base_product.brand)
-                temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
+                if(product.base_product.brand.name=="Geepas"):
+                    temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
+                else:
+                    temp_dict["price"] = product.standard_price
                 temp_dict["prevPrice"] = self.fetch_price(product.base_product.seller_sku)
                 temp_dict["currency"] = "AED"
                 temp_dict["discount"] = "10%"
@@ -2174,7 +2288,10 @@ class CreateAdminCategoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            brand_name = data["brandName"]
             data = data["sectionData"]
+            
+            brand_obj = Brand.objects.get(name=brand_name)
 
             for key in data:
                 logger.info("CreateAdminCategoryAPI KEY: %s", str(key))
@@ -2183,7 +2300,7 @@ class CreateAdminCategoryAPI(APIView):
             listing_type = data["listingType"]
             products = data["products"]
             
-            section_obj = Section.objects.create(uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
+            section_obj = Section.objects.create(brand=brand_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
                 section_obj.products.add(product_obj)
@@ -2203,14 +2320,17 @@ class FetchAdminCategoriesAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
             data = request.data
             logger.info("FetchAdminCategoriesAPI: %s", str(data))
 
-            section_objs = Section.objects.all()
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            section_objs = Section.objects.filter(brand=brand_obj)
 
             section_list = []
             
@@ -2506,9 +2626,12 @@ class CreateDealsBannerAPI(APIView):
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
             image_obj = Image.objects.create(image=image)
 
-            deals_banner_obj = DealsBanner.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            deals_banner_obj = DealsBanner.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = deals_banner_obj.uuid
             response['status'] = 200
@@ -2534,8 +2657,10 @@ class FetchDealsBannerAPI(APIView):
             logger.info("FetchDealsBannerAPI: %s", str(data))
 
             resolution = data["resolution"]
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
 
-            deals_banner_objs = DealsBanner.objects.all()
+            deals_banner_objs = DealsBanner.objects.filter(brand=brand_obj)
 
             banner_deals = []
 
@@ -2664,9 +2789,12 @@ class CreateFullBannerAdAPI(APIView):
 
             image = data["image"]
 
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
             image_obj = Image.objects.create(image=image)
 
-            full_banner_ad_obj = FullBannerAd.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            full_banner_ad_obj = FullBannerAd.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = full_banner_ad_obj.uuid
             response['status'] = 200
@@ -2691,7 +2819,10 @@ class FetchFullBannerAdAPI(APIView):
             data = request.data
             logger.info("FetchFullBannerAdAPI: %s", str(data))
 
-            full_banner_ad_objs = FullBannerAd.objects.all()
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            full_banner_ad_objs = FullBannerAd.objects.filter(brand=brand_obj)
 
             banner_deals = []
 
@@ -2885,9 +3016,12 @@ class CreateCategoryGridBannerAPI(APIView):
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
+            brand_name = data["brandName"]
+            brand_obj = Brand.objects.get(name=brand_name)
+
             image_obj = Image.objects.create(image=image)
 
-            category_grid_banner_obj = CategoryGridBanner.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            category_grid_banner_obj = CategoryGridBanner.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = category_grid_banner_obj.uuid
             response['status'] = 200
@@ -2913,8 +3047,11 @@ class FetchCategoryGridBannerAPI(APIView):
             logger.info("FetchCategoryGridBannerAPI: %s", str(data))
 
             resolution = data.get("resolution", "low")
+            brand_name = data["brandName"]
 
-            category_grid_banner_objs = CategoryGridBanner.objects.all()
+            brand_obj = Brand.objects.get(name=brand_name)
+
+            category_grid_banner_objs = CategoryGridBanner.objects.filter(brand=brand_obj)
 
             category_grid_banners = []
 
@@ -3018,13 +3155,16 @@ class CreateHomePageSchedularAPI(APIView):
             logger.info("CreateHomePageSchedularAPI: %s", str(data))
 
             image = data["image"]
+            brand_name = data["brandName"]
 
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
+            brand_obj = Brand.objects.get(name=brand_name)
+
             image_obj = Image.objects.create(image=image)
 
-            home_page_schedular_obj = HomePageSchedular.objects.create(image=image_obj, uuid=str(uuid.uuid4()))
+            home_page_schedular_obj = HomePageSchedular.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = home_page_schedular_obj.uuid
             response['status'] = 200
@@ -3050,8 +3190,9 @@ class FetchHomePageSchedularAPI(APIView):
             logger.info("FetchHomePageSchedularAPI: %s", str(data))
 
             resolution = data.get("resolution", "low")
+            brand_name = data["brandName"]
 
-            home_page_schedular_objs = HomePageSchedular.objects.all()
+            home_page_schedular_objs = HomePageSchedular.objects.filter(brand__name=brand_name)
 
             home_page_schedulars = []
 
@@ -3600,6 +3741,32 @@ class DeleteImageHeadingAPI(APIView):
         return Response(data=response)
 
 
+class FetchUserBrandAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchUserBrandAPI: %s", str(data))
+
+            username = data["userName"]
+            custom_permission_obj = CustomPermission.objects.get(user__username=username)
+            brand_name = custom_permission_obj.brands.all()[0].name
+            
+            response["brandName"] = brand_name
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchUserBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
 FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
@@ -3686,3 +3853,5 @@ UploadImageHeading = UploadImageHeadingAPI.as_view()
 UpdateImageHeadingLink = UpdateImageHeadingLinkAPI.as_view()
 
 DeleteImageHeading = DeleteImageHeadingAPI.as_view()
+
+FetchUserBrand = FetchUserBrandAPI.as_view()
