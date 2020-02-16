@@ -4240,7 +4240,10 @@ class FetchChannelProductListAPI(APIView):
                 main_images_list = main_images_list.distinct()
                 
                 if len(main_images_list)>0:
-                    temp_dict["main_image"] = main_images_list[0].image.image.url
+                    try:
+                        temp_dict["main_image"] = main_images_list[0].image.thumbnail.url
+                    except Exception as e:
+                        temp_dict["main_image"] = main_images_list[0].image.image.url
                 else: 
                     temp_dict["main_image"] = Config.objects.all()[0].product_404_image.image.url
 
