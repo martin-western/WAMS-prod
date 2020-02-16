@@ -30,8 +30,8 @@ else:
                                                  )
                 image_pk_mapping[data["pk"]] = image_obj.pk
                 #print("Image Cnt:", image_cnt)
-                if image_cnt%1000==0:
-                    print(("Image Cnt:", image_cnt))
+                #if image_cnt%1000==0:
+                print(("Image Cnt:", image_cnt))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             print(("Error Image %s at %s", str(e), str(exc_tb.tb_lineno)))
@@ -687,8 +687,8 @@ for data in all_data_json:
             DealsHubProduct.objects.create(product=product_obj)
 
             product_pk_mapping[data["pk"]] = product_obj.pk
-            if product_cnt%1000==0:
-                print(("Product Cnt:", product_cnt))
+            #if product_cnt%1000==0:
+            print(("Product Cnt:", product_cnt))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         print(("Error in Product %s at %s", str(e), str(exc_tb.tb_lineno)))

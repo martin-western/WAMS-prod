@@ -4064,6 +4064,7 @@ class FetchUserProfileAPI(APIView):
 
             response["contact_number"] = "" if content_manager.contact_number==None else content_manager.contact_number
             response["designation"] = "" if content_manager.designation==None else content_manager.designation
+
             response["username"] = content_manager.username
             response["first_name"] = content_manager.first_name
             response["last_name"] = content_manager.last_name
