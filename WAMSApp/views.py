@@ -1566,6 +1566,7 @@ class FetchProductListAPI(APIView):
             else:
                 for tag in chip_data:
                     search = product_objs_list.filter(
+                        Q(base_product__base_product_name__icontains=tag) |
                         Q(product_name__icontains=tag) |
                         Q(product_name_sap__icontains=tag) |
                         Q(product_id__icontains=tag) |
