@@ -1183,7 +1183,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674764GEEPAS_MODEL_GAC9602_STRAIGHT.jpg",
-                        "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
+                        "id": "6146a910-df82-4a5a-affa-54988e8ef9ce"
                     },
                     {
                         "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
@@ -1197,7 +1197,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "3.9",
                         "totalRatings": "1,772",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505981GAC9433_3.JPG",
-                        "id": "9259d36f-4356-450a-a0d1-17193aded65b"
+                        "id": "69a2b8a4-fbcd-4038-a484-95a247e0697f"
                     },
                     {
                         "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -1211,7 +1211,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505000GA1960-2.jpg",
-                        "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
+                        "id": "81dcb449-bedb-49f1-8257-0938e021ab98"
                     },
                     {
                         "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
@@ -1225,7 +1225,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569677989GACW1818HCS-.jpg",
-                        "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
+                        "id": "af4d5afe-ffcd-4ad5-b93d-45d2de92d957"
                     },
                     {
                         "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
@@ -1239,7 +1239,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674206GAC9580-1.jpg",
-                        "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
+                        "id": "ccaf22a9-c6a1-491a-8bde-dd96cbb859d4"
                     }
                 ]
             }
@@ -1419,7 +1419,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
-                        "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
+                        "id": "6146a910-df82-4a5a-affa-54988e8ef9ce"
                     },
                     {
                         "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
@@ -1433,7 +1433,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "3.9",
                         "totalRatings": "1,772",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                        "id": "9259d36f-4356-450a-a0d1-17193aded65b"
+                        "id": "69a2b8a4-fbcd-4038-a484-95a247e0697f"
                     },
                     {
                         "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -1447,7 +1447,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-                        "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
+                        "id": "81dcb449-bedb-49f1-8257-0938e021ab98"
                     },
                     {
                         "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
@@ -1461,7 +1461,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
-                        "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
+                        "id": "af4d5afe-ffcd-4ad5-b93d-45d2de92d957"
                     },
                     {
                         "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
@@ -1475,7 +1475,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
-                        "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
+                        "id": "ccaf22a9-c6a1-491a-8bde-dd96cbb859d4"
                     }
                 ]
             elif brand_name.lower()=="pex":
