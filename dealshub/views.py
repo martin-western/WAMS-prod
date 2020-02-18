@@ -2450,7 +2450,7 @@ class PublishAdminCategoryAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("DeleteAdminCategoryAPI: %s", str(data))
+            logger.info("PublishAdminCategoryAPI: %s", str(data))
 
             uuid = data["uuid"]
             
@@ -2461,7 +2461,7 @@ class PublishAdminCategoryAPI(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("PublishAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
