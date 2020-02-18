@@ -611,6 +611,41 @@ class EbayCategory(models.Model):
     def __str__(self):
         return str(self.name)
 
+class AmazonUKCategory(models.Model):
+
+    category_id = models.CharField(default="", max_length=100)
+    name = models.CharField(default="", max_length=200)
+
+    class Meta:
+        verbose_name = "AmazonUKCategory"
+        verbose_name_plural = "AmazonUKCategory"
+
+    def __str__(self):
+        return str(self.name)
+
+class AmazonUAECategory(models.Model):
+
+    category_id = models.CharField(default="", max_length=100)
+    name = models.CharField(default="", max_length=200)
+
+    class Meta:
+        verbose_name = "AmazonUAECategory"
+        verbose_name_plural = "AmazonUAECategory"
+
+    def __str__(self):
+        return str(self.name)
+
+class NoonCategory(models.Model):
+
+    category_id = models.CharField(default="", max_length=100)
+    name = models.CharField(default="", max_length=200)
+
+    class Meta:
+        verbose_name = "NoonCategory"
+        verbose_name_plural = "NoonCategory"
+
+    def __str__(self):
+        return str(self.name)
 
 class BackgroundImage(models.Model):
 
