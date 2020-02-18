@@ -4096,6 +4096,10 @@ class FetchAuditLogsByUserAPI(APIView):
         
         try:
             data = request.data
+            logger.info("FetchAuditLogsByUserAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             response['status'] = 200
         except Exception as e:
@@ -4105,6 +4109,7 @@ class FetchAuditLogsByUserAPI(APIView):
 
         return Response(data=response)
 
+        
 
 class CreateRequestHelpAPI(APIView):
 
