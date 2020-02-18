@@ -1548,11 +1548,13 @@ class FetchProductListAPI(APIView):
             if filter_parameters["has_image"] == "1":
                 for product_obj in product_objs_list:
                     if has_atleast_one_image(product_obj)==False:
-                        product_objs_list.exclude(pk=product_obj.pk)
+                        product_objs_list.remove(product_obj)
+                        base_product_objs_list.remove(product_obj.base_product)
             elif filter_parameters["has_image"] == "0":
                 for product_obj in product_objs_list:
                     if has_atleast_one_image(product_obj)==True:
-                        product_objs_list.exclude(pk=product_obj.pk)
+                        product_objs_list.remove(product_obj)
+                        base_product_objs_list.remove(product_obj.base_product)
 
             search_list_product_objs = Product.objects.none()
             
