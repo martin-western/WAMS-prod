@@ -1552,6 +1552,7 @@ class FetchProductListAPI(APIView):
                         product_objs_list.exclude(pk=product_obj.pk)
                         base_product_objs_list.exclude(pk=product_obj.base_product.pk)
                         logger.info("Excluded %s",product_obj.product_name)
+                        print(base_product_objs_list.filter(pk=product_obj.base_product.pk).exists())
             elif filter_parameters["has_image"] == "0":
                 for product_obj in product_objs_list:
                     if has_atleast_one_image(product_obj)==True:
@@ -1563,9 +1564,9 @@ class FetchProductListAPI(APIView):
             if len(chip_data) == 0:
                 search_list_product_objs = product_objs_list
                 search_list_base_product_objs = base_product_objs_list
-                extra_prod = product_objs_list.exclude(base_product__in=search_list_base_product_objs)
-                for prod in extra_prod:
-                    search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
+                # extra_prod = product_objs_list.exclude(base_product__in=search_list_base_product_objs)
+                # for prod in extra_prod:
+                #     search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
                 search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
             else:
                 for tag in chip_data:
@@ -1581,6 +1582,7 @@ class FetchProductListAPI(APIView):
                         product_obj = Product.objects.filter(pk=prod.pk)
                         search_list_product_objs|=product_obj
                         search_list_base_product_objs.append(prod.base_product)
+                    
                     search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
 
