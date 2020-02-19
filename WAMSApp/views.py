@@ -4092,6 +4092,7 @@ class FetchUserProfileAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchAuditLogsByUserAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4106,6 +4107,35 @@ class FetchAuditLogsByUserAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            page = data["page"]
+
+            all_log_entry_objs = LogEntry.objects.filter(actor=request.user)
+
+
+            paginator = Paginator(all_log_entry_objs, 20)
+            log_entry_objs = paginator.page(page)
+
+            log_entry_list = []
+            for log_entry_obj in log_entry_objs:
+                temp_dict = {}
+                temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
+                temp_dict["resource"] = str(log_entry_obj.content_type)
+                temp_dict["action"] = ""
+                if log_entry_obj.action==0:
+                    temp_dict["action"] = "create"
+                elif log_entry_obj.action==1:
+                    temp_dict["action"] = "update"
+                elif log_entry_obj.action==2:
+                    temp_dict["action"] = "delete"
+                temp_dict["changes"] = json.loads(log_entry_obj.changes)
+                log_entry_list.append(temp_dict)
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["log_entry_list"] = log_entry_list
+            response["is_available"] = is_available
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4114,6 +4144,55 @@ class FetchAuditLogsByUserAPI(APIView):
 
         return Response(data=response)
 
+
+class FetchAuditLogsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("FetchAuditLogsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            page = data["page"]
+
+            all_log_entry_objs = LogEntry.objects.all()
+
+            paginator = Paginator(all_log_entry_objs, 20)
+            log_entry_objs = paginator.page(page)
+
+            log_entry_list = []
+            for log_entry_obj in log_entry_objs:
+                temp_dict = {}
+                temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
+                temp_dict["resource"] = str(log_entry_obj.content_type)
+                temp_dict["action"] = ""
+                if log_entry_obj.action==0:
+                    temp_dict["action"] = "create"
+                elif log_entry_obj.action==1:
+                    temp_dict["action"] = "update"
+                elif log_entry_obj.action==2:
+                    temp_dict["action"] = "delete"
+                temp_dict["changes"] = json.loads(log_entry_obj.changes)
+                log_entry_list.append(temp_dict)
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False            
+
+            response["log_entry_list"] = log_entry_list
+            response["is_available"] = is_available
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAuditLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
         
 
 class CreateRequestHelpAPI(APIView):
