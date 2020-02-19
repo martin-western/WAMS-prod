@@ -38,10 +38,20 @@ class PropertyAdmin(admin.ModelAdmin):
 class DealsHubProductAdmin(admin.ModelAdmin):
     list_display = ('product', 'category')
 
+
+class DealshubAdminSectionOrderAdmin(admin.ModelAdmin):
+    list_display = ('dealshub_banner_index', 'homepage_schedular_index', 'full_banner_ad_index', 'category_grid_banner_index')
+
+
+class SectionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'order_index')
+
+
 admin.site.register(Property, PropertyAdmin)
 admin.site.register(DealsHubProduct, DealsHubProductAdmin)
-admin.site.register(Section)
+admin.site.register(Section, SectionAdmin)
 admin.site.register(DealsBanner)
 admin.site.register(FullBannerAd)
 admin.site.register(DealsHubHeading)
 admin.site.register(ImageLink)
+admin.site.register(DealshubAdminSectionOrder, DealshubAdminSectionOrderAdmin)
