@@ -1345,7 +1345,7 @@ input[type=range]+.thumb {
       {
         html_string += `<div class="col s3" style="padding-top:0.2em;">
           <div style="border:1px solid #E9E9E9;">
-            <a class="imgselect" id="imgselect_`+images[i]["pk"]+`" href="#!"><img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;" high-res-url="`+images[i]["high-res-url"]+`"></a>
+            <a class="imgselect" id="imgselect_`+images[i]["pk"]+`" href="#!"><img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;" high-res-url="`+images[i]["high_res_url"]+`"></a>
           </div>
         </div>`;
       }
@@ -1376,7 +1376,7 @@ input[type=range]+.thumb {
         html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
           <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.4em;">
             <a class="imgselect" href="#!">
-              <img src="`+images[i]["url"]+`" high-res-url="`+images[i]["high-res-url"]+`" style="width:90%;height:3em;object-fit:cover;">
+              <img src="`+images[i]["url"]+`" high-res-url="`+images[i]["high_res_url"]+`" style="width:90%;height:3em;object-fit:cover;">
             </a>
           </div>
         </div>`;
@@ -1680,7 +1680,7 @@ input[type=range]+.thumb {
             var images = response["external_images_bucket_list"];
             for(var i=0;i<images.length;i++)
             {
-              global_external_image_bucket.push({"url":images[i]["url"], "high-res-url":images[i]["high-res-url"]});
+              global_external_image_bucket.push({"url":images[i]["url"], "high-res-url":images[i]["high_res_url"]});
             }
             update_external_image_bucket();
           }
