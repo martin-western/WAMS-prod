@@ -126,6 +126,7 @@ class Section(models.Model):
     modified_date = models.DateTimeField() 
     created_by = models.ForeignKey(User, related_name="created_by", null=True, blank=True, on_delete=models.SET_NULL)
     modified_by = models.ForeignKey(User, related_name="modified_by", null=True, blank=True, on_delete=models.SET_NULL)
+    index = models.IntegerField(default=4)
 
     class Meta:
         verbose_name = "Section"
@@ -197,6 +198,13 @@ class DealsHubHeading(models.Model):
     categories = models.ManyToManyField(Category, blank=True)
     image_links = models.ManyToManyField(ImageLink, blank=True)
 
+
+class DealshubAdminSectionOrder(models.Model):
+
+    dealshub_banner_index = models.IntegerField(default=0)
+    homepage_schedular_index = models.IntegerField(default=1)
+    full_banner_ad_index = models.IntegerField(default=2)
+    category_grid_banner_index = models.IntegerField(default=3)
 
 
 @receiver(pre_delete, sender=DealsHubProduct)

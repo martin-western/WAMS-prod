@@ -3767,6 +3767,131 @@ class FetchUserBrandAPI(APIView):
         return Response(data=response)
 
 
+class FetchDealshubAdminSectionsAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchDealshubAdminSectionsAPI: %s", str(data))
+
+            
+            dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.all()[0]
+            section_objs = Section.objects.all().order_by('index')
+            cnt = 0
+            dealshub_admin_sections = []
+            for section_obj in section_objs:
+                temp_dict = {}
+                if section_obj.index!=cnt:
+                    if dealshub_admin_section_order_obj.dealshub_banner_index==cnt:
+                        temp_dict["type"] = "DealsBanner"
+                        temp_dict["uuid"] = "DealsBanner"
+                    if dealshub_admin_section_order_obj.home_page_schedular_index==cnt:
+                        temp_dict["type"] = "HomePageSchedular"
+                        temp_dict["uuid"] = "HomePageSchedular"
+                    if dealshub_admin_section_order_obj.full_banner_ad_index==cnt:
+                        temp_dict["type"] = "FullBannerAd"
+                        temp_dict["uuid"] = "FullBannerAd"
+                    if dealshub_admin_section_order_obj.category_grid_banner_index==cnt:
+                        temp_dict["type"] = "CategoryGridBanner"
+                        temp_dict["uuid"] = "CategoryGridBanner"
+                else:
+                    temp_dict["type"] = "ProductListing"
+                    temp_dict["uuid"] = section_obj.uuid
+                    temp_dict["name"] = section_obj.name
+                    temp_dict["listingType"] = section_obj.listing_type
+                    temp_dict["createdOn"] = datetime.datetime.strftime(section_obj.created_by, "%d %b, %Y")
+                    temp_dict["modifiedOn"] = datetime.datetime.strftime(section_obj.modified_by, "%d %b, %Y")
+                    temp_dict["createdBy"] = str(section_obj.created_by)
+                    temp_dict["modifiedBy"] = str(section_obj.modified_by)
+                    temp_dict["isPublished"] = section_obj.is_published
+                    
+                    temp_products = []
+                    for prod in section_obj.products.all():
+                        temp_dict2 = {}
+
+                        main_images_list = ImageBucket.objects.none()
+                        try:
+                            main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
+                            main_images_list |= main_images_obj.main_images.all()
+                            main_images_list = main_images_list.distinct()
+                            images = create_response_images_main(main_images_list)
+                            temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
+                        except Exception as e:
+                            temp_dict2["thumbnailImageUrl"] = ""
+
+                        
+                        temp_dict2["name"] = str(prod.product_name)
+                        temp_dict2["displayId"] = str(prod.product_id)
+                        temp_dict2["uuid"] = str(prod.uuid)
+                        temp_products.append(temp_dict2)
+                    temp_dict["products"] = temp_products
+
+                dealshub_admin_sections.append(temp_dict)
+                cnt += 1
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+class SaveDealshubAdminSectionsOrderAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SaveDealshubAdminSectionsOrderAPI: %s", str(data))
+
+            dealshub_admin_sections = data["dealshubAdminSections"]
+
+            dealshub_admin_section_order_obj = None
+            if DealshubAdminSectionOrder.objects.count()==0:
+                dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.create()
+            else:
+                dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.all()[0]
+
+            cnt = 0
+            for dealshub_admin_section in dealshub_admin_sections:
+                if dealshub_admin_section["type"]=="DealsBanner":
+                    dealshub_admin_section_order_obj.dealshub_banner_index = cnt
+                if dealshub_admin_section["type"]=="HomePageSchedular":
+                    dealshub_admin_section_order_obj.home_page_schedular_index = cnt
+                if dealshub_admin_section["type"]=="FullBannerAd":
+                    dealshub_admin_section_order_obj.full_banner_ad_index = cnt
+                if dealshub_admin_section["type"]=="CategoryGridBanner":
+                    dealshub_admin_section_order_obj.category_grid_banner_index = cnt
+                if dealshub_admin_section["type"]=="ProductListing":
+                    uuid = dealshub_admin_section["uuid"]
+                    section_obj = Section.objects.get(uuid=uuid)
+                    section_obj.index = cnt
+                    section_obj.save()
+                
+                dealshub_admin_section_order_obj.save()
+                cnt += 1
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveDealshubAdminSectionsOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
 FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
@@ -3855,3 +3980,7 @@ UpdateImageHeadingLink = UpdateImageHeadingLinkAPI.as_view()
 DeleteImageHeading = DeleteImageHeadingAPI.as_view()
 
 FetchUserBrand = FetchUserBrandAPI.as_view()
+
+FetchDealshubAdminSections = FetchDealshubAdminSectionsAPI.as_view()
+
+SaveDealshubAdminSectionsOrder = SaveDealshubAdminSectionsOrderAPI.as_view()

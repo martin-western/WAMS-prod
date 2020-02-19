@@ -79,4 +79,7 @@ urlpatterns = [
     url(r'^delete-image-heading/$', views.DeleteImageHeading),
 
     url(r'^fetch-user-brand/$', views.FetchUserBrand),
+
+    url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
+    url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
 ]
