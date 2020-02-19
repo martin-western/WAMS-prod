@@ -3787,7 +3787,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
             dealshub_admin_sections = []
             for section_obj in section_objs:
                 temp_dict = {}
-                if section_obj.index!=cnt:
+                if section_obj.order_index!=cnt:
                     if dealshub_admin_section_order_obj.dealshub_banner_index==cnt:
                         temp_dict["type"] = "DealsBanner"
                         temp_dict["uuid"] = "DealsBanner"
@@ -3878,7 +3878,7 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
                 if dealshub_admin_section["type"]=="ProductListing":
                     uuid = dealshub_admin_section["uuid"]
                     section_obj = Section.objects.get(uuid=uuid)
-                    section_obj.index = cnt
+                    section_obj.order_index = cnt
                     section_obj.save()
                 
                 dealshub_admin_section_order_obj.save()
