@@ -4467,3 +4467,5 @@ FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 CreateRequestHelp = CreateRequestHelpAPI.as_view()
 
 FetchChannelProductList = FetchChannelProductListAPI.as_view()
+
+FetchAuditLogs = FetchAuditLogsAPI.as_view()
