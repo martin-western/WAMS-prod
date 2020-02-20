@@ -1127,8 +1127,8 @@ class FetchProductDetailsAPI(APIView):
             else:
                 response["material_type"] = ""
             
-            # warehouses_information = fetch_prices(product_obj.base_product.seller_sku)
-            # response["warehouses_information"] = warehouses_information
+            warehouses_information = []
+            response["warehouses_information"] = warehouses_information
 
             images = {}
 
