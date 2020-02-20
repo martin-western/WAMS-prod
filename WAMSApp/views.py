@@ -4386,7 +4386,7 @@ class SaveCompanyProfileAPI(APIView):
             organization.youtube_link=youtube_link
 
             if logo_image_url != "":
-                image_obj, created = Image.objects.get_or_create(image=logo_image_url)
+                image_obj = Image.objects.create(image=logo_image_url)
                 organization.logo = image_obj
             
             organization.save()
