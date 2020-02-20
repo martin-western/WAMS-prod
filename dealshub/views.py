@@ -147,8 +147,8 @@ class FetchProductDetailsAPI(APIView):
             product_obj = temp_product_obj.product
             base_product_obj = product_obj.base_product
 
-            response["category"] = None if temp_product_obj.category==None else temp_product_obj.category
-            response["subCategory"] = None if temp_product_obj.sub_category==None else temp_product_obj.sub_category
+            response["category"] = None if temp_product_obj.category==None else str(temp_product_obj.category)
+            response["subCategory"] = None if temp_product_obj.sub_category==None else str(temp_product_obj.sub_category)
             response["id"] = temp_product_obj.product.uuid
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
