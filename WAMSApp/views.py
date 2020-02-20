@@ -1762,9 +1762,9 @@ class FetchProductListAPI(APIView):
 
                         temp_dict["channel_products"].append(temp_dict3)
 
-                    warehouses_information = fetch_prices(product_obj.base_product.seller_sku)
-                    temp_dict2["warehouses_information"] = []
-                    temp_dict2["warehouses_information"] = warehouses_information
+                    # warehouses_information = fetch_prices(product_obj.base_product.seller_sku)
+                    # temp_dict2["warehouses_information"] = []
+                    # temp_dict2["warehouses_information"] = warehouses_information
 
                     temp_dict2["channels_of_prod"] = channels_of_prod
                     temp_dict2["active_channels"] = active_channels
@@ -4250,6 +4250,34 @@ class RefreshProductPriceAndStockAPI(APIView):
 
         return Response(data=response)
 
+        class RefreshProductPriceAndStockAPI(APIView):
+
+            def post(self, request, *args, **kwargs):
+
+                response = {}
+                response['status'] = 500
+                
+                try:
+                    data = request.data
+
+                    logger.info("RefreshProductPriceAndStockAPI: %s", str(data))
+
+                    if not isinstance(data, dict):
+                        data = json.loads(data)
+
+                    product_pk = data["product_pk"]
+                    warehouse_code = data["warehouse_code"]
+                    
+                    product_obj = Product.objects.get(pk=product_pk)
+                    warehouses_information = fetch_prices(product_obj.product_id,warehouse_code)
+
+                    response["warehouses_information"] = warehouses_information
+                    response['status'] = 200
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("RefreshProductPriceAndStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+                return Response(data=response)
 
 class FetchComapnyProfileAPI(APIView):
 
@@ -4527,3 +4555,5 @@ FetchAuditLogs = FetchAuditLogsAPI.as_view()
 FetchComapnyProfile = FetchComapnyProfileAPI.as_view()
 
 RefreshProductPriceAndStock = RefreshProductPriceAndStockAPI.as_view()
+
+RefreshPagePriceAndStock = RefreshPagePriceAndStockAPI.as_view()
