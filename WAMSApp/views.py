@@ -4272,7 +4272,7 @@ class RefreshPagePriceAndStockAPI(APIView):
             
             warehouses_information = []
             for pk in product_pk_list:
-                product_obj = Product.objects.get(pk=int(product_pk))
+                product_obj = Product.objects.get(pk=int(pk))
                 warehouses_dict = fetch_prices(product_obj.base_product.seller_sku,warehouse_code)
                 warehouses_information.append(warehouses_dict)
 
@@ -4370,7 +4370,7 @@ class SaveCompanyProfileAPI(APIView):
             organization.youtube_link=youtube_link
 
             organization.save()
-            
+
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
