@@ -305,260 +305,6 @@ class FetchProductDetailsAPI(APIView):
 
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
-"""
-class FetchCarouselAPI(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchCarouselAPI: %s", str(data))
-
-            carousel_obj = [
-                {
-                    "productName": "Airfryer Mechanical - 3.4 L, 1300 W AF 3501 - M Black",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Puma",
-                    "price": "2,239",
-                    "prevPrice": "3,300",
-                    "currency": "AED",
-                    "discount": "15",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1568636323/N28431691A_1.jpg",
-                    "id": 1
-                },
-                {
-                    "productName": "2-Slice Bread Toaster, 700W TA01105 Milk White",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Provogue",
-                    "price": "4,000",
-                    "prevPrice": "4,500",
-                    "currency": "AED",
-                    "discount": "15",
-                    "rating": "3.9",
-                    "totalRatings": "1,772",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1571139454/N29227703A_8.jpg",
-                    "id": 2
-                },
-                {
-                    "productName": "6-Piece Granite/Marble Coated Aluminium Cookware Set… ",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Reebok",
-                    "price": "3,999",
-                    "prevPrice": "4,700",
-                    "currency": "AED",
-                    "discount": "28",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1574085587/N17109502A_15.jpg",
-                    "id": 3
-                },
-                {
-                    "productName": "Realme 5s (Crystal Blue, 128 GB)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Sparx",
-                    "price": "1,200",
-                    "prevPrice": "1,800",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k2jbyq80pkrrdj/mobile-refurbished/v/w/c/x-128-u-rmx1901-realme-8-original-imafgzg9yvran9r3.jpeg?q=70",
-                    "id": 4
-                },
-                {
-                    "productName": "Realme X (Space Blue, 128 GB)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Reebok",
-                    "price": "3,999",
-                    "prevPrice": "5,600",
-                    "currency": "AED",
-                    "discount": "28",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k1fbmvk0/mobile/k/b/e/mi-redmi-8-mzb8250in-original-imafhyabpggagngr.jpeg?q=70",
-                    "id": 5
-                },
-                {
-                    "productName": "Lenovo Ideapad 130 Core i5 8th Gen - (8 GB/1 TB HDD/Windows 10 Home/2 GB Graphics) 130-15IKB Laptop  (15.6 inch, Black, 2.1 kg)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "vaidehi",
-                    "price": "2,000",
-                    "prevPrice": "2,900",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/jz7az680/computer/b/3/k/lenovo-na-laptop-original-imafj9wscwkeyu45.jpeg?q=70",
-                    "id": 6
-                },
-                {
-                    "productName": "Amayra Women's Cotton Anarkali Kurti(Blue)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "Amarya",
-                    "price": "4,099",
-                    "prevPrice": "4,199",
-                    "currency": "AED",
-                    "discount": "20",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/150/150/k0wqwsw0/wall-clock/g/g/b/round-wall-clock-957-gold-analog-ajanta-original-imafkhkfdempaphb.jpeg?q=70",
-                    "id": 7
-                },
-                {
-                    "productName": "Garment Steamer, 1.3 L Capacity, 1800W HY - 288 Black",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "Sparx",
-                    "price": "999",
-                    "prevPrice": "1,099",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1570427257/N28431698A_1.jpg",
-                    "id": 8
-                }
-            ]
-            response['carousel'] = carousel_obj
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FecthProductDetailsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-"""
-
-# class FetchCarouselAPI(APIView):
-    
-#     permission_classes = [AllowAny]
-    
-#     def fetch_price(self,product_id):
-#         try:
-#             url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-#             headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-#             credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-#             company_code = "1070" # GEEPAS
-#             body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-#             <soapenv:Header />
-#             <soapenv:Body>
-#             <urn:ZAPP_STOCK_PRICE>
-#              <IM_MATNR>
-#               <item>
-#                <MATNR>""" + product_id + """</MATNR>
-#               </item>
-#              </IM_MATNR>
-#              <IM_VKORG>
-#               <item>
-#                <VKORG>""" + company_code + """</VKORG>
-#               </item>
-#              </IM_VKORG>
-#              <T_DATA>
-#               <item>
-#                <MATNR></MATNR>
-#                <MAKTX></MAKTX>
-#                <LGORT></LGORT>
-#                <CHARG></CHARG>
-#                <SPART></SPART>
-#                <MEINS></MEINS>
-#                <ATP_QTY></ATP_QTY>
-#                <TOT_QTY></TOT_QTY>
-#                <CURRENCY></CURRENCY>
-#                <IC_EA></IC_EA>
-#                <OD_EA></OD_EA>
-#                <EX_EA></EX_EA>
-#                <RET_EA></RET_EA>
-#                <WERKS></WERKS>
-#               </item>
-#              </T_DATA>
-#             </urn:ZAPP_STOCK_PRICE>
-#             </soapenv:Body>
-#             </soapenv:Envelope>"""
-#             response2 = requests.post(url, auth=credentials, data=body, headers=headers)
-#             content = response2.content
-#             content = xmltodict.parse(content)
-#             content = json.loads(json.dumps(content))
-#             print((json.dumps(content, indent=4, sort_keys=True)))
-#             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-#             price = 0
-#             temp_price = 0
-#             for item in items:
-#                 temp_price = item["EX_EA"]
-#                 if temp_price!=None:
-#                     temp_price = float(temp_price)
-#                     price = max(temp_price, price)
-#             return float(price)
-#         except Exception as e:
-#             #print "Error: "+str(e)
-#             return 0
-#     def get(self, request, *args, **kwargs):
-#         response = {}
-#         response['status'] = 500
-#         try:
-#             data = request.data
-#             logger.info("FetchCarouselAPI: %s", str(data))
-#             product_pks = [942, 943, 944,950,951,957,958,959,961,966]
-#             carousel_obj = []
-#             for product_pk in product_pks:
-#                 prod_obj = Product.objects.get(pk = product_pk)
-#                 temp_dict={}
-#                 temp_dict["productName"] = prod_obj.product_name
-#                 temp_dict["productCategory"] = prod_obj.base_product.category
-#                 temp_dict["productSubCategory"] = prod_obj.base_product.subtitle
-#                 temp_dict["brand"] = str(prod_obj.base_product.brand)
-#                 temp_dict["price"] = self.fetch_price(prod_obj.base_product.seller_sku)
-#                 temp_dict["prevPrice"] = self.fetch_price(prod_obj.base_product.seller_sku)
-#                 temp_dict["currency"] = "AED"
-#                 temp_dict["discount"] = "0%"
-#                 temp_dict["rating"] = "3.5"
-#                 temp_dict["totalRatings"] = "356"
-#                 temp_dict["uuid"] = prod_obj.uuid
-                
-#                 main_images_list = ImageBucket.objects.none()
-#                 main_images_objs = MainImages.objects.filter(product=prod_obj)
-#                 for main_images_obj in main_images_objs:
-#                     main_images_list |= main_images_obj.main_images.all()
-#                 main_images_list = main_images_list.distinct()
-#                 if main_images_list.filter(is_main_image=True).count() > 0:
-#                     try:
-#                         temp_dict["heroImage"] = main_images_list.filter(is_main_image=True)[
-#                             0].image.thumbnail.url
-#                     except Exception as e:
-#                         temp_dict["heroImage"] = Config.objects.all()[
-#                             0].product_404_image.image.url
-#                 else:
-#                     temp_dict["heroImage"] = Config.objects.all()[
-#                         0].product_404_image.image.url
-#                 temp_dict["id"] = prod_obj.pk
-#                 carousel_obj.append(temp_dict)
-
-#             response['carousel'] = carousel_obj
-#             response['status'] = 200
-#         except Exception as e:
-#             exc_type, exc_obj, exc_tb = sys.exc_info()
-#             logger.error("FetchCarouselProductAPI: %s at %s",
-#                          e, str(exc_tb.tb_lineno))
-#         return Response(data=response)
-
-
-
-# FetchCarousel = FetchCarouselAPI.as_view()
-
-
 
 class FetchSectionsProductsAPI(APIView):
     
@@ -630,10 +376,10 @@ class FetchSectionsProductsAPI(APIView):
             data = request.data
             logger.info("FetchSectionsProductsAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            section_objs = Section.objects.filter(brand=brand_obj, is_published=True)
+            section_objs = Section.objects.filter(organization=organization_obj, is_published=True)
 
             section_list =  []
 
@@ -764,10 +510,10 @@ class FetchSectionsProductsLimitAPI(APIView):
             data = request.data
             logger.info("FetchSectionsProductsLimitAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            section_objs = Section.objects.filter(brand=brand_obj, is_published=True)
+            section_objs = Section.objects.filter(organization=organization_obj, is_published=True)
 
             section_list =  []
 
@@ -1183,7 +929,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674764GEEPAS_MODEL_GAC9602_STRAIGHT.jpg",
-                        "id": "6146a910-df82-4a5a-affa-54988e8ef9ce"
+                        "id": Product.objects.get(base_product__seller_sku="GAC9602").uuid
                     },
                     {
                         "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
@@ -1197,7 +943,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "3.9",
                         "totalRatings": "1,772",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505981GAC9433_3.JPG",
-                        "id": "69a2b8a4-fbcd-4038-a484-95a247e0697f"
+                        "id": Product.objects.get(base_product__seller_sku="GAC9433").uuid
                     },
                     {
                         "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -1211,7 +957,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505000GA1960-2.jpg",
-                        "id": "81dcb449-bedb-49f1-8257-0938e021ab98"
+                        "id": Product.objects.get(base_product__seller_sku="GA1960").uuid
                     },
                     {
                         "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
@@ -1225,7 +971,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569677989GACW1818HCS-.jpg",
-                        "id": "af4d5afe-ffcd-4ad5-b93d-45d2de92d957"
+                        "id": Product.objects.get(base_product__seller_sku="GACW1818HCS").uuid
                     },
                     {
                         "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
@@ -1239,7 +985,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674206GAC9580-1.jpg",
-                        "id": "ccaf22a9-c6a1-491a-8bde-dd96cbb859d4"
+                        "id": Product.objects.get(base_product__seller_sku="GAC9580").uuid
                     }
                 ]
             }
@@ -1403,9 +1149,11 @@ class FetchFeaturedProductsAPI(APIView):
 
             data = request.data
             logger.info("FetchFeaturedProductsAPI: %s", str(data))
-            brand_name = data["brandName"]
+            
+            organization_name = data["organizationName"]
+
             featured_products = []
-            if brand_name.lower()=="geepas":
+            if organization_name.lower()=="geepas":
                 featured_products = [
                     {
                         "productName": "Geepas GAC9602 Air Cooler 70L",
@@ -1419,7 +1167,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
-                        "id": "6146a910-df82-4a5a-affa-54988e8ef9ce"
+                        "id": Product.objects.get(base_product__seller_sku="GAC9602").uuid
                     },
                     {
                         "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
@@ -1433,7 +1181,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "3.9",
                         "totalRatings": "1,772",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                        "id": "69a2b8a4-fbcd-4038-a484-95a247e0697f"
+                        "id": Product.objects.get(base_product__seller_sku="GAC9433").uuid
                     },
                     {
                         "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -1447,7 +1195,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-                        "id": "81dcb449-bedb-49f1-8257-0938e021ab98"
+                        "id": Product.objects.get(base_product__seller_sku="GA1960").uuid
                     },
                     {
                         "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
@@ -1461,7 +1209,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
-                        "id": "af4d5afe-ffcd-4ad5-b93d-45d2de92d957"
+                        "id": Product.objects.get(base_product__seller_sku="GACW1818HCS").uuid
                     },
                     {
                         "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
@@ -1475,10 +1223,10 @@ class FetchFeaturedProductsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
-                        "id": "ccaf22a9-c6a1-491a-8bde-dd96cbb859d4"
+                        "id": Product.objects.get(base_product__seller_sku="GAC9580").uuid
                     }
                 ]
-            elif brand_name.lower()=="pex":
+            elif organization_name.lower()=="pex":
                 featured_products = [
                     {
                         "productName": "Pex antiseptic disinfectant 500 ml",
@@ -1523,7 +1271,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "id": "cf2b5ddc-5737-4fa5-a777-059699a3d480"
                     }
                 ]
-            elif brand_name.lower()=="aqua":
+            elif organization_name.lower()=="aqua":
                 featured_products = [
                     {
                         "productName": "Aqua Dish Wash liquid Lemon 1Ltr",
@@ -1582,7 +1330,7 @@ class FetchFeaturedProductsAPI(APIView):
                         "id": "55d7b55c-0060-4e94-90d0-021a74b6fd0d"
                     }
                 ]
-            elif brand_name.lower()=="future-lux":
+            elif organization_name.lower()=="future-lux":
                 featured_products = [
                     {
                         "productName": "24 Watt LED Panel Light Square Warm White Colour with Inbuilt Driver",
@@ -1816,175 +1564,6 @@ class FetchTopRatedProductsAPI(APIView):
 FetchTopRatedProducts = FetchTopRatedProductsAPI.as_view()
 
 
-# Search
-"""
-class SearchAPI(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("SearchAPI: %s", str(data))
-
-            search = {
-         "query": "macbook",
-      "category": "laptops",
-      "filters": [
-        {
-          "id": "1",
-          "name": "brand",
-          "values": [
-            "Apple",
-            "Samsung",
-            "Dell",
-            "Micosoft",
-            "iBall"
-          ]
-        },
-        {
-          "id": "2",
-          "name": "cpu type",
-          "values": [
-            "Intel Core i5",
-            "Intel Core i7"
-          ]
-        },
-        {
-          "id": "3",
-          "name": "weight",
-          "values": [
-            "Up to 0.9 kg",
-            "1 - 1.4 kg",
-            "2 - 2.5 kg",
-            "2.5 kg and more"
-          ]
-        },
-        {
-          "id": "4",
-          "name": "OS",
-          "values": [
-            "Windows",
-            "Linux",
-            "DoS",
-            "MacOS"
-          ]
-        }
-      ],
-      "products": [
-        {
-          "name": "MacBook Air 13.3-Inch Retina Display, Core i5 with 1.6GHz Dual Core Processor/8GB RAM/128GB SSD/Intel UHD Graphics 617/English Keyboard -  2019 Space Grey",
-          "brand": "Puma",
-          "price": "2,239",
-          "prevPrice": "3,300",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "5",
-          "totalRatings": "5,372",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/s/v/n/apple-na-thin-and-light-laptop-original-imafgwevstseefc9.jpeg?q=70",
-          "id": 1
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "2",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 2
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "1",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 3
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "2",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 4
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "3",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 5
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "2",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 6
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "3",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 7
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "2",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 8
-        }
-      ]
-    }
-            response['search'] = search
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SearchAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-"""
-
-
 class SearchAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -2056,12 +1635,12 @@ class SearchAPI(APIView):
             logger.info("SearchAPI: %s", str(data))
             query_string_name = data.get("name", "")
             query_string_category = data.get("category", "")
-            query_string_brand = data.get("brand", "geepas")
+            query_string_organization = data.get("organizationName", "geepas")
             search = {}
             if query_string_name == '':
                 response['status'] = 404
                 return Response(data=response)
-            products_by_category = Product.objects.filter(base_product__brand__name=query_string_brand)
+            products_by_category = Product.objects.filter(base_product__brand__organization__name=query_string_organization)
             if query_string_category!="ALL":
                 query_string_category = query_string_category.replace("-", " ")
                 products_by_category = products_by_category.filter(base_product__category__icontains = query_string_category)
@@ -2151,128 +1730,6 @@ class SearchAPI(APIView):
 Search = SearchAPI.as_view()
 
 
-# class AddProductAPI(APIView):
-#     authentication_classes = (
-#         CsrfExemptSessionAuthentication, BasicAuthentication)
-
-#     def post(self, request, *args, **kwargs):
-
-#         response['status'] = 500
-#         try:
-
-#             # if request.user.has_perm('WAMSApp.change_product') == False:
-#             #     logger.warning("SaveProductAPI Restricted Access!")
-#             #     response['status'] = 403
-#             #     return Response(data=response)
-
-#             data = request.data
-#             logger.info("AddProductAPI: %s", str(data))
-
-#             if not isinstance(data, dict):
-#                 data = json.loads(data)
-
-#             # Check for duplicate
-#             product_id = data["product_id"]
-
-#             product_obj = Product.objects.get(pk=int(data["product_pk"]))
-
-#             # Checking brand permission
-#             try:
-#                 permissible_brands = custom_permission_filter_brands(
-#                     request.user)
-#                 brand_obj = Brand.objects.get(
-#                     name=product_obj.base_product.brand.name)
-#                 if brand_obj not in permissible_brands:
-#                     logger.warning("SaveProductAPI Restricted Access Brand!")
-#                     response['status'] = 403
-#                     return Response(data=response)
-#             except Exception as e:
-#                 logger.error("SaveProductAPI Restricted Access Brand!")
-#                 response['status'] = 403
-#                 return Response(data=response)
-
-#             if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1:
-#                 logger.warning("Duplicate product detected!")
-#                 response['status'] = 409
-#                 return Response(data=response)
-
-#             product_name = convert_to_ascii(data["product_name"])
-#             barcode_string = convert_to_ascii(data["barcode_string"])
-#             color = convert_to_ascii(data["color"])
-#             color_map = convert_to_ascii(data["color_map"])
-#             standard_price = None if data["standard_price"] == "" else float(
-#                 data["standard_price"])
-#             quantity = None if data["quantity"] == "" else int(
-#                 data["quantity"])
-
-#             product_id_type = convert_to_ascii(data["product_id_type"])
-#             product_id_type_obj, created = ProductIDType.objects.get_or_create(
-#                 name=product_id_type)
-
-#             material_type = convert_to_ascii(data["material_type"])
-#             material_type_obj, created = MaterialType.objects.get_or_create(
-#                 name=material_type)
-
-#             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
-#             pfl_product_features = convert_to_ascii(
-#                 data["pfl_product_features"])
-
-#             factory_notes = convert_to_ascii(data["factory_notes"])
-
-#             product_obj.product_id = product_id
-
-#             try:
-#                 if product_obj.barcode_string != barcode_string and barcode_string != "":
-#                     EAN = barcode.ean.EuropeanArticleNumber13(
-#                         str(barcode_string), writer=ImageWriter())
-
-#                     thumb = EAN.save('temp_image')
-#                     thumb = IMage.open(open(thumb, "rb"))
-#                     thumb_io = StringIO.StringIO()
-#                     thumb.save(thumb_io, format='PNG')
-#                     thumb_file = InMemoryUploadedFile(
-#                         thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
-
-#                     barcode_image = Image.objects.create(image=thumb_file)
-#                     product_obj.barcode = barcode_image
-#                     product_obj.barcode_string = barcode_string
-
-#                     try:
-#                         import os
-#                         os.remove("temp_image.png")
-#                     except Exception as e:
-#                         exc_type, exc_obj, exc_tb = sys.exc_info()
-#                         logger.warning("AddProductAPI: %s at %s",
-#                                        e, str(exc_tb.tb_lineno))
-
-#             except Exception as e:
-#                 exc_type, exc_obj, exc_tb = sys.exc_info()
-#                 logger.error("AddProductAPI: %s at %s",
-#                              e, str(exc_tb.tb_lineno))
-
-#             product_obj.product_name = product_name
-
-#             product_obj.product_id_type = product_id_type_obj
-#             product_obj.color_map = color_map
-#             product_obj.color = color
-
-#             product_obj.material_type = material_type_obj
-#             product_obj.standard_price = standard_price
-#             product_obj.quantity = quantity
-
-#             product_obj.pfl_product_name = pfl_product_name
-#             product_obj.pfl_product_features = pfl_product_features
-
-#             product_obj.factory_notes = factory_notes
-
-#             product_obj.save()
-
-#             response['status'] = 200
-
-
-# AddProduct = AddProductAPI.as_view()
-
-
 class CreateAdminCategoryAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -2288,19 +1745,16 @@ class CreateAdminCategoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_name = data["brandName"]
-            data = data["sectionData"]
-            
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            for key in data:
-                logger.info("CreateAdminCategoryAPI KEY: %s", str(key))
+            data = data["sectionData"]
 
             name = data["name"]
             listing_type = data["listingType"]
             products = data["products"]
             
-            section_obj = Section.objects.create(brand=brand_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
+            section_obj = Section.objects.create(organization=organization_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
                 section_obj.products.add(product_obj)
@@ -2327,10 +1781,10 @@ class FetchAdminCategoriesAPI(APIView):
             data = request.data
             logger.info("FetchAdminCategoriesAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            section_objs = Section.objects.filter(brand=brand_obj)
+            section_objs = Section.objects.filter(organization=organization_obj)
 
             section_list = []
             
@@ -2627,12 +2081,12 @@ class CreateDealsBannerAPI(APIView):
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
             image_obj = Image.objects.create(image=image)
 
-            deals_banner_obj = DealsBanner.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
+            deals_banner_obj = DealsBanner.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = deals_banner_obj.uuid
             response['status'] = 200
@@ -2657,11 +2111,11 @@ class FetchDealsBannerAPI(APIView):
             data = request.data
             logger.info("FetchDealsBannerAPI: %s", str(data))
 
-            resolution = data["resolution"]
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            resolution = data.get("resolution", "low")
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            deals_banner_objs = DealsBanner.objects.filter(brand=brand_obj)
+            deals_banner_objs = DealsBanner.objects.filter(organization=organization_obj)
 
             banner_deals = []
 
@@ -2790,12 +2244,12 @@ class CreateFullBannerAdAPI(APIView):
 
             image = data["image"]
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
             image_obj = Image.objects.create(image=image)
 
-            full_banner_ad_obj = FullBannerAd.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
+            full_banner_ad_obj = FullBannerAd.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = full_banner_ad_obj.uuid
             response['status'] = 200
@@ -2820,10 +2274,10 @@ class FetchFullBannerAdAPI(APIView):
             data = request.data
             logger.info("FetchFullBannerAdAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            full_banner_ad_objs = FullBannerAd.objects.filter(brand=brand_obj)
+            full_banner_ad_objs = FullBannerAd.objects.filter(organization=organization_obj)
 
             banner_deals = []
 
@@ -3017,12 +2471,12 @@ class CreateCategoryGridBannerAPI(APIView):
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
             image_obj = Image.objects.create(image=image)
 
-            category_grid_banner_obj = CategoryGridBanner.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
+            category_grid_banner_obj = CategoryGridBanner.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = category_grid_banner_obj.uuid
             response['status'] = 200
@@ -3048,11 +2502,11 @@ class FetchCategoryGridBannerAPI(APIView):
             logger.info("FetchCategoryGridBannerAPI: %s", str(data))
 
             resolution = data.get("resolution", "low")
-            brand_name = data["brandName"]
 
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            category_grid_banner_objs = CategoryGridBanner.objects.filter(brand=brand_obj)
+            category_grid_banner_objs = CategoryGridBanner.objects.filter(organization=organization_obj)
 
             category_grid_banners = []
 
@@ -3156,16 +2610,15 @@ class CreateHomePageSchedularAPI(APIView):
             logger.info("CreateHomePageSchedularAPI: %s", str(data))
 
             image = data["image"]
-            brand_name = data["brandName"]
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
-            brand_obj = Brand.objects.get(name=brand_name)
-
             image_obj = Image.objects.create(image=image)
 
-            home_page_schedular_obj = HomePageSchedular.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
+            home_page_schedular_obj = HomePageSchedular.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = home_page_schedular_obj.uuid
             response['status'] = 200
@@ -3191,9 +2644,11 @@ class FetchHomePageSchedularAPI(APIView):
             logger.info("FetchHomePageSchedularAPI: %s", str(data))
 
             resolution = data.get("resolution", "low")
-            brand_name = data["brandName"]
 
-            home_page_schedular_objs = HomePageSchedular.objects.filter(brand__name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            home_page_schedular_objs = HomePageSchedular.objects.filter(organization=organization_obj)
 
             home_page_schedulars = []
 
@@ -3425,8 +2880,10 @@ class FetchHeadingDataAPI(APIView):
             data = request.data
             logger.info("FetchHeadingDataAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            dealshub_heading_objs = DealsHubHeading.objects.filter(brand__name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            dealshub_heading_objs = DealsHubHeading.objects.filter(organization=organization_obj)
             heading_list = []
             for dealshub_heading_obj in dealshub_heading_objs:
                 logger.info("heading data")
@@ -3484,8 +2941,10 @@ class FetchHeadingDataAdminAPI(APIView):
             data = request.data
             logger.info("FetchHeadingDataAdminAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            dealshub_heading_objs = DealsHubHeading.objects.filter(brand__name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            dealshub_heading_objs = DealsHubHeading.objects.filter(organization=organization_obj)
             heading_list = []
             for dealshub_heading_obj in dealshub_heading_objs:
                 temp_dict = {}
@@ -3536,10 +2995,11 @@ class FetchHeadingCategoryListAPI(APIView):
             data = request.data
             logger.info("FetchHeadingCategoryListAPI: %s", str(data))
 
-            #brand_name = data["brandName"]
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
             
             category_list = []
-            category_objs = Category.objects.all()
+            category_objs = Category.objects.filter(organization=organization_obj)
             for category_obj in category_objs:
                 temp_dict = {}
                 temp_dict["name"] = category_obj.name
@@ -3593,11 +3053,13 @@ class CreateHeadingDataAPI(APIView):
             data = request.data
             logger.info("CreateHeadingDataAPI: %s", str(data))
 
-            brand_name = data["brandName"]
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
             heading_name = data["headingName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            
             uuid1 = str(uuid.uuid4())
-            dealshub_heading_obj = DealsHubHeading.objects.create(brand=brand_obj, name=heading_name, uuid=uuid1)
+            dealshub_heading_obj = DealsHubHeading.objects.create(organization=organization_obj, name=heading_name, uuid=uuid1)
 
             response["uuid"] = dealshub_heading_obj.uuid
             response['status'] = 200
@@ -3742,7 +3204,7 @@ class DeleteImageHeadingAPI(APIView):
         return Response(data=response)
 
 
-class FetchUserBrandAPI(APIView):
+class FetchUserOrganizationAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
@@ -3753,18 +3215,18 @@ class FetchUserBrandAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchUserBrandAPI: %s", str(data))
+            logger.info("FetchUserOrganizationAPI: %s", str(data))
 
             username = data["userName"]
             custom_permission_obj = CustomPermission.objects.get(user__username=username)
-            brand_name = custom_permission_obj.brands.all()[0].name
+            organization_name = custom_permission_obj.brands.all()[0].organization.name
             
-            response["brandName"] = brand_name
+            response["organizationName"] = organization_name
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchUserBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchUserOrganizationAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -3782,8 +3244,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
             data = request.data
             logger.info("FetchDealshubAdminSectionsAPI: %s", str(data))
 
-            
-            dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.all()[0]
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.get(organization=organization_obj)
             section_objs = Section.objects.all().order_by('order_index')
             cnt = 0
             dealshub_admin_sections = []
@@ -4005,7 +3469,7 @@ UpdateImageHeadingLink = UpdateImageHeadingLinkAPI.as_view()
 
 DeleteImageHeading = DeleteImageHeadingAPI.as_view()
 
-FetchUserBrand = FetchUserBrandAPI.as_view()
+FetchUserOrganization = FetchUserOrganizationAPI.as_view()
 
 FetchDealshubAdminSections = FetchDealshubAdminSectionsAPI.as_view()
 
