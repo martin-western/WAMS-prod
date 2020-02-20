@@ -4337,7 +4337,7 @@ class FetchCompanyProfileAPI(APIView):
             
             company_data["logo_image_url"] = ""
 
-            if organization.logo!=None:
+            if organization.logo.thumbnail!=None:
                 company_data["logo_image_url"] = organization.logo.thumbnail.url
 
             response["company_data"] = company_data
