@@ -3925,7 +3925,7 @@ class UploadPFLExternalImagesAPI(APIView):
         response['status'] = 500
         try:
             if request.user.has_perm("WAMSApp.add_image") == False:
-                logger.warning("UploadProductImageAPI Restricted Access!")
+                logger.warning("UploadPFLExternalImagesAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -4272,7 +4272,6 @@ class RefreshPagePriceAndStockAPI(APIView):
             
             warehouses_information = []
             for pk in product_pk_list:
-                logger.info("%s ",pk)
                 product_obj = Product.objects.get(pk=int(pk))
                 warehouses_dict = fetch_prices(product_obj.base_product.seller_sku,warehouse_code)
                 warehouses_dict["product_pk"] = pk
@@ -4360,6 +4359,7 @@ class SaveCompanyProfileAPI(APIView):
             twitter_link = company_data["twitter_link"]
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
+            image_url = company_data["image_url"]
 
             organization.name=name
             organization.contact_info=contact_info
@@ -4371,6 +4371,10 @@ class SaveCompanyProfileAPI(APIView):
             organization.instagram_link=instagram_link
             organization.youtube_link=youtube_link
 
+            if image_url != "":
+                image_obj , created= Image.objects.get_or_create(image=image_url)
+                organization.logo = image_obj
+            
             organization.save()
 
             response['status'] = 200
