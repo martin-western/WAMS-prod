@@ -4282,7 +4282,7 @@ class RefreshPagePriceAndStockAPI(APIView):
 
         return Response(data=response)
 
-class FetchComapnyProfileAPI(APIView):
+class FetchCompanyProfileAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -4292,7 +4292,7 @@ class FetchComapnyProfileAPI(APIView):
         try:
             data = request.data
 
-            logger.info("FetchComapnyProfileAPI: %s", str(data))
+            logger.info("FetchCompanyProfileAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -4303,7 +4303,32 @@ class FetchComapnyProfileAPI(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchComapnyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class SaveCompanyProfileAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("SaveCompanyProfileAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+
+            RequestHelp.objects.create(message=message, page=page)
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4555,7 +4580,9 @@ FetchChannelProductList = FetchChannelProductListAPI.as_view()
 
 FetchAuditLogs = FetchAuditLogsAPI.as_view()
 
-FetchComapnyProfile = FetchComapnyProfileAPI.as_view()
+SaveCompanyProfile = SaveCompanyProfileAPI.as_view()
+
+FetchCompanyProfile = FetchCompanyProfileAPI.as_view()
 
 RefreshProductPriceAndStock = RefreshProductPriceAndStockAPI.as_view()
 

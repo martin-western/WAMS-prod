@@ -128,7 +128,8 @@ urlpatterns = [
 
     url(r'^fetch-channel-product-list/$',views.FetchChannelProductList),
 
-    url(r'^fetch-company-profile/$',views.FetchComapnyProfile),
+    url(r'^save-company-profile/$',views.SaveCompanyProfile),
+    url(r'^fetch-company-profile/$',views.FetchCompanyProfile),
 
     url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock)
 
