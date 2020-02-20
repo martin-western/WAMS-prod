@@ -1512,7 +1512,6 @@ class FetchProductListAPI(APIView):
             chip_data = data["tags"]
 
             page = int(data['page'])
-            search_list_base_product_objs = []
         
             product_objs_list = []
             base_product_objs_list = []
@@ -1547,6 +1546,7 @@ class FetchProductListAPI(APIView):
             #         standard_price__lte=int(filter_parameters["max_price"]))
 
             search_list_product_objs = Product.objects.none()
+            search_list_base_product_objs = BaseProduct.objects.none()
             
             if len(chip_data) == 0:
                 search_list_product_objs = product_objs_list
