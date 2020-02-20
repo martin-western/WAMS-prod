@@ -1553,7 +1553,7 @@ class FetchProductListAPI(APIView):
                 search_list_base_product_objs = base_product_objs_list
                 extra_prod = product_objs_list.exclude(base_product__in=search_list_base_product_objs)
                 for prod in extra_prod:
-                     search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
+                    search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
                 # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
             else:
                 for tag in chip_data:
@@ -1567,7 +1567,7 @@ class FetchProductListAPI(APIView):
                     
                     search_list_product_objs = product_objs_list
                     for prod in search:
-                        search_list_base_product_objs.append(prod.base_product)
+                        search_list_base_product_objs |= BaseProduct.objects.filter(pk=search.base_product.pk)
                     
                     search_list_base_product_objs = search_list_base_product_objs.distinct()
                     # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
