@@ -4221,7 +4221,7 @@ class CreateRequestHelpAPI(APIView):
 
         return Response(data=response)
 
-class RefreshProductPriceAndStock(APIView):
+class RefreshProductPriceAndStockAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -4231,7 +4231,7 @@ class RefreshProductPriceAndStock(APIView):
         try:
             data = request.data
 
-            logger.info("RefreshProductPriceAndStock: %s", str(data))
+            logger.info("RefreshProductPriceAndStockAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -4246,7 +4246,7 @@ class RefreshProductPriceAndStock(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RefreshProductPriceAndStock: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("RefreshProductPriceAndStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
