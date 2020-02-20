@@ -3259,6 +3259,65 @@ class FetchDealshubAdminSectionsAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
+    def fetch_price(self,product_id):
+        try:
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            company_code = "1070" # GEEPAS
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+            print((json.dumps(content, indent=4, sort_keys=True)))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            price = 0
+            temp_price = 0
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    price = max(temp_price, price)
+            return float(price)
+        except Exception as e:
+            #print "Error: "+str(e)
+            return 0
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3267,6 +3326,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
             data = request.data
             logger.info("FetchDealshubAdminSectionsAPI: %s", str(data))
+
+            limit = data.get("limit", False)
 
             organization_name = data["organizationName"]
             organization_obj = Organization.objects.get(name=organization_name)
@@ -3306,7 +3367,12 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_dict["isPublished"] = section_obj.is_published
                 
                 temp_products = []
-                for prod in section_obj.products.all():
+
+                section_products = section_obj.products.all()
+                if limit==True:
+                    section_products = section_products[:12]
+
+                for prod in section_products:
                     temp_dict2 = {}
 
                     main_images_list = ImageBucket.objects.none()
@@ -3322,6 +3388,12 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     
                     temp_dict2["name"] = str(prod.product_name)
                     temp_dict2["displayId"] = str(prod.product_id)
+                    temp_dict2["category"] = str(prod.base_product.category)
+                    if organization_name=="geepas":
+                        temp_dict2["price"] = str(self.fetch_price(prod.base_product.seller_sku))
+                    else:
+                        temp_dict2["price"] = str(prod.standard_price)
+                    temp_dict2["currency"] = "AED"
                     temp_dict2["uuid"] = str(prod.uuid)
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
