@@ -4391,7 +4391,7 @@ class SaveCompanyProfileAPI(APIView):
             organization.instagram_link=instagram_link
             organization.youtube_link=youtube_link
 
-            if image_url != "":
+            if logo_image_url != "":
                 image_obj , created= Image.objects.get_or_create(image=logo_image_url)
                 organization.logo = image_obj
             
