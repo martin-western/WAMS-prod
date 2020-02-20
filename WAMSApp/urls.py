@@ -135,3 +135,4 @@ urlpatterns = [
     url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock)
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

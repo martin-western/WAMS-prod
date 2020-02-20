@@ -4335,10 +4335,10 @@ class FetchCompanyProfileAPI(APIView):
             company_data["instagram_link"] = organization.instagram_link
             company_data["youtube_link"] = organization.youtube_link
             
-            company_data["logo"] = ""
+            company_data["logo_image_url"] = ""
 
             if organization.logo!=None:
-                company_data["logo"] = organization.logo.thumbnail.url
+                company_data["logo_image_url"] = organization.logo.thumbnail.url
 
             response["company_data"] = company_data
             response['status'] = 200
@@ -4379,7 +4379,7 @@ class SaveCompanyProfileAPI(APIView):
             twitter_link = company_data["twitter_link"]
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
-            image_url = company_data["image_url"]
+            logo_image_url = company_data["logo_image_url"]
 
             organization.name=name
             organization.contact_info=contact_info
@@ -4392,7 +4392,7 @@ class SaveCompanyProfileAPI(APIView):
             organization.youtube_link=youtube_link
 
             if image_url != "":
-                image_obj , created= Image.objects.get_or_create(image=image_url)
+                image_obj , created= Image.objects.get_or_create(image=logo_image_url)
                 organization.logo = image_obj
             
             organization.save()
