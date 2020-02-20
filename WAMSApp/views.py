@@ -1546,6 +1546,8 @@ class FetchProductListAPI(APIView):
             #     product_objs_list = product_objs_list.filter(
             #         standard_price__lte=int(filter_parameters["max_price"]))
 
+            without_images = 4
+            
             if filter_parameters["has_image"] == "1":
                 without_images = 0
                 for product_obj in product_objs_list:
