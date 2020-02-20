@@ -1519,10 +1519,10 @@ class FetchProductListAPI(APIView):
             (search_list_base_product_objs, search_list_product_objs) = custom_permission_filter_base_products_and_products(request.user)
 
             if filter_parameters['verified']:
-                search_list_product_objs = product_objs_list.filter(
+                search_list_product_objs = search_list_product_objs.filter(
                     verified=filter_parameters['verified']).order_by('-pk')
             else:
-                search_list_product_objs = product_objs_list.order_by('-pk')
+                search_list_product_objs = search_list_product_objs.order_by('-pk')
 
             # if filter_parameters["start_date"] != "" and filter_parameters["end_date"] != "":
             #     start_date = datetime.datetime.strptime(
