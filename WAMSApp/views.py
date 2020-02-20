@@ -1127,8 +1127,8 @@ class FetchProductDetailsAPI(APIView):
             else:
                 response["material_type"] = ""
             
-            warehouses_information = fetch_prices(product_obj.base_product.seller_sku)
-            response["warehouses_information"] = warehouses_information
+            # warehouses_information = fetch_prices(product_obj.base_product.seller_sku)
+            # response["warehouses_information"] = warehouses_information
 
             images = {}
 
@@ -4221,6 +4221,61 @@ class CreateRequestHelpAPI(APIView):
 
         return Response(data=response)
 
+class RefreshProductPriceAndStock(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("RefreshProductPriceAndStock: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk = data["product_pk"]
+            warehouse_code = data["warehouse_code"]
+            
+            product_obj = Product.objects.get(pk=product_pk)
+            warehouses_information = fetch_prices(product_obj.product_id,warehouse_code)
+
+            response["warehouses_information"] = warehouses_information
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RefreshProductPriceAndStock: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchComapnyProfileAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchComapnyProfileAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+
+            RequestHelp.objects.create(message=message, page=page)
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchComapnyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class FetchChannelProductListAPI(APIView):
 
@@ -4468,3 +4523,7 @@ CreateRequestHelp = CreateRequestHelpAPI.as_view()
 FetchChannelProductList = FetchChannelProductListAPI.as_view()
 
 FetchAuditLogs = FetchAuditLogsAPI.as_view()
+
+FetchComapnyProfile = FetchComapnyProfileAPI.as_view()
+
+RefreshProductPriceAndStock = RefreshProductPriceAndStockAPI.as_view()

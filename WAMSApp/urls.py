@@ -126,6 +126,10 @@ urlpatterns = [
     url(r'^fetch-audit-logs/$',views.FetchAuditLogs), 
     url(r'^create-request-help/$',views.CreateRequestHelp),    
 
-    url(r'^fetch-channel-product-list/$',views.FetchChannelProductList)  
+    url(r'^fetch-channel-product-list/$',views.FetchChannelProductList),
+
+    url(r'^fetch-company-profile/$',views.FetchComapnyProfile),
+
+    url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock),  
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
