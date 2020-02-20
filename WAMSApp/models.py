@@ -202,7 +202,7 @@ class Image(models.Model):
             self.mid_image = thumb_file2
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
 
@@ -467,7 +467,7 @@ class Product(models.Model):
         
         super(Product, self).save(*args, **kwargs)
 
-auditlog.register(Product, exclude_fields=['modified_date' , 'created_date' , 'uuid', 'base_product'])
+auditlog.register(Product, exclude_fields=['modified_date' , 'created_date' , 'uuid', 'base_product','sap_cache','sap_cache_time'])
 
 auditlog.register(Product.pfl_images.through)
 auditlog.register(Product.white_background_images.through)

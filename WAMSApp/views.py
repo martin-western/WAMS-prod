@@ -1674,7 +1674,10 @@ class FetchProductListAPI(APIView):
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                main_image_url = main_image_obj.image.image.url
+                                if main_image_obj.image.thumbnail != None:
+                                    main_image_url = main_image_obj.image.thumbnail.url
+                                else:
+                                    main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
                         temp_dict3["image_url"] = main_image_url
@@ -1699,7 +1702,10 @@ class FetchProductListAPI(APIView):
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                main_image_url = main_image_obj.image.image.url
+                                if main_image_obj.image.thumbnail != None:
+                                    main_image_url = main_image_obj.image.thumbnail.url
+                                else:
+                                    main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
@@ -1726,7 +1732,10 @@ class FetchProductListAPI(APIView):
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                main_image_url = main_image_obj.image.image.url
+                                if main_image_obj.image.thumbnail != None:
+                                    main_image_url = main_image_obj.image.thumbnail.url
+                                else:
+                                    main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
@@ -1753,8 +1762,10 @@ class FetchProductListAPI(APIView):
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                main_image_url = main_image_obj.image.image.url
-                            logger.info("main image urll: %s", str(main_image_url))
+                                if main_image_obj.image.thumbnail != None:
+                                    main_image_url = main_image_obj.image.thumbnail.url
+                                else:
+                                    main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
@@ -4318,10 +4329,10 @@ class FetchCompanyProfileAPI(APIView):
             company_data["instagram_link"] = organization.instagram_link
             company_data["youtube_link"] = organization.youtube_link
             
-            company_data["logo"] = ""
+            company_data["logo_image_url"] = ""
 
-            if organization.logo!=None:
-                company_data["logo"] = organization.logo.thumbnail.url
+            if organization.logo.thumbnail!=None:
+                company_data["logo_image_url"] = organization.logo.thumbnail.url
 
             response["company_data"] = company_data
             response['status'] = 200
@@ -4362,7 +4373,7 @@ class SaveCompanyProfileAPI(APIView):
             twitter_link = company_data["twitter_link"]
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
-            image_url = company_data["image_url"]
+            logo_image_url = company_data["logo_image_url"]
 
             organization.name=name
             organization.contact_info=contact_info
@@ -4374,8 +4385,8 @@ class SaveCompanyProfileAPI(APIView):
             organization.instagram_link=instagram_link
             organization.youtube_link=youtube_link
 
-            if image_url != "":
-                image_obj , created= Image.objects.get_or_create(image=image_url)
+            if logo_image_url != "":
+                image_obj , created= Image.objects.get_or_create(image="image_"+logo_image_url)
                 organization.logo = image_obj
             
             organization.save()
