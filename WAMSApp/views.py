@@ -1565,9 +1565,9 @@ class FetchProductListAPI(APIView):
                         Q(base_product__seller_sku__icontains=tag)
                     )
                     
-                    search_list_product_objs = product_objs_list
+                    search_list_product_objs = search
                     for prod in search:
-                        search_list_base_product_objs |= BaseProduct.objects.filter(pk=search.base_product.pk)
+                        search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
                     
                     search_list_base_product_objs = search_list_base_product_objs.distinct()
                     # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
