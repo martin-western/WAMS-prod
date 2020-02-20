@@ -4331,7 +4331,7 @@ class FetchCompanyProfileAPI(APIView):
             
             company_data["logo_image_url"] = ""
 
-            if organization.logo.thumbnail!=None:
+            if organization.logo != None:
                 company_data["logo_image_url"] = organization.logo.thumbnail.url
 
             response["company_data"] = company_data
@@ -4386,7 +4386,10 @@ class SaveCompanyProfileAPI(APIView):
             organization.youtube_link=youtube_link
 
             if logo_image_url != "":
-                image_obj , created= Image.objects.get_or_create(image="image_"+logo_image_url)
+                if Image.objects.filter(thumbnail=logo_image_url).exists():
+                    image_obj = Image.objects.get(thumbnail=logo_image_url)
+                else:
+                    image_obj = Image.objects.create(image=logo_image_url)
                 organization.logo = image_obj
             
             organization.save()
