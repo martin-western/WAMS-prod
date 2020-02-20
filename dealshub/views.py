@@ -2883,6 +2883,8 @@ class FetchHeadingDataAPI(APIView):
             organization_name = data["organizationName"]
             organization_obj = Organization.objects.get(name=organization_name)
 
+            included_category_dict = {}
+
             dealshub_heading_objs = DealsHubHeading.objects.filter(organization=organization_obj)
             heading_list = []
             for dealshub_heading_obj in dealshub_heading_objs:
@@ -2892,6 +2894,7 @@ class FetchHeadingDataAPI(APIView):
                 category_list = []
                 category_objs = dealshub_heading_obj.categories.all()
                 for category_obj in category_objs:
+                    included_category_dict[category_obj.pk] = 1
                     temp_dict2 = {}
                     temp_dict2["categoryName"] = category_obj.name
                     sub_category_list = []
@@ -2913,6 +2916,27 @@ class FetchHeadingDataAPI(APIView):
                     image_list.append(temp_dict4)
                 temp_dict["imageList"] = image_list
 
+                heading_list.append(temp_dict)
+
+            temp_dict = {}
+            other_category_list = []
+            temp_dict["headingName"] = "Others"
+            category_objs = Category.objects.filter(organization=organization_obj)
+            for category_obj in category_objs:
+                if category_obj.pk not in included_category_dict:
+                    temp_dict2 = {}
+                    temp_dict2["categoryName"] = category_obj.name
+                    sub_category_list = []
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict3 = {}
+                        temp_dict3["subcategoryName"] = sub_category_obj.name
+                        sub_category_list.append(temp_dict3)
+                    temp_dict2["subcategoryList"] = sub_category_list
+                    other_category_list.append(temp_dict2)
+            temp_dict["categoryList"] = other_category_list
+            temp_dict["imageList"] = []
+            if len(other_category_list)>0:
                 heading_list.append(temp_dict)
 
             response["headingList"] = heading_list
