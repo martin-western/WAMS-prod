@@ -1551,10 +1551,10 @@ class FetchProductListAPI(APIView):
             if len(chip_data) == 0:
                 search_list_product_objs = product_objs_list
                 search_list_base_product_objs = base_product_objs_list
-                # extra_prod = product_objs_list.exclude(base_product__in=search_list_base_product_objs)
-                # for prod in extra_prod:
-                #     search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
-                search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
+                extra_prod = product_objs_list.exclude(base_product__in=search_list_base_product_objs)
+                for prod in extra_prod:
+                     search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
+                # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
             else:
                 for tag in chip_data:
                     search = product_objs_list.filter(
@@ -1565,26 +1565,24 @@ class FetchProductListAPI(APIView):
                         Q(base_product__seller_sku__icontains=tag)
                     )
                     
+                    search_list_product_objs = product_objs_list
                     for prod in search:
-                        product_obj = Product.objects.filter(pk=prod.pk)
-                        search_list_product_objs|=product_obj
                         search_list_base_product_objs.append(prod.base_product)
                     
-                    search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
+                    search_list_base_product_objs = search_list_base_product_objs.distinct()
+                    # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
             without_images = 0
             
             if filter_parameters["has_image"] == "1":
                 without_images = 0
-                for product_obj in product_objs_list:
+                for product_obj in search_list_product_objs:
                     if has_atleast_one_image(product_obj)==False:
-                        search_list_product_objs = search_list_product_objs.exclude(pk=product_obj.pk)
                         search_list_base_product_objs =search_list_base_product_objs.exclude(pk=product_obj.base_product.pk)
             elif filter_parameters["has_image"] == "0":
                 without_images = 1
-                for product_obj in product_objs_list:
+                for product_obj in search_list_product_objs:
                     if has_atleast_one_image(product_obj)==True:
-                        search_list_product_objs = search_list_product_objs.exclude(pk=product_obj.pk)
                         search_list_base_product_objs = search_list_base_product_objs.exclude(pk=product_obj.base_product.pk)
 
 
