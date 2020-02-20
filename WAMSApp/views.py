@@ -4299,8 +4299,7 @@ class FetchCompanyProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-
-            RequestHelp.objects.create(message=message, page=page)
+            brand_objs = custom_permission_filter_brands(request.user)
 
             response['status'] = 200
         except Exception as e:

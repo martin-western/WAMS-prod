@@ -251,11 +251,10 @@ class Organization(models.Model):
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     primary_color = models.CharField(max_length=100,default = "#000000")
     secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
-    # facebook_link = models.CharField(unique=True, max_length=100)
-    # name = models.CharField(unique=True, max_length=100)
-    # name = models.CharField(unique=True, max_length=100)
-    # name = models.CharField(unique=True, max_length=100)
-    # name = models.CharField(unique=True, max_length=100)
+    facebook_link = models.CharField(max_length=100,blank=True, default='')
+    twitter_link = models.CharField(max_length=100,blank=True, default='')
+    instagram_link = models.CharField(max_length=100,blank=True, default='')
+    youtube_link = models.CharField(max_length=100,blank=True, default='')
 
     class Meta:
         verbose_name = "Organization"
