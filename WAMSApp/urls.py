@@ -129,6 +129,7 @@ urlpatterns = [
     url(r'^fetch-channel-product-list/$',views.FetchChannelProductList),
 
     url(r'^save-company-profile/$',views.SaveCompanyProfile),
+    url(r'^upload-organization-logo/$',views.UploadOrganizationLogo),
     url(r'^fetch-company-profile/$',views.FetchCompanyProfile),
 
     url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),

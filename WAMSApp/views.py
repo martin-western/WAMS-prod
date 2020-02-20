@@ -4373,8 +4373,7 @@ class SaveCompanyProfileAPI(APIView):
             twitter_link = company_data["twitter_link"]
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
-            logo_image_url = company_data["logo_image_url"]
-
+        
             organization.name=name
             organization.contact_info=contact_info
             organization.address=address
@@ -4384,10 +4383,6 @@ class SaveCompanyProfileAPI(APIView):
             organization.twitter_link=twitter_link
             organization.instagram_link=instagram_link
             organization.youtube_link=youtube_link
-
-            if logo_image_url != "":
-                image_obj = Image.objects.create(image=logo_image_url)
-                organization.logo = image_obj
             
             organization.save()
 
@@ -4395,6 +4390,41 @@ class SaveCompanyProfileAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SaveCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class UploadOrganizationLogoAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if request.user.has_perm("WAMSApp.add_image") == False:
+                logger.warning("UploadOrganizationLogoAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("UploadOrganizationLogoAPI: %s", str(data))
+
+            brand_obj = custom_permission_filter_brands(request.user)[0]
+
+            organization = brand_obj.organization
+           
+            logo_image_url = data["logo_image_url"]
+
+            if logo_image_url != "":
+                image_obj = Image.objects.create(image=logo_image_url)
+                organization.logo = image_obj
+                organization.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadOrganizationLogoAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4647,6 +4677,8 @@ FetchChannelProductList = FetchChannelProductListAPI.as_view()
 FetchAuditLogs = FetchAuditLogsAPI.as_view()
 
 SaveCompanyProfile = SaveCompanyProfileAPI.as_view()
+
+UploadOrganizationLogo = UploadOrganizationLogoAPI.as_view()
 
 FetchCompanyProfile = FetchCompanyProfileAPI.as_view()
 
