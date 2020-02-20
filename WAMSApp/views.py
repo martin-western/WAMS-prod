@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
+from auditlog.models import *
 from dealshub.models import DealsHubProduct
 from WAMSApp.utils import *
 from WAMSApp.serializers import UserSerializer, UserSerializerWithToken
@@ -4170,6 +4171,7 @@ class FetchAuditLogsAPI(APIView):
                 temp_dict = {}
                 temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
                 temp_dict["resource"] = str(log_entry_obj.content_type)
+                temp_dict["user"] = str(log_entry_obj.actor)
                 temp_dict["action"] = ""
                 if log_entry_obj.action==0:
                     temp_dict["action"] = "create"
