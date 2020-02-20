@@ -1585,7 +1585,7 @@ class FetchProductListAPI(APIView):
                     # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
             products = []
-
+            logger.info("%s ",len(search_list_base_product_objs))
             paginator = Paginator(search_list_base_product_objs, 20)
             base_product_objs = paginator.page(page)
 
