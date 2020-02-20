@@ -1547,8 +1547,8 @@ class FetchProductListAPI(APIView):
             #         standard_price__lte=int(filter_parameters["max_price"]))
 
             if filter_parameters["has_image"] == "1":
-                for product_obj in product_objs_list:
                 without_images = 0
+                for product_obj in product_objs_list:
                     if has_atleast_one_image(product_obj)==False:
                         product_objs_list = product_objs_list.exclude(pk=product_obj.pk)
                         base_product_objs_list =base_product_objs_list.exclude(pk=product_obj.base_product.pk)
@@ -1637,7 +1637,7 @@ class FetchProductListAPI(APIView):
                     temp_dict["base_main_images"] = []
 
                     if without_images==0:
-                        
+
                         main_images_list = ImageBucket.objects.none()
                         main_images_objs = MainImages.objects.filter(product=product_obj)
                         for main_images_obj in main_images_objs:
