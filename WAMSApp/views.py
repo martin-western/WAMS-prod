@@ -1566,7 +1566,7 @@ class FetchProductListAPI(APIView):
             for prod in search_list_product_objs:
                 search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
             
-            search_list_base_product_objs = search_list_base_product_objs.distinct()
+            search_list_base_product_objs = search_list_base_product_objs.distinct().order_by('-pk')
 
             products = []
             logger.info("%s   %s",len(search_list_product_objs) , len(search_list_base_product_objs))
