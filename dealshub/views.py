@@ -2111,7 +2111,7 @@ class FetchDealsBannerAPI(APIView):
             data = request.data
             logger.info("FetchDealsBannerAPI: %s", str(data))
 
-            resolution = data["resolution"]
+            resolution = data.get("resolution", "low")
             organization_name = data["organizationName"]
             organization_obj = Organization.objects.get(name=organization_name)
 
