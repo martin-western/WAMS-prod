@@ -4380,7 +4380,7 @@ class SaveCompanyProfileAPI(APIView):
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
             logo_image_url = company_data["logo_image_url"]
-
+            logger.info("logo_image_url : %s ", logo_image_url)
             organization.name=name
             organization.contact_info=contact_info
             organization.address=address
