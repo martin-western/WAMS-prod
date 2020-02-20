@@ -441,6 +441,7 @@ class Product(models.Model):
     sap_cache_time = models.DateTimeField(default=timezone.now)
 
     is_dealshub_product_created = models.BooleanField(default=False)
+    no_of_images_for_filter = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "Product"

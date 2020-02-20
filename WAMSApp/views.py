@@ -1576,16 +1576,11 @@ class FetchProductListAPI(APIView):
             
             if filter_parameters["has_image"] == "1":
                 without_images = 0
-                for product_obj in search_list_product_objs:
-                    if has_atleast_one_image(product_obj)==False:
-                        search_list_base_product_objs =search_list_base_product_objs.exclude(pk=product_obj.base_product.pk)
+                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
             elif filter_parameters["has_image"] == "0":
                 without_images = 1
-                for product_obj in search_list_product_objs:
-                    if has_atleast_one_image(product_obj)==True:
-                        search_list_base_product_objs = search_list_base_product_objs.exclude(pk=product_obj.base_product.pk)
-
-
+                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
+                
             products = []
 
             paginator = Paginator(search_list_base_product_objs, 20)
@@ -2107,8 +2102,8 @@ class UploadProductImageAPI(APIView):
                 for image_obj in image_objs:
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
+                    product_obj.no_of_images_for_filter += 1
                     if data["channel_name"] == "" or data["channel_name"] == None:
-                        
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
                         main_images_obj.main_images.add(image_bucket_obj)
                         main_images_obj.save()
@@ -2166,6 +2161,7 @@ class UploadProductImageAPI(APIView):
                     index += 1
                     sub_image_index = 0
                     is_sub_image = False
+                    product_obj.no_of_images_for_filter += 1
                     if(index <= 8):
                         sub_image_index = index
                         is_sub_image = True
@@ -2178,9 +2174,11 @@ class UploadProductImageAPI(APIView):
                     product_obj.pfl_images.add(image_obj)
             elif data["image_category"] == "white_background_images":
                 for image_obj in image_objs:
+                    product_obj.no_of_images_for_filter += 1
                     product_obj.white_background_images.add(image_obj)
             elif data["image_category"] == "lifestyle_images":
                 for image_obj in image_objs:
+                    product_obj.no_of_images_for_filter += 1
                     product_obj.lifestyle_images.add(image_obj)
             elif data["image_category"] == "certificate_images":
                 for image_obj in image_objs:

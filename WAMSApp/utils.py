@@ -56,9 +56,10 @@ def has_atleast_one_image(prod_obj):
     images_count += prod_obj.white_background_images.count()
     images_count += prod_obj.lifestyle_images.count()
     
-    if(images_count>0):
-        check=True
-    return check
+    return images_count
+    # if(images_count>0):
+    #     check=True
+    # return check
 
 def get_file_extension(file_name, decoded_file):
 
