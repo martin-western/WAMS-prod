@@ -204,9 +204,8 @@ def fetch_prices(product_id,company_code):
             
         # warehouse_information.append(warehouse_dict)
 
-        # product_obj.sap_cache = json.dumps(warehouse_information)
-        # product_obj.sap_cache_time = curr_time
-        # product_obj.save()
+        product_obj.sap_cache = json.dumps(warehouse_dict)
+        product_obj.save()
         
         return warehouse_dict
 

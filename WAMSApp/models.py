@@ -246,6 +246,16 @@ class ImageBucket(models.Model):
 class Organization(models.Model):
 
     name = models.CharField(unique=True, max_length=100)
+    contact_info = models.CharField(max_length=100,blank=True, default='')
+    address = models.TextField(blank=True, default='')
+    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    primary_color = models.CharField(max_length=100,default = "#000000")
+    secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
+    # facebook_link = models.CharField(unique=True, max_length=100)
+    # name = models.CharField(unique=True, max_length=100)
+    # name = models.CharField(unique=True, max_length=100)
+    # name = models.CharField(unique=True, max_length=100)
+    # name = models.CharField(unique=True, max_length=100)
 
     class Meta:
         verbose_name = "Organization"
