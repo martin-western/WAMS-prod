@@ -1545,6 +1545,18 @@ class FetchProductListAPI(APIView):
             #     product_objs_list = product_objs_list.filter(
             #         standard_price__lte=int(filter_parameters["max_price"]))
 
+            without_images = 0
+            
+            if filter_parameters["has_image"] == "1":
+                without_images = 0
+                product_objs_list = product_objs_list.exclude(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "0":
+                without_images = 1
+                product_objs_list = product_objs_list.filter(no_of_images_for_filter=0)
+                
+            for product_obj in product_objs_list:
+                base_product_objs_list = base_product_objs_list.exclude(pk=product_obj.base_product.pk)
+
             search_list_product_objs = Product.objects.none()
             search_list_base_product_objs = BaseProduct.objects.none()
             
@@ -1572,15 +1584,6 @@ class FetchProductListAPI(APIView):
                     search_list_base_product_objs = search_list_base_product_objs.distinct()
                     # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
-            without_images = 0
-            
-            if filter_parameters["has_image"] == "1":
-                without_images = 0
-                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
-            elif filter_parameters["has_image"] == "0":
-                without_images = 1
-                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
-                
             products = []
 
             paginator = Paginator(search_list_base_product_objs, 20)

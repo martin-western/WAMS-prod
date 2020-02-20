@@ -86,11 +86,12 @@ for prod in prods:
     d.save()
 
 from WAMSApp.models import *
-from utils.py import *
+from WAMSApp.utils import *
 
 Ps = Product.objects.all()
 cnt=0
-for p in ps:
+for p in Ps:
     p.no_of_images_for_filter = has_atleast_one_image(p)
     p.save()
+    cnt+=1
     print("Cnt : ", cnt)
