@@ -4374,7 +4374,7 @@ class SaveCompanyProfileAPI(APIView):
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
             logo_image_url = company_data["logo_image_url"]
-            logger.info("logo_image_url : %s ", logo_image_url)
+
             organization.name=name
             organization.contact_info=contact_info
             organization.address=address
@@ -4386,7 +4386,10 @@ class SaveCompanyProfileAPI(APIView):
             organization.youtube_link=youtube_link
 
             if logo_image_url != "":
-                image_obj , created= Image.objects.get_or_create(image=logo_image_url)
+                if Image.objects.filter(thumbnail=logo_image_url).exists():
+                    image_obj = Image.objects.get(thumbnail=logo_image_url)
+                else:
+                    image_obj = Image.objects.create(image=logo_image_url)
                 organization.logo = image_obj
             
             organization.save()
