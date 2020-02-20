@@ -4240,9 +4240,9 @@ class RefreshProductPriceAndStockAPI(APIView):
             warehouse_code = data["warehouse_code"]
             
             product_obj = Product.objects.get(pk=product_pk)
-            warehouses_information = fetch_prices(product_obj.product_id,warehouse_code)
+            warehouses_dict = fetch_prices(product_obj.product_id,warehouse_code)
 
-            response["warehouses_information"] = warehouses_information
+            response["warehouses_dict"] = warehouses_dict
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4265,11 +4265,14 @@ class RefreshPagePriceAndStockAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_pk = data["product_pk"]
+            product_pk_list = data["product_pk_list"]
             warehouse_code = data["warehouse_code"]
             
-            product_obj = Product.objects.get(pk=product_pk)
-            warehouses_information = fetch_prices(product_obj.product_id,warehouse_code)
+            warehouses_information = []
+            for pk in product_pk_list:
+                product_obj = Product.objects.get(pk=int(product_pk))
+                warehouses_dict = fetch_prices(product_obj.product_id,warehouse_code)
+                warehouses_information.append(warehouses_dict)
 
             response["warehouses_information"] = warehouses_information
             response['status'] = 200

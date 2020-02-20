@@ -100,7 +100,6 @@ def fetch_prices(product_id,company_code):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
-        warehouse_information = []
         warehouse_dict = {}
         body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
         <soapenv:Header />
@@ -203,13 +202,13 @@ def fetch_prices(product_id,company_code):
         warehouse_dict["prices"] = prices
         warehouse_dict["qty"] = qty
             
-        warehouse_information.append(warehouse_dict)
+        # warehouse_information.append(warehouse_dict)
 
         # product_obj.sap_cache = json.dumps(warehouse_information)
         # product_obj.sap_cache_time = curr_time
         # product_obj.save()
         
-        return warehouse_information
+        return warehouse_dict
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
