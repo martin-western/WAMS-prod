@@ -1674,7 +1674,10 @@ class FetchProductListAPI(APIView):
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                main_image_url = main_image_obj.image.image.url
+                                if main_image_obj.image.thumbnail != None:
+                                    main_image_url = main_image_obj.image.thumbnail.url
+                                else:
+                                    main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
                         temp_dict3["image_url"] = main_image_url
@@ -1699,7 +1702,10 @@ class FetchProductListAPI(APIView):
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                main_image_url = main_image_obj.image.image.url
+                                if main_image_obj.image.thumbnail != None:
+                                    main_image_url = main_image_obj.image.thumbnail.url
+                                else:
+                                    main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
@@ -1726,7 +1732,10 @@ class FetchProductListAPI(APIView):
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                main_image_url = main_image_obj.image.image.url
+                                if main_image_obj.image.thumbnail != None:
+                                    main_image_url = main_image_obj.image.thumbnail.url
+                                else:
+                                    main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
@@ -1753,8 +1762,10 @@ class FetchProductListAPI(APIView):
                             
                             if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
                                 main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                main_image_url = main_image_obj.image.image.url
-                            logger.info("main image urll: %s", str(main_image_url))
+                                if main_image_obj.image.thumbnail != None:
+                                    main_image_url = main_image_obj.image.thumbnail.url
+                                else:
+                                    main_image_url = main_image_obj.image.image.url
                         except Exception as e:
                             pass
                         temp_dict3["sub_category"] = base_product_obj.sub_category
