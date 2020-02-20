@@ -4274,6 +4274,7 @@ class RefreshPagePriceAndStockAPI(APIView):
             for pk in product_pk_list:
                 product_obj = Product.objects.get(pk=int(pk))
                 warehouses_dict = fetch_prices(product_obj.base_product.seller_sku,warehouse_code)
+                warehouses_dict["product_pk"] = pk
                 warehouses_information.append(warehouses_dict)
 
             response["warehouses_information"] = warehouses_information
