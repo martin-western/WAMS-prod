@@ -2111,7 +2111,7 @@ class FetchDealsBannerAPI(APIView):
             data = request.data
             logger.info("FetchDealsBannerAPI: %s", str(data))
 
-            resolution = data["resolution"]
+            resolution = data.get("resolution", "low")
             organization_name = data["organizationName"]
             organization_obj = Organization.objects.get(name=organization_name)
 
@@ -3244,8 +3244,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
             data = request.data
             logger.info("FetchDealshubAdminSectionsAPI: %s", str(data))
 
-            
-            dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.all()[0]
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.get(organization=organization_obj)
             section_objs = Section.objects.all().order_by('order_index')
             cnt = 0
             dealshub_admin_sections = []
