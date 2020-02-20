@@ -1511,18 +1511,18 @@ class FetchProductListAPI(APIView):
             filter_parameters = data["filter_parameters"]
             chip_data = data["tags"]
 
-            page = int(data['page'])
-        
-            product_objs_list = []
-            base_product_objs_list = []
+            page = int(data['page'])  
 
-            (base_product_objs_list, product_objs_list) = custom_permission_filter_base_products_and_products(request.user)
+            search_list_product_objs = Product.objects.none()
+            search_list_base_product_objs = BaseProduct.objects.none()
+
+            (search_list_base_product_objs, search_list_product_objs) = custom_permission_filter_base_products_and_products(request.user)
 
             if filter_parameters['verified']:
-                product_objs_list = product_objs_list.filter(
+                search_list_product_objs = product_objs_list.filter(
                     verified=filter_parameters['verified']).order_by('-pk')
             else:
-                product_objs_list = product_objs_list.order_by('-pk')
+                search_list_product_objs = product_objs_list.order_by('-pk')
 
             # if filter_parameters["start_date"] != "" and filter_parameters["end_date"] != "":
             #     start_date = datetime.datetime.strptime(
@@ -1534,8 +1534,8 @@ class FetchProductListAPI(APIView):
 
             if filter_parameters["brand_name"] != "":
                 brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
-                base_product_objs_list = base_product_objs_list.filter(brand=brand_obj)
-                product_objs_list = product_objs_list.filter(base_product__brand=brand_obj)
+                search_list_base_product_objs = search_list_base_product_objs.filter(brand=brand_obj)
+                search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
 
             # if filter_parameters["min_price"] != "":
             #     product_objs_list = product_objs_list.filter(
@@ -1549,27 +1549,25 @@ class FetchProductListAPI(APIView):
             
             if filter_parameters["has_image"] == "1":
                 without_images = 0
-                product_objs_list = product_objs_list.exclude(no_of_images_for_filter=0)
+                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
+                for product_obj in search_list_product_objs:
+                    search_list_base_product_objs = search_list_base_product_objs.exclude(pk=product_obj.base_product.pk)
             elif filter_parameters["has_image"] == "0":
                 without_images = 1
-                product_objs_list = product_objs_list.filter(no_of_images_for_filter=0)
-                
-            for product_obj in product_objs_list:
-                base_product_objs_list = base_product_objs_list.exclude(pk=product_obj.base_product.pk)
+                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
+                for product_obj in search_list_product_objs:
+                    search_list_base_product_objs |= search_list_base_product_objs.filter(pk=product_obj.base_product.pk)
+                    
 
-            search_list_product_objs = Product.objects.none()
-            search_list_base_product_objs = BaseProduct.objects.none()
             
             if len(chip_data) == 0:
-                search_list_product_objs = product_objs_list
-                search_list_base_product_objs = base_product_objs_list
-                extra_prod = product_objs_list.exclude(base_product__in=search_list_base_product_objs)
+                extra_prod = search_list_product_objs.exclude(base_product__in=search_list_base_product_objs)
                 for prod in extra_prod:
                     search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
                 # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
             else:
                 for tag in chip_data:
-                    search = product_objs_list.filter(
+                    search_list_product_objs = search_list_product_objs.filter(
                         Q(base_product__base_product_name__icontains=tag) |
                         Q(product_name__icontains=tag) |
                         Q(product_name_sap__icontains=tag) |
@@ -1577,11 +1575,11 @@ class FetchProductListAPI(APIView):
                         Q(base_product__seller_sku__icontains=tag)
                     )
                     
-                    search_list_product_objs = search
-                    for prod in search:
+                    for prod in search_list_product_objs:
                         search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
                     
-                    search_list_base_product_objs = search_list_base_product_objs.distinct()
+            search_list_base_product_objs = search_list_base_product_objs.distinct()
+            search_list_product_objs = search_list_product_objs.distinct()
                     # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
             products = []
