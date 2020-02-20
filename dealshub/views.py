@@ -2935,6 +2935,7 @@ class FetchHeadingDataAPI(APIView):
                     temp_dict2["subcategoryList"] = sub_category_list
                     other_category_list.append(temp_dict2)
             temp_dict["categoryList"] = other_category_list
+            temp_dict["imageList"] = []
             if len(other_category_list)>0:
                 heading_list.append(temp_dict)
 
