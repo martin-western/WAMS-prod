@@ -202,7 +202,7 @@ class Image(models.Model):
             self.mid_image = thumb_file2
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
 
