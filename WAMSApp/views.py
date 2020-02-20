@@ -4303,7 +4303,17 @@ class FetchCompanyProfileAPI(APIView):
 
             organization = brand_obj.organization
 
-            response["organization_name"] = organization.name
+            response["name"] = organization.name
+            response["contact_info"] = organization.contact_info
+            response["address"] = organization.address
+            response["primary_color"] = organization.primary_color
+            response["secondary_color"] = organization.secondary_color
+            response["facebook_link"] = organization.facebook_link
+            response["twitter_link"] = organization.twitter_link
+            response["instagram_link"] = organization.instagram_link
+            response["youtube_link"] = organization.youtube_link
+            
+            response["logo"] = organization.logo.thumbnail.url
 
             response['status'] = 200
         except Exception as e:
