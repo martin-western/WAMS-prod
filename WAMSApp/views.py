@@ -1516,7 +1516,7 @@ class FetchProductListAPI(APIView):
             search_list_product_objs = Product.objects.none()
             search_list_base_product_objs = BaseProduct.objects.none()
 
-            (search_list_base_product_objs, search_list_product_objs) = custom_permission_filter_base_products_and_products(request.user)
+            search_list_product_objs = custom_permission_filter_products(request.user)
 
             if filter_parameters['verified']:
                 search_list_product_objs = search_list_product_objs.filter(
@@ -1534,7 +1534,6 @@ class FetchProductListAPI(APIView):
 
             if filter_parameters["brand_name"] != "":
                 brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
-                search_list_base_product_objs = search_list_base_product_objs.filter(brand=brand_obj)
                 search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
 
             # if filter_parameters["min_price"] != "":
@@ -1550,22 +1549,11 @@ class FetchProductListAPI(APIView):
             if filter_parameters["has_image"] == "1":
                 without_images = 0
                 search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
-                for product_obj in search_list_product_objs:
-                    search_list_base_product_objs = search_list_base_product_objs.exclude(pk=product_obj.base_product.pk)
             elif filter_parameters["has_image"] == "0":
                 without_images = 1
                 search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
-                for product_obj in search_list_product_objs:
-                    search_list_base_product_objs |= search_list_base_product_objs.filter(pk=product_obj.base_product.pk)
                     
-
-            
-            if len(chip_data) == 0:
-                extra_prod = search_list_product_objs.exclude(base_product__in=search_list_base_product_objs)
-                for prod in extra_prod:
-                    search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
-                # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
-            else:
+            if len(chip_data) != 0:
                 for tag in chip_data:
                     search_list_product_objs = search_list_product_objs.filter(
                         Q(base_product__base_product_name__icontains=tag) |
@@ -1574,16 +1562,14 @@ class FetchProductListAPI(APIView):
                         Q(product_id__icontains=tag) |
                         Q(base_product__seller_sku__icontains=tag)
                     )
-                    
-                    for prod in search_list_product_objs:
-                        search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
-                    
+            
+            for prod in search_list_product_objs:
+                search_list_base_product_objs = BaseProduct.objects.filter(pk=prod.base_product.pk)
+            
             search_list_base_product_objs = search_list_base_product_objs.distinct()
-            search_list_product_objs = search_list_product_objs.distinct()
-                    # search_list_base_product_objs = list( dict.fromkeys(search_list_base_product_objs) )
 
             products = []
-            logger.info("%s ",len(search_list_base_product_objs))
+            logger.info("%s   %s",len(search_list_product_objs) , search_list_base_product_objs)
             paginator = Paginator(search_list_base_product_objs, 20)
             base_product_objs = paginator.page(page)
 
