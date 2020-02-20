@@ -4303,19 +4303,25 @@ class FetchCompanyProfileAPI(APIView):
 
             organization = brand_obj.organization
 
-            response["name"] = organization.name
-            response["contact_info"] = organization.contact_info
-            response["address"] = organization.address
-            response["primary_color"] = organization.primary_color
-            response["secondary_color"] = organization.secondary_color
-            response["facebook_link"] = organization.facebook_link
-            response["twitter_link"] = organization.twitter_link
-            response["instagram_link"] = organization.instagram_link
-            response["youtube_link"] = organization.youtube_link
+            company_data = {}
+            company_data["name"] = organization.name
+            company_data["contact_info"] = organization.contact_info
+            company_data["address"] = organization.address
+            company_data["primary_color"] = organization.primary_color
+            company_data["secondary_color"] = organization.secondary_color
+            company_data["facebook_link"] = organization.facebook_link
+            company_data["twitter_link"] = organization.twitter_link
+            company_data["instagram_link"] = organization.instagram_link
+            company_data["youtube_link"] = organization.youtube_link
             
-            response["logo"] = organization.logo.thumbnail.url
+            company_data["logo"] = ""
 
+            if organization.logo!=None:
+                company_data["logo"] = organization.logo.thumbnail.url
+
+            response["company_data"] = company_data
             response['status'] = 200
+            
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
