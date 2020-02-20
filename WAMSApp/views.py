@@ -4321,7 +4321,7 @@ class FetchCompanyProfileAPI(APIView):
 
             response["company_data"] = company_data
             response['status'] = 200
-            
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4343,9 +4343,34 @@ class SaveCompanyProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            brand_obj = custom_permission_filter_brands(request.user)[0]
 
-            RequestHelp.objects.create(message=message, page=page)
+            organization = brand_obj.organization
 
+            company_data = data["company_data"]
+            
+            name = company_data["name"]
+            contact_info = company_data["contact_info"]
+            address = company_data["address"]
+            primary_color = company_data["primary_color"]
+            secondary_color = company_data["secondary_color"]
+            facebook_link = company_data["facebook_link"]
+            twitter_link = company_data["twitter_link"]
+            instagram_link = company_data["instagram_link"]
+            youtube_link = company_data["youtube_link"]
+
+            organization.name=name
+            organization.contact_info=contact_info
+            organization.address=address
+            organization.primary_color=primary_color
+            organization.secondary_color=secondary_color
+            organization.facebook_link=facebook_link
+            organization.twitter_link=twitter_link
+            organization.instagram_link=instagram_link
+            organization.youtube_link=youtube_link
+
+            organization.save()
+            
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
