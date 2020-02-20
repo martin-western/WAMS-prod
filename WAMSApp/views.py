@@ -4250,34 +4250,34 @@ class RefreshProductPriceAndStockAPI(APIView):
 
         return Response(data=response)
 
-        class RefreshProductPriceAndStockAPI(APIView):
+class RefreshPagePriceAndStockAPI(APIView):
 
-            def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
 
-                response = {}
-                response['status'] = 500
-                
-                try:
-                    data = request.data
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
 
-                    logger.info("RefreshProductPriceAndStockAPI: %s", str(data))
+            logger.info("RefreshPagePriceAndStockAPI: %s", str(data))
 
-                    if not isinstance(data, dict):
-                        data = json.loads(data)
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
-                    product_pk = data["product_pk"]
-                    warehouse_code = data["warehouse_code"]
-                    
-                    product_obj = Product.objects.get(pk=product_pk)
-                    warehouses_information = fetch_prices(product_obj.product_id,warehouse_code)
+            product_pk = data["product_pk"]
+            warehouse_code = data["warehouse_code"]
+            
+            product_obj = Product.objects.get(pk=product_pk)
+            warehouses_information = fetch_prices(product_obj.product_id,warehouse_code)
 
-                    response["warehouses_information"] = warehouses_information
-                    response['status'] = 200
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("RefreshProductPriceAndStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            response["warehouses_information"] = warehouses_information
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RefreshPagePriceAndStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-                return Response(data=response)
+        return Response(data=response)
 
 class FetchComapnyProfileAPI(APIView):
 
