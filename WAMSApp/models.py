@@ -467,7 +467,7 @@ class Product(models.Model):
         
         super(Product, self).save(*args, **kwargs)
 
-auditlog.register(Product, exclude_fields=['modified_date' , 'created_date' , 'uuid', 'base_product'])
+auditlog.register(Product, exclude_fields=['modified_date' , 'created_date' , 'uuid', 'base_product','sap_cache','sap_cache_time'])
 
 auditlog.register(Product.pfl_images.through)
 auditlog.register(Product.white_background_images.through)
