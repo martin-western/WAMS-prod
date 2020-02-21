@@ -4588,7 +4588,7 @@ class FetchChannelProductListAPI(APIView):
 
                 try:
                     main_images_list = ImageBucket.objects.none()
-                    main_images_obj = MainImages.objects.get(product = product, channel__name="Ebay")
+                    main_images_obj = MainImages.objects.get(product = product_obj, channel__name=channel_name)
                     
                     main_images_list |= main_images_obj.main_images.all()
 
