@@ -4157,6 +4157,7 @@ class FetchAuditLogsAPI(APIView):
             for log_entry_obj in log_entry_objs:
                 temp_dict = {}
 
+                object_pk = log_entry_obj.object_pk
                 content_type = str(log_entry_obj.content_type)
 
                 temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
