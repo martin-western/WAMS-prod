@@ -4586,19 +4586,16 @@ class FetchChannelProductListAPI(APIView):
                 else:
                     temp_dict["brand_name"] = "-"
 
-                main_images_list = ImageBucket.objects.none()
-                main_images_objs = MainImages.objects.filter(product=product_obj)
-                for main_images_obj in main_images_objs:
+                try:
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_obj = MainImages.objects.get(product = product, channel__name="Ebay")
+                    
                     main_images_list |= main_images_obj.main_images.all()
 
-                main_images_list = main_images_list.distinct()
-                
-                if len(main_images_list)>0:
-                    try:
-                        temp_dict["main_image"] = main_images_list[0].image.thumbnail.url
-                    except Exception as e:
-                        temp_dict["main_image"] = main_images_list[0].image.image.url
-                else: 
+                    main_images_list = main_images_list.distinct()
+                    
+                    temp_dict["main_image"] = main_images_list[0].image.mid_image.url
+                except Exception as e:
                     temp_dict["main_image"] = Config.objects.all()[0].product_404_image.image.url
 
                 products.append(temp_dict)
