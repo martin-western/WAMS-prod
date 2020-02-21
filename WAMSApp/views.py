@@ -1646,7 +1646,6 @@ class FetchProductListAPI(APIView):
 
                     if without_images == 0:
 
-                        logger.info("HERE : ")
                         main_images_list = ImageBucket.objects.none()
                         main_images_objs = MainImages.objects.filter(product=product_obj)
                         for main_images_obj in main_images_objs:
@@ -1656,6 +1655,7 @@ class FetchProductListAPI(APIView):
                         logger.info("%s ",len(main_images_list))
 
                         if main_images_list.filter(is_main_image=True).count() > 0:
+                            logger.info("HERE : ")
                             try:
                                 main_images = create_response_images_main(main_images_list.filter(is_main_image=True))
                                 temp_dict2["main_images"] = main_images
@@ -1663,7 +1663,11 @@ class FetchProductListAPI(APIView):
                                     temp_dict["base_main_images"].append(main_image)
                             except Exception as e:
                                 pass
-                
+                        else 
+                            main_images = create_response_images_main(main_images_list)
+                            temp_dict2["main_images"].append(main_images[0])
+                            temp_dict["base_main_images"].append(main_images[0])
+
                     channels_of_prod =0
                     active_channels = 0
 
@@ -4359,9 +4363,7 @@ class FetchCompanyProfileAPI(APIView):
             company_data["youtube_link"] = organization.youtube_link
             
             company_data["logo"] = {
-                "uid" : "",
-                "httpLink" : "",
-                "isPublished" : "",
+                "uid" : "123",
                 "url" : ""
             }
 
