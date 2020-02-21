@@ -405,16 +405,11 @@ class FetchSectionsProductsAPI(APIView):
                     for main_images_obj in main_images_objs:
                         main_images_list |= main_images_obj.main_images.all()
                     main_images_list = main_images_list.distinct()
-                    if main_images_list.filter(is_main_image=True).count() > 0:
-                        try:
-                            temp_dict2["heroImage"] = main_images_list.filter(is_main_image=True)[
-                                0].image.mid_image.url
-                        except Exception as e:
-                            temp_dict2["heroImage"] = Config.objects.all()[
-                                0].product_404_image.image.url
-                    else:
-                        temp_dict2["heroImage"] = Config.objects.all()[
-                            0].product_404_image.image.url
+                    try:
+                        temp_dict2["heroImage"] = main_images_list.all()[0].image.mid_image.url
+                    except Exception as e:
+                        temp_dict2["heroImage"] = Config.objects.all()[0].product_404_image.image.url
+
 
 
                     temp_dict["productsArray"].append(temp_dict2)
@@ -3551,4 +3546,4 @@ FetchUserOrganization = FetchUserOrganizationAPI.as_view()
 
 FetchDealshubAdminSections = FetchDealshubAdminSectionsAPI.as_view()
 
-SaveDealshubAdminSectionsOrder = SaveDealshubAdminSectionsOrderAPI.as_view()
+SaveDealshubAdminSectionsOrder = SaveDealshubAdminSectionsOrderAPI.as_view() 
