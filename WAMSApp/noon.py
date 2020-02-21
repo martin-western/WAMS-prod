@@ -99,11 +99,15 @@ def export_noon(products):
                 main_image_url = None
                 
                 try:
-                    main_images_obj = MainImages.objects.get(product = product, channel="Noon")
+
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_obj = MainImages.objects.get(product = product, channel__name="Noon")
                     
-                    if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                        main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                        main_image_url = main_image_obj.image.image.url
+                    main_images_list |= main_images_obj.main_images.all()
+
+                    main_images_list = main_images_list.distinct()
+                    
+                    main_image_url = main_images_list[0].image.image.url
                 except Exception as e:
                     pass
 
@@ -113,11 +117,14 @@ def export_noon(products):
                 img_cnt = 0
                 
                 try:
-                    main_images_obj = MainImages.objects.get(product = product, channel="Noon")
+                    sub_images_obj = SubImages.objects.get(product = product, channel__name="Noon")
 
-                    for image in main_images_obj.main_images.filter(is_sub_image=True).order_by('sub_image_index')[:6]:
-                        common_row[50+img_cnt] = str(image.image.image.url)
+                    sub_images_list = sub_images_obj.sub_images.distinct()
+
+                    for sub_image in sub_images_list:
+                        common_row[50+img_cnt] = str(sub_image.image.image.url)
                         img_cnt += 1
+                        
                 except Exception as e:
                     pass
                 
