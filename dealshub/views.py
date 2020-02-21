@@ -1156,9 +1156,9 @@ class FetchFeaturedProductsAPI(APIView):
             if organization_name.lower()=="geepas":
                 featured_products = [
                     {
-                        "productName": "Geepas GAC9602 Air Cooler 70L",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas GAC9602 Air Cooler 70L",
+                        "category": "Electronics",
+                        "subCategory": "Cooler",
                         "brand": "Geepas",
                         "price": "500",
                         "prevPrice": "3,300",
@@ -1166,13 +1166,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
-                        "id": Product.objects.get(base_product__seller_sku="GAC9602").uuid
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GAC9602").uuid
                     },
                     {
-                        "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
+                        "category": "Electronics",
+                        "subCategory": "Cooler",
                         "brand": "Geepas",
                         "price": "255",
                         "prevPrice": "4,500",
@@ -1180,13 +1180,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "3.9",
                         "totalRatings": "1,772",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                        "id": Product.objects.get(base_product__seller_sku="GAC9433").uuid
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
+                        "uuid": Product.objects.get(base_product__seller_sku="GAC9433").uuid
                     },
                     {
-                        "productName": "Geepas GA1960 4 USB Travel Charger ",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Plugs",
+                        "name": "Geepas GA1960 4 USB Travel Charger ",
+                        "category": "Electronics",
+                        "subCategory": "Plugs",
                         "brand": "Geepas",
                         "price": "18",
                         "prevPrice": "4,700",
@@ -1194,13 +1194,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "28",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-                        "id": Product.objects.get(base_product__seller_sku="GA1960").uuid
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GA1960").uuid
                     },
                     {
-                        "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
+                        "category": "Electronics",
+                        "subCategory": "Cooler",
                         "brand": "Geepas",
                         "price": "760",
                         "prevPrice": "1,800",
@@ -1208,13 +1208,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "10",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
-                        "id": Product.objects.get(base_product__seller_sku="GACW1818HCS").uuid
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GACW1818HCS").uuid
                     },
                     {
-                        "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
+                        "category": "Electronics",
+                        "subCategory": "Cooler",
                         "brand": "Geepas",
                         "price": "27",
                         "prevPrice": "5,600",
@@ -1222,16 +1222,16 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "28",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
-                        "id": Product.objects.get(base_product__seller_sku="GAC9580").uuid
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GAC9580").uuid
                     }
                 ]
             elif organization_name.lower()=="pex":
                 featured_products = [
                     {
-                        "productName": "Pex antiseptic disinfectant 500 ml",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Pex antiseptic disinfectant 500 ml",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Pex",
                         "price": "12",
                         "prevPrice": "20",
@@ -1239,13 +1239,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD150_1_FlM0XTE.jpg",
-                        "id": "379e83c4-7f21-4291-8329-3d7ede846d69"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD150_1_FlM0XTE.jpg",
+                        "uuid": "379e83c4-7f21-4291-8329-3d7ede846d69"
                     },
                     {
-                        "productName": "Pex Active Air Freshener Lavender 550 ml",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Pex Active Air Freshener Lavender 550 ml",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Pex",
                         "price": "30",
                         "prevPrice": "20",
@@ -1253,13 +1253,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AL555_1_ph0QKB8.jpg",
-                        "id": "8dc7b633-dfcf-4d3b-a39d-770edc545b03"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AL555_1_ph0QKB8.jpg",
+                        "uuid": "8dc7b633-dfcf-4d3b-a39d-770edc545b03"
                     },
                     {
-                        "productName": "Pex antiseptic disinfectant 5 ltr",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Pex antiseptic disinfectant 5 ltr",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Pex",
                         "price": "43",
                         "prevPrice": "20",
@@ -1267,16 +1267,16 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD2500_1_hxCL5xe.jpg",
-                        "id": "cf2b5ddc-5737-4fa5-a777-059699a3d480"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD2500_1_hxCL5xe.jpg",
+                        "uuid": "cf2b5ddc-5737-4fa5-a777-059699a3d480"
                     }
                 ]
             elif organization_name.lower()=="aqua":
                 featured_products = [
                     {
-                        "productName": "Aqua Dish Wash liquid Lemon 1Ltr",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Aqua Dish Wash liquid Lemon 1Ltr",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Aqua",
                         "price": "5",
                         "prevPrice": "20",
@@ -1284,13 +1284,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881003_1.jpg",
-                        "id": "f4c15dce-23a1-456c-a5ab-3592b14c67a1"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881003_1.jpg",
+                        "uuid": "f4c15dce-23a1-456c-a5ab-3592b14c67a1"
                     },
                     {
-                        "productName": "Aqua Hand Wash Liquid Rose 5 Ltr",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Aqua Hand Wash Liquid Rose 5 Ltr",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Aqua",
                         "price": "10",
                         "prevPrice": "20",
@@ -1298,13 +1298,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881034_1.jpg",
-                        "id": "52c47297-dcd8-4809-89af-051c7ac3b244"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881034_1.jpg",
+                        "uuid": "52c47297-dcd8-4809-89af-051c7ac3b244"
                     },
                     {
-                        "productName": "Aqua Glass Cleaner Liquid 650 Ml",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Aqua Glass Cleaner Liquid 650 Ml",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Aqua",
                         "price": "5",
                         "prevPrice": "20",
@@ -1312,13 +1312,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881171_1.jpg",
-                        "id": "d696bd92-7fd9-4d76-b53c-93ce5e69a991"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881171_1.jpg",
+                        "uuid": "d696bd92-7fd9-4d76-b53c-93ce5e69a991"
                     },
                     {
-                        "productName": "Aqua Antiseptic Disinfectant Liquid 5 ltr",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Aqua Antiseptic Disinfectant Liquid 5 ltr",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Aqua",
                         "price": "6",
                         "prevPrice": "20",
@@ -1326,16 +1326,16 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881218_1.jpg",
-                        "id": "55d7b55c-0060-4e94-90d0-021a74b6fd0d"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881218_1.jpg",
+                        "uuid": "55d7b55c-0060-4e94-90d0-021a74b6fd0d"
                     }
                 ]
             elif organization_name.lower()=="future-lux":
                 featured_products = [
                     {
-                        "productName": "24 Watt LED Panel Light Square Warm White Colour with Inbuilt Driver",
-                        "productCategory": "Lights and Fixtures",
-                        "productSubCategory": "Lights and Fixtures",
+                        "name": "24 Watt LED Panel Light Square Warm White Colour with Inbuilt Driver",
+                        "category": "Lights and Fixtures",
+                        "subCategory": "Lights and Fixtures",
                         "brand": "Future Lux",
                         "price": "32.5",
                         "prevPrice": "20",
@@ -1343,13 +1343,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDWWPANELSQR_1.jpg",
-                        "id": "11fc3bc2-5ba1-44ac-ab42-c99330ae2cdc"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDWWPANELSQR_1.jpg",
+                        "uuid": "11fc3bc2-5ba1-44ac-ab42-c99330ae2cdc"
                     },
                     {
-                        "productName": "Wooden Type Wall Light Fitting Cylindrical Shape",
-                        "productCategory": "Lights and Fixtures",
-                        "productSubCategory": "Lights and Fixtures",
+                        "name": "Wooden Type Wall Light Fitting Cylindrical Shape",
+                        "category": "Lights and Fixtures",
+                        "subCategory": "Lights and Fixtures",
                         "brand": "Future Lux",
                         "price": "84.5",
                         "prevPrice": "20",
@@ -1357,13 +1357,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD3009_1.jpg",
-                        "id": "2648adbc-e4ff-4693-8c01-a0f93b6f3c11"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD3009_1.jpg",
+                        "uuid": "2648adbc-e4ff-4693-8c01-a0f93b6f3c11"
                     },
                     {
-                        "productName": "Brass Chandelier Bell Type Modern Design E14 Lamp",
-                        "productCategory": "Lights and Fixtures",
-                        "productSubCategory": "Lights and Fixtures",
+                        "name": "Brass Chandelier Bell Type Modern Design E14 Lamp",
+                        "category": "Lights and Fixtures",
+                        "subCategory": "Lights and Fixtures",
                         "brand": "Future Lux",
                         "price": "1430",
                         "prevPrice": "20",
@@ -1371,13 +1371,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD1515_1.jpg",
-                        "id": "f73325fd-bc46-4be5-8c96-705e80b6be94"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD1515_1.jpg",
+                        "uuid": "f73325fd-bc46-4be5-8c96-705e80b6be94"
                     },
                     {
-                        "productName": "Hanging Type Decorative Interior Light",
-                        "productCategory": "Lights and Fixtures",
-                        "productSubCategory": "Lights and Fixtures",
+                        "name": "Hanging Type Decorative Interior Light",
+                        "category": "Lights and Fixtures",
+                        "subCategory": "Lights and Fixtures",
                         "brand": "Future Lux",
                         "price": "780",
                         "prevPrice": "20",
@@ -1385,8 +1385,8 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDHL2451_1.jpg",
-                        "id": "e9001f29-3313-4056-9dec-b1b4cef64d17"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDHL2451_1.jpg",
+                        "uuid": "e9001f29-3313-4056-9dec-b1b4cef64d17"
                     }
                 ]
             
