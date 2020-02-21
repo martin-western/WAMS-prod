@@ -211,6 +211,10 @@ class FetchProductDetailsAPI(APIView):
             response["verified"] = product_obj.verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
+            try:
+                response["features"] = json.loads(product_obj.pfl_product_features)
+            except Exception as e:
+                response["features"] = []
 
             if product_obj.product_id_type != None:
                 response["product_id_type"] = product_obj.product_id_type.name
@@ -3347,7 +3351,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     if section_obj.listing_type=="Carousel":
                         section_products = section_products[:21]
                     elif section_obj.listing_type=="Grid Stack":
-                        section_products = section_products[:9]
+                        section_products = section_products[:10]
 
 
                 for prod in section_products:
