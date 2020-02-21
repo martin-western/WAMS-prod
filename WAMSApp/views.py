@@ -2199,6 +2199,7 @@ class UploadProductImageAPI(APIView):
                                                                   is_sub_image=is_sub_image,
                                                                   sub_image_index=sub_image_index)
                     sub_images_obj.sub_images.add(image_bucket_obj)
+                    sub_images_obj.save()
             elif data["image_category"] == "pfl_images":
                 for image_obj in image_objs:
                     product_obj.pfl_images.add(image_obj)
