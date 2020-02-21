@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
 from auditlog.models import *
-from dealshub.models import DealsHubProduct
+from dealshub.models import DealsHubProduct, Category
 from WAMSApp.utils import *
 from WAMSApp.serializers import UserSerializer, UserSerializerWithToken
 
@@ -321,7 +321,21 @@ class CreateNewBaseProductAPI(APIView):
                                               dimensions=base_dimensions)
 
             product_obj = Product.objects.create(product_name=product_name,
-                                              base_product=base_product_obj)
+                                              base_product=base_product_obj,
+                                              is_dealshub_product_created=True)
+
+            try:
+                organization_obj = brand_obj.organization
+                category_obj = None
+                if Category.objects.filter(organization=organization_obj, name=category).exists():
+                    category_obj = Category.objects.get(organization=organization, name=category)
+                else:
+                    category_obj = Category.objects.create(organization=organization, name=category)
+                    
+                DealsHubProduct.objects.create(product=product_obj, category=category_obj)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("CreateNewBaseProductAPI Dealshub Product not created! %s at %s", e, str(exc_tb.tb_lineno))
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -353,6 +367,7 @@ class CreateNewProductAPI(APIView):
 
             base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
             # Checking brand permission
+            brand_obj = None
             try:
                 permissible_brands = custom_permission_filter_brands(
                     request.user)
@@ -372,7 +387,21 @@ class CreateNewProductAPI(APIView):
             product_obj = Product.objects.create(product_name = product_name,
                                             product_name_sap=product_name,
                                             pfl_product_name=product_name,
-                                            base_product=base_product_obj)
+                                            base_product=base_product_obj,
+                                            is_dealshub_product_created=True)
+
+
+            try:
+                organization_obj = brand_obj.organization
+                category_obj = None
+                category = product_obj.base_product.category
+                if Category.objects.filter(organization=organization_obj, name=category).exists():
+                    category_obj = Category.objects.get(organization=organization, name=category)
+
+                DealsHubProduct.objects.create(product=product_obj, category=category_obj)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("CreateNewProductAPI Dealshub Product not created! %s at %s", e, str(exc_tb.tb_lineno))
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
