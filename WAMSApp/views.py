@@ -329,9 +329,9 @@ class CreateNewBaseProductAPI(APIView):
                 category_obj = None
                 from dealshub.models import Category
                 if Category.objects.filter(organization=organization_obj, name=category).exists():
-                    category_obj = Category.objects.get(organization=organization, name=category)
+                    category_obj = Category.objects.get(organization=organization_obj, name=category)
                 else:
-                    category_obj = Category.objects.create(organization=organization, name=category)
+                    category_obj = Category.objects.create(organization=organization_obj, name=category)
                     
                 DealsHubProduct.objects.create(product=product_obj, category=category_obj)
             except Exception as e:
@@ -398,7 +398,7 @@ class CreateNewProductAPI(APIView):
                 category = product_obj.base_product.category
                 from dealshub.models import Category
                 if Category.objects.filter(organization=organization_obj, name=category).exists():
-                    category_obj = Category.objects.get(organization=organization, name=category)
+                    category_obj = Category.objects.get(organization=organization_obj, name=category)
 
                 DealsHubProduct.objects.create(product=product_obj, category=category_obj)
             except Exception as e:
@@ -1283,39 +1283,42 @@ class FetchDealsHubProductsAPI(APIView):
             products = []
 
             for product_obj in product_objs_list:
-                
-                temp_dict ={}
-                temp_dict["product_pk"] = product_obj.pk
-                temp_dict["product_id"] = product_obj.product_id
-                temp_dict["product_name"] = product_obj.product_name
-                temp_dict["brand_name"] = product_obj.base_product.brand.name
-                channel_status = DealsHubProduct.objects.get(product=product_obj).is_published
-                temp_dict["channel_status"] = "active" if channel_status==True else "inactive"
-                temp_dict["category"] = product_obj.base_product.category
-                temp_dict["sub_category"] = product_obj.base_product.sub_category
-
-                repr_image_url = Config.objects.all()[0].product_404_image.image.url
-                repr_high_def_url = repr_image_url
-                
-                main_images_obj = None
                 try:
-                    main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
-                except Exception as e:
-                    pass
+                    temp_dict ={}
+                    temp_dict["product_pk"] = product_obj.pk
+                    temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["brand_name"] = product_obj.base_product.brand.name
+                    channel_status = DealsHubProduct.objects.get(product=product_obj).is_published
+                    temp_dict["channel_status"] = "active" if channel_status==True else "inactive"
+                    temp_dict["category"] = product_obj.base_product.category
+                    temp_dict["sub_category"] = product_obj.base_product.sub_category
 
-                if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                    repr_image_url = Config.objects.all()[0].product_404_image.image.url
+                    repr_high_def_url = repr_image_url
+                    
+                    main_images_obj = None
                     try:
-                        repr_image_url = main_images_obj.main_images.filter(
-                            is_main_image=True)[0].image.mid_image.url
+                        main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
                     except Exception as e:
-                        repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                        pass
 
-                    repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                    if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                        try:
+                            repr_image_url = main_images_obj.main_images.filter(
+                                is_main_image=True)[0].image.mid_image.url
+                        except Exception as e:
+                            repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
-                temp_dict["repr_image_url"] = repr_image_url
-                temp_dict["repr_high_def_url"] = repr_high_def_url
+                        repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
-                products.append(temp_dict)
+                    temp_dict["repr_image_url"] = repr_image_url
+                    temp_dict["repr_high_def_url"] = repr_high_def_url
+
+                    products.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchDealsHubProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response['products'] = products
             response['status'] = 200
