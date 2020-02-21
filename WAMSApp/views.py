@@ -1665,10 +1665,10 @@ class FetchProductListAPI(APIView):
                                     temp_dict["base_main_images"].append(main_image)
                             except Exception as e:
                                 pass
-                        elif without_images==0:
-                            main_images = create_response_images_main(main_images_list)
-                            temp_dict2["main_images"].append(main_images[0])
-                            temp_dict["base_main_images"].append(main_images[0])
+                        # elif without_images==0:
+                        #     main_images = create_response_images_main(main_images_list)
+                        #     temp_dict2["main_images"].append(main_images[0])
+                        #     temp_dict["base_main_images"].append(main_images[0])
 
                     channels_of_prod =0
                     active_channels = 0
