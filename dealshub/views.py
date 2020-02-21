@@ -3351,7 +3351,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     if section_obj.listing_type=="Carousel":
                         section_products = section_products[:21]
                     elif section_obj.listing_type=="Grid Stack":
-                        section_products = section_products[:10]
+                        section_products = section_products[:14]
 
 
                 for prod in section_products:
