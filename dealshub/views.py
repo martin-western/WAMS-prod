@@ -3344,7 +3344,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                 section_products = section_obj.products.all()
                 if limit==True:
-                    section_products = section_products[:12]
+                    if section_obj.listing_type=="Carousel":
+                        section_products = section_products[:21]
+                    elif section_obj.listing_type=="Grid Stack":
+                        section_products = section_products[:9]
+
 
                 for prod in section_products:
                     temp_dict2 = {}
