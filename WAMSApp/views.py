@@ -4115,44 +4115,48 @@ class FetchAuditLogsByUserAPI(APIView):
 
             log_entry_list = []
             for log_entry_obj in log_entry_objs:
-                
-                temp_dict = {}
-                object_pk = log_entry_obj.object_pk
-                content_type = str(log_entry_obj.content_type)
-                
-                temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
-                temp_dict["resource"] = content_type
+                try:
+                    temp_dict = {}
+                    object_pk = log_entry_obj.object_pk
+                    content_type = str(log_entry_obj.content_type)
+                    
+                    temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
+                    temp_dict["resource"] = content_type
 
-                if content_type.lower() == "baseproduct":
-                    base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "baseproduct":
+                        base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if content_type.lower() == "product":
-                    base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "product":
+                        base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if content_type.lower() == "channelproduct":
-                    channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
-                    base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "channelproduct":
+                        channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
+                        base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                temp_dict["action"] = ""
-                if log_entry_obj.action==0:
-                    temp_dict["action"] = "create"
-                elif log_entry_obj.action==1:
-                    temp_dict["action"] = "update"
-                elif log_entry_obj.action==2:
-                    temp_dict["action"] = "delete"
-                changes = json.loads(log_entry_obj.changes)
-                temp_dict["changes"] = changes
+                    temp_dict["action"] = ""
+                    if log_entry_obj.action==0:
+                        temp_dict["action"] = "create"
+                    elif log_entry_obj.action==1:
+                        temp_dict["action"] = "update"
+                    elif log_entry_obj.action==2:
+                        temp_dict["action"] = "delete"
+                    changes = json.loads(log_entry_obj.changes)
+                    temp_dict["changes"] = changes
 
-                log_entry_list.append(temp_dict)
+                    log_entry_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchAuditLogsByUserAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             is_available = True
             if paginator.num_pages == page:
@@ -4192,44 +4196,48 @@ class FetchAuditLogsAPI(APIView):
 
             log_entry_list = []
             for log_entry_obj in log_entry_objs:
-                temp_dict = {}
+                try:
+                    temp_dict = {}
 
-                object_pk = log_entry_obj.object_pk
-                content_type = str(log_entry_obj.content_type)
+                    object_pk = log_entry_obj.object_pk
+                    content_type = str(log_entry_obj.content_type)
 
-                temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
-                temp_dict["resource"] = content_type
-                temp_dict["user"] = str(log_entry_obj.actor)
-                temp_dict["action"] = ""
-                
-                if content_type.lower() == "baseproduct":
-                    base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
+                    temp_dict["resource"] = content_type
+                    temp_dict["user"] = str(log_entry_obj.actor)
+                    temp_dict["action"] = ""
+                    
+                    if content_type.lower() == "baseproduct":
+                        base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if content_type.lower() == "product":
-                    base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "product":
+                        base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if content_type.lower() == "channelproduct":
-                    channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
-                    base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "channelproduct":
+                        channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
+                        base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if log_entry_obj.action==0:
-                    temp_dict["action"] = "create"
-                elif log_entry_obj.action==1:
-                    temp_dict["action"] = "update"
-                elif log_entry_obj.action==2:
-                    temp_dict["action"] = "delete"
-                changes = json.loads(log_entry_obj.changes)
-                temp_dict["changes"] = changes
-                log_entry_list.append(temp_dict)
+                    if log_entry_obj.action==0:
+                        temp_dict["action"] = "create"
+                    elif log_entry_obj.action==1:
+                        temp_dict["action"] = "update"
+                    elif log_entry_obj.action==2:
+                        temp_dict["action"] = "delete"
+                    changes = json.loads(log_entry_obj.changes)
+                    temp_dict["changes"] = changes
+                    log_entry_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchAuditLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             if paginator.num_pages == page:
