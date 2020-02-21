@@ -1636,20 +1636,27 @@ class SearchAPI(APIView):
             query_string_name = data.get("name", "")
             query_string_category = data.get("category", "")
             query_string_organization = data.get("organizationName", "geepas")
+            page = data.get("page", 1)
             search = {}
-            if query_string_name == '':
-                response['status'] = 404
-                return Response(data=response)
+            # if query_string_name == '' and query_string_category=="":
+            #     response['status'] = 404
+            #     return Response(data=response)
             products_by_category = Product.objects.filter(base_product__brand__organization__name=query_string_organization)
             if query_string_category!="ALL":
                 query_string_category = query_string_category.replace("-", " ")
                 products_by_category = products_by_category.filter(base_product__category__icontains = query_string_category)
-            products_by_name = products_by_category.filter(product_name__icontains=query_string_name)
+            products_by_name = products_by_category
+            if query_string_name!="":
+                products_by_name = products_by_category.filter(product_name__icontains=query_string_name)
             products = []
             filters = []
             logger.info("products by category %s", str(products_by_category))
             logger.info("products by name %s", str(products_by_name))
-            for product in products_by_name:
+
+            paginator = Paginator(products_by_name, 20)
+            products_list = paginator.page(page)            
+
+            for product in products_list:
                 if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
                     continue
                 temp_dict = {}
@@ -1700,21 +1707,15 @@ class SearchAPI(APIView):
                             filters.append(temp_dict_filter)
                 if main_images_list.filter(is_main_image=True).count() > 0:
                     products.append(temp_dict)
-            """
-            dealshub_product = DealsHubProduct.objects.get(product=product)
-            category = dealshub_product.category
-            if category!=None:
-                sub_categories = category.sub_categories.all()
-                for sub_category in sub_categories:
-                    temp_dict_filter = {}
-                    temp_dict_filter["id"] = sub_category.pk
-                    temp_dict_filter["name"] = sub_category.name
-                    temp_dict_filter["values"] = []
-                    properties = sub_category.properties.all()
-                    for prop in properties:
-                        temp_dict_filter["values"].append(prop.label)
-                    filters.append(temp_dict_filter)
-            """
+
+            is_available = True
+            
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_products"] = len(products_by_name)
+
             search['filters'] = filters
             search['category'] = query_string_category
             search['products'] = products
