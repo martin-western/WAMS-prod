@@ -4356,10 +4356,15 @@ class FetchCompanyProfileAPI(APIView):
             company_data["instagram_link"] = organization.instagram_link
             company_data["youtube_link"] = organization.youtube_link
             
-            company_data["logo_image_url"] = ""
+            company_data["logo"] = {
+                "uid" : "",
+                "httpLink" : "",
+                "isPublished" : "",
+                "url" : ""
+            }
 
             if organization.logo != None:
-                company_data["logo_image_url"] = organization.logo.image.url
+                company_data["logo"]["url"] = organization.logo.image.url
 
             response["company_data"] = company_data
             response['status'] = 200
