@@ -327,6 +327,7 @@ class CreateNewBaseProductAPI(APIView):
             try:
                 organization_obj = brand_obj.organization
                 category_obj = None
+                from dealshub.models import Category
                 if Category.objects.filter(organization=organization_obj, name=category).exists():
                     category_obj = Category.objects.get(organization=organization, name=category)
                 else:
@@ -395,6 +396,7 @@ class CreateNewProductAPI(APIView):
                 organization_obj = brand_obj.organization
                 category_obj = None
                 category = product_obj.base_product.category
+                from dealshub.models import Category
                 if Category.objects.filter(organization=organization_obj, name=category).exists():
                     category_obj = Category.objects.get(organization=organization, name=category)
 
