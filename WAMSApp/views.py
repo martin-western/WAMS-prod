@@ -1624,6 +1624,7 @@ class FetchProductListAPI(APIView):
                             main_images_list |= main_images_obj.main_images.all()
 
                         main_images_list = main_images_list.distinct()
+                        logger.info("%s ",len(main_images_list))
 
                         if main_images_list.filter(is_main_image=True).count() > 0:
                             try:
