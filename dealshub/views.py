@@ -115,7 +115,6 @@ class FetchProductDetailsAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -126,7 +125,6 @@ class FetchProductDetailsAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
 
 
@@ -186,7 +184,6 @@ class FetchProductDetailsAPI(APIView):
             try:
                 main_images_obj = MainImages.objects.get(
                     product=product_obj, is_sourced=True)
-                print(main_images_obj)
                 main_images_list |= main_images_obj.main_images.all()
             except Exception as e:
                 pass
@@ -194,7 +191,6 @@ class FetchProductDetailsAPI(APIView):
             images["main_images"] = create_response_images_main(
                 main_images_list)
             try:
-                logger.info("images %s", str(images))
                 response["heroImageUrl"] = images["main_images"][0]["main_url"]
             except Exception as e:
                 response["heroImageUrl"] = ""
@@ -294,7 +290,6 @@ class FetchProductDetailsAPI(APIView):
             response["images"] = images
 
             response['status'] = 200
-            logger.info("Passing response %s", str(response))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -356,7 +351,6 @@ class FetchSectionsProductsAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -367,7 +361,6 @@ class FetchSectionsProductsAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
     def post(self, request, *args, **kwargs):
         response = {}
@@ -490,7 +483,6 @@ class FetchSectionsProductsLimitAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -501,7 +493,6 @@ class FetchSectionsProductsLimitAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
     def post(self, request, *args, **kwargs):
         response = {}
@@ -623,7 +614,6 @@ class FetchSectionProductsAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -634,7 +624,6 @@ class FetchSectionProductsAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
     def post(self, request, *args, **kwargs):
         response = {}
@@ -1613,7 +1602,6 @@ class SearchAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -1624,7 +1612,6 @@ class SearchAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
 
     def post(self, request, *args, **kwargs):
@@ -1650,8 +1637,6 @@ class SearchAPI(APIView):
                 products_by_name = products_by_category.filter(product_name__icontains=query_string_name)
             products = []
             filters = []
-            logger.info("products by category %s", str(products_by_category))
-            logger.info("products by name %s", str(products_by_name))
 
             paginator = Paginator(products_by_name, 20)
             products_list = paginator.page(page)            
@@ -2298,7 +2283,7 @@ class FetchFullBannerAdAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchDealsBannerAPI: %s at %s",
+            logger.error("FetchFullBannerAdAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
@@ -2889,7 +2874,6 @@ class FetchHeadingDataAPI(APIView):
             dealshub_heading_objs = DealsHubHeading.objects.filter(organization=organization_obj)
             heading_list = []
             for dealshub_heading_obj in dealshub_heading_objs:
-                logger.info("heading data")
                 temp_dict = {}
                 temp_dict["headingName"] = dealshub_heading_obj.name
                 category_list = []
@@ -2945,7 +2929,6 @@ class FetchHeadingDataAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("Not catching")
             logger.error("FetchHeadingDataAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
@@ -3305,7 +3288,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -3316,7 +3298,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
 
     def post(self, request, *args, **kwargs):
