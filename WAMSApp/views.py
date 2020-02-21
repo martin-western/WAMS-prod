@@ -1279,10 +1279,10 @@ class FetchDealsHubProductsAPI(APIView):
 
             page = int(data['page'])
             paginator = Paginator(product_objs_list, 20)
-            product_objs_list = paginator.page(page)
+            product_objs_list_subset = paginator.page(page)
             products = []
 
-            for product_obj in product_objs_list:
+            for product_obj in product_objs_list_subset:
                 try:
                     temp_dict ={}
                     temp_dict["product_pk"] = product_obj.pk
@@ -1319,6 +1319,15 @@ class FetchDealsHubProductsAPI(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchDealsHubProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+            is_available = True
+            
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_products"] = len(product_objs_list)
 
             response['products'] = products
             response['status'] = 200
