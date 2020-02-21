@@ -650,14 +650,11 @@ class FetchSectionProductsAPI(APIView):
                 for main_images_obj in main_images_objs:
                     main_images_list |= main_images_obj.main_images.all()
                 main_images_list = main_images_list.distinct()
-                if main_images_list.filter(is_main_image=True).count() > 0:
-                    try:
-                        temp_dict2["heroImageUrl"] = main_images_list.filter(is_main_image=True)[
-                            0].image.mid_image.url
-                    except Exception as e:
-                        temp_dict2["heroImageUrl"] = Config.objects.all()[
-                            0].product_404_image.image.url
-                else:
+                
+                try:
+                    temp_dict2["heroImageUrl"] = main_images_list.all()[
+                        0].image.mid_image.url
+                except Exception as e:
                     temp_dict2["heroImageUrl"] = Config.objects.all()[
                         0].product_404_image.image.url
 
