@@ -932,18 +932,18 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "id": Product.objects.get(base_product__seller_sku="GAC9602").uuid
                     },
                     {
-                        "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas Citrus Juicer/1.0L Plstc cup",
+                        "category": "Juicer",
+                        "subCategory": "Juicer",
                         "brand": "Geepas",
-                        "price": "4,000",
-                        "prevPrice": "4,500",
+                        "price": "26",
+                        "prevPrice": "30",
                         "currency": "AED",
-                        "discount": "15",
+                        "discount": "4",
                         "rating": "3.9",
                         "totalRatings": "1,772",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505981GAC9433_3.JPG",
-                        "id": Product.objects.get(base_product__seller_sku="GAC9433").uuid
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/289A2524_AVCns5Q.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GCJ9900").uuid
                     },
                     {
                         "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -1170,18 +1170,18 @@ class FetchFeaturedProductsAPI(APIView):
                         "uuid": Product.objects.get(base_product__seller_sku="GAC9602").uuid
                     },
                     {
-                        "name": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
-                        "category": "Electronics",
-                        "subCategory": "Cooler",
+                        "name": "Geepas Citrus Juicer/1.0L Plstc cup",
+                        "category": "Juicer",
+                        "subCategory": "Juicer",
                         "brand": "Geepas",
-                        "price": "255",
-                        "prevPrice": "4,500",
+                        "price": "26",
+                        "prevPrice": "30",
                         "currency": "AED",
-                        "discount": "15",
+                        "discount": "4",
                         "rating": "3.9",
                         "totalRatings": "1,772",
-                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                        "uuid": Product.objects.get(base_product__seller_sku="GAC9433").uuid
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/289A2524_AVCns5Q.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GCJ9900").uuid
                     },
                     {
                         "name": "Geepas GA1960 4 USB Travel Charger ",
