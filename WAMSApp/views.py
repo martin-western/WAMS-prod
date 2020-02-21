@@ -1617,6 +1617,7 @@ class FetchProductListAPI(APIView):
 
                     if without_images == 0:
 
+                        logger.info("HERE : ")
                         main_images_list = ImageBucket.objects.none()
                         main_images_objs = MainImages.objects.filter(product=product_obj)
                         for main_images_obj in main_images_objs:
