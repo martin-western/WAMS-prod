@@ -3306,12 +3306,16 @@ class FetchDealshubAdminSectionsAPI(APIView):
             logger.info("FetchDealshubAdminSectionsAPI: %s", str(data))
 
             limit = data.get("limit", False)
+            is_dealshub = data.get("isDealshub", False)
 
             organization_name = data["organizationName"]
             organization_obj = Organization.objects.get(name=organization_name)
 
             dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.get(organization=organization_obj)
             section_objs = Section.objects.all().order_by('order_index')
+
+            if is_dealshub==True:
+                section_objs = section_objs.filter(is_published=True)                
             cnt = 0
             dealshub_admin_sections = []
             for section_obj in section_objs:
