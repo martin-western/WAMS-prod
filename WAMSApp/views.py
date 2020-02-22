@@ -1757,9 +1757,9 @@ class FetchExportListAPI(APIView):
                 end_date = datetime.datetime.strptime(
                     data["end_date"], "%b %d, %Y")
                 export_list_objs = ExportList.objects.filter(
-                    created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user)
+                    created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user).order_by('-pk')
             else:
-                export_list_objs = ExportList.objects.all().filter(user=request.user)
+                export_list_objs = ExportList.objects.all().filter(user=request.user).order_by('-pk')
 
             if len(chip_data) == 0:
                 search_list_objs = export_list_objs
