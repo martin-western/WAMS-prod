@@ -2008,8 +2008,10 @@ class DownloadExportListAPI(APIView):
                 response["total_products"] = products.count()
                 response["file_path"] = "/files/csv/export-list-amazon-uk.xlsx"
             elif export_format == "Amazon UAE":
-                export_amazon_uae(products)
-                response["file_path"] = "/files/csv/export-list-amazon-uae.csv"
+                success_products = export_amazon_uae(products)
+                response["success_products"] = success_products
+                response["total_products"] = products.count()
+                response["file_path"] = "/files/csv/export-list-amazon-uae.xlsx"
             elif export_format == "Ebay":
                 success_products = export_ebay(products)
                 response["success_products"] = success_products
