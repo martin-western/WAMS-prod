@@ -1638,56 +1638,55 @@ class SearchAPI(APIView):
             products_list = paginator.page(page)            
 
             for product in products_list:
-                if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
-                    continue
-                temp_dict = {}
-                temp_dict["name"] = product.product_name
-                temp_dict["brand"] = str(product.base_product.brand)
-                if(product.base_product.brand.name=="Geepas"):
-                    temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
-                else:
-                    temp_dict["price"] = product.standard_price
-                temp_dict["prevPrice"] = self.fetch_price(product.base_product.seller_sku)
-                temp_dict["currency"] = "AED"
-                temp_dict["discount"] = "10%"
-                temp_dict["rating"] = "4.5"
-                temp_dict["totalRatings"] = "453"
-                temp_dict["uuid"] = product.uuid
-                temp_dict["id"] = product.uuid
-                
-                main_images_list = ImageBucket.objects.none()
-                main_images_objs = MainImages.objects.filter(product=product)
-                for main_images_obj in main_images_objs:
-                    main_images_list |= main_images_obj.main_images.all()
-                main_images_list = main_images_list.distinct()
-                if main_images_list.filter(is_main_image=True).count() > 0:
+                try:
+                    if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
+                        continue
+                    temp_dict = {}
+                    temp_dict["name"] = product.product_name
+                    temp_dict["brand"] = str(product.base_product.brand)
+                    if(product.base_product.brand.name=="Geepas"):
+                        temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
+                    else:
+                        temp_dict["price"] = product.standard_price
+                    temp_dict["prevPrice"] = self.fetch_price(product.base_product.seller_sku)
+                    temp_dict["currency"] = "AED"
+                    temp_dict["discount"] = "10%"
+                    temp_dict["rating"] = "4.5"
+                    temp_dict["totalRatings"] = "453"
+                    temp_dict["uuid"] = product.uuid
+                    temp_dict["id"] = product.uuid
+                    
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_objs = MainImages.objects.filter(product=product)
+                    for main_images_obj in main_images_objs:
+                        main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = main_images_list.distinct()
+
                     try:
-                        temp_dict["heroImageUrl"] = main_images_list.filter(is_main_image=True)[
-                            0].image.thumbnail.url
+                        temp_dict["heroImageUrl"] = main_images_list.all()[0].image.thumbnail.url
                     except Exception as e:
-                       temp_dict["heroImageUrl"] = Config.objects.all()[
-                            0].product_404_image.image.url
-                else:
-                    temp_dict["heroImageUrl"] = Config.objects.all()[
-                        0].product_404_image.image.url
-               
-                dealshub_product = DealsHubProduct.objects.get(product=product)
-                category = dealshub_product.category
-                if category!=None:
-                    sub_categories = category.sub_categories.all()
-                    for sub_category in sub_categories:
-                        temp_dict_filter = {}
-                        temp_dict_filter["id"] = sub_category.pk
-                        temp_dict_filter["name"] = sub_category.name
-                        temp_dict_filter["values"] = []
-                        properties = sub_category.properties.all()
-                        for prop in properties:
-                            if prop.label in temp_dict_filter["values"]:
-                                temp_dict_filter["values"].append(prop.label)
-                        if sub_category.pk not in [x["id"] for x in filters ]:
-                            filters.append(temp_dict_filter)
-                if main_images_list.filter(is_main_image=True).count() > 0:
+                        temp_dict["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
+                   
+                    dealshub_product = DealsHubProduct.objects.get(product=product)
+                    category = dealshub_product.category
+                    if category!=None:
+                        sub_categories = category.sub_categories.all()
+                        for sub_category in sub_categories:
+                            temp_dict_filter = {}
+                            temp_dict_filter["id"] = sub_category.pk
+                            temp_dict_filter["name"] = sub_category.name
+                            temp_dict_filter["values"] = []
+                            properties = sub_category.properties.all()
+                            for prop in properties:
+                                if prop.label in temp_dict_filter["values"]:
+                                    temp_dict_filter["values"].append(prop.label)
+                            if sub_category.pk not in [x["id"] for x in filters ]:
+                                filters.append(temp_dict_filter)
+                    #if main_images_list.filter(is_main_image=True).count() > 0:
                     products.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             
