@@ -7,6 +7,8 @@ from django.core.files import File
 from WAMSApp.core_utils import *
 import sys
 import logging
+import xlsxwriter
+
 logger = logging.getLogger(__name__)
 
 def export_amazon_uae(products):
@@ -31,79 +33,86 @@ def export_amazon_uae(products):
                 rownum += 1
 
         for product in products:
-            base_product = product.base_product
-            channel_product = product.channel_product
-            amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
-            
-            common_row = ["" for i in range(25)]
-            common_row[0] = "UAE"
-            common_row[1] = amazon_uae_product["feed_product_type"]
-            common_row[2] = base_product.seller_sku
-            common_row[3] = "" if base_product.brand==None else base_product.brand.name
-            common_row[4] = product.product_id
-            common_row[5] = product.product_id_type.name
-            common_row[6] = amazon_uae_product["product_name"]
-            common_row[7] = base_product.manufacturer
-            common_row[8] = amazon_uae_product["product_description"]
-            common_row[9] = base_product.manufacturer_part_number
-            bullet_points = ""
-            product_attribute_list = amazon_uae_product["product_attribute_list"]
-            for product_attribute in product_attribute_list:
-                #bullet_points += "\xe2\x80\xa2 " + product_attribute + "\n"
-                bullet_points += "- " + product_attribute + "\n"
-
-
-            common_row[10] = bullet_points
-            common_row[11] = amazon_uae_product["recommended_browse_nodes"]
-            common_row[12] = product.standard_price
-            common_row[13] = product.quantity
-            common_row[14] = amazon_uae_product["update_delete"]
-
-            # dimensions = json.loads(base_product.dimensions)
-            # common_row[16] = "" if dimensions["package_height"] == None else str(
-            #     dimensions["package_height"])
-            # common_row[17] = "" if base_product.package_length == None else str(
-            #     base_product.package_length)
-            # common_row[18] = base_product.package_length_metric
-            # common_row[19] = "" if base_product.package_width == None else str(
-            #     base_product.package_width)
-            # #common_row[20] = base_product.fulfillment_centre_id
-            # #common_row[21] = base_product.package_dimension_unit_of_measure
-            # common_row[22] = "" if base_product.package_weight == None else str(
-            #     base_product.package_weight)
-            # common_row[23] = base_product.package_weight_metric
-            # common_row[24] = base_product.package_quantity
-
-            # Graphics Part
-            main_image_url = None
             try:
-                main_images_obj = MainImages.objects.get(product = product, channel="Amazon UAE")
+                base_product = product.base_product
+                channel_product = product.channel_product
+                amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                 
-                if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                    main_image_url = main_image_obj.image.image.url
+                common_row = ["" for i in range(25)]
+                common_row[0] = "UAE"
+                common_row[1] = amazon_uae_product["feed_product_type"]
+                common_row[2] = base_product.seller_sku
+                common_row[3] = "" if base_product.brand==None else base_product.brand.name
+                common_row[4] = product.product_id
+                common_row[5] = str(product.product_id_type)
+                common_row[6] = amazon_uae_product["product_name"]
+                common_row[7] = base_product.manufacturer
+                common_row[8] = amazon_uae_product["product_description"]
+                common_row[9] = base_product.manufacturer_part_number
+                bullet_points = ""
+                product_attribute_list = amazon_uae_product["product_attribute_list"]
+                for product_attribute in product_attribute_list:
+                    #bullet_points += "\xe2\x80\xa2 " + product_attribute + "\n"
+                    bullet_points += "- " + product_attribute + "\n"
+
+
+                common_row[10] = bullet_points
+                common_row[11] = amazon_uae_product["recommended_browse_nodes"]
+                common_row[12] = product.standard_price
+                common_row[13] = product.quantity
+                common_row[14] = amazon_uae_product["update_delete"]
+
+                dimensions = json.loads(base_product.dimensions)
+                common_row[16] = dimensions["giftbox_h"]
+                common_row[17] = dimensions["giftbox_l"]
+                common_row[18] = dimensions["giftbox_l_metric"]
+                common_row[19] = dimensions["giftbox_b"]
+                #common_row[20] = base_product.fulfillment_centre_id
+                #common_row[21] = base_product.package_dimension_unit_of_measure
+                # common_row[22] = "" if base_product.package_weight == None else str(
+                #     base_product.package_weight)
+                # common_row[23] = base_product.package_weight_metric
+                # common_row[24] = base_product.package_quantity
+
+                # Graphics Part
+                main_image_url = None
+                
+                try:
+
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_obj = MainImages.objects.get(product = product, channel__name="Amazon UAE")
+                    
+                    main_images_list |= main_images_obj.main_images.all()
+
+                    main_images_list = main_images_list.distinct()
+                    
+                    main_image_url = main_images_list[0].image.image.url
+                except Exception as e:
+                    pass
+
+                common_row[15] = str(main_image_url)
+
+                data_row_2 = []
+                #logger.info("common_row: %s", str(common_row))
+                for k in common_row:
+                    if k==None:
+                        data_row_2.append("")
+                    elif isinstance(k, int)==False and isinstance(k, float)==False:
+                        l = k.encode('utf-8').strip()
+                        data_row_2.append(l)
+                    else:
+                        data_row_2.append(k)
+
+                colnum = 0
+                for k in data_row_2:
+                    worksheet.write(rownum, colnum, k)
+                    colnum += 1
+                rownum += 1
             except Exception as e:
-                pass
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("export_amazon_uae: %s at %s", e, str(exc_tb.tb_lineno))
 
-            common_row[15] = str(main_image_url)
-
-            data_row_2 = []
-            #logger.info("common_row: %s", str(common_row))
-            for k in common_row:
-                if k==None:
-                    data_row_2.append("")
-                elif isinstance(k, int)==False and isinstance(k, float)==False:
-                    l = k.encode('utf-8').strip()
-                    data_row_2.append(l)
-                else:
-                    data_row_2.append(k)
-
-            colnum = 0
-            for k in data_row_2:
-                worksheet.write(rownum, colnum, k)
-                colnum += 1
-            rownum += 1
-            
+        workbook.close()
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("export_amazon_uae: %s at %s", e, str(exc_tb.tb_lineno))
