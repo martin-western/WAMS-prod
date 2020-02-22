@@ -21,6 +21,10 @@ def export_amazon_uae(products):
         workbook = xlsxwriter.Workbook('./files/csv/export-list-amazon-uae.xlsx')
         worksheet = workbook.add_worksheet()
 
+        cell_format = workbook.add_format({'bold': True})
+        cell_format.set_pattern(1)
+        cell_format.set_bg_color('yellow')
+
         rownum = 0
         colnum = 0
         with open('./WAMSApp/static/WAMSApp/csv/amazon_uae.csv','rt')as f:
