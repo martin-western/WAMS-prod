@@ -101,9 +101,6 @@ def export_amazon_uae(products):
                 for k in common_row:
                     if k==None:
                         data_row_2.append("")
-                    elif isinstance(k, int)==False and isinstance(k, float)==False:
-                        l = k.encode('utf-8').strip()
-                        data_row_2.append(l)
                     else:
                         data_row_2.append(k)
 
