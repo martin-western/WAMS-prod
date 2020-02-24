@@ -1202,7 +1202,7 @@ class FetchProductDetailsAPI(APIView):
             images["ads_images"] = create_response_images(
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images(
-                product_obj.unedited_images.all())
+                product_obj.base_product.unedited_images.all())
             images["transparent_images"] = create_response_images(
                 product_obj.transparent_images.all())
 
