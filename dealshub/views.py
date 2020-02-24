@@ -758,86 +758,21 @@ class FetchCategoriesAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-
+            from dealshub.models import Category
             data = request.data
             logger.info("FetchCategoriesAPI: %s", str(data))
-            temp_categories = Category.objects.all()
-            categories_obj = []
-            for category in temp_categories:
-                temp_dict = {}
-                temp_dict["name"] = category.name
-                temp_dict["catId"] = category.category_id
-                temp_dict["subCategories"] = []
-                for sub_category in category.sub_categories.all():
-                    temp_sub_category_dict = {}
-                    temp_sub_category_dict["name"] = sub_category.name
-                    temp_sub_category_dict["catId"] = sub_category.sub_category
-                    temp_dict["subCategories"].append(temp_sub_category_dict)
-                categories_obj.append(temp_dict)
-            categories_obj = [
-                {
-                    "name": "electronics",
-                    "catId": "fw-234",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "fashion",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "home and kitchen",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "beauty and fragrance",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "baby and kids",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "deals",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                }
-            ]
+            organization_name = data["organizationName"]
 
-            response['categories'] = categories_obj
+            category_objs = Category.objects.filter(organization__name=organization_name)
+
+            category_list = []
+            for category_obj in category_objs:
+                temp_dict = {}
+                temp_dict["name"] = category_obj.name
+                temp_dict["uuid"] = category_obj.category_id
+                category_list.append(temp_dict)
+
+            response['categoryList'] = category_list
 
             response['status'] = 200
 
@@ -3474,6 +3409,75 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
         return Response(data=response)
 
 
+class SearchSectionProductsAutocompleteAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchSectionProductsAutocompleteAPI: %s", str(data))
+
+            search_string = data["searchString"]
+            organization_name = data["organizationName"]
+
+            dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__organization__name=organization_name, product__base_product__seller_sku__icontains=search_string, product__product_name__icontains=search_string)
+
+            dealshub_products_list = []
+            for dealshub_product in dealshub_products:
+                temp_dict = {}
+                temp_dict["name"] = dealshub_product.product.product_name
+                temp_dict["uuid"] = dealshub_product.product.uuid
+                dealshub_products_list.append(temp_dict)
+
+            response["productList"] = dealshub_products_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchSectionProductsAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class SearchProductsAutocompleteAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchProductsAutocompleteAPI: %s", str(data))
+
+            search_string = data["searchString"]
+            organization_name = data["organizationName"]
+
+            dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__organization__name=organization_name, product__product_name__icontains=search_string)
+
+            dealshub_products_list = []
+            for dealshub_product in dealshub_products:
+                temp_dict = {}
+                temp_dict["name"] = dealshub_product.product.product_name
+                temp_dict["uuid"] = dealshub_product.product.uuid
+                dealshub_products_list.append(temp_dict)
+
+            response["productList"] = dealshub_products_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchProductsAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
 FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
@@ -3566,3 +3570,7 @@ FetchUserOrganization = FetchUserOrganizationAPI.as_view()
 FetchDealshubAdminSections = FetchDealshubAdminSectionsAPI.as_view()
 
 SaveDealshubAdminSectionsOrder = SaveDealshubAdminSectionsOrderAPI.as_view() 
+
+SearchSectionProductsAutocomplete = SearchSectionProductsAutocompleteAPI.as_view()
+
+SearchProductsAutocomplete = SearchProductsAutocompleteAPI.as_view()

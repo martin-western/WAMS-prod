@@ -82,4 +82,7 @@ urlpatterns = [
 
     url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
     url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
+
+    url(r'^search-section-products-autocomplete/$', views.SearchSectionProductsAutocompleteAPI),
+    url(r'^search-products-autocomplete/$', views.SearchProductsAutocompleteAPI),    
 ]
