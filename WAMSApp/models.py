@@ -26,6 +26,7 @@ noon_product_json = {
     "product_subtype" : "",
     "parent_sku" : "",
     "category" : "",
+    "subtitle" : "",
     "sub_category" : "",
     "model_number" : "",
     "model_name" : "",
@@ -336,6 +337,7 @@ class BaseProduct(models.Model):
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
+    unedited_images = models.ManyToManyField(Image, related_name="unedited_images", blank=True)
 
     dimensions = models.TextField(blank=True, default=base_dimensions_json)
     history = AuditlogHistoryField()
@@ -358,6 +360,7 @@ class BaseProduct(models.Model):
         super(BaseProduct, self).save(*args, **kwargs)
 
 auditlog.register(BaseProduct, exclude_fields=['modified_date' , 'created_date'])
+auditlog.register(BaseProduct.unedited_images.through)
 
 
 class ChannelProduct(models.Model):
@@ -403,6 +406,7 @@ class Product(models.Model):
     verified = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
     factory_code = models.CharField(null=True,max_length=200)
+    product_description = models.TextField(blank=True)
 
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
@@ -423,7 +427,6 @@ class Product(models.Model):
     diecut_images = models.ManyToManyField(Image, related_name="diecut_images", blank=True)
     aplus_content_images = models.ManyToManyField(Image, related_name="aplus_content_images", blank=True)
     ads_images = models.ManyToManyField(Image, related_name="ads_images", blank=True)
-    unedited_images = models.ManyToManyField(Image, related_name="unedited_images", blank=True)
     pfl_generated_images = models.ManyToManyField(Image , related_name="pfl_generated_images" , blank = True)
     transparent_images = models.ManyToManyField(Image , related_name="transparent_images" , blank = True)
 
@@ -478,7 +481,6 @@ auditlog.register(Product.giftbox_images.through)
 auditlog.register(Product.diecut_images.through)
 auditlog.register(Product.aplus_content_images.through)
 auditlog.register(Product.ads_images.through)
-auditlog.register(Product.unedited_images.through)
 auditlog.register(Product.pfl_generated_images.through)
 auditlog.register(Product.transparent_images.through)
 
