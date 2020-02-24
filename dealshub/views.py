@@ -1565,11 +1565,11 @@ class SearchAPI(APIView):
             query_string_name = data.get("name", "")
             query_string_category = data.get("category", "")
             query_string_organization = data.get("organizationName", "geepas")
+            filter_list = data.get("filters", [])
+
             page = data.get("page", 1)
             search = {}
-            # if query_string_name == '' and query_string_category=="":
-            #     response['status'] = 404
-            #     return Response(data=response)
+            
             products_by_category = Product.objects.filter(base_product__brand__organization__name=query_string_organization)
             if query_string_category!="ALL":
                 query_string_category = query_string_category.replace("-", " ")
@@ -1578,7 +1578,6 @@ class SearchAPI(APIView):
             if query_string_name!="":
                 products_by_name = products_by_category.filter(product_name__icontains=query_string_name)
             products = []
-            filters = []
 
             paginator = Paginator(products_by_name, 20)
             products_list = paginator.page(page)            
@@ -1587,6 +1586,20 @@ class SearchAPI(APIView):
                 try:
                     if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
                         continue
+
+                    dealshub_product = DealsHubProduct.objects.get(product=product)
+                    properties = json.loads(dealshub_product.properties)
+                    flag_match = True
+                    for filter_metric in filter_list:
+                        for prop in properties:
+                            if prop["key"]==filter_metric["key"]:
+                                if prop["value"] not in filter_metric["values"]:
+                                    flag_match = False
+                                break
+                    if flag_match==False:
+                        continue
+
+
                     temp_dict = {}
                     temp_dict["name"] = product.product_name
                     temp_dict["brand"] = str(product.base_product.brand)
@@ -1613,26 +1626,41 @@ class SearchAPI(APIView):
                     except Exception as e:
                         temp_dict["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
                    
-                    dealshub_product = DealsHubProduct.objects.get(product=product)
-                    category = dealshub_product.category
-                    if category!=None:
-                        sub_categories = category.sub_categories.all()
-                        for sub_category in sub_categories:
-                            temp_dict_filter = {}
-                            temp_dict_filter["id"] = sub_category.pk
-                            temp_dict_filter["name"] = sub_category.name
-                            temp_dict_filter["values"] = []
-                            properties = sub_category.properties.all()
-                            for prop in properties:
-                                if prop.label in temp_dict_filter["values"]:
-                                    temp_dict_filter["values"].append(prop.label)
-                            if sub_category.pk not in [x["id"] for x in filters ]:
-                                filters.append(temp_dict_filter)
-                    #if main_images_list.filter(is_main_image=True).count() > 0:
+
+                    # category = dealshub_product.category
+                    # if category!=None:
+                    #     sub_categories = category.sub_categories.all()
+                    #     for sub_category in sub_categories:
+                    #         temp_dict_filter = {}
+                    #         temp_dict_filter["id"] = sub_category.pk
+                    #         temp_dict_filter["name"] = sub_category.name
+                    #         temp_dict_filter["values"] = []
+                    #         properties = sub_category.properties.all()
+                    #         for prop in properties:
+                    #             if prop.label in temp_dict_filter["values"]:
+                    #                 temp_dict_filter["values"].append(prop.label)
+                    #         if sub_category.pk not in [x["id"] for x in filters ]:
+                    #             filters.append(temp_dict_filter)
+                    
                     products.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            filters = []
+            try:
+                from dealshub.models import Category
+                if query_string_category!="ALL":
+                    category_obj = Category.objects.get(name = query_string_category)
+                    property_data = json.loads(category_obj.property_data)
+                    for p_data in property_data:
+                        temp_dict = {}
+                        temp_dict["key"] = p_data["key"]
+                        temp_dict["values"] = p_data["values"]
+                        filters.append(temp_dict)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             

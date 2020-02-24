@@ -25,6 +25,7 @@ class Category(models.Model):
     description = models.CharField(max_length=256, blank=True, default='')
     category_id = models.CharField(max_length=256, blank=True, default='')
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True)
+    property_data = models.TextField(default="[]", blank=True)
 
     def __str__(self):
         return self.name
@@ -48,6 +49,7 @@ class SubCategory(models.Model):
     name = models.CharField(max_length=256, blank=True, default='')
     desription = models.CharField(max_length=256, blank=True, default='')
     sub_category_id = models.CharField(max_length=256, blank=True, default='')
+    property_data = models.TextField(default="[]", blank=True)
 
     def __str__(self):
         return self.name
@@ -57,34 +59,34 @@ class SubCategory(models.Model):
         verbose_name_plural = "Sub Categories"
 
 
-class Property(models.Model):
-    subcategory = models.ForeignKey(
-        SubCategory, blank=True, default="" , on_delete=models.CASCADE, related_name='properties')
-    label = models.CharField(max_length=256, blank=True, default='')
-    description = models.CharField(max_length=256, blank=True, default='')
+# class Property(models.Model):
+#     subcategory = models.ForeignKey(
+#         SubCategory, blank=True, default="" , on_delete=models.CASCADE, related_name='properties')
+#     label = models.CharField(max_length=256, blank=True, default='')
+#     description = models.CharField(max_length=256, blank=True, default='')
 
-    def __str__(self):
-        return self.label
+#     def __str__(self):
+#         return self.label
 
-    class Meta:
-        verbose_name = "Property"
-        verbose_name_plural = "Properties"
+#     class Meta:
+#         verbose_name = "Property"
+#         verbose_name_plural = "Properties"
 
 
-class PossibleValues(models.Model):
-    prop = models.ForeignKey(Property, blank=True,
-                             default='', on_delete=models.CASCADE)
-    name = models.CharField(max_length=256, blank=True, default='')
-    label = models.CharField(max_length=256, blank=True, default='')
-    value = models.CharField(max_length=256, blank=True, default='')
-    unit = models.CharField(max_length=256, blank=True, default='')
+# class PossibleValues(models.Model):
+#     prop = models.ForeignKey(Property, blank=True,
+#                              default='', on_delete=models.CASCADE)
+#     name = models.CharField(max_length=256, blank=True, default='')
+#     label = models.CharField(max_length=256, blank=True, default='')
+#     value = models.CharField(max_length=256, blank=True, default='')
+#     unit = models.CharField(max_length=256, blank=True, default='')
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-    class Meta:
-        verbose_name = "Possible Value"
-        verbose_name_plural = "Possible Values"
+#     class Meta:
+#         verbose_name = "Possible Value"
+#         verbose_name_plural = "Possible Values"
 
 
 class DealsHubProduct(models.Model):
