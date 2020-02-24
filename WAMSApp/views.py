@@ -329,9 +329,9 @@ class CreateNewBaseProductAPI(APIView):
                 category_obj = None
                 from dealshub.models import Category
                 if Category.objects.filter(organization=organization_obj, name=category).exists():
-                    category_obj = Category.objects.get(organization=organization, name=category)
+                    category_obj = Category.objects.get(organization=organization_obj, name=category)
                 else:
-                    category_obj = Category.objects.create(organization=organization, name=category)
+                    category_obj = Category.objects.create(organization=organization_obj, name=category)
                     
                 DealsHubProduct.objects.create(product=product_obj, category=category_obj)
             except Exception as e:
@@ -398,7 +398,7 @@ class CreateNewProductAPI(APIView):
                 category = product_obj.base_product.category
                 from dealshub.models import Category
                 if Category.objects.filter(organization=organization_obj, name=category).exists():
-                    category_obj = Category.objects.get(organization=organization, name=category)
+                    category_obj = Category.objects.get(organization=organization_obj, name=category)
 
                 DealsHubProduct.objects.create(product=product_obj, category=category_obj)
             except Exception as e:
@@ -1279,43 +1279,55 @@ class FetchDealsHubProductsAPI(APIView):
 
             page = int(data['page'])
             paginator = Paginator(product_objs_list, 20)
-            product_objs_list = paginator.page(page)
+            product_objs_list_subset = paginator.page(page)
             products = []
 
-            for product_obj in product_objs_list:
-                
-                temp_dict ={}
-                temp_dict["product_pk"] = product_obj.pk
-                temp_dict["product_id"] = product_obj.product_id
-                temp_dict["product_name"] = product_obj.product_name
-                temp_dict["brand_name"] = product_obj.base_product.brand.name
-                channel_status = DealsHubProduct.objects.get(product=product_obj).is_published
-                temp_dict["channel_status"] = "active" if channel_status==True else "inactive"
-                temp_dict["category"] = product_obj.base_product.category
-                temp_dict["sub_category"] = product_obj.base_product.sub_category
-
-                repr_image_url = Config.objects.all()[0].product_404_image.image.url
-                repr_high_def_url = repr_image_url
-                
-                main_images_obj = None
+            for product_obj in product_objs_list_subset:
                 try:
-                    main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
-                except Exception as e:
-                    pass
+                    temp_dict ={}
+                    temp_dict["product_pk"] = product_obj.pk
+                    temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["brand_name"] = product_obj.base_product.brand.name
+                    channel_status = DealsHubProduct.objects.get(product=product_obj).is_published
+                    temp_dict["channel_status"] = "active" if channel_status==True else "inactive"
+                    temp_dict["category"] = product_obj.base_product.category
+                    temp_dict["sub_category"] = product_obj.base_product.sub_category
 
-                if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                    repr_image_url = Config.objects.all()[0].product_404_image.image.url
+                    repr_high_def_url = repr_image_url
+                    
+                    main_images_obj = None
                     try:
-                        repr_image_url = main_images_obj.main_images.filter(
-                            is_main_image=True)[0].image.mid_image.url
+                        main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
                     except Exception as e:
-                        repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                        pass
 
-                    repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                    if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                        try:
+                            repr_image_url = main_images_obj.main_images.filter(
+                                is_main_image=True)[0].image.mid_image.url
+                        except Exception as e:
+                            repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
-                temp_dict["repr_image_url"] = repr_image_url
-                temp_dict["repr_high_def_url"] = repr_high_def_url
+                        repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
-                products.append(temp_dict)
+                    temp_dict["repr_image_url"] = repr_image_url
+                    temp_dict["repr_high_def_url"] = repr_high_def_url
+
+                    products.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchDealsHubProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+            is_available = True
+            
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_products"] = len(product_objs_list)
 
             response['products'] = products
             response['status'] = 200
@@ -1745,9 +1757,9 @@ class FetchExportListAPI(APIView):
                 end_date = datetime.datetime.strptime(
                     data["end_date"], "%b %d, %Y")
                 export_list_objs = ExportList.objects.filter(
-                    created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user)
+                    created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user).order_by('-pk')
             else:
-                export_list_objs = ExportList.objects.all().filter(user=request.user)
+                export_list_objs = ExportList.objects.all().filter(user=request.user).order_by('-pk')
 
             if len(chip_data) == 0:
                 search_list_objs = export_list_objs
@@ -1996,8 +2008,10 @@ class DownloadExportListAPI(APIView):
                 response["total_products"] = products.count()
                 response["file_path"] = "/files/csv/export-list-amazon-uk.xlsx"
             elif export_format == "Amazon UAE":
-                export_amazon_uae(products)
-                response["file_path"] = "/files/csv/export-list-amazon-uae.csv"
+                success_products = export_amazon_uae(products)
+                response["success_products"] = success_products
+                response["total_products"] = products.count()
+                response["file_path"] = "/files/csv/export-list-amazon-uae.xlsx"
             elif export_format == "Ebay":
                 success_products = export_ebay(products)
                 response["success_products"] = success_products
@@ -2187,6 +2201,7 @@ class UploadProductImageAPI(APIView):
                                                                   is_sub_image=is_sub_image,
                                                                   sub_image_index=sub_image_index)
                     sub_images_obj.sub_images.add(image_bucket_obj)
+                    sub_images_obj.save()
             elif data["image_category"] == "pfl_images":
                 for image_obj in image_objs:
                     product_obj.pfl_images.add(image_obj)
@@ -4112,44 +4127,48 @@ class FetchAuditLogsByUserAPI(APIView):
 
             log_entry_list = []
             for log_entry_obj in log_entry_objs:
-                
-                temp_dict = {}
-                object_pk = log_entry_obj.object_pk
-                content_type = str(log_entry_obj.content_type)
-                
-                temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
-                temp_dict["resource"] = content_type
+                try:
+                    temp_dict = {}
+                    object_pk = log_entry_obj.object_pk
+                    content_type = str(log_entry_obj.content_type)
+                    
+                    temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
+                    temp_dict["resource"] = content_type
 
-                if content_type.lower() == "baseproduct":
-                    base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "baseproduct":
+                        base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if content_type.lower() == "product":
-                    base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "product":
+                        base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if content_type.lower() == "channelproduct":
-                    channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
-                    base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "channelproduct":
+                        channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
+                        base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                temp_dict["action"] = ""
-                if log_entry_obj.action==0:
-                    temp_dict["action"] = "create"
-                elif log_entry_obj.action==1:
-                    temp_dict["action"] = "update"
-                elif log_entry_obj.action==2:
-                    temp_dict["action"] = "delete"
-                changes = json.loads(log_entry_obj.changes)
-                temp_dict["changes"] = changes
+                    temp_dict["action"] = ""
+                    if log_entry_obj.action==0:
+                        temp_dict["action"] = "create"
+                    elif log_entry_obj.action==1:
+                        temp_dict["action"] = "update"
+                    elif log_entry_obj.action==2:
+                        temp_dict["action"] = "delete"
+                    changes = json.loads(log_entry_obj.changes)
+                    temp_dict["changes"] = changes
 
-                log_entry_list.append(temp_dict)
+                    log_entry_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchAuditLogsByUserAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             is_available = True
             if paginator.num_pages == page:
@@ -4189,44 +4208,48 @@ class FetchAuditLogsAPI(APIView):
 
             log_entry_list = []
             for log_entry_obj in log_entry_objs:
-                temp_dict = {}
+                try:
+                    temp_dict = {}
 
-                object_pk = log_entry_obj.object_pk
-                content_type = str(log_entry_obj.content_type)
+                    object_pk = log_entry_obj.object_pk
+                    content_type = str(log_entry_obj.content_type)
 
-                temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
-                temp_dict["resource"] = content_type
-                temp_dict["user"] = str(log_entry_obj.actor)
-                temp_dict["action"] = ""
-                
-                if content_type.lower() == "baseproduct":
-                    base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
+                    temp_dict["resource"] = content_type
+                    temp_dict["user"] = str(log_entry_obj.actor)
+                    temp_dict["action"] = ""
+                    
+                    if content_type.lower() == "baseproduct":
+                        base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if content_type.lower() == "product":
-                    base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "product":
+                        base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if content_type.lower() == "channelproduct":
-                    channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
-                    base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
-                    seller_sku = base_product_obj.seller_sku
-                    temp_dict["name"] = str(base_product_obj.base_product_name)
-                    temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                    if content_type.lower() == "channelproduct":
+                        channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
+                        base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict["name"] = str(base_product_obj.base_product_name)
+                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
 
-                if log_entry_obj.action==0:
-                    temp_dict["action"] = "create"
-                elif log_entry_obj.action==1:
-                    temp_dict["action"] = "update"
-                elif log_entry_obj.action==2:
-                    temp_dict["action"] = "delete"
-                changes = json.loads(log_entry_obj.changes)
-                temp_dict["changes"] = changes
-                log_entry_list.append(temp_dict)
+                    if log_entry_obj.action==0:
+                        temp_dict["action"] = "create"
+                    elif log_entry_obj.action==1:
+                        temp_dict["action"] = "update"
+                    elif log_entry_obj.action==2:
+                        temp_dict["action"] = "delete"
+                    changes = json.loads(log_entry_obj.changes)
+                    temp_dict["changes"] = changes
+                    log_entry_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchAuditLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             if paginator.num_pages == page:
@@ -4565,19 +4588,16 @@ class FetchChannelProductListAPI(APIView):
                 else:
                     temp_dict["brand_name"] = "-"
 
-                main_images_list = ImageBucket.objects.none()
-                main_images_objs = MainImages.objects.filter(product=product_obj)
-                for main_images_obj in main_images_objs:
+                try:
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_obj = MainImages.objects.get(product = product_obj, channel__name=channel_name)
+                    
                     main_images_list |= main_images_obj.main_images.all()
 
-                main_images_list = main_images_list.distinct()
-                
-                if len(main_images_list)>0:
-                    try:
-                        temp_dict["main_image"] = main_images_list[0].image.thumbnail.url
-                    except Exception as e:
-                        temp_dict["main_image"] = main_images_list[0].image.image.url
-                else: 
+                    main_images_list = main_images_list.distinct()
+                    
+                    temp_dict["main_image"] = main_images_list[0].image.mid_image.url
+                except Exception as e:
                     temp_dict["main_image"] = Config.objects.all()[0].product_404_image.image.url
 
                 products.append(temp_dict)
