@@ -214,3 +214,77 @@ def fetch_prices(product_id,company_code):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Fetch Prices: %s at %s", e, str(exc_tb.tb_lineno))
         return []
+
+
+
+
+def fetch_prices_dealshub(uuid1, company_code):
+    try:
+        product_obj = Product.objects.get(uuid=uuid1)
+        product_id = product_obj.base_product.seller_sku
+
+        url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        
+        warehouse_dict = {}
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        <soapenv:Header />
+        <soapenv:Body>
+        <urn:ZAPP_STOCK_PRICE>
+         <IM_MATNR>
+          <item>
+           <MATNR>""" + product_id + """</MATNR>
+          </item>
+         </IM_MATNR>
+         <IM_VKORG>
+          <item>
+           <VKORG>""" + company_code + """</VKORG>
+          </item>
+         </IM_VKORG>
+         <T_DATA>
+          <item>
+           <MATNR></MATNR>
+           <MAKTX></MAKTX>
+           <LGORT></LGORT>
+           <CHARG></CHARG>
+           <SPART></SPART>
+           <MEINS></MEINS>
+           <ATP_QTY></ATP_QTY>
+           <TOT_QTY></TOT_QTY>
+           <CURRENCY></CURRENCY>
+           <IC_EA></IC_EA>
+           <OD_EA></OD_EA>
+           <EX_EA></EX_EA>
+           <RET_EA></RET_EA>
+           <WERKS></WERKS>
+          </item>
+         </T_DATA>
+        </urn:ZAPP_STOCK_PRICE>
+        </soapenv:Body>
+        </soapenv:Envelope>"""
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        EX_EA = 0.0
+        
+        if isinstance(items, dict):
+            temp_price = items["EX_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                EX_EA = max(temp_price, EX_EA)
+        else:
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    EX_EA = max(temp_price, EX_EA)
+        
+        return str(EX_EA)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_prices_dealshub: %s at %s", e, str(exc_tb.tb_lineno))
+        return "0"

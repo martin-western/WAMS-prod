@@ -3505,6 +3505,33 @@ class SearchProductsAutocompleteAPI(APIView):
         return Response(data=response)
 
 
+class FetchDealshubPriceAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchDealshubPriceAPI: %s", str(data))
+
+            uuid1 = data["uuid"]
+            company_code = data["companyCode"]
+
+            price = fetch_prices_dealshub(uuid1, company_code)
+
+            response["price"] = price
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -3602,3 +3629,5 @@ SaveDealshubAdminSectionsOrder = SaveDealshubAdminSectionsOrderAPI.as_view()
 SearchSectionProductsAutocomplete = SearchSectionProductsAutocompleteAPI.as_view()
 
 SearchProductsAutocomplete = SearchProductsAutocompleteAPI.as_view()
+
+FetchDealshubPrice = FetchDealshubPriceAPI.as_view()
