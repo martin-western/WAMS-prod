@@ -1665,7 +1665,7 @@ class SearchAPI(APIView):
 
             is_available = True
             
-            if paginator.num_pages == page:
+            if int(paginator.num_pages) == int(page):
                 is_available = False
 
             response["is_available"] = is_available

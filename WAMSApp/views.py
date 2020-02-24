@@ -2907,7 +2907,8 @@ class FetchProductListFlyerPFLAPI(APIView):
             data = request.data
             logger.info("FetchProductListFlyerPFLAPI: %s", str(data))
 
-            product_objs = custom_permission_filter_products(request.user)
+            #product_objs = custom_permission_filter_products(request.user)
+            product_objs = Product.objects.all()
 
             try:
                 if "flyer_pk" in data:
