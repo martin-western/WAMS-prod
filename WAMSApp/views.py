@@ -1128,6 +1128,7 @@ class FetchProductDetailsAPI(APIView):
             response["base_dimensions"] = json.loads(base_product_obj.dimensions)
 
             response["product_name"] = product_obj.product_name
+            response["product_description"] = product_obj.product_description
             response["product_name_sap"] = product_obj.product_name_sap
             response["product_id"] = product_obj.product_id
             response["barcode_string"] = product_obj.barcode_string
@@ -1461,6 +1462,7 @@ class SaveProductAPI(APIView):
 
 
             product_name = convert_to_ascii(data["product_name"])
+            product_description = convert_to_ascii(data["product_description"])
             barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
@@ -1511,6 +1513,7 @@ class SaveProductAPI(APIView):
                              e, str(exc_tb.tb_lineno))
 
             product_obj.product_name = product_name
+            product_obj.product_description = product_description
 
             product_obj.product_id_type = product_id_type_obj
             product_obj.color_map = color_map
@@ -2230,7 +2233,7 @@ class UploadProductImageAPI(APIView):
                     product_obj.ads_images.add(image_obj)
             elif data["image_category"] == "unedited_images":
                 for image_obj in image_objs:
-                    product_obj.unedited_images.add(image_obj)
+                    product_obj.base_product.unedited_images.add(image_obj)
             elif data["image_category"] == "transparent_images":
                 for image_obj in image_objs:
                     product_obj.transparent_images.add(image_obj)
@@ -2659,7 +2662,7 @@ class FetchFlyerDetailsAPI(APIView):
                 images["ads_images"] = create_response_images_flyer_pfl(
                     product_obj.ads_images.all())
                 images["unedited_images"] = create_response_images_flyer_pfl(
-                    product_obj.unedited_images.all())
+                    product_obj.base_product.unedited_images.all())
                 images["transparent_images"] = create_response_images_flyer_pfl(
                     product_obj.transparent_images.all())
 
@@ -3040,7 +3043,7 @@ class AddProductFlyerBucketAPI(APIView):
             images["ads_images"] = create_response_images_flyer_pfl(
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images_flyer_pfl(
-                product_obj.unedited_images.all())
+                product_obj.base_product.unedited_images.all())
             images["transparent_images"] = create_response_images_flyer_pfl(
                 product_obj.transparent_images.all())
 
@@ -3170,7 +3173,7 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
             images["ads_images"] = create_response_images_flyer_pfl(
                 product_obj.ads_images.all())
             images["unedited_images"] = create_response_images_flyer_pfl(
-                product_obj.unedited_images.all())
+                product_obj.base_product.unedited_images.all())
             images["transparent_images"] = create_response_images_flyer_pfl(
                 product_obj.transparent_images.all())
             images["pfl_generated_images"] = create_response_images_flyer_pfl(
