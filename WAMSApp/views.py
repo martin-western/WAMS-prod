@@ -4141,21 +4141,30 @@ class FetchAuditLogsByUserAPI(APIView):
                     if content_type.lower() == "baseproduct":
                         base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
                         seller_sku = base_product_obj.seller_sku
-                        temp_dict["name"] = str(base_product_obj.base_product_name)
-                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
-
-                    if content_type.lower() == "product":
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
+                    elif content_type.lower() == "product":
                         base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
                         seller_sku = base_product_obj.seller_sku
-                        temp_dict["name"] = str(base_product_obj.base_product_name)
-                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
-
-                    if content_type.lower() == "channelproduct":
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
+                    elif content_type.lower() == "channelproduct":
                         channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
                         base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
                         seller_sku = base_product_obj.seller_sku
-                        temp_dict["name"] = str(base_product_obj.base_product_name)
-                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
+                    else:
+                        temp_dict2 = {}
+                        temp_dict2["name"] = content_type
+                        temp_dict2["seller_sku"] = ""
+                        temp_dict["identifier"] = temp_dict2
 
                     temp_dict["action"] = ""
                     if log_entry_obj.action==0:
@@ -4225,21 +4234,30 @@ class FetchAuditLogsAPI(APIView):
                     if content_type.lower() == "baseproduct":
                         base_product_obj = BaseProduct.objects.get(pk=int(object_pk))
                         seller_sku = base_product_obj.seller_sku
-                        temp_dict["name"] = str(base_product_obj.base_product_name)
-                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
-
-                    if content_type.lower() == "product":
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
+                    elif content_type.lower() == "product":
                         base_product_obj = Product.objects.get(pk=int(object_pk)).base_product
                         seller_sku = base_product_obj.seller_sku
-                        temp_dict["name"] = str(base_product_obj.base_product_name)
-                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
-
-                    if content_type.lower() == "channelproduct":
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
+                    elif content_type.lower() == "channelproduct":
                         channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
                         base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
                         seller_sku = base_product_obj.seller_sku
-                        temp_dict["name"] = str(base_product_obj.base_product_name)
-                        temp_dict["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
+                    else:
+                        temp_dict2 = {}
+                        temp_dict2["name"] = content_type
+                        temp_dict2["seller_sku"] = ""
+                        temp_dict["identifier"] = temp_dict2
 
                     if log_entry_obj.action==0:
                         temp_dict["action"] = "create"
