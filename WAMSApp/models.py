@@ -360,6 +360,7 @@ class BaseProduct(models.Model):
         super(BaseProduct, self).save(*args, **kwargs)
 
 auditlog.register(BaseProduct, exclude_fields=['modified_date' , 'created_date'])
+auditlog.register(BaseProduct.unedited_images.through)
 
 
 class ChannelProduct(models.Model):
@@ -480,7 +481,6 @@ auditlog.register(Product.giftbox_images.through)
 auditlog.register(Product.diecut_images.through)
 auditlog.register(Product.aplus_content_images.through)
 auditlog.register(Product.ads_images.through)
-auditlog.register(Product.unedited_images.through)
 auditlog.register(Product.pfl_generated_images.through)
 auditlog.register(Product.transparent_images.through)
 
