@@ -172,6 +172,17 @@ class FetchProductDetailsAPI(APIView):
                 product_description = json.loads(product_obj.channel_product.amazon_uk_product_json)["product_description"]
             except Exception as e:
                 pass
+
+            try:
+                response["noonHttpLink"] = json.loads(product_obj.channel_product.noon_product_json)["http_link"]
+                response["amazonUKHttpLink"] = json.loads(product_obj.channel_product.amazon_uk_product_json)["http_link"]
+                response["amazonUAEHttpLink"] = json.loads(product_obj.channel_product.amazon_uae_product_json)["http_link"]
+                response["ebayHttpLink"] = json.loads(product_obj.channel_product.ebay_product_json)["http_link"]
+            except Exception as e:
+                response["noonHttpLink"] = ""
+                response["amazonUKHttpLink"] = ""
+                response["amazonUAEHttpLink"] = ""
+                response["ebayHttpLink"] = ""
             
             response["productDispDetails"] = product_description
             
