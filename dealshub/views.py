@@ -405,7 +405,7 @@ class FetchSectionsProductsAPI(APIView):
                     temp_dict2["brand"] = str(product_obj.base_product.brand)
                     
                     if(product.base_product.brand.name=="Geepas"):
-                        temp_dict2["price"] = self.fetch_price(product.base_product.seller_sku)
+                        temp_dict2["price"] = "0"
                     else:
                         temp_dict2["price"] = product.standard_price
 
@@ -532,7 +532,7 @@ class FetchSectionsProductsLimitAPI(APIView):
                     temp_dict2["brand"] = str(product_obj.base_product.brand)
 
                     if(product_obj.base_product.brand.name=="Geepas"):
-                        temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                        temp_dict2["price"] = "0"
                     else:
                         temp_dict2["price"] = product_obj.standard_price
                     temp_dict2["prevPrice"] = temp_dict2["price"]
@@ -652,7 +652,7 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2 = {}
                 temp_dict2["name"] = product_obj.product_name
                 temp_dict2["brand"] = str(product_obj.base_product.brand)
-                temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                temp_dict2["price"] = "0"
                 temp_dict2["prevPrice"] = temp_dict2["price"]
                 temp_dict2["currency"] = "AED"
                 temp_dict2["discount"] = "10%"
