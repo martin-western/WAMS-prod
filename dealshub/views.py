@@ -3349,7 +3349,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["displayId"] = str(prod.product_id)
                     temp_dict2["category"] = str(prod.base_product.category)
                     if organization_name=="geepas":
-                        temp_dict2["price"] = str(self.fetch_price(prod.base_product.seller_sku))
+                        #temp_dict2["price"] = str(self.fetch_price(prod.base_product.seller_sku))
+                        temp_dict2["price"] = "0"
                     else:
                         temp_dict2["price"] = str(prod.standard_price)
                     temp_dict2["currency"] = "AED"
