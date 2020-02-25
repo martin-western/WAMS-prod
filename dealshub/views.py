@@ -3341,7 +3341,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         main_images_list |= main_images_obj.main_images.all()
                         main_images_list = main_images_list.distinct()
                         images = create_response_images_main(main_images_list)
-                        temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
+                        temp_dict2["thumbnailImageUrl"] = images[0]["midimage_url"]
                     except Exception as e:
                         temp_dict2["thumbnailImageUrl"] = ""
 
