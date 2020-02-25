@@ -3579,15 +3579,10 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data["twitter_link"] = organization_obj.twitter_link
             company_data["instagram_link"] = organization_obj.instagram_link
             company_data["youtube_link"] = organization_obj.youtube_link
-            
-            company_data["logo"] = []
 
+            company_data["logo_url"] = ""
             if organization_obj.logo != None:
-                company_data["logo"] = {
-                    "uid" : "123",
-                    "url" : ""
-                }
-                company_data["logo"]["url"] = organization_obj.logo.image.url
+                company_data["logo_url"] = organization_obj.logo.image.url
 
 
             response["company_data"] = company_data
