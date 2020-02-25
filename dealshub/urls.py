@@ -88,5 +88,5 @@ urlpatterns = [
 
     url(r'^fetch-dealshub-price/$', views.FetchDealshubPrice),
 
-    url(r'^fetch-company-profile-dealshub/$', views.FetchCompanyProfileDealshubAPI),
+    url(r'^fetch-company-profile-dealshub/$', views.FetchCompanyProfileDealshub),
 ]
