@@ -213,10 +213,10 @@ class FetchProductDetailsAPI(APIView):
                 main_images_list |= main_images_obj.main_images.all()
             main_images_list = main_images_list.distinct()
             images["main_images"] = create_response_images_main(main_images_list)
-            # try:
-            #     response["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
-            # except Exception as e:
-            #     response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
+            try:
+                response["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
+            except Exception as e:
+                response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
 
 
