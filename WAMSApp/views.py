@@ -101,7 +101,7 @@ def RedirectHome(request):
     return HttpResponseRedirect('/products/')
 
 
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
 def PFLPage(request, pk):
     return render(request, 'WAMSApp/pfl.html')
 
@@ -2749,7 +2749,7 @@ class CreatePFLAPI(APIView):
 
 
 class FetchPFLDetailsAPI(APIView):
-
+    permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
 
         response = {}
