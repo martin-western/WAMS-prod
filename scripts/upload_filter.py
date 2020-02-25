@@ -36,18 +36,21 @@ for category in mega_category_dict:
 
 for key in all_categories:
     category_name = list(key.keys())[0]
+    category_name_match = category_name
     if category_name.lower()=="kettel":
-        category_name = "kettle"
+        category_name_match = "kettle"
     if category_name.lower()=="dosa maker":
-        category_name = "Crepe &Dosa Maker"
+        category_name_match = "Crepe &Dosa Maker"
     if category_name.lower()=="showcase":
-        category_name = "show case"
+        category_name_match = "show case"
     if category_name.lower()=="decorative lamp":
-        category_name = "desk lamp"
+        category_name_match = "desk lamp"
     try:
-        if Category.objects.filter(name=category_name).exists():
-            category_obj = Category.objects.get(name__iexact=category_name.lower())
-            print(category_obj)
+        if Category.objects.filter(name=category_name_match).exists():
+            category_obj = Category.objects.get(name__iexact=category_name_match.lower())
+            property_data = key[category_name]
+            category_obj.property_data = json.dumps(property_data)
+            category_obj.save()
         else:
             print(category_name)
     except Exception as e:
