@@ -682,7 +682,7 @@
 
 /fetch-product-list/
 {
-    "filter-parameters": {
+    "filter_parameters": {
         "verified": false,
         "start_date": "",
         "end_date": "",

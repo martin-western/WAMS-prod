@@ -65,7 +65,7 @@ def export_ebay(products):
                 common_row[0] = "Add"
                 common_row[1] = ebay_product["category"]
                 common_row[2] = ebay_product["product_name"]
-                common_row[3] = str(base_product.subtitle)
+                common_row[3] = str(ebay_product["subtitle"])
                 common_row[4] = ebay_product["product_description"]
                 common_row[5] = "1000"
                 
@@ -90,9 +90,10 @@ def export_ebay(products):
                 try:
                     main_images_list = ImageBucket.objects.none()
                     main_images_obj = MainImages.objects.get(product = product, channel__name="Ebay")
+                    sub_images_obj = SubImages.objects.get(product = product, channel__name="Ebay")
 
-                    main_images_list = main_images_obj.main_images.filter(is_main_image=True).distinct()
-                    sub_images_list = main_images_obj.main_images.filter(is_sub_image=True).distinct()
+                    main_images_list = main_images_obj.main_images.distinct()
+                    sub_images_list = sub_images_obj.sub_images.distinct()
 
                     for main_image in main_images_list:
                         images_link.append(str(main_image.image.image.url))

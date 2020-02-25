@@ -115,7 +115,6 @@ class FetchProductDetailsAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -126,7 +125,6 @@ class FetchProductDetailsAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
 
 
@@ -147,8 +145,8 @@ class FetchProductDetailsAPI(APIView):
             product_obj = temp_product_obj.product
             base_product_obj = product_obj.base_product
 
-            response["category"] = None if temp_product_obj.category==None else temp_product_obj.category
-            response["subCategory"] = None if temp_product_obj.sub_category==None else temp_product_obj.sub_category
+            response["category"] = None if temp_product_obj.category==None else str(temp_product_obj.category)
+            response["subCategory"] = None if temp_product_obj.sub_category==None else str(temp_product_obj.sub_category)
             response["id"] = temp_product_obj.product.uuid
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
@@ -174,30 +172,54 @@ class FetchProductDetailsAPI(APIView):
                 product_description = json.loads(product_obj.channel_product.amazon_uk_product_json)["product_description"]
             except Exception as e:
                 pass
+
+            try:
+                response["noonHttpLink"] = json.loads(product_obj.channel_product.noon_product_json)["http_link"]
+                response["amazonUKHttpLink"] = json.loads(product_obj.channel_product.amazon_uk_product_json)["http_link"]
+                response["amazonUAEHttpLink"] = json.loads(product_obj.channel_product.amazon_uae_product_json)["http_link"]
+                response["ebayHttpLink"] = json.loads(product_obj.channel_product.ebay_product_json)["http_link"]
+            except Exception as e:
+                response["noonHttpLink"] = ""
+                response["amazonUKHttpLink"] = ""
+                response["amazonUAEHttpLink"] = ""
+                response["ebayHttpLink"] = ""
             
             response["productDispDetails"] = product_description
             
             response["productImagesUrl"] = []
             images = {}
 
+            # main_images_list = ImageBucket.objects.none()
+            # main_images_obj = MainImages.objects.get(
+            #     product=product_obj, is_sourced=True)
+            # try:
+            #     main_images_obj = MainImages.objects.get(
+            #         product=product_obj, is_sourced=True)
+            #     main_images_list |= main_images_obj.main_images.all()
+            # except Exception as e:
+            #     pass
+            # main_images_list = main_images_list.distinct()
+            # images["main_images"] = create_response_images_main(
+            #     main_images_list)
+            # try:
+            #     response["heroImageUrl"] = images["main_images"][0]["main_url"]
+            # except Exception as e:
+            #     response["heroImageUrl"] = ""
+
+
             main_images_list = ImageBucket.objects.none()
-            main_images_obj = MainImages.objects.get(
-                product=product_obj, is_sourced=True)
-            try:
-                main_images_obj = MainImages.objects.get(
-                    product=product_obj, is_sourced=True)
-                print(main_images_obj)
+            main_images_objs = MainImages.objects.filter(product=product_obj)
+            for main_images_obj in main_images_objs:
                 main_images_list |= main_images_obj.main_images.all()
-            except Exception as e:
-                pass
             main_images_list = main_images_list.distinct()
-            images["main_images"] = create_response_images_main(
-                main_images_list)
+            images["main_images"] = create_response_images_main(main_images_list)
             try:
-                logger.info("images %s", str(images))
-                response["heroImageUrl"] = images["main_images"][0]["main_url"]
+                response["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
             except Exception as e:
-                response["heroImageUrl"] = ""
+                response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
+
+
+
 
             response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
@@ -215,6 +237,10 @@ class FetchProductDetailsAPI(APIView):
             response["verified"] = product_obj.verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
+            try:
+                response["features"] = json.loads(product_obj.pfl_product_features)
+            except Exception as e:
+                response["features"] = []
 
             if product_obj.product_id_type != None:
                 response["product_id_type"] = product_obj.product_id_type.name
@@ -252,12 +278,13 @@ class FetchProductDetailsAPI(APIView):
             sub_images_list = sub_images_list.distinct()
             images["sub_images"] = create_response_images_sub(sub_images_list)
             
+            response["productImagesUrl"].append({"original":response["heroImageUrl"], "thumbnail":response["heroImageUrl"]})
             for temp_image in images["sub_images"]:
                 temp_images = {}
                 temp_images["original"] = temp_image["main_url"]
                 temp_images["thumbnail"] = temp_image["thumbnail_url"]
                 response["productImagesUrl"].append(temp_images)
-            response["productImagesUrl"].append({"original":response["heroImageUrl"], "thumbnail":response["heroImageUrl"]})
+            
             
             response["productProperties"] = json.loads(
                 temp_product_obj.properties)
@@ -294,7 +321,6 @@ class FetchProductDetailsAPI(APIView):
             response["images"] = images
 
             response['status'] = 200
-            logger.info("Passing response %s", str(response))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -304,260 +330,6 @@ class FetchProductDetailsAPI(APIView):
 
 
 FetchProductDetails = FetchProductDetailsAPI.as_view()
-
-"""
-class FetchCarouselAPI(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchCarouselAPI: %s", str(data))
-
-            carousel_obj = [
-                {
-                    "productName": "Airfryer Mechanical - 3.4 L, 1300 W AF 3501 - M Black",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Puma",
-                    "price": "2,239",
-                    "prevPrice": "3,300",
-                    "currency": "AED",
-                    "discount": "15",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1568636323/N28431691A_1.jpg",
-                    "id": 1
-                },
-                {
-                    "productName": "2-Slice Bread Toaster, 700W TA01105 Milk White",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Provogue",
-                    "price": "4,000",
-                    "prevPrice": "4,500",
-                    "currency": "AED",
-                    "discount": "15",
-                    "rating": "3.9",
-                    "totalRatings": "1,772",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1571139454/N29227703A_8.jpg",
-                    "id": 2
-                },
-                {
-                    "productName": "6-Piece Granite/Marble Coated Aluminium Cookware Set… ",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Reebok",
-                    "price": "3,999",
-                    "prevPrice": "4,700",
-                    "currency": "AED",
-                    "discount": "28",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1574085587/N17109502A_15.jpg",
-                    "id": 3
-                },
-                {
-                    "productName": "Realme 5s (Crystal Blue, 128 GB)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Sparx",
-                    "price": "1,200",
-                    "prevPrice": "1,800",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k2jbyq80pkrrdj/mobile-refurbished/v/w/c/x-128-u-rmx1901-realme-8-original-imafgzg9yvran9r3.jpeg?q=70",
-                    "id": 4
-                },
-                {
-                    "productName": "Realme X (Space Blue, 128 GB)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Reebok",
-                    "price": "3,999",
-                    "prevPrice": "5,600",
-                    "currency": "AED",
-                    "discount": "28",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k1fbmvk0/mobile/k/b/e/mi-redmi-8-mzb8250in-original-imafhyabpggagngr.jpeg?q=70",
-                    "id": 5
-                },
-                {
-                    "productName": "Lenovo Ideapad 130 Core i5 8th Gen - (8 GB/1 TB HDD/Windows 10 Home/2 GB Graphics) 130-15IKB Laptop  (15.6 inch, Black, 2.1 kg)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "vaidehi",
-                    "price": "2,000",
-                    "prevPrice": "2,900",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/jz7az680/computer/b/3/k/lenovo-na-laptop-original-imafj9wscwkeyu45.jpeg?q=70",
-                    "id": 6
-                },
-                {
-                    "productName": "Amayra Women's Cotton Anarkali Kurti(Blue)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "Amarya",
-                    "price": "4,099",
-                    "prevPrice": "4,199",
-                    "currency": "AED",
-                    "discount": "20",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/150/150/k0wqwsw0/wall-clock/g/g/b/round-wall-clock-957-gold-analog-ajanta-original-imafkhkfdempaphb.jpeg?q=70",
-                    "id": 7
-                },
-                {
-                    "productName": "Garment Steamer, 1.3 L Capacity, 1800W HY - 288 Black",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "Sparx",
-                    "price": "999",
-                    "prevPrice": "1,099",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1570427257/N28431698A_1.jpg",
-                    "id": 8
-                }
-            ]
-            response['carousel'] = carousel_obj
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FecthProductDetailsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-"""
-
-# class FetchCarouselAPI(APIView):
-    
-#     permission_classes = [AllowAny]
-    
-#     def fetch_price(self,product_id):
-#         try:
-#             url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-#             headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-#             credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-#             company_code = "1070" # GEEPAS
-#             body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-#             <soapenv:Header />
-#             <soapenv:Body>
-#             <urn:ZAPP_STOCK_PRICE>
-#              <IM_MATNR>
-#               <item>
-#                <MATNR>""" + product_id + """</MATNR>
-#               </item>
-#              </IM_MATNR>
-#              <IM_VKORG>
-#               <item>
-#                <VKORG>""" + company_code + """</VKORG>
-#               </item>
-#              </IM_VKORG>
-#              <T_DATA>
-#               <item>
-#                <MATNR></MATNR>
-#                <MAKTX></MAKTX>
-#                <LGORT></LGORT>
-#                <CHARG></CHARG>
-#                <SPART></SPART>
-#                <MEINS></MEINS>
-#                <ATP_QTY></ATP_QTY>
-#                <TOT_QTY></TOT_QTY>
-#                <CURRENCY></CURRENCY>
-#                <IC_EA></IC_EA>
-#                <OD_EA></OD_EA>
-#                <EX_EA></EX_EA>
-#                <RET_EA></RET_EA>
-#                <WERKS></WERKS>
-#               </item>
-#              </T_DATA>
-#             </urn:ZAPP_STOCK_PRICE>
-#             </soapenv:Body>
-#             </soapenv:Envelope>"""
-#             response2 = requests.post(url, auth=credentials, data=body, headers=headers)
-#             content = response2.content
-#             content = xmltodict.parse(content)
-#             content = json.loads(json.dumps(content))
-#             print((json.dumps(content, indent=4, sort_keys=True)))
-#             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-#             price = 0
-#             temp_price = 0
-#             for item in items:
-#                 temp_price = item["EX_EA"]
-#                 if temp_price!=None:
-#                     temp_price = float(temp_price)
-#                     price = max(temp_price, price)
-#             return float(price)
-#         except Exception as e:
-#             #print "Error: "+str(e)
-#             return 0
-#     def get(self, request, *args, **kwargs):
-#         response = {}
-#         response['status'] = 500
-#         try:
-#             data = request.data
-#             logger.info("FetchCarouselAPI: %s", str(data))
-#             product_pks = [942, 943, 944,950,951,957,958,959,961,966]
-#             carousel_obj = []
-#             for product_pk in product_pks:
-#                 prod_obj = Product.objects.get(pk = product_pk)
-#                 temp_dict={}
-#                 temp_dict["productName"] = prod_obj.product_name
-#                 temp_dict["productCategory"] = prod_obj.base_product.category
-#                 temp_dict["productSubCategory"] = prod_obj.base_product.subtitle
-#                 temp_dict["brand"] = str(prod_obj.base_product.brand)
-#                 temp_dict["price"] = self.fetch_price(prod_obj.base_product.seller_sku)
-#                 temp_dict["prevPrice"] = self.fetch_price(prod_obj.base_product.seller_sku)
-#                 temp_dict["currency"] = "AED"
-#                 temp_dict["discount"] = "0%"
-#                 temp_dict["rating"] = "3.5"
-#                 temp_dict["totalRatings"] = "356"
-#                 temp_dict["uuid"] = prod_obj.uuid
-                
-#                 main_images_list = ImageBucket.objects.none()
-#                 main_images_objs = MainImages.objects.filter(product=prod_obj)
-#                 for main_images_obj in main_images_objs:
-#                     main_images_list |= main_images_obj.main_images.all()
-#                 main_images_list = main_images_list.distinct()
-#                 if main_images_list.filter(is_main_image=True).count() > 0:
-#                     try:
-#                         temp_dict["heroImage"] = main_images_list.filter(is_main_image=True)[
-#                             0].image.thumbnail.url
-#                     except Exception as e:
-#                         temp_dict["heroImage"] = Config.objects.all()[
-#                             0].product_404_image.image.url
-#                 else:
-#                     temp_dict["heroImage"] = Config.objects.all()[
-#                         0].product_404_image.image.url
-#                 temp_dict["id"] = prod_obj.pk
-#                 carousel_obj.append(temp_dict)
-
-#             response['carousel'] = carousel_obj
-#             response['status'] = 200
-#         except Exception as e:
-#             exc_type, exc_obj, exc_tb = sys.exc_info()
-#             logger.error("FetchCarouselProductAPI: %s at %s",
-#                          e, str(exc_tb.tb_lineno))
-#         return Response(data=response)
-
-
-
-# FetchCarousel = FetchCarouselAPI.as_view()
-
 
 
 class FetchSectionsProductsAPI(APIView):
@@ -610,7 +382,6 @@ class FetchSectionsProductsAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -621,7 +392,6 @@ class FetchSectionsProductsAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
     def post(self, request, *args, **kwargs):
         response = {}
@@ -630,10 +400,10 @@ class FetchSectionsProductsAPI(APIView):
             data = request.data
             logger.info("FetchSectionsProductsAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            section_objs = Section.objects.filter(brand=brand_obj, is_published=True)
+            section_objs = Section.objects.filter(organization=organization_obj, is_published=True)
 
             section_list =  []
 
@@ -651,7 +421,7 @@ class FetchSectionsProductsAPI(APIView):
                     temp_dict2["brand"] = str(product_obj.base_product.brand)
                     
                     if(product.base_product.brand.name=="Geepas"):
-                        temp_dict2["price"] = self.fetch_price(product.base_product.seller_sku)
+                        temp_dict2["price"] = "0"
                     else:
                         temp_dict2["price"] = product.standard_price
 
@@ -666,16 +436,11 @@ class FetchSectionsProductsAPI(APIView):
                     for main_images_obj in main_images_objs:
                         main_images_list |= main_images_obj.main_images.all()
                     main_images_list = main_images_list.distinct()
-                    if main_images_list.filter(is_main_image=True).count() > 0:
-                        try:
-                            temp_dict2["heroImage"] = main_images_list.filter(is_main_image=True)[
-                                0].image.mid_image.url
-                        except Exception as e:
-                            temp_dict2["heroImage"] = Config.objects.all()[
-                                0].product_404_image.image.url
-                    else:
-                        temp_dict2["heroImage"] = Config.objects.all()[
-                            0].product_404_image.image.url
+                    try:
+                        temp_dict2["heroImage"] = main_images_list.all()[0].image.mid_image.url
+                    except Exception as e:
+                        temp_dict2["heroImage"] = Config.objects.all()[0].product_404_image.image.url
+
 
 
                     temp_dict["productsArray"].append(temp_dict2)
@@ -744,7 +509,6 @@ class FetchSectionsProductsLimitAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -755,7 +519,6 @@ class FetchSectionsProductsLimitAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
     def post(self, request, *args, **kwargs):
         response = {}
@@ -764,10 +527,10 @@ class FetchSectionsProductsLimitAPI(APIView):
             data = request.data
             logger.info("FetchSectionsProductsLimitAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            section_objs = Section.objects.filter(brand=brand_obj, is_published=True)
+            section_objs = Section.objects.filter(organization=organization_obj, is_published=True)
 
             section_list =  []
 
@@ -785,7 +548,7 @@ class FetchSectionsProductsLimitAPI(APIView):
                     temp_dict2["brand"] = str(product_obj.base_product.brand)
 
                     if(product_obj.base_product.brand.name=="Geepas"):
-                        temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                        temp_dict2["price"] = "0"
                     else:
                         temp_dict2["price"] = product_obj.standard_price
                     temp_dict2["prevPrice"] = temp_dict2["price"]
@@ -877,7 +640,6 @@ class FetchSectionProductsAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -888,7 +650,6 @@ class FetchSectionProductsAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
     def post(self, request, *args, **kwargs):
         response = {}
@@ -907,7 +668,7 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2 = {}
                 temp_dict2["name"] = product_obj.product_name
                 temp_dict2["brand"] = str(product_obj.base_product.brand)
-                temp_dict2["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+                temp_dict2["price"] = "0"
                 temp_dict2["prevPrice"] = temp_dict2["price"]
                 temp_dict2["currency"] = "AED"
                 temp_dict2["discount"] = "10%"
@@ -920,14 +681,11 @@ class FetchSectionProductsAPI(APIView):
                 for main_images_obj in main_images_objs:
                     main_images_list |= main_images_obj.main_images.all()
                 main_images_list = main_images_list.distinct()
-                if main_images_list.filter(is_main_image=True).count() > 0:
-                    try:
-                        temp_dict2["heroImageUrl"] = main_images_list.filter(is_main_image=True)[
-                            0].image.mid_image.url
-                    except Exception as e:
-                        temp_dict2["heroImageUrl"] = Config.objects.all()[
-                            0].product_404_image.image.url
-                else:
+                
+                try:
+                    temp_dict2["heroImageUrl"] = main_images_list.all()[
+                        0].image.mid_image.url
+                except Exception as e:
                     temp_dict2["heroImageUrl"] = Config.objects.all()[
                         0].product_404_image.image.url
 
@@ -1016,86 +774,21 @@ class FetchCategoriesAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-
+            from dealshub.models import Category
             data = request.data
             logger.info("FetchCategoriesAPI: %s", str(data))
-            temp_categories = Category.objects.all()
-            categories_obj = []
-            for category in temp_categories:
-                temp_dict = {}
-                temp_dict["name"] = category.name
-                temp_dict["catId"] = category.category_id
-                temp_dict["subCategories"] = []
-                for sub_category in category.sub_categories.all():
-                    temp_sub_category_dict = {}
-                    temp_sub_category_dict["name"] = sub_category.name
-                    temp_sub_category_dict["catId"] = sub_category.sub_category
-                    temp_dict["subCategories"].append(temp_sub_category_dict)
-                categories_obj.append(temp_dict)
-            categories_obj = [
-                {
-                    "name": "electronics",
-                    "catId": "fw-234",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "fashion",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "home and kitchen",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "beauty and fragrance",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "baby and kids",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "deals",
-                    "catId": "",
-                    "subCategories": [
-                        {
-                            "catId": "",
-                            "name": ""
-                        }
-                    ]
-                }
-            ]
+            organization_name = data["organizationName"]
 
-            response['categories'] = categories_obj
+            category_objs = Category.objects.filter(organization__name=organization_name)
+
+            category_list = []
+            for category_obj in category_objs:
+                temp_dict = {}
+                temp_dict["name"] = category_obj.name
+                temp_dict["uuid"] = category_obj.category_id
+                category_list.append(temp_dict)
+
+            response['categoryList'] = category_list
 
             response['status'] = 200
 
@@ -1183,21 +876,21 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674764GEEPAS_MODEL_GAC9602_STRAIGHT.jpg",
-                        "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
+                        "id": Product.objects.get(base_product__seller_sku="GAC9602").uuid
                     },
                     {
-                        "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas Citrus Juicer/1.0L Plstc cup",
+                        "category": "Juicer",
+                        "subCategory": "Juicer",
                         "brand": "Geepas",
-                        "price": "4,000",
-                        "prevPrice": "4,500",
+                        "price": "26",
+                        "prevPrice": "30",
                         "currency": "AED",
-                        "discount": "15",
+                        "discount": "4",
                         "rating": "3.9",
                         "totalRatings": "1,772",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505981GAC9433_3.JPG",
-                        "id": "9259d36f-4356-450a-a0d1-17193aded65b"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/289A2524_AVCns5Q.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GCJ9900").uuid
                     },
                     {
                         "productName": "Geepas GA1960 4 USB Travel Charger ",
@@ -1211,7 +904,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569505000GA1960-2.jpg",
-                        "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
+                        "id": Product.objects.get(base_product__seller_sku="GA1960").uuid
                     },
                     {
                         "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
@@ -1225,7 +918,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569677989GACW1818HCS-.jpg",
-                        "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
+                        "id": Product.objects.get(base_product__seller_sku="GACW1818HCS").uuid
                     },
                     {
                         "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
@@ -1239,7 +932,7 @@ class FetchBatchDiscountDealsAPI(APIView):
                         "rating": "4.5",
                         "totalRatings": "5,372",
                         "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569674206GAC9580-1.jpg",
-                        "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
+                        "id": Product.objects.get(base_product__seller_sku="GAC9580").uuid
                     }
                 ]
             }
@@ -1403,14 +1096,16 @@ class FetchFeaturedProductsAPI(APIView):
 
             data = request.data
             logger.info("FetchFeaturedProductsAPI: %s", str(data))
-            brand_name = data["brandName"]
+            
+            organization_name = data["organizationName"]
+
             featured_products = []
-            if brand_name.lower()=="geepas":
+            if organization_name.lower()=="geepas":
                 featured_products = [
                     {
-                        "productName": "Geepas GAC9602 Air Cooler 70L",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas GAC9602 Air Cooler 70L",
+                        "category": "Electronics",
+                        "subCategory": "Cooler",
                         "brand": "Geepas",
                         "price": "500",
                         "prevPrice": "3,300",
@@ -1418,27 +1113,27 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
-                        "id": "ca300cbf-955c-4e0b-bfc2-d99e6dd22028"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674764GEEPAS%20MODEL%20GAC9602%20STRAIGHT.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GAC9602").uuid
                     },
                     {
-                        "productName": "Geepas GAC9433 3-in-1 Air Cooler, 65W",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas Citrus Juicer/1.0L Plstc cup",
+                        "category": "Juicer",
+                        "subCategory": "Juicer",
                         "brand": "Geepas",
-                        "price": "255",
-                        "prevPrice": "4,500",
+                        "price": "26",
+                        "prevPrice": "30",
                         "currency": "AED",
-                        "discount": "15",
+                        "discount": "4",
                         "rating": "3.9",
                         "totalRatings": "1,772",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569506104GAC9433%20(1).JPG",
-                        "id": "9259d36f-4356-450a-a0d1-17193aded65b"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/289A2524_AVCns5Q.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GCJ9900").uuid
                     },
                     {
-                        "productName": "Geepas GA1960 4 USB Travel Charger ",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Plugs",
+                        "name": "Geepas GA1960 4 USB Travel Charger ",
+                        "category": "Electronics",
+                        "subCategory": "Plugs",
                         "brand": "Geepas",
                         "price": "18",
                         "prevPrice": "4,700",
@@ -1446,13 +1141,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "28",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
-                        "id": "7f1f18fe-6c5d-4d44-a710-384aa219929a"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569505000GA1960-2.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GA1960").uuid
                     },
                     {
-                        "productName": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas GACW1818HCS 1.5 Ton Window Air Conditioner",
+                        "category": "Electronics",
+                        "subCategory": "Cooler",
                         "brand": "Geepas",
                         "price": "760",
                         "prevPrice": "1,800",
@@ -1460,13 +1155,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "10",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
-                        "id": "a56a294d-4054-4caf-a6e4-9b639a4da958"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569677989GACW1818HCS-.jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GACW1818HCS").uuid
                     },
                     {
-                        "productName": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
-                        "productCategory": "Electronics",
-                        "productSubCategory": "Cooler",
+                        "name": "Geepas GAC9580 High Speed Rechargeable Air Cooler",
+                        "category": "Electronics",
+                        "subCategory": "Cooler",
                         "brand": "Geepas",
                         "price": "27",
                         "prevPrice": "5,600",
@@ -1474,16 +1169,16 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "28",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
-                        "id": "cfbdc5bd-391a-4d26-a6e0-e5a923ae3973"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/1569674216GAC9580%20(2).jpg",
+                        "uuid": Product.objects.get(base_product__seller_sku="GAC9580").uuid
                     }
                 ]
-            elif brand_name.lower()=="pex":
+            elif organization_name.lower()=="pex":
                 featured_products = [
                     {
-                        "productName": "Pex antiseptic disinfectant 500 ml",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Pex antiseptic disinfectant 500 ml",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Pex",
                         "price": "12",
                         "prevPrice": "20",
@@ -1491,13 +1186,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD150_1_FlM0XTE.jpg",
-                        "id": "379e83c4-7f21-4291-8329-3d7ede846d69"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD150_1_FlM0XTE.jpg",
+                        "uuid": "379e83c4-7f21-4291-8329-3d7ede846d69"
                     },
                     {
-                        "productName": "Pex Active Air Freshener Lavender 550 ml",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Pex Active Air Freshener Lavender 550 ml",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Pex",
                         "price": "30",
                         "prevPrice": "20",
@@ -1505,13 +1200,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AL555_1_ph0QKB8.jpg",
-                        "id": "8dc7b633-dfcf-4d3b-a39d-770edc545b03"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AL555_1_ph0QKB8.jpg",
+                        "uuid": "8dc7b633-dfcf-4d3b-a39d-770edc545b03"
                     },
                     {
-                        "productName": "Pex antiseptic disinfectant 5 ltr",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Pex antiseptic disinfectant 5 ltr",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Pex",
                         "price": "43",
                         "prevPrice": "20",
@@ -1519,16 +1214,16 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD2500_1_hxCL5xe.jpg",
-                        "id": "cf2b5ddc-5737-4fa5-a777-059699a3d480"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/AD2500_1_hxCL5xe.jpg",
+                        "uuid": "cf2b5ddc-5737-4fa5-a777-059699a3d480"
                     }
                 ]
-            elif brand_name.lower()=="aqua":
+            elif organization_name.lower()=="aqua":
                 featured_products = [
                     {
-                        "productName": "Aqua Dish Wash liquid Lemon 1Ltr",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Aqua Dish Wash liquid Lemon 1Ltr",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Aqua",
                         "price": "5",
                         "prevPrice": "20",
@@ -1536,13 +1231,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881003_1.jpg",
-                        "id": "f4c15dce-23a1-456c-a5ab-3592b14c67a1"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881003_1.jpg",
+                        "uuid": "f4c15dce-23a1-456c-a5ab-3592b14c67a1"
                     },
                     {
-                        "productName": "Aqua Hand Wash Liquid Rose 5 Ltr",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Aqua Hand Wash Liquid Rose 5 Ltr",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Aqua",
                         "price": "10",
                         "prevPrice": "20",
@@ -1550,13 +1245,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881034_1.jpg",
-                        "id": "52c47297-dcd8-4809-89af-051c7ac3b244"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881034_1.jpg",
+                        "uuid": "52c47297-dcd8-4809-89af-051c7ac3b244"
                     },
                     {
-                        "productName": "Aqua Glass Cleaner Liquid 650 Ml",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Aqua Glass Cleaner Liquid 650 Ml",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Aqua",
                         "price": "5",
                         "prevPrice": "20",
@@ -1564,13 +1259,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881171_1.jpg",
-                        "id": "d696bd92-7fd9-4d76-b53c-93ce5e69a991"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881171_1.jpg",
+                        "uuid": "d696bd92-7fd9-4d76-b53c-93ce5e69a991"
                     },
                     {
-                        "productName": "Aqua Antiseptic Disinfectant Liquid 5 ltr",
-                        "productCategory": "Cleaning Products",
-                        "productSubCategory": "Cleaning Products",
+                        "name": "Aqua Antiseptic Disinfectant Liquid 5 ltr",
+                        "category": "Cleaning Products",
+                        "subCategory": "Cleaning Products",
                         "brand": "Aqua",
                         "price": "6",
                         "prevPrice": "20",
@@ -1578,16 +1273,16 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881218_1.jpg",
-                        "id": "55d7b55c-0060-4e94-90d0-021a74b6fd0d"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/thumbnails/6297000881218_1.jpg",
+                        "uuid": "55d7b55c-0060-4e94-90d0-021a74b6fd0d"
                     }
                 ]
-            elif brand_name.lower()=="future-lux":
+            elif organization_name.lower()=="future-lux":
                 featured_products = [
                     {
-                        "productName": "24 Watt LED Panel Light Square Warm White Colour with Inbuilt Driver",
-                        "productCategory": "Lights and Fixtures",
-                        "productSubCategory": "Lights and Fixtures",
+                        "name": "24 Watt LED Panel Light Square Warm White Colour with Inbuilt Driver",
+                        "category": "Lights and Fixtures",
+                        "subCategory": "Lights and Fixtures",
                         "brand": "Future Lux",
                         "price": "32.5",
                         "prevPrice": "20",
@@ -1595,13 +1290,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDWWPANELSQR_1.jpg",
-                        "id": "11fc3bc2-5ba1-44ac-ab42-c99330ae2cdc"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDWWPANELSQR_1.jpg",
+                        "uuid": "11fc3bc2-5ba1-44ac-ab42-c99330ae2cdc"
                     },
                     {
-                        "productName": "Wooden Type Wall Light Fitting Cylindrical Shape",
-                        "productCategory": "Lights and Fixtures",
-                        "productSubCategory": "Lights and Fixtures",
+                        "name": "Wooden Type Wall Light Fitting Cylindrical Shape",
+                        "category": "Lights and Fixtures",
+                        "subCategory": "Lights and Fixtures",
                         "brand": "Future Lux",
                         "price": "84.5",
                         "prevPrice": "20",
@@ -1609,13 +1304,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD3009_1.jpg",
-                        "id": "2648adbc-e4ff-4693-8c01-a0f93b6f3c11"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD3009_1.jpg",
+                        "uuid": "2648adbc-e4ff-4693-8c01-a0f93b6f3c11"
                     },
                     {
-                        "productName": "Brass Chandelier Bell Type Modern Design E14 Lamp",
-                        "productCategory": "Lights and Fixtures",
-                        "productSubCategory": "Lights and Fixtures",
+                        "name": "Brass Chandelier Bell Type Modern Design E14 Lamp",
+                        "category": "Lights and Fixtures",
+                        "subCategory": "Lights and Fixtures",
                         "brand": "Future Lux",
                         "price": "1430",
                         "prevPrice": "20",
@@ -1623,13 +1318,13 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD1515_1.jpg",
-                        "id": "f73325fd-bc46-4be5-8c96-705e80b6be94"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/FD1515_1.jpg",
+                        "uuid": "f73325fd-bc46-4be5-8c96-705e80b6be94"
                     },
                     {
-                        "productName": "Hanging Type Decorative Interior Light",
-                        "productCategory": "Lights and Fixtures",
-                        "productSubCategory": "Lights and Fixtures",
+                        "name": "Hanging Type Decorative Interior Light",
+                        "category": "Lights and Fixtures",
+                        "subCategory": "Lights and Fixtures",
                         "brand": "Future Lux",
                         "price": "780",
                         "prevPrice": "20",
@@ -1637,8 +1332,8 @@ class FetchFeaturedProductsAPI(APIView):
                         "discount": "15",
                         "rating": "4.5",
                         "totalRatings": "5,372",
-                        "heroImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDHL2451_1.jpg",
-                        "id": "e9001f29-3313-4056-9dec-b1b4cef64d17"
+                        "thumbnailImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/FDHL2451_1.jpg",
+                        "uuid": "e9001f29-3313-4056-9dec-b1b4cef64d17"
                     }
                 ]
             
@@ -1816,175 +1511,6 @@ class FetchTopRatedProductsAPI(APIView):
 FetchTopRatedProducts = FetchTopRatedProductsAPI.as_view()
 
 
-# Search
-"""
-class SearchAPI(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("SearchAPI: %s", str(data))
-
-            search = {
-         "query": "macbook",
-      "category": "laptops",
-      "filters": [
-        {
-          "id": "1",
-          "name": "brand",
-          "values": [
-            "Apple",
-            "Samsung",
-            "Dell",
-            "Micosoft",
-            "iBall"
-          ]
-        },
-        {
-          "id": "2",
-          "name": "cpu type",
-          "values": [
-            "Intel Core i5",
-            "Intel Core i7"
-          ]
-        },
-        {
-          "id": "3",
-          "name": "weight",
-          "values": [
-            "Up to 0.9 kg",
-            "1 - 1.4 kg",
-            "2 - 2.5 kg",
-            "2.5 kg and more"
-          ]
-        },
-        {
-          "id": "4",
-          "name": "OS",
-          "values": [
-            "Windows",
-            "Linux",
-            "DoS",
-            "MacOS"
-          ]
-        }
-      ],
-      "products": [
-        {
-          "name": "MacBook Air 13.3-Inch Retina Display, Core i5 with 1.6GHz Dual Core Processor/8GB RAM/128GB SSD/Intel UHD Graphics 617/English Keyboard -  2019 Space Grey",
-          "brand": "Puma",
-          "price": "2,239",
-          "prevPrice": "3,300",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "5",
-          "totalRatings": "5,372",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/s/v/n/apple-na-thin-and-light-laptop-original-imafgwevstseefc9.jpeg?q=70",
-          "id": 1
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "2",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 2
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "1",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 3
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "2",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 4
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "3",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 5
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "2",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 6
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "3",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 7
-        },
-        {
-          "name": "MacBook Air 13.3-inch Retina Display, Core i5 Processor/8GB RAM/256GB SSD/Integrated Graphics/English Keyboard 2018 Gold",
-          "brand": "Provogue",
-          "price": "4,000",
-          "prevPrice": "4,500",
-          "currency": "AED",
-          "discount": "15",
-          "rating": "2",
-          "totalRatings": "1,772",
-          "heroImageUrl": "https://rukminim1.flixcart.com/image/312/312/jyq5oy80/computer/r/g/d/apple-na-thin-and-light-laptop-original-imafgwew9puxqp3k.jpeg?q=70",
-          "id": 8
-        }
-      ]
-    }
-            response['search'] = search
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SearchAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-"""
-
-
 class SearchAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -2034,7 +1560,6 @@ class SearchAPI(APIView):
             content = response2.content
             content = xmltodict.parse(content)
             content = json.loads(json.dumps(content))
-            print((json.dumps(content, indent=4, sort_keys=True)))
             items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
             price = 0
             temp_price = 0
@@ -2045,7 +1570,6 @@ class SearchAPI(APIView):
                     price = max(temp_price, price)
             return float(price)
         except Exception as e:
-            #print "Error: "+str(e)
             return 0
 
     def post(self, request, *args, **kwargs):
@@ -2056,86 +1580,113 @@ class SearchAPI(APIView):
             logger.info("SearchAPI: %s", str(data))
             query_string_name = data.get("name", "")
             query_string_category = data.get("category", "")
-            query_string_brand = data.get("brand", "geepas")
+            query_string_organization = data.get("organizationName", "geepas")
+            filter_list = data.get("filters", [])
+
+            page = data.get("page", 1)
             search = {}
-            if query_string_name == '':
-                response['status'] = 404
-                return Response(data=response)
-            products_by_category = Product.objects.filter(base_product__brand__name=query_string_brand)
+            
+            products_by_category = Product.objects.filter(base_product__brand__organization__name=query_string_organization)
             if query_string_category!="ALL":
                 query_string_category = query_string_category.replace("-", " ")
                 products_by_category = products_by_category.filter(base_product__category__icontains = query_string_category)
-            products_by_name = products_by_category.filter(product_name__icontains=query_string_name)
+            products_by_name = products_by_category
+            if query_string_name!="":
+                products_by_name = products_by_category.filter(product_name__icontains=query_string_name)
             products = []
-            filters = []
-            logger.info("products by category %s", str(products_by_category))
-            logger.info("products by name %s", str(products_by_name))
-            for product in products_by_name:
-                if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
-                    continue
-                temp_dict = {}
-                temp_dict["name"] = product.product_name
-                temp_dict["brand"] = str(product.base_product.brand)
-                if(product.base_product.brand.name=="Geepas"):
-                    temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
-                else:
-                    temp_dict["price"] = product.standard_price
-                temp_dict["prevPrice"] = self.fetch_price(product.base_product.seller_sku)
-                temp_dict["currency"] = "AED"
-                temp_dict["discount"] = "10%"
-                temp_dict["rating"] = "4.5"
-                temp_dict["totalRatings"] = "453"
-                temp_dict["uuid"] = product.uuid
-                temp_dict["id"] = product.uuid
-                
-                main_images_list = ImageBucket.objects.none()
-                main_images_objs = MainImages.objects.filter(product=product)
-                for main_images_obj in main_images_objs:
-                    main_images_list |= main_images_obj.main_images.all()
-                main_images_list = main_images_list.distinct()
-                if main_images_list.filter(is_main_image=True).count() > 0:
-                    try:
-                        temp_dict["heroImageUrl"] = main_images_list.filter(is_main_image=True)[
-                            0].image.thumbnail.url
-                    except Exception as e:
-                       temp_dict["heroImageUrl"] = Config.objects.all()[
-                            0].product_404_image.image.url
-                else:
-                    temp_dict["heroImageUrl"] = Config.objects.all()[
-                        0].product_404_image.image.url
-               
-                dealshub_product = DealsHubProduct.objects.get(product=product)
-                category = dealshub_product.category
-                if category!=None:
-                    sub_categories = category.sub_categories.all()
-                    for sub_category in sub_categories:
-                        temp_dict_filter = {}
-                        temp_dict_filter["id"] = sub_category.pk
-                        temp_dict_filter["name"] = sub_category.name
-                        temp_dict_filter["values"] = []
-                        properties = sub_category.properties.all()
+
+            paginator = Paginator(products_by_name, 20)
+            products_list = paginator.page(page)            
+
+            for product in products_list:
+                try:
+                    if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
+                        continue
+
+                    dealshub_product = DealsHubProduct.objects.get(product=product)
+                    properties = json.loads(dealshub_product.properties)
+                    flag_match = True
+                    for filter_metric in filter_list:
                         for prop in properties:
-                            if prop.label in temp_dict_filter["values"]:
-                                temp_dict_filter["values"].append(prop.label)
-                        if sub_category.pk not in [x["id"] for x in filters ]:
-                            filters.append(temp_dict_filter)
-                if main_images_list.filter(is_main_image=True).count() > 0:
+                            if prop["key"]==filter_metric["key"]:
+                                if prop["value"] not in filter_metric["values"]:
+                                    flag_match = False
+                                break
+                    if flag_match==False:
+                        continue
+
+
+                    temp_dict = {}
+                    temp_dict["name"] = product.product_name
+                    temp_dict["brand"] = str(product.base_product.brand)
+                    if(product.base_product.brand.name=="Geepas"):
+                        # temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
+                        temp_dict["price"] = "0"
+                    else:
+                        temp_dict["price"] = product.standard_price
+
+                    temp_dict["currency"] = "AED"
+                    temp_dict["discount"] = "10%"
+                    temp_dict["rating"] = "4.5"
+                    temp_dict["totalRatings"] = "453"
+                    temp_dict["uuid"] = product.uuid
+                    temp_dict["id"] = product.uuid
+                    
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_objs = MainImages.objects.filter(product=product)
+                    for main_images_obj in main_images_objs:
+                        main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = main_images_list.distinct()
+
+                    try:
+                        temp_dict["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
+                    except Exception as e:
+                        temp_dict["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
+                   
+
+                    # category = dealshub_product.category
+                    # if category!=None:
+                    #     sub_categories = category.sub_categories.all()
+                    #     for sub_category in sub_categories:
+                    #         temp_dict_filter = {}
+                    #         temp_dict_filter["id"] = sub_category.pk
+                    #         temp_dict_filter["name"] = sub_category.name
+                    #         temp_dict_filter["values"] = []
+                    #         properties = sub_category.properties.all()
+                    #         for prop in properties:
+                    #             if prop.label in temp_dict_filter["values"]:
+                    #                 temp_dict_filter["values"].append(prop.label)
+                    #         if sub_category.pk not in [x["id"] for x in filters ]:
+                    #             filters.append(temp_dict_filter)
+                    
                     products.append(temp_dict)
-            """
-            dealshub_product = DealsHubProduct.objects.get(product=product)
-            category = dealshub_product.category
-            if category!=None:
-                sub_categories = category.sub_categories.all()
-                for sub_category in sub_categories:
-                    temp_dict_filter = {}
-                    temp_dict_filter["id"] = sub_category.pk
-                    temp_dict_filter["name"] = sub_category.name
-                    temp_dict_filter["values"] = []
-                    properties = sub_category.properties.all()
-                    for prop in properties:
-                        temp_dict_filter["values"].append(prop.label)
-                    filters.append(temp_dict_filter)
-            """
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            filters = []
+            try:
+                from dealshub.models import Category
+                if query_string_category!="ALL":
+                    category_obj = Category.objects.get(name = query_string_category)
+                    property_data = json.loads(category_obj.property_data)
+                    for p_data in property_data:
+                        temp_dict = {}
+                        temp_dict["key"] = p_data["key"]
+                        temp_dict["values"] = p_data["values"]
+                        filters.append(temp_dict)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_available = True
+            
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_products"] = len(products_by_name)
+
             search['filters'] = filters
             search['category'] = query_string_category
             search['products'] = products
@@ -2149,128 +1700,6 @@ class SearchAPI(APIView):
 
 
 Search = SearchAPI.as_view()
-
-
-# class AddProductAPI(APIView):
-#     authentication_classes = (
-#         CsrfExemptSessionAuthentication, BasicAuthentication)
-
-#     def post(self, request, *args, **kwargs):
-
-#         response['status'] = 500
-#         try:
-
-#             # if request.user.has_perm('WAMSApp.change_product') == False:
-#             #     logger.warning("SaveProductAPI Restricted Access!")
-#             #     response['status'] = 403
-#             #     return Response(data=response)
-
-#             data = request.data
-#             logger.info("AddProductAPI: %s", str(data))
-
-#             if not isinstance(data, dict):
-#                 data = json.loads(data)
-
-#             # Check for duplicate
-#             product_id = data["product_id"]
-
-#             product_obj = Product.objects.get(pk=int(data["product_pk"]))
-
-#             # Checking brand permission
-#             try:
-#                 permissible_brands = custom_permission_filter_brands(
-#                     request.user)
-#                 brand_obj = Brand.objects.get(
-#                     name=product_obj.base_product.brand.name)
-#                 if brand_obj not in permissible_brands:
-#                     logger.warning("SaveProductAPI Restricted Access Brand!")
-#                     response['status'] = 403
-#                     return Response(data=response)
-#             except Exception as e:
-#                 logger.error("SaveProductAPI Restricted Access Brand!")
-#                 response['status'] = 403
-#                 return Response(data=response)
-
-#             if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1:
-#                 logger.warning("Duplicate product detected!")
-#                 response['status'] = 409
-#                 return Response(data=response)
-
-#             product_name = convert_to_ascii(data["product_name"])
-#             barcode_string = convert_to_ascii(data["barcode_string"])
-#             color = convert_to_ascii(data["color"])
-#             color_map = convert_to_ascii(data["color_map"])
-#             standard_price = None if data["standard_price"] == "" else float(
-#                 data["standard_price"])
-#             quantity = None if data["quantity"] == "" else int(
-#                 data["quantity"])
-
-#             product_id_type = convert_to_ascii(data["product_id_type"])
-#             product_id_type_obj, created = ProductIDType.objects.get_or_create(
-#                 name=product_id_type)
-
-#             material_type = convert_to_ascii(data["material_type"])
-#             material_type_obj, created = MaterialType.objects.get_or_create(
-#                 name=material_type)
-
-#             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
-#             pfl_product_features = convert_to_ascii(
-#                 data["pfl_product_features"])
-
-#             factory_notes = convert_to_ascii(data["factory_notes"])
-
-#             product_obj.product_id = product_id
-
-#             try:
-#                 if product_obj.barcode_string != barcode_string and barcode_string != "":
-#                     EAN = barcode.ean.EuropeanArticleNumber13(
-#                         str(barcode_string), writer=ImageWriter())
-
-#                     thumb = EAN.save('temp_image')
-#                     thumb = IMage.open(open(thumb, "rb"))
-#                     thumb_io = StringIO.StringIO()
-#                     thumb.save(thumb_io, format='PNG')
-#                     thumb_file = InMemoryUploadedFile(
-#                         thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.len, None)
-
-#                     barcode_image = Image.objects.create(image=thumb_file)
-#                     product_obj.barcode = barcode_image
-#                     product_obj.barcode_string = barcode_string
-
-#                     try:
-#                         import os
-#                         os.remove("temp_image.png")
-#                     except Exception as e:
-#                         exc_type, exc_obj, exc_tb = sys.exc_info()
-#                         logger.warning("AddProductAPI: %s at %s",
-#                                        e, str(exc_tb.tb_lineno))
-
-#             except Exception as e:
-#                 exc_type, exc_obj, exc_tb = sys.exc_info()
-#                 logger.error("AddProductAPI: %s at %s",
-#                              e, str(exc_tb.tb_lineno))
-
-#             product_obj.product_name = product_name
-
-#             product_obj.product_id_type = product_id_type_obj
-#             product_obj.color_map = color_map
-#             product_obj.color = color
-
-#             product_obj.material_type = material_type_obj
-#             product_obj.standard_price = standard_price
-#             product_obj.quantity = quantity
-
-#             product_obj.pfl_product_name = pfl_product_name
-#             product_obj.pfl_product_features = pfl_product_features
-
-#             product_obj.factory_notes = factory_notes
-
-#             product_obj.save()
-
-#             response['status'] = 200
-
-
-# AddProduct = AddProductAPI.as_view()
 
 
 class CreateAdminCategoryAPI(APIView):
@@ -2288,19 +1717,16 @@ class CreateAdminCategoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_name = data["brandName"]
-            data = data["sectionData"]
-            
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            for key in data:
-                logger.info("CreateAdminCategoryAPI KEY: %s", str(key))
+            data = data["sectionData"]
 
             name = data["name"]
             listing_type = data["listingType"]
             products = data["products"]
             
-            section_obj = Section.objects.create(brand=brand_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
+            section_obj = Section.objects.create(organization=organization_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
                 section_obj.products.add(product_obj)
@@ -2327,10 +1753,10 @@ class FetchAdminCategoriesAPI(APIView):
             data = request.data
             logger.info("FetchAdminCategoriesAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            section_objs = Section.objects.filter(brand=brand_obj)
+            section_objs = Section.objects.filter(organization=organization_obj)
 
             section_list = []
             
@@ -2343,6 +1769,7 @@ class FetchAdminCategoriesAPI(APIView):
                 temp_dict["modifiedBy"] = str(section_obj.modified_by)
                 temp_dict["createdOn"] = str(section_obj.created_date)
                 temp_dict["modifiedOn"] = str(section_obj.modified_date)
+                temp_dict["type"] = "ProductListing"
                 temp_products = []
                 for prod in section_obj.products.all():
                     temp_dict2 = {}
@@ -2450,7 +1877,7 @@ class PublishAdminCategoryAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("DeleteAdminCategoryAPI: %s", str(data))
+            logger.info("PublishAdminCategoryAPI: %s", str(data))
 
             uuid = data["uuid"]
             
@@ -2461,7 +1888,7 @@ class PublishAdminCategoryAPI(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("PublishAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -2626,12 +2053,12 @@ class CreateDealsBannerAPI(APIView):
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
             image_obj = Image.objects.create(image=image)
 
-            deals_banner_obj = DealsBanner.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
+            deals_banner_obj = DealsBanner.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = deals_banner_obj.uuid
             response['status'] = 200
@@ -2656,11 +2083,11 @@ class FetchDealsBannerAPI(APIView):
             data = request.data
             logger.info("FetchDealsBannerAPI: %s", str(data))
 
-            resolution = data["resolution"]
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            resolution = data.get("resolution", "low")
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            deals_banner_objs = DealsBanner.objects.filter(brand=brand_obj)
+            deals_banner_objs = DealsBanner.objects.filter(organization=organization_obj)
 
             banner_deals = []
 
@@ -2789,12 +2216,12 @@ class CreateFullBannerAdAPI(APIView):
 
             image = data["image"]
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
             image_obj = Image.objects.create(image=image)
 
-            full_banner_ad_obj = FullBannerAd.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
+            full_banner_ad_obj = FullBannerAd.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = full_banner_ad_obj.uuid
             response['status'] = 200
@@ -2819,10 +2246,10 @@ class FetchFullBannerAdAPI(APIView):
             data = request.data
             logger.info("FetchFullBannerAdAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            full_banner_ad_objs = FullBannerAd.objects.filter(brand=brand_obj)
+            full_banner_ad_objs = FullBannerAd.objects.filter(organization=organization_obj)
 
             banner_deals = []
 
@@ -2842,7 +2269,7 @@ class FetchFullBannerAdAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchDealsBannerAPI: %s at %s",
+            logger.error("FetchFullBannerAdAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
@@ -3016,12 +2443,12 @@ class CreateCategoryGridBannerAPI(APIView):
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
-            brand_name = data["brandName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
             image_obj = Image.objects.create(image=image)
 
-            category_grid_banner_obj = CategoryGridBanner.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
+            category_grid_banner_obj = CategoryGridBanner.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = category_grid_banner_obj.uuid
             response['status'] = 200
@@ -3047,11 +2474,11 @@ class FetchCategoryGridBannerAPI(APIView):
             logger.info("FetchCategoryGridBannerAPI: %s", str(data))
 
             resolution = data.get("resolution", "low")
-            brand_name = data["brandName"]
 
-            brand_obj = Brand.objects.get(name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
-            category_grid_banner_objs = CategoryGridBanner.objects.filter(brand=brand_obj)
+            category_grid_banner_objs = CategoryGridBanner.objects.filter(organization=organization_obj)
 
             category_grid_banners = []
 
@@ -3155,16 +2582,15 @@ class CreateHomePageSchedularAPI(APIView):
             logger.info("CreateHomePageSchedularAPI: %s", str(data))
 
             image = data["image"]
-            brand_name = data["brandName"]
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
 
             if image=="" or image=="undefined" or image==None:
                 return Response(data=response)
 
-            brand_obj = Brand.objects.get(name=brand_name)
-
             image_obj = Image.objects.create(image=image)
 
-            home_page_schedular_obj = HomePageSchedular.objects.create(brand=brand_obj, image=image_obj, uuid=str(uuid.uuid4()))
+            home_page_schedular_obj = HomePageSchedular.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
             
             response['uuid'] = home_page_schedular_obj.uuid
             response['status'] = 200
@@ -3190,9 +2616,11 @@ class FetchHomePageSchedularAPI(APIView):
             logger.info("FetchHomePageSchedularAPI: %s", str(data))
 
             resolution = data.get("resolution", "low")
-            brand_name = data["brandName"]
 
-            home_page_schedular_objs = HomePageSchedular.objects.filter(brand__name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            home_page_schedular_objs = HomePageSchedular.objects.filter(organization=organization_obj)
 
             home_page_schedulars = []
 
@@ -3424,16 +2852,20 @@ class FetchHeadingDataAPI(APIView):
             data = request.data
             logger.info("FetchHeadingDataAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            dealshub_heading_objs = DealsHubHeading.objects.filter(brand__name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            included_category_dict = {}
+
+            dealshub_heading_objs = DealsHubHeading.objects.filter(organization=organization_obj)
             heading_list = []
             for dealshub_heading_obj in dealshub_heading_objs:
-                logger.info("heading data")
                 temp_dict = {}
                 temp_dict["headingName"] = dealshub_heading_obj.name
                 category_list = []
                 category_objs = dealshub_heading_obj.categories.all()
                 for category_obj in category_objs:
+                    included_category_dict[category_obj.pk] = 1
                     temp_dict2 = {}
                     temp_dict2["categoryName"] = category_obj.name
                     sub_category_list = []
@@ -3457,12 +2889,32 @@ class FetchHeadingDataAPI(APIView):
 
                 heading_list.append(temp_dict)
 
+            temp_dict = {}
+            other_category_list = []
+            temp_dict["headingName"] = "Others"
+            category_objs = Category.objects.filter(organization=organization_obj)
+            for category_obj in category_objs:
+                if category_obj.pk not in included_category_dict:
+                    temp_dict2 = {}
+                    temp_dict2["categoryName"] = category_obj.name
+                    sub_category_list = []
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict3 = {}
+                        temp_dict3["subcategoryName"] = sub_category_obj.name
+                        sub_category_list.append(temp_dict3)
+                    temp_dict2["subcategoryList"] = sub_category_list
+                    other_category_list.append(temp_dict2)
+            temp_dict["categoryList"] = other_category_list
+            temp_dict["imageList"] = []
+            if len(other_category_list)>0:
+                heading_list.append(temp_dict)
+
             response["headingList"] = heading_list
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("Not catching")
             logger.error("FetchHeadingDataAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
@@ -3483,8 +2935,10 @@ class FetchHeadingDataAdminAPI(APIView):
             data = request.data
             logger.info("FetchHeadingDataAdminAPI: %s", str(data))
 
-            brand_name = data["brandName"]
-            dealshub_heading_objs = DealsHubHeading.objects.filter(brand__name=brand_name)
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            dealshub_heading_objs = DealsHubHeading.objects.filter(organization=organization_obj)
             heading_list = []
             for dealshub_heading_obj in dealshub_heading_objs:
                 temp_dict = {}
@@ -3535,10 +2989,11 @@ class FetchHeadingCategoryListAPI(APIView):
             data = request.data
             logger.info("FetchHeadingCategoryListAPI: %s", str(data))
 
-            #brand_name = data["brandName"]
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
             
             category_list = []
-            category_objs = Category.objects.all()
+            category_objs = Category.objects.filter(organization=organization_obj)
             for category_obj in category_objs:
                 temp_dict = {}
                 temp_dict["name"] = category_obj.name
@@ -3592,11 +3047,13 @@ class CreateHeadingDataAPI(APIView):
             data = request.data
             logger.info("CreateHeadingDataAPI: %s", str(data))
 
-            brand_name = data["brandName"]
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
             heading_name = data["headingName"]
-            brand_obj = Brand.objects.get(name=brand_name)
+            
             uuid1 = str(uuid.uuid4())
-            dealshub_heading_obj = DealsHubHeading.objects.create(brand=brand_obj, name=heading_name, uuid=uuid1)
+            dealshub_heading_obj = DealsHubHeading.objects.create(organization=organization_obj, name=heading_name, uuid=uuid1)
 
             response["uuid"] = dealshub_heading_obj.uuid
             response['status'] = 200
@@ -3741,7 +3198,7 @@ class DeleteImageHeadingAPI(APIView):
         return Response(data=response)
 
 
-class FetchUserBrandAPI(APIView):
+class FetchUserOrganizationAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
@@ -3752,19 +3209,346 @@ class FetchUserBrandAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchUserBrandAPI: %s", str(data))
+            logger.info("FetchUserOrganizationAPI: %s", str(data))
 
             username = data["userName"]
             custom_permission_obj = CustomPermission.objects.get(user__username=username)
-            brand_name = custom_permission_obj.brands.all()[0].name
+            organization_name = custom_permission_obj.brands.all()[0].organization.name
             
-            response["brandName"] = brand_name
+            response["organizationName"] = organization_name
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchUserBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchUserOrganizationAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
+
+
+
+class FetchDealshubAdminSectionsAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def fetch_price(self,product_id):
+        try:
+            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            company_code = "1070" # GEEPAS
+            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header />
+            <soapenv:Body>
+            <urn:ZAPP_STOCK_PRICE>
+             <IM_MATNR>
+              <item>
+               <MATNR>""" + product_id + """</MATNR>
+              </item>
+             </IM_MATNR>
+             <IM_VKORG>
+              <item>
+               <VKORG>""" + company_code + """</VKORG>
+              </item>
+             </IM_VKORG>
+             <T_DATA>
+              <item>
+               <MATNR></MATNR>
+               <MAKTX></MAKTX>
+               <LGORT></LGORT>
+               <CHARG></CHARG>
+               <SPART></SPART>
+               <MEINS></MEINS>
+               <ATP_QTY></ATP_QTY>
+               <TOT_QTY></TOT_QTY>
+               <CURRENCY></CURRENCY>
+               <IC_EA></IC_EA>
+               <OD_EA></OD_EA>
+               <EX_EA></EX_EA>
+               <RET_EA></RET_EA>
+               <WERKS></WERKS>
+              </item>
+             </T_DATA>
+            </urn:ZAPP_STOCK_PRICE>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
+            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+            content = response2.content
+            content = xmltodict.parse(content)
+            content = json.loads(json.dumps(content))
+            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            price = 0
+            temp_price = 0
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    price = max(temp_price, price)
+            return float(price)
+        except Exception as e:
+            return 0
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchDealshubAdminSectionsAPI: %s", str(data))
+
+            limit = data.get("limit", False)
+            is_dealshub = data.get("isDealshub", False)
+
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.get(organization=organization_obj)
+            section_objs = Section.objects.all().order_by('order_index')
+
+            if is_dealshub==True:
+                section_objs = section_objs.filter(is_published=True)                
+            cnt = 0
+            dealshub_admin_sections = []
+            for section_obj in section_objs:
+                while section_obj.order_index!=cnt:
+                    temp_dict = {}
+                    if dealshub_admin_section_order_obj.dealshub_banner_index==cnt:
+                        temp_dict["type"] = "DealsBanner"
+                        temp_dict["uuid"] = "DealsBanner"
+                    elif dealshub_admin_section_order_obj.homepage_schedular_index==cnt:
+                        temp_dict["type"] = "HomePageSchedular"
+                        temp_dict["uuid"] = "HomePageSchedular"
+                    elif dealshub_admin_section_order_obj.full_banner_ad_index==cnt:
+                        temp_dict["type"] = "FullBannerAd"
+                        temp_dict["uuid"] = "FullBannerAd"
+                    elif dealshub_admin_section_order_obj.category_grid_banner_index==cnt:
+                        temp_dict["type"] = "CategoryGridBanner"
+                        temp_dict["uuid"] = "CategoryGridBanner"
+                    else:
+                        break
+                    cnt += 1
+                    dealshub_admin_sections.append(temp_dict)
+                temp_dict = {} 
+                temp_dict["type"] = "ProductListing"
+                temp_dict["uuid"] = str(section_obj.uuid)
+                temp_dict["name"] = str(section_obj.name)
+                temp_dict["listingType"] = str(section_obj.listing_type)
+                temp_dict["createdOn"] = str(datetime.datetime.strftime(section_obj.created_date, "%d %b, %Y"))
+                temp_dict["modifiedOn"] = str(datetime.datetime.strftime(section_obj.modified_date, "%d %b, %Y"))
+                temp_dict["createdBy"] = str(section_obj.created_by)
+                temp_dict["modifiedBy"] = str(section_obj.modified_by)
+                temp_dict["isPublished"] = section_obj.is_published
+                
+                temp_products = []
+
+                section_products = section_obj.products.all()
+                if limit==True:
+                    if section_obj.listing_type=="Carousel":
+                        section_products = section_products[:21]
+                    elif section_obj.listing_type=="Grid Stack":
+                        section_products = section_products[:14]
+
+
+                for prod in section_products:
+                    temp_dict2 = {}
+
+                    main_images_list = ImageBucket.objects.none()
+                    try:
+                        main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
+                        main_images_list |= main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
+                        images = create_response_images_main(main_images_list)
+                        temp_dict2["thumbnailImageUrl"] = images[0]["midimage_url"]
+                    except Exception as e:
+                        temp_dict2["thumbnailImageUrl"] = ""
+
+                    
+                    temp_dict2["name"] = str(prod.product_name)
+                    temp_dict2["displayId"] = str(prod.product_id)
+                    temp_dict2["category"] = str(prod.base_product.category)
+                    if organization_name=="geepas":
+                        #temp_dict2["price"] = str(self.fetch_price(prod.base_product.seller_sku))
+                        temp_dict2["price"] = "0"
+                    else:
+                        temp_dict2["price"] = str(prod.standard_price)
+                    temp_dict2["currency"] = "AED"
+                    temp_dict2["uuid"] = str(prod.uuid)
+                    temp_products.append(temp_dict2)
+                temp_dict["products"] = temp_products
+
+                dealshub_admin_sections.append(temp_dict)
+                cnt += 1
+            while len(dealshub_admin_sections)<section_objs.count()+4:
+                temp_dict = {}
+                if dealshub_admin_section_order_obj.dealshub_banner_index==cnt:
+                    temp_dict["type"] = "DealsBanner"
+                    temp_dict["uuid"] = "DealsBanner"
+                elif dealshub_admin_section_order_obj.homepage_schedular_index==cnt:
+                    temp_dict["type"] = "HomePageSchedular"
+                    temp_dict["uuid"] = "HomePageSchedular"
+                elif dealshub_admin_section_order_obj.full_banner_ad_index==cnt:
+                    temp_dict["type"] = "FullBannerAd"
+                    temp_dict["uuid"] = "FullBannerAd"
+                elif dealshub_admin_section_order_obj.category_grid_banner_index==cnt:
+                    temp_dict["type"] = "CategoryGridBanner"
+                    temp_dict["uuid"] = "CategoryGridBanner"
+                else:
+                    break
+                cnt += 1
+                dealshub_admin_sections.append(temp_dict)
+
+            response["sections_list"] = dealshub_admin_sections
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+
+class SaveDealshubAdminSectionsOrderAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SaveDealshubAdminSectionsOrderAPI: %s", str(data))
+
+            dealshub_admin_sections = data["dealshubAdminSections"]
+
+            dealshub_admin_section_order_obj = None
+            if DealshubAdminSectionOrder.objects.count()==0:
+                dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.create()
+            else:
+                dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.all()[0]
+
+            cnt = 0
+            for dealshub_admin_section in dealshub_admin_sections:
+                if dealshub_admin_section["type"]=="DealsBanner":
+                    dealshub_admin_section_order_obj.dealshub_banner_index = cnt
+                if dealshub_admin_section["type"]=="HomePageSchedular":
+                    dealshub_admin_section_order_obj.homepage_schedular_index = cnt
+                if dealshub_admin_section["type"]=="FullBannerAd":
+                    dealshub_admin_section_order_obj.full_banner_ad_index = cnt
+                if dealshub_admin_section["type"]=="CategoryGridBanner":
+                    dealshub_admin_section_order_obj.category_grid_banner_index = cnt
+                if dealshub_admin_section["type"]=="ProductListing":
+                    uuid = dealshub_admin_section["uuid"]
+                    section_obj = Section.objects.get(uuid=uuid)
+                    section_obj.order_index = cnt
+                    section_obj.save()
+                
+                dealshub_admin_section_order_obj.save()
+                cnt += 1
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveDealshubAdminSectionsOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class SearchSectionProductsAutocompleteAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchSectionProductsAutocompleteAPI: %s", str(data))
+
+            search_string = data["searchString"]
+            organization_name = data["organizationName"]
+
+            dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__organization__name=organization_name, product__base_product__seller_sku__icontains=search_string, product__product_name__icontains=search_string)
+
+            dealshub_products_list = []
+            for dealshub_product in dealshub_products:
+                temp_dict = {}
+                temp_dict["name"] = dealshub_product.product.product_name
+                temp_dict["uuid"] = dealshub_product.product.uuid
+                dealshub_products_list.append(temp_dict)
+
+            response["productList"] = dealshub_products_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchSectionProductsAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class SearchProductsAutocompleteAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchProductsAutocompleteAPI: %s", str(data))
+
+            search_string = data["searchString"]
+            organization_name = data["organizationName"]
+
+            dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__organization__name=organization_name, product__product_name__icontains=search_string)
+
+            dealshub_products_list = []
+            for dealshub_product in dealshub_products:
+                temp_dict = {}
+                temp_dict["name"] = dealshub_product.product.product_name
+                temp_dict["uuid"] = dealshub_product.product.uuid
+                dealshub_products_list.append(temp_dict)
+
+            response["productList"] = dealshub_products_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchProductsAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchDealshubPriceAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchDealshubPriceAPI: %s", str(data))
+
+            uuid1 = data["uuid"]
+            company_code = data["companyCode"]
+
+            price = fetch_prices_dealshub(uuid1, company_code)
+
+            response["price"] = price
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
 
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
@@ -3854,4 +3638,14 @@ UpdateImageHeadingLink = UpdateImageHeadingLinkAPI.as_view()
 
 DeleteImageHeading = DeleteImageHeadingAPI.as_view()
 
-FetchUserBrand = FetchUserBrandAPI.as_view()
+FetchUserOrganization = FetchUserOrganizationAPI.as_view()
+
+FetchDealshubAdminSections = FetchDealshubAdminSectionsAPI.as_view()
+
+SaveDealshubAdminSectionsOrder = SaveDealshubAdminSectionsOrderAPI.as_view() 
+
+SearchSectionProductsAutocomplete = SearchSectionProductsAutocompleteAPI.as_view()
+
+SearchProductsAutocomplete = SearchProductsAutocompleteAPI.as_view()
+
+FetchDealshubPrice = FetchDealshubPriceAPI.as_view()

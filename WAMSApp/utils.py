@@ -47,15 +47,16 @@ def has_atleast_one_image(prod_obj):
 
     main_images_objs = MainImages.objects.filter(product=prod_obj)
     for main_images_obj in main_images_objs:
-        images_count += main_images_obj.main_images.all().count()
+        images_count += main_images_obj.main_images.count()
 
     sub_images_objs = SubImages.objects.filter(product=prod_obj)
     for sub_images_obj in sub_images_objs:
-        images_count += sub_images_obj.sub_images.all().count()
+        images_count += sub_images_obj.sub_images.count()
 
-    images_count += prod_obj.white_background_images.all().count()
-    images_count += prod_obj.lifestyle_images.all().count()
+    images_count += prod_obj.white_background_images.count()
+    images_count += prod_obj.lifestyle_images.count()
     
+    # return images_count
     if(images_count>0):
         check=True
     return check
@@ -86,135 +87,204 @@ def decode_base64_file(data):
 
         return ContentFile(decoded_file, name=complete_file_name)
 
-def fetch_prices(product_id):
+def fetch_prices(product_id,company_code):
     try:
 
         # Check if Cached
         product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
-        curr_time = timezone.now()
-        if (product_obj.sap_cache_time-curr_time).seconds<86400:
-             warehouse_information = json.loads(product_obj.sap_cache)
-             return warehouse_information
+        # curr_time = timezone.now()
+        # if (product_obj.sap_cache_time-curr_time).seconds<86400:
+        #      warehouse_information = json.loads(product_obj.sap_cache)
+        #      return warehouse_information
 
         url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-        company_codes = ["1070","1000"] 
-
-        warehouse_information = []
-
-        for company_code in company_codes:
-            warehouse_dict = {}
-            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-            <soapenv:Header />
-            <soapenv:Body>
-            <urn:ZAPP_STOCK_PRICE>
-             <IM_MATNR>
-              <item>
-               <MATNR>""" + product_id + """</MATNR>
-              </item>
-             </IM_MATNR>
-             <IM_VKORG>
-              <item>
-               <VKORG>""" + company_code + """</VKORG>
-              </item>
-             </IM_VKORG>
-             <T_DATA>
-              <item>
-               <MATNR></MATNR>
-               <MAKTX></MAKTX>
-               <LGORT></LGORT>
-               <CHARG></CHARG>
-               <SPART></SPART>
-               <MEINS></MEINS>
-               <ATP_QTY></ATP_QTY>
-               <TOT_QTY></TOT_QTY>
-               <CURRENCY></CURRENCY>
-               <IC_EA></IC_EA>
-               <OD_EA></OD_EA>
-               <EX_EA></EX_EA>
-               <RET_EA></RET_EA>
-               <WERKS></WERKS>
-              </item>
-             </T_DATA>
-            </urn:ZAPP_STOCK_PRICE>
-            </soapenv:Body>
-            </soapenv:Envelope>"""
-            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
-            content = response2.content
-            content = xmltodict.parse(content)
-            content = json.loads(json.dumps(content))
-            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-            EX_EA = 0.0
-            IC_EA = 0.0
-            OD_EA = 0.0
-            RET_EA = 0.0
-            qty=0.0
-            
-            warehouse_dict["company_code"] = company_code
-            
-            if isinstance(items, dict):
-                temp_price = items["EX_EA"]
+        
+        warehouse_dict = {}
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        <soapenv:Header />
+        <soapenv:Body>
+        <urn:ZAPP_STOCK_PRICE>
+         <IM_MATNR>
+          <item>
+           <MATNR>""" + product_id + """</MATNR>
+          </item>
+         </IM_MATNR>
+         <IM_VKORG>
+          <item>
+           <VKORG>""" + company_code + """</VKORG>
+          </item>
+         </IM_VKORG>
+         <T_DATA>
+          <item>
+           <MATNR></MATNR>
+           <MAKTX></MAKTX>
+           <LGORT></LGORT>
+           <CHARG></CHARG>
+           <SPART></SPART>
+           <MEINS></MEINS>
+           <ATP_QTY></ATP_QTY>
+           <TOT_QTY></TOT_QTY>
+           <CURRENCY></CURRENCY>
+           <IC_EA></IC_EA>
+           <OD_EA></OD_EA>
+           <EX_EA></EX_EA>
+           <RET_EA></RET_EA>
+           <WERKS></WERKS>
+          </item>
+         </T_DATA>
+        </urn:ZAPP_STOCK_PRICE>
+        </soapenv:Body>
+        </soapenv:Envelope>"""
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        EX_EA = 0.0
+        IC_EA = 0.0
+        OD_EA = 0.0
+        RET_EA = 0.0
+        qty=0.0
+        
+        warehouse_dict["company_code"] = company_code
+        
+        if isinstance(items, dict):
+            temp_price = items["EX_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                EX_EA = max(temp_price, EX_EA)
+            temp_price = items["IC_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                IC_EA = max(temp_price, IC_EA)
+            temp_price = items["OD_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                OD_EA = max(temp_price, OD_EA)
+            temp_price = items["RET_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                RET_EA = max(temp_price, RET_EA)
+            temp_qty = items["TOT_QTY"]
+            if temp_qty!=None:
+                temp_qty = float(temp_qty)
+                qty = max(temp_qty, qty)
+        else:
+            for item in items:
+                temp_price = item["EX_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     EX_EA = max(temp_price, EX_EA)
-                temp_price = items["IC_EA"]
+                temp_price = item["IC_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     IC_EA = max(temp_price, IC_EA)
-                temp_price = items["OD_EA"]
+                temp_price = item["OD_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     OD_EA = max(temp_price, OD_EA)
-                temp_price = items["RET_EA"]
+                temp_price = item["RET_EA"]
                 if temp_price!=None:
                     temp_price = float(temp_price)
                     RET_EA = max(temp_price, RET_EA)
-                temp_qty = items["TOT_QTY"]
+                temp_qty = item["TOT_QTY"]
                 if temp_qty!=None:
                     temp_qty = float(temp_qty)
                     qty = max(temp_qty, qty)
-            else:
-                for item in items:
-                    temp_price = item["EX_EA"]
-                    if temp_price!=None:
-                        temp_price = float(temp_price)
-                        EX_EA = max(temp_price, EX_EA)
-                    temp_price = item["IC_EA"]
-                    if temp_price!=None:
-                        temp_price = float(temp_price)
-                        IC_EA = max(temp_price, IC_EA)
-                    temp_price = item["OD_EA"]
-                    if temp_price!=None:
-                        temp_price = float(temp_price)
-                        OD_EA = max(temp_price, OD_EA)
-                    temp_price = item["RET_EA"]
-                    if temp_price!=None:
-                        temp_price = float(temp_price)
-                        RET_EA = max(temp_price, RET_EA)
-                    temp_qty = item["TOT_QTY"]
-                    if temp_qty!=None:
-                        temp_qty = float(temp_qty)
-                        qty = max(temp_qty, qty)
+        
+        prices = {}
+        prices["EX_EA"] = str(EX_EA)
+        prices["IC_EA"] = str(IC_EA)
+        prices["OD_EA"] = str(OD_EA)
+        prices["RET_EA"] = str(RET_EA)
+        
+        warehouse_dict["prices"] = prices
+        warehouse_dict["qty"] = qty
             
-            prices = {}
-            prices["EX_EA"] = str(EX_EA)
-            prices["IC_EA"] = str(IC_EA)
-            prices["OD_EA"] = str(OD_EA)
-            prices["RET_EA"] = str(RET_EA)
-            
-            warehouse_dict["prices"] = prices
-            warehouse_dict["qty"] = qty
-            
-            warehouse_information.append(warehouse_dict)
+        # warehouse_information.append(warehouse_dict)
 
-        product_obj.sap_cache = json.dumps(warehouse_information)
-        product_obj.sap_cache_time = curr_time
+        product_obj.sap_cache = json.dumps(warehouse_dict)
         product_obj.save()
         
-        return warehouse_information
+        return warehouse_dict
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Fetch Prices: %s at %s", e, str(exc_tb.tb_lineno))
         return []
+
+
+
+
+def fetch_prices_dealshub(uuid1, company_code):
+    try:
+        product_obj = Product.objects.get(uuid=uuid1)
+        product_id = product_obj.base_product.seller_sku
+
+        url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        
+        warehouse_dict = {}
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        <soapenv:Header />
+        <soapenv:Body>
+        <urn:ZAPP_STOCK_PRICE>
+         <IM_MATNR>
+          <item>
+           <MATNR>""" + product_id + """</MATNR>
+          </item>
+         </IM_MATNR>
+         <IM_VKORG>
+          <item>
+           <VKORG>""" + company_code + """</VKORG>
+          </item>
+         </IM_VKORG>
+         <T_DATA>
+          <item>
+           <MATNR></MATNR>
+           <MAKTX></MAKTX>
+           <LGORT></LGORT>
+           <CHARG></CHARG>
+           <SPART></SPART>
+           <MEINS></MEINS>
+           <ATP_QTY></ATP_QTY>
+           <TOT_QTY></TOT_QTY>
+           <CURRENCY></CURRENCY>
+           <IC_EA></IC_EA>
+           <OD_EA></OD_EA>
+           <EX_EA></EX_EA>
+           <RET_EA></RET_EA>
+           <WERKS></WERKS>
+          </item>
+         </T_DATA>
+        </urn:ZAPP_STOCK_PRICE>
+        </soapenv:Body>
+        </soapenv:Envelope>"""
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        EX_EA = 0.0
+        
+        if isinstance(items, dict):
+            temp_price = items["EX_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                EX_EA = max(temp_price, EX_EA)
+        else:
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    EX_EA = max(temp_price, EX_EA)
+        
+        return str(EX_EA)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_prices_dealshub: %s at %s", e, str(exc_tb.tb_lineno))
+        return "0"

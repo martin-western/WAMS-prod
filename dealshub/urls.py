@@ -78,5 +78,13 @@ urlpatterns = [
     url(r'^update-image-heading-link/$', views.UpdateImageHeadingLink),
     url(r'^delete-image-heading/$', views.DeleteImageHeading),
 
-    url(r'^fetch-user-brand/$', views.FetchUserBrand),
+    url(r'^fetch-user-organization/$', views.FetchUserOrganization),
+
+    url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
+    url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
+
+    url(r'^search-section-products-autocomplete/$', views.SearchSectionProductsAutocomplete),
+    url(r'^search-products-autocomplete/$', views.SearchProductsAutocomplete),
+
+    url(r'^fetch-dealshub-price/$', views.FetchDealshubPrice),
 ]

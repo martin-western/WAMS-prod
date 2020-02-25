@@ -84,3 +84,14 @@ for prod in prods:
     d.category = category_obj
     d.sub_category = sub_category_obj
     d.save()
+
+from WAMSApp.models import *
+from WAMSApp.utils import *
+
+Ps = Product.objects.all()
+cnt=0
+for p in Ps:
+    p.no_of_images_for_filter = has_atleast_one_image(p)
+    p.save()
+    cnt+=1
+    print("Cnt : ", cnt)

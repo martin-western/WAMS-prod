@@ -479,6 +479,7 @@ for data in all_data_json:
 
             product_obj,created = Product.objects.get_or_create(base_product=base_product_obj,
                                                  product_name=product_name_sap,
+                                                 product_description=product_description_amazon_uk,
                                                  product_id=product_id,
                                                  product_id_type=product_id_type_obj,
                                                  created_date=created_date,
@@ -668,7 +669,7 @@ for data in all_data_json:
                 product_obj.ads_images.add(ads_image)
             
             for unedited_image in unedited_images_objs:
-                product_obj.unedited_images.add(unedited_image)
+                base_product_obj.unedited_images.add(unedited_image)
             
             for pfl_generated_image in pfl_generated_images_objs:
                 product_obj.pfl_generated_images.add(pfl_generated_image)

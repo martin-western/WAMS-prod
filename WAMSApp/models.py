@@ -26,6 +26,7 @@ noon_product_json = {
     "product_subtype" : "",
     "parent_sku" : "",
     "category" : "",
+    "subtitle" : "",
     "sub_category" : "",
     "model_number" : "",
     "model_name" : "",
@@ -202,7 +203,7 @@ class Image(models.Model):
             self.mid_image = thumb_file2
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("save Image: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
 
@@ -246,6 +247,15 @@ class ImageBucket(models.Model):
 class Organization(models.Model):
 
     name = models.CharField(unique=True, max_length=100)
+    contact_info = models.CharField(max_length=100,blank=True, default='')
+    address = models.TextField(blank=True, default='')
+    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    primary_color = models.CharField(max_length=100,default = "#000000")
+    secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
+    facebook_link = models.CharField(max_length=100,blank=True, default='')
+    twitter_link = models.CharField(max_length=100,blank=True, default='')
+    instagram_link = models.CharField(max_length=100,blank=True, default='')
+    youtube_link = models.CharField(max_length=100,blank=True, default='')
 
     class Meta:
         verbose_name = "Organization"
@@ -327,6 +337,7 @@ class BaseProduct(models.Model):
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
+    unedited_images = models.ManyToManyField(Image, related_name="unedited_images", blank=True)
 
     dimensions = models.TextField(blank=True, default=base_dimensions_json)
     history = AuditlogHistoryField()
@@ -349,6 +360,7 @@ class BaseProduct(models.Model):
         super(BaseProduct, self).save(*args, **kwargs)
 
 auditlog.register(BaseProduct, exclude_fields=['modified_date' , 'created_date'])
+auditlog.register(BaseProduct.unedited_images.through)
 
 
 class ChannelProduct(models.Model):
@@ -394,6 +406,7 @@ class Product(models.Model):
     verified = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
     factory_code = models.CharField(null=True,max_length=200)
+    product_description = models.TextField(blank=True)
 
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
@@ -414,7 +427,6 @@ class Product(models.Model):
     diecut_images = models.ManyToManyField(Image, related_name="diecut_images", blank=True)
     aplus_content_images = models.ManyToManyField(Image, related_name="aplus_content_images", blank=True)
     ads_images = models.ManyToManyField(Image, related_name="ads_images", blank=True)
-    unedited_images = models.ManyToManyField(Image, related_name="unedited_images", blank=True)
     pfl_generated_images = models.ManyToManyField(Image , related_name="pfl_generated_images" , blank = True)
     transparent_images = models.ManyToManyField(Image , related_name="transparent_images" , blank = True)
 
@@ -432,6 +444,7 @@ class Product(models.Model):
     sap_cache_time = models.DateTimeField(default=timezone.now)
 
     is_dealshub_product_created = models.BooleanField(default=False)
+    no_of_images_for_filter = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "Product"
@@ -458,7 +471,7 @@ class Product(models.Model):
         
         super(Product, self).save(*args, **kwargs)
 
-auditlog.register(Product, exclude_fields=['modified_date' , 'created_date' , 'uuid', 'base_product'])
+auditlog.register(Product, exclude_fields=['modified_date' , 'created_date' , 'uuid', 'base_product','sap_cache','sap_cache_time'])
 
 auditlog.register(Product.pfl_images.through)
 auditlog.register(Product.white_background_images.through)
@@ -468,7 +481,6 @@ auditlog.register(Product.giftbox_images.through)
 auditlog.register(Product.diecut_images.through)
 auditlog.register(Product.aplus_content_images.through)
 auditlog.register(Product.ads_images.through)
-auditlog.register(Product.unedited_images.through)
 auditlog.register(Product.pfl_generated_images.through)
 auditlog.register(Product.transparent_images.through)
 

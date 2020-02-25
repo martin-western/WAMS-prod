@@ -14,7 +14,7 @@ import json
 import uuid
 
 
-from WAMSApp.models import Product, Image, Brand
+from WAMSApp.models import Product, Image, Organization
 from dealshub.synchronization import *
 
 logger = logging.getLogger(__name__)
@@ -24,6 +24,8 @@ class Category(models.Model):
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     category_id = models.CharField(max_length=256, blank=True, default='')
+    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True)
+    property_data = models.TextField(default="[]", blank=True)
 
     def __str__(self):
         return self.name
@@ -47,6 +49,7 @@ class SubCategory(models.Model):
     name = models.CharField(max_length=256, blank=True, default='')
     desription = models.CharField(max_length=256, blank=True, default='')
     sub_category_id = models.CharField(max_length=256, blank=True, default='')
+    property_data = models.TextField(default="[]", blank=True)
 
     def __str__(self):
         return self.name
@@ -56,34 +59,34 @@ class SubCategory(models.Model):
         verbose_name_plural = "Sub Categories"
 
 
-class Property(models.Model):
-    subcategory = models.ForeignKey(
-        SubCategory, blank=True, default="" , on_delete=models.CASCADE, related_name='properties')
-    label = models.CharField(max_length=256, blank=True, default='')
-    description = models.CharField(max_length=256, blank=True, default='')
+# class Property(models.Model):
+#     subcategory = models.ForeignKey(
+#         SubCategory, blank=True, default="" , on_delete=models.CASCADE, related_name='properties')
+#     label = models.CharField(max_length=256, blank=True, default='')
+#     description = models.CharField(max_length=256, blank=True, default='')
 
-    def __str__(self):
-        return self.label
+#     def __str__(self):
+#         return self.label
 
-    class Meta:
-        verbose_name = "Property"
-        verbose_name_plural = "Properties"
+#     class Meta:
+#         verbose_name = "Property"
+#         verbose_name_plural = "Properties"
 
 
-class PossibleValues(models.Model):
-    prop = models.ForeignKey(Property, blank=True,
-                             default='', on_delete=models.CASCADE)
-    name = models.CharField(max_length=256, blank=True, default='')
-    label = models.CharField(max_length=256, blank=True, default='')
-    value = models.CharField(max_length=256, blank=True, default='')
-    unit = models.CharField(max_length=256, blank=True, default='')
+# class PossibleValues(models.Model):
+#     prop = models.ForeignKey(Property, blank=True,
+#                              default='', on_delete=models.CASCADE)
+#     name = models.CharField(max_length=256, blank=True, default='')
+#     label = models.CharField(max_length=256, blank=True, default='')
+#     value = models.CharField(max_length=256, blank=True, default='')
+#     unit = models.CharField(max_length=256, blank=True, default='')
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-    class Meta:
-        verbose_name = "Possible Value"
-        verbose_name_plural = "Possible Values"
+#     class Meta:
+#         verbose_name = "Possible Value"
+#         verbose_name_plural = "Possible Values"
 
 
 class DealsHubProduct(models.Model):
@@ -117,7 +120,7 @@ class DealsHubProduct(models.Model):
 class Section(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=300, default="")
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
@@ -126,6 +129,7 @@ class Section(models.Model):
     modified_date = models.DateTimeField() 
     created_by = models.ForeignKey(User, related_name="created_by", null=True, blank=True, on_delete=models.SET_NULL)
     modified_by = models.ForeignKey(User, related_name="modified_by", null=True, blank=True, on_delete=models.SET_NULL)
+    order_index = models.IntegerField(default=4)
 
     class Meta:
         verbose_name = "Section"
@@ -148,7 +152,7 @@ class Section(models.Model):
 class DealsBanner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
@@ -157,7 +161,7 @@ class DealsBanner(models.Model):
 class FullBannerAd(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
@@ -166,7 +170,7 @@ class FullBannerAd(models.Model):
 class CategoryGridBanner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
@@ -175,7 +179,7 @@ class CategoryGridBanner(models.Model):
 class HomePageSchedular(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
@@ -192,11 +196,19 @@ class ImageLink(models.Model):
 class DealsHubHeading(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=200, default="")
     categories = models.ManyToManyField(Category, blank=True)
     image_links = models.ManyToManyField(ImageLink, blank=True)
 
+
+class DealshubAdminSectionOrder(models.Model):
+
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+    dealshub_banner_index = models.IntegerField(default=0)
+    homepage_schedular_index = models.IntegerField(default=1)
+    full_banner_ad_index = models.IntegerField(default=2)
+    category_grid_banner_index = models.IntegerField(default=3)
 
 
 @receiver(pre_delete, sender=DealsHubProduct)

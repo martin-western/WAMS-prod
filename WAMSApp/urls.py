@@ -123,8 +123,17 @@ urlpatterns = [
     url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
 
     url(r'^fetch-audit-logs-by-user/$',views.FetchAuditLogsByUser), 
+    url(r'^fetch-audit-logs/$',views.FetchAuditLogs), 
     url(r'^create-request-help/$',views.CreateRequestHelp),    
 
-    url(r'^fetch-channel-product-list/$',views.FetchChannelProductList)  
+    url(r'^fetch-channel-product-list/$',views.FetchChannelProductList),
+
+    url(r'^save-company-profile/$',views.SaveCompanyProfile),
+    url(r'^upload-organization-logo/$',views.UploadOrganizationLogo),
+    url(r'^fetch-company-profile/$',views.FetchCompanyProfile),
+
+    url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),
+    url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock)
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

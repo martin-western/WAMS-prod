@@ -42,6 +42,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'WAMSApp.middleware.JWTAuthenticationMiddleware',
     'auditlog.middleware.AuditlogMiddleware',
 ]
 
@@ -84,7 +85,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wamstest',
+        'NAME': 'wamstest2',
         'USER': 'nisarg',
         'PASSWORD': 'nisargtike',
         'HOST': 'localhost',
