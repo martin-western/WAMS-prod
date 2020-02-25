@@ -3121,7 +3121,7 @@ class AddProductPFLBucketAPI(APIView):
 
 
 class FetchProductDetailsFlyerPFLAPI(APIView):
-
+    permission_classes = (permissions.AllowAny,)    
     def post(self, request, *args, **kwargs):
 
         response = {}
