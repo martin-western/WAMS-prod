@@ -2138,22 +2138,24 @@ class UploadProductImageAPI(APIView):
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
                     product_obj.no_of_images_for_filter += 1
+
                     if data["channel_name"] == "" or data["channel_name"] == None:
+
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
                         main_images_obj.main_images.add(image_bucket_obj)
                         main_images_obj.save()
 
-                    if main_images_obj.main_images.all().count() == image_count:
-                        image_bucket_obj = main_images_obj.main_images.all()[0]
-                        image_bucket_obj.is_main_image = True
-                        image_bucket_obj.save()
-                        try:
-                            pfl_obj = PFL.objects.filter(product=product_obj)[0]
-                            if pfl_obj.product_image == None:
-                                pfl_obj.product_image = image_objs[0]
-                                pfl_obj.save()
-                        except Exception as e:
-                            pass
+                        if main_images_obj.main_images.all().count() == image_count:
+                            image_bucket_obj = main_images_obj.main_images.all()[0]
+                            image_bucket_obj.is_main_image = True
+                            image_bucket_obj.save()
+                            try:
+                                pfl_obj = PFL.objects.filter(product=product_obj)[0]
+                                if pfl_obj.product_image == None:
+                                    pfl_obj.product_image = image_objs[0]
+                                    pfl_obj.save()
+                            except Exception as e:
+                                pass
 
                         channel_obj = Channel.objects.get(name="Amazon UK")
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
