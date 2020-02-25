@@ -1623,7 +1623,7 @@ class SearchAPI(APIView):
                     main_images_list = main_images_list.distinct()
 
                     try:
-                        temp_dict["heroImageUrl"] = main_images_list.all()[0].image.thumbnail.url
+                        temp_dict["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
                     except Exception as e:
                         temp_dict["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
                    
