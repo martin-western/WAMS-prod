@@ -189,22 +189,37 @@ class FetchProductDetailsAPI(APIView):
             response["productImagesUrl"] = []
             images = {}
 
+            # main_images_list = ImageBucket.objects.none()
+            # main_images_obj = MainImages.objects.get(
+            #     product=product_obj, is_sourced=True)
+            # try:
+            #     main_images_obj = MainImages.objects.get(
+            #         product=product_obj, is_sourced=True)
+            #     main_images_list |= main_images_obj.main_images.all()
+            # except Exception as e:
+            #     pass
+            # main_images_list = main_images_list.distinct()
+            # images["main_images"] = create_response_images_main(
+            #     main_images_list)
+            # try:
+            #     response["heroImageUrl"] = images["main_images"][0]["main_url"]
+            # except Exception as e:
+            #     response["heroImageUrl"] = ""
+
+
             main_images_list = ImageBucket.objects.none()
-            main_images_obj = MainImages.objects.get(
-                product=product_obj, is_sourced=True)
-            try:
-                main_images_obj = MainImages.objects.get(
-                    product=product_obj, is_sourced=True)
+            main_images_objs = MainImages.objects.filter(product=product_obj)
+            for main_images_obj in main_images_objs:
                 main_images_list |= main_images_obj.main_images.all()
-            except Exception as e:
-                pass
             main_images_list = main_images_list.distinct()
-            images["main_images"] = create_response_images_main(
-                main_images_list)
-            try:
-                response["heroImageUrl"] = images["main_images"][0]["main_url"]
-            except Exception as e:
-                response["heroImageUrl"] = ""
+            images["main_images"] = create_response_images_main(main_images_list)
+            # try:
+            #     response["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
+            # except Exception as e:
+            #     response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
+
+
+
 
             response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
