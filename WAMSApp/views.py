@@ -3475,7 +3475,7 @@ class FetchFlyerListAPI(APIView):
                             if (chip.lower() in product.product_name_sap.lower() or
                                     chip.lower() in product.product_name.lower() or
                                     chip.lower() in product.product_id.lower() or
-                                    chip.lower() in product.seller_sku.lower()):
+                                    chip.lower() in product.base_product.seller_sku.lower()):
                                 search_list_objs.append(flyer_obj)
                                 break
                 flyer_objs = list(set(search_list_objs))
