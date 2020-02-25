@@ -35,9 +35,23 @@ for category in mega_category_dict:
 
 
 for key in all_categories:
-    category_name = key.keys()[0]
-    category_obj = Category.objects.get(name=category_name)
-    print(category_obj)
+    category_name = list(key.keys())[0]
+    if category_name.lower()=="kettel":
+        category_name = "kettle"
+    if category_name.lower()=="dosa maker":
+        category_name = "Crepe &Dosa Maker"
+    if category_name.lower()=="showcase":
+        category_name = "show case"
+    if category_name.lower()=="decorative lamp":
+        category_name = "desk lamp"
+    try:
+        if Category.objects.filter(name=category_name).exists():
+            category_obj = Category.objects.get(name__iexact=category_name.lower())
+            print(category_obj)
+        else:
+            print(category_name)
+    except Exception as e:
+        print(category_name)
 
 
 
