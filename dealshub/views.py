@@ -278,12 +278,13 @@ class FetchProductDetailsAPI(APIView):
             sub_images_list = sub_images_list.distinct()
             images["sub_images"] = create_response_images_sub(sub_images_list)
             
+            response["productImagesUrl"].append({"original":response["heroImageUrl"], "thumbnail":response["heroImageUrl"]})
             for temp_image in images["sub_images"]:
                 temp_images = {}
                 temp_images["original"] = temp_image["main_url"]
                 temp_images["thumbnail"] = temp_image["thumbnail_url"]
                 response["productImagesUrl"].append(temp_images)
-            response["productImagesUrl"].append({"original":response["heroImageUrl"], "thumbnail":response["heroImageUrl"]})
+            
             
             response["productProperties"] = json.loads(
                 temp_product_obj.properties)
