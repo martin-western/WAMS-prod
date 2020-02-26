@@ -499,7 +499,7 @@ class MainImages(models.Model):
     def __str__(self):
         return str(self.product.product_name)
 
-auditlog.register(MainImages, exclude_fields = ['is_sourced'])
+auditlog.register(MainImages, exclude_fields = ['is_sourced','pk'])
 auditlog.register(MainImages.main_images.through)
 
 class SubImages(models.Model):

@@ -4163,6 +4163,14 @@ class FetchAuditLogsByUserAPI(APIView):
                         temp_dict2["name"] = str(base_product_obj.base_product_name)
                         temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
                         temp_dict["identifier"] = temp_dict2
+                    elif content_type.lower() == "mainimages":
+                        main_images_obj = MainImages.objects.get(pk=int(object_pk))
+                        base_product_obj = main_images_obj.product.base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
                     else:
                         temp_dict2 = {}
                         temp_dict2["name"] = content_type
@@ -4251,6 +4259,14 @@ class FetchAuditLogsAPI(APIView):
                     elif content_type.lower() == "channelproduct":
                         channel_product_obj = ChannelProduct.objects.get(pk=int(object_pk))
                         base_product_obj = Product.objects.get(channel_product=channel_product_obj).base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
+                    elif content_type.lower() == "mainimages":
+                        main_images_obj = MainImages.objects.get(pk=int(object_pk))
+                        base_product_obj = main_images_obj.product.base_product
                         seller_sku = base_product_obj.seller_sku
                         temp_dict2 = {}
                         temp_dict2["name"] = str(base_product_obj.base_product_name)
