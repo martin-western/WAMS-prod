@@ -410,7 +410,7 @@ class Product(models.Model):
 
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
-    pfl_product_features = models.TextField(default="[]")is_dealshub_product_created
+    pfl_product_features = models.TextField(default="[]")
 
     product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
