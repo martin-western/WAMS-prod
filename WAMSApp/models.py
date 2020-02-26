@@ -359,7 +359,7 @@ class BaseProduct(models.Model):
         
         super(BaseProduct, self).save(*args, **kwargs)
 
-auditlog.register(BaseProduct, exclude_fields=['modified_date' , 'created_date'])
+auditlog.register(BaseProduct, exclude_fields=['modified_date' , 'created_date' , 'pk'])
 auditlog.register(BaseProduct.unedited_images.through)
 
 
@@ -410,7 +410,7 @@ class Product(models.Model):
 
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
-    pfl_product_features = models.TextField(default="[]")
+    pfl_product_features = models.TextField(default="[]")is_dealshub_product_created
 
     product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
@@ -471,7 +471,14 @@ class Product(models.Model):
         
         super(Product, self).save(*args, **kwargs)
 
-auditlog.register(Product, exclude_fields=['modified_date' , 'created_date' , 'uuid', 'base_product','sap_cache','sap_cache_time'])
+auditlog.register(Product, exclude_fields=['modified_date' , 
+                                           'created_date' , 
+                                           'uuid', 
+                                           'base_product',
+                                           'sap_cache',
+                                           'sap_cache_time',
+                                           'no_of_images_for_filter',
+                                           'is_dealshub_product_created'])
 
 auditlog.register(Product.pfl_images.through)
 auditlog.register(Product.white_background_images.through)
@@ -517,7 +524,7 @@ class SubImages(models.Model):
     def __str__(self):
         return str(self.product.product_name)
     
-auditlog.register(SubImages, exclude_fields=['is_sourced'])
+auditlog.register(SubImages, exclude_fields=['is_sourced' , 'pk'])
 auditlog.register(SubImages.sub_images.through)
 
 class Flyer(models.Model):
@@ -540,7 +547,7 @@ class Flyer(models.Model):
     def __str__(self):
         return str(self.name)
 
-auditlog.register(Flyer, exclude_fields=['template_data','background_images_bucket'])
+auditlog.register(Flyer, exclude_fields=['template_data','background_images_bucket' , 'pk'])
 auditlog.register(Flyer.product_bucket.through)
 
 class PFL(models.Model):
@@ -582,7 +589,7 @@ class ExportList(models.Model):
         super(ExportList, self).save(*args, **kwargs)
 
 
-auditlog.register(ExportList, exclude_fields=['created_date'])
+auditlog.register(ExportList, exclude_fields=['created_date' , 'pk'])
 auditlog.register(ExportList.products.through)
 
 class Config(models.Model):
