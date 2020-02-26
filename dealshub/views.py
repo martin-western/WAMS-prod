@@ -3550,6 +3550,51 @@ class FetchDealshubPriceAPI(APIView):
         return Response(data=response)
 
 
+class FetchCompanyProfileDealshubAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchCompanyProfileDealshubAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            organization_obj = Organization.objects.get(name=data["organizationName"])
+
+            company_data = {}
+            company_data["name"] = organization_obj.name
+            company_data["contact_info"] = organization_obj.contact_info
+            company_data["address"] = organization_obj.address
+            company_data["primary_color"] = organization_obj.primary_color
+            company_data["secondary_color"] = organization_obj.secondary_color
+            company_data["facebook_link"] = organization_obj.facebook_link
+            company_data["twitter_link"] = organization_obj.twitter_link
+            company_data["instagram_link"] = organization_obj.instagram_link
+            company_data["youtube_link"] = organization_obj.youtube_link
+
+            company_data["logo_url"] = ""
+            if organization_obj.logo != None:
+                company_data["logo_url"] = organization_obj.logo.image.url
+
+
+            response["company_data"] = company_data
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCompanyProfileDealshubAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -3649,3 +3694,5 @@ SearchSectionProductsAutocomplete = SearchSectionProductsAutocompleteAPI.as_view
 SearchProductsAutocomplete = SearchProductsAutocompleteAPI.as_view()
 
 FetchDealshubPrice = FetchDealshubPriceAPI.as_view()
+
+FetchCompanyProfileDealshub = FetchCompanyProfileDealshubAPI.as_view()

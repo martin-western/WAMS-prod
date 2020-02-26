@@ -87,4 +87,6 @@ urlpatterns = [
     url(r'^search-products-autocomplete/$', views.SearchProductsAutocomplete),
 
     url(r'^fetch-dealshub-price/$', views.FetchDealshubPrice),
+
+    url(r'^fetch-company-profile-dealshub/$', views.FetchCompanyProfileDealshub),
 ]
