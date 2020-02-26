@@ -4171,6 +4171,14 @@ class FetchAuditLogsByUserAPI(APIView):
                         temp_dict2["name"] = str(base_product_obj.base_product_name)
                         temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
                         temp_dict["identifier"] = temp_dict2
+                    elif content_type.lower() == "sub images":
+                        main_images_obj = MainImages.objects.get(pk=int(object_pk))
+                        base_product_obj = main_images_obj.product.base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
                     else:
                         temp_dict2 = {}
                         temp_dict2["name"] = content_type
@@ -4185,6 +4193,7 @@ class FetchAuditLogsByUserAPI(APIView):
                     elif log_entry_obj.action==2:
                         temp_dict["action"] = "delete"
                     changes = json.loads(log_entry_obj.changes)
+                    logger.info("%s ",str(changes))
                     temp_dict["changes"] = changes
 
                     log_entry_list.append(temp_dict)
@@ -4265,6 +4274,14 @@ class FetchAuditLogsAPI(APIView):
                         temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
                         temp_dict["identifier"] = temp_dict2
                     elif content_type.lower() == "main images":
+                        main_images_obj = MainImages.objects.get(pk=int(object_pk))
+                        base_product_obj = main_images_obj.product.base_product
+                        seller_sku = base_product_obj.seller_sku
+                        temp_dict2 = {}
+                        temp_dict2["name"] = str(base_product_obj.base_product_name)
+                        temp_dict2["seller_sku"] = str(base_product_obj.seller_sku)
+                        temp_dict["identifier"] = temp_dict2
+                    elif content_type.lower() == "sub images":
                         main_images_obj = MainImages.objects.get(pk=int(object_pk))
                         base_product_obj = main_images_obj.product.base_product
                         seller_sku = base_product_obj.seller_sku
