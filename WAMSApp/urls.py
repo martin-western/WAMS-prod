@@ -136,5 +136,9 @@ urlpatterns = [
     url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock),
     url(r'^fetch-product-details-sales-integration/$',views.FetchProductDetailsSalesIntegration),
 
+    url(r'^move-to-main-images/$',views.MoveToMainImages),
+    url(r'^move-to-sub-images/$',views.MoveToSubImages),
+    
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
