@@ -3471,7 +3471,7 @@ class SearchSectionProductsAutocompleteAPI(APIView):
             search_string = data["searchString"]
             organization_name = data["organizationName"]
 
-            dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__organization__name=organization_name, product__base_product__seller_sku__icontains=search_string, product__product_name__icontains=search_string)
+            dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__organization__name=organization_name, product__base_product__seller_sku__icontains=search_string, product__product_name__icontains=search_string)[:10]
 
             dealshub_products_list = []
             for dealshub_product in dealshub_products:
@@ -3505,7 +3505,7 @@ class SearchProductsAutocompleteAPI(APIView):
             search_string = data["searchString"]
             organization_name = data["organizationName"]
 
-            dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__organization__name=organization_name, product__product_name__icontains=search_string)
+            dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__organization__name=organization_name, product__product_name__icontains=search_string)[:10]
 
             dealshub_products_list = []
             for dealshub_product in dealshub_products:
