@@ -4791,6 +4791,82 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
         return Response(data=response)
 
 
+class MoveToMainImagesAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("MoveToMainImagesAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = data["channel_name"]
+            image_pk = data["image_pk"]
+            product_pk = data["product_pk"]
+            
+            main_images_obj = MainImages.objects.get(product__pk=product_pk, channel__name=channel_name)
+            sub_images_obj = SubImages.objects.get(product__pk=product_pk, channel__name=channel_name)
+
+            image_bucket_obj = ImageBucket.objects.get(pk=image_pk)
+            sub_images_obj.sub_images.remove(image_bucket_obj)
+            main_images_obj.main_images.add(image_bucket_obj)
+            main_images_obj.save()
+            sub_images_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("MoveToMainImagesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class MoveToSubImagesAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("MoveToSubImagesAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = data["channel_name"]
+            image_pk = data["image_pk"]
+            product_pk = data["product_pk"]
+            
+            main_images_obj = MainImages.objects.get(product__pk=product_pk, channel__name=channel_name)
+            sub_images_obj = SubImages.objects.get(product__pk=product_pk, channel__name=channel_name)
+
+            image_bucket_obj = ImageBucket.objects.get(pk=image_pk)
+            main_images_obj.main_images.remove(image_bucket_obj)
+            sub_images_obj.sub_images.add(image_bucket_obj)
+            sub_images_obj.save()
+            main_images_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("MoveToSubImagesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 
 SapIntegration = SapIntegrationAPI.as_view()
 
@@ -4917,3 +4993,7 @@ RefreshProductPriceAndStock = RefreshProductPriceAndStockAPI.as_view()
 RefreshPagePriceAndStock = RefreshPagePriceAndStockAPI.as_view()
 
 FetchProductDetailsSalesIntegration = FetchProductDetailsSalesIntegrationAPI.as_view()
+
+MoveToMainImages = MoveToMainImagesAPI.as_view()
+
+MoveToSubImages = MoveToSubImagesAPI.as_view()
