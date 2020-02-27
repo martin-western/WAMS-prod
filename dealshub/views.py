@@ -3505,16 +3505,19 @@ class SearchProductsAutocompleteAPI(APIView):
             search_string = data["searchString"]
             organization_name = data["organizationName"]
 
-            dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__organization__name=organization_name, product__product_name__icontains=search_string)[:10]
+            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__organization__name=organization_name, product__product_name__icontains=search_string).values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
 
-            dealshub_products_list = []
-            for dealshub_product in dealshub_products:
-                temp_dict = {}
-                temp_dict["name"] = dealshub_product.product.product_name
-                temp_dict["uuid"] = dealshub_product.product.uuid
-                dealshub_products_list.append(temp_dict)
+            category_list = []
+            from dealshub.models import Category
+            for category_key in category_key_list:
+                try:
+                    category_name = Category.objects.get(pk=category_key["category"]).name
+                    category_list.append(category_name)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("SearchProductsAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-            response["productList"] = dealshub_products_list
+            response["categoryList"] = category_list
             response['status'] = 200
 
         except Exception as e:
