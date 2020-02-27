@@ -3778,10 +3778,32 @@ class DeleteImageAPI(APIView):
 
             image_type = data["image_type"]
             image_pk = int(data["image_pk"])
+            channel_name = data["channel_name"]
+            product_pk = data["product_pk"]
+
             if image_type == "other":
                 Image.objects.get(pk=int(image_pk)).delete()
-            elif image_type == "main_sub":
-                ImageBucket.objects.get(pk=int(image_pk)).delete()
+            elif image_type == "main":
+                main_images_obj = None
+                if channel_name=="":
+                    main_images_obj = MainImages.objects.get(product__pk=product_pk, is_sourced=True)
+                elif channel_name in ["Amazon UK", "Amazon UAE", "Ebay", "Noon"]:
+                    main_images_obj = MainImages.objects.get(product__pk=product_pk, channel__name=channel_name)
+
+                image_bucket_obj = ImageBucket.objects.get(pk=int(image_pk))
+                main_images_obj.main_images.remove(image_bucket_obj)
+                main_images_obj.save()
+
+            elif image_type == "sub":
+                sub_images_obj = None
+                if channel_name=="":
+                    sub_images_obj = SubImages.objects.get(product__pk=product_pk, is_sourced=True)
+                elif channel_name in ["Amazon UK", "Amazon UAE", "Ebay", "Noon"]:
+                    sub_images_obj = SubImages.objects.get(product__pk=product_pk, channel__name=channel_name)
+
+                image_bucket_obj = ImageBucket.objects.get(pk=int(image_pk))
+                sub_images_obj.sub_images.remove(image_bucket_obj)
+                sub_image_obj.save()
 
             response['status'] = 200
 
