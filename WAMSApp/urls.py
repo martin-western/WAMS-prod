@@ -133,7 +133,8 @@ urlpatterns = [
     url(r'^fetch-company-profile/$',views.FetchCompanyProfile),
 
     url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),
-    url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock)
+    url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock),
+    url(r'^fetch-product-details-sales-integration/$',views.FetchProductDetailsSalesIntegration),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

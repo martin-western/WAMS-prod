@@ -128,6 +128,23 @@ def create_response_images_flyer_pfl_main_sub(images):
     return temp_list
 
 
+def create_response_images_list(images):
+
+    temp_list = []
+    for image in images:
+        image_url = image.image.url
+        temp_list.append(image_url)
+    return temp_list
+
+def create_response_images_main_sub_list(images):
+
+    temp_list = []
+    for image in images:
+        image_url = image.image.image.url
+        temp_list.append(image_url)
+    return temp_list
+
+
 def create_response_images(images):
 
     temp_list = []
