@@ -4717,7 +4717,7 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
                 temp_dict["color"] = str(product_obj.color)
                 temp_dict["color_map"] = str(product_obj.color_map)
                 temp_dict["material_type"] = str(product_obj.material_type)
-                temp_dict["moq"] = str(product_obj.quantity)
+                temp_dict["moq"] = "" if product_obj.quantity==None else str(product_obj.quantity)
                 temp_dict["factory_notes"] = str(product_obj.factory_notes)
                 temp_dict["product_description"] = str(product_obj.product_description)
                 temp_dict["product_features"] = json.loads(product_obj.pfl_product_features)
