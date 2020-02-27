@@ -4696,7 +4696,7 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
             seller_sku = data["articleNumber"]
 
             base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
-            product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)
+            product_objs = Product.objects.filter(base_product__seller_sku=seller_sku)
 
             response["product_name"] = base_product_obj.base_product_name
             response["seller_sku"] = base_product_obj.seller_sku
