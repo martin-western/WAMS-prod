@@ -4215,8 +4215,13 @@ class FetchAuditLogsByUserAPI(APIView):
                         temp_dict["action"] = "update"
                     elif log_entry_obj.action==2:
                         temp_dict["action"] = "delete"
+                    # changes = json.loads(log_entry_obj.changes)
+                    # logger.info("%s ",str(changes))
+                    
+                    changes = log_entry_obj.changes.replace("_", " ")
+                    changes = changes.title()
                     changes = json.loads(log_entry_obj.changes)
-                    logger.info("%s ",str(changes))
+
                     temp_dict["changes"] = changes
 
                     log_entry_list.append(temp_dict)
@@ -4324,6 +4329,9 @@ class FetchAuditLogsAPI(APIView):
                         temp_dict["action"] = "update"
                     elif log_entry_obj.action==2:
                         temp_dict["action"] = "delete"
+
+                    changes = log_entry_obj.changes.replace("_", " ")
+                    changes = changes.title()
                     changes = json.loads(log_entry_obj.changes)
                     temp_dict["changes"] = changes
                     log_entry_list.append(temp_dict)
