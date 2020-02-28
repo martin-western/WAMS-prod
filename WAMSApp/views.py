@@ -4217,10 +4217,10 @@ class FetchAuditLogsByUserAPI(APIView):
                         temp_dict["action"] = "delete"
                     # changes = json.loads(log_entry_obj.changes)
                     # logger.info("%s ",str(changes))
-                    
+
                     changes = log_entry_obj.changes.replace("_", " ")
                     changes = changes.title()
-                    changes = json.loads(log_entry_obj.changes)
+                    changes = json.loads(changes)
 
                     temp_dict["changes"] = changes
 
@@ -4332,7 +4332,7 @@ class FetchAuditLogsAPI(APIView):
 
                     changes = log_entry_obj.changes.replace("_", " ")
                     changes = changes.title()
-                    changes = json.loads(log_entry_obj.changes)
+                    changes = json.loads(changes)
                     temp_dict["changes"] = changes
                     log_entry_list.append(temp_dict)
                 except Exception as e:
