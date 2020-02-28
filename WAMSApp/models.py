@@ -212,6 +212,7 @@ class OmnyCommUser(User):
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
+    permission_list = models.TextField(default="[]")
 
     def save(self, *args, **kwargs):
         if self.pk == None:

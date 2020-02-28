@@ -4119,6 +4119,7 @@ class FetchUserProfileAPI(APIView):
                 response["permissible_brands"].append(brand.name)
             
             response["img_url"] = ""
+            response["permissions"] = json.loads(content_manager.permission_list)
             
             if content_manager.image!=None:
                 response["img_url"] = content_manager.image.image.url
