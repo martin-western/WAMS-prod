@@ -1250,6 +1250,7 @@ class FetchProductDetailsAPI(APIView):
             response["pfl_pk"] = pfl_pk
 
             response["images"] = images
+            response["base_product_pk"] = base_product_obj.pk
             response['status'] = 200
 
         except Exception as e:
