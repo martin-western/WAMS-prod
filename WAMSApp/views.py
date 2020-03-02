@@ -1141,7 +1141,7 @@ class FetchProductDetailsAPI(APIView):
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
 
-            response["product_description_amazon_uk"] = amazon_uk_product_dict["product_description"]
+            response["product_description_amazon_uk"] = product_obj.product_description
             try:
                 response["special_features"] = json.loads(amazon_uk_product_dict["special_features"])
             except Exception as e:
