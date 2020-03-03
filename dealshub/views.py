@@ -1366,7 +1366,7 @@ class CreateBannerAPI(APIView):
             organization_name = data["organizationName"]
             organization_obj = Organization.objects.get(name=organization_name)
 
-            banner_type_obj = BannerType.objects.get(name=name)
+            banner_type_obj = BannerType.objects.get(name=banner_type)
 
             order_index = Banner.objects.filter(organization=organization_obj).count()+Section.objects.filter(organization=organization_obj).count()+1
 
@@ -1468,8 +1468,8 @@ class FetchBannerAPI(APIView):
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
             
-            response["banners"] = banner_images
-            response["limit"] = banner_obj.limit
+            response["bannerImages"] = banner_images
+            response["limit"] = banner_obj.banner_type.limit
             response["type"] = banner_obj.banner_type.name
             response["name"] = banner_obj.banner_type.display_name
             response["is_published"] = banner_obj.is_published
@@ -2171,9 +2171,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_dict = {}
                 temp_dict["orderIndex"] = banner_obj.order_index
                 temp_dict["type"] = "Banner"
+                temp_dict["uuid"] = banner_obj.uuid
                 temp_dict["name"] = banner_obj.banner_type.display_name
                 temp_dict["bannerType"] = banner_obj.banner_type.name
-                temp_dict["limit"] = banner_obj.limit
+                temp_dict["limit"] = banner_obj.banner_type.limit
                 for unit_banner_image_obj in unit_banner_image_objs:
                     temp_dict2 = {}
                     temp_dict2["uid"] = unit_banner_image_obj.uuid
@@ -2214,9 +2215,12 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
             data = request.data
             logger.info("SaveDealshubAdminSectionsOrderAPI: %s", str(data))
 
-            dealshub_admin_sections = data["dealshubAdminSections"]
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
-            cnt = 0
+            dealshub_admin_sections = json.loads(data["dealshubAdminSections"])
+
+            cnt = 1
             for dealshub_admin_section in dealshub_admin_sections:
                 if dealshub_admin_section["type"]=="Banner":
                     uuid = dealshub_admin_section["uuid"]
