@@ -36,9 +36,8 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         
-        if self.pk ==None:
-            uuid1 = uuid.uuid4()
-            self.category_id=uuid1
+        if self.category_id == None or self.category_id == "":
+            self.category_id = str(uuid.uuid4())
         
         super(Category, self).save(*args, **kwargs)
 
@@ -59,36 +58,6 @@ class SubCategory(models.Model):
         verbose_name_plural = "Sub Categories"
 
 
-# class Property(models.Model):
-#     subcategory = models.ForeignKey(
-#         SubCategory, blank=True, default="" , on_delete=models.CASCADE, related_name='properties')
-#     label = models.CharField(max_length=256, blank=True, default='')
-#     description = models.CharField(max_length=256, blank=True, default='')
-
-#     def __str__(self):
-#         return self.label
-
-#     class Meta:
-#         verbose_name = "Property"
-#         verbose_name_plural = "Properties"
-
-
-# class PossibleValues(models.Model):
-#     prop = models.ForeignKey(Property, blank=True,
-#                              default='', on_delete=models.CASCADE)
-#     name = models.CharField(max_length=256, blank=True, default='')
-#     label = models.CharField(max_length=256, blank=True, default='')
-#     value = models.CharField(max_length=256, blank=True, default='')
-#     unit = models.CharField(max_length=256, blank=True, default='')
-
-#     def __str__(self):
-#         return self.name
-
-#     class Meta:
-#         verbose_name = "Possible Value"
-#         verbose_name_plural = "Possible Values"
-
-
 class DealsHubProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
     category = models.ForeignKey(
@@ -102,19 +71,8 @@ class DealsHubProduct(models.Model):
         verbose_name = "DealsHub Product"
         verbose_name_plural = "DealsHub Products"
 
-    def save(self, *args, **kwargs):
-
-        # write synchroization call here
-        #add_product_in_dealshub(self.product.uuid)
-        """
-        properties = self.sub_category.properties.all()
-        temp_dict = {}
-        for property in properties:
-            key = str(property.label)
-            temp_dict[key] = ""
-        self.properties = json.dumps(temp_dict)
-        """
-        super(DealsHubProduct, self).save(*args, **kwargs)
+    def __str__(self):
+        return str(self.product)
         
 
 class Section(models.Model):
@@ -143,46 +101,68 @@ class Section(models.Model):
         else:
             self.modified_date = timezone.now()
 
-        if self.uuid == None:
+        if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())
         
         super(Section, self).save(*args, **kwargs)
 
 
-class DealsBanner(models.Model):
+class BannerType(models.Model):
+
+    name = models.CharField(max_length=100)
+    display_name = models.CharField(max_length=100, default="")
+    limit = models.IntegerField(default=1)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class Banner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
     organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
-    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
-    http_link = models.TextField(default="")
     is_published = models.BooleanField(default=False)
+    created_date = models.DateTimeField()
+    modified_date = models.DateTimeField()
+    created_by = models.ForeignKey(User, related_name="banner_created_by", null=True, blank=True, on_delete=models.SET_NULL)
+    modified_by = models.ForeignKey(User, related_name="banner_modified_by", null=True, blank=True, on_delete=models.SET_NULL)
+    order_index = models.IntegerField(default=1)
+    banner_type = models.ForeignKey(BannerType, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.modified_date = timezone.now()
+        else:
+            self.modified_date = timezone.now()
+
+        if self.uuid == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(Banner, self).save(*args, **kwargs)      
 
 
-class FullBannerAd(models.Model):
+class UnitBannerImage(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
-    is_published = models.BooleanField(default=False)
+    banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return str(self.uuid)
 
-class CategoryGridBanner(models.Model):
-
-    uuid = models.CharField(max_length=200, unique=True)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
-    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
-    http_link = models.TextField(default="")
-    is_published = models.BooleanField(default=False)
-
-
-class HomePageSchedular(models.Model):
-
-    uuid = models.CharField(max_length=200, unique=True)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
-    image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
-    http_link = models.TextField(default="")
-    is_published = models.BooleanField(default=False)
+    def save(self, *args, **kwargs):
+        
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+        
+        super(UnitBannerImage, self).save(*args, **kwargs)
 
 
 class ImageLink(models.Model):
@@ -191,6 +171,12 @@ class ImageLink(models.Model):
     image = models.ForeignKey(Image, on_delete=models.CASCADE, null=True)
     http_link = models.TextField(default="")
 
+    def save(self, *args, **kwargs):
+        
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+        
+        super(ImageLink, self).save(*args, **kwargs)
 
 
 class DealsHubHeading(models.Model):
@@ -201,17 +187,12 @@ class DealsHubHeading(models.Model):
     categories = models.ManyToManyField(Category, blank=True)
     image_links = models.ManyToManyField(ImageLink, blank=True)
 
+    def __str__(self):
+        return str(self.organization)
 
-class DealshubAdminSectionOrder(models.Model):
-
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
-    dealshub_banner_index = models.IntegerField(default=0)
-    homepage_schedular_index = models.IntegerField(default=1)
-    full_banner_ad_index = models.IntegerField(default=2)
-    category_grid_banner_index = models.IntegerField(default=3)
-
-
-@receiver(pre_delete, sender=DealsHubProduct)
-def update_dealshub_product_table(sender, instance, **kwargs):
-    #success = delete_product_in_dealshub(instance.product.uuid)
-    pass
+    def save(self, *args, **kwargs):
+        
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+        
+        super(DealsHubHeading, self).save(*args, **kwargs)
