@@ -1926,6 +1926,7 @@ class FetchExportProductListAPI(APIView):
                     amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
                     temp_dict["amazon_uk_product"] = amazon_uk_product
                     temp_dict["product_id"] = product.product_id
+                    temp_dict["seller_sku"] = product.base_product.seller_sku
                     temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
                     try:
