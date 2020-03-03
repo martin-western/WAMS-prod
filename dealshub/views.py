@@ -189,24 +189,6 @@ class FetchProductDetailsAPI(APIView):
             response["productImagesUrl"] = []
             images = {}
 
-            # main_images_list = ImageBucket.objects.none()
-            # main_images_obj = MainImages.objects.get(
-            #     product=product_obj, is_sourced=True)
-            # try:
-            #     main_images_obj = MainImages.objects.get(
-            #         product=product_obj, is_sourced=True)
-            #     main_images_list |= main_images_obj.main_images.all()
-            # except Exception as e:
-            #     pass
-            # main_images_list = main_images_list.distinct()
-            # images["main_images"] = create_response_images_main(
-            #     main_images_list)
-            # try:
-            #     response["heroImageUrl"] = images["main_images"][0]["main_url"]
-            # except Exception as e:
-            #     response["heroImageUrl"] = ""
-
-
             main_images_list = ImageBucket.objects.none()
             main_images_objs = MainImages.objects.filter(product=product_obj)
             for main_images_obj in main_images_objs:
@@ -217,9 +199,6 @@ class FetchProductDetailsAPI(APIView):
                 response["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
             except Exception as e:
                 response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
-
-
-
 
             response["sub_category"] = base_product_obj.sub_category
             response["seller_sku"] = base_product_obj.seller_sku
@@ -337,62 +316,6 @@ class FetchSectionsProductsAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
     
-    def fetch_price(self,product_id):
-        try:
-            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-            company_code = "1070" # GEEPAS
-            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-            <soapenv:Header />
-            <soapenv:Body>
-            <urn:ZAPP_STOCK_PRICE>
-             <IM_MATNR>
-              <item>
-               <MATNR>""" + product_id + """</MATNR>
-              </item>
-             </IM_MATNR>
-             <IM_VKORG>
-              <item>
-               <VKORG>""" + company_code + """</VKORG>
-              </item>
-             </IM_VKORG>
-             <T_DATA>
-              <item>
-               <MATNR></MATNR>
-               <MAKTX></MAKTX>
-               <LGORT></LGORT>
-               <CHARG></CHARG>
-               <SPART></SPART>
-               <MEINS></MEINS>
-               <ATP_QTY></ATP_QTY>
-               <TOT_QTY></TOT_QTY>
-               <CURRENCY></CURRENCY>
-               <IC_EA></IC_EA>
-               <OD_EA></OD_EA>
-               <EX_EA></EX_EA>
-               <RET_EA></RET_EA>
-               <WERKS></WERKS>
-              </item>
-             </T_DATA>
-            </urn:ZAPP_STOCK_PRICE>
-            </soapenv:Body>
-            </soapenv:Envelope>"""
-            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
-            content = response2.content
-            content = xmltodict.parse(content)
-            content = json.loads(json.dumps(content))
-            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-            price = 0
-            temp_price = 0
-            for item in items:
-                temp_price = item["EX_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    price = max(temp_price, price)
-            return float(price)
-        except Exception as e:
-            return 0
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -441,8 +364,6 @@ class FetchSectionsProductsAPI(APIView):
                     except Exception as e:
                         temp_dict2["heroImage"] = Config.objects.all()[0].product_404_image.image.url
 
-
-
                     temp_dict["productsArray"].append(temp_dict2)
                 section_list.append(temp_dict)
 
@@ -457,69 +378,11 @@ class FetchSectionsProductsAPI(APIView):
 FetchSectionsProducts = FetchSectionsProductsAPI.as_view()
 
 
-
-
 class FetchSectionsProductsLimitAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
-    
-    def fetch_price(self,product_id):
-        try:
-            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-            company_code = "1070" # GEEPAS
-            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-            <soapenv:Header />
-            <soapenv:Body>
-            <urn:ZAPP_STOCK_PRICE>
-             <IM_MATNR>
-              <item>
-               <MATNR>""" + product_id + """</MATNR>
-              </item>
-             </IM_MATNR>
-             <IM_VKORG>
-              <item>
-               <VKORG>""" + company_code + """</VKORG>
-              </item>
-             </IM_VKORG>
-             <T_DATA>
-              <item>
-               <MATNR></MATNR>
-               <MAKTX></MAKTX>
-               <LGORT></LGORT>
-               <CHARG></CHARG>
-               <SPART></SPART>
-               <MEINS></MEINS>
-               <ATP_QTY></ATP_QTY>
-               <TOT_QTY></TOT_QTY>
-               <CURRENCY></CURRENCY>
-               <IC_EA></IC_EA>
-               <OD_EA></OD_EA>
-               <EX_EA></EX_EA>
-               <RET_EA></RET_EA>
-               <WERKS></WERKS>
-              </item>
-             </T_DATA>
-            </urn:ZAPP_STOCK_PRICE>
-            </soapenv:Body>
-            </soapenv:Envelope>"""
-            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
-            content = response2.content
-            content = xmltodict.parse(content)
-            content = json.loads(json.dumps(content))
-            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-            price = 0
-            temp_price = 0
-            for item in items:
-                temp_price = item["EX_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    price = max(temp_price, price)
-            return float(price)
-        except Exception as e:
-            return 0
+
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -588,69 +451,11 @@ class FetchSectionsProductsLimitAPI(APIView):
 FetchSectionsProductsLimit = FetchSectionsProductsLimitAPI.as_view()
 
 
-
-
 class FetchSectionProductsAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
     
-    def fetch_price(self,product_id):
-        try:
-            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-            company_code = "1070" # GEEPAS
-            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-            <soapenv:Header />
-            <soapenv:Body>
-            <urn:ZAPP_STOCK_PRICE>
-             <IM_MATNR>
-              <item>
-               <MATNR>""" + product_id + """</MATNR>
-              </item>
-             </IM_MATNR>
-             <IM_VKORG>
-              <item>
-               <VKORG>""" + company_code + """</VKORG>
-              </item>
-             </IM_VKORG>
-             <T_DATA>
-              <item>
-               <MATNR></MATNR>
-               <MAKTX></MAKTX>
-               <LGORT></LGORT>
-               <CHARG></CHARG>
-               <SPART></SPART>
-               <MEINS></MEINS>
-               <ATP_QTY></ATP_QTY>
-               <TOT_QTY></TOT_QTY>
-               <CURRENCY></CURRENCY>
-               <IC_EA></IC_EA>
-               <OD_EA></OD_EA>
-               <EX_EA></EX_EA>
-               <RET_EA></RET_EA>
-               <WERKS></WERKS>
-              </item>
-             </T_DATA>
-            </urn:ZAPP_STOCK_PRICE>
-            </soapenv:Body>
-            </soapenv:Envelope>"""
-            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
-            content = response2.content
-            content = xmltodict.parse(content)
-            content = json.loads(json.dumps(content))
-            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-            price = 0
-            temp_price = 0
-            for item in items:
-                temp_price = item["EX_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    price = max(temp_price, price)
-            return float(price)
-        except Exception as e:
-            return 0
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -703,67 +508,6 @@ class FetchSectionProductsAPI(APIView):
 FetchSectionProducts = FetchSectionProductsAPI.as_view()
 
 
-
-class FetchCategoryGridBannerCardsAPI(APIView):
-    
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchCategoryGridBannerCardsAPI: %s", str(data))
-
-            carousel_obj = [
-                {
-                    "src": "wp-content/uploads/2018/04/cat-22-330x308.png",
-                    "alt": "Home &amp; Audio Enternteinment",
-                    "title": "Home &amp; Audio Enternteinment"
-                },
-                {
-                    "src": "wp-content/uploads/2018/04/cat-2-330x308.png",
-                    "alt": "Smartphones &amp; Tablets",
-                    "title": "Smartphones &amp; Tablets"
-                },
-                {
-                    "src": "wp-content/uploads/2018/04/cat-3-330x308.png",
-                    "alt": "Desktop PCs &amp; Laptops",
-                    "title": "Desktop PCs &amp; Laptops"
-                },
-                {
-                    "src": "wp-content/uploads/2018/04/cat-4-330x308.png",
-                    "alt": "Video Games &amp; Consoles",
-                    "title": "Video Games &amp; Consoles"
-                },
-                {
-                    "src": "wp-content/uploads/2018/04/cat-5-330x308.png",
-                    "alt": "Gadgets &amp; Accesories",
-                    "title": "Gadgets &amp; Accesories"
-                },
-                {
-                    "src": "wp-content/uploads/2018/04/cat-6-330x308.png",
-                    "alt": "Photo Cameras",
-                    "title": "Photo Cameras"
-                }
-            ]
-            response['cards'] = carousel_obj
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCategoryGridBannerCardsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-FetchCategoryGridBannerCards = FetchCategoryGridBannerCardsAPI.as_view()
-
-
 class FetchCategoriesAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -800,48 +544,6 @@ class FetchCategoriesAPI(APIView):
 
 
 FetchCategories = FetchCategoriesAPI.as_view()
-
-
-class FetchDashboardBannerDetailsAPI(APIView):
-    
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchDashboardBannerDetailsAPI: %s", str(data))
-
-            banner_details = [
-                {
-                    "id": "1",
-                    "imgUrl": "https://rukminim1.flixcart.com/flap/1688/280/image/614f5288d387863b.jpg?q=50"
-                },
-                {
-                    "id": "2",
-                    "imgUrl": "https://rukminim1.flixcart.com/flap/1688/280/image/fe0fdf911e24c3b7.jpg?q=50"
-                },
-                {
-                    "id": "3",
-                    "imgUrl": "https://rukminim1.flixcart.com/flap/1688/280/image/4a4a041b1cb541f4.jpg?q=50"
-                }
-            ]
-            response['banner_details'] = banner_details
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchDashboardBannerDetailsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-FetchDashboardBannerDetails = FetchDashboardBannerDetailsAPI.as_view()
 
 
 class FetchBatchDiscountDealsAPI(APIView):
@@ -948,140 +650,6 @@ class FetchBatchDiscountDealsAPI(APIView):
 
 
 FetchBatchDiscountDeals = FetchBatchDiscountDealsAPI.as_view()
-
-# FetchSpecialDiscountProduct
-
-
-class FetchSpecialDiscountProductAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchSpecialDiscountProductAPI: %s", str(data))
-
-            special_discount_deals = {
-                "id": "789",
-                "discountDealImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/console.png",
-                "name": "Game Console Controller + USB 3.0 Cable",
-                "price": "90",
-                "currency": "AED",
-                "totalUnits": "25",
-                "soldUnits": "9",
-                "counter": {
-                    "timeToEnd": "Wed Jan 16 2020 20:47:52 GMT+0530",
-                    "originalPrice": "99"
-                }
-            }
-            response['special_discount_deals'] = special_discount_deals
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchSpecialDiscountProductAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-FetchSpecialDiscountProduct = FetchSpecialDiscountProductAPI.as_view()
-
-
-class FetchSchedularProductsAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchSchedularProductsAPI: %s", str(data))
-
-            schedular_products = [
-                {
-                    "id": "1",
-                    "schedularImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/console-banner.png",
-                    "schedularGraphicsText": "https://wig-wams-s3-bucket.s3.amazonaws.com/deals-text.png",
-                    "schedularProductImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/console.png",
-                    "category": "electronics",
-                    "subCategory": "gaming",
-                    "name": "Game Console Controller + USB 3.0 Cable",
-                    "price": "90",
-                    "currency": "AED",
-                    "totalUnits": "25",
-                    "soldUnits": "9",
-                    "counter": {
-                        "timeToEnd": "Wed Jan 16 2020 19:57:52",
-                        "originalPrice": "99"
-                    }
-                },
-                {
-                    "id": "2",
-                    "schedularImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/tv-schedular.png",
-                    "schedularGraphicsText": "https://wig-wams-s3-bucket.s3.amazonaws.com/deals-text.png",
-                    "schedularProductImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/tv.png",
-                    "category": "electronics",
-                    "subCategory": "television",
-                    "name": "Widescreen 4K SUHD TV",
-                    "price": "3299.00",
-                    "currency": "AED",
-                    "totalUnits": "32",
-                    "soldUnits": "5"
-                },
-                {
-                    "id": "3",
-                    "schedularImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/console-banner.png",
-                    "schedularGraphicsText": "https://wig-wams-s3-bucket.s3.amazonaws.com/deals-text.png",
-                    "schedularProductImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/console.png",
-                    "category": "electronics",
-                    "subCategory": "gaming",
-                    "name": "Game Console Controller + USB 3.0 Cable",
-                    "price": "90",
-                    "currency": "AED",
-                    "totalUnits": "25",
-                    "soldUnits": "9",
-                    "counter": {
-                        "timeToEnd": "Wed Jan 16 2020 14:47:52 GMT+0530",
-                        "originalPrice": "99"
-                    }
-                },
-                {
-                    "id": "4",
-                    "schedularImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/console-banner.png",
-                    "schedularGraphicsText": "https://wig-wams-s3-bucket.s3.amazonaws.com/deals-text.png",
-                    "schedularProductImage": "https://wig-wams-s3-bucket.s3.amazonaws.com/console.png",
-                    "category": "electronics",
-                    "subCategory": "gaming",
-                    "name": "Game Console Controller + USB 3.0 Cable",
-                    "price": "90",
-                    "currency": "AED",
-                    "totalUnits": "25",
-                    "soldUnits": "9",
-                    "counter": {
-                        "timeToEnd": "Wed Jan 16 2020 20:47:52 GMT+0530",
-                        "originalPrice": "99"
-                    }
-                }
-            ]
-            response['schedular_products'] = schedular_products
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchSchedularProductsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-FetchSchedularProducts = FetchSchedularProductsAPI.as_view()
 
 
 class FetchFeaturedProductsAPI(APIView):
@@ -1351,226 +919,9 @@ class FetchFeaturedProductsAPI(APIView):
 FetchFeaturedProducts = FetchFeaturedProductsAPI.as_view()
 
 
-# FetchOnSaleProducts
-
-
-class FetchOnSaleProductsAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchOnSaleProductsAPI: %s", str(data))
-
-            on_sale_products = [
-                {
-                    "productName": "Lenovo Ideapad 130 Core i5 8th Gen - (8 GB/1 TB HDD/Windows 10 Home/2 GB Graphics) 130-15IKB Laptop  (15.6 inch, Black, 2.1 kg)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "vaidehi",
-                    "price": "2,000",
-                    "prevPrice": "2,900",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/jz7az680/computer/b/3/k/lenovo-na-laptop-original-imafj9wscwkeyu45.jpeg?q=70",
-                    "id": 6
-                },
-                {
-                    "productName": "Amayra Women's Cotton Anarkali Kurti(Blue)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "Amarya",
-                    "price": "4,099",
-                    "prevPrice": "4,199",
-                    "currency": "AED",
-                    "discount": "20",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/150/150/k0wqwsw0/wall-clock/g/g/b/round-wall-clock-957-gold-analog-ajanta-original-imafkhkfdempaphb.jpeg?q=70",
-                    "id": 7
-                },
-                {
-                    "productName": "Garment Steamer, 1.3 L Capacity, 1800W HY - 288 Black",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "Sparx",
-                    "price": "999",
-                    "prevPrice": "1,099",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1570427257/N28431698A_1.jpg",
-                    "id": 8
-                }
-            ]
-            response['on_sale_products'] = on_sale_products
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOnSaleProductsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-FetchOnSaleProducts = FetchOnSaleProductsAPI.as_view()
-
-# FetchTopRatedProducts
-
-
-class FetchTopRatedProductsAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchTopRatedProductsAPI: %s", str(data))
-
-            top_rated_products = [
-                {
-                    "productName": "Amayra Women's Cotton Anarkali Kurti(Blue)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Women's Fashion",
-                    "brand": "Amarya",
-                    "price": "4,099",
-                    "prevPrice": "4,199",
-                    "currency": "AED",
-                    "discount": "20",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/150/150/k0wqwsw0/wall-clock/g/g/b/round-wall-clock-957-gold-analog-ajanta-original-imafkhkfdempaphb.jpeg?q=70",
-                    "id": 7
-                },
-                {
-                    "productName": "2-Slice Bread Toaster, 700W TA01105 Milk White",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Provogue",
-                    "price": "4,000",
-                    "prevPrice": "4,500",
-                    "currency": "AED",
-                    "discount": "15",
-                    "rating": "3.9",
-                    "totalRatings": "1,772",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1571139454/N29227703A_8.jpg",
-                    "id": 2
-                },
-                {
-                    "productName": "6-Piece Granite/Marble Coated Aluminium Cookware Set… ",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Reebok",
-                    "price": "3,999",
-                    "prevPrice": "4,700",
-                    "currency": "AED",
-                    "discount": "28",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://k.nooncdn.com/t_desktop-thumbnail-v2/v1574085587/N17109502A_15.jpg",
-                    "id": 3
-                },
-                {
-                    "productName": "Realme 5s (Crystal Blue, 128 GB)",
-                    "productCategory": "Fashion",
-                    "productSubCategory": "Men's Fashion",
-                    "brand": "Sparx",
-                    "price": "1,200",
-                    "prevPrice": "1,800",
-                    "currency": "AED",
-                    "discount": "10",
-                    "rating": "4.5",
-                    "totalRatings": "5,372",
-                    "heroImage": "https://rukminim1.flixcart.com/image/312/312/k2jbyq80pkrrdj/mobile-refurbished/v/w/c/x-128-u-rmx1901-realme-8-original-imafgzg9yvran9r3.jpeg?q=70",
-                    "id": 4
-                }
-            ]
-            response['top_rated_products'] = top_rated_products
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchTopRatedProductsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-FetchTopRatedProducts = FetchTopRatedProductsAPI.as_view()
-
-
 class SearchAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
-
-    def fetch_price(self,product_id):
-        try:
-            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-            company_code = "1070" # GEEPAS
-            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-            <soapenv:Header />
-            <soapenv:Body>
-            <urn:ZAPP_STOCK_PRICE>
-             <IM_MATNR>
-              <item>
-               <MATNR>""" + product_id + """</MATNR>
-              </item>
-             </IM_MATNR>
-             <IM_VKORG>
-              <item>
-               <VKORG>""" + company_code + """</VKORG>
-              </item>
-             </IM_VKORG>
-             <T_DATA>
-              <item>
-               <MATNR></MATNR>
-               <MAKTX></MAKTX>
-               <LGORT></LGORT>
-               <CHARG></CHARG>
-               <SPART></SPART>
-               <MEINS></MEINS>
-               <ATP_QTY></ATP_QTY>
-               <TOT_QTY></TOT_QTY>
-               <CURRENCY></CURRENCY>
-               <IC_EA></IC_EA>
-               <OD_EA></OD_EA>
-               <EX_EA></EX_EA>
-               <RET_EA></RET_EA>
-               <WERKS></WERKS>
-              </item>
-             </T_DATA>
-            </urn:ZAPP_STOCK_PRICE>
-            </soapenv:Body>
-            </soapenv:Envelope>"""
-            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
-            content = response2.content
-            content = xmltodict.parse(content)
-            content = json.loads(json.dumps(content))
-            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-            price = 0
-            temp_price = 0
-            for item in items:
-                temp_price = item["EX_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    price = max(temp_price, price)
-            return float(price)
-        except Exception as e:
-            return 0
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -1620,7 +971,6 @@ class SearchAPI(APIView):
                     temp_dict["name"] = product.product_name
                     temp_dict["brand"] = str(product.base_product.brand)
                     if(product.base_product.brand.name=="Geepas"):
-                        # temp_dict["price"] = self.fetch_price(product.base_product.seller_sku)
                         temp_dict["price"] = "0"
                     else:
                         temp_dict["price"] = product.standard_price
@@ -1642,22 +992,6 @@ class SearchAPI(APIView):
                         temp_dict["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
                     except Exception as e:
                         temp_dict["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
-                   
-
-                    # category = dealshub_product.category
-                    # if category!=None:
-                    #     sub_categories = category.sub_categories.all()
-                    #     for sub_category in sub_categories:
-                    #         temp_dict_filter = {}
-                    #         temp_dict_filter["id"] = sub_category.pk
-                    #         temp_dict_filter["name"] = sub_category.name
-                    #         temp_dict_filter["values"] = []
-                    #         properties = sub_category.properties.all()
-                    #         for prop in properties:
-                    #             if prop.label in temp_dict_filter["values"]:
-                    #                 temp_dict_filter["values"].append(prop.label)
-                    #         if sub_category.pk not in [x["id"] for x in filters ]:
-                    #             filters.append(temp_dict_filter)
                     
                     products.append(temp_dict)
                 except Exception as e:
@@ -1916,62 +1250,6 @@ class UnPublishAdminCategoryAPI(APIView):
         return Response(data=response)
 
 
-class FetchBrandsCarouselAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchBrandsCarouselAPI: %s", str(data))
-
-            brands_carousel = [
-                {
-                  "id": "1",
-                  "name": "geepas",
-                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/geepas-logo.png"
-                },
-                {
-                  "id": "2",
-                  "name": "krypton",
-                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/krypton-logo.png"
-                },
-                {
-                  "id": "3",
-                  "name": "olsenmark",
-                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/olsenmark-logo.png"
-                },
-                {
-                  "id": "4",
-                  "name": "geepas",
-                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/geepas-logo.png"
-                },
-                {
-                  "id": "5",
-                  "name": "krypton",
-                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/krypton-logo.png"
-                },
-                {
-                  "id": "6",
-                  "name": "olsenmark",
-                  "heroImageUrl": "https://wig-wams-s3-bucket.s3.amazonaws.com/olsenmark-logo.png"
-                }]
-
-            response['brands_carousel'] = brands_carousel
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchBrandsCarouselAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
 class SectionBulkUploadAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -2034,8 +1312,7 @@ class SectionBulkUploadAPI(APIView):
         return Response(data=response)
 
 
-
-class CreateDealsBannerAPI(APIView):
+class CreateBannerAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
@@ -2046,31 +1323,28 @@ class CreateDealsBannerAPI(APIView):
         try:
 
             data = request.data
-            logger.info("CreateDealsBannerAPI: %s", str(data))
+            logger.info("CreateBannerAPI: %s", str(data))
 
-            image = data["image"]
-
-            if image=="" or image=="undefined" or image==None:
-                return Response(data=response)
-
+            banner_type = data["bannerType"]
             organization_name = data["organizationName"]
             organization_obj = Organization.objects.get(name=organization_name)
 
-            image_obj = Image.objects.create(image=image)
+            banner_type_obj = BannerType.objects.get(name=name)
 
-            deals_banner_obj = DealsBanner.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
+            order_index = 10
+
+            banner_obj = Banner.objects.create(organization=organization_obj, order_index=order_index)
             
-            response['uuid'] = deals_banner_obj.uuid
+            response['uuid'] = banner_obj.uuid
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateDealsBannerAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("CreateBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
-class FetchDealsBannerAPI(APIView):
+class FetchBannerAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
@@ -2081,36 +1355,36 @@ class FetchDealsBannerAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchDealsBannerAPI: %s", str(data))
+            logger.info("FetchBannerAPI: %s", str(data))
 
             resolution = data.get("resolution", "low")
-            organization_name = data["organizationName"]
-            organization_obj = Organization.objects.get(name=organization_name)
+            banner_uuid = data["uuid"]
 
-            deals_banner_objs = DealsBanner.objects.filter(organization=organization_obj)
+            banner_obj = Banner.objects.get(uuid=banner_uuid)
+            unit_banner_image_objs = UnitBannerImage.objects.filter(banner=banner_obj)
 
-            banner_deals = []
+            banner_images = []
 
-            for deals_banner_obj in deals_banner_objs:
+            for unit_banner_image_obj in unit_banner_image_objs:
                 try:
                     temp_dict = {}
-                    temp_dict["uid"] = deals_banner_obj.uuid
-                    temp_dict["httpLink"] = deals_banner_obj.http_link
-                    temp_dict["isPublished"] = deals_banner_obj.is_published
-                    if deals_banner_obj.image!=None:
+                    temp_dict["uid"] = unit_banner_image_obj.uuid
+                    temp_dict["httpLink"] = unit_banner_image_obj.http_link
+                    if unit_banner_image_obj.image!=None:
                         if resolution=="low":
-                            temp_dict["url"] = deals_banner_obj.image.thumbnail.url
+                            temp_dict["url"] = unit_banner_image_obj.image.thumbnail.url
                         else:
-                            temp_dict["url"] = deals_banner_obj.image.image.url
+                            temp_dict["url"] = unit_banner_image_obj.image.image.url
                     else:
                         temp_dict["url"] = ""
-                    banner_deals.append(temp_dict)
+                    banner_images.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchDealsBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
             
-            response['banner_deals'] = banner_deals
-            response['status'] = 200
+            response["banners"] = banner_images
+            response["is_published"] = banner_obj.is_published
+            response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2119,7 +1393,7 @@ class FetchDealsBannerAPI(APIView):
         return Response(data=response)
 
 
-class DeleteDealsBannerAPI(APIView):
+class DeleteBannerAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
@@ -2130,21 +1404,20 @@ class DeleteDealsBannerAPI(APIView):
         try:
 
             data = request.data
-            logger.info("DeleteDealsBannerAPI: %s", str(data))
+            logger.info("DeleteBannerAPI: %s", str(data))
 
             uuid = data["uuid"]
-            DealsBanner.objects.get(uuid=uuid).delete()
+            Banner.objects.get(uuid=uuid).delete()
             
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteDealsBannerAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("DeleteBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
-class PublishDealsBannerAPI(APIView):
+class PublishBannerAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
@@ -2155,24 +1428,23 @@ class PublishDealsBannerAPI(APIView):
         try:
 
             data = request.data
-            logger.info("PublishDealsBannerAPI: %s", str(data))
+            logger.info("PublishBannerAPI: %s", str(data))
 
             uuid = data["uuid"]
-            deals_banner_obj = DealsBanner.objects.get(uuid=uuid)
-            deals_banner_obj.is_published = True
-            deals_banner_obj.save()
+            banner_obj = Banner.objects.get(uuid=uuid)
+            banner_obj.is_published = True
+            banner_obj.save()
             
-            response['uuid'] = deals_banner_obj.uuid
+            response['uuid'] = banner_obj.uuid
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PublishDealsBannerAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("PublishBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
-class UnPublishDealsBannerAPI(APIView):
+class UnPublishBannerAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
@@ -2183,176 +1455,19 @@ class UnPublishDealsBannerAPI(APIView):
         try:
 
             data = request.data
-            logger.info("UnPublishDealsBannerAPI: %s", str(data))
+            logger.info("UnPublishBannerAPI: %s", str(data))
 
             uuid = data["uuid"]
-            deals_banner_obj = DealsBanner.objects.get(uuid=uuid)
-            deals_banner_obj.is_published = False
-            deals_banner_obj.save()
+            banner_obj = Banner.objects.get(uuid=uuid)
+            banner_obj.is_published = False
+            banner_obj.save()
             
-            response['uuid'] = deals_banner_obj.uuid
+            response['uuid'] = banner_obj.uuid
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UnPublishDealsBannerAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-
-class CreateFullBannerAdAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("CreateFullBannerAdAPI: %s", str(data))
-
-            image = data["image"]
-
-            organization_name = data["organizationName"]
-            organization_obj = Organization.objects.get(name=organization_name)
-
-            image_obj = Image.objects.create(image=image)
-
-            full_banner_ad_obj = FullBannerAd.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
-            
-            response['uuid'] = full_banner_ad_obj.uuid
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateFullBannerAdAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class FetchFullBannerAdAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchFullBannerAdAPI: %s", str(data))
-
-            organization_name = data["organizationName"]
-            organization_obj = Organization.objects.get(name=organization_name)
-
-            full_banner_ad_objs = FullBannerAd.objects.filter(organization=organization_obj)
-
-            banner_deals = []
-
-            for full_banner_ad_obj in full_banner_ad_objs:
-                temp_dict = {}
-                temp_dict["uid"] = full_banner_ad_obj.uuid
-                temp_dict["httpLink"] = full_banner_ad_obj.http_link
-                temp_dict["isPublished"] = full_banner_ad_obj.is_published
-                if full_banner_ad_obj.image!=None:
-                    temp_dict["url"] = full_banner_ad_obj.image.image.url
-                else:
-                    temp_dict["url"] = ""
-                banner_deals.append(temp_dict)
-            
-            response['full_banner_ads'] = banner_deals
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchFullBannerAdAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class DeleteFullBannerAdAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("DeleteFullBannerAdAPI: %s", str(data))
-
-            uuid = data["uuid"]
-            FullBannerAd.objects.get(uuid=uuid).delete()
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteFullBannerAdAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class PublishFullBannerAdAPI(APIView):
-
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("PublishFullBannerAdAPI: %s", str(data))
-
-            uuid = data["uuid"]
-            full_banner_ad_obj = FullBannerAd.objects.get(uuid=uuid)
-            full_banner_ad_obj.is_published = True
-            full_banner_ad_obj.save()
-            
-            response['uuid'] = full_banner_ad_obj.uuid
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PublishFullBannerAdAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class UnPublishFullBannerAdAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("UnPublishFullBannerAdAPI: %s", str(data))
-
-            uuid = data["uuid"]
-            full_banner_ad_obj = FullBannerAd.objects.get(uuid=uuid)
-            full_banner_ad_obj.is_published = False
-            full_banner_ad_obj.save()
-            
-            response['uuid'] = full_banner_ad_obj.uuid
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UnPublishFullBannerAdAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("UnPublishBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -2425,117 +1540,6 @@ class UnPublishDealsHubProductAPI(APIView):
         return Response(data=response)
 
 
-class CreateCategoryGridBannerAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("CreateCategoryGridBannerAPI: %s", str(data))
-
-            image = data["image"]
-
-            if image=="" or image=="undefined" or image==None:
-                return Response(data=response)
-
-            organization_name = data["organizationName"]
-            organization_obj = Organization.objects.get(name=organization_name)
-
-            image_obj = Image.objects.create(image=image)
-
-            category_grid_banner_obj = CategoryGridBanner.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
-            
-            response['uuid'] = category_grid_banner_obj.uuid
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateCategoryGridBannerAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class FetchCategoryGridBannerAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchCategoryGridBannerAPI: %s", str(data))
-
-            resolution = data.get("resolution", "low")
-
-            organization_name = data["organizationName"]
-            organization_obj = Organization.objects.get(name=organization_name)
-
-            category_grid_banner_objs = CategoryGridBanner.objects.filter(organization=organization_obj)
-
-            category_grid_banners = []
-
-            for category_grid_banner_obj in category_grid_banner_objs:
-                try:
-                    temp_dict = {}
-                    temp_dict["uid"] = category_grid_banner_obj.uuid
-                    temp_dict["httpLink"] = category_grid_banner_obj.http_link
-                    temp_dict["isPublished"] = category_grid_banner_obj.is_published
-                    if category_grid_banner_obj.image!=None:
-                        if resolution=="low":
-                            temp_dict["url"] = category_grid_banner_obj.image.thumbnail.url
-                        else:
-                            temp_dict["url"] = category_grid_banner_obj.image.image.url
-                    else:
-                        temp_dict["url"] = ""
-                    category_grid_banners.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchCategoryGridBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
-            
-            response['category_grid_banners'] = category_grid_banners
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCategoryGridBannerAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class DeleteCategoryGridBannerAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("DeleteCategoryGridBannerAPI: %s", str(data))
-
-            uuid = data["uuid"]
-            CategoryGridBanner.objects.get(uuid=uuid).delete()
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteCategoryGridBannerAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-
 class DeleteProductFromSectionAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
@@ -2564,119 +1568,6 @@ class DeleteProductFromSectionAPI(APIView):
             logger.error("DeleteProductFromSectionAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
-
-
-
-
-class CreateHomePageSchedularAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("CreateHomePageSchedularAPI: %s", str(data))
-
-            image = data["image"]
-            organization_name = data["organizationName"]
-            organization_obj = Organization.objects.get(name=organization_name)
-
-            if image=="" or image=="undefined" or image==None:
-                return Response(data=response)
-
-            image_obj = Image.objects.create(image=image)
-
-            home_page_schedular_obj = HomePageSchedular.objects.create(organization=organization_obj, image=image_obj, uuid=str(uuid.uuid4()))
-            
-            response['uuid'] = home_page_schedular_obj.uuid
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateHomePageSchedularAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class FetchHomePageSchedularAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchHomePageSchedularAPI: %s", str(data))
-
-            resolution = data.get("resolution", "low")
-
-            organization_name = data["organizationName"]
-            organization_obj = Organization.objects.get(name=organization_name)
-
-            home_page_schedular_objs = HomePageSchedular.objects.filter(organization=organization_obj)
-
-            home_page_schedulars = []
-
-            for home_page_schedular_obj in home_page_schedular_objs:
-                try:
-                    temp_dict = {}
-                    temp_dict["uid"] = home_page_schedular_obj.uuid
-                    temp_dict["httpLink"] = home_page_schedular_obj.http_link
-                    temp_dict["isPublished"] = home_page_schedular_obj.is_published
-                    if home_page_schedular_obj.image!=None:
-                        if resolution=="low":
-                            temp_dict["url"] = home_page_schedular_obj.image.thumbnail.url
-                        else:
-                            temp_dict["url"] = home_page_schedular_obj.image.image.url
-                    else:
-                        temp_dict["url"] = ""
-                    home_page_schedulars.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchHomePageSchedularAPI: %s at %s", e, str(exc_tb.tb_lineno))
-            
-            response['home_page_schedulars'] = home_page_schedulars
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchHomePageSchedularAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class DeleteHomePageSchedularAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("DeleteHomePageSchedularAPI: %s", str(data))
-
-            uuid = data["uuid"]
-            HomePageSchedular.objects.get(uuid=uuid).delete()
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteHomePageSchedularAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
 
 
 class PublishDealsHubProductsAPI(APIView):
@@ -2727,7 +1618,7 @@ class UnPublishDealsHubProductsAPI(APIView):
         return Response(data=response)
 
 
-class UpdateLinkDealsBannerAPI(APIView):
+class UpdateLinkBannerAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
@@ -2738,104 +1629,20 @@ class UpdateLinkDealsBannerAPI(APIView):
         try:
 
             data = request.data
-            logger.info("UpdateLinkDealsBannerAPI: %s", str(data))
+            logger.info("UpdateLinkBannerAPI: %s", str(data))
 
             http_link = data["httpLink"]
             uuid = data["uuid"]
 
-            deals_banner_obj = DealsBanner.objects.get(uuid=uuid)
-            deals_banner_obj.http_link = http_link
-            deals_banner_obj.save()
+            banner_obj = Banner.objects.get(uuid=uuid)
+            banner_obj.http_link = http_link
+            banner_obj.save()
             
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateLinkDealsBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class UpdateLinkFullBannerAdAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("UpdateLinkFullBannerAdAPI: %s", str(data))
-
-            http_link = data["httpLink"]
-            uuid = data["uuid"]
-
-            full_banner_ad_obj = FullBannerAd.objects.get(uuid=uuid)
-            full_banner_ad_obj.http_link = http_link
-            full_banner_ad_obj.save()
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateLinkFullBannerAdAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class UpdateLinkCategoryGridBannerAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("UpdateLinkCategoryGridBannerAPI: %s", str(data))
-
-            http_link = data["httpLink"]
-            uuid = data["uuid"]
-
-            category_grid_banner_obj = CategoryGridBanner.objects.get(uuid=uuid)
-            category_grid_banner_obj.http_link = http_link
-            category_grid_banner_obj.save()
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateLinkCategoryGridBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class UpdateLinkHomePageSchedularAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("UpdateLinkHomePageSchedularAPI: %s", str(data))
-
-            http_link = data["httpLink"]
-            uuid = data["uuid"]
-
-            home_page_schedular_obj = HomePageSchedular.objects.get(uuid=uuid)
-            home_page_schedular_obj.http_link = http_link
-            home_page_schedular_obj.save()
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateLinkHomePageSchedularAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateLinkBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -2919,9 +1726,6 @@ class FetchHeadingDataAPI(APIView):
         return Response(data=response)
 
 
-
-
-
 class FetchHeadingDataAdminAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
@@ -2972,8 +1776,6 @@ class FetchHeadingDataAdminAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchHeadingDataAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
-
-
 
 
 class FetchHeadingCategoryListAPI(APIView):
@@ -3224,67 +2026,9 @@ class FetchUserOrganizationAPI(APIView):
         return Response(data=response)
 
 
-
 class FetchDealshubAdminSectionsAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
-
-    def fetch_price(self,product_id):
-        try:
-            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-            company_code = "1070" # GEEPAS
-            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-            <soapenv:Header />
-            <soapenv:Body>
-            <urn:ZAPP_STOCK_PRICE>
-             <IM_MATNR>
-              <item>
-               <MATNR>""" + product_id + """</MATNR>
-              </item>
-             </IM_MATNR>
-             <IM_VKORG>
-              <item>
-               <VKORG>""" + company_code + """</VKORG>
-              </item>
-             </IM_VKORG>
-             <T_DATA>
-              <item>
-               <MATNR></MATNR>
-               <MAKTX></MAKTX>
-               <LGORT></LGORT>
-               <CHARG></CHARG>
-               <SPART></SPART>
-               <MEINS></MEINS>
-               <ATP_QTY></ATP_QTY>
-               <TOT_QTY></TOT_QTY>
-               <CURRENCY></CURRENCY>
-               <IC_EA></IC_EA>
-               <OD_EA></OD_EA>
-               <EX_EA></EX_EA>
-               <RET_EA></RET_EA>
-               <WERKS></WERKS>
-              </item>
-             </T_DATA>
-            </urn:ZAPP_STOCK_PRICE>
-            </soapenv:Body>
-            </soapenv:Envelope>"""
-            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
-            content = response2.content
-            content = xmltodict.parse(content)
-            content = json.loads(json.dumps(content))
-            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-            price = 0
-            temp_price = 0
-            for item in items:
-                temp_price = item["EX_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    price = max(temp_price, price)
-            return float(price)
-        except Exception as e:
-            return 0
 
     def post(self, request, *args, **kwargs):
 
@@ -3366,7 +2110,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["displayId"] = str(prod.product_id)
                     temp_dict2["category"] = str(prod.base_product.category)
                     if organization_name=="geepas":
-                        #temp_dict2["price"] = str(self.fetch_price(prod.base_product.seller_sku))
                         temp_dict2["price"] = "0"
                     else:
                         temp_dict2["price"] = str(prod.standard_price)
@@ -3403,8 +2146,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
-
-
 
 
 class SaveDealshubAdminSectionsOrderAPI(APIView):
@@ -3611,30 +2352,21 @@ PublishAdminCategory = PublishAdminCategoryAPI.as_view()
 
 UnPublishAdminCategory = UnPublishAdminCategoryAPI.as_view()
 
-FetchBrandsCarousel = FetchBrandsCarouselAPI.as_view()
-
 SectionBulkUpload = SectionBulkUploadAPI.as_view()
 
-CreateDealsBanner = CreateDealsBannerAPI.as_view()
 
-FetchDealsBanner = FetchDealsBannerAPI.as_view()
+CreateBanner = CreateBannerAPI.as_view()
 
-DeleteDealsBanner = DeleteDealsBannerAPI.as_view()
+FetchBanner = FetchBannerAPI.as_view()
 
-PublishDealsBanner = PublishDealsBannerAPI.as_view()
+DeleteBanner = DeleteBannerAPI.as_view()
 
-UnPublishDealsBanner = UnPublishDealsBannerAPI.as_view()
+PublishBanner = PublishBannerAPI.as_view()
 
+UnPublishBanner = UnPublishBannerAPI.as_view()
 
-CreateFullBannerAd = CreateFullBannerAdAPI.as_view()
+UpdateLinkBanner = UpdateLinkBannerAPI.as_view()
 
-FetchFullBannerAd = FetchFullBannerAdAPI.as_view()
-
-DeleteFullBannerAd = DeleteFullBannerAdAPI.as_view()
-
-PublishFullBannerAd = PublishFullBannerAdAPI.as_view()
-
-UnPublishFullBannerAd = UnPublishFullBannerAdAPI.as_view()
 
 CreateDealsHubProduct = CreateDealsHubProductAPI.as_view()
 
@@ -3642,31 +2374,12 @@ PublishDealsHubProduct = PublishDealsHubProductAPI.as_view()
 
 UnPublishDealsHubProduct = UnPublishDealsHubProductAPI.as_view()
 
-CreateCategoryGridBanner = CreateCategoryGridBannerAPI.as_view()
-
-FetchCategoryGridBanner = FetchCategoryGridBannerAPI.as_view()
-
-DeleteCategoryGridBanner = DeleteCategoryGridBannerAPI.as_view()
-
-DeleteProductFromSection = DeleteProductFromSectionAPI.as_view()
-
-CreateHomePageSchedular = CreateHomePageSchedularAPI.as_view()
-
-FetchHomePageSchedular = FetchHomePageSchedularAPI.as_view()
-
-DeleteHomePageSchedular = DeleteHomePageSchedularAPI.as_view()
-
 PublishDealsHubProducts = PublishDealsHubProductsAPI.as_view()
 
 UnPublishDealsHubProducts = UnPublishDealsHubProductsAPI.as_view()
 
-UpdateLinkDealsBanner = UpdateLinkDealsBannerAPI.as_view()
+DeleteProductFromSection = DeleteProductFromSectionAPI.as_view()
 
-UpdateLinkFullBannerAd = UpdateLinkFullBannerAdAPI.as_view()
-
-UpdateLinkCategoryGridBanner = UpdateLinkCategoryGridBannerAPI.as_view()
-
-UpdateLinkHomePageSchedular = UpdateLinkHomePageSchedularAPI.as_view()
 
 FetchHeadingData = FetchHeadingDataAPI.as_view()
 
@@ -3685,6 +2398,7 @@ UploadImageHeading = UploadImageHeadingAPI.as_view()
 UpdateImageHeadingLink = UpdateImageHeadingLinkAPI.as_view()
 
 DeleteImageHeading = DeleteImageHeadingAPI.as_view()
+
 
 FetchUserOrganization = FetchUserOrganizationAPI.as_view()
 
