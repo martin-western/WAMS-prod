@@ -1060,7 +1060,9 @@ class CreateAdminCategoryAPI(APIView):
             listing_type = data["listingType"]
             products = data["products"]
             
-            section_obj = Section.objects.create(organization=organization_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type)
+            order_index = Banner.objects.filter(organization=organization_obj).count()+Section.objects.filter(organization=organization_obj).count()+1
+
+            section_obj = Section.objects.create(organization=organization_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type, order_index=order_index)
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
                 section_obj.products.add(product_obj)
@@ -1312,9 +1314,44 @@ class SectionBulkUploadAPI(APIView):
         return Response(data=response)
 
 
-class CreateBannerAPI(APIView):
+
+class FetchBannerTypesAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchBannerTypesAPI: %s", str(data))
+
+            organization_name = data["organizationName"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            banner_type_objs = BannerType.objects.filter(organization=organization_obj)
+
+            banner_types = []
+            for banner_type_obj in banner_type_objs:
+                temp_dict = {}
+                temp_dict["type"] = banner_type_obj.name
+                temp_dict["name"] = banner_type_obj.display_name
+                temp_dict["limit"] = banner_type_obj.limit
+                banner_types.append(temp_dict)
+
+            response['bannerTypes'] = banner_types
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBannerTypesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+class CreateBannerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -1331,9 +1368,9 @@ class CreateBannerAPI(APIView):
 
             banner_type_obj = BannerType.objects.get(name=name)
 
-            order_index = 10
+            order_index = Banner.objects.filter(organization=organization_obj).count()+Section.objects.filter(organization=organization_obj).count()+1
 
-            banner_obj = Banner.objects.create(organization=organization_obj, order_index=order_index)
+            banner_obj = Banner.objects.create(organization=organization_obj, order_index=order_index, banner_type=banner_type_obj)
             
             response['uuid'] = banner_obj.uuid
             response['status'] = 200
@@ -1345,8 +1382,6 @@ class CreateBannerAPI(APIView):
 
 
 class AddBannerImageAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1374,8 +1409,6 @@ class AddBannerImageAPI(APIView):
 
 
 class DeleteBannerImageAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1388,7 +1421,7 @@ class DeleteBannerImageAPI(APIView):
 
             uuid = data["uuid"]
 
-            Banner.objects.get(uuid=uuid).delete()
+            UnitBannerImage.objects.get(uuid=uuid).delete()
 
             response['status'] = 200
 
@@ -1400,8 +1433,6 @@ class DeleteBannerImageAPI(APIView):
 
 
 class FetchBannerAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1452,8 +1483,6 @@ class FetchBannerAPI(APIView):
 
 
 class DeleteBannerAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1476,8 +1505,6 @@ class DeleteBannerAPI(APIView):
 
 
 class PublishBannerAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1503,8 +1530,6 @@ class PublishBannerAPI(APIView):
 
 
 class UnPublishBannerAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1530,8 +1555,7 @@ class UnPublishBannerAPI(APIView):
 
 
 class CreateDealsHubProductAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
+    
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -1553,8 +1577,7 @@ class CreateDealsHubProductAPI(APIView):
 
 
 class PublishDealsHubProductAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
+    
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -1576,8 +1599,7 @@ class PublishDealsHubProductAPI(APIView):
 
 
 class UnPublishDealsHubProductAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
+    
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -1599,8 +1621,6 @@ class UnPublishDealsHubProductAPI(APIView):
 
 
 class DeleteProductFromSectionAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1629,8 +1649,7 @@ class DeleteProductFromSectionAPI(APIView):
 
 
 class PublishDealsHubProductsAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
+    
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -1653,8 +1672,7 @@ class PublishDealsHubProductsAPI(APIView):
 
 
 class UnPublishDealsHubProductsAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
+    
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -1677,8 +1695,6 @@ class UnPublishDealsHubProductsAPI(APIView):
 
 
 class UpdateLinkBannerAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1870,8 +1886,6 @@ class FetchHeadingCategoryListAPI(APIView):
 
 
 class DeleteHeadingAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1895,8 +1909,6 @@ class DeleteHeadingAPI(APIView):
 
 
 class CreateHeadingDataAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1925,8 +1937,6 @@ class CreateHeadingDataAPI(APIView):
 
 
 class SaveHeadingDataAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -1964,8 +1974,6 @@ class SaveHeadingDataAPI(APIView):
 
 
 class UploadImageHeadingAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -2006,8 +2014,6 @@ class UploadImageHeadingAPI(APIView):
 
 
 class UpdateImageHeadingLinkAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -2034,8 +2040,6 @@ class UpdateImageHeadingLinkAPI(APIView):
 
 
 class DeleteImageHeadingAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -2200,8 +2204,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
 
 class SaveDealshubAdminSectionsOrderAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -2216,12 +2218,12 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
 
             cnt = 0
             for dealshub_admin_section in dealshub_admin_sections:
-                if dealshub_admin_section["type"]=="banner":
+                if dealshub_admin_section["type"]=="Banner":
                     uuid = dealshub_admin_section["uuid"]
                     banner_obj = Banner.objects.get(uuid=uuid)
                     banner_obj.order_index = cnt
                     banner_obj.save()
-                elif dealshub_admin_section["type"]=="section":
+                elif dealshub_admin_section["type"]=="ProductListing":
                     uuid = dealshub_admin_section["uuid"]
                     section_obj = Section.objects.get(uuid=uuid)
                     section_obj.order_index = cnt
@@ -2238,8 +2240,6 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
 
 
 class SearchSectionProductsAutocompleteAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
 
@@ -2395,6 +2395,8 @@ UnPublishAdminCategory = UnPublishAdminCategoryAPI.as_view()
 
 SectionBulkUpload = SectionBulkUploadAPI.as_view()
 
+
+FetchBannerTypes = FetchBannerTypesAPI.as_view()
 
 CreateBanner = CreateBannerAPI.as_view()
 
