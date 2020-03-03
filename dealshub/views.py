@@ -1344,6 +1344,61 @@ class CreateBannerAPI(APIView):
         return Response(data=response)
 
 
+class AddBannerImageAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddBannerImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            banner_image = data["image"]
+
+            banner_obj = Banner.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=banner_image)
+            unit_banner_image_obj = UnitBannerImage.objects.create(image=image_obj, banner=banner_obj)
+
+            response['uuid'] = unit_banner_image_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddBannerImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteBannerImageAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteBannerImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+
+            Banner.objects.get(uuid=uuid).delete()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteBannerImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
 class FetchBannerAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
@@ -1383,6 +1438,9 @@ class FetchBannerAPI(APIView):
                     logger.error("FetchBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
             
             response["banners"] = banner_images
+            response["limit"] = banner_obj.limit
+            response["type"] = banner_obj.banner_type.name
+            response["name"] = banner_obj.banner_type.display_name
             response["is_published"] = banner_obj.is_published
             response["status"] = 200
 
@@ -1634,9 +1692,9 @@ class UpdateLinkBannerAPI(APIView):
             http_link = data["httpLink"]
             uuid = data["uuid"]
 
-            banner_obj = Banner.objects.get(uuid=uuid)
-            banner_obj.http_link = http_link
-            banner_obj.save()
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+            unit_banner_image_obj.http_link = http_link
+            unit_banner_image_obj.save()
             
             response['status'] = 200
 
@@ -2045,33 +2103,15 @@ class FetchDealshubAdminSectionsAPI(APIView):
             organization_name = data["organizationName"]
             organization_obj = Organization.objects.get(name=organization_name)
 
-            dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.get(organization=organization_obj)
-            section_objs = Section.objects.all().order_by('order_index')
+            section_objs = Section.objects.filter(organization=organization_obj).order_by('order_index')
 
             if is_dealshub==True:
                 section_objs = section_objs.filter(is_published=True)                
-            cnt = 0
+            
             dealshub_admin_sections = []
             for section_obj in section_objs:
-                while section_obj.order_index!=cnt:
-                    temp_dict = {}
-                    if dealshub_admin_section_order_obj.dealshub_banner_index==cnt:
-                        temp_dict["type"] = "DealsBanner"
-                        temp_dict["uuid"] = "DealsBanner"
-                    elif dealshub_admin_section_order_obj.homepage_schedular_index==cnt:
-                        temp_dict["type"] = "HomePageSchedular"
-                        temp_dict["uuid"] = "HomePageSchedular"
-                    elif dealshub_admin_section_order_obj.full_banner_ad_index==cnt:
-                        temp_dict["type"] = "FullBannerAd"
-                        temp_dict["uuid"] = "FullBannerAd"
-                    elif dealshub_admin_section_order_obj.category_grid_banner_index==cnt:
-                        temp_dict["type"] = "CategoryGridBanner"
-                        temp_dict["uuid"] = "CategoryGridBanner"
-                    else:
-                        break
-                    cnt += 1
-                    dealshub_admin_sections.append(temp_dict)
-                temp_dict = {} 
+                temp_dict = {}
+                temp_dict["orderIndex"] = section_obj.order_index
                 temp_dict["type"] = "ProductListing"
                 temp_dict["uuid"] = str(section_obj.uuid)
                 temp_dict["name"] = str(section_obj.name)
@@ -2090,7 +2130,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         section_products = section_products[:21]
                     elif section_obj.listing_type=="Grid Stack":
                         section_products = section_products[:14]
-
 
                 for prod in section_products:
                     temp_dict2 = {}
@@ -2119,25 +2158,37 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_dict["products"] = temp_products
 
                 dealshub_admin_sections.append(temp_dict)
-                cnt += 1
-            while len(dealshub_admin_sections)<section_objs.count()+4:
+
+            banner_objs = Banner.objects.filter(organization=organization_obj).order_by('order_index')
+            for banner_obj in banner_objs:
+                unit_banner_image_objs = UnitBannerImage.objects.filter(banner=banner_obj)
+
+                banner_images = []
                 temp_dict = {}
-                if dealshub_admin_section_order_obj.dealshub_banner_index==cnt:
-                    temp_dict["type"] = "DealsBanner"
-                    temp_dict["uuid"] = "DealsBanner"
-                elif dealshub_admin_section_order_obj.homepage_schedular_index==cnt:
-                    temp_dict["type"] = "HomePageSchedular"
-                    temp_dict["uuid"] = "HomePageSchedular"
-                elif dealshub_admin_section_order_obj.full_banner_ad_index==cnt:
-                    temp_dict["type"] = "FullBannerAd"
-                    temp_dict["uuid"] = "FullBannerAd"
-                elif dealshub_admin_section_order_obj.category_grid_banner_index==cnt:
-                    temp_dict["type"] = "CategoryGridBanner"
-                    temp_dict["uuid"] = "CategoryGridBanner"
-                else:
-                    break
-                cnt += 1
+                temp_dict["orderIndex"] = banner_obj.order_index
+                temp_dict["type"] = "Banner"
+                temp_dict["name"] = banner_obj.banner_type.display_name
+                temp_dict["bannerType"] = banner_obj.banner_type.name
+                temp_dict["limit"] = banner_obj.limit
+                for unit_banner_image_obj in unit_banner_image_objs:
+                    temp_dict2 = {}
+                    temp_dict2["uid"] = unit_banner_image_obj.uuid
+                    temp_dict2["httpLink"] = unit_banner_image_obj.http_link
+                    if unit_banner_image_obj.image!=None:
+                        if resolution=="low":
+                            temp_dict2["url"] = unit_banner_image_obj.image.thumbnail.url
+                        else:
+                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                    else:
+                        temp_dict2["url"] = ""
+                    banner_images.append(temp_dict2)
+                
+                temp_dict["bannerImages"] = banner_images
+                temp_dict["isPublished"] = banner_obj.is_published
+
                 dealshub_admin_sections.append(temp_dict)
+
+            dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"]) 
 
             response["sections_list"] = dealshub_admin_sections
             response['status'] = 200
@@ -2163,29 +2214,19 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
 
             dealshub_admin_sections = data["dealshubAdminSections"]
 
-            dealshub_admin_section_order_obj = None
-            if DealshubAdminSectionOrder.objects.count()==0:
-                dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.create()
-            else:
-                dealshub_admin_section_order_obj = DealshubAdminSectionOrder.objects.all()[0]
-
             cnt = 0
             for dealshub_admin_section in dealshub_admin_sections:
-                if dealshub_admin_section["type"]=="DealsBanner":
-                    dealshub_admin_section_order_obj.dealshub_banner_index = cnt
-                if dealshub_admin_section["type"]=="HomePageSchedular":
-                    dealshub_admin_section_order_obj.homepage_schedular_index = cnt
-                if dealshub_admin_section["type"]=="FullBannerAd":
-                    dealshub_admin_section_order_obj.full_banner_ad_index = cnt
-                if dealshub_admin_section["type"]=="CategoryGridBanner":
-                    dealshub_admin_section_order_obj.category_grid_banner_index = cnt
-                if dealshub_admin_section["type"]=="ProductListing":
+                if dealshub_admin_section["type"]=="banner":
+                    uuid = dealshub_admin_section["uuid"]
+                    banner_obj = Banner.objects.get(uuid=uuid)
+                    banner_obj.order_index = cnt
+                    banner_obj.save()
+                elif dealshub_admin_section["type"]=="section":
                     uuid = dealshub_admin_section["uuid"]
                     section_obj = Section.objects.get(uuid=uuid)
                     section_obj.order_index = cnt
                     section_obj.save()
                 
-                dealshub_admin_section_order_obj.save()
                 cnt += 1
 
             response['status'] = 200
@@ -2366,6 +2407,10 @@ PublishBanner = PublishBannerAPI.as_view()
 UnPublishBanner = UnPublishBannerAPI.as_view()
 
 UpdateLinkBanner = UpdateLinkBannerAPI.as_view()
+
+AddBannerImage = AddBannerImageAPI.as_view()
+
+DeleteBannerImage = DeleteBannerImageAPI.as_view()
 
 
 CreateDealsHubProduct = CreateDealsHubProductAPI.as_view()

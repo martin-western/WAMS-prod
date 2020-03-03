@@ -12,7 +12,6 @@ urlpatterns = [
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-categories/$', views.FetchCategories),
 
-    url(r'^fetch-dashboard-banner-details/$', views.FetchDashboardBannerDetails),
     url(r'^fetch-batch-discount-deals/$', views.FetchBatchDiscountDeals),
     url(r'^fetch-featured-products/$', views.FetchFeaturedProducts),
     url(r'^search/$', views.Search),
@@ -31,6 +30,9 @@ urlpatterns = [
     url(r'^delete-banner/$', views.DeleteBanner),
     url(r'^publish-banner/$', views.PublishBanner),
     url(r'^unpublish-banner/$', views.UnPublishBanner),
+    url(r'^update-link-banner/$', views.UpdateLinkBanner),
+    url(r'^add-banner-image/$', views.AddBannerImage),
+    url(r'^delete-banner-image/$', views.DeleteBannerImage),
 
     url(r'^create-dealshub-product/$', views.CreateDealsHubProduct),
     url(r'^publish-dealshub-product/$', views.PublishDealsHubProduct),
@@ -39,11 +41,6 @@ urlpatterns = [
     url(r'^unpublish-dealshub-products/$', views.UnPublishDealsHubProducts),
 
     url(r'^delete-product-from-section/$', views.DeleteProductFromSection),
-
-    url(r'^update-link-deals-banner/$', views.UpdateLinkBanner),
-    url(r'^update-link-full-banner-ad/$', views.UpdateLinkFullBannerAd),
-    url(r'^update-link-category-grid-banner/$', views.UpdateLinkCategoryGridBanner),
-    url(r'^update-link-home-page-schedular/$', views.UpdateLinkHomePageSchedular),
 
     url(r'^fetch-heading-data/$', views.FetchHeadingData),
     url(r'^fetch-heading-data-admin/$', views.FetchHeadingDataAdmin),

@@ -125,9 +125,10 @@ class Banner(models.Model):
     is_published = models.BooleanField(default=False)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
-    created_by = models.ForeignKey(User, related_name="created_by", null=True, blank=True, on_delete=models.SET_NULL)
-    modified_by = models.ForeignKey(User, related_name="modified_by", null=True, blank=True, on_delete=models.SET_NULL)
+    created_by = models.ForeignKey(User, related_name="banner_created_by", null=True, blank=True, on_delete=models.SET_NULL)
+    modified_by = models.ForeignKey(User, related_name="banner_modified_by", null=True, blank=True, on_delete=models.SET_NULL)
     order_index = models.IntegerField(default=1)
+    banner_type = models.ForeignKey(BannerType, on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.uuid)
