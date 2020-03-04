@@ -2165,6 +2165,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 dealshub_admin_sections.append(temp_dict)
 
             banner_objs = Banner.objects.filter(organization=organization_obj).order_by('order_index')
+
+            if is_dealshub==True:
+                banner_objs = banner_objs.filter(is_published=True)
+
             for banner_obj in banner_objs:
                 unit_banner_image_objs = UnitBannerImage.objects.filter(banner=banner_obj)
 
