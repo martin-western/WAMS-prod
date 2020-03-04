@@ -162,18 +162,6 @@ amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
 
-class OperatingHour(models.Model):
-
-    day = models.CharField(max_length=10)
-    from_time = models.TimeField(null=True, blank=True)
-    to_time = models.TimeField(null=True, blank=True)
-
-    class Meta:
-        verbose_name = "OperatingHour"
-        verbose_name_plural = "OperatingHours"
-
-    def __str__(self):
-        return str(self.day)+" "+str(self.from_time)+"-"+str(self.to_time)
 
 
 class Image(models.Model):
@@ -711,6 +699,19 @@ class RequestHelp(models.Model):
 def update_stock(sender, instance, **kwargs):
     if PFL.objects.filter(product=instance).exists()==False:
         PFL.objects.create(product=instance, name=str(instance.product_name_sap)+"_PFL")
+
+class OperatingHour(models.Model):
+
+    day = models.CharField(max_length=10)
+    from_time = models.TimeField(null=True, blank=True)
+    to_time = models.TimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "OperatingHour"
+        verbose_name_plural = "OperatingHours"
+
+    def __str__(self):
+        return str(self.day)+" "+str(self.from_time)+"-"+str(self.to_time)
 
 class SourcingUserProduct(object):
     
