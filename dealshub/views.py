@@ -2184,7 +2184,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["uid"] = unit_banner_image_obj.uuid
                     temp_dict2["httpLink"] = unit_banner_image_obj.http_link
-                    if unit_banner_image_obj.mid_image!=None:
+                    if unit_banner_image_obj.image!=None:
                         temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
                     else:
                         temp_dict2["url"] = ""
