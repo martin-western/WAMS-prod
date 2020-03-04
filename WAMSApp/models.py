@@ -448,7 +448,6 @@ class Product(models.Model):
     is_dealshub_product_created = models.BooleanField(default=False)
     no_of_images_for_filter = models.IntegerField(default=0)
 
-    sourcing_product = models.ForeignKey(SourcingProduct,blank=True,null=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "Product"
@@ -754,11 +753,11 @@ class SourcingProduct(object):
     delivery_days = models.IntegerField(default=0, null=True)
     created_by = models.ForeignKey(OmnyCommUser,blank=True)
     
+    product = models.ForeignKey(Product,blank=True,null=True, on_delete=models.SET_NULL)
+    
     class Meta:
-        verbose_name = "SourcingUserProduct"
-        verbose_name_plural = "SourcingUserProducts"
-
-auditlog.register(SourcingProduct, exclude_fields=['is_pr_ready' , 'created_date' , 'pk'])
+        verbose_name = "SourcingProduct"
+        verbose_name_plural = "SourcingProducts"
 
 class Bank(models.Model): 
 
