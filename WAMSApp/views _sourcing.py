@@ -2010,6 +2010,2259 @@ class ShareProductAPI(APIView):
 
         return Response(data=response)
 
+IP_ADDR = "http://13.235.116.162:8004"
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return
+
+def LoginFactoryManager(request):
+    return render(request, 'WIGApp/login-factory-manager.html')
+
+def SignUpFactoryManager(request):
+    return render(request, 'WIGApp/signup.html')
+
+# @login_required(login_url='/login-factory-manager/')
+# def FactoryManagerProductRender(request):
+#     return render(request, 'WIGApp/factory-manager-product-details.html')
+
+# DraftProformaInvoices
+
+
+@login_required(login_url='/login-sourcing-manager/')
+def DraftProformaInvoices(request):
+    return render(request,'WIGApp/draft-proforma-invoices.html')
+
+@login_required(login_url='/login-factory-manager/')
+def LogoutFactoryManager(request):
+    logout(request)
+    return HttpResponseRedirect('/login-factory-manager/')
+
+@login_required(login_url='/login-factory-manager/')
+def FactoryProduct(request,pk):
+    return render(request, 'WIGApp/factory-product-details.html')
+
+#proforma-invoices
+
+@login_required(login_url='/login-sourcing-user/')
+def FetchProformaInvoices(request):
+    return render(request, 'WIGApp/proforma-invoices-list.html')
+
+
+
+@login_required(login_url='/login-sourcing-user/')
+def ProformaInvoiceHome(request, pk):
+    return render(request, 'WIGApp/proforma-invoice.html')
+
+@login_required(login_url='/login-sourcing-user/')
+def SourcingProduct(request,pk):
+    return render(request, 'WIGApp/sourcing-product-details.html')
+
+
+@login_required(login_url='/login-sourcing-user/')
+def FactoryProfileForSourcing(request, pk):
+    return render(request, 'WIGApp/home-factory-manager.html')
+
+
+@login_required(login_url='/login-sourcing-user/')
+def FactoriesForSourcingUser(request):
+    return render(request, 'WIGApp/sourcing-factory-listing.html')
+
+
+@login_required(login_url='/login-factory-manager/')
+def FactorySharedProducts(request):
+    return render(request, 'WIGApp/factory-shared-products.html')
+
+
+@login_required(login_url='/login-sourcing-user/')
+def FetchProductsFacorywise(request,pk):
+    return render(request, 'WIGApp/sourcing-factorywise-product-listing.html')
+
+
+
+class SignUpSubmitAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SignUpSubmitAPI: %s", str(data))
+
+            first_name = data['first_name']
+            email_id = data['email_id']
+            password = data['password']
+            phone_number = data['phone_number']
+            factory_uuid = data['factory_uuid']
+
+            link_generator_obj = LinkGenerator.objects.get(uuid=str(factory_uuid))
+
+            phone_number = PhoneNumber.objects.create(number = phone_number)
+            factory = link_generator_obj.factory
+            
+            factory_manager = FactoryManager.objects.create(username=email_id,
+                                                            first_name = first_name,
+                                                            email=email_id,
+                                                            password=password,
+                                                            phone_number=phone_number,
+                                                            factory = factory)
+
+            user = authenticate(username=email_id, password=password)
+            login(request,user)
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SignUpSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchFactoryNameFromUUIDAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchFactoryNameFromUUIDAPI: %s", str(data))
+
+            uuid_obj = data['factory_uuid']
+
+            link_generator_obj = LinkGenerator.objects.get(uuid=str(uuid_obj))
+
+            factory = link_generator_obj.factory
+            factory_manager_factory = FactoryManagerFactory.objects.get(base_factory=factory)
+
+            response["factory-name"] = factory_manager_factory.name
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchFactoryNameFromUUIDAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)   
+
+class LoginSubmitFactoryManagerAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("LoginSubmitFactoryManagerAPI: %s", str(data))
+
+            username = data['email_id']
+            password = data['password']
+
+            user = authenticate(username=username, password=password)
+
+            login(request, user)
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LoginSubmitFactoryManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchFactoryForSourcingUserAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchFactoryForSourcingUserAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            pk = int(data['pk'])
+            sourcing_user_factory = SourcingUserFactory.objects.get(pk=pk)
+
+            temp_dict = {}
+            temp_dict["name"] = sourcing_user_factory.name
+            temp_dict["address"] = sourcing_user_factory.base_factory.address
+            temp_dict["email_id"] = sourcing_user_factory.base_factory.factory_emailid
+
+            temp_dict["loading_port"] = sourcing_user_factory.base_factory.loading_port
+            temp_dict["location"] = sourcing_user_factory.base_factory.location
+
+            temp_dict["notes"] = sourcing_user_factory.other_info
+            temp_dict["contact_person_name"] = sourcing_user_factory.base_factory.contact_person_name
+            temp_dict["contact_person_mobile_number"] = sourcing_user_factory.base_factory.contact_person_mobile_no
+            temp_dict["contact_person_email_id"] = sourcing_user_factory.base_factory.contact_person_emailid
+            temp_dict["tag"] = sourcing_user_factory.base_factory.social_media_tag
+            temp_dict["tag_info"] = sourcing_user_factory.base_factory.social_media_tag_information
+            
+            if sourcing_user_factory.base_factory.bank_details:
+                temp_dict["bank_name"] = sourcing_user_factory.base_factory.bank_details.name
+                temp_dict["bank_address"] = sourcing_user_factory.base_factory.bank_details.address
+                temp_dict["bank_account_number"] = sourcing_user_factory.base_factory.bank_details.account_number
+                temp_dict["bank_ifsc_code"] = sourcing_user_factory.base_factory.bank_details.ifsc_code
+                temp_dict["bank_swift_code"] = sourcing_user_factory.base_factory.bank_details.swift_code
+                temp_dict["bank_branch_code"] = sourcing_user_factory.base_factory.bank_details.branch_code
+
+            temp_dict["pk"] = sourcing_user_factory.pk
+            phone_numbers = []
+            for phone_number in sourcing_user_factory.base_factory.phone_numbers.all():
+                phone_numbers.append(phone_number.number)
+            temp_dict["phone-numbers"] = phone_numbers
+            images_list = []
+            if sourcing_user_factory.images.all().count() > 0:
+                for image in sourcing_user_factory.images.all():
+                    temp_dict2 = {}
+                    temp_dict2["url"] = image.image.url
+                    temp_dict2["pk"] = image.pk
+                    images_list.append(temp_dict2)
+            temp_dict["images_list"] = images_list
+            print(temp_dict["images_list"])
+            operating_hours = []
+            for operating_hour in sourcing_user_factory.base_factory.operating_hours.all():
+                operating_hour_dict = {}
+                operating_hour_dict["day"] = operating_hour.day
+                operating_hour_dict["from_time"] = str(operating_hour.from_time)
+                operating_hour_dict["to_time"] = str(operating_hour.to_time)
+                operating_hours.append(operating_hour_dict)
+            temp_dict["operating-hours"] = operating_hours
+            if(sourcing_user_factory.base_factory.logo != None and sourcing_user_factory.logo != ""):
+                temp_dict["logo"] = sourcing_user_factory.base_factory.logo.image.url
+            else:
+                temp_dict["logo"] = Config.objects.all()[
+                    0].DEFAULT_IMAGE.url
+            # temp_dict["bank-details"] = sourcing_user_factory.base_factory.bank_details
+            temp_dict["total-products"] = sourcing_user_factory.products.all().count()
+
+ 
+            response["factory"] = temp_dict
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchFactoryForSourcingUserAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchFactoriesForSourcingUserAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchFactoriesForSourcingUserAPI: %s", str(data))
+            
+            sourcing_user = SourcingUser.objects.get(username=request.user.username)
+            
+            chip_data = json.loads(data['tags'])
+
+            factories = SourcingUserFactory.objects.filter(Q(created_by=sourcing_user) | 
+                Q(created_by__reports_to=sourcing_user))
+            if len(chip_data)>0:
+                for tag in chip_data:
+                    factories = factories.filter(name__icontains = tag)
+            factory_list = []
+            
+            for factory in factories:
+                temp_dict = {}
+                temp_dict["name"] = factory.name
+                temp_dict["address"] = factory.base_factory.address
+                temp_dict["pk"] = factory.pk
+                phone_numbers = []
+                for phone_number in factory.base_factory.phone_numbers.all():
+                    phone_numbers.append(phone_number.number)
+                temp_dict["phone-numbers"] = phone_numbers
+                images_list = []
+                
+                try:
+                    temp_dict["business_card"] = factory.base_factory.business_card.image.url
+                except Exception as e:
+                    print(e, factory.base_factory.pk)
+                    temp_dict["business_card"] = Config.objects.all()[
+                        0].DEFAULT_IMAGE.url
+
+                
+                operating_hours = []
+                for operating_hour in factory.base_factory.operating_hours.all():
+                    operating_hour_dict = {}
+                    operating_hour_dict["day"] = operating_hour.day
+                    operating_hour_dict["from_time"] = str(operating_hour.from_time)
+                    operating_hour_dict["to_time"] = str(operating_hour.to_time)
+                    operating_hours.append(operating_hour_dict)
+                temp_dict["operating-hours"] = operating_hours
+                # print(factory.logo)
+                if(factory.base_factory.logo != None and factory.base_factory.logo != ""):
+                    temp_dict["logo"] = factory.base_factory.logo.image.url
+                elif len(factory.images.all()) > 0:
+                    temp_dict["logo"] = factory.images.all()[0].image.url
+                else:
+                    temp_dict["logo"] = Config.objects.all()[
+                        0].DEFAULT_IMAGE.url
+              
+                temp_dict["total-products"] = factory.products.all().count()
+
+                temp_dict["average_delivery_days"] = factory.base_factory.average_delivery_days
+                temp_dict["average_turn_around_time"] = factory.base_factory.average_turn_around_time
+
+
+                factory_list.append(temp_dict)
+ 
+            response["factories"] = factory_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchFactoriesForSourcingUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+class FetchSourcingUserDetailsAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSourcingUserDetailsAPI: %s", str(data))
+            
+            sourcing_user = SourcingUser.objects.get(username=request.user.username)
+            temp_dict = {}
+
+            temp_dict["name"] = sourcing_user.username
+            temp_dict["pk"] = sourcing_user.pk
+            factory = factory_manager.factory
+            factory_manager_factory = FactoryManagerFactory.objects.get(base_factory=factory)
+
+            temp_dict = {}
+            temp_dict["name"] = factory_manager_factory.name
+            temp_dict["address"] = factory.address
+            temp_dict["pk"] = factory.pk
+            phone_numbers = []
+            for phone_number in factory.phone_numbers.all():
+                phone_numbers.append(phone_number.number)
+            temp_dict["phone-numbers"] = phone_numbers
+            images_list = []
+
+            for image in factory_manager_factory.images.all():
+                temp_dict2 = {}
+                temp_dict2["url"] = image.image.url
+                temp_dict2["pk"] = image.pk
+                images_list.append(temp_dict)
+            temp_dict["images_list"] = images_list
+            operating_hours = []
+            for operating_hour in factory.operating_hours.all():
+                operating_hour_dict = {}
+                operating_hour_dict["day"] = operating_hour.day
+                operating_hour_dict["from_time"] = str(operating_hour.from_time)
+                operating_hour_dict["to_time"] = str(operating_hour.to_time)
+                operating_hours.append(operating_hour_dict)
+            temp_dict["operating-hours"] = operating_hours
+            
+            if(factory.logo != None and factory.logo != ""):
+                temp_dict["logo"] = factory.logo.image.url
+            else:
+                temp_dict["logo"] = ""
+            temp_dict["bank-details"] = factory.bank_details
+            temp_dict["total-products"] = factory_manager_factory.products.all().count()
+
+ 
+            response["factory"] = json.dumps(temp_dict)
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSourcingUserDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+class FetchProductsFromFactoryAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        is_sourcing_user = False
+
+        try:
+            is_sourcing_user = SourcingUser.objects.filter(username=request.user.username).exists()
+        except Exception as e:
+            print("User is not sourcing user")
+
+        
+        try:
+            data = request.data
+            logger.info("FetchProductsFromFactoryAPI: %s", str(data))
+            products = []
+            chip_data = json.loads(data['tags'])
+            if is_sourcing_user:
+                logger.info("FetchProductsFromFactoryAPI: debugging %s", is_sourcing_user)
+                sourcing_user = SourcingUser.objects.get(username=request.user.username)
+
+                factories = SourcingUserFactory.objects.filter(Q(created_by=sourcing_user) | 
+                Q(created_by__reports_to=sourcing_user))
+                products_objs = SourcingUserProduct.objects.filter(Q(created_by=sourcing_user) |
+                                                              Q(created_by__reports_to=sourcing_user))
+                if len(chip_data) != 0:
+                    for tag in chip_data:
+                        search = factories.filter(name__icontains=tag)
+                        factories = search
+              
+                if len(chip_data) != 0:
+                    for tag in chip_data:
+                        search = products_objs.filter(name__icontains=tag)
+                        products_objs = search
+                products_objs = set(products_objs)
+               
+                try:                    
+                    for product_temp in products_objs:
+                        sourcing_user_product = product_temp
+                        temp_dict = {}
+
+                        temp_dict["factory_pk"] = SourcingUserFactory.objects.get(products = product_temp.base_product).pk
+                        temp_dict["factory_name"] =  SourcingUserFactory.objects.get(products = product_temp.base_product).name
+                        temp_dict["name"] = sourcing_user_product.name
+                        temp_dict["code"] = sourcing_user_product.code
+                        temp_dict["price"] = sourcing_user_product.price
+                        temp_dict["currency"] = sourcing_user_product.currency
+                        temp_dict["moq"] = product_temp.base_product.minimum_order_qty
+                        temp_dict["minimum-order-qty"] = product_temp.base_product.minimum_order_qty
+                        temp_dict["qty-metric"] = product_temp.base_product.qty_metric
+                        temp_dict["order-qty"] = product_temp.base_product.order_qty
+                        temp_dict["other-info"] = sourcing_user_product.other_info
+                        temp_dict["created-date"] = product_temp.base_product.created_date
+                        temp_dict["go-live-status"] = product_temp.base_product.go_live
+                        temp_dict["delivery_days"] = product_temp.base_product.delivery_days
+
+                        temp_dict["pk"] = product_temp.base_product.pk
+                        temp_dict["image-url"] = ""
+                        if sourcing_user_product.images.all().count()>0:
+                            temp_dict["image-url"] = sourcing_user_product.images.all()[
+                                0].image.url
+                        else :
+                            temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+
+                        products.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchProductsFromFactoryAPI: %s at %s",
+                        e, str(exc_tb.tb_lineno))
+
+            else:
+
+                factory_manager = FactoryManager.objects.get(username=request.user.username)
+                factory = factory_manager.factory
+                factory_manager_factory = FactoryManagerFactory.objects.get(base_factory=factory)
+                product_objs = factory_manager_factory.products.filter(is_pr_ready = True)
+                
+                for product in product_objs:
+
+                    factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+                    print(factory_manager_product.name, product.is_pr_ready)
+                    temp_dict = {}
+                    temp_dict["name"] = factory_manager_product.name
+                    temp_dict["code"] = factory_manager_product.code
+                    temp_dict["price"] = factory_manager_product.price
+                    temp_dict["currency"] = factory_manager_product.currency
+                    temp_dict["moq"] = product.minimum_order_qty
+                    temp_dict["minimum-order-qty"] = product.minimum_order_qty
+                    temp_dict["qty-metric"] = product.qty_metric
+                    temp_dict["order-qty"] = product.order_qty
+                    temp_dict["other-info"] = factory_manager_product.other_info
+                    temp_dict["created-date"] = product.created_date
+
+                    temp_dict["pk"] = product.pk
+                    temp_dict["image-url"] = ""
+                    if factory_manager_product.images.all().count()>0:
+                        temp_dict["image-url"] = factory_manager_product.images.all()[0].image.url
+                    else :
+                        temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+
+                    products.append(temp_dict)
+                
+
+            response["products"] = products
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchProductsFromFactoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchSharedProductsForFactoryAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSharedProductsForFactoryAPI: %s", str(data))
+            
+            factory_manager = FactoryManager.objects.get(username=request.user.username)
+            factory = factory_manager.factory
+            factory_manager_factory = FactoryManagerFactory.objects.get(base_factory=factory)
+            product_objs = factory_manager_factory.products.all()
+            products = []
+            for product in product_objs:
+                sourcing_user_product = SourcingUserProduct.objects.get(base_product=product)
+                factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+                temp_dict = {}
+                temp_dict["name"] = sourcing_user_product.name
+                temp_dict["code"] = sourcing_user_product.code
+                temp_dict["price"] = sourcing_user_product.price
+                temp_dict["currency"] = sourcing_user_product.currency
+                temp_dict["minimum-order-qty"] = product.minimum_order_qty
+                temp_dict["qty-metric"] = product.qty_metric
+                temp_dict["order-qty"] = product.order_qty
+                temp_dict["other-info"] = sourcing_user_product.other_info
+                temp_dict["created-date"] = product.created_date
+                temp_dict["export_carton_qty_l"] = product.export_carton_qty_l
+                temp_dict["export_carton_qty_r"] = product.export_carton_qty_r
+                temp_dict["export_carton_qty_h"] = product.export_carton_qty_h
+                temp_dict["gift_box_l"] = product.gift_box_l
+                temp_dict["gift_box_r"] = product.gift_box_r
+                temp_dict["gift_box_h"] = product.gift_box_h
+  
+                #Fields important for calculating the progress bar
+                try:
+                    temp_dict["factory_manager_product_name"] = factory_manager_product.name
+                    temp_dict["factory_manager_product_price"] = factory_manager_product.price
+                    temp_dict["factory_manager_product_currency"] = factory_manager_product.currency
+                except Exception as e:
+                    print(e)
+
+                temp_dict["spare_part_name"] = product.spare_part_name
+                temp_dict["spare_part_qty"] = product.spare_part_qty
+
+                temp_dict["pk"] = product.pk
+                temp_dict["image-url"] = ""
+                if sourcing_user_product.images.all().count()>0:
+                    temp_dict["image-url"] = sourcing_user_product.images.all()[0].image.url
+                else :
+                    temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+
+                products.append(temp_dict)
+
+            response["products"] = set(products)
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSharedProductsForFactoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class SaveSourcingProductDetailsAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+        print("SaveSourcingProductDetailsAPI")
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SaveSourcingProductDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product = Product.objects.get(pk=int(data["pk"]))
+
+            sourcing_user_product = SourcingUserProduct.objects.get(
+                base_product=product)
+
+            sourcing_user_product.name = data["product_name"]
+
+            if data["product_price"] != "":
+                sourcing_user_product.price = float(data["product_price"])
+
+            sourcing_user_product.code = data["product_code"]
+
+            if data["minimum_order_qty"] != "":
+                product.minimum_order_qty = int(data["minimum_order_qty"])
+
+            if data["order_qty"] != "":
+                product.order_qty = int(data["order_qty"])
+          
+            product.qty_metric = data["qty_metric"]
+            sourcing_user_product.currency = data["currency"]
+
+            if data["inner_box_qty"] != "":
+                product.inner_box_qty = int(data["inner_box_qty"])
+
+            if data["country"] != "":
+                country = Country.objects.get(pk=int(data["country"]))
+                product.country = country
+
+            if data["technical_specs"] != "":
+                technical_specs = TechnicalSpecs.objects.get(
+                    pk=int(data["technical_specs"]))
+                product.technical_specs = technical_specs
+
+            product.spare_part_name = data["spare_part_name"]
+
+            if data["spare_part_qty"] != "":
+                product.spare_part_qty = int(data["spare_part_qty"])
+
+            if data["category"] != "":
+                category = Category.objects.get(pk=int(data["category"]))
+                product.category = category
+
+            if data["delivery_days"] != "":
+                product.delivery_days = int(data["delivery_days"])
+
+            if data["material_specs"] != "":
+                material_specs = MaterialSpecs.objects.get(
+                    pk=int(data["material_specs"]))
+                product.material_specs = material_specs
+
+            if data["export_carton_qty_l"] != "":
+                product.export_carton_qty_l = float(
+                    data["export_carton_qty_l"])
+
+            if data["export_carton_qty_r"] != "":
+                product.export_carton_qty_r = float(
+                    data["export_carton_qty_r"])
+
+            if data["export_carton_qty_h"] != "":
+
+                product.export_carton_qty_h = float(
+                    data["export_carton_qty_h"])
+
+            if data["export_carton_crm_l"] != "":
+                product.export_carton_crm_l = float(
+                    data["export_carton_crm_l"])
+
+            if data["export_carton_crm_r"] != "":
+                product.export_carton_crm_r = float(
+                    data["export_carton_crm_r"])
+
+            if data["export_carton_crm_h"] != "":
+                product.export_carton_crm_h = float(
+                    data["export_carton_crm_h"])
+
+            if data["product_dimension_l"] != "":
+                product.product_dimension_l = float(
+                    data["product_dimension_l"])
+
+            if data["product_dimension_r"] != "":
+                product.product_dimension_r = float(
+                    data["product_dimension_r"])
+
+            if data["product_dimension_h"] != "":
+                product.product_dimension_h = float(
+                    data["product_dimension_h"])
+
+            if data["giftbox_l"] != "":
+                product.gift_box_l = float(data["giftbox_l"])
+
+            if data["giftbox_r"] != "":
+                product.gift_box_r = float(data["giftbox_r"])
+
+            if data["giftbox_h"] != "":
+                product.gift_box_h = float(data["giftbox_h"])
+
+            product.size = data["size"]
+            sourcing_user_product.weight = data["weight"]
+            sourcing_user_product.design = data["design"]
+            sourcing_user_product.pkg_inner = data["pkg_inner"]
+            sourcing_user_product.pkg_m_ctn = data["pkg_m_ctn"]
+            sourcing_user_product.p_ctn_cbm = data["p_ctn_cbm"]
+            sourcing_user_product.ttl_ctn = data["ttl_ctn"]
+            sourcing_user_product.ttl_cbm = data["ttl_cbm"]
+            sourcing_user_product.ship_lot_number = data["ship_lot_number"]
+
+            product.save()
+            sourcing_user_product.save()
+
+            if (product.minimum_order_qty != None and product.minimum_order_qty != '' and
+                product.order_qty != None and product.order_qty != '' and
+                product.spare_part_name != None and product.spare_part_name != '' and
+                product.spare_part_qty != None and product.spare_part_qty != '' and
+                product.export_carton_qty_l != None and product.export_carton_qty_l != '' and
+                product.export_carton_qty_r != None and product.export_carton_qty_r != '' and
+                product.export_carton_qty_h != None and product.export_carton_qty_h != '' and
+
+                product.gift_box_l != None and product.gift_box_l != '' and
+                product.gift_box_r != None and product.gift_box_r != '' and
+                product.gift_box_h != None and product.gift_box_h != '' and
+
+
+                sourcing_user_product.name != None and sourcing_user_product.name != '' and
+                sourcing_user_product.price != None and sourcing_user_product.price != '' and
+                sourcing_user_product.currency != None and sourcing_user_product.currency != ''):
+
+                product.is_pr_ready = True
+                print("The product is pr ready")
+
+            else:
+                product.is_pr_ready = False
+                product.go_live = False
+                print("pr ready is setting False")
+
+            product.save()
+            if product.is_pr_ready == False:
+                product.go_live = False
+                print("go libve is set flase")
+
+            product.save()
+
+            response["status"] = 200
+            response["flag"] = product.is_pr_ready
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveFactoryProductDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        print("coming from here")
+        return Response(data=response)
+
+
+class SaveSourcingFactoryDetailsAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+        print("SaveSourcingProductDetailsAPI")
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info(
+                "class SaveSourcingFactoryDetailsAPI(APIView):: % s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            sourcing_user_factory = SourcingUserFactory.objects.get(pk = int(data["pk"]))
+            factory = sourcing_user_factory.base_factory
+
+            sourcing_user_factory.name = data["factory_name"]
+
+            if data["factory_address"] != '':
+                factory.address = data["factory_address"]
+            
+            if data["factory_emailid"] != '':
+                factory.factory_emailid = data["factory_emailid"]
+
+            if data["loading_port"] != '':
+                factory.loading_port = data["loading_port"]
+
+            if data["location"] != '':
+                factory.location = data["location"]
+
+            if data["notes"] != '':
+                factory.notes = data["notes"]
+
+            if data["contact_person_name"] != '':
+                factory.contact_person_name = data["contact_person_name"]
+
+            if data["contact_person_mobile_number"] != '':
+                factory.contact_person_mobile_no = data["contact_person_mobile_number"]
+
+            if data["contact_person_emailid"] != '':
+                factory.contact_person_emailid = data["contact_person_emailid"]
+
+            if data["tag"] != '':
+                factory.social_media_tag = data["tag"]
+
+            if data["tag_info"] != '':
+                factory.social_media_tag_information = data["tag_info"]
+
+            sourcing_user_factory.other_info = data["notes"]
+            sourcing_user_factory.save()
+           
+            if factory.bank_details == None:
+
+                temp_bank , created = Bank.objects.get_or_create(ifsc_code=data["bank_ifsc_code"])
+                if created == False:
+                    temp_bank.name = data["bank_name"]
+                    temp_bank.address= data["bank_address"]
+                    temp_bank.account_number=data["bank_account_number"]
+                    temp_bank.swift_code=data["bank_swift_code"]
+                    temp_bank.branch_code=data["bank_branch_code"] 
+                    temp_bank.save()
+
+                factory.bank_details = temp_bank
+            else:
+                temp_bank = factory.bank_details
+                if data["bank_name"] != '':
+                    temp_bank.name = data["bank_name"]
+
+
+                if data["bank_address"] != '':
+                    temp_bank.address = data["bank_address"]
+
+                if data["bank_account_number"] != '':
+                    temp_bank.account_number = data["bank_account_number"]
+
+                if data["bank_ifsc_code"] != '':
+                    temp_bank.ifsc_code = data["bank_ifsc_code"]
+
+                if data["bank_swift_code"] != '':
+                    temp_bank.swift_code = data["bank_swift_code"]
+
+                if data["bank_branch_code"] != '':
+                    temp_bank.branch_code = data["bank_branch_code"]
+                temp_bank.save()
+            phone_numbers = []
+            if len(data["phone_numbers"]) > 0:
+                phone_numbers = json.loads(data["phone_numbers"])
+            phone_numbers_old = factory.phone_numbers.all()
+            for phone in phone_numbers_old:
+                phone.delete()
+
+            for phone_number in str(phone_numbers).split(", "):
+                phone_number_obj = PhoneNumber.objects.create(
+                    number=phone_number)
+                factory.phone_numbers.add(phone_number_obj)
+                factory.save()
+
+            factory.save()
+            sourcing_user_factory.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveSourcingFactoryDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        print("coming from here")
+        return Response(data=response)
+
+
+class FetchSourcingProductDetailsAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+        print("FetchSourcingProductDetailsAPI")
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSourcingProductDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product = Product.objects.get(pk=int(data["pk"]))
+            sourcing_user_product = SourcingUserProduct.objects.get(
+                base_product=product)
+
+            response["product-name"] = sourcing_user_product.name
+            response["price"] = sourcing_user_product.price
+            response["product-code"] = sourcing_user_product.code
+            response["minimum-order-qty"] = product.minimum_order_qty
+            response["order-qty"] = product.order_qty
+            response["other-info"] = sourcing_user_product.other_info
+            response["qty-metric"] = product.qty_metric
+            response["currency"] = sourcing_user_product.currency
+            response["inner-box-qty"] = product.inner_box_qty
+            if(product.country != None):
+                response["country"] = product.country.pk
+            else:
+                response["country"] = ""
+            if(product.category != None):
+                response["category"] = product.category.pk
+            else:
+                response["category"] = ""
+            if(product.technical_specs != None):
+                response["technical-specs"] = product.technical_specs.pk
+            else:
+                response["technical-specs"] = ""
+            if(product.material_specs != None):
+                response["material-specs"] = product.material_specs.pk
+            else:
+                response["material-specs"] = ""
+            response["spare-part-name"] = product.spare_part_name
+            response["spare-part-qty"] = product.spare_part_qty
+            response["delivery-days"] = product.delivery_days
+            response["export-carton-qty-l"] = product.export_carton_qty_l
+            response["export-carton-qty-r"] = product.export_carton_qty_r
+            response["export-carton-qty-h"] = product.export_carton_qty_h
+            response["export-carton-crm-l"] = product.export_carton_crm_l
+            response["export-carton-crm-r"] = product.export_carton_crm_r
+            response["export-carton-crm-h"] = product.export_carton_crm_h
+            response["product-dimension-l"] = product.product_dimension_l
+            response["product-dimension-r"] = product.product_dimension_r
+            response["product-dimension-h"] = product.product_dimension_h
+            response["giftbox-l"] = product.gift_box_l
+            response["giftbox-r"] = product.gift_box_r
+            response["giftbox-h"] = product.gift_box_h
+            response["go-live-status"] = product.go_live
+            
+            response["size"] = product.size
+
+            response["weight"] = sourcing_user_product.weight
+            response["design"] = sourcing_user_product.design
+            response["pkg-inner"] = sourcing_user_product.pkg_inner
+            response["pkg-m-ctn"] = sourcing_user_product.pkg_m_ctn
+            response["p-ctn-cbm"] = sourcing_user_product.p_ctn_cbm
+            response["ttl-ctn"] = sourcing_user_product.ttl_ctn
+            response["ttl-cbm"] = sourcing_user_product.ttl_cbm
+            response["ship-lot-number"] = sourcing_user_product.ship_lot_number
+
+            response["created-date"] = ""
+            if product.created_date!=None:
+                response["created-date"] = str(product.created_date.strftime("%Y-%m-%d"))
+
+            images = sourcing_user_product.images.all()
+            images_list = []
+
+            if(len(images) == 0):
+                temp_dict = {}
+                temp_dict["url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                temp_dict["pk"] = None
+                images_list.append(temp_dict)
+
+            for image in images:
+                temp_dict = {}
+                temp_dict["url"] = image.image.url
+                temp_dict["pk"] = image.pk
+                images_list.append(temp_dict)
+
+            response["images_list"] = images_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSourcingProductDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SaveFactoryProductDetailsAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SaveFactoryProductDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product = Product.objects.get(pk=int(data["pk"]))
+            
+            factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+
+            factory_manager_product.name = data["product_name"]
+            
+            if data["product_price"]!="":
+                factory_manager_product.price = float(data["product_price"])
+            
+            factory_manager_product.code = data["product_code"]
+            
+            if data["minimum_order_qty"]!="":
+                product.minimum_order_qty = int(data["minimum_order_qty"])
+            
+            if data["order_qty"]!="":
+                product.order_qty = int(data["order_qty"])
+            
+            product.qty_metric = data["qty_metric"]
+            factory_manager_product.currency = data["currency"]
+            
+            if data["inner_box_qty"]!="":
+                product.inner_box_qty = int(data["inner_box_qty"])
+            
+            if data["country"]!="":
+                country = Country.objects.get(pk=int(data["country"]))
+                product.country = country
+            
+            if data["technical_specs"]!="":
+                technical_specs = TechnicalSpecs.objects.get(pk=int(data["technical_specs"]))
+                product.technical_specs = technical_specs
+
+            product.spare_part_name = data["spare_part_name"]
+            
+            if data["spare_part_qty"]!="":
+                product.spare_part_qty = int(data["spare_part_qty"])
+
+            if data["category"]!="":
+                category = Category.objects.get(pk=int(data["category"]))            
+                product.category = category
+
+            if data["delivery_days"]!="":
+                product.delivery_days = int(data["delivery_days"])
+
+            if data["material_specs"]!="":
+                material_specs = MaterialSpecs.objects.get(pk=int(data["material_specs"]))
+                product.material_specs = material_specs
+
+            if data["export_carton_qty_l"]!="":
+                product.export_carton_qty_l = float(data["export_carton_qty_l"])
+
+            if data["export_carton_qty_r"]!="":
+                product.export_carton_qty_r = float(data["export_carton_qty_r"])
+
+            if data["export_carton_qty_h"]!="":
+
+                product.export_carton_qty_h = float(data["export_carton_qty_h"])
+
+            if data["export_carton_crm_l"]!="":
+                product.export_carton_crm_l = float(data["export_carton_crm_l"])
+
+            if data["export_carton_crm_r"]!="":
+                product.export_carton_crm_r = float(data["export_carton_crm_r"])
+
+            if data["export_carton_crm_h"]!="":
+                product.export_carton_crm_h = float(data["export_carton_crm_h"])
+
+            if data["product_dimension_l"]!="":
+                product.product_dimension_l = float(data["product_dimension_l"])
+
+            if data["product_dimension_r"]!="":
+                product.product_dimension_r = float(data["product_dimension_r"])
+
+            if data["product_dimension_h"]!="":
+                product.product_dimension_h = float(data["product_dimension_h"])
+
+            if data["giftbox_l"]!="":
+                product.gift_box_l = float(data["giftbox_l"])
+
+            if data["giftbox_r"]!="":
+                product.gift_box_r = float(data["giftbox_r"])
+
+            if data["giftbox_h"]!="":
+                product.gift_box_h = float(data["giftbox_h"])
+
+            product.save()
+            factory_manager_product.save()
+
+            if (product.minimum_order_qty != None and product.minimum_order_qty != '' and 
+                product.order_qty != None and product.order_qty != '' and 
+                product.spare_part_name != None and product.spare_part_name != '' and 
+                product.spare_part_qty != None and product.spare_part_qty != '' and
+                product.export_carton_qty_l != None and product.export_carton_qty_l != '' and
+                product.export_carton_qty_r != None and product.export_carton_qty_r != '' and
+                product.export_carton_qty_h != None and product.export_carton_qty_h != '' and
+
+                product.gift_box_l != None and product.gift_box_l != '' and
+                product.gift_box_r != None and product.gift_box_r != '' and
+                product.gift_box_h != None and product.gift_box_h != '' and
+
+
+                factory_manager_product.name != None and factory_manager_product.name != '' and 
+                factory_manager_product.price != None and factory_manager_product.price != '' and
+                factory_manager_product.currency != None and factory_manager_product.currency != ''):
+                
+                product.is_pr_ready = True
+
+            else:
+                product.is_pr_ready = False
+                product.go_live = False
+                print("pr ready is setting False")
+
+            product.save()
+            if product.is_pr_ready == False:
+                product.go_live = False
+            
+            product.save()
+
+            response["status"] = 200
+            response["flag"] = product.is_pr_ready
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveFactoryProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+    
+        return Response(data=response)
+
+
+class FetchFactoryProductDetailsAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchFactoryProductDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product = Product.objects.get(pk=int(data["pk"]))
+            factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+
+            response["product-name"] = factory_manager_product.name 
+            response["price"] = factory_manager_product.price 
+            response["product-code"] = factory_manager_product.code 
+            response["minimum-order-qty"] = product.minimum_order_qty 
+            response["order-qty"] = product.order_qty  
+            response["other-info"] = factory_manager_product.other_info
+            response["qty-metric"] = product.qty_metric 
+            response["currency"] = factory_manager_product.currency 
+            response["inner-box-qty"] = product.inner_box_qty 
+            if(product.country != None):
+                response["country"] = product.country.pk
+            else:
+                response["country"] = ""
+            if(product.category != None):
+                response["category"] = product.category.pk
+            else:
+                response["category"] = ""
+            if(product.technical_specs != None):
+                response["technical-specs"] = product.technical_specs.pk
+            else:
+                response["technical-specs"] = ""
+            if(product.material_specs != None):
+                response["material-specs"] = product.material_specs.pk
+            else:
+                response["material-specs"] = ""
+            response["spare-part-name"] = product.spare_part_name 
+            response["spare-part-qty"] = product.spare_part_qty
+            response["delivery-days"] = product.delivery_days
+            response["export-carton-qty-l"] = product.export_carton_qty_l 
+            response["export-carton-qty-r"] = product.export_carton_qty_r               
+            response["export-carton-qty-h"] = product.export_carton_qty_h 
+            response["export-carton-crm-l"] = product.export_carton_crm_l 
+            response["export-carton-crm-r"] = product.export_carton_crm_r
+            response["export-carton-crm-h"] = product.export_carton_crm_h 
+            response["product-dimension-l"] = product.product_dimension_l 
+            response["product-dimension-r"] = product.product_dimension_r
+            response["product-dimension-h"] = product.product_dimension_h
+            response["giftbox-l"] = product.gift_box_l 
+            response["giftbox-r"] = product.gift_box_r
+            response["giftbox-h"] = product.gift_box_h
+            response["go-live-status"] = product.go_live
+
+            response["created-date"] = ''
+            if product.created_date!=None:
+                response["created-date"] = str(product.created_date.strftime("%Y-%m-%d"))
+
+
+            images = factory_manager_product.images.all()
+            images_list = []
+
+            if(len(images)==0):
+                temp_dict = {}
+                temp_dict["url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                temp_dict["pk"] = None
+                images_list.append(temp_dict)
+
+            for image in images:
+                temp_dict = {}
+                temp_dict["url"] = image.image.url
+                temp_dict["pk"] = image.pk
+                images_list.append(temp_dict)
+
+            response["images_list"] = images_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchFactoryProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchFactorywiseProductListingAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        print("Fetching factorywise products..")
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchFactorywiseProductListingAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            response_products = []
+            sourcing_user_factory = SourcingUserFactory.objects.get(pk=int(data["pk"]))
+            
+            chip_data = json.loads(data['tags'])
+
+            products_list = []
+            products = sourcing_user_factory.products.all()
+            for product in products:
+                if len(chip_data)>0:
+                    for tag in chip_data:
+                        sourcing_user_products = SourcingUserProduct.objects.filter(
+                    name__icontains=tag,base_product=product)
+                        for sourcing_user_product in sourcing_user_products:
+                            products_list.append(sourcing_user_product)
+                else:
+                    products_list.append(SourcingUserProduct.objects.get(base_product = product))
+            print(products_list)
+            products = products_list
+            response["factory_name"] = sourcing_user_factory.name
+            response["factory_address"] = sourcing_user_factory.base_factory.address
+            response["factory_image"] = Config.objects.all()[
+                0].DEFAULT_IMAGE.url
+            response["factory_background_poster"] = Config.objects.all()[
+                0].DEFAULT_IMAGE.url
+            if sourcing_user_factory.images.all().count() > 0:
+                response["factory_image"] = sourcing_user_factory.images.all()[
+                    0].image.url
+            if sourcing_user_factory.background_poster:
+                response["factory_background_poster"] = sourcing_user_factory.background_poster.image.url
+            try:
+                for product in products:
+                    sourcing_user_product = product
+                    temp_dict = {}
+                    temp_dict["pk"] = product.base_product.pk
+                    temp_dict["name"] = sourcing_user_product.name
+                    
+                    temp_dict["moq"] = product.base_product.minimum_order_qty 
+                    temp_dict["delivery_days"] = product.base_product.delivery_days
+                    temp_dict["price"] = sourcing_user_product.price
+                    temp_dict["go-live-status"] = product.base_product.go_live
+                    temp_dict["factory_name"] = sourcing_user_factory.name
+
+
+                    if sourcing_user_product.images.all().count()>0:
+                        temp_dict["image-url"] = sourcing_user_product.images.all()[0].image.url
+                    else :
+                        temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+
+
+                    response_products.append(temp_dict)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchFactorywiseProductListingAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            print(response_products)
+            response["products"] = response_products
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchFactorywiseProductListingAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SaveFactoryManagerFactoryDetailsAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SaveFactoryManagerFactoryDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            factory = Factory.objects.get(pk=int(data["pk"]))
+            factory.name = data["name"]
+            factory.address = data["address"]
+            factory.factory_emailid = data["factory_emailid"]
+            factory.contact_person_name = data["contact_person_name"]
+            factory.contact_person_mobile_no = data["contact_person_mobile_no"]
+            factory.contact_person_emailid = data["contact_person_emailid"]
+            factory.social_media_tag = data["social_media_tag"]
+            factory.social_media_tag_information = data["social_media_tag_information"]
+            factory.loading_port = data["loading_port"]
+            factory.location = data["location"]
+            factory.other_info = data["other_info"]
+            factory.save()
+            
+            phone_numbers = json.loads(data["phone_numbers"])
+            phone_numbers_old = factory.phone_numbers.all()
+            for phone in phone_numbers_old:
+                phone.delete()
+
+            for phone_number in phone_numbers:
+                phone_number_obj = PhoneNumber.objects.create(number=phone_number)
+                factory.phone_numbers.add(phone_number_obj)
+                factory.save()
+
+            response["name"] = sourcing_user_factory.name
+            response["address"] = factory.address
+            response["phone_numbers"] = phone_numbers
+            response["factory_emailid"] = factory.factory_emailid
+            response["contact_person_name"] = factory.contact_person_name 
+            response["contact_person_mobile_no"] = factory.contact_person_mobile_no
+            response["contact_person_emailid"] = factory.contact_person_emailid 
+            response["social_media_tag"] = factory.social_media_tag
+            response["social_media_tag_information"] = factory.social_media_tag_information
+            response["loading_port"] = factory.loading_port 
+            response["location"] = factory.location
+            response["other_info"] = factory.other_info  
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveFactoryDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class UploadFactoryProductImageAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UploadFactoryProductImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product = Product.objects.get(pk=int(data["pk"]))
+            factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+
+            images_count = int(data["images_count"])
+
+            images_list = []
+            for i in range(images_count):
+                im_obj = Image.objects.create(image=data["product-image-"+str(i)])
+                factory_manager_product.images.add(im_obj)
+
+            factory_manager_product.save()
+
+            images = factory_manager_product.images.all()
+            
+            images_list = []
+            for image in images:
+                temp_dict = {}
+                temp_dict["url"] = image.image.url
+                temp_dict["pk"] = image.pk
+                images_list.append(temp_dict)
+
+            response["images_list"] = images_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFactoryProductImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadFactoryImageAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UploadFactoryImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            sourcing_user_factory = SourcingUserFactory.objects.get(pk = int(data["pk"]))
+            images_count = int(data["images_count"])
+
+            images_list = []
+            for i in range(images_count):
+                im_obj = Image.objects.create(
+                    image=data["product-image-"+str(i)])
+                sourcing_user_factory.images.add(im_obj)
+
+            sourcing_user_factory.save()
+
+            images = sourcing_user_factory.images.all()
+
+            images_list = []
+            for image in images:
+                temp_dict = {}
+                temp_dict["url"] = image.image.url
+                temp_dict["pk"] = image.pk
+                images_list.append(temp_dict)
+
+            response["images_list"] = images_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFactoryImageAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadSourcingProductProductImageAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UploadSourcingProductProductImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product = Product.objects.get(pk=int(data["pk"]))
+            sourcing_user_product = SourcingUserProduct.objects.get(
+                base_product=product)
+
+            images_count = int(data["images_count"])
+
+            images_list = []
+            for i in range(images_count):
+                im_obj = Image.objects.create(
+                    image=data["product-image-"+str(i)])
+                sourcing_user_product.images.add(im_obj)
+
+            sourcing_user_product.save()
+
+            images = sourcing_user_product.images.all()
+
+            images_list = []
+            for image in images:
+                temp_dict = {}
+                temp_dict["url"] = image.image.url
+                temp_dict["pk"] = image.pk
+                images_list.append(temp_dict)
+
+            response["images_list"] = images_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFactoryProductImageAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class ChangeGoLiveStatusAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['error_msg'] = ''
+        try:
+            data = request.data
+            logger.info("ChangeGoLiveStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product = Product.objects.get(pk=int(data["pk"]))
+            temp = product.go_live
+            if temp == False and product.is_pr_ready == True:
+                product.go_live = True
+            else:
+                product.go_live = False
+                response['error_msg'] = 'not_pr_ready'
+            product.save()
+            response["go-live-status"] = product.go_live
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ChangeGoLiveStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DownloadPIAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['error_msg'] = 'Either no products are PR ready or the factory does not exist.'
+        try:
+
+            data = request.data
+            logger.info("DownloadPIAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            pk = int(data['pk'])
+
+            selected_products_dict = {}
+            total_quantity = 0
+            selected_products = data['selected_products']
+            selected_products = json.loads(selected_products)
+            for k in selected_products:
+                selected_products_dict[k["pk"]] = k["quantity"]
+                total_quantity += int(k["quantity"])
+
+            temp_proforma_invoice=''
+            
+            type_of_payment = data.get("type_of_payment","")
+            percentage_of_payment = data.get("percentage_of_payment","")
+            delivery_days = data.get("delivery_days","")
+            delivery_terms = data.get("delivery_terms", "")
+            inco_terms= data.get("inco_terms", "")
+            ttl_cntrs = data.get("ttl_cntrs", "")
+            important_points = data.get("important_points", '')
+            special_instructions = data.get("special_instructions",'')
+
+            delivery_terms = str(delivery_days) +  " DAYS " + str(delivery_terms)
+            selected_prod_obj = []
+            
+            for k in selected_products:
+                temp_obj = SourcingUserProduct.objects.get(pk = int(k["pk"]))
+                selected_prod_obj.append(temp_obj)
+            
+            if percentage_of_payment:
+                pass
+            else:
+                percentage_of_payment = ''
+            temp_proforma_invoice = ProformaInvoice.objects.create(
+                payment_terms=type_of_payment, 
+                advance=percentage_of_payment,
+                inco_terms=inco_terms,
+                ttl_cntrs=ttl_cntrs,
+                delivery_terms=delivery_terms
+            )
+
+            temp_proforma_invoice.products.add(*selected_prod_obj)
+            temp_proforma_invoice.save()
+
+            try:
+                sourcing_user_factory = SourcingUserFactory.objects.get(pk = pk)
+                base_factory = sourcing_user_factory.base_factory
+                temp_proforma_invoice.factory = sourcing_user_factory
+                temp_proforma_invoice.save()
+                
+                if sourcing_user_factory.products > 0:
+
+                    base_factory = sourcing_user_factory.base_factory
+
+                    json_parameter = {}
+                    json_parameter["factory_name"] = str(sourcing_user_factory.name)
+                    json_parameter["factory_address"] = str(base_factory.address)
+                    json_parameter["loading_port"] = str(base_factory.loading_port)
+                    try:
+                        json_parameter["bank_name"] = str(base_factory.bank_details.name)
+                        json_parameter["bank_address"] = str(base_factory.bank_details.address)
+                        json_parameter["bank_account_number"] = str(base_factory.bank_details.account_number)
+                        json_parameter["bank_ifsc_code"] = str(base_factory.bank_details.ifsc_code)
+                        json_parameter["bank_swift_code"] = str(base_factory.bank_details.swift_code)
+                        json_parameter["bank_branch_code"] = str(base_factory.bank_details.branch_code)
+                    except Exception as e:
+                        json_parameter["bank_name"] = ""
+                        json_parameter["bank_address"] = ""
+                        json_parameter["bank_account_number"] = ""
+                        json_parameter["bank_ifsc_code"] = ""
+                        json_parameter["bank_swift_code"] = ""
+                        json_parameter["bank_branch_code"] = ""
+                            
+                    json_parameter["payment_terms"] = str(temp_proforma_invoice.payment_terms) 
+                    json_parameter["advance_payment"] = str(temp_proforma_invoice.advance)
+                    json_parameter["inco_terms"] = str(temp_proforma_invoice.inco_terms)
+                    json_parameter["delivery_terms"] = str(temp_proforma_invoice.delivery_terms)
+                    json_parameter["special_instructions"] = str(special_instructions)
+                    json_parameter["important_points"] = str(important_points)
+
+                    selected_products_pk = []
+                    for k in selected_products:
+                        selected_products_pk.append(k["pk"])
+
+                    sourcing_user_products = sourcing_user_factory.products.filter(pk__in=selected_products_pk)
+
+                    product_info = []
+                    logger.info("selected_products_dict %s", str(selected_products_dict))
+                    for sourcing_user_product in sourcing_user_products:
+                        
+                        product = SourcingUserProduct.objects.get(base_product=sourcing_user_product)
+                        base_product = sourcing_user_product
+
+                        logger.info("product_pk %s", str(product.pk))
+                        logger.info("base_product_pk %s", str(base_product.pk))
+
+                        temp_dict = {} 
+                        temp_dict["image_url"] = ""
+                        if product.images.count()>0:
+                            temp_dict["image_url"] = "file:///"+BASE_DIR + product.images.all()[0].image.url
+                        temp_dict["code"] = str(product.code)
+                        temp_dict["brand_category"] = str(base_product.brand_category)
+                        temp_dict["other_info"] = str(product.other_info)
+                        temp_dict["size"] = str(base_product.size)
+                        temp_dict["weight"] = str(product.weight)
+                        temp_dict["design"] = str(product.design)
+                        temp_dict["colors"] = " ".join([i.name for i in base_product.color_group.all()])
+                        temp_dict["pkg_inner"] = str(product.pkg_inner)
+                        temp_dict["pkg_m_ctn"] = str(product.pkg_m_ctn)
+                        temp_dict["p_ctn_cbm"] = str(product.p_ctn_cbm)
+                        temp_dict["ttl_ctn"] = str(product.ttl_ctn)
+                        temp_dict["ttl_cbm"] = str(product.ttl_cbm)
+                        temp_dict["ship_lot_number"] = str(product.ship_lot_number)
+                        temp_dict["order_quantity"] = selected_products_dict[str(product.pk)]
+                        temp_dict["qty_metric"] = str(base_product.qty_metric)
+                        temp_dict["price"] = str(product.price)
+                        product_info.append(temp_dict)
+
+                    json_parameter["product_info"] = product_info
+
+                    filename = sourcing_user_factory.name.replace(" ", "-").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
+                    filepath = generate_pi(json_parameter, filename)
+                    logger.info("filepath returned %s", str(filepath))
+                    temp_proforma_invoice.proforma_pdf = "pdf/"+filename
+                    temp_proforma_invoice.save()
+
+                    response['pdf_file'] = filepath
+                    response['status'] = 200
+                    response['error_msg'] = ''
+
+            except Exception  as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("DownloadPIAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                response["error_msg"] = "Either no products are PR ready or the factory does not exist."
+                print(e)
+                print("error issss")
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DownloadPIAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DownloadPIBulkAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['error_msg'] = 'Either no products are PR ready or the factory does not exist.'
+        try:
+
+            data = request.data
+            logger.info("DownloadPIAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            pk_draft_pi = int(data['pk_draft_pi'])
+
+            selected_products = []
+            selected_products_dict = {}
+            total_quantity = 0
+            selected_products = data['selected_products']
+            selected_products = json.loads(selected_products)
+            for k in selected_products:
+                selected_products_dict[k["pk"]] = k["quantity"]
+                total_quantity += int(k["quantity"])
+
+            type_of_payment = data["type_of_payment"]
+            percentage_of_payment = data["percentage_of_payment"]
+            delivery_days = data["delivery_days"]
+            delivery_terms = data["delivery_terms"]
+            inco_terms= data["inco_terms"]
+            ttl_cntrs = data["ttl_cntrs"]
+            important_points = data.get("important_points", '')
+            special_instructions = data.get("special_instructions",'')
+
+            delivery_terms = str(delivery_days) +  " DAYS " + str(delivery_terms)
+            selected_prod_obj = []
+
+            draft_pi_object = DraftProformaInvoice.objects.get(pk = pk_draft_pi)
+
+            temp_lines = str(draft_pi_object.lines)
+            temp_lines = temp_lines.replace("L", "")
+
+            draft_pi_lines = json.loads(str(temp_lines))
+            
+            draft_pi_lines_list = []
+            for draft_pi_line in draft_pi_lines:
+                draft_pi_line_obj = DraftProformaInvoiceLine.objects.get(pk = draft_pi_line)
+                draft_pi_lines_list.append(draft_pi_line_obj)
+
+            draft_pi_lines_dict = defaultdict(list)
+            for draft_pi_line in draft_pi_lines_list:
+                if draft_pi_line.sourcing_user_factory.pk in draft_pi_lines_dict.keys():
+                    draft_pi_lines_dict[draft_pi_line.sourcing_user_factory.pk].append(draft_pi_line)
+                else:
+                    draft_pi_lines_dict[draft_pi_line.sourcing_user_factory.pk] = [draft_pi_line]
+
+            
+            if percentage_of_payment:
+                pass
+            else:
+                percentage_of_payment = ''
+            
+            temp_proforma_invoice_ids = []
+            for factory_pk in draft_pi_lines_dict:
+                temp_proforma_invoice = ''
+                temp_selected_products = []
+                for x in draft_pi_lines_dict[factory_pk]:
+                    temp_selected_products.append(x.sourcing_user_product.pk)
+                for k in temp_selected_products:
+                    temp_obj = SourcingUserProduct.objects.get(pk = int(k))
+                    selected_prod_obj.append(temp_obj)
+            
+                temp_proforma_invoice = ProformaInvoice.objects.create(
+                    payment_terms=type_of_payment, 
+                    advance=percentage_of_payment,
+                    inco_terms=inco_terms,
+                    ttl_cntrs=ttl_cntrs,
+                    delivery_terms=delivery_terms
+                )
+                temp_proforma_invoice.save()
+                temp_proforma_invoice.products.add(*selected_prod_obj)
+           
+
+                try:
+                    sourcing_user_factory = SourcingUserFactory.objects.get(pk=factory_pk)
+                    base_factory = sourcing_user_factory.base_factory
+                    temp_proforma_invoice.factory = sourcing_user_factory
+                    temp_proforma_invoice.save()
+                    
+                    factory_manager_factory = None
+                    
+                    if sourcing_user_factory.products > 0:
+
+                        base_factory = sourcing_user_factory.base_factory
+
+                        json_parameter = {}
+                        json_parameter["factory_name"] = str(sourcing_user_factory.name)
+                        json_parameter["factory_address"] = str(base_factory.address)
+                        json_parameter["loading_port"] = str(base_factory.loading_port)
+                        try:
+                            json_parameter["bank_name"] = str(base_factory.bank_details.name)
+                            json_parameter["bank_address"] = str(base_factory.bank_details.address)
+                            json_parameter["bank_account_number"] = str(base_factory.bank_details.account_number)
+                            json_parameter["bank_ifsc_code"] = str(base_factory.bank_details.ifsc_code)
+                            json_parameter["bank_swift_code"] = str(base_factory.bank_details.swift_code)
+                            json_parameter["bank_branch_code"] = str(base_factory.bank_details.branch_code)
+                        except Exception as e:
+                            json_parameter["bank_name"] = ""
+                            json_parameter["bank_address"] = ""
+                            json_parameter["bank_account_number"] = ""
+                            json_parameter["bank_ifsc_code"] = ""
+                            json_parameter["bank_swift_code"] = ""
+                            json_parameter["bank_branch_code"] = ""
+
+                        json_parameter["payment_terms"] = str(temp_proforma_invoice.payment_terms) 
+                        json_parameter["advance_payment"] = str(temp_proforma_invoice.advance)
+                        json_parameter["inco_terms"] = str(temp_proforma_invoice.inco_terms)
+                        json_parameter["delivery_terms"] = str(temp_proforma_invoice.delivery_terms)
+                        json_parameter["special_instructions"] = str(special_instructions)
+                        json_parameter["important_points"] = str(important_points)
+
+                        selected_products_pk = []
+                        for k in selected_products:
+                            selected_products_pk.append(k["pk"])
+
+                        sourcing_user_products = sourcing_user_factory.products.filter(pk__in=selected_products_pk)
+
+                        product_info = []
+                        for sourcing_user_product in sourcing_user_products:
+                            
+                            product = SourcingUserProduct.objects.get(base_product=sourcing_user_product)
+                            base_product = sourcing_user_product
+                            temp_dict = {} 
+                            temp_dict["image_url"] = ""
+                            if product.images.count()>0:
+                                temp_dict["image_url"] = "file:///"+BASE_DIR + product.images.all()[0].image.url
+                            temp_dict["code"] = str(product.code)
+                            temp_dict["brand_category"] = str(base_product.brand_category)
+                            temp_dict["other_info"] = str(product.other_info)
+                            temp_dict["size"] = str(base_product.size)
+                            temp_dict["weight"] = str(product.weight)
+                            temp_dict["design"] = str(product.design)
+                            temp_dict["colors"] = " ".join([i.name for i in base_product.color_group.all()])
+                            temp_dict["pkg_inner"] = str(product.pkg_inner)
+                            temp_dict["pkg_m_ctn"] = str(product.pkg_m_ctn)
+                            temp_dict["p_ctn_cbm"] = str(product.p_ctn_cbm)
+                            temp_dict["ttl_ctn"] = str(product.ttl_ctn)
+                            temp_dict["ttl_cbm"] = str(product.ttl_cbm)
+                            temp_dict["ship_lot_number"] = str(product.ship_lot_number)
+                            temp_dict["order_quantity"] = str(selected_products_dict[str(product.pk)])
+                            temp_dict["qty_metric"] = str(base_product.qty_metric)
+                            temp_dict["price"] = str(product.price)
+                            product_info.append(temp_dict)
+
+                        json_parameter["product_info"] = product_info
+
+                        filename = sourcing_user_factory.name.replace(" ", "-").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
+                        filepath = generate_pi(json_parameter, filename)
+                        logger.info("filepath returned %s", str(filepath))
+                        temp_proforma_invoice.proforma_pdf = "pdf/"+filename
+                        temp_proforma_invoice.save()
+                        temp_proforma_invoice_ids.append(temp_proforma_invoice.pk)
+
+                    zf = zipfile.ZipFile("files/proforma_invoice.zip", "w")
+                    for x in temp_proforma_invoice_ids:
+                        tpi = ProformaInvoice.objects.get(pk = x)
+                        logger.info("proforma_pdf_url tpi %s", str(tpi.proforma_pdf.url[1:]))
+                        zf.write(tpi.proforma_pdf.url[1:])
+                    zf.close()
+                    resp_filepath = '/'+zf.filename
+                    logger.info("resp_filepath %s: ", str(resp_filepath))
+                    response['pdf_file'] = resp_filepath
+                    response['status'] = 200
+                    response['error_msg'] = ''
+
+                except Exception  as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("DownloadPIBulkAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    response["error_msg"] = "Either no products are PR ready or the factory does not exist."
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DownloadPIBulkAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+#GeneratePIInBulkAPI
+class GenerateDraftPILineAPI(APIView):
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['error_msg'] = 'There seems to be an error in the uploaded file.'
+        # response['list_of_draft_lines'] = []
+        list_of_draft_lines = []
+        response["draft_pi"] = ''
+        try:
+
+            data = request.data
+            logger.info("DownloadPIAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            wb = xlrd.open_workbook(file_contents=data["uploadedFile"].read())
+            product_sheet = wb.sheet_by_index(0)
+            temp_draft_pi_invoice = DraftProformaInvoice.objects.create(
+                lines=list_of_draft_lines)
+                
+            for row_number in range(1,product_sheet.nrows):
+                temp_sourcing_user_product = SourcingUserProduct.objects.get(
+                    code=product_sheet.cell_value(row_number, 1))
+
+                temp_sourcing_user_factory = SourcingUserFactory.objects.filter(products = temp_sourcing_user_product.base_product)[0]
+
+                temp_draft_PI_line = DraftProformaInvoiceLine.objects.create(
+                    sourcing_user_product = temp_sourcing_user_product,
+                    sourcing_user_factory = temp_sourcing_user_factory,
+                    quantity = product_sheet.cell_value(row_number, 2),
+                    draft_proforma_invoice=temp_draft_pi_invoice)
+                list_of_draft_lines.append(int(temp_draft_PI_line.pk))
+            temp_draft_pi_invoice.lines = str(list_of_draft_lines)
+            temp_draft_pi_invoice.save()
+            response["draft_pi_pk"] = str(temp_draft_pi_invoice.pk)
+            response['status'] = 200
+            response["error_msg"] = ''
+                  
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GenerateDraftPILineAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+class FetchDraftProformaInvoiceAPI(APIView):
+
+    """
+        The API returns the draft PI lines and pk's
+    """
+
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['error_msg'] = 'There seems to be an error in the draft proformas.'
+        # response['list_of_draft_lines'] = []
+        list_of_draft_lines = []
+        data = request.data
+        logger.info("DownloadPIAPI: %s", str(data))
+        if not isinstance(data, dict):
+            data = json.loads(data)
+
+        pk = int(data['pk'])
+        try:
+            draft_lines = []
+            data = request.data
+            logger.info("DownloadPIAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            draft_pi = DraftProformaInvoice.objects.get(pk = pk)
+            temp_lines = str(draft_pi.lines)
+            temp_lines = temp_lines.replace("L", "")
+            logger.info("draft_pi_line : %s" , str(draft_pi.lines))
+            draft_lines_id_list = json.loads(str(temp_lines))
+            
+            temp_dict={}
+            for line_id in draft_lines_id_list:
+                temp_dict = {}
+                draft_line = DraftProformaInvoiceLine.objects.get(pk = line_id)
+                sourcing_user_product = draft_line.sourcing_user_product
+                sourcing_user_factory = draft_line.sourcing_user_factory
+                temp_dict["quantity"] = draft_line.quantity
+                temp_dict["sourcing_user_factory_name"] = sourcing_user_factory.name
+                temp_dict["sourcing_user_factory_pk"] = sourcing_user_factory.pk
+                temp_dict["sourcing_user_product_name"] = sourcing_user_product.name
+                temp_dict["sourcing_user_product_pk"] = sourcing_user_product.pk 
+                temp_dict["sourcing_user_product_code"] = sourcing_user_product.code
+                temp_dict["price"] = sourcing_user_product.price
+                temp_dict["moq"] = str(sourcing_user_product.base_product.minimum_order_qty)
+                temp_dict["draft_line_id"] = line_id
+                temp_dict["draft_pi_id"] = draft_pi.pk
+                if sourcing_user_product.images.all().count()>0:
+                    temp_dict["image-url"] = sourcing_user_product.images.all()[0].image.url
+                else :
+                    temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+
+                draft_lines.append(temp_dict)
+
+            # response["draft_pi_pk"] = str(temp_draft_pi_invoice.pk)
+            response['status'] = 200
+            response['draft_lines'] = draft_lines
+            response["error_msg"] = ''
+                  
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GenerateDraftPILineAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteDraftLineAPI(APIView):
+
+    """
+        The API deletes the draft lines in a PI. It is invoked after clicking
+        the "Remove" button from the factorywise product listing for PI generation
+    """
+
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['error_msg'] = 'There seems to be an error in deleting.'
+        # response['list_of_draft_lines'] = []
+        data = request.data
+        logger.info("DeleteDraftLineAPI: %s", str(data))
+        if not isinstance(data, dict):
+            data = json.loads(data)
+
+        try:
+            draft_PI = DraftProformaInvoice.objects.get(
+                pk=int(data["draft_pi_id"]))
+            
+            temp_lines = str(draft_PI.lines)
+            temp_lines = temp_lines.replace("L", "")
+            temp_lines = json.loads(temp_lines)
+           
+            temp_lines.remove(int(data["draft_line_id"]))
+            draft_PI.lines = str(temp_lines)
+            draft_PI.save()
+            draft_line = DraftProformaInvoiceLine.objects.get(pk = int(data["draft_line_id"]))
+            draft_line.delete()
+           
+
+            response['status'] = 200
+            response['error_msg'] = ''
+                  
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteDraftLineAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateDraftPIFromProductSelectionAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['error_msg'] = 'There seems to be an error in deleting.'
+        # response['list_of_draft_lines'] = []
+        data = request.data
+        logger.info("CreateDraftPIFromProductSelectionAPI: %s", str(data))
+        if not isinstance(data, dict):
+            data = json.loads(data)
+        data = json.loads(data['selected_products'])
+        try:
+
+            factorywise_products = defaultdict(list)
+            for x in data:
+
+                if x["factory_pk"] in factorywise_products.keys():
+                    factorywise_products[x["factory_pk"]].append(x)
+                else:
+                    factorywise_products[x["factory_pk"]] = [x]
+            
+            draft_pi_line_list = []
+            draft_proforma_invoice = DraftProformaInvoice.objects.create()
+            for factory_pk in factorywise_products:
+                temp_products = factorywise_products[factory_pk]
+                for temp_product in temp_products:
+                    sourcing_user_product = SourcingUserProduct.objects.get(pk = temp_product["product_pk"])
+                    sourcing_user_factory = SourcingUserFactory.objects.get(pk = temp_product["factory_pk"])
+
+                    draft_pi_line = DraftProformaInvoiceLine.objects.create(sourcing_user_product = sourcing_user_product,sourcing_user_factory = sourcing_user_factory, quantity = temp_product["quantity"],
+                    draft_proforma_invoice = draft_proforma_invoice)
+
+                    draft_pi_line_list.append(draft_pi_line.pk)
+                
+
+            draft_proforma_invoice.lines = str(draft_pi_line_list)
+            draft_proforma_invoice.save()
+            response['draft_pi_pk'] = draft_proforma_invoice.pk
+            response['status'] = 200
+            response['error_msg'] = ''
+                  
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateDraftPIFromProductSelectionAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchProformaInvoiceListAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['error_msg'] = 'There seems to be an error in fetching invoices.'
+        # response['list_of_draft_lines'] = []
+        # data = request.data
+        # logger.info("FetchProformaInvoiceListAPI: %s", str(data))
+        # if not isinstance(data, dict):
+        #     data = json.loads(data)
+        # data = json.loads(data['selected_products'])
+        try:
+            
+
+            proforma_invoices = ProformaInvoice.objects.all()
+
+            invoices = []
+            for pi in proforma_invoices:
+                temp_dict = {}
+                proforma_invoice_pdf = ''
+                if pi.proforma_pdf == None or pi.proforma_pdf == '':
+                    proforma_invoice_pdf = ''
+                else:
+                    proforma_invoice_pdf = '/'+ str(pi.proforma_pdf.url[1:])
+                temp_dict["pk"] = pi.pk
+                temp_dict["factory"] = str(pi.factory)
+                temp_dict["created_date"] = pi.created_date.strftime("%d %b, %Y, %H:%M")
+                temp_dict["proforma_invoice_pdf"] = proforma_invoice_pdf
+                temp_dict["proforma_product_count"] = pi.products.count()
+                invoices.append(temp_dict)
+
+            response['proforma_invoices'] = invoices
+            response['status'] = 200
+            response['error_msg'] = ''
+                  
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchProformaInvoiceListAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+class FetchDraftProformaInvoicesCartAPI(APIView):
+    authentication_classes = (
+        CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['error_msg'] = 'There seems to be an error in fetching invoices.'
+        # response['list_of_draft_lines'] = []
+        # data = request.data
+        # logger.info("FetchProformaInvoiceListAPI: %s", str(data))
+        # if not isinstance(data, dict):
+        #     data = json.loads(data)
+        # data = json.loads(data['selected_products'])
+        try:
+
+            draft_proforma_invoices = DraftProformaInvoice.objects.all()
+
+            draft_pis = []
+            for dpi in draft_proforma_invoices:
+                temp_dict = {}
+                
+                temp_dict["pk"] = dpi.pk
+                temp_dict["created_date"] = dpi.created_date.strftime(
+                    "%d %b, %Y, %H:%M")
+                temp_list = str(dpi.lines)
+                temp_list = temp_list.replace("L", "")
+                temp_list = json.loads(temp_list)
+
+                temp_dict["factory_count"] = len(temp_list)
+                
+                draft_pis.append(temp_dict)
+
+            response['draft_pis'] = draft_pis
+            response['status'] = 200
+            response['error_msg'] = ''
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDraftProformaInvoicesCartAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+UploadFactoryImage = UploadFactoryImageAPI.as_view()
+
+
+SignUpSubmit = SignUpSubmitAPI.as_view()
+
+FetchFactoryNameFromUUID = FetchFactoryNameFromUUIDAPI.as_view()
+
+LoginSubmitFactoryManager = LoginSubmitFactoryManagerAPI.as_view()
+
+FetchFactoryForSourcingUser = FetchFactoryForSourcingUserAPI.as_view()
+
+FetchFactoriesForSourcingUser = FetchFactoriesForSourcingUserAPI.as_view()
+
+
+FetchSourcingUserDetails = FetchSourcingUserDetailsAPI.as_view()
+
+FetchProductsFromFactory = FetchProductsFromFactoryAPI.as_view()
+
+FetchSharedProductsForFactory = FetchSharedProductsForFactoryAPI.as_view()
+
+FetchFactorywiseProductListing = FetchFactorywiseProductListingAPI.as_view()
+
+SaveFactoryProductDetails = SaveFactoryProductDetailsAPI.as_view()
+
+FetchFactoryProductDetails = FetchFactoryProductDetailsAPI.as_view()
+
+SaveFactoryManagerFactoryDetails = SaveFactoryManagerFactoryDetailsAPI.as_view()
+
+UploadFactoryProductImage = UploadFactoryProductImageAPI.as_view()
+
+ChangeGoLiveStatus = ChangeGoLiveStatusAPI.as_view()
+
+
+DownloadPI = DownloadPIAPI.as_view()
+# GeneratePIInBulk = GeneratePIInBulkAPI.as_view()
+
+GenerateDraftPILine = GenerateDraftPILineAPI.as_view()
+
+
+SaveSourcingProductDetails = SaveSourcingProductDetailsAPI.as_view()
+SaveSourcingFactoryDetails = SaveSourcingFactoryDetailsAPI.as_view()
+FetchSourcingProductDetails = FetchSourcingProductDetailsAPI.as_view()
+
+
+UploadSourcingProductProductImage = UploadSourcingProductProductImageAPI.as_view()
+
+FetchDraftProformaInvoice = FetchDraftProformaInvoiceAPI.as_view()
+DeleteDraftLine = DeleteDraftLineAPI.as_view()
+DownloadPIBulk = DownloadPIBulkAPI.as_view()
+CreateDraftPIFromProductSelection = CreateDraftPIFromProductSelectionAPI.as_view()
+FetchProformaInvoiceList = FetchProformaInvoiceListAPI.as_view()
+
+# DraftProformaInvoices = DraftProformaInvoicesAPI.as_view()
+
+
+
+FetchDraftProformaInvoicesCart =  FetchDraftProformaInvoicesCartAPI.as_view()
+
+
 
 LoginSubmit = LoginSubmitAPI.as_view()
 
