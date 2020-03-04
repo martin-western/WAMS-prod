@@ -418,6 +418,7 @@ class Product(models.Model):
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
+    currency = models.CharField(max_length=100, default="")
     quantity = models.IntegerField(null=True, blank=True)
 
     pfl_images = models.ManyToManyField(Image, related_name="pfl_images", blank=True)
@@ -446,6 +447,8 @@ class Product(models.Model):
 
     is_dealshub_product_created = models.BooleanField(default=False)
     no_of_images_for_filter = models.IntegerField(default=0)
+
+    sourcing_product = models.ForeignKey(SourcingProduct,blank=True,null=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "Product"
@@ -705,45 +708,6 @@ def update_stock(sender, instance, **kwargs):
 
 ##############################################################################################
 
-
-class Certification(models.Model):
-
-    name = models.CharField(max_length=300)
-
-    class Meta:
-        verbose_name = "Certification"
-        verbose_name_plural = "Certifications"
-
-    def __str__(self):
-        return str(self.name)
-
-
-class Attachment(models.Model):
-
-    attachment = models.FileField(upload_to='attachments')
-
-    class Meta:
-        verbose_name = "Attachment"
-        verbose_name_plural = "Attachments"
-
-    def __str__(self):
-        return str(self.pk)
-
-
-class CertificationAttachments(models.Model):
-
-    certification = models.ForeignKey(
-        Certification, null=True, on_delete=models.SET_NULL)
-    attachment = models.FileField(upload_to='attachments')
-
-    class Meta:
-        verbose_name = "Certification Attachment"
-        verbose_name_plural = "Certification Attachments"
-
-    def __str__(self):
-        return str(self.pk)
-
-
 class PhoneNumber(models.Model):
 
     number = models.CharField(max_length=300)
@@ -768,15 +732,9 @@ class OperatingHour(models.Model):
     def __str__(self):
         return str(self.day)+" "+str(self.from_time)+"-"+str(self.to_time)
 
-class SourcingUserProduct(object):
+class SourcingProduct(object):
     
-    name = models.CharField(max_length=300)
     code = models.CharField(max_length=300, null=True)
-    price = models.FloatField(default=0, null=True, blank=True)
-    currency = models.CharField(max_length=300, null=True, blank=True)
-    images = models.ManyToManyField(Image, blank=True)
-    attachments = models.ManyToManyField(Attachment, blank=True)
-    certifications = models.ManyToManyField(CertificationAttachments, blank=True)
     other_info = models.TextField(null=True, blank=True)
     is_pr_ready = models.BooleanField(default=False)
     go_live = models.BooleanField(default=False)
@@ -799,6 +757,8 @@ class SourcingUserProduct(object):
     class Meta:
         verbose_name = "SourcingUserProduct"
         verbose_name_plural = "SourcingUserProducts"
+
+auditlog.register(SourcingProduct, exclude_fields=['is_pr_ready' , 'created_date' , 'pk'])
 
 class Bank(models.Model): 
 
@@ -823,7 +783,7 @@ class Bank(models.Model):
 class Factory(models.Model): 
 
     name = models.CharField(max_length=300)
-    products = models.ManyToManyField(BaseProduct, blank=True)
+    products = models.ManyToManyField(Product, blank=True)
     images = models.ManyToManyField(Image, blank=True)
     other_info = models.TextField(null=True, blank=True)
     background_poster = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="background_poster")
@@ -853,7 +813,7 @@ class Factory(models.Model):
 
 class ProformaInvoice(models.Model): 
     
-    products = models.ManyToManyField(BaseProduct, blank=True)
+    products = models.ManyToManyField(Product, blank=True)
     proforma_pdf = models.FileField(blank=True, null=True, default=None)
     payment_terms = models.CharField(max_length=500, null=True, blank=True)
     advance = models.CharField(max_length=500, default='adv', blank=True)
@@ -880,7 +840,7 @@ class DraftProformaInvoice(models.Model):
 
 class DraftProformaInvoiceLine(models.Model):
     
-    product = models.ForeignKey(BaseProduct, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
+    product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
     factory = models.ForeignKey(Factory, blank=True, null=True, on_delete=models.SET_NULL, related_name='sourcing_user_factory')
     quantity = models.CharField(max_length=500, default="", blank=True)
     draft_proforma_invoice = models.ForeignKey(DraftProformaInvoice, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
