@@ -2717,6 +2717,7 @@ class FetchFlyerDetailsAPI(APIView):
             response["background_images_bucket"] = background_images_bucket
             response["brand_image_url"] = brand_image_url
             response["brand-name"] = str(flyer_obj.brand)
+            response["mode"] = flyer_obj.mode
 
             response['status'] = 200
 
