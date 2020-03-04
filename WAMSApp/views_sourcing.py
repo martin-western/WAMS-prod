@@ -2,7 +2,6 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
-
 from WAMSApp.utils import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404

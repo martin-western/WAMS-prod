@@ -24,7 +24,7 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
-from WIGApp.views_sourcing import *
+from WAMSApp.views_sourcing import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO

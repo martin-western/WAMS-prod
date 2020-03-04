@@ -162,6 +162,20 @@ amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
 
+class OperatingHour(models.Model):
+
+    day = models.CharField(max_length=10)
+    from_time = models.TimeField(null=True, blank=True)
+    to_time = models.TimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "OperatingHour"
+        verbose_name_plural = "OperatingHours"
+
+    def __str__(self):
+        return str(self.day)+" "+str(self.from_time)+"-"+str(self.to_time)
+
+
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -749,7 +763,7 @@ class Factory(models.Model):  ### As it is in WAMS
     other_info = models.TextField(null=True, blank=True)
     background_poster = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="background_poster")
     business_card = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="business_card")
-    phone_numbers = models.ManyToManyField(PhoneNumber, blank=True)
+    phone_numbers = models.TextField(null=True,blank=True)
     factory_emailid = models.CharField(max_length=300, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     operating_hours = models.ManyToManyField(OperatingHour, blank=True)
@@ -772,15 +786,15 @@ class Factory(models.Model):  ### As it is in WAMS
 
 
 class ProformaInvoice(models.Model): #### As it is in WAMS
-    products = models.ManyToManyField(SourcingUserProduct, blank=True)
+    
+    products = models.ManyToManyField(BaseProduct, blank=True)
     proforma_pdf = models.FileField(blank=True, null=True, default=None)
     payment_terms = models.CharField(max_length=500, null=True, blank=True)
     advance = models.CharField(max_length=500, default='adv', blank=True)
     inco_terms = models.CharField(max_length=500, default="", blank=True)
     ttl_cntrs = models.CharField(max_length=500, default="", blank=True)
     delivery_terms = models.CharField(max_length=500, default="", blank=True)
-    factory = models.ForeignKey(
-        SourcingUserFactory, null=True, blank=True, on_delete=models.SET_NULL)
+    factory = models.ForeignKey(Factory, null=True, blank=True, on_delete=models.SET_NULL)
     created_date = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     class Meta:
@@ -789,6 +803,7 @@ class ProformaInvoice(models.Model): #### As it is in WAMS
 
 
 class DraftProformaInvoice(models.Model): ### As it is in WAMS
+    
     lines = models.CharField(max_length=500, default="", blank=True)
     created_date = models.DateTimeField(auto_now=True, null=True, blank=True)   
 
@@ -798,13 +813,11 @@ class DraftProformaInvoice(models.Model): ### As it is in WAMS
 
 
 class DraftProformaInvoiceLine(models.Model): ### As it is in WAMS
-    sourcing_user_product = models.ForeignKey(
-        SourcingUserProduct, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
-    sourcing_user_factory = models.ForeignKey(
-        SourcingUserFactory, blank=True, null=True, on_delete=models.SET_NULL, related_name='sourcing_user_factory')
+    
+    product = models.ForeignKey(BaseProduct, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
+    factory = models.ForeignKey(Factory, blank=True, null=True, on_delete=models.SET_NULL, related_name='sourcing_user_factory')
     quantity = models.CharField(max_length=500, default="", blank=True)
-    draft_proforma_invoice = models.ForeignKey(
-        DraftProformaInvoice, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
+    draft_proforma_invoice = models.ForeignKey(DraftProformaInvoice, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
 
     class Meta:
         verbose_name = "Draft Proforma Invoice Line"
