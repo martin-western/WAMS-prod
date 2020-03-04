@@ -77,7 +77,7 @@ class FetchFactoriesAPI(APIView):
 
             user = OmnyCommUser.objects.get(
                 username=request.user.username)
-            if OmnyCommUserFactory.objects.filter(created_by=user).count() == 0:
+            if Factory.objects.filter(created_by=user).count() == 0:
                 response["tutorial_enable"] = True
             else:
                 response["tutorial_enable"] = False
@@ -266,68 +266,6 @@ class FetchFactoryDetailsAPI(APIView):
 
         return Response(data=response)
 
-
-class FetchConstantsAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("FetchConstantsAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            category_list = []
-            categories = Category.objects.all()
-            for category in categories:
-                temp_dict = {}
-                temp_dict["name"] = category.name
-                temp_dict["pk"] = category.pk
-                category_list.append(temp_dict)
-
-            country_list = []
-            countries = Country.objects.all()
-            for country in countries:
-                temp_dict = {}
-                temp_dict["name"] = country.name
-                temp_dict["pk"] = country.pk
-                country_list.append(temp_dict)
-
-            material_specs_list = []
-            material_specs = MaterialSpecs.objects.all()
-            for material_spec in material_specs:
-                temp_dict = {}
-                temp_dict["name"] = material_spec.name
-                temp_dict["pk"] = material_spec.pk
-                material_specs_list.append(temp_dict)
-
-            technical_specs_list = []
-            technical_specs = TechnicalSpecs.objects.all()
-            for technical_spec in technical_specs:
-                temp_dict = {}
-                temp_dict["name"] = technical_spec.name
-                temp_dict["pk"] = technical_spec.pk
-                technical_specs_list.append(temp_dict)
-
-            response["category_list"] = category_list
-            response["country_list"] = country_list
-            response["material_specs_list"] = material_specs_list
-            response["technical_specs_list"] = technical_specs_list
-            response["status"] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchConstantsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-# UploadFactoriesProductsAPI
-
 class UploadFactoriesProductsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -352,8 +290,8 @@ class UploadFactoriesProductsAPI(APIView):
             try:
                 for row_number in range(1, factory_sheet.nrows):
 
-                    factory_exists = OmnyCommUserFactory.objects.filter(
-                        name=factory_sheet.cell_value(row_number, 0)).exists()
+                    factory_exists = Factory.objects.filter(name=factory_sheet.cell_value(row_number, 0)).exists()
+                    
                     if factory_exists == False:
                         new_factory = Factory.objects.create(address=factory_sheet.cell_value(row_number, 1),
                                                              factory_emailid=factory_sheet.cell_value(
@@ -374,7 +312,7 @@ class UploadFactoriesProductsAPI(APIView):
                                                                  row_number, 4),
                                                              created_date=timezone.now())
 
-                        factory = OmnyCommUserFactory.objects.create(base_factory=new_factory,
+                        factory = Factory.objects.create(base_factory=new_factory,
                                                                                    name=factory_sheet.cell_value(
                                                                                        row_number, 0),
                                                                                    created_by=user,
@@ -421,7 +359,7 @@ class UploadFactoriesProductsAPI(APIView):
                                                                                    currency=product_sheet.cell_value(row_number, 3))
 
                         count += 1
-                        factory = OmnyCommUserFactory.objects.get(
+                        factory = Factory.objects.get(
                             name=product_sheet.cell_value(row_number, 8))
                         factory.products.add(product)
                         factory.save()
@@ -464,7 +402,7 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
             try:
                 for row_number in range(1, factory_sheet.nrows):
 
-                    factory_exists = OmnyCommUserFactory.objects.filter(
+                    factory_exists = Factory.objects.filter(
                         name=factory_sheet.cell_value(row_number, 0)).exists()
                     if factory_exists == False:
                         new_factory = Factory.objects.create(address=factory_sheet.cell_value(row_number, 1),
@@ -486,7 +424,7 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                                                                  row_number, 4),
                                                              created_date=timezone.now())
 
-                        factory = OmnyCommUserFactory.objects.create(base_factory=new_factory,
+                        factory = Factory.objects.create(base_factory=new_factory,
                                                                                    name=factory_sheet.cell_value(
                                                                                        row_number, 0),
                                                                                    created_by=user,
@@ -521,7 +459,7 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                             new_factory.save()
 
                     else:
-                        existing_factory = OmnyCommUserFactory.objects.get(
+                        existing_factory = Factory.objects.get(
                             name=factory_sheet.cell_value(row_number, 0))
                         existing_factory = existing_factory.base_factory
 
@@ -656,7 +594,7 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                                                                                     ship_lot_number=product_sheet.cell_value(row_number, 18))
 
                         count += 1
-                        factory = OmnyCommUserFactory.objects.get(
+                        factory = Factory.objects.get(
                             name=product_sheet.cell_value(row_number, 9))
                         factory.products.add(product)
                         factory.save()
@@ -802,7 +740,7 @@ class AddNewProductAPI(APIView):
                                                                        currency=data["currency"])
 
             factory = Factory.objects.get(pk=int(data["factory-pk"]))
-            factory = OmnyCommUserFactory.objects.get(
+            factory = Factory.objects.get(
                 base_factory=factory)
             factory.products.add(product)
             factory.save()
@@ -890,8 +828,8 @@ class FetchProductDetailsAPI(APIView):
 
             response["factory-name"] = ""
             response["factory-pk"] = ""
-            if product.OmnyCommUserfactory_set.all().count() > 0:
-                temp_factory = product.OmnyCommUserfactory_set.all()[0]
+            if product.Factory_set.all().count() > 0:
+                temp_factory = product.Factory_set.all()[0]
                 response["factory-name"] = temp_factory.name
                 response["factory-pk"] = temp_factory.base_factory.pk
 
@@ -942,7 +880,7 @@ class SavePhoneNumbersAPI(APIView):
             phone_numbers_list = json.loads(data["phone_numbers"])
 
             factory = Factory.objects.get(pk=int(data["pk"]))
-            factory = OmnyCommUserFactory.objects.get(
+            factory = Factory.objects.get(
                 base_factory=factory)
             phone_number_objs = factory.phone_numbers.all()
             for phone_number_obj in phone_number_objs:
@@ -1007,7 +945,7 @@ class SaveFactoryNameAPI(APIView):
             factory_name = data["factory_name"]
 
             factory = Factory.objects.get(pk=int(data["pk"]))
-            factory = OmnyCommUserFactory.objects.get(
+            factory = Factory.objects.get(
                 base_factory=factory)
             factory.name = factory_name
             factory.save()
@@ -1284,8 +1222,8 @@ class FetchProductCardsAPI(APIView):
                 temp_dict["factory-name"] = ""
                 temp_dict["factory-pk"] = ""
 
-                if product.OmnyCommUserfactory_set.all().count() > 0:
-                    temp_factory = product.OmnyCommUserfactory_set.all()[0]
+                if product.Factory_set.all().count() > 0:
+                    temp_factory = product.Factory_set.all()[0]
                     temp_dict["factory-name"] = temp_factory.name
                     temp_dict["factory-pk"] = temp_factory.pk
 
@@ -1322,7 +1260,7 @@ class SaveFactoryDetailsAPI(APIView):
                 data = json.loads(data)
 
             factory = Factory.objects.get(pk=int(data["pk"]))
-            factory = OmnyCommUserFactory.objects.get(
+            factory = Factory.objects.get(
                 base_factory=factory)
             factory.name = data["name"]
             factory.address = data["address"]
@@ -1396,7 +1334,7 @@ class ExportFactoriesAPI(APIView):
             writer.writerow(row)
 
             for factory in factories:
-                factory = OmnyCommUserFactory.objects.get(
+                factory = Factory.objects.get(
                     base_factory=factory)
                 products_count = factory.products.all().count()
                 img_url = ""
@@ -1429,7 +1367,7 @@ class ExportFactoriesAPI(APIView):
             product_writer.writerow(product_row)
 
             for factory in factories:
-                factory = OmnyCommUserFactory.objects.get(
+                factory = Factory.objects.get(
                     base_factory=factory)
                 products = factory.products.all()
                 for product in products:
@@ -1520,7 +1458,7 @@ class SearchFactoriesAPI(APIView):
 
             query = data["query"]
 
-            user_factories = OmnyCommUserFactory.objects.filter(
+            user_factories = Factory.objects.filter(
                 name__icontains=query)
 
             factory_list = []
@@ -1551,7 +1489,7 @@ class SearchFactoriesAPI(APIView):
 
             user = OmnyCommUser.objects.get(
                 username=request.user.username)
-            if OmnyCommUserFactory.objects.filter(created_by=user).count() == 0:
+            if Factory.objects.filter(created_by=user).count() == 0:
                 response["tutorial_enable"] = True
             else:
                 response["tutorial_enable"] = False
@@ -1598,7 +1536,7 @@ class SearchFactoriesByDateAPI(APIView):
 
                 user_factories = []
                 for factory in factories:
-                    factory = OmnyCommUserFactory.objects.get(
+                    factory = Factory.objects.get(
                         base_factory=factory)
                     user_factories.append(factory)
 
@@ -1629,7 +1567,7 @@ class SearchFactoriesByDateAPI(APIView):
 
                 user = OmnyCommUser.objects.get(
                     username=request.user.username)
-                if OmnyCommUserFactory.objects.filter(created_by=user).count() == 0:
+                if Factory.objects.filter(created_by=user).count() == 0:
                     response["tutorial_enable"] = True
                 else:
                     response["tutorial_enable"] = False
@@ -1685,8 +1623,8 @@ class SearchProductsAPI(APIView):
                     temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
                 temp_dict["factory-name"] = ""
                 temp_dict["factory-pk"] = ""
-                if product.OmnyCommUserfactory_set.all().count() > 0:
-                    temp_factory = product.OmnyCommUserfactory_set.all()[0]
+                if product.Factory_set.all().count() > 0:
+                    temp_factory = product.Factory_set.all()[0]
                     temp_dict["factory-name"] = temp_factory.name
                     temp_dict["factory-pk"] = temp_factory.pk
 
@@ -1720,7 +1658,7 @@ class ShareFactoryAPI(APIView):
 
             factory = Factory.objects.get(pk=int(data["pk"]))
 
-            factory = OmnyCommUserFactory.objects.get(
+            factory = Factory.objects.get(
                 base_factory=factory)
 
             factory_manager_factory, created = FactoryManagerFactory.objects.get_or_create(
@@ -1778,7 +1716,7 @@ class ShareProductAPI(APIView):
             product.is_shared = True
             product.save()
 
-            factory = OmnyCommUserFactory.objects.get(
+            factory = Factory.objects.get(
                 pk=data["factory_pk"])
             factory = factory.base_factory
 
@@ -1849,7 +1787,7 @@ class FetchFactoryForOmnyCommUserAPI(APIView):
                 data = json.loads(data)
 
             pk = int(data['pk'])
-            factory = OmnyCommUserFactory.objects.get(pk=pk)
+            factory = Factory.objects.get(pk=pk)
 
             temp_dict = {}
             temp_dict["name"] = factory.name
@@ -1930,7 +1868,7 @@ class FetchFactoriesForOmnyCommUserAPI(APIView):
             
             chip_data = json.loads(data['tags'])
 
-            factories = OmnyCommUserFactory.objects.filter(Q(created_by=user) | 
+            factories = Factory.objects.filter(Q(created_by=user) | 
                 Q(created_by__reports_to=user))
             if len(chip_data)>0:
                 for tag in chip_data:
@@ -2077,7 +2015,7 @@ class FetchProductsFromFactoryAPI(APIView):
                 logger.info("FetchProductsFromFactoryAPI: debugging %s", is_user)
                 user = OmnyCommUser.objects.get(username=request.user.username)
 
-                factories = OmnyCommUserFactory.objects.filter(Q(created_by=user) | 
+                factories = Factory.objects.filter(Q(created_by=user) | 
                 Q(created_by__reports_to=user))
                 products_objs = BaseProduct.objects.filter(Q(created_by=user) |
                                                               Q(created_by__reports_to=user))
@@ -2097,8 +2035,8 @@ class FetchProductsFromFactoryAPI(APIView):
                         product = product_temp
                         temp_dict = {}
 
-                        temp_dict["factory_pk"] = OmnyCommUserFactory.objects.get(products = product_temp.product).pk
-                        temp_dict["factory_name"] =  OmnyCommUserFactory.objects.get(products = product_temp.product).name
+                        temp_dict["factory_pk"] = Factory.objects.get(products = product_temp.product).pk
+                        temp_dict["factory_name"] =  Factory.objects.get(products = product_temp.product).name
                         temp_dict["name"] = product.name
                         temp_dict["code"] = product.code
                         temp_dict["price"] = product.price
@@ -2413,7 +2351,7 @@ class SaveSourcingFactoryDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            factory = OmnyCommUserFactory.objects.get(pk = int(data["pk"]))
+            factory = Factory.objects.get(pk = int(data["pk"]))
             factory = factory.base_factory
 
             factory.name = data["factory_name"]
@@ -2852,7 +2790,7 @@ class FetchFactorywiseProductListingAPI(APIView):
                 data = json.loads(data)
 
             response_products = []
-            factory = OmnyCommUserFactory.objects.get(pk=int(data["pk"]))
+            factory = Factory.objects.get(pk=int(data["pk"]))
             
             chip_data = json.loads(data['tags'])
 
@@ -3030,7 +2968,7 @@ class UploadFactoryImageAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            factory = OmnyCommUserFactory.objects.get(pk = int(data["pk"]))
+            factory = Factory.objects.get(pk = int(data["pk"]))
             images_count = int(data["images_count"])
 
             images_list = []
@@ -3198,7 +3136,7 @@ class DownloadPIAPI(APIView):
             temp_proforma_invoice.save()
 
             try:
-                factory = OmnyCommUserFactory.objects.get(pk = pk)
+                factory = Factory.objects.get(pk = pk)
                 base_factory = factory.base_factory
                 temp_proforma_invoice.factory = factory
                 temp_proforma_invoice.save()
@@ -3381,7 +3319,7 @@ class DownloadPIBulkAPI(APIView):
            
 
                 try:
-                    factory = OmnyCommUserFactory.objects.get(pk=factory_pk)
+                    factory = Factory.objects.get(pk=factory_pk)
                     base_factory = factory.base_factory
                     temp_proforma_invoice.factory = factory
                     temp_proforma_invoice.save()
@@ -3511,7 +3449,7 @@ class GenerateDraftPILineAPI(APIView):
                 temp_product = BaseProduct.objects.get(
                     code=product_sheet.cell_value(row_number, 1))
 
-                temp_factory = OmnyCommUserFactory.objects.filter(products = temp_product.product)[0]
+                temp_factory = Factory.objects.filter(products = temp_product.product)[0]
 
                 temp_draft_PI_line = DraftProformaInvoiceLine.objects.create(
                     product = temp_product,
@@ -3676,7 +3614,7 @@ class CreateDraftPIFromProductSelectionAPI(APIView):
                 temp_products = factorywise_products[factory_pk]
                 for temp_product in temp_products:
                     product = BaseProduct.objects.get(pk = temp_product["product_pk"])
-                    factory = OmnyCommUserFactory.objects.get(pk = temp_product["factory_pk"])
+                    factory = Factory.objects.get(pk = temp_product["factory_pk"])
 
                     draft_pi_line = DraftProformaInvoiceLine.objects.create(product = product,factory = factory, quantity = temp_product["quantity"],
                     draft_proforma_invoice = draft_proforma_invoice)
