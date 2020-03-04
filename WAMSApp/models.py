@@ -698,6 +698,52 @@ def update_stock(sender, instance, **kwargs):
     if PFL.objects.filter(product=instance).exists()==False:
         PFL.objects.create(product=instance, name=str(instance.product_name_sap)+"_PFL")
 
+
+##############################################################################################
+
+#  Sourcing Module Models
+
+##############################################################################################
+
+
+class Certification(models.Model):
+
+    name = models.CharField(max_length=300)
+
+    class Meta:
+        verbose_name = "Certification"
+        verbose_name_plural = "Certifications"
+
+    def __str__(self):
+        return str(self.name)
+
+
+class Attachment(models.Model):
+
+    attachment = models.FileField(upload_to='attachments')
+
+    class Meta:
+        verbose_name = "Attachment"
+        verbose_name_plural = "Attachments"
+
+    def __str__(self):
+        return str(self.pk)
+
+
+class CertificationAttachments(models.Model):
+
+    certification = models.ForeignKey(
+        Certification, null=True, on_delete=models.SET_NULL)
+    attachment = models.FileField(upload_to='attachments')
+
+    class Meta:
+        verbose_name = "Certification Attachment"
+        verbose_name_plural = "Certification Attachments"
+
+    def __str__(self):
+        return str(self.pk)
+
+
 class PhoneNumber(models.Model):
 
     number = models.CharField(max_length=300)
