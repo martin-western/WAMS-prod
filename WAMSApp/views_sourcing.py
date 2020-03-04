@@ -95,9 +95,6 @@ class FetchFactoriesAPI(APIView):
 
 class AddNewFactoryAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -153,9 +150,6 @@ class AddNewFactoryAPI(APIView):
 
 
 class FetchFactoryDetailsAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -285,9 +279,6 @@ class FetchFactoryDetailsAPI(APIView):
 
 class FetchConstantsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -348,9 +339,6 @@ class FetchConstantsAPI(APIView):
 # UploadFactoriesProductsAPI
 
 class UploadFactoriesProductsAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -463,9 +451,6 @@ class UploadFactoriesProductsAPI(APIView):
 
 
 class UploadFactoriesProductsFromSourcingAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -795,9 +780,6 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
 
 class AddNewProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -860,9 +842,6 @@ class AddNewProductAPI(APIView):
 
 
 class FetchProductDetailsAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -959,9 +938,6 @@ class FetchProductDetailsAPI(APIView):
 
 class SavePhoneNumbersAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -999,9 +975,6 @@ class SavePhoneNumbersAPI(APIView):
 
 class SaveAddressAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1029,9 +1002,6 @@ class SaveAddressAPI(APIView):
 
 
 class SaveFactoryNameAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1063,9 +1033,6 @@ class SaveFactoryNameAPI(APIView):
 
 
 class SaveProductDetailsAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1113,9 +1080,6 @@ class SaveProductDetailsAPI(APIView):
 
 class SaveBusinessCardAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1144,9 +1108,6 @@ class SaveBusinessCardAPI(APIView):
 
 
 class UploadProductImageAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1179,9 +1140,6 @@ class UploadProductImageAPI(APIView):
 
 
 class DeleteImageAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1219,9 +1177,6 @@ class DeleteImageAPI(APIView):
 
 class UploadAttachmentAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1256,9 +1211,6 @@ class UploadAttachmentAPI(APIView):
 
 
 class DeleteAttachmentAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1297,9 +1249,6 @@ class DeleteAttachmentAPI(APIView):
 
 
 class FetchProductCardsAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1371,9 +1320,6 @@ class FetchProductCardsAPI(APIView):
 
 class SaveFactoryDetailsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1436,9 +1382,6 @@ class SaveFactoryDetailsAPI(APIView):
 
 
 class ExportFactoriesAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1546,9 +1489,6 @@ class ExportFactoriesAPI(APIView):
 
 class SendFactoryShareEmailAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1576,9 +1516,6 @@ class SendFactoryShareEmailAPI(APIView):
 
 
 class SearchFactoriesAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1641,9 +1578,6 @@ class SearchFactoriesAPI(APIView):
 
 
 class SearchFactoriesByDateAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -1724,9 +1658,6 @@ class SearchFactoriesByDateAPI(APIView):
 
 class SearchProductsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1785,9 +1716,6 @@ class SearchProductsAPI(APIView):
 
 class ShareFactoryAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1843,9 +1771,6 @@ class ShareFactoryAPI(APIView):
 
 class ShareProductAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1894,124 +1819,7 @@ class ShareProductAPI(APIView):
 
         return Response(data=response)
 
-IP_ADDR = "http://13.235.116.162:8004"
-
-class CsrfExemptSessionAuthentication(SessionAuthentication):
-
-    def enforce_csrf(self, request):
-        return
-
-def LoginFactoryManager(request):
-    return render(request, 'WIGApp/login-factory-manager.html')
-
-def SignUpFactoryManager(request):
-    return render(request, 'WIGApp/signup.html')
-
-# @login_required(login_url='/login-factory-manager/')
-# def FactoryManagerProductRender(request):
-#     return render(request, 'WIGApp/factory-manager-product-details.html')
-
-# DraftProformaInvoices
-
-
-@login_required(login_url='/login-sourcing-manager/')
-def DraftProformaInvoices(request):
-    return render(request,'WIGApp/draft-proforma-invoices.html')
-
-@login_required(login_url='/login-factory-manager/')
-def LogoutFactoryManager(request):
-    logout(request)
-    return HttpResponseRedirect('/login-factory-manager/')
-
-@login_required(login_url='/login-factory-manager/')
-def FactoryProduct(request,pk):
-    return render(request, 'WIGApp/factory-product-details.html')
-
-#proforma-invoices
-
-@login_required(login_url='/login-sourcing-user/')
-def FetchProformaInvoices(request):
-    return render(request, 'WIGApp/proforma-invoices-list.html')
-
-
-
-@login_required(login_url='/login-sourcing-user/')
-def ProformaInvoiceHome(request, pk):
-    return render(request, 'WIGApp/proforma-invoice.html')
-
-@login_required(login_url='/login-sourcing-user/')
-def SourcingProduct(request,pk):
-    return render(request, 'WIGApp/sourcing-product-details.html')
-
-
-@login_required(login_url='/login-sourcing-user/')
-def FactoryProfileForSourcing(request, pk):
-    return render(request, 'WIGApp/home-factory-manager.html')
-
-
-@login_required(login_url='/login-sourcing-user/')
-def FactoriesForSourcingUser(request):
-    return render(request, 'WIGApp/sourcing-factory-listing.html')
-
-
-@login_required(login_url='/login-factory-manager/')
-def FactorySharedProducts(request):
-    return render(request, 'WIGApp/factory-shared-products.html')
-
-
-@login_required(login_url='/login-sourcing-user/')
-def FetchProductsFacorywise(request,pk):
-    return render(request, 'WIGApp/sourcing-factorywise-product-listing.html')
-
-
-
-class SignUpSubmitAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("SignUpSubmitAPI: %s", str(data))
-
-            first_name = data['first_name']
-            email_id = data['email_id']
-            password = data['password']
-            phone_number = data['phone_number']
-            factory_uuid = data['factory_uuid']
-
-            link_generator_obj = LinkGenerator.objects.get(uuid=str(factory_uuid))
-
-            phone_number = PhoneNumber.objects.create(number = phone_number)
-            factory = link_generator_obj.factory
-            
-            factory_manager = FactoryManager.objects.create(username=email_id,
-                                                            first_name = first_name,
-                                                            email=email_id,
-                                                            password=password,
-                                                            phone_number=phone_number,
-                                                            factory = factory)
-
-            user = authenticate(username=email_id, password=password)
-            login(request,user)
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SignUpSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
 class FetchFactoryNameFromUUIDAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -2037,40 +1845,7 @@ class FetchFactoryNameFromUUIDAPI(APIView):
 
         return Response(data=response)   
 
-class LoginSubmitFactoryManagerAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("LoginSubmitFactoryManagerAPI: %s", str(data))
-
-            username = data['email_id']
-            password = data['password']
-
-            user = authenticate(username=username, password=password)
-
-            login(request, user)
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("LoginSubmitFactoryManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
 class FetchFactoryForSourcingUserAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -2153,9 +1928,6 @@ class FetchFactoryForSourcingUserAPI(APIView):
 
 class FetchFactoriesForSourcingUserAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2232,9 +2004,6 @@ class FetchFactoriesForSourcingUserAPI(APIView):
 
 class FetchSourcingUserDetailsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2296,9 +2065,6 @@ class FetchSourcingUserDetailsAPI(APIView):
 
 
 class FetchProductsFromFactoryAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -2415,9 +2181,6 @@ class FetchProductsFromFactoryAPI(APIView):
 
 class FetchSharedProductsForFactoryAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
 
@@ -2482,9 +2245,6 @@ class FetchSharedProductsForFactoryAPI(APIView):
         return Response(data=response)
 
 class SaveSourcingProductDetailsAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
         print("SaveSourcingProductDetailsAPI")
@@ -2651,9 +2411,6 @@ class SaveSourcingProductDetailsAPI(APIView):
 
 class SaveSourcingFactoryDetailsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
         print("SaveSourcingProductDetailsAPI")
         response = {}
@@ -2765,9 +2522,6 @@ class SaveSourcingFactoryDetailsAPI(APIView):
 
 class FetchSourcingProductDetailsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
         print("FetchSourcingProductDetailsAPI")
         response = {}
@@ -2868,8 +2622,6 @@ class FetchSourcingProductDetailsAPI(APIView):
 
 class SaveFactoryProductDetailsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3010,9 +2762,6 @@ class SaveFactoryProductDetailsAPI(APIView):
 
 class FetchFactoryProductDetailsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3101,9 +2850,6 @@ class FetchFactoryProductDetailsAPI(APIView):
 
 class FetchFactorywiseProductListingAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         print("Fetching factorywise products..")
@@ -3181,9 +2927,6 @@ class FetchFactorywiseProductListingAPI(APIView):
 
 class SaveFactoryManagerFactoryDetailsAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3242,9 +2985,6 @@ class SaveFactoryManagerFactoryDetailsAPI(APIView):
 
 class UploadFactoryProductImageAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3289,9 +3029,6 @@ class UploadFactoryProductImageAPI(APIView):
 
 class UploadFactoryImageAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3335,9 +3072,6 @@ class UploadFactoryImageAPI(APIView):
 
 
 class UploadSourcingProductProductImageAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3386,9 +3120,6 @@ class UploadSourcingProductProductImageAPI(APIView):
 
 class ChangeGoLiveStatusAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3420,9 +3151,6 @@ class ChangeGoLiveStatusAPI(APIView):
 
 
 class DownloadPIAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3580,9 +3308,6 @@ class DownloadPIAPI(APIView):
 
 
 class DownloadPIBulkAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3772,9 +3497,6 @@ class DownloadPIBulkAPI(APIView):
 #GeneratePIInBulkAPI
 class GenerateDraftPILineAPI(APIView):
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3828,9 +3550,6 @@ class FetchDraftProformaInvoiceAPI(APIView):
         The API returns the draft PI lines and pk's
     """
 
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3901,9 +3620,6 @@ class DeleteDraftLineAPI(APIView):
         the "Remove" button from the factorywise product listing for PI generation
     """
 
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3942,8 +3658,6 @@ class DeleteDraftLineAPI(APIView):
 
 
 class CreateDraftPIFromProductSelectionAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -3994,8 +3708,6 @@ class CreateDraftPIFromProductSelectionAPI(APIView):
         return Response(data=response)
 
 class FetchProformaInvoiceListAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -4042,8 +3754,6 @@ class FetchProformaInvoiceListAPI(APIView):
 
 
 class FetchDraftProformaInvoicesCartAPI(APIView):
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -4090,17 +3800,11 @@ class FetchDraftProformaInvoicesCartAPI(APIView):
 
 UploadFactoryImage = UploadFactoryImageAPI.as_view()
 
-
-SignUpSubmit = SignUpSubmitAPI.as_view()
-
 FetchFactoryNameFromUUID = FetchFactoryNameFromUUIDAPI.as_view()
-
-LoginSubmitFactoryManager = LoginSubmitFactoryManagerAPI.as_view()
 
 FetchFactoryForSourcingUser = FetchFactoryForSourcingUserAPI.as_view()
 
 FetchFactoriesForSourcingUser = FetchFactoriesForSourcingUserAPI.as_view()
-
 
 FetchSourcingUserDetails = FetchSourcingUserDetailsAPI.as_view()
 
@@ -4120,35 +3824,29 @@ UploadFactoryProductImage = UploadFactoryProductImageAPI.as_view()
 
 ChangeGoLiveStatus = ChangeGoLiveStatusAPI.as_view()
 
-
 DownloadPI = DownloadPIAPI.as_view()
-# GeneratePIInBulk = GeneratePIInBulkAPI.as_view()
 
 GenerateDraftPILine = GenerateDraftPILineAPI.as_view()
 
-
 SaveSourcingProductDetails = SaveSourcingProductDetailsAPI.as_view()
-SaveSourcingFactoryDetails = SaveSourcingFactoryDetailsAPI.as_view()
-FetchSourcingProductDetails = FetchSourcingProductDetailsAPI.as_view()
 
+SaveSourcingFactoryDetails = SaveSourcingFactoryDetailsAPI.as_view()
+
+FetchSourcingProductDetails = FetchSourcingProductDetailsAPI.as_view()
 
 UploadSourcingProductProductImage = UploadSourcingProductProductImageAPI.as_view()
 
 FetchDraftProformaInvoice = FetchDraftProformaInvoiceAPI.as_view()
+
 DeleteDraftLine = DeleteDraftLineAPI.as_view()
+
 DownloadPIBulk = DownloadPIBulkAPI.as_view()
+
 CreateDraftPIFromProductSelection = CreateDraftPIFromProductSelectionAPI.as_view()
+
 FetchProformaInvoiceList = FetchProformaInvoiceListAPI.as_view()
 
-# DraftProformaInvoices = DraftProformaInvoicesAPI.as_view()
-
-
-
 FetchDraftProformaInvoicesCart =  FetchDraftProformaInvoicesCartAPI.as_view()
-
-
-
-LoginSubmit = LoginSubmitAPI.as_view()
 
 FetchFactories = FetchFactoriesAPI.as_view()
 
@@ -4197,7 +3895,6 @@ ShareFactory = ShareFactoryAPI.as_view()
 SendFactoryShareEmail = SendFactoryShareEmailAPI.as_view()
 
 ShareProduct = ShareProductAPI.as_view()
-
 
 UploadFactoriesProducts = UploadFactoriesProductsAPI.as_view()
 

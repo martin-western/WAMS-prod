@@ -735,7 +735,7 @@ class SourcingUserProduct(object):
         verbose_name = "SourcingUserProduct"
         verbose_name_plural = "SourcingUserProducts"
 
-class Bank(models.Model): ### As it is in WAMS
+class Bank(models.Model): 
 
     name = models.CharField(max_length=300, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
@@ -755,7 +755,7 @@ class Bank(models.Model): ### As it is in WAMS
         super(Bank, self).save(*args, **kwargs)
 
 
-class Factory(models.Model):  ### As it is in WAMS
+class Factory(models.Model): 
 
     name = models.CharField(max_length=300)
     products = models.ManyToManyField(BaseProduct, blank=True)
@@ -770,7 +770,7 @@ class Factory(models.Model):  ### As it is in WAMS
     bank_details = models.ForeignKey(Bank, null=True, blank=True, on_delete=models.SET_NULL, related_name="related_factory")
     average_delivery_days = models.IntegerField(null=True, blank=True)
     average_turn_around_time = models.IntegerField(null=True, blank=True)
-    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL,related_name="logo")
     contact_person_name = models.CharField(max_length=300, null=True, blank=True)
     contact_person_emailid = models.CharField(max_length=300, null=True, blank=True)
     contact_person_mobile_no = models.CharField(max_length=300, null=True, blank=True)
@@ -785,7 +785,7 @@ class Factory(models.Model):  ### As it is in WAMS
         verbose_name_plural = "BaseFactories"
 
 
-class ProformaInvoice(models.Model): #### As it is in WAMS
+class ProformaInvoice(models.Model): 
     
     products = models.ManyToManyField(BaseProduct, blank=True)
     proforma_pdf = models.FileField(blank=True, null=True, default=None)
@@ -802,7 +802,7 @@ class ProformaInvoice(models.Model): #### As it is in WAMS
         verbose_name_plural = "Proforma Invoices"
 
 
-class DraftProformaInvoice(models.Model): ### As it is in WAMS
+class DraftProformaInvoice(models.Model):
     
     lines = models.CharField(max_length=500, default="", blank=True)
     created_date = models.DateTimeField(auto_now=True, null=True, blank=True)   
@@ -812,7 +812,7 @@ class DraftProformaInvoice(models.Model): ### As it is in WAMS
         verbose_name_plural = "Draft Proforma Invoices"
 
 
-class DraftProformaInvoiceLine(models.Model): ### As it is in WAMS
+class DraftProformaInvoiceLine(models.Model):
     
     product = models.ForeignKey(BaseProduct, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
     factory = models.ForeignKey(Factory, blank=True, null=True, on_delete=models.SET_NULL, related_name='sourcing_user_factory')
