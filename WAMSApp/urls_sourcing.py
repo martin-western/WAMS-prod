@@ -1,14 +1,10 @@
 from django.conf.urls import url
-from . import views
+from WAMSApp import views_sourcing as views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponseRedirect
 
 urlpatterns = [
-    url(r'^$', views.RedirectHome),
-    url(r'^login/$', views.Login),
-    url(r'^login-submit/$', views.LoginSubmit),
-    url(r'^logout/$', views.Logout),
 
     url(r'^current_user/', views.current_user),
     url(r'^users/', views.UserList.as_view()),
