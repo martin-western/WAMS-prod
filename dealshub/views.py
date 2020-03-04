@@ -2184,11 +2184,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["uid"] = unit_banner_image_obj.uuid
                     temp_dict2["httpLink"] = unit_banner_image_obj.http_link
-                    if unit_banner_image_obj.image!=None:
-                        if resolution=="low":
-                            temp_dict2["url"] = unit_banner_image_obj.image.thumbnail.url
-                        else:
-                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                    if unit_banner_image_obj.mid_image!=None:
+                        temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
                     else:
                         temp_dict2["url"] = ""
                     banner_images.append(temp_dict2)
