@@ -2977,15 +2977,17 @@ class FetchProductListFlyerPFLAPI(APIView):
 
 class AddProductFlyerBucketAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_flyer') == False:
-                logger.warning("AddProductFlyerBucketAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_flyer') == False:
+            #     logger.warning("AddProductFlyerBucketAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("AddProductFlyerBucketAPI: %s", str(data))
@@ -3077,15 +3079,17 @@ class AddProductFlyerBucketAPI(APIView):
 
 class AddProductPFLBucketAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_pfl') == False:
-                logger.warning("AddProductPFLBucketAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_pfl') == False:
+            #     logger.warning("AddProductPFLBucketAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("AddProductPFLBucketAPI: %s", str(data))
@@ -3228,15 +3232,17 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
 
 class SaveFlyerTemplateAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_flyer') == False:
-                logger.warning("SaveFlyerTemplateAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_flyer') == False:
+            #     logger.warning("SaveFlyerTemplateAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("SaveFlyerTemplateAPI: %s", str(data))
@@ -3257,15 +3263,17 @@ class SaveFlyerTemplateAPI(APIView):
 
 class SavePFLTemplateAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_pfl') == False:
-                logger.warning("SavePFLTemplateAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_pfl') == False:
+            #     logger.warning("SavePFLTemplateAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("SavePFLTemplateAPI: %s", str(data))
@@ -3299,6 +3307,8 @@ class SavePFLTemplateAPI(APIView):
 
 class UploadImageExternalBucketFlyerAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3324,6 +3334,8 @@ class UploadImageExternalBucketFlyerAPI(APIView):
 
 
 class UploadImageExternalBucketPFLAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
@@ -3521,15 +3533,17 @@ class FetchFlyerListAPI(APIView):
 
 class UploadNewFlyerBGImageAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_flyer') == False:
-                logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_flyer') == False:
+            #     logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("UploadNewFlyerBGImageAPI: %s", str(data))
@@ -3550,6 +3564,8 @@ class UploadNewFlyerBGImageAPI(APIView):
 
 
 class DownloadImagesS3API(APIView):
+
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
@@ -3657,6 +3673,8 @@ class FetchChannelsAPI(APIView):
 
 class SavePFLInBucketAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3700,6 +3718,8 @@ class SavePFLInBucketAPI(APIView):
 
 
 class SaveFlyerInBucketAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
@@ -3856,15 +3876,17 @@ class RemoveProductFromExportListAPI(APIView):
 
 class UploadFlyerExternalImagesAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm("WAMSApp.add_image") == False:
-                logger.warning("UploadProductImageAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm("WAMSApp.add_image") == False:
+            #     logger.warning("UploadProductImageAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
@@ -3899,15 +3921,17 @@ class UploadFlyerExternalImagesAPI(APIView):
 
 class UploadPFLExternalImagesAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm("WAMSApp.add_image") == False:
-                logger.warning("UploadPFLExternalImagesAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm("WAMSApp.add_image") == False:
+            #     logger.warning("UploadPFLExternalImagesAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
