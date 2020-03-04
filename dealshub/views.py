@@ -1373,6 +1373,7 @@ class CreateBannerAPI(APIView):
             banner_obj = Banner.objects.create(organization=organization_obj, order_index=order_index, banner_type=banner_type_obj)
             
             response['uuid'] = banner_obj.uuid
+            response["limit"] = banner_type_obj.limit
             response['status'] = 200
 
         except Exception as e:
