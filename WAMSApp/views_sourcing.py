@@ -72,12 +72,12 @@ class FetchFactoriesAPI(APIView):
                 for phone_number in factory.phone_numbers.all():
                     phone_numbers.append(phone_number.number)
                 temp_dict["phone-numbers"] = phone_numbers
-                temp_dict["total-products"] = sourcing_user_factory.products.all().count()
+                temp_dict["total-products"] = factory.products.all().count()
                 factory_list.append(temp_dict)
 
-            sourcing_user = SourcingUser.objects.get(
+            user = OmnyCommUser.objects.get(
                 username=request.user.username)
-            if SourcingUserFactory.objects.filter(created_by=sourcing_user).count() == 0:
+            if OmnyCommUserFactory.objects.filter(created_by=user).count() == 0:
                 response["tutorial_enable"] = True
             else:
                 response["tutorial_enable"] = False
@@ -108,7 +108,7 @@ class AddNewFactoryAPI(APIView):
 
             phone_numbers = json.loads(data["mobile-numbers"])
 
-            sourcing_user = SourcingUser.objects.get(
+            user = OmnyCommUser.objects.get(
                 username=request.user.username)
 
             image_obj = None
@@ -129,10 +129,6 @@ class AddNewFactoryAPI(APIView):
                                              location=data["location"],
                                              created_date=timezone.now())
 
-            sourcing_user_factory = SourcingUserFactory.objects.create(base_factory=factory,
-                                                                       name=data["factory-name"],
-                                                                       created_by=sourcing_user,
-                                                                       other_info=data["other-info"])
             for phone_number in phone_numbers:
                 p_obj = PhoneNumber.objects.create(number=str(phone_number))
                 factory.phone_numbers.add(p_obj)
@@ -162,9 +158,7 @@ class FetchFactoryDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             factory = Factory.objects.get(pk=data["pk"])
-            sourcing_user_factory = SourcingUserFactory.objects.get(
-                base_factory=factory)
-            response["factory-name"] = sourcing_user_factory.name
+            response["factory-name"] = factory.name
             if factory.business_card != None and factory.business_card.image != "" and factory.business_card.image != "undefined":
                 response["business-card"] = factory.business_card.image.url
             else:
@@ -207,9 +201,9 @@ class FetchFactoryDetailsAPI(APIView):
             response["location"] = factory.location
             response["social-media-tag"] = factory.social_media_tag
             response["social-media-tag-information"] = factory.social_media_tag_information
-            response["other-info"] = sourcing_user_factory.other_info
+            response["other-info"] = factory.other_info
 
-            images = sourcing_user_factory.images.all()
+            images = factory.images.all()
 
             images_list = []
 
@@ -221,26 +215,24 @@ class FetchFactoryDetailsAPI(APIView):
             response["images"] = images_list
             response["pk"] = factory.pk
 
-            products = sourcing_user_factory.products.all()
+            products = factory.products.all()
             products_list = []
             for product in products:
-                sourcing_user_product = SourcingUserProduct.objects.get(
-                    base_product=product)
                 temp_dict = {}
-                temp_dict["name"] = sourcing_user_product.name
-                temp_dict["code"] = sourcing_user_product.code
-                temp_dict["price"] = sourcing_user_product.price
+                temp_dict["name"] = product.name
+                temp_dict["code"] = product.code
+                temp_dict["price"] = product.price
                 temp_dict["delivery-days"] = product.delivery_days
                 temp_dict["category"] = getattr(product.category, 'name', None)
                 temp_dict["country"] = getattr(product.country, 'name', None)
                 temp_dict["moq"] = product.minimum_order_qty
                 temp_dict["qty-metric"] = product.qty_metric
                 temp_dict["order-qty"] = product.order_qty
-                temp_dict["other-info"] = sourcing_user_product.other_info
-                temp_dict["is_shared"] = sourcing_user_product.is_shared
+                temp_dict["other-info"] = product.other_info
+                temp_dict["is_shared"] = product.is_shared
                 temp_dict["pk"] = product.pk
                 images_list = []
-                images = sourcing_user_product.images.all()
+                images = product.images.all()
 
                 if len(images) == 0:
                     temp_dict2 = {}
@@ -255,13 +247,11 @@ class FetchFactoryDetailsAPI(APIView):
                 temp_dict["images"] = images_list
                 products_list.append(temp_dict)
 
-            sourcing_user = SourcingUser.objects.get(
-                username=request.user.username)
-            sourcing_user_factories = SourcingUserFactory.objects.filter(
-                created_by=sourcing_user)
+            user = OmnyCommUser.objects.get(username=request.user.username)
+            user_factories = Factory.objects.filter(created_by=user)
             tutorial_enable = True
-            for sourcing_user_factory in sourcing_user_factories:
-                if sourcing_user_factory.products.all().count() > 0:
+            for factory in user_factories:
+                if factory.products.all().count() > 0:
                     tutorial_enable = False
                     break
 
@@ -357,12 +347,12 @@ class UploadFactoriesProductsAPI(APIView):
             factory_sheet = wb.sheet_by_index(0)
             product_sheet = wb.sheet_by_index(1)
 
-            sourcing_user = SourcingUser.objects.get(username=request.user.username)
+            user = OmnyCommUser.objects.get(username=request.user.username)
 
             try:
                 for row_number in range(1, factory_sheet.nrows):
 
-                    factory_exists = SourcingUserFactory.objects.filter(
+                    factory_exists = OmnyCommUserFactory.objects.filter(
                         name=factory_sheet.cell_value(row_number, 0)).exists()
                     if factory_exists == False:
                         new_factory = Factory.objects.create(address=factory_sheet.cell_value(row_number, 1),
@@ -384,10 +374,10 @@ class UploadFactoriesProductsAPI(APIView):
                                                                  row_number, 4),
                                                              created_date=timezone.now())
 
-                        sourcing_user_factory = SourcingUserFactory.objects.create(base_factory=new_factory,
+                        factory = OmnyCommUserFactory.objects.create(base_factory=new_factory,
                                                                                    name=factory_sheet.cell_value(
                                                                                        row_number, 0),
-                                                                                   created_by=sourcing_user,
+                                                                                   created_by=user,
                                                                                    other_info=factory_sheet.cell_value(row_number, 6))
 
                         phone_numbers = str(
@@ -410,7 +400,7 @@ class UploadFactoriesProductsAPI(APIView):
             try:
                 for row_number in range(1, product_sheet.nrows):
 
-                    product_exists = SourcingUserProduct.objects.filter(
+                    product_exists = BaseProduct.objects.filter(
                         name=product_sheet.cell_value(row_number, 0)).exists()
 
                     if product_exists == False:
@@ -419,22 +409,22 @@ class UploadFactoriesProductsAPI(APIView):
                                                              product_sheet.cell_value(row_number, 6)),
                                                          qty_metric=product_sheet.cell_value(row_number, 5))
 
-                        sourcing_user_product = SourcingUserProduct.objects.create(name=product_sheet.cell_value(row_number, 0),
+                        product = BaseProduct.objects.create(name=product_sheet.cell_value(row_number, 0),
                                                                                    code=product_sheet.cell_value(
                                                                                        row_number, 1),
                                                                                    price=float(
                                                                                        product_sheet.cell_value(row_number, 2)),
-                                                                                   base_product=product,
+                                                                                   product=product,
                                                                                    other_info=product_sheet.cell_value(
                                                                                        row_number, 7),
-                                                                                   created_by=sourcing_user,
+                                                                                   created_by=user,
                                                                                    currency=product_sheet.cell_value(row_number, 3))
 
                         count += 1
-                        sourcing_user_factory = SourcingUserFactory.objects.get(
+                        factory = OmnyCommUserFactory.objects.get(
                             name=product_sheet.cell_value(row_number, 8))
-                        sourcing_user_factory.products.add(product)
-                        sourcing_user_factory.save()
+                        factory.products.add(product)
+                        factory.save()
 
                     print(count)
             except Exception as e:
@@ -469,12 +459,12 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
             factory_sheet = wb.sheet_by_index(0)
             product_sheet = wb.sheet_by_index(1)
 
-            sourcing_user = SourcingUser.objects.get(username=request.user.username)
+            user = OmnyCommUser.objects.get(username=request.user.username)
             upload_format = data["upload_format"]
             try:
                 for row_number in range(1, factory_sheet.nrows):
 
-                    factory_exists = SourcingUserFactory.objects.filter(
+                    factory_exists = OmnyCommUserFactory.objects.filter(
                         name=factory_sheet.cell_value(row_number, 0)).exists()
                     if factory_exists == False:
                         new_factory = Factory.objects.create(address=factory_sheet.cell_value(row_number, 1),
@@ -496,10 +486,10 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                                                                  row_number, 4),
                                                              created_date=timezone.now())
 
-                        sourcing_user_factory = SourcingUserFactory.objects.create(base_factory=new_factory,
+                        factory = OmnyCommUserFactory.objects.create(base_factory=new_factory,
                                                                                    name=factory_sheet.cell_value(
                                                                                        row_number, 0),
-                                                                                   created_by=sourcing_user,
+                                                                                   created_by=user,
                                                                                    other_info=factory_sheet.cell_value(row_number, 6))
 
                         phone_numbers = str(
@@ -531,9 +521,9 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                             new_factory.save()
 
                     else:
-                        existing_sourcing_user_factory = SourcingUserFactory.objects.get(
+                        existing_factory = OmnyCommUserFactory.objects.get(
                             name=factory_sheet.cell_value(row_number, 0))
-                        existing_factory = existing_sourcing_user_factory.base_factory
+                        existing_factory = existing_factory.base_factory
 
                         existing_factory.address = get_format_value(
                             existing_factory.address, factory_sheet.cell_value(row_number, 1), upload_format)
@@ -556,14 +546,14 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
 
                         existing_factory.save()
 
-                        existing_sourcing_user_factory.name = get_format_value(
-                            existing_sourcing_user_factory.name, factory_sheet.cell_value(row_number, 0), upload_format)
-                        existing_sourcing_user_factory.other_info = get_format_value(
-                            existing_sourcing_user_factory.other_info, factory_sheet.cell_value(row_number, 6), upload_format)
+                        existing_factory.name = get_format_value(
+                            existing_factory.name, factory_sheet.cell_value(row_number, 0), upload_format)
+                        existing_factory.other_info = get_format_value(
+                            existing_factory.other_info, factory_sheet.cell_value(row_number, 6), upload_format)
 
-                        existing_sourcing_user_factory.save()
+                        existing_factory.save()
 
-                        if existing_sourcing_user_factory.base_factory.bank_details == None:
+                        if existing_factory.base_factory.bank_details == None:
                             bank, bank_created = Bank.objects.get_or_create(
                                 ifsc_code=factory_sheet.cell_value(row_number, 15))
                             bank.name = factory_sheet.cell_value(
@@ -601,11 +591,11 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                                 factory_sheet.cell_value(row_number, 5)).split(",")
 
                             new_phone_numbers = get_phone_numbers(
-                                phone_numbers, existing_sourcing_user_factory.base_factory.phone_numbers.all(), upload_format)
+                                phone_numbers, existing_factory.base_factory.phone_numbers.all(), upload_format)
                             if len(list(filter(lambda x: (len(x) > 0), new_phone_numbers))) == 0:
 
-                                existing_sourcing_user_factory.base_factory.phone_numbers.clear()
-                                existing_sourcing_user_factory.save()
+                                existing_factory.base_factory.phone_numbers.clear()
+                                existing_factory.save()
                             else:
                                 for phone_number in set(new_phone_numbers):
                                     phone_number = str(phone_number).split(".")[
@@ -613,18 +603,18 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
 
                                     p_obj, flag = PhoneNumber.objects.get_or_create(
                                         number=str(phone_number))
-                                    existing_sourcing_user_factory.base_factory.phone_numbers.add(
+                                    existing_factory.base_factory.phone_numbers.add(
                                         p_obj)
-                                    existing_sourcing_user_factory.save()
+                                    existing_factory.save()
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
                             logger.error("UploadFactoriesProductsFromSourcingAPI: %s at %s",
                              e, str(exc_tb.tb_lineno))
 
 
-                        # existing_sourcing_user_factory.base_factory.phone_numbers.add(*new_phone_numbers)
+                        # existing_factory.base_factory.phone_numbers.add(*new_phone_numbers)
 
-                        existing_sourcing_user_factory.save()
+                        existing_factory.save()
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -636,7 +626,7 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
 
             try:
                 for row_number in range(1, product_sheet.nrows):
-                    product_exists = SourcingUserProduct.objects.filter(
+                    product_exists = BaseProduct.objects.filter(
                         name=product_sheet.cell_value(row_number, 0)).exists()
 
                     #order_qty=int( product_sheet.cell_value(row_number, 6)),
@@ -648,12 +638,12 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                                                              row_number, 5),
                                                          size=product_sheet.cell_value(row_number, 8),)
                         #weight_metric=product_sheet.cell_value(row_number, 11),
-                        sourcing_user_product = SourcingUserProduct.objects.create(name=product_sheet.cell_value(row_number, 0),
+                        product = BaseProduct.objects.create(name=product_sheet.cell_value(row_number, 0),
                                                                                    code=product_sheet.cell_value(row_number, 1),
                                                                                     price=float(product_sheet.cell_value(row_number, 2)),
-                                                                                    base_product=product,
+                                                                                    product=product,
                                                                                     other_info=product_sheet.cell_value(row_number, 6),
-                                                                                    created_by=sourcing_user,
+                                                                                    created_by=user,
                                                                                     currency=product_sheet.cell_value(row_number, 3),
                                                                                     weight=product_sheet.cell_value(row_number, 10),
 
@@ -666,10 +656,10 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                                                                                     ship_lot_number=product_sheet.cell_value(row_number, 18))
 
                         count += 1
-                        sourcing_user_factory = SourcingUserFactory.objects.get(
+                        factory = OmnyCommUserFactory.objects.get(
                             name=product_sheet.cell_value(row_number, 9))
-                        sourcing_user_factory.products.add(product)
-                        sourcing_user_factory.save()
+                        factory.products.add(product)
+                        factory.save()
 
                         colors = product_sheet.cell_value(
                             row_number, 7).split(", ")
@@ -678,15 +668,15 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
 
                             new_color, new_color_created = ColorGroup.objects.get_or_create(
                                 name=color)
-                            sourcing_user_product.base_product.color_group.add(new_color)
-                            sourcing_user_product.save()
+                            product.product.color_group.add(new_color)
+                            product.save()
 
                     else:
-                        existing_sourcing_user_product = SourcingUserProduct.objects.get(
+                        existing_product = BaseProduct.objects.get(
                                 name=product_sheet.cell_value(row_number, 0))
                         
                         try:
-                            existing_product = existing_sourcing_user_product.base_product
+                            existing_product = existing_product.product
 
                             existing_product.minimum_order_qty = get_format_value(
                                 existing_product.minimum_order_qty, int(product_sheet.cell_value(row_number, 4)), upload_format)
@@ -700,45 +690,45 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                            
                         except Exception as e:
                             print(e)
-                        existing_sourcing_user_product.name = get_format_value(
-                            existing_sourcing_user_product.name, product_sheet.cell_value(row_number, 0), upload_format)
-                        existing_sourcing_user_product.price = get_format_value(
-                            existing_sourcing_user_product.price, float(product_sheet.cell_value(row_number, 2)), upload_format)
-                        existing_sourcing_user_product.base_product = existing_product
-                        existing_sourcing_user_product.other_info = get_format_value(
-                            existing_sourcing_user_product.other_info, product_sheet.cell_value(row_number, 6), upload_format)
-                        existing_sourcing_user_product.size = get_format_value(
-                            existing_sourcing_user_product.base_product.size, product_sheet.cell_value(row_number, 8), upload_format)
-                        existing_sourcing_user_product.created_by = sourcing_user
-                        existing_sourcing_user_product.currency = get_format_value(
-                            existing_sourcing_user_product.currency, product_sheet.cell_value(row_number, 3), upload_format)
+                        existing_product.name = get_format_value(
+                            existing_product.name, product_sheet.cell_value(row_number, 0), upload_format)
+                        existing_product.price = get_format_value(
+                            existing_product.price, float(product_sheet.cell_value(row_number, 2)), upload_format)
+                        existing_product.product = existing_product
+                        existing_product.other_info = get_format_value(
+                            existing_product.other_info, product_sheet.cell_value(row_number, 6), upload_format)
+                        existing_product.size = get_format_value(
+                            existing_product.product.size, product_sheet.cell_value(row_number, 8), upload_format)
+                        existing_product.created_by = user
+                        existing_product.currency = get_format_value(
+                            existing_product.currency, product_sheet.cell_value(row_number, 3), upload_format)
 
-                        existing_sourcing_user_product.weight = get_format_value(
-                            existing_sourcing_user_product.weight, product_sheet.cell_value(row_number, 10), upload_format)
+                        existing_product.weight = get_format_value(
+                            existing_product.weight, product_sheet.cell_value(row_number, 10), upload_format)
 
-                        # existing_sourcing_user_product.weight_metric = get_format_value(
-                        #     existing_sourcing_user_product.weight_metric, product_sheet.cell_value(row_number, 11), upload_format)
+                        # existing_product.weight_metric = get_format_value(
+                        #     existing_product.weight_metric, product_sheet.cell_value(row_number, 11), upload_format)
 
-                        existing_sourcing_user_product.design = get_format_value(
-                            existing_sourcing_user_product.design, product_sheet.cell_value(row_number, 12), upload_format)
+                        existing_product.design = get_format_value(
+                            existing_product.design, product_sheet.cell_value(row_number, 12), upload_format)
 
-                        existing_sourcing_user_product.pkg_inner = get_format_value(
-                            existing_sourcing_user_product.pkg_inner, product_sheet.cell_value(row_number, 13), upload_format)
+                        existing_product.pkg_inner = get_format_value(
+                            existing_product.pkg_inner, product_sheet.cell_value(row_number, 13), upload_format)
 
-                        existing_sourcing_user_product.pkg_m_ctn = get_format_value(
-                            existing_sourcing_user_product.pkg_m_ctn, product_sheet.cell_value(row_number, 14), upload_format)
+                        existing_product.pkg_m_ctn = get_format_value(
+                            existing_product.pkg_m_ctn, product_sheet.cell_value(row_number, 14), upload_format)
 
-                        existing_sourcing_user_product.p_ctn_cbm = get_format_value(
-                            existing_sourcing_user_product.p_ctn_cbm, product_sheet.cell_value(row_number, 15), upload_format)
+                        existing_product.p_ctn_cbm = get_format_value(
+                            existing_product.p_ctn_cbm, product_sheet.cell_value(row_number, 15), upload_format)
 
-                        existing_sourcing_user_product.ttl_ctn = get_format_value(
-                            existing_sourcing_user_product.ttl_ctn, product_sheet.cell_value(row_number, 16), upload_format)
+                        existing_product.ttl_ctn = get_format_value(
+                            existing_product.ttl_ctn, product_sheet.cell_value(row_number, 16), upload_format)
 
-                        existing_sourcing_user_product.ttl_cbm = get_format_value(
-                            existing_sourcing_user_product.ttl_cbm, product_sheet.cell_value(row_number, 17), upload_format)
+                        existing_product.ttl_cbm = get_format_value(
+                            existing_product.ttl_cbm, product_sheet.cell_value(row_number, 17), upload_format)
 
-                        existing_sourcing_user_product.ship_lot_number = get_format_value(
-                            existing_sourcing_user_product.ship_lot_number, product_sheet.cell_value(row_number, 18), upload_format)
+                        existing_product.ship_lot_number = get_format_value(
+                            existing_product.ship_lot_number, product_sheet.cell_value(row_number, 18), upload_format)
 
                         colors = product_sheet.cell_value(
                             row_number, 7).split(", ")
@@ -746,21 +736,21 @@ class UploadFactoriesProductsFromSourcingAPI(APIView):
                         
 
                         new_colors = get_colors(
-                            colors, existing_sourcing_user_product.base_product.color_group.all(), upload_format)
+                            colors, existing_product.product.color_group.all(), upload_format)
 
                         if upload_format == 'partial_overwrite':
-                            existing_sourcing_user_product.base_product.color_group.clear()
-                            existing_sourcing_user_product.save()
+                            existing_product.product.color_group.clear()
+                            existing_product.save()
 
                         temp_color_list = []
                         for color in new_colors:
                             temp_color, created = ColorGroup.objects.get_or_create(
                                 name=color)
                             temp_color_list.append(temp_color)
-                        existing_sourcing_user_product.base_product.color_group.add(
+                        existing_product.product.color_group.add(
                             *temp_color_list)
 
-                        existing_sourcing_user_product.save()
+                        existing_product.save()
                         count += 1
                     print(count)
             except Exception as e:
@@ -791,43 +781,43 @@ class AddNewProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if SourcingUserProduct.objects.filter(code=data["product-code"]).exists():
+            if BaseProduct.objects.filter(code=data["product-code"]).exists():
                 response["message"] = "Duplicate product detected!"
                 return Response(data=response)
 
-            sourcing_user = SourcingUser.objects.get(
+            user = OmnyCommUser.objects.get(
                 username=request.user.username)
 
             product = Product.objects.create(minimum_order_qty=int(data["moq"]),
                                              order_qty=int(data["order-qty"]),
                                              qty_metric=data["qty-metric"])
 
-            sourcing_user_product = SourcingUserProduct.objects.create(name=data["product-name"],
+            product = BaseProduct.objects.create(name=data["product-name"],
                                                                        code=data["product-code"],
                                                                        price=float(
                                                                            data["product-price"]),
-                                                                       base_product=product,
+                                                                       product=product,
                                                                        other_info=data["other-info"],
-                                                                       created_by=sourcing_user,
+                                                                       created_by=user,
                                                                        currency=data["currency"])
 
             factory = Factory.objects.get(pk=int(data["factory-pk"]))
-            sourcing_user_factory = SourcingUserFactory.objects.get(
+            factory = OmnyCommUserFactory.objects.get(
                 base_factory=factory)
-            sourcing_user_factory.products.add(product)
-            sourcing_user_factory.save()
+            factory.products.add(product)
+            factory.save()
 
             for i in range(int(data["product-images-count"])):
                 im_obj = Image.objects.create(
                     image=data["product-images-"+str(i)])
-                sourcing_user_product.images.add(im_obj)
-                sourcing_user_product.save()
+                product.images.add(im_obj)
+                product.save()
 
             for i in range(int(data["attachments-count"])):
                 at_obj = Attachment.objects.create(
                     attachment=data["attachment-"+str(i)])
-                sourcing_user_product.attachments.add(at_obj)
-                sourcing_user_product.save()
+                product.attachments.add(at_obj)
+                product.save()
 
             response["pk"] = product.pk
             response["message"] = "Product added successfully!"
@@ -855,12 +845,12 @@ class FetchProductDetailsAPI(APIView):
                 data = json.loads(data)
 
             product = Product.objects.get(pk=int(data["pk"]))
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
+            product = BaseProduct.objects.get(
+                product=product)
 
             try:
                 factory_manager_product = FactoryManagerProduct.objects.get(
-                    base_product=product)
+                    product=product)
 
                 response["factory-manager-product-name"] = factory_manager_product.name
                 response["factory-manager-product-code"] = factory_manager_product.code
@@ -873,7 +863,7 @@ class FetchProductDetailsAPI(APIView):
                 response["factory-manager-product-price-currency"] = ""
 
             images_list = []
-            images = sourcing_user_product.images.all()
+            images = product.images.all()
 
             # print(len(images))
 
@@ -889,7 +879,7 @@ class FetchProductDetailsAPI(APIView):
                 images_list.append(temp_dict)
 
             attachment_list = []
-            attachments = sourcing_user_product.attachments.all()
+            attachments = product.attachments.all()
             for attachment in attachments:
                 temp_dict = {}
                 temp_dict["url"] = attachment.attachment.name
@@ -900,8 +890,8 @@ class FetchProductDetailsAPI(APIView):
 
             response["factory-name"] = ""
             response["factory-pk"] = ""
-            if product.sourcinguserfactory_set.all().count() > 0:
-                temp_factory = product.sourcinguserfactory_set.all()[0]
+            if product.OmnyCommUserfactory_set.all().count() > 0:
+                temp_factory = product.OmnyCommUserfactory_set.all()[0]
                 response["factory-name"] = temp_factory.name
                 response["factory-pk"] = temp_factory.base_factory.pk
 
@@ -911,18 +901,18 @@ class FetchProductDetailsAPI(APIView):
                 except Exception as e:
                     response["factory-manager-factory-name"] = ""
 
-            response["product-name"] = sourcing_user_product.name
-            response["product-code"] = sourcing_user_product.code
-            response["product-price"] = sourcing_user_product.price
+            response["product-name"] = product.name
+            response["product-code"] = product.code
+            response["product-price"] = product.price
 
             response["is_pr_ready"] = product.is_pr_ready
 
             response["moq"] = product.minimum_order_qty
             response["order-qty"] = product.order_qty
-            response["other-info"] = sourcing_user_product.other_info
+            response["other-info"] = product.other_info
             response["images"] = images_list
             response["attachments"] = attachment_list
-            response["currency"] = sourcing_user_product.currency
+            response["currency"] = product.currency
             response["qty-metric"] = product.qty_metric
             response["pk"] = product.pk
 
@@ -952,7 +942,7 @@ class SavePhoneNumbersAPI(APIView):
             phone_numbers_list = json.loads(data["phone_numbers"])
 
             factory = Factory.objects.get(pk=int(data["pk"]))
-            sourcing_user_factory = SourcingUserFactory.objects.get(
+            factory = OmnyCommUserFactory.objects.get(
                 base_factory=factory)
             phone_number_objs = factory.phone_numbers.all()
             for phone_number_obj in phone_number_objs:
@@ -1017,10 +1007,10 @@ class SaveFactoryNameAPI(APIView):
             factory_name = data["factory_name"]
 
             factory = Factory.objects.get(pk=int(data["pk"]))
-            sourcing_user_factory = SourcingUserFactory.objects.get(
+            factory = OmnyCommUserFactory.objects.get(
                 base_factory=factory)
-            sourcing_user_factory.name = factory_name
-            sourcing_user_factory.save()
+            factory.name = factory_name
+            factory.save()
 
             response["status"] = 200
 
@@ -1055,17 +1045,17 @@ class SaveProductDetailsAPI(APIView):
             currency = data["currency"]
 
             product = Product.objects.get(pk=int(data["pk"]))
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
-            sourcing_user_product.name = product_name
-            sourcing_user_product.price = float(product_price)
-            sourcing_user_product.code = product_code
+            product = BaseProduct.objects.get(
+                product=product)
+            product.name = product_name
+            product.price = float(product_price)
+            product.code = product_code
             product.minimum_order_qty = int(moq)
             product.order_qty = int(order_qty)
-            sourcing_user_product.other_info = other_info
-            sourcing_user_product.currency = currency
+            product.other_info = other_info
+            product.currency = currency
             product.qty_metric = qty_metric
-            sourcing_user_product.save()
+            product.save()
             product.save()
 
             response["status"] = 200
@@ -1121,11 +1111,11 @@ class UploadProductImageAPI(APIView):
                 data = json.loads(data)
 
             product = Product.objects.get(pk=int(data["pk"]))
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
+            product = BaseProduct.objects.get(
+                product=product)
             im_obj = Image.objects.create(image=data["product-image"])
-            sourcing_user_product.images.add(im_obj)
-            sourcing_user_product.save()
+            product.images.add(im_obj)
+            product.save()
 
             response["image-url"] = im_obj.image.url
             response["pk"] = im_obj.pk
@@ -1154,11 +1144,11 @@ class DeleteImageAPI(APIView):
 
             Image.objects.get(pk=int(data["pk"])).delete()
             product = Product.objects.get(pk=int(data["product_pk"]))
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
+            product = BaseProduct.objects.get(
+                product=product)
 
             images_list = []
-            images = sourcing_user_product.images.all()
+            images = product.images.all()
             for image in images:
                 temp_dict = {}
                 temp_dict["url"] = image.image.url
@@ -1189,12 +1179,12 @@ class UploadAttachmentAPI(APIView):
                 data = json.loads(data)
 
             product = Product.objects.get(pk=int(data["pk"]))
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
+            product = BaseProduct.objects.get(
+                product=product)
             attachment_obj = Attachment.objects.create(
                 attachment=data["attachment"])
-            sourcing_user_product.attachments.add(attachment_obj)
-            sourcing_user_product.save()
+            product.attachments.add(attachment_obj)
+            product.save()
 
             response["url"] = attachment_obj.attachment.name
             response["name"] = os.path.basename(
@@ -1225,10 +1215,10 @@ class DeleteAttachmentAPI(APIView):
 
             Attachment.objects.get(pk=int(data["pk"])).delete()
             product = Product.objects.get(pk=int(data["product_pk"]))
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
+            product = BaseProduct.objects.get(
+                product=product)
             attachment_list = []
-            attachments = sourcing_user_product.attachments.all()
+            attachments = product.attachments.all()
             for attachment in attachments:
                 temp_dict = {}
                 temp_dict["url"] = attachment.attachment.name
@@ -1261,41 +1251,41 @@ class FetchProductCardsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            # sourcing_user = SourcingUser.objects.get(username=request.user.username)
-            # sourcing_user_product_list = SourcingUserProduct.objects.filter(created_by=sourcing_user).order_by('-pk')
-            sourcing_user_product_list = SourcingUserProduct.objects.all()
-            paginator = Paginator(sourcing_user_product_list, 4)
+            # user = OmnyCommUser.objects.get(username=request.user.username)
+            # product_list = BaseProduct.objects.filter(created_by=user).order_by('-pk')
+            product_list = BaseProduct.objects.all()
+            paginator = Paginator(product_list, 4)
 
             page = int(data["card_page"])
             print("Page number received: ", page)
-            sourcing_user_products = paginator.page(page)
+            products = paginator.page(page)
             products = []
 
-            for sourcing_user_product in sourcing_user_products:
+            for product in products:
                 temp_dict = {}
-                product = sourcing_user_product.base_product
-                temp_dict["name"] = sourcing_user_product.name
-                temp_dict["code"] = sourcing_user_product.code
-                temp_dict["price"] = sourcing_user_product.price
+                product = product.product
+                temp_dict["name"] = product.name
+                temp_dict["code"] = product.code
+                temp_dict["price"] = product.price
                 temp_dict["moq"] = product.minimum_order_qty
                 temp_dict["order-qty"] = product.order_qty
-                temp_dict["other-info"] = sourcing_user_product.other_info
-                temp_dict["currency"] = sourcing_user_product.currency
+                temp_dict["other-info"] = product.other_info
+                temp_dict["currency"] = product.currency
                 temp_dict["qty-metric"] = product.qty_metric
 
                 temp_dict["pk"] = product.pk
                 temp_dict["image-url"] = ""
 
-                if sourcing_user_product.images.all().count() > 0:
-                    temp_dict["image-url"] = sourcing_user_product.images.all()[0].image.url
+                if product.images.all().count() > 0:
+                    temp_dict["image-url"] = product.images.all()[0].image.url
                 else:
                     temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
                 temp_dict["factory-name"] = ""
                 temp_dict["factory-pk"] = ""
 
-                if product.sourcinguserfactory_set.all().count() > 0:
-                    temp_factory = product.sourcinguserfactory_set.all()[0]
+                if product.OmnyCommUserfactory_set.all().count() > 0:
+                    temp_factory = product.OmnyCommUserfactory_set.all()[0]
                     temp_dict["factory-name"] = temp_factory.name
                     temp_dict["factory-pk"] = temp_factory.pk
 
@@ -1305,7 +1295,7 @@ class FetchProductCardsAPI(APIView):
             if paginator.num_pages == page:
                 is_available = False
 
-            response["total-products"] = SourcingUserProduct.objects.all().count()
+            response["total-products"] = BaseProduct.objects.all().count()
             response["is_available"] = is_available
             response["products"] = products
             response["status"] = 200
@@ -1332,9 +1322,9 @@ class SaveFactoryDetailsAPI(APIView):
                 data = json.loads(data)
 
             factory = Factory.objects.get(pk=int(data["pk"]))
-            sourcing_user_factory = SourcingUserFactory.objects.get(
+            factory = OmnyCommUserFactory.objects.get(
                 base_factory=factory)
-            sourcing_user_factory.name = data["name"]
+            factory.name = data["name"]
             factory.address = data["address"]
             factory.factory_emailid = data["factory_emailid"]
             factory.contact_person_name = data["contact_person_name"]
@@ -1358,7 +1348,7 @@ class SaveFactoryDetailsAPI(APIView):
                 factory.phone_numbers.add(phone_number_obj)
                 factory.save()
 
-            response["name"] = sourcing_user_factory.name
+            response["name"] = factory.name
             response["address"] = factory.address
             response["phone_numbers"] = phone_numbers
             response["factory_emailid"] = factory.factory_emailid
@@ -1406,9 +1396,9 @@ class ExportFactoriesAPI(APIView):
             writer.writerow(row)
 
             for factory in factories:
-                sourcing_user_factory = SourcingUserFactory.objects.get(
+                factory = OmnyCommUserFactory.objects.get(
                     base_factory=factory)
-                products_count = sourcing_user_factory.products.all().count()
+                products_count = factory.products.all().count()
                 img_url = ""
 
                 if(factory.business_card != None and factory.business_card.image != "undefined" and factory.business_card.image != ""):
@@ -1439,23 +1429,23 @@ class ExportFactoriesAPI(APIView):
             product_writer.writerow(product_row)
 
             for factory in factories:
-                sourcing_user_factory = SourcingUserFactory.objects.get(
+                factory = OmnyCommUserFactory.objects.get(
                     base_factory=factory)
-                products = sourcing_user_factory.products.all()
+                products = factory.products.all()
                 for product in products:
                     img_url = ""
-                    sourcing_user_product = SourcingUserProduct.objects.get(
-                        base_product=product)
-                    product_row = [str(product.pk), str(sourcing_user_product.name),
+                    product = BaseProduct.objects.get(
+                        product=product)
+                    product_row = [str(product.pk), str(product.name),
                                    str(factory.pk),
                                    str(factory.created_date.strftime(
                                        "%d, %b %Y ")),
-                                   str(sourcing_user_product.created_by.username),
-                                   str(sourcing_user_product.price), str(
-                                       sourcing_user_product.currency),
+                                   str(product.created_by.username),
+                                   str(product.price), str(
+                                       product.currency),
                                    str(product.minimum_order_qty),
                                    str(product.qty_metric)]
-                    if(sourcing_user_product.images.all().count() != 0):
+                    if(product.images.all().count() != 0):
                         images = product.images.all()
                         for img in images:
                             img_url = img.image.url
@@ -1530,14 +1520,14 @@ class SearchFactoriesAPI(APIView):
 
             query = data["query"]
 
-            sourcing_user_factories = SourcingUserFactory.objects.filter(
+            user_factories = OmnyCommUserFactory.objects.filter(
                 name__icontains=query)
 
             factory_list = []
-            for sourcing_user_factory in sourcing_user_factories:
-                factory = sourcing_user_factory.base_factory
+            for factory in user_factories:
+                factory = factory.base_factory
                 temp_dict = {}
-                temp_dict["name"] = sourcing_user_factory.name
+                temp_dict["name"] = factory.name
                 if factory.business_card != None and factory.business_card.image != "" and factory.business_card.image != "undefined":
 
                     temp_dict["business-card"] = factory.business_card.image.url
@@ -1556,12 +1546,12 @@ class SearchFactoriesAPI(APIView):
                 for phone_number in factory.phone_numbers.all():
                     phone_numbers.append(phone_number.number)
                 temp_dict["phone-numbers"] = phone_numbers
-                temp_dict["total-products"] = sourcing_user_factory.products.all().count()
+                temp_dict["total-products"] = factory.products.all().count()
                 factory_list.append(temp_dict)
 
-            sourcing_user = SourcingUser.objects.get(
+            user = OmnyCommUser.objects.get(
                 username=request.user.username)
-            if SourcingUserFactory.objects.filter(created_by=sourcing_user).count() == 0:
+            if OmnyCommUserFactory.objects.filter(created_by=user).count() == 0:
                 response["tutorial_enable"] = True
             else:
                 response["tutorial_enable"] = False
@@ -1606,17 +1596,17 @@ class SearchFactoriesByDateAPI(APIView):
                     factories = Factory.objects.filter(
                         created_date__date__range=[start_date, end_date])
 
-                sourcing_user_factories = []
+                user_factories = []
                 for factory in factories:
-                    sourcing_user_factory = SourcingUserFactory.objects.get(
+                    factory = OmnyCommUserFactory.objects.get(
                         base_factory=factory)
-                    sourcing_user_factories.append(sourcing_user_factory)
+                    user_factories.append(factory)
 
                 factory_list = []
-                for sourcing_user_factory in sourcing_user_factories:
-                    factory = sourcing_user_factory.base_factory
+                for factory in user_factories:
+                    factory = factory.base_factory
                     temp_dict = {}
-                    temp_dict["name"] = sourcing_user_factory.name
+                    temp_dict["name"] = factory.name
                     if factory.business_card != None and factory.business_card.image != "" and factory.business_card.image != "undefined":
                         temp_dict["business-card"] = factory.business_card.image.url
                     else:
@@ -1634,12 +1624,12 @@ class SearchFactoriesByDateAPI(APIView):
                     for phone_number in factory.phone_numbers.all():
                         phone_numbers.append(phone_number.number)
                     temp_dict["phone-numbers"] = phone_numbers
-                    temp_dict["total-products"] = sourcing_user_factory.products.all().count()
+                    temp_dict["total-products"] = factory.products.all().count()
                     factory_list.append(temp_dict)
 
-                sourcing_user = SourcingUser.objects.get(
+                user = OmnyCommUser.objects.get(
                     username=request.user.username)
-                if SourcingUserFactory.objects.filter(created_by=sourcing_user).count() == 0:
+                if OmnyCommUserFactory.objects.filter(created_by=user).count() == 0:
                     response["tutorial_enable"] = True
                 else:
                     response["tutorial_enable"] = False
@@ -1671,38 +1661,38 @@ class SearchProductsAPI(APIView):
 
             query = data["query"]
 
-            sourcing_user_products = SourcingUserProduct.objects.filter(
+            products = BaseProduct.objects.filter(
                 name__icontains=query).order_by('-pk')
 
             products = []
-            for sourcing_user_product in sourcing_user_products:
+            for product in products:
                 temp_dict = {}
-                product = sourcing_user_product.base_product
-                temp_dict["name"] = sourcing_user_product.name
-                temp_dict["code"] = sourcing_user_product.code
-                temp_dict["price"] = sourcing_user_product.price
+                product = product.product
+                temp_dict["name"] = product.name
+                temp_dict["code"] = product.code
+                temp_dict["price"] = product.price
                 temp_dict["moq"] = product.minimum_order_qty
                 temp_dict["order-qty"] = product.order_qty
-                temp_dict["other-info"] = sourcing_user_product.other_info
-                temp_dict["currency"] = sourcing_user_product.currency
+                temp_dict["other-info"] = product.other_info
+                temp_dict["currency"] = product.currency
                 temp_dict["qty-metric"] = product.qty_metric
 
                 temp_dict["pk"] = product.pk
                 temp_dict["image-url"] = ""
-                if sourcing_user_product.images.all().count() > 0:
-                    temp_dict["image-url"] = sourcing_user_product.images.all()[0].image.url
+                if product.images.all().count() > 0:
+                    temp_dict["image-url"] = product.images.all()[0].image.url
                 else:
                     temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
                 temp_dict["factory-name"] = ""
                 temp_dict["factory-pk"] = ""
-                if product.sourcinguserfactory_set.all().count() > 0:
-                    temp_factory = product.sourcinguserfactory_set.all()[0]
+                if product.OmnyCommUserfactory_set.all().count() > 0:
+                    temp_factory = product.OmnyCommUserfactory_set.all()[0]
                     temp_dict["factory-name"] = temp_factory.name
                     temp_dict["factory-pk"] = temp_factory.pk
 
                 products.append(temp_dict)
 
-            response["total-products"] = sourcing_user_products.count()
+            response["total-products"] = products.count()
             response["products"] = products
             response["status"] = 200
 
@@ -1730,17 +1720,17 @@ class ShareFactoryAPI(APIView):
 
             factory = Factory.objects.get(pk=int(data["pk"]))
 
-            sourcing_user_factory = SourcingUserFactory.objects.get(
+            factory = OmnyCommUserFactory.objects.get(
                 base_factory=factory)
 
             factory_manager_factory, created = FactoryManagerFactory.objects.get_or_create(
-                name=sourcing_user_factory.name, base_factory=factory)
+                name=factory.name, base_factory=factory)
 
-            products = sourcing_user_factory.products.all()
+            products = factory.products.all()
             for product in products:
-                sourcing_user_product = SourcingUserProduct.objects.get(
-                    base_product=product)
-                if sourcing_user_product.is_shared == True:
+                product = BaseProduct.objects.get(
+                    product=product)
+                if product.is_shared == True:
                     factory_manager_factory.products.add(product)
 
             factory_manager_factory.save()
@@ -1783,30 +1773,30 @@ class ShareProductAPI(APIView):
                 data = json.loads(data)
 
             product = Product.objects.get(pk=int(data["pk"]))
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
-            sourcing_user_product.is_shared = True
-            sourcing_user_product.save()
+            product = BaseProduct.objects.get(
+                product=product)
+            product.is_shared = True
+            product.save()
 
-            sourcing_user_factory = SourcingUserFactory.objects.get(
+            factory = OmnyCommUserFactory.objects.get(
                 pk=data["factory_pk"])
-            factory = sourcing_user_factory.base_factory
+            factory = factory.base_factory
 
             if FactoryManagerFactory.objects.filter(base_factory=factory).exists():
                 factory_manager_factory = FactoryManagerFactory.objects.get(
                     base_factory=factory)
             else:
                 factory_manager_factory, created = FactoryManagerFactory.objects.get_or_create(
-                    base_factory=factory, name=sourcing_user_factory.name)
+                    base_factory=factory, name=factory.name)
 
-            factory_manager_product = FactoryManagerProduct.objects.create(name=sourcing_user_product.name,
-                                                                           code=sourcing_user_product.code,
-                                                                           price=sourcing_user_product.price,
-                                                                           currency=sourcing_user_product.currency,
-                                                                           base_product=product)  # ,
-            # images = sourcing_user_product.images.all(),
-            # certifications = sourcing_user_product.certifications.all(),
-            # attachments = sourcing_user_product.attachments.all())
+            factory_manager_product = FactoryManagerProduct.objects.create(name=product.name,
+                                                                           code=product.code,
+                                                                           price=product.price,
+                                                                           currency=product.currency,
+                                                                           product=product)  # ,
+            # images = product.images.all(),
+            # certifications = product.certifications.all(),
+            # attachments = product.attachments.all())
 
             factory_manager_factory.products.add(product)
             factory_manager_factory.save()
@@ -1845,7 +1835,7 @@ class FetchFactoryNameFromUUIDAPI(APIView):
 
         return Response(data=response)   
 
-class FetchFactoryForSourcingUserAPI(APIView):
+class FetchFactoryForOmnyCommUserAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -1853,45 +1843,45 @@ class FetchFactoryForSourcingUserAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchFactoryForSourcingUserAPI: %s", str(data))
+            logger.info("FetchFactoryForOmnyCommUserAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             pk = int(data['pk'])
-            sourcing_user_factory = SourcingUserFactory.objects.get(pk=pk)
+            factory = OmnyCommUserFactory.objects.get(pk=pk)
 
             temp_dict = {}
-            temp_dict["name"] = sourcing_user_factory.name
-            temp_dict["address"] = sourcing_user_factory.base_factory.address
-            temp_dict["email_id"] = sourcing_user_factory.base_factory.factory_emailid
+            temp_dict["name"] = factory.name
+            temp_dict["address"] = factory.base_factory.address
+            temp_dict["email_id"] = factory.base_factory.factory_emailid
 
-            temp_dict["loading_port"] = sourcing_user_factory.base_factory.loading_port
-            temp_dict["location"] = sourcing_user_factory.base_factory.location
+            temp_dict["loading_port"] = factory.base_factory.loading_port
+            temp_dict["location"] = factory.base_factory.location
 
-            temp_dict["notes"] = sourcing_user_factory.other_info
-            temp_dict["contact_person_name"] = sourcing_user_factory.base_factory.contact_person_name
-            temp_dict["contact_person_mobile_number"] = sourcing_user_factory.base_factory.contact_person_mobile_no
-            temp_dict["contact_person_email_id"] = sourcing_user_factory.base_factory.contact_person_emailid
-            temp_dict["tag"] = sourcing_user_factory.base_factory.social_media_tag
-            temp_dict["tag_info"] = sourcing_user_factory.base_factory.social_media_tag_information
+            temp_dict["notes"] = factory.other_info
+            temp_dict["contact_person_name"] = factory.base_factory.contact_person_name
+            temp_dict["contact_person_mobile_number"] = factory.base_factory.contact_person_mobile_no
+            temp_dict["contact_person_email_id"] = factory.base_factory.contact_person_emailid
+            temp_dict["tag"] = factory.base_factory.social_media_tag
+            temp_dict["tag_info"] = factory.base_factory.social_media_tag_information
             
-            if sourcing_user_factory.base_factory.bank_details:
-                temp_dict["bank_name"] = sourcing_user_factory.base_factory.bank_details.name
-                temp_dict["bank_address"] = sourcing_user_factory.base_factory.bank_details.address
-                temp_dict["bank_account_number"] = sourcing_user_factory.base_factory.bank_details.account_number
-                temp_dict["bank_ifsc_code"] = sourcing_user_factory.base_factory.bank_details.ifsc_code
-                temp_dict["bank_swift_code"] = sourcing_user_factory.base_factory.bank_details.swift_code
-                temp_dict["bank_branch_code"] = sourcing_user_factory.base_factory.bank_details.branch_code
+            if factory.base_factory.bank_details:
+                temp_dict["bank_name"] = factory.base_factory.bank_details.name
+                temp_dict["bank_address"] = factory.base_factory.bank_details.address
+                temp_dict["bank_account_number"] = factory.base_factory.bank_details.account_number
+                temp_dict["bank_ifsc_code"] = factory.base_factory.bank_details.ifsc_code
+                temp_dict["bank_swift_code"] = factory.base_factory.bank_details.swift_code
+                temp_dict["bank_branch_code"] = factory.base_factory.bank_details.branch_code
 
-            temp_dict["pk"] = sourcing_user_factory.pk
+            temp_dict["pk"] = factory.pk
             phone_numbers = []
-            for phone_number in sourcing_user_factory.base_factory.phone_numbers.all():
+            for phone_number in factory.base_factory.phone_numbers.all():
                 phone_numbers.append(phone_number.number)
             temp_dict["phone-numbers"] = phone_numbers
             images_list = []
-            if sourcing_user_factory.images.all().count() > 0:
-                for image in sourcing_user_factory.images.all():
+            if factory.images.all().count() > 0:
+                for image in factory.images.all():
                     temp_dict2 = {}
                     temp_dict2["url"] = image.image.url
                     temp_dict2["pk"] = image.pk
@@ -1899,20 +1889,20 @@ class FetchFactoryForSourcingUserAPI(APIView):
             temp_dict["images_list"] = images_list
             print(temp_dict["images_list"])
             operating_hours = []
-            for operating_hour in sourcing_user_factory.base_factory.operating_hours.all():
+            for operating_hour in factory.base_factory.operating_hours.all():
                 operating_hour_dict = {}
                 operating_hour_dict["day"] = operating_hour.day
                 operating_hour_dict["from_time"] = str(operating_hour.from_time)
                 operating_hour_dict["to_time"] = str(operating_hour.to_time)
                 operating_hours.append(operating_hour_dict)
             temp_dict["operating-hours"] = operating_hours
-            if(sourcing_user_factory.base_factory.logo != None and sourcing_user_factory.logo != ""):
-                temp_dict["logo"] = sourcing_user_factory.base_factory.logo.image.url
+            if(factory.base_factory.logo != None and factory.logo != ""):
+                temp_dict["logo"] = factory.base_factory.logo.image.url
             else:
                 temp_dict["logo"] = Config.objects.all()[
                     0].DEFAULT_IMAGE.url
-            # temp_dict["bank-details"] = sourcing_user_factory.base_factory.bank_details
-            temp_dict["total-products"] = sourcing_user_factory.products.all().count()
+            # temp_dict["bank-details"] = factory.base_factory.bank_details
+            temp_dict["total-products"] = factory.products.all().count()
 
  
             response["factory"] = temp_dict
@@ -1920,13 +1910,13 @@ class FetchFactoryForSourcingUserAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchFactoryForSourcingUserAPI: %s at %s",
+            logger.error("FetchFactoryForOmnyCommUserAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class FetchFactoriesForSourcingUserAPI(APIView):
+class FetchFactoriesForOmnyCommUserAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -1934,14 +1924,14 @@ class FetchFactoriesForSourcingUserAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchFactoriesForSourcingUserAPI: %s", str(data))
+            logger.info("FetchFactoriesForOmnyCommUserAPI: %s", str(data))
             
-            sourcing_user = SourcingUser.objects.get(username=request.user.username)
+            user = OmnyCommUser.objects.get(username=request.user.username)
             
             chip_data = json.loads(data['tags'])
 
-            factories = SourcingUserFactory.objects.filter(Q(created_by=sourcing_user) | 
-                Q(created_by__reports_to=sourcing_user))
+            factories = OmnyCommUserFactory.objects.filter(Q(created_by=user) | 
+                Q(created_by__reports_to=user))
             if len(chip_data)>0:
                 for tag in chip_data:
                     factories = factories.filter(name__icontains = tag)
@@ -1996,13 +1986,13 @@ class FetchFactoriesForSourcingUserAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchFactoriesForSourcingUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchFactoriesForOmnyCommUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
 
-class FetchSourcingUserDetailsAPI(APIView):
+class FetchOmnyCommUserDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -2010,13 +2000,13 @@ class FetchSourcingUserDetailsAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchSourcingUserDetailsAPI: %s", str(data))
+            logger.info("FetchOmnyCommUserDetailsAPI: %s", str(data))
             
-            sourcing_user = SourcingUser.objects.get(username=request.user.username)
+            user = OmnyCommUser.objects.get(username=request.user.username)
             temp_dict = {}
 
-            temp_dict["name"] = sourcing_user.username
-            temp_dict["pk"] = sourcing_user.pk
+            temp_dict["name"] = user.username
+            temp_dict["pk"] = user.pk
             factory = factory_manager.factory
             factory_manager_factory = FactoryManagerFactory.objects.get(base_factory=factory)
 
@@ -2058,7 +2048,7 @@ class FetchSourcingUserDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchSourcingUserDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchOmnyCommUserDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -2070,10 +2060,10 @@ class FetchProductsFromFactoryAPI(APIView):
 
         response = {}
         response['status'] = 500
-        is_sourcing_user = False
+        is_user = False
 
         try:
-            is_sourcing_user = SourcingUser.objects.filter(username=request.user.username).exists()
+            is_user = OmnyCommUser.objects.filter(username=request.user.username).exists()
         except Exception as e:
             print("User is not sourcing user")
 
@@ -2083,14 +2073,14 @@ class FetchProductsFromFactoryAPI(APIView):
             logger.info("FetchProductsFromFactoryAPI: %s", str(data))
             products = []
             chip_data = json.loads(data['tags'])
-            if is_sourcing_user:
-                logger.info("FetchProductsFromFactoryAPI: debugging %s", is_sourcing_user)
-                sourcing_user = SourcingUser.objects.get(username=request.user.username)
+            if is_user:
+                logger.info("FetchProductsFromFactoryAPI: debugging %s", is_user)
+                user = OmnyCommUser.objects.get(username=request.user.username)
 
-                factories = SourcingUserFactory.objects.filter(Q(created_by=sourcing_user) | 
-                Q(created_by__reports_to=sourcing_user))
-                products_objs = SourcingUserProduct.objects.filter(Q(created_by=sourcing_user) |
-                                                              Q(created_by__reports_to=sourcing_user))
+                factories = OmnyCommUserFactory.objects.filter(Q(created_by=user) | 
+                Q(created_by__reports_to=user))
+                products_objs = BaseProduct.objects.filter(Q(created_by=user) |
+                                                              Q(created_by__reports_to=user))
                 if len(chip_data) != 0:
                     for tag in chip_data:
                         search = factories.filter(name__icontains=tag)
@@ -2104,28 +2094,28 @@ class FetchProductsFromFactoryAPI(APIView):
                
                 try:                    
                     for product_temp in products_objs:
-                        sourcing_user_product = product_temp
+                        product = product_temp
                         temp_dict = {}
 
-                        temp_dict["factory_pk"] = SourcingUserFactory.objects.get(products = product_temp.base_product).pk
-                        temp_dict["factory_name"] =  SourcingUserFactory.objects.get(products = product_temp.base_product).name
-                        temp_dict["name"] = sourcing_user_product.name
-                        temp_dict["code"] = sourcing_user_product.code
-                        temp_dict["price"] = sourcing_user_product.price
-                        temp_dict["currency"] = sourcing_user_product.currency
-                        temp_dict["moq"] = product_temp.base_product.minimum_order_qty
-                        temp_dict["minimum-order-qty"] = product_temp.base_product.minimum_order_qty
-                        temp_dict["qty-metric"] = product_temp.base_product.qty_metric
-                        temp_dict["order-qty"] = product_temp.base_product.order_qty
-                        temp_dict["other-info"] = sourcing_user_product.other_info
-                        temp_dict["created-date"] = product_temp.base_product.created_date
-                        temp_dict["go-live-status"] = product_temp.base_product.go_live
-                        temp_dict["delivery_days"] = product_temp.base_product.delivery_days
+                        temp_dict["factory_pk"] = OmnyCommUserFactory.objects.get(products = product_temp.product).pk
+                        temp_dict["factory_name"] =  OmnyCommUserFactory.objects.get(products = product_temp.product).name
+                        temp_dict["name"] = product.name
+                        temp_dict["code"] = product.code
+                        temp_dict["price"] = product.price
+                        temp_dict["currency"] = product.currency
+                        temp_dict["moq"] = product_temp.product.minimum_order_qty
+                        temp_dict["minimum-order-qty"] = product_temp.product.minimum_order_qty
+                        temp_dict["qty-metric"] = product_temp.product.qty_metric
+                        temp_dict["order-qty"] = product_temp.product.order_qty
+                        temp_dict["other-info"] = product.other_info
+                        temp_dict["created-date"] = product_temp.product.created_date
+                        temp_dict["go-live-status"] = product_temp.product.go_live
+                        temp_dict["delivery_days"] = product_temp.product.delivery_days
 
-                        temp_dict["pk"] = product_temp.base_product.pk
+                        temp_dict["pk"] = product_temp.product.pk
                         temp_dict["image-url"] = ""
-                        if sourcing_user_product.images.all().count()>0:
-                            temp_dict["image-url"] = sourcing_user_product.images.all()[
+                        if product.images.all().count()>0:
+                            temp_dict["image-url"] = product.images.all()[
                                 0].image.url
                         else :
                             temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
@@ -2145,7 +2135,7 @@ class FetchProductsFromFactoryAPI(APIView):
                 
                 for product in product_objs:
 
-                    factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+                    factory_manager_product = FactoryManagerProduct.objects.get(product=product)
                     print(factory_manager_product.name, product.is_pr_ready)
                     temp_dict = {}
                     temp_dict["name"] = factory_manager_product.name
@@ -2196,17 +2186,17 @@ class FetchSharedProductsForFactoryAPI(APIView):
             product_objs = factory_manager_factory.products.all()
             products = []
             for product in product_objs:
-                sourcing_user_product = SourcingUserProduct.objects.get(base_product=product)
-                factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+                product = BaseProduct.objects.get(product=product)
+                factory_manager_product = FactoryManagerProduct.objects.get(product=product)
                 temp_dict = {}
-                temp_dict["name"] = sourcing_user_product.name
-                temp_dict["code"] = sourcing_user_product.code
-                temp_dict["price"] = sourcing_user_product.price
-                temp_dict["currency"] = sourcing_user_product.currency
+                temp_dict["name"] = product.name
+                temp_dict["code"] = product.code
+                temp_dict["price"] = product.price
+                temp_dict["currency"] = product.currency
                 temp_dict["minimum-order-qty"] = product.minimum_order_qty
                 temp_dict["qty-metric"] = product.qty_metric
                 temp_dict["order-qty"] = product.order_qty
-                temp_dict["other-info"] = sourcing_user_product.other_info
+                temp_dict["other-info"] = product.other_info
                 temp_dict["created-date"] = product.created_date
                 temp_dict["export_carton_qty_l"] = product.export_carton_qty_l
                 temp_dict["export_carton_qty_r"] = product.export_carton_qty_r
@@ -2228,8 +2218,8 @@ class FetchSharedProductsForFactoryAPI(APIView):
 
                 temp_dict["pk"] = product.pk
                 temp_dict["image-url"] = ""
-                if sourcing_user_product.images.all().count()>0:
-                    temp_dict["image-url"] = sourcing_user_product.images.all()[0].image.url
+                if product.images.all().count()>0:
+                    temp_dict["image-url"] = product.images.all()[0].image.url
                 else :
                     temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
@@ -2259,15 +2249,15 @@ class SaveSourcingProductDetailsAPI(APIView):
 
             product = Product.objects.get(pk=int(data["pk"]))
 
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
+            product = BaseProduct.objects.get(
+                product=product)
 
-            sourcing_user_product.name = data["product_name"]
+            product.name = data["product_name"]
 
             if data["product_price"] != "":
-                sourcing_user_product.price = float(data["product_price"])
+                product.price = float(data["product_price"])
 
-            sourcing_user_product.code = data["product_code"]
+            product.code = data["product_code"]
 
             if data["minimum_order_qty"] != "":
                 product.minimum_order_qty = int(data["minimum_order_qty"])
@@ -2276,7 +2266,7 @@ class SaveSourcingProductDetailsAPI(APIView):
                 product.order_qty = int(data["order_qty"])
           
             product.qty_metric = data["qty_metric"]
-            sourcing_user_product.currency = data["currency"]
+            product.currency = data["currency"]
 
             if data["inner_box_qty"] != "":
                 product.inner_box_qty = int(data["inner_box_qty"])
@@ -2354,17 +2344,17 @@ class SaveSourcingProductDetailsAPI(APIView):
                 product.gift_box_h = float(data["giftbox_h"])
 
             product.size = data["size"]
-            sourcing_user_product.weight = data["weight"]
-            sourcing_user_product.design = data["design"]
-            sourcing_user_product.pkg_inner = data["pkg_inner"]
-            sourcing_user_product.pkg_m_ctn = data["pkg_m_ctn"]
-            sourcing_user_product.p_ctn_cbm = data["p_ctn_cbm"]
-            sourcing_user_product.ttl_ctn = data["ttl_ctn"]
-            sourcing_user_product.ttl_cbm = data["ttl_cbm"]
-            sourcing_user_product.ship_lot_number = data["ship_lot_number"]
+            product.weight = data["weight"]
+            product.design = data["design"]
+            product.pkg_inner = data["pkg_inner"]
+            product.pkg_m_ctn = data["pkg_m_ctn"]
+            product.p_ctn_cbm = data["p_ctn_cbm"]
+            product.ttl_ctn = data["ttl_ctn"]
+            product.ttl_cbm = data["ttl_cbm"]
+            product.ship_lot_number = data["ship_lot_number"]
 
             product.save()
-            sourcing_user_product.save()
+            product.save()
 
             if (product.minimum_order_qty != None and product.minimum_order_qty != '' and
                 product.order_qty != None and product.order_qty != '' and
@@ -2379,9 +2369,9 @@ class SaveSourcingProductDetailsAPI(APIView):
                 product.gift_box_h != None and product.gift_box_h != '' and
 
 
-                sourcing_user_product.name != None and sourcing_user_product.name != '' and
-                sourcing_user_product.price != None and sourcing_user_product.price != '' and
-                sourcing_user_product.currency != None and sourcing_user_product.currency != ''):
+                product.name != None and product.name != '' and
+                product.price != None and product.price != '' and
+                product.currency != None and product.currency != ''):
 
                 product.is_pr_ready = True
                 print("The product is pr ready")
@@ -2423,10 +2413,10 @@ class SaveSourcingFactoryDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            sourcing_user_factory = SourcingUserFactory.objects.get(pk = int(data["pk"]))
-            factory = sourcing_user_factory.base_factory
+            factory = OmnyCommUserFactory.objects.get(pk = int(data["pk"]))
+            factory = factory.base_factory
 
-            sourcing_user_factory.name = data["factory_name"]
+            factory.name = data["factory_name"]
 
             if data["factory_address"] != '':
                 factory.address = data["factory_address"]
@@ -2458,8 +2448,8 @@ class SaveSourcingFactoryDetailsAPI(APIView):
             if data["tag_info"] != '':
                 factory.social_media_tag_information = data["tag_info"]
 
-            sourcing_user_factory.other_info = data["notes"]
-            sourcing_user_factory.save()
+            factory.other_info = data["notes"]
+            factory.save()
            
             if factory.bank_details == None:
 
@@ -2508,7 +2498,7 @@ class SaveSourcingFactoryDetailsAPI(APIView):
                 factory.save()
 
             factory.save()
-            sourcing_user_factory.save()
+            factory.save()
 
             response["status"] = 200
 
@@ -2534,17 +2524,17 @@ class FetchSourcingProductDetailsAPI(APIView):
                 data = json.loads(data)
 
             product = Product.objects.get(pk=int(data["pk"]))
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
+            product = BaseProduct.objects.get(
+                product=product)
 
-            response["product-name"] = sourcing_user_product.name
-            response["price"] = sourcing_user_product.price
-            response["product-code"] = sourcing_user_product.code
+            response["product-name"] = product.name
+            response["price"] = product.price
+            response["product-code"] = product.code
             response["minimum-order-qty"] = product.minimum_order_qty
             response["order-qty"] = product.order_qty
-            response["other-info"] = sourcing_user_product.other_info
+            response["other-info"] = product.other_info
             response["qty-metric"] = product.qty_metric
-            response["currency"] = sourcing_user_product.currency
+            response["currency"] = product.currency
             response["inner-box-qty"] = product.inner_box_qty
             if(product.country != None):
                 response["country"] = product.country.pk
@@ -2581,20 +2571,20 @@ class FetchSourcingProductDetailsAPI(APIView):
             
             response["size"] = product.size
 
-            response["weight"] = sourcing_user_product.weight
-            response["design"] = sourcing_user_product.design
-            response["pkg-inner"] = sourcing_user_product.pkg_inner
-            response["pkg-m-ctn"] = sourcing_user_product.pkg_m_ctn
-            response["p-ctn-cbm"] = sourcing_user_product.p_ctn_cbm
-            response["ttl-ctn"] = sourcing_user_product.ttl_ctn
-            response["ttl-cbm"] = sourcing_user_product.ttl_cbm
-            response["ship-lot-number"] = sourcing_user_product.ship_lot_number
+            response["weight"] = product.weight
+            response["design"] = product.design
+            response["pkg-inner"] = product.pkg_inner
+            response["pkg-m-ctn"] = product.pkg_m_ctn
+            response["p-ctn-cbm"] = product.p_ctn_cbm
+            response["ttl-ctn"] = product.ttl_ctn
+            response["ttl-cbm"] = product.ttl_cbm
+            response["ship-lot-number"] = product.ship_lot_number
 
             response["created-date"] = ""
             if product.created_date!=None:
                 response["created-date"] = str(product.created_date.strftime("%Y-%m-%d"))
 
-            images = sourcing_user_product.images.all()
+            images = product.images.all()
             images_list = []
 
             if(len(images) == 0):
@@ -2635,7 +2625,7 @@ class SaveFactoryProductDetailsAPI(APIView):
 
             product = Product.objects.get(pk=int(data["pk"]))
             
-            factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+            factory_manager_product = FactoryManagerProduct.objects.get(product=product)
 
             factory_manager_product.name = data["product_name"]
             
@@ -2774,7 +2764,7 @@ class FetchFactoryProductDetailsAPI(APIView):
                 data = json.loads(data)
 
             product = Product.objects.get(pk=int(data["pk"]))
-            factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+            factory_manager_product = FactoryManagerProduct.objects.get(product=product)
 
             response["product-name"] = factory_manager_product.name 
             response["price"] = factory_manager_product.price 
@@ -2862,50 +2852,50 @@ class FetchFactorywiseProductListingAPI(APIView):
                 data = json.loads(data)
 
             response_products = []
-            sourcing_user_factory = SourcingUserFactory.objects.get(pk=int(data["pk"]))
+            factory = OmnyCommUserFactory.objects.get(pk=int(data["pk"]))
             
             chip_data = json.loads(data['tags'])
 
             products_list = []
-            products = sourcing_user_factory.products.all()
+            products = factory.products.all()
             for product in products:
                 if len(chip_data)>0:
                     for tag in chip_data:
-                        sourcing_user_products = SourcingUserProduct.objects.filter(
-                    name__icontains=tag,base_product=product)
-                        for sourcing_user_product in sourcing_user_products:
-                            products_list.append(sourcing_user_product)
+                        products = BaseProduct.objects.filter(
+                    name__icontains=tag,product=product)
+                        for product in products:
+                            products_list.append(product)
                 else:
-                    products_list.append(SourcingUserProduct.objects.get(base_product = product))
+                    products_list.append(BaseProduct.objects.get(product = product))
             print(products_list)
             products = products_list
-            response["factory_name"] = sourcing_user_factory.name
-            response["factory_address"] = sourcing_user_factory.base_factory.address
+            response["factory_name"] = factory.name
+            response["factory_address"] = factory.base_factory.address
             response["factory_image"] = Config.objects.all()[
                 0].DEFAULT_IMAGE.url
             response["factory_background_poster"] = Config.objects.all()[
                 0].DEFAULT_IMAGE.url
-            if sourcing_user_factory.images.all().count() > 0:
-                response["factory_image"] = sourcing_user_factory.images.all()[
+            if factory.images.all().count() > 0:
+                response["factory_image"] = factory.images.all()[
                     0].image.url
-            if sourcing_user_factory.background_poster:
-                response["factory_background_poster"] = sourcing_user_factory.background_poster.image.url
+            if factory.background_poster:
+                response["factory_background_poster"] = factory.background_poster.image.url
             try:
                 for product in products:
-                    sourcing_user_product = product
+                    product = product
                     temp_dict = {}
-                    temp_dict["pk"] = product.base_product.pk
-                    temp_dict["name"] = sourcing_user_product.name
+                    temp_dict["pk"] = product.product.pk
+                    temp_dict["name"] = product.name
                     
-                    temp_dict["moq"] = product.base_product.minimum_order_qty 
-                    temp_dict["delivery_days"] = product.base_product.delivery_days
-                    temp_dict["price"] = sourcing_user_product.price
-                    temp_dict["go-live-status"] = product.base_product.go_live
-                    temp_dict["factory_name"] = sourcing_user_factory.name
+                    temp_dict["moq"] = product.product.minimum_order_qty 
+                    temp_dict["delivery_days"] = product.product.delivery_days
+                    temp_dict["price"] = product.price
+                    temp_dict["go-live-status"] = product.product.go_live
+                    temp_dict["factory_name"] = factory.name
 
 
-                    if sourcing_user_product.images.all().count()>0:
-                        temp_dict["image-url"] = sourcing_user_product.images.all()[0].image.url
+                    if product.images.all().count()>0:
+                        temp_dict["image-url"] = product.images.all()[0].image.url
                     else :
                         temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
@@ -2962,7 +2952,7 @@ class SaveFactoryManagerFactoryDetailsAPI(APIView):
                 factory.phone_numbers.add(phone_number_obj)
                 factory.save()
 
-            response["name"] = sourcing_user_factory.name
+            response["name"] = factory.name
             response["address"] = factory.address
             response["phone_numbers"] = phone_numbers
             response["factory_emailid"] = factory.factory_emailid
@@ -2997,7 +2987,7 @@ class UploadFactoryProductImageAPI(APIView):
                 data = json.loads(data)
 
             product = Product.objects.get(pk=int(data["pk"]))
-            factory_manager_product = FactoryManagerProduct.objects.get(base_product=product)
+            factory_manager_product = FactoryManagerProduct.objects.get(product=product)
 
             images_count = int(data["images_count"])
 
@@ -3040,18 +3030,18 @@ class UploadFactoryImageAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            sourcing_user_factory = SourcingUserFactory.objects.get(pk = int(data["pk"]))
+            factory = OmnyCommUserFactory.objects.get(pk = int(data["pk"]))
             images_count = int(data["images_count"])
 
             images_list = []
             for i in range(images_count):
                 im_obj = Image.objects.create(
                     image=data["product-image-"+str(i)])
-                sourcing_user_factory.images.add(im_obj)
+                factory.images.add(im_obj)
 
-            sourcing_user_factory.save()
+            factory.save()
 
-            images = sourcing_user_factory.images.all()
+            images = factory.images.all()
 
             images_list = []
             for image in images:
@@ -3085,8 +3075,8 @@ class UploadSourcingProductProductImageAPI(APIView):
                 data = json.loads(data)
 
             product = Product.objects.get(pk=int(data["pk"]))
-            sourcing_user_product = SourcingUserProduct.objects.get(
-                base_product=product)
+            product = BaseProduct.objects.get(
+                product=product)
 
             images_count = int(data["images_count"])
 
@@ -3094,11 +3084,11 @@ class UploadSourcingProductProductImageAPI(APIView):
             for i in range(images_count):
                 im_obj = Image.objects.create(
                     image=data["product-image-"+str(i)])
-                sourcing_user_product.images.add(im_obj)
+                product.images.add(im_obj)
 
-            sourcing_user_product.save()
+            product.save()
 
-            images = sourcing_user_product.images.all()
+            images = product.images.all()
 
             images_list = []
             for image in images:
@@ -3189,7 +3179,7 @@ class DownloadPIAPI(APIView):
             selected_prod_obj = []
             
             for k in selected_products:
-                temp_obj = SourcingUserProduct.objects.get(pk = int(k["pk"]))
+                temp_obj = BaseProduct.objects.get(pk = int(k["pk"]))
                 selected_prod_obj.append(temp_obj)
             
             if percentage_of_payment:
@@ -3208,17 +3198,17 @@ class DownloadPIAPI(APIView):
             temp_proforma_invoice.save()
 
             try:
-                sourcing_user_factory = SourcingUserFactory.objects.get(pk = pk)
-                base_factory = sourcing_user_factory.base_factory
-                temp_proforma_invoice.factory = sourcing_user_factory
+                factory = OmnyCommUserFactory.objects.get(pk = pk)
+                base_factory = factory.base_factory
+                temp_proforma_invoice.factory = factory
                 temp_proforma_invoice.save()
                 
-                if sourcing_user_factory.products > 0:
+                if factory.products > 0:
 
-                    base_factory = sourcing_user_factory.base_factory
+                    base_factory = factory.base_factory
 
                     json_parameter = {}
-                    json_parameter["factory_name"] = str(sourcing_user_factory.name)
+                    json_parameter["factory_name"] = str(factory.name)
                     json_parameter["factory_address"] = str(base_factory.address)
                     json_parameter["loading_port"] = str(base_factory.loading_port)
                     try:
@@ -3247,29 +3237,29 @@ class DownloadPIAPI(APIView):
                     for k in selected_products:
                         selected_products_pk.append(k["pk"])
 
-                    sourcing_user_products = sourcing_user_factory.products.filter(pk__in=selected_products_pk)
+                    products = factory.products.filter(pk__in=selected_products_pk)
 
                     product_info = []
                     logger.info("selected_products_dict %s", str(selected_products_dict))
-                    for sourcing_user_product in sourcing_user_products:
+                    for product in products:
                         
-                        product = SourcingUserProduct.objects.get(base_product=sourcing_user_product)
-                        base_product = sourcing_user_product
+                        product = BaseProduct.objects.get(product=product)
+                        product = product
 
                         logger.info("product_pk %s", str(product.pk))
-                        logger.info("base_product_pk %s", str(base_product.pk))
+                        logger.info("product_pk %s", str(product.pk))
 
                         temp_dict = {} 
                         temp_dict["image_url"] = ""
                         if product.images.count()>0:
                             temp_dict["image_url"] = "file:///"+BASE_DIR + product.images.all()[0].image.url
                         temp_dict["code"] = str(product.code)
-                        temp_dict["brand_category"] = str(base_product.brand_category)
+                        temp_dict["brand_category"] = str(product.brand_category)
                         temp_dict["other_info"] = str(product.other_info)
-                        temp_dict["size"] = str(base_product.size)
+                        temp_dict["size"] = str(product.size)
                         temp_dict["weight"] = str(product.weight)
                         temp_dict["design"] = str(product.design)
-                        temp_dict["colors"] = " ".join([i.name for i in base_product.color_group.all()])
+                        temp_dict["colors"] = " ".join([i.name for i in product.color_group.all()])
                         temp_dict["pkg_inner"] = str(product.pkg_inner)
                         temp_dict["pkg_m_ctn"] = str(product.pkg_m_ctn)
                         temp_dict["p_ctn_cbm"] = str(product.p_ctn_cbm)
@@ -3277,13 +3267,13 @@ class DownloadPIAPI(APIView):
                         temp_dict["ttl_cbm"] = str(product.ttl_cbm)
                         temp_dict["ship_lot_number"] = str(product.ship_lot_number)
                         temp_dict["order_quantity"] = selected_products_dict[str(product.pk)]
-                        temp_dict["qty_metric"] = str(base_product.qty_metric)
+                        temp_dict["qty_metric"] = str(product.qty_metric)
                         temp_dict["price"] = str(product.price)
                         product_info.append(temp_dict)
 
                     json_parameter["product_info"] = product_info
 
-                    filename = sourcing_user_factory.name.replace(" ", "-").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
+                    filename = factory.name.replace(" ", "-").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
                     filepath = generate_pi(json_parameter, filename)
                     logger.info("filepath returned %s", str(filepath))
                     temp_proforma_invoice.proforma_pdf = "pdf/"+filename
@@ -3358,10 +3348,10 @@ class DownloadPIBulkAPI(APIView):
 
             draft_pi_lines_dict = defaultdict(list)
             for draft_pi_line in draft_pi_lines_list:
-                if draft_pi_line.sourcing_user_factory.pk in draft_pi_lines_dict.keys():
-                    draft_pi_lines_dict[draft_pi_line.sourcing_user_factory.pk].append(draft_pi_line)
+                if draft_pi_line.factory.pk in draft_pi_lines_dict.keys():
+                    draft_pi_lines_dict[draft_pi_line.factory.pk].append(draft_pi_line)
                 else:
-                    draft_pi_lines_dict[draft_pi_line.sourcing_user_factory.pk] = [draft_pi_line]
+                    draft_pi_lines_dict[draft_pi_line.factory.pk] = [draft_pi_line]
 
             
             if percentage_of_payment:
@@ -3374,9 +3364,9 @@ class DownloadPIBulkAPI(APIView):
                 temp_proforma_invoice = ''
                 temp_selected_products = []
                 for x in draft_pi_lines_dict[factory_pk]:
-                    temp_selected_products.append(x.sourcing_user_product.pk)
+                    temp_selected_products.append(x.product.pk)
                 for k in temp_selected_products:
-                    temp_obj = SourcingUserProduct.objects.get(pk = int(k))
+                    temp_obj = BaseProduct.objects.get(pk = int(k))
                     selected_prod_obj.append(temp_obj)
             
                 temp_proforma_invoice = ProformaInvoice.objects.create(
@@ -3391,19 +3381,19 @@ class DownloadPIBulkAPI(APIView):
            
 
                 try:
-                    sourcing_user_factory = SourcingUserFactory.objects.get(pk=factory_pk)
-                    base_factory = sourcing_user_factory.base_factory
-                    temp_proforma_invoice.factory = sourcing_user_factory
+                    factory = OmnyCommUserFactory.objects.get(pk=factory_pk)
+                    base_factory = factory.base_factory
+                    temp_proforma_invoice.factory = factory
                     temp_proforma_invoice.save()
                     
                     factory_manager_factory = None
                     
-                    if sourcing_user_factory.products > 0:
+                    if factory.products > 0:
 
-                        base_factory = sourcing_user_factory.base_factory
+                        base_factory = factory.base_factory
 
                         json_parameter = {}
-                        json_parameter["factory_name"] = str(sourcing_user_factory.name)
+                        json_parameter["factory_name"] = str(factory.name)
                         json_parameter["factory_address"] = str(base_factory.address)
                         json_parameter["loading_port"] = str(base_factory.loading_port)
                         try:
@@ -3432,24 +3422,24 @@ class DownloadPIBulkAPI(APIView):
                         for k in selected_products:
                             selected_products_pk.append(k["pk"])
 
-                        sourcing_user_products = sourcing_user_factory.products.filter(pk__in=selected_products_pk)
+                        products = factory.products.filter(pk__in=selected_products_pk)
 
                         product_info = []
-                        for sourcing_user_product in sourcing_user_products:
+                        for product in products:
                             
-                            product = SourcingUserProduct.objects.get(base_product=sourcing_user_product)
-                            base_product = sourcing_user_product
+                            product = BaseProduct.objects.get(product=product)
+                            product = product
                             temp_dict = {} 
                             temp_dict["image_url"] = ""
                             if product.images.count()>0:
                                 temp_dict["image_url"] = "file:///"+BASE_DIR + product.images.all()[0].image.url
                             temp_dict["code"] = str(product.code)
-                            temp_dict["brand_category"] = str(base_product.brand_category)
+                            temp_dict["brand_category"] = str(product.brand_category)
                             temp_dict["other_info"] = str(product.other_info)
-                            temp_dict["size"] = str(base_product.size)
+                            temp_dict["size"] = str(product.size)
                             temp_dict["weight"] = str(product.weight)
                             temp_dict["design"] = str(product.design)
-                            temp_dict["colors"] = " ".join([i.name for i in base_product.color_group.all()])
+                            temp_dict["colors"] = " ".join([i.name for i in product.color_group.all()])
                             temp_dict["pkg_inner"] = str(product.pkg_inner)
                             temp_dict["pkg_m_ctn"] = str(product.pkg_m_ctn)
                             temp_dict["p_ctn_cbm"] = str(product.p_ctn_cbm)
@@ -3457,13 +3447,13 @@ class DownloadPIBulkAPI(APIView):
                             temp_dict["ttl_cbm"] = str(product.ttl_cbm)
                             temp_dict["ship_lot_number"] = str(product.ship_lot_number)
                             temp_dict["order_quantity"] = str(selected_products_dict[str(product.pk)])
-                            temp_dict["qty_metric"] = str(base_product.qty_metric)
+                            temp_dict["qty_metric"] = str(product.qty_metric)
                             temp_dict["price"] = str(product.price)
                             product_info.append(temp_dict)
 
                         json_parameter["product_info"] = product_info
 
-                        filename = sourcing_user_factory.name.replace(" ", "-").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
+                        filename = factory.name.replace(" ", "-").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
                         filepath = generate_pi(json_parameter, filename)
                         logger.info("filepath returned %s", str(filepath))
                         temp_proforma_invoice.proforma_pdf = "pdf/"+filename
@@ -3518,14 +3508,14 @@ class GenerateDraftPILineAPI(APIView):
                 lines=list_of_draft_lines)
                 
             for row_number in range(1,product_sheet.nrows):
-                temp_sourcing_user_product = SourcingUserProduct.objects.get(
+                temp_product = BaseProduct.objects.get(
                     code=product_sheet.cell_value(row_number, 1))
 
-                temp_sourcing_user_factory = SourcingUserFactory.objects.filter(products = temp_sourcing_user_product.base_product)[0]
+                temp_factory = OmnyCommUserFactory.objects.filter(products = temp_product.product)[0]
 
                 temp_draft_PI_line = DraftProformaInvoiceLine.objects.create(
-                    sourcing_user_product = temp_sourcing_user_product,
-                    sourcing_user_factory = temp_sourcing_user_factory,
+                    product = temp_product,
+                    factory = temp_factory,
                     quantity = product_sheet.cell_value(row_number, 2),
                     draft_proforma_invoice=temp_draft_pi_invoice)
                 list_of_draft_lines.append(int(temp_draft_PI_line.pk))
@@ -3581,20 +3571,20 @@ class FetchDraftProformaInvoiceAPI(APIView):
             for line_id in draft_lines_id_list:
                 temp_dict = {}
                 draft_line = DraftProformaInvoiceLine.objects.get(pk = line_id)
-                sourcing_user_product = draft_line.sourcing_user_product
-                sourcing_user_factory = draft_line.sourcing_user_factory
+                product = draft_line.product
+                factory = draft_line.factory
                 temp_dict["quantity"] = draft_line.quantity
-                temp_dict["sourcing_user_factory_name"] = sourcing_user_factory.name
-                temp_dict["sourcing_user_factory_pk"] = sourcing_user_factory.pk
-                temp_dict["sourcing_user_product_name"] = sourcing_user_product.name
-                temp_dict["sourcing_user_product_pk"] = sourcing_user_product.pk 
-                temp_dict["sourcing_user_product_code"] = sourcing_user_product.code
-                temp_dict["price"] = sourcing_user_product.price
-                temp_dict["moq"] = str(sourcing_user_product.base_product.minimum_order_qty)
+                temp_dict["factory_name"] = factory.name
+                temp_dict["factory_pk"] = factory.pk
+                temp_dict["product_name"] = product.name
+                temp_dict["product_pk"] = product.pk 
+                temp_dict["product_code"] = product.code
+                temp_dict["price"] = product.price
+                temp_dict["moq"] = str(product.product.minimum_order_qty)
                 temp_dict["draft_line_id"] = line_id
                 temp_dict["draft_pi_id"] = draft_pi.pk
-                if sourcing_user_product.images.all().count()>0:
-                    temp_dict["image-url"] = sourcing_user_product.images.all()[0].image.url
+                if product.images.all().count()>0:
+                    temp_dict["image-url"] = product.images.all()[0].image.url
                 else :
                     temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
@@ -3685,10 +3675,10 @@ class CreateDraftPIFromProductSelectionAPI(APIView):
             for factory_pk in factorywise_products:
                 temp_products = factorywise_products[factory_pk]
                 for temp_product in temp_products:
-                    sourcing_user_product = SourcingUserProduct.objects.get(pk = temp_product["product_pk"])
-                    sourcing_user_factory = SourcingUserFactory.objects.get(pk = temp_product["factory_pk"])
+                    product = BaseProduct.objects.get(pk = temp_product["product_pk"])
+                    factory = OmnyCommUserFactory.objects.get(pk = temp_product["factory_pk"])
 
-                    draft_pi_line = DraftProformaInvoiceLine.objects.create(sourcing_user_product = sourcing_user_product,sourcing_user_factory = sourcing_user_factory, quantity = temp_product["quantity"],
+                    draft_pi_line = DraftProformaInvoiceLine.objects.create(product = product,factory = factory, quantity = temp_product["quantity"],
                     draft_proforma_invoice = draft_proforma_invoice)
 
                     draft_pi_line_list.append(draft_pi_line.pk)
@@ -3802,11 +3792,11 @@ UploadFactoryImage = UploadFactoryImageAPI.as_view()
 
 FetchFactoryNameFromUUID = FetchFactoryNameFromUUIDAPI.as_view()
 
-FetchFactoryForSourcingUser = FetchFactoryForSourcingUserAPI.as_view()
+FetchFactoryForOmnyCommUser = FetchFactoryForOmnyCommUserAPI.as_view()
 
-FetchFactoriesForSourcingUser = FetchFactoriesForSourcingUserAPI.as_view()
+FetchFactoriesForOmnyCommUser = FetchFactoriesForOmnyCommUserAPI.as_view()
 
-FetchSourcingUserDetails = FetchSourcingUserDetailsAPI.as_view()
+FetchOmnyCommUserDetails = FetchOmnyCommUserDetailsAPI.as_view()
 
 FetchProductsFromFactory = FetchProductsFromFactoryAPI.as_view()
 

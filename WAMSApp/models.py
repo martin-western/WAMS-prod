@@ -693,12 +693,21 @@ class RequestHelp(models.Model):
             self.uuid = str(uuid.uuid4())
         super(RequestHelp, self).save(*args, **kwargs)
 
-
-
 @receiver(post_save, sender=Product, dispatch_uid="create_pfl")
 def update_stock(sender, instance, **kwargs):
     if PFL.objects.filter(product=instance).exists()==False:
         PFL.objects.create(product=instance, name=str(instance.product_name_sap)+"_PFL")
+
+class PhoneNumber(models.Model):
+
+    number = models.CharField(max_length=300)
+
+    class Meta:
+        verbose_name = "PhoneNumber"
+        verbose_name_plural = "PhoneNumbers"
+
+    def __str__(self):
+        return str(self.number)
 
 class OperatingHour(models.Model):
 
@@ -715,6 +724,14 @@ class OperatingHour(models.Model):
 
 class SourcingUserProduct(object):
     
+    name = models.CharField(max_length=300)
+    code = models.CharField(max_length=300, null=True)
+    price = models.FloatField(default=0, null=True, blank=True)
+    currency = models.CharField(max_length=300, null=True, blank=True)
+    images = models.ManyToManyField(Image, blank=True)
+    attachments = models.ManyToManyField(Attachment, blank=True)
+    certifications = models.ManyToManyField(CertificationAttachments, blank=True)
+    other_info = models.TextField(null=True, blank=True)
     is_pr_ready = models.BooleanField(default=False)
     go_live = models.BooleanField(default=False)
     size = models.CharField(max_length=300, null=True, blank=True)
@@ -731,6 +748,7 @@ class SourcingUserProduct(object):
     spare_part_name = models.CharField(max_length=300, null=True, blank=True)
     spare_part_qty = models.IntegerField(null=True)
     delivery_days = models.IntegerField(default=0, null=True)
+    created_by = models.ForeignKey(OmnyCommUser,blank=True)
     
     class Meta:
         verbose_name = "SourcingUserProduct"
@@ -764,7 +782,7 @@ class Factory(models.Model):
     other_info = models.TextField(null=True, blank=True)
     background_poster = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="background_poster")
     business_card = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="business_card")
-    phone_numbers = models.TextField(null=True,blank=True)
+    phone_numbers = models.ManyToManyField(PhoneNumber,blank=True)
     factory_emailid = models.CharField(max_length=300, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     operating_hours = models.ManyToManyField(OperatingHour, blank=True)
@@ -780,6 +798,7 @@ class Factory(models.Model):
     loading_port = models.CharField(max_length=300, null=True, blank=True)
     location = models.CharField(max_length=300, null=True, blank=True)
     created_date = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(OmnyCommUser,blank=True)
 
     class Meta:
         verbose_name = "BaseFactory"
