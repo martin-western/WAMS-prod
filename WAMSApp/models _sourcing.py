@@ -7,7 +7,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from WAMSApp.models_sourcing import *
+# from WAMSApp.models_sourcing import *
 
 from PIL import Image as IMAGE
 #from io import BytesIO as StringIO
@@ -19,6 +19,108 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
+}
+
+noon_product_json  = json.dumps(noon_product_json)
+amazon_uk_product_json = json.dumps(amazon_uk_product_json)
+amazon_uae_product_json = json.dumps(amazon_uae_product_json)
+ebay_product_json = json.dumps(ebay_product_json)
+base_dimensions_json = json.dumps(base_dimensions_json)
+
+class Image(models.Model):
+
+    description = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to='')
+    thumbnail = models.ImageField(upload_to='thumbnails', null=True, blank=True)
+    mid_image = models.ImageField(upload_to='midsize', null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Image"
+        verbose_name_plural = "Images"
+
+    def __str__(self):
+        return str(self.image.url)
+
+    def save(self, *args, **kwargs):
+        try:  
+            size = 128, 128
+            thumb = IMAGE.open(self.image)
+            thumb.thumbnail(size)
+            infile = self.image.file.name
+            im_type = thumb.format 
+            thumb_io = BytesIO()
+            thumb.save(thumb_io, format=im_type)
+
+            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
+
+            self.thumbnail = thumb_file
+
+            size2 = 512, 512
+            thumb2 = IMAGE.open(self.image)
+            thumb2.thumbnail(size2)
+            thumb_io2 = BytesIO()
+            thumb2.save(thumb_io2, format=im_type)
+
+            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
+
+            self.mid_image = thumb_file2
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
+
+        super(Image, self).save(*args, **kwargs)
+
+class OmnyCommUser(User):
+
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
+    contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
+    designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
+    permission_list = models.TextField(default="[]")
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.set_password(self.password)
+        super(OmnyCommUser, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        verbose_name = "OmnyCommUser"
+        verbose_name_plural = "OmnyCommUser"
+
+class ImageBucket(models.Model):
+
+    description = models.TextField(null=True, blank=True)
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
+    is_main_image = models.BooleanField(default=False)
+    is_sub_image = models.BooleanField(default=False)
+
+
+class BaseProduct(models.Model):
+
+    base_product_name = models.CharField(max_length=300)
+    created_date = models.DateTimeField()
+    modified_date = models.DateTimeField()
+    seller_sku = models.CharField(max_length=200, unique=True)
+    category = models.CharField(max_length=200, default="")
+    sub_category = models.CharField(max_length=200, default="")
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
+    manufacturer = models.CharField(max_length=200, default="")
+    manufacturer_part_number = models.CharField(max_length=200, default="")
+    unedited_images = models.ManyToManyField(Image, related_name="unedited_images", blank=True)
+
+    dimensions = models.TextField(blank=True, default=base_dimensions_json)
+    history = AuditlogHistoryField()
+
+    class Meta:
+        verbose_name = "BaseProduct"
+        verbose_name_plural = "BaseProducts"
+
+    def __str__(self):
+        return str(self.base_product_name)
+
+    def save(self, *args, **kwargs):
 noon_product_json = {
     
     "product_name" : "",
@@ -156,82 +258,6 @@ base_dimensions_json = {
     "giftbox_b_metric": "",
     "giftbox_h": "",
     "giftbox_h_metric": ""
-}
-
-noon_product_json  = json.dumps(noon_product_json)
-amazon_uk_product_json = json.dumps(amazon_uk_product_json)
-amazon_uae_product_json = json.dumps(amazon_uae_product_json)
-ebay_product_json = json.dumps(ebay_product_json)
-base_dimensions_json = json.dumps(base_dimensions_json)
-
-class Image(models.Model):
-
-    description = models.TextField(null=True, blank=True)
-    image = models.ImageField(upload_to='')
-    thumbnail = models.ImageField(upload_to='thumbnails', null=True, blank=True)
-    mid_image = models.ImageField(upload_to='midsize', null=True, blank=True)
-
-    class Meta:
-        verbose_name = "Image"
-        verbose_name_plural = "Images"
-
-    def __str__(self):
-        return str(self.image.url)
-
-    def save(self, *args, **kwargs):
-        try:  
-            size = 128, 128
-            thumb = IMAGE.open(self.image)
-            thumb.thumbnail(size)
-            infile = self.image.file.name
-            im_type = thumb.format 
-            thumb_io = BytesIO()
-            thumb.save(thumb_io, format=im_type)
-
-            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
-
-            self.thumbnail = thumb_file
-
-            size2 = 512, 512
-            thumb2 = IMAGE.open(self.image)
-            thumb2.thumbnail(size2)
-            thumb_io2 = BytesIO()
-            thumb2.save(thumb_io2, format=im_type)
-
-            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
-
-            self.mid_image = thumb_file2
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
-
-        super(Image, self).save(*args, **kwargs)
-
-class OmnyCommUser(User):
-
-    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
-    contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
-    designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
-    permission_list = models.TextField(default="[]")
-
-    def save(self, *args, **kwargs):
-        if self.pk == None:
-            self.set_password(self.password)
-        super(OmnyCommUser, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.username
-
-    class Meta:
-        verbose_name = "OmnyCommUser"
-        verbose_name_plural = "OmnyCommUser"
-
-class ImageBucket(models.Model):
-
-    description = models.TextField(null=True, blank=True)
-    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
-    is_main_image = models.BooleanField(default=False)
-    is_sub_image = models.BooleanField(default=False)
     sub_image_index = models.IntegerField(default=0)
 
     class Meta:
@@ -325,32 +351,6 @@ class MaterialType(models.Model):
 
     def __str__(self):
         return str(self.name)
-
-
-class BaseProduct(models.Model):
-
-    base_product_name = models.CharField(max_length=300)
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
-    seller_sku = models.CharField(max_length=200, unique=True)
-    category = models.CharField(max_length=200, default="")
-    sub_category = models.CharField(max_length=200, default="")
-    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
-    manufacturer = models.CharField(max_length=200, default="")
-    manufacturer_part_number = models.CharField(max_length=200, default="")
-    unedited_images = models.ManyToManyField(Image, related_name="unedited_images", blank=True)
-
-    dimensions = models.TextField(blank=True, default=base_dimensions_json)
-    history = AuditlogHistoryField()
-
-    class Meta:
-        verbose_name = "BaseProduct"
-        verbose_name_plural = "BaseProducts"
-
-    def __str__(self):
-        return str(self.base_product_name)
-
-    def save(self, *args, **kwargs):
         
         if self.pk == None:
             self.created_date = timezone.now()
@@ -411,8 +411,8 @@ class Product(models.Model):
 
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
-    pfl_product_features = models.TextField(default="[]")
 
+    pfl_product_features = models.TextField(default="[]")
     product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
     color = models.CharField(max_length=100, default="")
