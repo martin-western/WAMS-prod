@@ -54,25 +54,25 @@ class FetchFactoriesAPI(APIView):
             for factory in factories:
                 temp_dict = {}
                 temp_dict["name"] = factory.name
-                temp_dict["business-card"] = ""
+                temp_dict["business_card"] = ""
                 if factory.business_card != None and factory.business_card.image != "" and factory.business_card.image != "undefined":
-                    temp_dict["business-card"] = factory.business_card.image.url
+                    temp_dict["business_card"] = factory.business_card.image.url
                 else:
-                    temp_dict["business-card"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                    temp_dict["business_card"] = Config.objects.all()[0].DEFAULT_IMAGE.url
                 temp_dict["address"] = factory.address
                 temp_dict["pk"] = factory.pk
-                temp_dict["contact-person-mobile-no"] = factory.contact_person_mobile_no
-                temp_dict["contact-person-emailid"] = factory.contact_person_emailid
-                temp_dict["contact-person-name"] = factory.contact_person_name
-                temp_dict["loading-port"] = factory.loading_port
+                temp_dict["contact_person_mobile_no"] = factory.contact_person_mobile_no
+                temp_dict["contact_person_emailid"] = factory.contact_person_emailid
+                temp_dict["contact_person_name"] = factory.contact_person_name
+                temp_dict["loading_port"] = factory.loading_port
                 temp_dict["location"] = factory.location
-                temp_dict["social-media-tag"] = factory.social_media_tag
-                temp_dict["social-media-tag-information"] = factory.social_media_tag_information
+                temp_dict["social_media_tag"] = factory.social_media_tag
+                temp_dict["social_media_tag_information"] = factory.social_media_tag_information
                 phone_numbers = []
                 for phone_number in factory.phone_numbers.all():
                     phone_numbers.append(phone_number.number)
-                temp_dict["phone-numbers"] = phone_numbers
-                temp_dict["total-products"] = factory.products.all().count()
+                temp_dict["phone_numbers"] = phone_numbers
+                temp_dict["total_products"] = factory.products.all().count()
                 factory_list.append(temp_dict)
 
             user = OmnyCommUser.objects.get(
@@ -106,27 +106,29 @@ class AddNewFactoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            phone_numbers = json.loads(data["mobile-numbers"])
+            phone_numbers = json.loads(data["mobile_numbers"])
 
             user = OmnyCommUser.objects.get(
                 username=request.user.username)
 
             image_obj = None
-            if data["business-card"] == "":
+            if data["business_card"] == "":
                 image_obj = None
             else:
-                image_obj = Image.objects.create(image=data["business-card"])
+                image_obj = Image.objects.create(image=data["business_card"])
 
             factory = Factory.objects.create(business_card=image_obj,
                                              address=data["address"],
-                                             factory_emailid=data["factory-emailid"],
-                                             contact_person_name=data["contact-person"],
-                                             contact_person_mobile_no=data["contact-person-mobile-no"],
-                                             contact_person_emailid=data["contact-person-emailid"],
-                                             loading_port=data["loading-port"],
+                                             factory_emailid=data["factory_emailid"],
+                                             contact_person_name=data["contact_person"],
+                                             contact_person_mobile_no=data["contact_person_mobile_no"],
+                                             contact_person_emailid=data["contact_person_emailid"],
+                                             loading_port=data["loading_port"],
                                              social_media_tag=data["tag"],
-                                             social_media_tag_information=data["tag-info"],
+                                             social_media_tag_information=data["tag_info"],
                                              location=data["location"],
+                                             created_by=user,
+                                             other_info=data["other_info"],
                                              created_date=timezone.now())
 
             for phone_number in phone_numbers:
@@ -158,11 +160,11 @@ class FetchFactoryDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             factory = Factory.objects.get(pk=data["pk"])
-            response["factory-name"] = factory.name
+            response["factory_name"] = factory.name
             if factory.business_card != None and factory.business_card.image != "" and factory.business_card.image != "undefined":
-                response["business-card"] = factory.business_card.image.url
+                response["business_card"] = factory.business_card.image.url
             else:
-                response["business-card"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                response["business_card"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
             if factory.logo != "" and factory.logo != None:
                 response["logo"] = factory.logo.image.url
@@ -173,7 +175,7 @@ class FetchFactoryDetailsAPI(APIView):
             phone_numbers_list = []
             for phone_number in phone_numbers:
                 phone_numbers_list.append(phone_number.number)
-            response["phone-numbers"] = phone_numbers_list
+            response["phone_numbers"] = phone_numbers_list
 
             response["address"] = factory.address
 
@@ -182,26 +184,26 @@ class FetchFactoryDetailsAPI(APIView):
             for operating_hour in operating_hours:
                 temp_dict = {}
                 temp_dict["day"] = operating_hour.day
-                temp_dict["from-time"] = operating_hour.from_time.strftime(
+                temp_dict["from_time"] = operating_hour.from_time.strftime(
                     "%H:%M %p")
-                temp_dict["to-time"] = operating_hour.to_time.strftime(
+                temp_dict["to_time"] = operating_hour.to_time.strftime(
                     "%H:%M %p")
                 operating_hours_list.append(temp_dict)
 
-            response["factory-emailid"] = factory.factory_emailid
-            response["operating-hours"] = operating_hours_list
+            response["factory_emailid"] = factory.factory_emailid
+            response["operating_hours"] = operating_hours_list
             if factory.bank_details != None:
-                response["bank-details"] = factory.bank_details.name
+                response["bank_details"] = factory.bank_details.name
             else:
-                response["bank-details"] = ""
-            response["contact-person-mobile-no"] = factory.contact_person_mobile_no
-            response["contact-person-emailid"] = factory.contact_person_emailid
-            response["contact-person-name"] = factory.contact_person_name
-            response["loading-port"] = factory.loading_port
+                response["bank_details"] = ""
+            response["contact_person_mobile_no"] = factory.contact_person_mobile_no
+            response["contact_person_emailid"] = factory.contact_person_emailid
+            response["contact_person_name"] = factory.contact_person_name
+            response["loading_port"] = factory.loading_port
             response["location"] = factory.location
-            response["social-media-tag"] = factory.social_media_tag
-            response["social-media-tag-information"] = factory.social_media_tag_information
-            response["other-info"] = factory.other_info
+            response["social_media_tag"] = factory.social_media_tag
+            response["social_media_tag_information"] = factory.social_media_tag_information
+            response["other_info"] = factory.other_info
 
             images = factory.images.all()
 
@@ -222,13 +224,13 @@ class FetchFactoryDetailsAPI(APIView):
                 temp_dict["name"] = product.name
                 temp_dict["code"] = product.code
                 temp_dict["price"] = product.price
-                temp_dict["delivery-days"] = product.delivery_days
+                temp_dict["delivery_days"] = product.delivery_days
                 temp_dict["category"] = getattr(product.category, 'name', None)
                 temp_dict["country"] = getattr(product.country, 'name', None)
                 temp_dict["moq"] = product.minimum_order_qty
-                temp_dict["qty-metric"] = product.qty_metric
-                temp_dict["order-qty"] = product.order_qty
-                temp_dict["other-info"] = product.other_info
+                temp_dict["qty_metric"] = product.qty_metric
+                temp_dict["order_qty"] = product.order_qty
+                temp_dict["other_info"] = product.other_info
                 temp_dict["is_shared"] = product.is_shared
                 temp_dict["pk"] = product.pk
                 images_list = []
@@ -310,13 +312,10 @@ class UploadFactoriesProductsAPI(APIView):
                                                                  row_number, 11),
                                                              location=factory_sheet.cell_value(
                                                                  row_number, 4),
+                                                             created_by=user,
+                                                             other_info=factory_sheet.cell_value(row_number, 6)
                                                              created_date=timezone.now())
 
-                        factory = Factory.objects.create(base_factory=new_factory,
-                                                                                   name=factory_sheet.cell_value(
-                                                                                       row_number, 0),
-                                                                                   created_by=user,
-                                                                                   other_info=factory_sheet.cell_value(row_number, 6))
 
                         phone_numbers = str(
                             factory_sheet.cell_value(1, 5)).split(",")
@@ -719,7 +718,7 @@ class AddNewProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if BaseProduct.objects.filter(code=data["product-code"]).exists():
+            if BaseProduct.objects.filter(code=data["product_code"]).exists():
                 response["message"] = "Duplicate product detected!"
                 return Response(data=response)
 
@@ -727,33 +726,33 @@ class AddNewProductAPI(APIView):
                 username=request.user.username)
 
             product = Product.objects.create(minimum_order_qty=int(data["moq"]),
-                                             order_qty=int(data["order-qty"]),
-                                             qty_metric=data["qty-metric"])
+                                             order_qty=int(data["order_qty"]),
+                                             qty_metric=data["qty_metric"])
 
-            product = BaseProduct.objects.create(name=data["product-name"],
-                                                                       code=data["product-code"],
+            product = BaseProduct.objects.create(name=data["product_name"],
+                                                                       code=data["product_code"],
                                                                        price=float(
-                                                                           data["product-price"]),
+                                                                           data["product_price"]),
                                                                        product=product,
-                                                                       other_info=data["other-info"],
+                                                                       other_info=data["other_info"],
                                                                        created_by=user,
                                                                        currency=data["currency"])
 
-            factory = Factory.objects.get(pk=int(data["factory-pk"]))
+            factory = Factory.objects.get(pk=int(data["factory_pk"]))
             factory = Factory.objects.get(
                 base_factory=factory)
             factory.products.add(product)
             factory.save()
 
-            for i in range(int(data["product-images-count"])):
+            for i in range(int(data["product_images_count"])):
                 im_obj = Image.objects.create(
-                    image=data["product-images-"+str(i)])
+                    image=data["product_images_"+str(i)])
                 product.images.add(im_obj)
                 product.save()
 
-            for i in range(int(data["attachments-count"])):
+            for i in range(int(data["attachments_count"])):
                 at_obj = Attachment.objects.create(
-                    attachment=data["attachment-"+str(i)])
+                    attachment=data["attachment_"+str(i)])
                 product.attachments.add(at_obj)
                 product.save()
 
@@ -790,15 +789,15 @@ class FetchProductDetailsAPI(APIView):
                 factory_manager_product = FactoryManagerProduct.objects.get(
                     product=product)
 
-                response["factory-manager-product-name"] = factory_manager_product.name
-                response["factory-manager-product-code"] = factory_manager_product.code
-                response["factory-manager-product-price"] = factory_manager_product.price
-                response["factory-manager-product-price-currency"] = factory_manager_product.currency
+                response["factory_manager_product_name"] = factory_manager_product.name
+                response["factory_manager_product_code"] = factory_manager_product.code
+                response["factory_manager_product_price"] = factory_manager_product.price
+                response["factory_manager_product_price_currency"] = factory_manager_product.currency
             except Exception as e:
-                response["factory-manager-product-name"] = ""
-                response["factory-manager-product-code"] = ""
-                response["factory-manager-product-price"] = ""
-                response["factory-manager-product-price-currency"] = ""
+                response["factory_manager_product_name"] = ""
+                response["factory_manager_product_code"] = ""
+                response["factory_manager_product_price"] = ""
+                response["factory_manager_product_price_currency"] = ""
 
             images_list = []
             images = product.images.all()
@@ -826,32 +825,32 @@ class FetchProductDetailsAPI(APIView):
                     attachment.attachment.file.name)
                 attachment_list.append(temp_dict)
 
-            response["factory-name"] = ""
-            response["factory-pk"] = ""
+            response["factory_name"] = ""
+            response["factory_pk"] = ""
             if product.Factory_set.all().count() > 0:
                 temp_factory = product.Factory_set.all()[0]
-                response["factory-name"] = temp_factory.name
-                response["factory-pk"] = temp_factory.base_factory.pk
+                response["factory_name"] = temp_factory.name
+                response["factory_pk"] = temp_factory.base_factory.pk
 
                 try:
                     temp_factory = product.factorymanagerfactory_set.all()[0]
-                    response["factory-manager-factory-name"] = temp_factory.name
+                    response["factory_manager_factory_name"] = temp_factory.name
                 except Exception as e:
-                    response["factory-manager-factory-name"] = ""
+                    response["factory_manager_factory_name"] = ""
 
-            response["product-name"] = product.name
-            response["product-code"] = product.code
-            response["product-price"] = product.price
+            response["product_name"] = product.name
+            response["product_code"] = product.code
+            response["product_price"] = product.price
 
             response["is_pr_ready"] = product.is_pr_ready
 
             response["moq"] = product.minimum_order_qty
-            response["order-qty"] = product.order_qty
-            response["other-info"] = product.other_info
+            response["order_qty"] = product.order_qty
+            response["other_info"] = product.other_info
             response["images"] = images_list
             response["attachments"] = attachment_list
             response["currency"] = product.currency
-            response["qty-metric"] = product.qty_metric
+            response["qty_metric"] = product.qty_metric
             response["pk"] = product.pk
 
             response["status"] = 200
@@ -1020,11 +1019,11 @@ class SaveBusinessCardAPI(APIView):
                 data = json.loads(data)
 
             factory = Factory.objects.get(pk=int(data["pk"]))
-            image_obj = Image.objects.create(image=data["business-card"])
+            image_obj = Image.objects.create(image=data["business_card"])
             factory.business_card = image_obj
             factory.save()
 
-            response["image-url"] = factory.business_card.image.url
+            response["image_url"] = factory.business_card.image.url
             response["status"] = 200
 
         except Exception as e:
@@ -1051,11 +1050,11 @@ class UploadProductImageAPI(APIView):
             product = Product.objects.get(pk=int(data["pk"]))
             product = BaseProduct.objects.get(
                 product=product)
-            im_obj = Image.objects.create(image=data["product-image"])
+            im_obj = Image.objects.create(image=data["product_image"])
             product.images.add(im_obj)
             product.save()
 
-            response["image-url"] = im_obj.image.url
+            response["image_url"] = im_obj.image.url
             response["pk"] = im_obj.pk
             response["status"] = 200
 
@@ -1190,7 +1189,7 @@ class FetchProductCardsAPI(APIView):
                 data = json.loads(data)
 
             # user = OmnyCommUser.objects.get(username=request.user.username)
-            # product_list = BaseProduct.objects.filter(created_by=user).order_by('-pk')
+            # product_list = BaseProduct.objects.filter(created_by=user).order_by('_pk')
             product_list = BaseProduct.objects.all()
             paginator = Paginator(product_list, 4)
 
@@ -1206,26 +1205,26 @@ class FetchProductCardsAPI(APIView):
                 temp_dict["code"] = product.code
                 temp_dict["price"] = product.price
                 temp_dict["moq"] = product.minimum_order_qty
-                temp_dict["order-qty"] = product.order_qty
-                temp_dict["other-info"] = product.other_info
+                temp_dict["order_qty"] = product.order_qty
+                temp_dict["other_info"] = product.other_info
                 temp_dict["currency"] = product.currency
-                temp_dict["qty-metric"] = product.qty_metric
+                temp_dict["qty_metric"] = product.qty_metric
 
                 temp_dict["pk"] = product.pk
-                temp_dict["image-url"] = ""
+                temp_dict["image_url"] = ""
 
                 if product.images.all().count() > 0:
-                    temp_dict["image-url"] = product.images.all()[0].image.url
+                    temp_dict["image_url"] = product.images.all()[0].image.url
                 else:
-                    temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                    temp_dict["image_url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
-                temp_dict["factory-name"] = ""
-                temp_dict["factory-pk"] = ""
+                temp_dict["factory_name"] = ""
+                temp_dict["factory_pk"] = ""
 
                 if product.Factory_set.all().count() > 0:
                     temp_factory = product.Factory_set.all()[0]
-                    temp_dict["factory-name"] = temp_factory.name
-                    temp_dict["factory-pk"] = temp_factory.pk
+                    temp_dict["factory_name"] = temp_factory.name
+                    temp_dict["factory_pk"] = temp_factory.pk
 
                 products.append(temp_dict)
 
@@ -1233,7 +1232,7 @@ class FetchProductCardsAPI(APIView):
             if paginator.num_pages == page:
                 is_available = False
 
-            response["total-products"] = BaseProduct.objects.all().count()
+            response["total_products"] = BaseProduct.objects.all().count()
             response["is_available"] = is_available
             response["products"] = products
             response["status"] = 200
@@ -1468,23 +1467,23 @@ class SearchFactoriesAPI(APIView):
                 temp_dict["name"] = factory.name
                 if factory.business_card != None and factory.business_card.image != "" and factory.business_card.image != "undefined":
 
-                    temp_dict["business-card"] = factory.business_card.image.url
+                    temp_dict["business_card"] = factory.business_card.image.url
                 else:
-                    temp_dict["business-card"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                    temp_dict["business_card"] = Config.objects.all()[0].DEFAULT_IMAGE.url
                 temp_dict["address"] = factory.address
                 temp_dict["pk"] = factory.pk
-                temp_dict["contact-person-mobile-no"] = factory.contact_person_mobile_no
-                temp_dict["contact-person-name"] = factory.contact_person_name
-                temp_dict["contact-person-emailid"] = factory.contact_person_emailid
-                temp_dict["loading-port"] = factory.loading_port
+                temp_dict["contact_person_mobile_no"] = factory.contact_person_mobile_no
+                temp_dict["contact_person_name"] = factory.contact_person_name
+                temp_dict["contact_person_emailid"] = factory.contact_person_emailid
+                temp_dict["loading_port"] = factory.loading_port
                 temp_dict["location"] = factory.location
-                temp_dict["social-media-tag"] = factory.social_media_tag
-                temp_dict["social-media-tag-information"] = factory.social_media_tag_information
+                temp_dict["social_media_tag"] = factory.social_media_tag
+                temp_dict["social_media_tag_information"] = factory.social_media_tag_information
                 phone_numbers = []
                 for phone_number in factory.phone_numbers.all():
                     phone_numbers.append(phone_number.number)
-                temp_dict["phone-numbers"] = phone_numbers
-                temp_dict["total-products"] = factory.products.all().count()
+                temp_dict["phone_numbers"] = phone_numbers
+                temp_dict["total_products"] = factory.products.all().count()
                 factory_list.append(temp_dict)
 
             user = OmnyCommUser.objects.get(
@@ -1546,23 +1545,23 @@ class SearchFactoriesByDateAPI(APIView):
                     temp_dict = {}
                     temp_dict["name"] = factory.name
                     if factory.business_card != None and factory.business_card.image != "" and factory.business_card.image != "undefined":
-                        temp_dict["business-card"] = factory.business_card.image.url
+                        temp_dict["business_card"] = factory.business_card.image.url
                     else:
-                        temp_dict["business-card"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                        temp_dict["business_card"] = Config.objects.all()[0].DEFAULT_IMAGE.url
                     temp_dict["address"] = factory.address
                     temp_dict["pk"] = factory.pk
-                    temp_dict["contact-person-mobile-no"] = factory.contact_person_mobile_no
-                    temp_dict["contact-person-name"] = factory.contact_person_name
-                    temp_dict["contact-person-emailid"] = factory.contact_person_emailid
-                    temp_dict["loading-port"] = factory.loading_port
+                    temp_dict["contact_person_mobile_no"] = factory.contact_person_mobile_no
+                    temp_dict["contact_person_name"] = factory.contact_person_name
+                    temp_dict["contact_person_emailid"] = factory.contact_person_emailid
+                    temp_dict["loading_port"] = factory.loading_port
                     temp_dict["location"] = factory.location
-                    temp_dict["social-media-tag"] = factory.social_media_tag
-                    temp_dict["social-media-tag-information"] = factory.social_media_tag_information
+                    temp_dict["social_media_tag"] = factory.social_media_tag
+                    temp_dict["social_media_tag_information"] = factory.social_media_tag_information
                     phone_numbers = []
                     for phone_number in factory.phone_numbers.all():
                         phone_numbers.append(phone_number.number)
-                    temp_dict["phone-numbers"] = phone_numbers
-                    temp_dict["total-products"] = factory.products.all().count()
+                    temp_dict["phone_numbers"] = phone_numbers
+                    temp_dict["total_products"] = factory.products.all().count()
                     factory_list.append(temp_dict)
 
                 user = OmnyCommUser.objects.get(
@@ -1600,7 +1599,7 @@ class SearchProductsAPI(APIView):
             query = data["query"]
 
             products = BaseProduct.objects.filter(
-                name__icontains=query).order_by('-pk')
+                name__icontains=query).order_by('_pk')
 
             products = []
             for product in products:
@@ -1610,27 +1609,27 @@ class SearchProductsAPI(APIView):
                 temp_dict["code"] = product.code
                 temp_dict["price"] = product.price
                 temp_dict["moq"] = product.minimum_order_qty
-                temp_dict["order-qty"] = product.order_qty
-                temp_dict["other-info"] = product.other_info
+                temp_dict["order_qty"] = product.order_qty
+                temp_dict["other_info"] = product.other_info
                 temp_dict["currency"] = product.currency
-                temp_dict["qty-metric"] = product.qty_metric
+                temp_dict["qty_metric"] = product.qty_metric
 
                 temp_dict["pk"] = product.pk
-                temp_dict["image-url"] = ""
+                temp_dict["image_url"] = ""
                 if product.images.all().count() > 0:
-                    temp_dict["image-url"] = product.images.all()[0].image.url
+                    temp_dict["image_url"] = product.images.all()[0].image.url
                 else:
-                    temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
-                temp_dict["factory-name"] = ""
-                temp_dict["factory-pk"] = ""
+                    temp_dict["image_url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                temp_dict["factory_name"] = ""
+                temp_dict["factory_pk"] = ""
                 if product.Factory_set.all().count() > 0:
                     temp_factory = product.Factory_set.all()[0]
-                    temp_dict["factory-name"] = temp_factory.name
-                    temp_dict["factory-pk"] = temp_factory.pk
+                    temp_dict["factory_name"] = temp_factory.name
+                    temp_dict["factory_pk"] = temp_factory.pk
 
                 products.append(temp_dict)
 
-            response["total-products"] = products.count()
+            response["total_products"] = products.count()
             response["products"] = products
             response["status"] = 200
 
@@ -1764,7 +1763,7 @@ class FetchFactoryNameFromUUIDAPI(APIView):
             factory = link_generator_obj.factory
             factory_manager_factory = FactoryManagerFactory.objects.get(base_factory=factory)
 
-            response["factory-name"] = factory_manager_factory.name
+            response["factory_name"] = factory_manager_factory.name
             response["status"] = 200
 
         except Exception as e:
@@ -1816,7 +1815,7 @@ class FetchFactoryForOmnyCommUserAPI(APIView):
             phone_numbers = []
             for phone_number in factory.base_factory.phone_numbers.all():
                 phone_numbers.append(phone_number.number)
-            temp_dict["phone-numbers"] = phone_numbers
+            temp_dict["phone_numbers"] = phone_numbers
             images_list = []
             if factory.images.all().count() > 0:
                 for image in factory.images.all():
@@ -1833,14 +1832,14 @@ class FetchFactoryForOmnyCommUserAPI(APIView):
                 operating_hour_dict["from_time"] = str(operating_hour.from_time)
                 operating_hour_dict["to_time"] = str(operating_hour.to_time)
                 operating_hours.append(operating_hour_dict)
-            temp_dict["operating-hours"] = operating_hours
+            temp_dict["operating_hours"] = operating_hours
             if(factory.base_factory.logo != None and factory.logo != ""):
                 temp_dict["logo"] = factory.base_factory.logo.image.url
             else:
                 temp_dict["logo"] = Config.objects.all()[
                     0].DEFAULT_IMAGE.url
-            # temp_dict["bank-details"] = factory.base_factory.bank_details
-            temp_dict["total-products"] = factory.products.all().count()
+            # temp_dict["bank_details"] = factory.base_factory.bank_details
+            temp_dict["total_products"] = factory.products.all().count()
 
  
             response["factory"] = temp_dict
@@ -1883,7 +1882,7 @@ class FetchFactoriesForOmnyCommUserAPI(APIView):
                 phone_numbers = []
                 for phone_number in factory.base_factory.phone_numbers.all():
                     phone_numbers.append(phone_number.number)
-                temp_dict["phone-numbers"] = phone_numbers
+                temp_dict["phone_numbers"] = phone_numbers
                 images_list = []
                 
                 try:
@@ -1901,7 +1900,7 @@ class FetchFactoriesForOmnyCommUserAPI(APIView):
                     operating_hour_dict["from_time"] = str(operating_hour.from_time)
                     operating_hour_dict["to_time"] = str(operating_hour.to_time)
                     operating_hours.append(operating_hour_dict)
-                temp_dict["operating-hours"] = operating_hours
+                temp_dict["operating_hours"] = operating_hours
                 # print(factory.logo)
                 if(factory.base_factory.logo != None and factory.base_factory.logo != ""):
                     temp_dict["logo"] = factory.base_factory.logo.image.url
@@ -1911,7 +1910,7 @@ class FetchFactoriesForOmnyCommUserAPI(APIView):
                     temp_dict["logo"] = Config.objects.all()[
                         0].DEFAULT_IMAGE.url
               
-                temp_dict["total-products"] = factory.products.all().count()
+                temp_dict["total_products"] = factory.products.all().count()
 
                 temp_dict["average_delivery_days"] = factory.base_factory.average_delivery_days
                 temp_dict["average_turn_around_time"] = factory.base_factory.average_turn_around_time
@@ -1955,7 +1954,7 @@ class FetchOmnyCommUserDetailsAPI(APIView):
             phone_numbers = []
             for phone_number in factory.phone_numbers.all():
                 phone_numbers.append(phone_number.number)
-            temp_dict["phone-numbers"] = phone_numbers
+            temp_dict["phone_numbers"] = phone_numbers
             images_list = []
 
             for image in factory_manager_factory.images.all():
@@ -1971,14 +1970,14 @@ class FetchOmnyCommUserDetailsAPI(APIView):
                 operating_hour_dict["from_time"] = str(operating_hour.from_time)
                 operating_hour_dict["to_time"] = str(operating_hour.to_time)
                 operating_hours.append(operating_hour_dict)
-            temp_dict["operating-hours"] = operating_hours
+            temp_dict["operating_hours"] = operating_hours
             
             if(factory.logo != None and factory.logo != ""):
                 temp_dict["logo"] = factory.logo.image.url
             else:
                 temp_dict["logo"] = ""
-            temp_dict["bank-details"] = factory.bank_details
-            temp_dict["total-products"] = factory_manager_factory.products.all().count()
+            temp_dict["bank_details"] = factory.bank_details
+            temp_dict["total_products"] = factory_manager_factory.products.all().count()
 
  
             response["factory"] = json.dumps(temp_dict)
@@ -2042,21 +2041,21 @@ class FetchProductsFromFactoryAPI(APIView):
                         temp_dict["price"] = product.price
                         temp_dict["currency"] = product.currency
                         temp_dict["moq"] = product_temp.product.minimum_order_qty
-                        temp_dict["minimum-order-qty"] = product_temp.product.minimum_order_qty
-                        temp_dict["qty-metric"] = product_temp.product.qty_metric
-                        temp_dict["order-qty"] = product_temp.product.order_qty
-                        temp_dict["other-info"] = product.other_info
-                        temp_dict["created-date"] = product_temp.product.created_date
-                        temp_dict["go-live-status"] = product_temp.product.go_live
+                        temp_dict["minimum_order_qty"] = product_temp.product.minimum_order_qty
+                        temp_dict["qty_metric"] = product_temp.product.qty_metric
+                        temp_dict["order_qty"] = product_temp.product.order_qty
+                        temp_dict["other_info"] = product.other_info
+                        temp_dict["created_date"] = product_temp.product.created_date
+                        temp_dict["go_live_status"] = product_temp.product.go_live
                         temp_dict["delivery_days"] = product_temp.product.delivery_days
 
                         temp_dict["pk"] = product_temp.product.pk
-                        temp_dict["image-url"] = ""
+                        temp_dict["image_url"] = ""
                         if product.images.all().count()>0:
-                            temp_dict["image-url"] = product.images.all()[
+                            temp_dict["image_url"] = product.images.all()[
                                 0].image.url
                         else :
-                            temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                            temp_dict["image_url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
                         products.append(temp_dict)
                 except Exception as e:
@@ -2081,18 +2080,18 @@ class FetchProductsFromFactoryAPI(APIView):
                     temp_dict["price"] = factory_manager_product.price
                     temp_dict["currency"] = factory_manager_product.currency
                     temp_dict["moq"] = product.minimum_order_qty
-                    temp_dict["minimum-order-qty"] = product.minimum_order_qty
-                    temp_dict["qty-metric"] = product.qty_metric
-                    temp_dict["order-qty"] = product.order_qty
-                    temp_dict["other-info"] = factory_manager_product.other_info
-                    temp_dict["created-date"] = product.created_date
+                    temp_dict["minimum_order_qty"] = product.minimum_order_qty
+                    temp_dict["qty_metric"] = product.qty_metric
+                    temp_dict["order_qty"] = product.order_qty
+                    temp_dict["other_info"] = factory_manager_product.other_info
+                    temp_dict["created_date"] = product.created_date
 
                     temp_dict["pk"] = product.pk
-                    temp_dict["image-url"] = ""
+                    temp_dict["image_url"] = ""
                     if factory_manager_product.images.all().count()>0:
-                        temp_dict["image-url"] = factory_manager_product.images.all()[0].image.url
+                        temp_dict["image_url"] = factory_manager_product.images.all()[0].image.url
                     else :
-                        temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                        temp_dict["image_url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
                     products.append(temp_dict)
                 
@@ -2131,11 +2130,11 @@ class FetchSharedProductsForFactoryAPI(APIView):
                 temp_dict["code"] = product.code
                 temp_dict["price"] = product.price
                 temp_dict["currency"] = product.currency
-                temp_dict["minimum-order-qty"] = product.minimum_order_qty
-                temp_dict["qty-metric"] = product.qty_metric
-                temp_dict["order-qty"] = product.order_qty
-                temp_dict["other-info"] = product.other_info
-                temp_dict["created-date"] = product.created_date
+                temp_dict["minimum_order_qty"] = product.minimum_order_qty
+                temp_dict["qty_metric"] = product.qty_metric
+                temp_dict["order_qty"] = product.order_qty
+                temp_dict["other_info"] = product.other_info
+                temp_dict["created_date"] = product.created_date
                 temp_dict["export_carton_qty_l"] = product.export_carton_qty_l
                 temp_dict["export_carton_qty_r"] = product.export_carton_qty_r
                 temp_dict["export_carton_qty_h"] = product.export_carton_qty_h
@@ -2155,11 +2154,11 @@ class FetchSharedProductsForFactoryAPI(APIView):
                 temp_dict["spare_part_qty"] = product.spare_part_qty
 
                 temp_dict["pk"] = product.pk
-                temp_dict["image-url"] = ""
+                temp_dict["image_url"] = ""
                 if product.images.all().count()>0:
-                    temp_dict["image-url"] = product.images.all()[0].image.url
+                    temp_dict["image_url"] = product.images.all()[0].image.url
                 else :
-                    temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                    temp_dict["image_url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
                 products.append(temp_dict)
 
@@ -2465,15 +2464,15 @@ class FetchSourcingProductDetailsAPI(APIView):
             product = BaseProduct.objects.get(
                 product=product)
 
-            response["product-name"] = product.name
+            response["product_name"] = product.name
             response["price"] = product.price
-            response["product-code"] = product.code
-            response["minimum-order-qty"] = product.minimum_order_qty
-            response["order-qty"] = product.order_qty
-            response["other-info"] = product.other_info
-            response["qty-metric"] = product.qty_metric
+            response["product_code"] = product.code
+            response["minimum_order_qty"] = product.minimum_order_qty
+            response["order_qty"] = product.order_qty
+            response["other_info"] = product.other_info
+            response["qty_metric"] = product.qty_metric
             response["currency"] = product.currency
-            response["inner-box-qty"] = product.inner_box_qty
+            response["inner_box_qty"] = product.inner_box_qty
             if(product.country != None):
                 response["country"] = product.country.pk
             else:
@@ -2483,44 +2482,44 @@ class FetchSourcingProductDetailsAPI(APIView):
             else:
                 response["category"] = ""
             if(product.technical_specs != None):
-                response["technical-specs"] = product.technical_specs.pk
+                response["technical_specs"] = product.technical_specs.pk
             else:
-                response["technical-specs"] = ""
+                response["technical_specs"] = ""
             if(product.material_specs != None):
-                response["material-specs"] = product.material_specs.pk
+                response["material_specs"] = product.material_specs.pk
             else:
-                response["material-specs"] = ""
-            response["spare-part-name"] = product.spare_part_name
-            response["spare-part-qty"] = product.spare_part_qty
-            response["delivery-days"] = product.delivery_days
-            response["export-carton-qty-l"] = product.export_carton_qty_l
-            response["export-carton-qty-r"] = product.export_carton_qty_r
-            response["export-carton-qty-h"] = product.export_carton_qty_h
-            response["export-carton-crm-l"] = product.export_carton_crm_l
-            response["export-carton-crm-r"] = product.export_carton_crm_r
-            response["export-carton-crm-h"] = product.export_carton_crm_h
-            response["product-dimension-l"] = product.product_dimension_l
-            response["product-dimension-r"] = product.product_dimension_r
-            response["product-dimension-h"] = product.product_dimension_h
-            response["giftbox-l"] = product.gift_box_l
-            response["giftbox-r"] = product.gift_box_r
-            response["giftbox-h"] = product.gift_box_h
-            response["go-live-status"] = product.go_live
+                response["material_specs"] = ""
+            response["spare_part_name"] = product.spare_part_name
+            response["spare_part_qty"] = product.spare_part_qty
+            response["delivery_days"] = product.delivery_days
+            response["export_carton_qty_l"] = product.export_carton_qty_l
+            response["export_carton_qty_r"] = product.export_carton_qty_r
+            response["export_carton_qty_h"] = product.export_carton_qty_h
+            response["export_carton_crm_l"] = product.export_carton_crm_l
+            response["export_carton_crm_r"] = product.export_carton_crm_r
+            response["export_carton_crm_h"] = product.export_carton_crm_h
+            response["product_dimension_l"] = product.product_dimension_l
+            response["product_dimension_r"] = product.product_dimension_r
+            response["product_dimension_h"] = product.product_dimension_h
+            response["giftbox_l"] = product.gift_box_l
+            response["giftbox_r"] = product.gift_box_r
+            response["giftbox_h"] = product.gift_box_h
+            response["go_live_status"] = product.go_live
             
             response["size"] = product.size
 
             response["weight"] = product.weight
             response["design"] = product.design
-            response["pkg-inner"] = product.pkg_inner
-            response["pkg-m-ctn"] = product.pkg_m_ctn
-            response["p-ctn-cbm"] = product.p_ctn_cbm
-            response["ttl-ctn"] = product.ttl_ctn
-            response["ttl-cbm"] = product.ttl_cbm
-            response["ship-lot-number"] = product.ship_lot_number
+            response["pkg_inner"] = product.pkg_inner
+            response["pkg_m_ctn"] = product.pkg_m_ctn
+            response["p_ctn_cbm"] = product.p_ctn_cbm
+            response["ttl_ctn"] = product.ttl_ctn
+            response["ttl_cbm"] = product.ttl_cbm
+            response["ship_lot_number"] = product.ship_lot_number
 
-            response["created-date"] = ""
+            response["created_date"] = ""
             if product.created_date!=None:
-                response["created-date"] = str(product.created_date.strftime("%Y-%m-%d"))
+                response["created_date"] = str(product.created_date.strftime("%Y_%m_%d"))
 
             images = product.images.all()
             images_list = []
@@ -2704,15 +2703,15 @@ class FetchFactoryProductDetailsAPI(APIView):
             product = Product.objects.get(pk=int(data["pk"]))
             factory_manager_product = FactoryManagerProduct.objects.get(product=product)
 
-            response["product-name"] = factory_manager_product.name 
+            response["product_name"] = factory_manager_product.name 
             response["price"] = factory_manager_product.price 
-            response["product-code"] = factory_manager_product.code 
-            response["minimum-order-qty"] = product.minimum_order_qty 
-            response["order-qty"] = product.order_qty  
-            response["other-info"] = factory_manager_product.other_info
-            response["qty-metric"] = product.qty_metric 
+            response["product_code"] = factory_manager_product.code 
+            response["minimum_order_qty"] = product.minimum_order_qty 
+            response["order_qty"] = product.order_qty  
+            response["other_info"] = factory_manager_product.other_info
+            response["qty_metric"] = product.qty_metric 
             response["currency"] = factory_manager_product.currency 
-            response["inner-box-qty"] = product.inner_box_qty 
+            response["inner_box_qty"] = product.inner_box_qty 
             if(product.country != None):
                 response["country"] = product.country.pk
             else:
@@ -2722,33 +2721,33 @@ class FetchFactoryProductDetailsAPI(APIView):
             else:
                 response["category"] = ""
             if(product.technical_specs != None):
-                response["technical-specs"] = product.technical_specs.pk
+                response["technical_specs"] = product.technical_specs.pk
             else:
-                response["technical-specs"] = ""
+                response["technical_specs"] = ""
             if(product.material_specs != None):
-                response["material-specs"] = product.material_specs.pk
+                response["material_specs"] = product.material_specs.pk
             else:
-                response["material-specs"] = ""
-            response["spare-part-name"] = product.spare_part_name 
-            response["spare-part-qty"] = product.spare_part_qty
-            response["delivery-days"] = product.delivery_days
-            response["export-carton-qty-l"] = product.export_carton_qty_l 
-            response["export-carton-qty-r"] = product.export_carton_qty_r               
-            response["export-carton-qty-h"] = product.export_carton_qty_h 
-            response["export-carton-crm-l"] = product.export_carton_crm_l 
-            response["export-carton-crm-r"] = product.export_carton_crm_r
-            response["export-carton-crm-h"] = product.export_carton_crm_h 
-            response["product-dimension-l"] = product.product_dimension_l 
-            response["product-dimension-r"] = product.product_dimension_r
-            response["product-dimension-h"] = product.product_dimension_h
-            response["giftbox-l"] = product.gift_box_l 
-            response["giftbox-r"] = product.gift_box_r
-            response["giftbox-h"] = product.gift_box_h
-            response["go-live-status"] = product.go_live
+                response["material_specs"] = ""
+            response["spare_part_name"] = product.spare_part_name 
+            response["spare_part_qty"] = product.spare_part_qty
+            response["delivery_days"] = product.delivery_days
+            response["export_carton_qty_l"] = product.export_carton_qty_l 
+            response["export_carton_qty_r"] = product.export_carton_qty_r               
+            response["export_carton_qty_h"] = product.export_carton_qty_h 
+            response["export_carton_crm_l"] = product.export_carton_crm_l 
+            response["export_carton_crm_r"] = product.export_carton_crm_r
+            response["export_carton_crm_h"] = product.export_carton_crm_h 
+            response["product_dimension_l"] = product.product_dimension_l 
+            response["product_dimension_r"] = product.product_dimension_r
+            response["product_dimension_h"] = product.product_dimension_h
+            response["giftbox_l"] = product.gift_box_l 
+            response["giftbox_r"] = product.gift_box_r
+            response["giftbox_h"] = product.gift_box_h
+            response["go_live_status"] = product.go_live
 
-            response["created-date"] = ''
+            response["created_date"] = ''
             if product.created_date!=None:
-                response["created-date"] = str(product.created_date.strftime("%Y-%m-%d"))
+                response["created_date"] = str(product.created_date.strftime("%Y_%m_%d"))
 
 
             images = factory_manager_product.images.all()
@@ -2828,14 +2827,14 @@ class FetchFactorywiseProductListingAPI(APIView):
                     temp_dict["moq"] = product.product.minimum_order_qty 
                     temp_dict["delivery_days"] = product.product.delivery_days
                     temp_dict["price"] = product.price
-                    temp_dict["go-live-status"] = product.product.go_live
+                    temp_dict["go_live_status"] = product.product.go_live
                     temp_dict["factory_name"] = factory.name
 
 
                     if product.images.all().count()>0:
-                        temp_dict["image-url"] = product.images.all()[0].image.url
+                        temp_dict["image_url"] = product.images.all()[0].image.url
                     else :
-                        temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                        temp_dict["image_url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
 
                     response_products.append(temp_dict)
@@ -2931,7 +2930,7 @@ class UploadFactoryProductImageAPI(APIView):
 
             images_list = []
             for i in range(images_count):
-                im_obj = Image.objects.create(image=data["product-image-"+str(i)])
+                im_obj = Image.objects.create(image=data["product_image_"+str(i)])
                 factory_manager_product.images.add(im_obj)
 
             factory_manager_product.save()
@@ -2974,7 +2973,7 @@ class UploadFactoryImageAPI(APIView):
             images_list = []
             for i in range(images_count):
                 im_obj = Image.objects.create(
-                    image=data["product-image-"+str(i)])
+                    image=data["product_image_"+str(i)])
                 factory.images.add(im_obj)
 
             factory.save()
@@ -3021,7 +3020,7 @@ class UploadSourcingProductProductImageAPI(APIView):
             images_list = []
             for i in range(images_count):
                 im_obj = Image.objects.create(
-                    image=data["product-image-"+str(i)])
+                    image=data["product_image_"+str(i)])
                 product.images.add(im_obj)
 
             product.save()
@@ -3068,7 +3067,7 @@ class ChangeGoLiveStatusAPI(APIView):
                 product.go_live = False
                 response['error_msg'] = 'not_pr_ready'
             product.save()
-            response["go-live-status"] = product.go_live
+            response["go_live_status"] = product.go_live
             response["status"] = 200
 
         except Exception as e:
@@ -3211,7 +3210,7 @@ class DownloadPIAPI(APIView):
 
                     json_parameter["product_info"] = product_info
 
-                    filename = factory.name.replace(" ", "-").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
+                    filename = factory.name.replace(" ", "_").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
                     filepath = generate_pi(json_parameter, filename)
                     logger.info("filepath returned %s", str(filepath))
                     temp_proforma_invoice.proforma_pdf = "pdf/"+filename
@@ -3391,7 +3390,7 @@ class DownloadPIBulkAPI(APIView):
 
                         json_parameter["product_info"] = product_info
 
-                        filename = factory.name.replace(" ", "-").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
+                        filename = factory.name.replace(" ", "_").replace(",", "").replace("&", "")+"_"+str(temp_proforma_invoice.pk)+".pdf"
                         filepath = generate_pi(json_parameter, filename)
                         logger.info("filepath returned %s", str(filepath))
                         temp_proforma_invoice.proforma_pdf = "pdf/"+filename
@@ -3522,9 +3521,9 @@ class FetchDraftProformaInvoiceAPI(APIView):
                 temp_dict["draft_line_id"] = line_id
                 temp_dict["draft_pi_id"] = draft_pi.pk
                 if product.images.all().count()>0:
-                    temp_dict["image-url"] = product.images.all()[0].image.url
+                    temp_dict["image_url"] = product.images.all()[0].image.url
                 else :
-                    temp_dict["image-url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
+                    temp_dict["image_url"] = Config.objects.all()[0].DEFAULT_IMAGE.url
 
                 draft_lines.append(temp_dict)
 
