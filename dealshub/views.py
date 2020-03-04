@@ -2218,7 +2218,7 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_admin_sections = json.loads(data["dealshubAdminSections"])
+            dealshub_admin_sections = data["dealshubAdminSections"]
 
             cnt = 1
             for dealshub_admin_section in dealshub_admin_sections:
