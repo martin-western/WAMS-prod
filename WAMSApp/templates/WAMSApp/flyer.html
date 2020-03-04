@@ -2903,8 +2903,7 @@
         success: function(response) {
           console.log("Success!", response);
 
-          //set_canvas_mode(response["mode"]);
-          set_canvas_mode("A5 Portrait");
+          set_canvas_mode(response["mode"]);
 
           global_product_bucket_list = response["product_bucket_list"];
           global_product_images_dict = response['images'];
@@ -3558,16 +3557,16 @@
         $("#download-flyer-btn").css("margin-left", "170mm");
         $("#flyer-div").css("height", "148mm");
         $("#flyer-div").css("width", "210mm");
-        $("#header-div").css("width", "297mm");
-        $("#flyer-grid").css("width", "297mm");
-        $("#grid-stack-div").css("max-height", "210mm");
-        $("#footer-div").css("margin-top", "200mm");
-        $("#footer-div").css("width", "297mm");
+        $("#header-div").css("width", "210mm");
+        $("#flyer-grid").css("width", "210mm");
+        $("#grid-stack-div").css("max-height", "148mm");
+        $("#footer-div").css("margin-top", "138mm");
+        $("#footer-div").css("width", "210mm");
         $("#footer-div").css("height", "10mm");
-        $("#mode-label-top").html("A4");
-        $("#mode-label-bottom").html("A4");
+        $("#mode-label-top").html("A5");
+        $("#mode-label-bottom").html("A5");
 
-        $("#flyer-div").css("background-size", "100% 210mm");
+        $("#flyer-div").css("background-size", "100% 148mm");
       }
     }
 
