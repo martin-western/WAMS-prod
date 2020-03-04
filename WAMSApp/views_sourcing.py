@@ -1,8 +1,9 @@
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 
-from WIGApp.models import *
-from WIGApp.utils import *
+from WAMSApp.models import *
+
+from WAMSApp.utils import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -18,9 +19,6 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.core.mail import EmailMessage
 from django.utils import timezone
-
-
-from WIGApp.views_factory_manager import *
 
 import requests
 import json
@@ -39,119 +37,7 @@ IP_ADDR = "http://13.235.116.162:8004"
 
 logger = logging.getLogger(__name__)
 
-
-class CsrfExemptSessionAuthentication(SessionAuthentication):
-
-    def enforce_csrf(self, request):
-        return
-
-
-# def LoginSourcingUser(request):
-#     return render(request, "WIGApp/login-sourcing-user.html")
-
-
-def Login(request):
-    return render(request, 'WIGApp/login.html')
-
-
-@login_required(login_url='/login/')
-def Logout(request):
-    logout(request)
-    return HttpResponseRedirect('/login/')
-
-
-"""
-    Put the conditional logins here. We need to create logins for sourcing manager and sourcing executive
-
-"""
-@login_required(login_url='/login/')
-def Home(request):
-    is_factory_manager = FactoryManager.objects.filter(
-        username=request.user.username).exists()
-
-    is_sourcing_user = SourcingUser.objects.filter(
-        username=request.user.username).exists()
-
-    if(is_factory_manager):
-        return render(request, 'WIGApp/home-factory-manager.html')
-        # return render(request, 'WIGApp/factory-page-bkp.html')
-    elif is_sourcing_user:
-        if SourcingUser.objects.get(username=request.user.username).is_scouting_user:
-            return render(request, 'WIGApp/home.html')
-        logger.info("From WIGApp/views: %s", str(is_sourcing_user))
-        return render(request, 'WIGApp/sourcing-factory-listing.html')
-    else:
-        return render(request, 'WIGApp/home.html')
-
-
-def RedirectHome(request):
-    return HttpResponseRedirect('/home/')
-
-
-@login_required(login_url='/login/')
-def FactoryPage(request, pk):
-    return render(request, 'WIGApp/factory-page.html')
-
-
-@login_required(login_url='/login/')
-def AddFactoryPage(request):
-    return render(request, 'WIGApp/add-factory.html')
-
-
-@login_required(login_url='/login/')
-def NewProductPage(request, pk):
-    return render(request, 'WIGApp/new-product.html')
-
-
-@login_required(login_url='/login/')
-def ProductPage(request, pk):
-    return render(request, 'WIGApp/product-page.html')
-
-
-@login_required(login_url='/login/')
-def FactoryProducts(request):
-    return render(request, 'WIGApp/factory-products.html')
-
-
-@login_required(login_url='/login/')
-def SourcingProducts(request):
-    return render(request, 'WIGApp/sourcing-products.html')
-
-
-class LoginSubmitAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("LoginSubmitAPI: %s", str(data))
-
-            username = data['username']
-            password = data['password']
-
-            user = authenticate(username=username, password=password)
-
-            login(request, user)
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("LoginSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
 class FetchFactoriesAPI(APIView):
-
-    authentication_classes = (
-        CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def post(self, request, *args, **kwargs):
 
@@ -164,12 +50,11 @@ class FetchFactoriesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            sourcing_user_factories = SourcingUserFactory.objects.all()
+            factories = Factory.objects.all()
             factory_list = []
-            for sourcing_user_factory in sourcing_user_factories:
-                factory = sourcing_user_factory.base_factory
+            for factory in factories:
                 temp_dict = {}
-                temp_dict["name"] = sourcing_user_factory.name
+                temp_dict["name"] = factory.name
                 temp_dict["business-card"] = ""
                 if factory.business_card != None and factory.business_card.image != "" and factory.business_card.image != "undefined":
                     temp_dict["business-card"] = factory.business_card.image.url
