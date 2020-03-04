@@ -2106,6 +2106,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
             is_dealshub = data.get("isDealshub", False)
 
             organization_name = data["organizationName"]
+            resolution = data.get("resolution", "low")
+
             organization_obj = Organization.objects.get(name=organization_name)
 
             section_objs = Section.objects.filter(organization=organization_obj).order_by('order_index')
@@ -2185,7 +2187,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["uid"] = unit_banner_image_obj.uuid
                     temp_dict2["httpLink"] = unit_banner_image_obj.http_link
                     if unit_banner_image_obj.image!=None:
-                        temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
+                        if resolution=="low":
+                            temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
+                        else:
+                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
                     else:
                         temp_dict2["url"] = ""
                     banner_images.append(temp_dict2)
