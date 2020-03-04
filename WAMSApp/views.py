@@ -1250,6 +1250,7 @@ class FetchProductDetailsAPI(APIView):
             response["pfl_pk"] = pfl_pk
 
             response["images"] = images
+            response["base_product_pk"] = base_product_obj.pk
             response['status'] = 200
 
         except Exception as e:
@@ -1597,6 +1598,7 @@ class FetchProductListAPI(APIView):
                 search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
                     
             if len(chip_data) != 0:
+                search_list_product_lookup = Product.objects.none()
                 for tag in chip_data:
                     search_list_product_objs |= search_list_product_objs.filter(
                         Q(base_product__base_product_name__icontains=tag) |
@@ -1605,6 +1607,7 @@ class FetchProductListAPI(APIView):
                         Q(product_id__icontains=tag) |
                         Q(base_product__seller_sku__icontains=tag)
                     )
+                search_list_product_objs = search_list_product_lookup.distinct()
             
             for prod in search_list_product_objs:
                 search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
