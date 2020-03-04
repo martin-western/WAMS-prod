@@ -114,14 +114,15 @@ def PFLDashboardPage(request):
 #@login_required(login_url='/login/')
 def FlyerPage(request, pk):
     flyer_obj = Flyer.objects.get(pk=int(pk))
-    if flyer_obj.mode=="A4 Portrait":
-        return render(request, 'WAMSApp/flyer.html')
-    elif flyer_obj.mode=="A4 Landscape":
-        return render(request, 'WAMSApp/flyer-landscape.html')
-    elif flyer_obj.mode=="A5 Portrait":
-        return render(request, 'WAMSApp/flyer-a5-portrait.html')
-    elif flyer_obj.mode=="A5 Landscape":
-        return render(request, 'WAMSApp/flyer-a5-landscape.html')
+    return render(request, 'WAMSApp/flyer.html')
+    # if flyer_obj.mode=="A4 Portrait":
+    #     return render(request, 'WAMSApp/flyer.html')
+    # elif flyer_obj.mode=="A4 Landscape":
+    #     return render(request, 'WAMSApp/flyer-landscape.html')
+    # elif flyer_obj.mode=="A5 Portrait":
+    #     return render(request, 'WAMSApp/flyer-a5-portrait.html')
+    # elif flyer_obj.mode=="A5 Landscape":
+    #     return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
 @login_required(login_url='/login/')
@@ -2411,6 +2412,7 @@ class CreateFlyerAPI(APIView):
                 "header-opacity": "1",
                 "footer-opacity": "1",
                 "all-promo-resizer": "40",
+                "all-warranty-resizer": "40",
                 "all-image-resizer": "100",
                 "footer-text": "Your Footer Here"
             }
@@ -2441,6 +2443,7 @@ class CreateFlyerAPI(APIView):
                             "warranty-img": "",
                             "image-resizer": "100",
                             "promo-resizer": "40",
+                            "warranty-resizer": "40",
                             "price": "",
                             "strikeprice": "strikeprice",
                             "title": "",
@@ -2566,6 +2569,7 @@ class CreateFlyerAPI(APIView):
                                 "warranty-img": "",
                                 "image-resizer": "100",
                                 "promo-resizer": "40",
+                                "warranty-resizer": "40",
                                 "price": str(product_price),
                                 "strikeprice": str(product_strikeprice),
                                 "title": str(product_title),
@@ -2714,6 +2718,7 @@ class FetchFlyerDetailsAPI(APIView):
             response["background_images_bucket"] = background_images_bucket
             response["brand_image_url"] = brand_image_url
             response["brand-name"] = str(flyer_obj.brand)
+            response["mode"] = flyer_obj.mode
 
             response['status'] = 200
 

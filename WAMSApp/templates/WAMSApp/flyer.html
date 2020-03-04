@@ -106,7 +106,7 @@
     .scroll-style-1::-webkit-scrollbar-track
     {
       -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
-      background-color: #F5F5F5;
+      background-color: #36404A;
     }
 
     .scroll-style-1::-webkit-scrollbar
@@ -117,7 +117,7 @@
 
     .scroll-style-1::-webkit-scrollbar-thumb
     {
-      background-color: #000000;
+      background-color: #DEE2E6;
     }
 
     li span {
@@ -128,6 +128,7 @@
     .select-wrapper input.select-dropdown {
       font: AvenirNextRegular !important;
       font-size: 12px !important; 
+      color: rgba(255, 255, 255, 0.6);
     }
 
     .grid-stack > .grid-stack-item > .grid-stack-item-content {
@@ -541,7 +542,7 @@
     }
 
     .custom-slider::-webkit-slider-thumb {
-      background-color: #521893 !important;
+      background-color: #1ABC9C !important;
     }
 
 
@@ -593,22 +594,22 @@
 /* Checkbox */  
   .checkbox-flyer[type="checkbox"].filled-in:checked + span:not(.lever):after   
   { 
-      border: 2px solid #521893;    
-      background-color: #521893;  
+      border: 2px solid #1ABC9C;    
+      background-color: #1ABC9C;  
   } 
     
 /* Radio button */  
   [type="radio"]:checked + span:after,  
   [type="radio"].with-gap:checked + span:before,  
   [type="radio"].with-gap:checked + span:after {  
-   border: 2px solid #521893; 
+   border: 2px solid #1ABC9C; 
   } 
   [type="radio"]:checked + span:after,  
   [type="radio"].with-gap:checked + span:after {  
-    background-color: #521893;  
+    background-color: #1ABC9C;  
   } 
   input[type=range]+.thumb {  
-    background-color: #521893;  
+    background-color: #1ABC9C;  
   }
 
 
@@ -637,6 +638,27 @@
     background: transparent;
   }
     
+  .custom-bc1 {
+    background-color: #36404A;
+  }
+  .custom-bc2 {
+    background-color: #3B4853;
+    border-radius: 5px;
+  }
+  .custom-text1 {
+    color: #DEE2E6;
+  }
+  .custom-text2 {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .custom-text3 {
+    color: #8A8A8A;
+  }
+  .caret {
+    fill: #1ABC9C !important;
+  }
+
+
   </style>
 
   {% csrf_token %}
@@ -658,13 +680,13 @@
   
   <div class="row" style="margin-bottom: 0em;">
 
-    <div class="scroll-style-1 col m4" style="position: fixed;height: 100vh;overflow-y: scroll;background-color: #EAEAEA;">
-      <div class="row white" style="margin-bottom: 0em;">
+    <div id="editor-division-1" class="scroll-style-1 col m4" style="position: fixed;height: 100vh;overflow-y: scroll;background-color: #36404A;">
+      <div class="row custom-bc2" style="margin-bottom: 0em;">
         <div class="col s1" style="margin-top: 0.4em;">
-          <i class="material-icons" style="position: absolute;margin-top: 0.5em;margin-left: 0.5em;color: #717171;">search</i>
+          <i class="material-icons custom-text1" style="position: absolute;margin-top: 0.5em;margin-left: 0.5em;">search</i>
         </div>
         <div class="input-field col s11" style="margin-bottom: 0em;margin-top: 0.4em;">
-          <input id="autocomplete-input" placeholder="Search by product name" type="text" class="validate flyer-search" style="border-bottom: none;box-shadow: none;text-indent: 0.5em;">
+          <input id="autocomplete-input" placeholder="Search by product name" type="text" class="validate flyer-search custom-text3" style="border-bottom: none;box-shadow: none;text-indent: 0.5em;">
         </div>
       </div>
       
@@ -673,11 +695,11 @@
         <!-- Product Basket -->
         <div class="col s12" style="width: 90%;margin-left: 5%;padding-top: 1em;margin-top: 1em;">
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.4em;margin-left: -0.5em;">shopping_basket</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Basket</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.4em;margin-left: -0.5em;">shopping_basket</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;" class="custom-text1">Product Basket</span>
           </span>
           
-          <div id="product-basket-list-div" class="scroll-style-1 row white hoverable" style="margin-top:0.5em;min-height:6em;max-height: 20em;overflow-y: auto;padding-left: 1.2em;padding-right: 0.4em;padding-top: 0.8em;">
+          <div id="product-basket-list-div" class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;min-height:6em;max-height: 20em;overflow-y: auto;padding-left: 1.2em;padding-right: 0.4em;padding-top: 0.8em;">
           </div>
         </div>
 
@@ -685,11 +707,11 @@
         <!-- Image Categories -->
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Categories</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Categories</span>
           </span>
 
-          <div class="scroll-style-1 row white hoverable" style="margin-top:0.5em;">
+          <div class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;">
             <div class="input-field col s8" style="margin-top: 0em;">
               <select id="image-categories-thumbnails-select" style="font-size: 0.8em;">
                 <option value="all_images" id="all-images-option">All Images</option>
@@ -719,13 +741,13 @@
         <!-- External Image Categories -->
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">External Image Categories</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;" class="custom-text1">External Image Categories</span>
             <a href="#upload-image-modal" id="import-btn" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px;">
-              <i class="material-icons">add</i>
+              <i class="material-icons" style="background-color:#1ABC9C;">add</i>
             </a>
           </span>
-          <div class="scroll-style-1 row white hoverable" style="margin-top:0.5em;">
+          <div class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;">
             <div class="col s12">
               <div id="external-image-categories-thumbnails-div" class="scroll-style-1 row" style="min-height:10em;max-height: 10em;overflow-y:auto;margin-bottom: 0em;">
               </div>
@@ -734,10 +756,10 @@
 
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">camera_font</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Resizer</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">camera_font</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Resizer</span>
           </span>
-          <div class="row white  hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
             <div class="col s12">
                 <p class="range-field" style="width:100%;">
                   <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="100" />
@@ -746,10 +768,10 @@
           </div>
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">compare</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Images</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">compare</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Images</span>
           </span>
-          <div class="row white  hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
             <div class="col s12">
                 <p class="range-field" style="width:100%;">
                   <input class="custom-slider" type="range" id="all-image-resizer" min="10" max="150" value="100" />
@@ -763,13 +785,13 @@
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Title Settings</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Title Settings</span>
           </span>
           
-          <div class="row white hoverable" style="margin-top:0.5em;padding:5px">
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding:5px">
             <div class="input-field col s6" style="margin-top: 1em !important;">
-              <input id="product-title-font-size" type="number" value="12">
+              <input id="product-title-font-size" type="number" value="12" class="custom-text3">
               <label for="product-title-font-size">Font Size</label>  
             </div>
 
@@ -795,7 +817,7 @@
             </div>  
 
             <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span>Font Color</span>
+              <span class="custom-text2">Font Color</span>
               <input id="product-title-font-color" type="color" value="#181818"> 
             </div>
 
@@ -808,19 +830,19 @@
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Price Box Settings</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Price Box Settings</span>
           </span>
           
-          <div class="row white hoverable" style="margin-top:0.5em;">
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;">
             <!-- Font Size -->
             <div class="input-field col s6" style="margin-top: 2em !important;">
-              <input id="product-price-font-size" type="number" value="18">
+              <input id="product-price-font-size" type="number" value="18" class="custom-text3">
               <label for="product-price-font-size">Price Font Size</label>
             </div>
 
             <div class="input-field col s6" style="margin-top: 2em !important;">
-              <input id="currency-font-size" type="number" value="8.5">
+              <input id="currency-font-size" type="number" value="8.5" class="custom-text3">
               <label for="currency-font-size">Currency Font Size</label>  
             </div>
 
@@ -873,24 +895,24 @@
 
             <!-- Font Color -->
             <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span>Price Font Color</span>
+              <span class="custom-text2">Price Font Color</span>
               <input id="product-price-font-color" type="color" value="#181818"> 
             </div>
 
             
             <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span>Currency Font Color</span>
+              <span class="custom-text2">Currency Font Color</span>
               <input id="currency-font-color" type="color" value="#181818"> 
             </div>
 
 
             <div class="input-field col s6" style="margin-top: 1em !important;">
-              <input id="currency-unit" type="text" value="AED">
+              <input id="currency-unit" type="text" value="AED" class="custom-text3">
               <label for="currency-unit">Currency</label>  
             </div>
 
             <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span>Box BG Color</span>
+              <span class="custom-text2">Box BG Color</span>
               <input id="price-box-bg-color" type="color" value="#FBF00B"> 
             </div>
 
@@ -898,10 +920,10 @@
 
 
            <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize Price Box</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize Price Box</span>
           </span>
-          <div class="row white  hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
             <div class="col s12">
                 <p class="range-field" style="width:100%;">
                   <input class="custom-slider" type="range" id="price-resizer" min="10" max="150" value="80" />
@@ -924,15 +946,15 @@
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Strike Price Settings</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Strike Price Settings</span>
           </span>
           
-          <div class="row white hoverable" style="margin-top:0.5em;">
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;">
 
             <!-- Font Size -->
             <div class="input-field col s6" style="margin-top: 2em;">
-              <input id="product-strikeprice-font-size" type="number" value="8.5">
+              <input id="product-strikeprice-font-size" type="number" value="8.5" class="custom-text3">
               <label for="product-strikeprice-font-size">Price Font Size</label>
             </div>
 
@@ -963,8 +985,8 @@
 
             <!-- Font Color -->
             <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span>Price Font Color</span>
-              <input id="product-strikeprice-font-color" type="color" value="#181818"> 
+              <span class="custom-text2">Price Font Color</span>
+              <input id="product-strikeprice-font-color" type="color" value="#181818" class="custom-text3"> 
             </div>
 
             <!-- Show/Hide -->
@@ -980,10 +1002,10 @@
 
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">dashboard</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header Logos</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">dashboard</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header Logos</span>
           </span>
-          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
             <div class="col s12" style="margin: 8px 0">
               <label>
                 <input id="super-brand-option" type="checkbox" class="filled-in checkbox-flyer" checked />
@@ -1029,32 +1051,32 @@
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">view_day</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header/Footer Settings</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">view_day</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header/Footer Settings</span>
           </span>
           
-          <div class="row white hoverable" style="margin-top:0.5em;padding:5px;">
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding:5px;">
             <div class="input-field col s6" style="margin-top: 0em !important;">
-              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Header Color</p>
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;" class="custom-text2">Header Color</p>
               <input id="header-color" type="color" value="#181818">  
             </div>
 
             <div class="input-field col s6" style="margin-top: 0em !important;">
-              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;">Footer Color</p>
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;" class="custom-text2">Footer Color</p>
               <input id="footer-color" type="color" value="#181818">
             </div>
 
 
 
             <div class="col s6">
-              <p style="margin-bottom: 0em;">Header Opacity</p>
+              <p style="margin-bottom: 0em;" class="custom-text2">Header Opacity</p>
               <p class="range-field" style="width:100%;margin-top: 0em;">
                 <input class="custom-slider" type="range" id="header-opacity" min="0" max="1" value="1" step="0.01" />
               </p>
             </div>
 
             <div class="col s6">
-              <p style="margin-bottom: 0em;">Footer Opacity</p>
+              <p style="margin-bottom: 0em;" class="custom-text2">Footer Opacity</p>
               <p class="range-field" style="width:100%;margin-top: 0em;">
                 <input class="custom-slider" type="range" id="footer-opacity" min="0" max="1" value="1" step="0.01" />
               </p>
@@ -1074,11 +1096,11 @@
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">border_all</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Border Settings</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">border_all</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Border Settings</span>
           </span>
           
-          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
             <div class="col s6" style="margin-top: 1em;">
               <label>
                 <input id="border-option" class="filled-in checkbox-flyer" type="checkbox" checked />
@@ -1087,7 +1109,7 @@
             </div>
 
             <div class="input-field col s6">
-              <span>Border Color</span>
+              <span class="custom-text2">Border Color</span>
               <input id="border-color" type="color" value="#EBEBEB"> 
             </div>
 
@@ -1100,16 +1122,16 @@
 
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">book</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Promotional/Warranty Tags</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">book</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Promotional/Warranty Tags</span>
           </span>
-          <div class="row white hoverable scroll-style-1" style="margin-top:0.5em;padding: 1em;max-height: 20em;overflow-y: auto;">
+          <div class="row custom-bc2 hoverable scroll-style-1" style="margin-top:0.5em;padding: 1em;max-height: 20em;overflow-y: auto;">
             <div class="col s6">
               <span style="font-family: 'AvenirNext';color:#717171;">
                 <span style="font-size: 14px;font-weight: bold;">Apply to All</span>
               </span>
               <form action="#">
-                <p>Promotional Tags</p>
+                <p class="custom-text2">Promotional Tags</p>
                 <p>
                   <label>
                     <input id="global-none" value="None" name="group1" type="radio" checked />
@@ -1147,7 +1169,7 @@
                   </label>
                 </p>
                 <br>
-                <p>Warranty Tags</p>
+                <p class="custom-text2">Warranty Tags</p>
                 <p>
                   <label>
                     <input id="global-no-warranty" value="None" name="group3" type="radio"  />
@@ -1295,31 +1317,49 @@
           </div>
 
 
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s6">
+              <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize Promotional Tags</span>
+              <p class="range-field" style="width:100%;">
+                <input class="custom-slider" type="range" id="promo-resizer" min="10" max="80" value="40" />
+              </p>
+            </div>
 
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize Promotional Tags</span>
-          </span>
-          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
+            <div class="col s6">
+              <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize All Promotional Tags</span>
+              <p class="range-field" style="width:100%;">
+                <input class="custom-slider" type="range" id="all-promo-resizer" min="10" max="80" value="40" />
+              </p>
+            </div>
+          </div>
+
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s6">
+              <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize Warranty Tags</span>
                 <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="promo-resizer" min="10" max="80" value="40" />
+                  <input class="custom-slider" type="range" id="warranty-resizer" min="10" max="80" value="40" />
+                </p>
+            </div>
+            <div class="col s6">
+                <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize All Warranty Tags</span>
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="all-warranty-resizer" min="10" max="80" value="40" />
                 </p>
             </div>
           </div>
 
 
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+          <!-- <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Promotional Tags</span>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Warranty Tags</span>
           </span>
           <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
             <div class="col s12">
                 <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="all-promo-resizer" min="10" max="80" value="40" />
+                  <input class="custom-slider" type="range" id="all-warranty-resizer" min="10" max="80" value="40" />
                 </p>
             </div>
-          </div>
+          </div> -->
 
 
 
@@ -1335,14 +1375,14 @@
         <!-- Background Image Bucket -->
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
           <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
-            <i class="material-icons" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Background Image Bucket</span>
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Background Image Bucket</span>
             <a href="#add-new-bg-modal" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px; ">
-              <i class="material-icons">add</i>
+              <i class="material-icons" style="background-color: #1ABC9C;">add</i>
             </a>
           </span>
 
-          <div id="background-image-bucket-thumbnails-div" class="scroll-style-1 row white hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
+          <div id="background-image-bucket-thumbnails-div" class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
           </div>
         </div>
 
@@ -1378,7 +1418,7 @@
 
 
         <div class="col s12" style="width: 90%;margin-left: 5%;padding-right: 0em;">
-          <a id="save-flyer-template-btn" class="btn right hoverable" style="background-color: #521893;font-size: 14px;font-family: 'AvenirNext';">Save</a>
+          <a id="save-flyer-template-btn" class="btn right hoverable" style="background-color: #1ABC9C;font-size: 14px;font-family: 'AvenirNext';">Save</a>
         </div>
         
       </div>
@@ -1386,20 +1426,20 @@
     </div>
 
 
-    <div class="col m8 offset-m4" style="background-color: #393939;">
+    <div id="editor-division-2" class="col m8 offset-m4" style="background-color: #292F35;">
       <div>
         <div class="row" style="margin-left: auto;margin-right: auto;">
           <div class="col s12 center" style="padding-left: 0em;padding-right: 0em;">
             <br>
-            <a class="btn" href="/flyer-dashboard" title="Home" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 0em;"><i class="material-icons">home</i></a>
-            <a id="add-grid-item-btn" class="btn" title="Add Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 4em;"><i class="material-icons">add</i></a>
-            <a id="delete-grid-item-btn" class="btn" title="Delete Grid Item" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 8em;"><i class="material-icons">delete</i></a>
-            <a id="refresh-template-btn" class="btn " title="Reset Template" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 12em;"><i class="material-icons">refresh</i></a>
-            <a id="hide-cursor-btn" cursor-status="on" class="btn " title="Hide cursor" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 16em;"><i class="material-icons">center_focus_strong</i></a>
-            <a id="increase-height-btn" class="btn " title="Increase Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 20em;"><i class="material-icons">keyboard_arrow_up</i></a>
-            <a id="decrease-height-btn" class="btn " title="Decrease Height" style="background-color: #717171;position:absolute;text-transform: none;margin-left: 24em;"><i class="material-icons">keyboard_arrow_down</i></a>
+            <a class="btn custom-bc2" href="/flyer-dashboard" title="Home" style="position:absolute;text-transform: none;margin-left: 0em;"><i class="material-icons">home</i></a>
+            <a id="add-grid-item-btn" class="btn custom-bc2" title="Add Grid Item" style="position:absolute;text-transform: none;margin-left: 4em;"><i class="material-icons">add</i></a>
+            <a id="delete-grid-item-btn" class="btn custom-bc2" title="Delete Grid Item" style="position:absolute;text-transform: none;margin-left: 8em;"><i class="material-icons">delete</i></a>
+            <a id="refresh-template-btn" class="btn custom-bc2" title="Reset Template" style="position:absolute;text-transform: none;margin-left: 12em;"><i class="material-icons">refresh</i></a>
+            <a id="hide-cursor-btn" cursor-status="on" class="btn custom-bc2" title="Hide cursor" style="position:absolute;text-transform: none;margin-left: 16em;"><i class="material-icons">center_focus_strong</i></a>
+            <a id="increase-height-btn" class="btn custom-bc2" title="Increase Height" style="position:absolute;text-transform: none;margin-left: 20em;"><i class="material-icons">keyboard_arrow_up</i></a>
+            <a id="decrease-height-btn" class="btn custom-bc2" title="Decrease Height" style="position:absolute;text-transform: none;margin-left: 24em;"><i class="material-icons">keyboard_arrow_down</i></a>
 
-            <a id="download-flyer-btn" class="btn green hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 172mm;position: relative;">Download<i class="material-icons right">file_download</i>
+            <a id="download-flyer-btn" class="btn hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 172mm;position: relative;background-color:#1ABC9C">Download<i class="material-icons right">file_download</i>
               <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
                 <div class="spinner-layer spinner-green-only">
                   <div class="circle-clipper left">
@@ -1416,8 +1456,8 @@
         </div>
 
 
-        <div class="a4-container">
-          <p style="color: silver;" class="a4-text">A4</p>
+        <div>
+          <p id="mode-label-top" style="color: silver;"></p>
         </div>
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0;">
         <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;margin-bottom: 0em;">
@@ -1427,10 +1467,6 @@
               <img id="super-brand-img" src="/files/super-brand.png" style="display:none;max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
               <img id="iso-img" src="/files/iso.png" style="display:none;max-width: 73.5mm;max-height:15mm;margin-right:10px">  
               <img id="consumer-img" src="/files/consumer.png" style="display:none;max-width: 73.5mm;max-height:15mm;margin-right:10px;max-height: 40px;">
-              <!-- <div> 
-                <p class="white-text">    
-                </p>  
-              </div> -->  
                   
             </div>  
             <div class="col s6 right-horizontally" style="">  
@@ -1455,33 +1491,11 @@
 
         </div>
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0">
-        <div class="a4-container-bottom">
-          <p style="color: silver;" class="a4-text-bottom">A4</p>
+        <div>
+          <p id="mode-label-bottom" style="color: silver;"></p>
         </div>
 
       </div>
-    </div>
-  </div>
-
-  <div id="price-info-modal" class="modal">
-    <div class="modal-content">
-      <h5 style="font-family: 'AvenirNext';font-size: 18px">PRODUCT INFO</h5>
-      <br>
-      <div class="row">
-        <div class="input-field col s8">
-          <input id="product-info-name" type="text" class="validate">
-          <label for="product-info-name">Product Name</label>
-        </div>
-
-        <div class="input-field col s4">
-          <input id="product-info-price" type="text" class="validate">
-          <label for="product-info-price">Product Price</label>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
-      <a id="product-info-save-btn" href="#!" class="modal-close waves-effect btn-flat white-text" style="background-color: #521893;">Save</a>
     </div>
   </div>
 
@@ -1517,7 +1531,7 @@
       <div class="row">
         
         <div class="file-field input-field col s10">
-          <div class="btn" style="background-color: #521893;">
+          <div class="btn" style="background-color: #1ABC9C;">
             <span>File</span>
             <input id="new-bg-image" type="file">
           </div>
@@ -1530,7 +1544,7 @@
     </div>
     <div class="modal-footer">
       <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
-      <a id="upload-new-bg-image-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #521893;">Save</a>
+      <a id="upload-new-bg-image-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #1ABC9C;">Save</a>
     </div>
   </div>
 
@@ -1822,6 +1836,7 @@
     var global_header_opacity = "1";
     var global_footer_opacity = "1";    
     var global_all_promo_resizer = "40";
+    var global_all_warranty_resizer = "40";
     var global_all_image_resizer = "100";
     var global_super_brand_logo = false;
     var global_iso_logo = false;
@@ -2232,8 +2247,8 @@
       $(".grid-item-sticker img").css("width", R+"px");
       $("#promo-resizer").val(R);    
       $(".grid-item-sticker img").attr("resizer", R);
-      $(".banner-img-left").css("width", R+"px");
-      $(".banner-img-left").attr("resizer", R);
+      // $(".banner-img-left").css("width", R+"px");
+      // $(".banner-img-left").attr("resizer", R);
     });
 
     $("#promo-resizer").change(function() {
@@ -2241,9 +2256,25 @@
       $("#banner-img-"+global_selected_grid_id).css("width", R+"px");
       $("#banner-img-"+global_selected_grid_id).attr("resizer", R);
 
+      // $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
+      // $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);      
+    });
+
+
+    $("#all-warranty-resizer").change(function() {
+      var R = $("#all-warranty-resizer").val();
+      global_all_warranty_resizer = R;
+      $("#warranty-resizer").val(R);
+      $(".banner-img-left").css("width", R+"px");
+      $(".banner-img-left").attr("resizer", R);
+    });
+
+    $("#warranty-resizer").change(function() {
+      var R = $("#warranty-resizer").val();
       $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
-      $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);      
-    });    
+      $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);
+    });
+
 
 
     $("#product-info-save-btn").click(function(){
@@ -2269,6 +2300,7 @@
       var banner_img = flyer_dict["banner-img"];
       var image_resizer = flyer_dict["image-resizer"];
       var promo_resizer = flyer_dict["promo-resizer"];
+      var warranty_resizer = flyer_dict["warranty-resizer"];
       var width = flyer_dict["width"];
       var height = flyer_dict["height"];
       var x = flyer_dict["x"];
@@ -2296,7 +2328,7 @@
                   <img class="banner-img" id="banner-img-`+grid_id+`" src="`+banner_img+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
                 </div>
                 <div style="position: absolute;left:10px;top:10px;">
-                  <img class="banner-img-left" id="banner-img-left-`+grid_id+`" src="`+warranty_img+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
+                  <img class="banner-img-left" id="banner-img-left-`+grid_id+`" src="`+warranty_img+`" style="width: `+warranty_resizer+`px" resizer="`+warranty_resizer+`" />
                 </div>
               </div>
               <div class="grid-item-footer-container" > 
@@ -2334,6 +2366,7 @@
 
       $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
       $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
+      $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
 
       var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
       if(banner_img=="")
@@ -2416,6 +2449,7 @@
         flyer_dict["banner-img"] = item_data[i]["data"]["banner-img"];
         flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
         flyer_dict["promo-resizer"] = item_data[i]["data"]["promo-resizer"];
+        flyer_dict["warranty-resizer"] = item_data[i]["data"]["warranty-resizer"];
         flyer_dict["width"] = item_data[i]["container"]["width"];
         flyer_dict["height"] = item_data[i]["container"]["height"];
         flyer_dict["x"] = item_data[i]["container"]["x"];
@@ -2533,6 +2567,7 @@
       flyer_dict["image-url"] = "";
       flyer_dict["image-resizer"] = global_all_image_resizer;
       flyer_dict["promo-resizer"] = global_all_promo_resizer;
+      flyer_dict["warranty-resizer"] = global_all_warranty_resizer;
       flyer_dict["banner-img"] = "";
       flyer_dict["width"] = "3";
       flyer_dict["height"] = "3";
@@ -2669,10 +2704,12 @@
 
 
     $(document).on('click', '.product-basket-card-btn', function(){
-      $(".product-basket-card").css('background-color', "white");
+      //$(".product-basket-card").css('background-color', "transparent");
+      $(".product-basket-border-div").css("border", "2px solid #495561")
 
-      console.log($($(this).children()[0]));
-      $($(this).children()[0]).children()[1].style.background = "#f6eeff";
+      //$($(this).children()[0]).children()[1].style.background = "#1ABC9C";
+      $(this).children()[0].style.border = "2px solid #1ABC9C";
+
 
       global_selected_product_pk = this.id.split("_")[1];
       global_selected_product_name = $("#product-basket-card-name-"+global_selected_product_pk).attr("title");
@@ -2712,18 +2749,18 @@
 
         html_string += `
           <a href="#!" class="product-basket-card-btn" id="basket_`+global_product_bucket_list[i]["product_bucket_pk"]+`">
-            <div class="row" style="border: 2px solid #E9E9E9;margin-right:0em;">
+            <div class="product-basket-border-div row" style="border: 2px solid #495561;margin-right:0em;">
               <div class="col s4" style="padding-left:0em;margin-right:0em;padding-right:0em;">
-                <div class="img-box" style="border-right: 2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
+                <div class="img-box" style="border-right: 2px solid #495561;text-align:center;padding-top:0.5em;">
                   <img src="`+global_product_bucket_list[i]["product_bucket_image_url"]+`" style="width:80%;max-height:5em;margin-left:0;object-fit: cover;object-position:center;">
                 </div>
               </div>
               <div class="product-basket-card col s8">
                 <div style="padding-left:0em;height:6em;">
-                  <div style="padding-top:1em;font-family:'AvenirNext';color:#521893;" title="`+global_product_bucket_list[i]["product_bucket_name"]+`" id="product-basket-card-name-`+global_product_bucket_list[i]["product_bucket_pk"]+`">`+
+                  <div class="custom-text2" style="padding-top:1em;font-family:'AvenirNext';" title="`+global_product_bucket_list[i]["product_bucket_name"]+`" id="product-basket-card-name-`+global_product_bucket_list[i]["product_bucket_pk"]+`">`+
                   short_product_name+`
                   </div>
-                  <div style="padding-top:1em;font-family:'AvenirNextRegular';color:black;margin-top:-1em;font-size:0.8em;">`+
+                  <div style="padding-top:1em;font-family:'AvenirNextRegular';margin-top:-1em;font-size:0.8em;" class="custom-text3">`+
                   global_product_bucket_list[i]["seller_sku"]+`
                   </div>
                 </div>
@@ -2746,7 +2783,7 @@
       for(var i=0;i<images.length;i++)
       {
         html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
-          <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
+          <div style="border:2px solid #495561;text-align:center;padding-top:0.5em;">
             <a class="imgselect" id="imgselect_`+images[i]["pk"]+`" href="#!"><img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;" high-res-url="`+images[i]["high_res_url"]+`"></a>
           </div>
         </div>`;
@@ -2765,7 +2802,7 @@
       for(var i=0;i<images.length;i++)
       {
         html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
-          <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.4em;">
+          <div style="border:2px solid #495561;text-align:center;padding-top:0.4em;">
             <a class="bgimgselect" id="bgimgselect_`+images[i]["pk"]+`" href="#!">
               <img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;">
             </a>
@@ -2784,7 +2821,7 @@
       for(var i=0;i<images.length;i++)
       {
         html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
-          <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.4em;">
+          <div style="border:2px solid #495561;text-align:center;padding-top:0.4em;">
             <a class="imgselect2" href="#!">
               <img src="`+images[i]["url"]+`" high-res-url="`+images[i]["high_res_url"]+`" style="width:90%;height:3em;object-fit:cover;">
             </a>
@@ -2837,7 +2874,7 @@
 
         $("#flyer-div").css("background-image", "url("+image_url+")");
         $("#flyer-div").css("background-position", "center");
-        $("#flyer-div").css("background-size", "100% 297mm");
+        //$("#flyer-div").css("background-size", "100% 297mm");
     });
 
 
@@ -2865,6 +2902,8 @@
         },
         success: function(response) {
           console.log("Success!", response);
+
+          set_canvas_mode(response["mode"]);
 
           global_product_bucket_list = response["product_bucket_list"];
           global_product_images_dict = response['images'];
@@ -2909,6 +2948,7 @@
           global_header_opacity = common["header-opacity"];
           global_footer_opacity = common["footer-opacity"];
           global_all_promo_resizer = common["all-promo-resizer"];
+          global_all_warranty_resizer = common["all-warranty-resizer"];
           global_all_image_resizer = common["all-image-resizer"];
           global_footer_text = common["footer-text"];
 
@@ -2951,6 +2991,7 @@
 
         $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
         $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
+        $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
 
         var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
         if(banner_img=="")
@@ -3042,6 +3083,7 @@
 
         var image_resizer = $("#gridimg-"+grid_id).attr("resizer");
         var promo_resizer = $("#banner-img-"+grid_id).attr("resizer");
+        var warranty_resizer = $("#banner-img-left-"+grid_id).attr("resizer");
         var product_title = $("#product-title-info2-"+grid_id).val();
         var description = $("#product-title-info-"+grid_id).val();
         var price = $("#product-price-info-"+grid_id).val();
@@ -3060,6 +3102,7 @@
             "warranty-img": warranty_img,
             "image-resizer": image_resizer,
             "promo-resizer": promo_resizer,
+            "warranty-resizer": warranty_resizer,
             "price": price,
             "strikeprice": strikeprice,
             "title": product_title,
@@ -3109,6 +3152,7 @@
         "header-opacity": global_header_opacity,
         "footer-opacity": global_footer_opacity,
         "all-promo-resizer": global_all_promo_resizer,
+        "all-warranty-resizer": global_all_warranty_resizer,
         "all-image-resizer": global_all_image_resizer,
         "footer-text":global_footer_text
       };
@@ -3174,7 +3218,7 @@
     {
       $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
       $("#flyer-div").css("background-position", "center");
-      $("#flyer-div").css("background-size", "100% 297mm");
+      //$("#flyer-div").css("background-size", "100% 297mm");
     }
 
     function set_border_style()
@@ -3310,6 +3354,9 @@
       //Promo Resizer
       $("#all-promo-resizer").val(global_all_promo_resizer);
 
+      //Warranty Resizer
+      $("#all-warranty-resizer").val(global_all_warranty_resizer);      
+
 
       // Product Title Settings
       $("#product-title-font-size").val(global_product_title_font_size);
@@ -3441,6 +3488,87 @@
         }
       });
     });
+
+
+    function set_canvas_mode(mode)
+    {
+      if(mode=="A4 Portrait")
+      {
+        $("#editor-division-1").attr("class", "scroll-style-1 col m4");
+        $("#editor-division-2").attr("class", "col m8 offset-m4");
+
+        $("#download-flyer-btn").css("margin-left", "172mm");
+        $("#flyer-div").css("height", "297mm");
+        $("#flyer-div").css("width", "210mm");
+        $("#header-div").css("width", "210mm");
+        $("#flyer-grid").css("width", "210mm");
+        $("#grid-stack-div").css("max-height", "260mm");
+        $("#footer-div").css("margin-top", "287mm");
+        $("#footer-div").css("width", "210mm");
+        $("#footer-div").css("height", "10mm");
+        $("#mode-label-top").html("A4");
+        $("#mode-label-bottom").html("A4");
+
+        $("#flyer-div").css("background-size", "100% 297mm");
+      }
+      else if(mode=="A4 Landscape")
+      {
+        $("#editor-division-1").attr("class", "scroll-style-1 col m3");
+        $("#editor-division-2").attr("class", "col m9 offset-m3");
+
+        $("#download-flyer-btn").css("margin-left", "258mm");
+        $("#flyer-div").css("height", "210mm");
+        $("#flyer-div").css("width", "297mm");
+        $("#header-div").css("width", "297mm");
+        $("#flyer-grid").css("width", "297mm");
+        $("#grid-stack-div").css("max-height", "210mm");
+        $("#footer-div").css("margin-top", "200mm");
+        $("#footer-div").css("width", "297mm");
+        $("#footer-div").css("height", "10mm");
+        $("#mode-label-top").html("A4");
+        $("#mode-label-bottom").html("A4");
+
+        $("#flyer-div").css("background-size", "100% 210mm");
+      }
+      else if(mode=="A5 Portrait")
+      {
+        $("#editor-division-1").attr("class", "scroll-style-1 col m4");
+        $("#editor-division-2").attr("class", "col m8 offset-m4");
+
+        $("#download-flyer-btn").css("margin-left", "170mm");
+        $("#flyer-div").css("height", "210mm");
+        $("#flyer-div").css("width", "148mm");
+        $("#header-div").css("width", "148mm");
+        $("#flyer-grid").css("width", "148mm");
+        $("#grid-stack-div").css("max-height", "260mm");
+        $("#footer-div").css("margin-top", "200mm");
+        $("#footer-div").css("width", "148mm");
+        $("#footer-div").css("height", "10mm");
+        $("#mode-label-top").html("A5");
+        $("#mode-label-bottom").html("A5");
+
+        $("#flyer-div").css("background-size", "100% 210mm");
+      }
+      else if(mode=="A5 Landscape")
+      {
+        $("#editor-division-1").attr("class", "scroll-style-1 col m3");
+        $("#editor-division-2").attr("class", "col m9 offset-m3");
+
+        $("#download-flyer-btn").css("margin-left", "170mm");
+        $("#flyer-div").css("height", "148mm");
+        $("#flyer-div").css("width", "210mm");
+        $("#header-div").css("width", "210mm");
+        $("#flyer-grid").css("width", "210mm");
+        $("#grid-stack-div").css("max-height", "148mm");
+        $("#footer-div").css("margin-top", "138mm");
+        $("#footer-div").css("width", "210mm");
+        $("#footer-div").css("height", "10mm");
+        $("#mode-label-top").html("A5");
+        $("#mode-label-bottom").html("A5");
+
+        $("#flyer-div").css("background-size", "100% 148mm");
+      }
+    }
 
   </script>
 
