@@ -2391,6 +2391,35 @@ class FetchCompanyProfileDealshubAPI(APIView):
         return Response(data=response)
 
 
+class AddProductToSectionAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddProductToSectionAPI: %s", str(data))
+
+            section_uuid = data["sectionUuid"]
+            product_uuid = data["productUuid"]
+
+            section_obj = Section.objects.get(uuid=section_uuid)
+            product_obj = Product.objects.get(uuid=product_uuid)
+
+            section_obj.products.add(product_obj)
+            section_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddProductToSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2471,3 +2500,5 @@ SearchProductsAutocomplete = SearchProductsAutocompleteAPI.as_view()
 FetchDealshubPrice = FetchDealshubPriceAPI.as_view()
 
 FetchCompanyProfileDealshub = FetchCompanyProfileDealshubAPI.as_view()
+
+AddProductToSection = AddProductToSectionAPI.as_view()
