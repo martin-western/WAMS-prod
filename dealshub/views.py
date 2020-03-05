@@ -2154,12 +2154,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     
                     temp_dict2["name"] = str(prod.product_name)
                     temp_dict2["displayId"] = str(prod.product_id)
-                    temp_dict2["category"] = str(prod.base_product.category)
-                    if organization_name=="geepas":
-                        temp_dict2["price"] = "0"
-                    else:
-                        temp_dict2["price"] = str(prod.standard_price)
-                    temp_dict2["currency"] = "AED"
                     temp_dict2["uuid"] = str(prod.uuid)
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
