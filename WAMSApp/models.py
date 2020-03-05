@@ -406,7 +406,6 @@ class Product(models.Model):
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
-    factory_code = models.CharField(null=True,max_length=200)
     product_description = models.TextField(blank=True)
 
     #PFL
@@ -448,6 +447,7 @@ class Product(models.Model):
     is_dealshub_product_created = models.BooleanField(default=False)
     no_of_images_for_filter = models.IntegerField(default=0)
 
+    factory = models.ForeignKey(Factory,blank=True)
 
     class Meta:
         verbose_name = "Product"
@@ -734,7 +734,13 @@ class OperatingHour(models.Model):
 class SourcingProduct(object):
     
     code = models.CharField(max_length=300, null=True)
+    price = models.FloatField(default=0, null=True, blank=True)
+    currency = models.CharField(max_length=300, null=True, blank=True)
     other_info = models.TextField(null=True, blank=True)
+    minimum_order_qty = models.IntegerField(null=True, blank=True)
+    order_qty = models.IntegerField(null=True, blank=True)
+    qty_metric = models.CharField(max_length=300, null=True, blank=True)
+    inner_box_qty = models.IntegerField(null=True, blank=True)
     is_pr_ready = models.BooleanField(default=False)
     go_live = models.BooleanField(default=False)
     size = models.CharField(max_length=300, null=True, blank=True)
@@ -781,6 +787,7 @@ class Bank(models.Model):
 
 class Factory(models.Model): 
 
+    factory_code = models.CharField(max_length=300)
     name = models.CharField(max_length=300)
     products = models.ManyToManyField(Product, blank=True)
     images = models.ManyToManyField(Image, blank=True)
