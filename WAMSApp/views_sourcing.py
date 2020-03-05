@@ -152,7 +152,6 @@ class FetchFactoriesListAPI(APIView):
                 try:
                     temp_dict["business_card"] = factory.business_card.image.url
                 except Exception as e:
-                    print(e, factory.pk)
                     temp_dict["business_card"] = Config.objects.all()[
                         0].product_404_image.image.url
 
@@ -165,7 +164,7 @@ class FetchFactoriesListAPI(APIView):
                     operating_hour_dict["to_time"] = str(operating_hour.to_time)
                     operating_hours.append(operating_hour_dict)
                 temp_dict["operating_hours"] = operating_hours
-                # print(factory.logo)
+
                 if(factory.logo != None and factory.logo != ""):
                     temp_dict["logo"] = factory.logo.image.url
                 elif len(factory.images.all()) > 0:
@@ -274,7 +273,7 @@ class FetchProductsFromFactoryAPI(APIView):
 class SaveFactoryDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
-        print("SaveSourcingProductDetailsAPI")
+
         response = {}
         response['status'] = 500
         try:
@@ -385,7 +384,7 @@ class FetchFactorywiseProductListingAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
-        print("Fetching factorywise products..")
+
         response = {}
         response['status'] = 500
         try:
@@ -442,7 +441,7 @@ class FetchFactorywiseProductListingAPI(APIView):
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchFactorywiseProductListingAPI: %s at %s", e, str(exc_tb.tb_lineno))
-            print(response_products)
+
             response["products"] = response_products
             response["status"] = 200
 
@@ -631,32 +630,28 @@ class DownloadPIAPI(APIView):
                     logger.info("selected_products_dict %s", str(selected_products_dict))
                     for product in products:
                         
-                        product = BaseProduct.objects.get(product=product)
-                        product = product
-
-                        logger.info("product_pk %s", str(product.pk))
-                        logger.info("product_pk %s", str(product.pk))
+                        sourcing_product = SourcingProduct.objects.get(product=product)
 
                         temp_dict = {} 
                         temp_dict["image_url"] = ""
                         if product.images.count()>0:
                             temp_dict["image_url"] = "file:///"+BASE_DIR + product.images.all()[0].image.url
-                        temp_dict["code"] = str(product.code)
-                        temp_dict["brand_category"] = str(product.brand_category)
-                        temp_dict["other_info"] = str(product.other_info)
-                        temp_dict["size"] = str(product.size)
-                        temp_dict["weight"] = str(product.weight)
-                        temp_dict["design"] = str(product.design)
-                        temp_dict["colors"] = " ".join([i.name for i in product.color_group.all()])
-                        temp_dict["pkg_inner"] = str(product.pkg_inner)
-                        temp_dict["pkg_m_ctn"] = str(product.pkg_m_ctn)
-                        temp_dict["p_ctn_cbm"] = str(product.p_ctn_cbm)
-                        temp_dict["ttl_ctn"] = str(product.ttl_ctn)
-                        temp_dict["ttl_cbm"] = str(product.ttl_cbm)
-                        temp_dict["ship_lot_number"] = str(product.ship_lot_number)
+                        temp_dict["code"] = str(sourcing_product.code)
+                        temp_dict["brand_category"] = str(product.brand.name)
+                        temp_dict["other_info"] = str(sourcing_product.other_info)
+                        temp_dict["size"] = str(sourcing_product.size)
+                        temp_dict["weight"] = str(sourcing_product.weight)
+                        temp_dict["design"] = str(sourcing_product.design)
+                        temp_dict["colors"] = str(product.color)
+                        temp_dict["pkg_inner"] = str(sourcing_product.pkg_inner)
+                        temp_dict["pkg_m_ctn"] = str(sourcing_product.pkg_m_ctn)
+                        temp_dict["p_ctn_cbm"] = str(sourcing_product.p_ctn_cbm)
+                        temp_dict["ttl_ctn"] = str(sourcing_product.ttl_ctn)
+                        temp_dict["ttl_cbm"] = str(sourcing_product.ttl_cbm)
+                        temp_dict["ship_lot_number"] = str(sourcing_product.ship_lot_number)
                         temp_dict["order_quantity"] = selected_products_dict[str(product.pk)]
-                        temp_dict["qty_metric"] = str(product.qty_metric)
-                        temp_dict["price"] = str(product.price)
+                        temp_dict["qty_metric"] = str(sourcing_product.qty_metric)
+                        temp_dict["price"] = str(sourcing_product.price)
                         product_info.append(temp_dict)
 
                     json_parameter["product_info"] = product_info
@@ -675,8 +670,6 @@ class DownloadPIAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("DownloadPIAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 response["error_msg"] = "Either no products are PR ready or the factory does not exist."
-                print(e)
-                print("error issss")
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
