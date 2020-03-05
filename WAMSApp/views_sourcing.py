@@ -510,14 +510,18 @@ class ChangeGoLiveStatusAPI(APIView):
                 data = json.loads(data)
 
             product = Product.objects.get(pk=int(data["pk"]))
+            sourcing_product = SourcingProduct.objects.get(product=product)
+
             temp = product.go_live
-            if temp == False and product.is_pr_ready == True:
-                product.go_live = True
+
+            if temp == False and sourcing_product.is_pr_ready == True:
+                sourcing_product.go_live = True
             else:
-                product.go_live = False
+                sourcing_product.go_live = False
                 response['error_msg'] = 'not_pr_ready'
-            product.save()
-            response["go_live_status"] = product.go_live
+
+            sourcing_product.save()
+            response["go_live_status"] = sourcing_product.go_live
             response["status"] = 200
 
         except Exception as e:
@@ -586,25 +590,22 @@ class DownloadPIAPI(APIView):
 
             try:
                 factory = Factory.objects.get(pk = pk)
-                base_factory = factory
                 temp_proforma_invoice.factory = factory
                 temp_proforma_invoice.save()
                 
                 if factory.products > 0:
 
-                    base_factory = factory
-
                     json_parameter = {}
                     json_parameter["factory_name"] = str(factory.name)
-                    json_parameter["factory_address"] = str(base_factory.address)
-                    json_parameter["loading_port"] = str(base_factory.loading_port)
+                    json_parameter["factory_address"] = str(factory.address)
+                    json_parameter["loading_port"] = str(factory.loading_port)
                     try:
-                        json_parameter["bank_name"] = str(base_factory.bank_details.name)
-                        json_parameter["bank_address"] = str(base_factory.bank_details.address)
-                        json_parameter["bank_account_number"] = str(base_factory.bank_details.account_number)
-                        json_parameter["bank_ifsc_code"] = str(base_factory.bank_details.ifsc_code)
-                        json_parameter["bank_swift_code"] = str(base_factory.bank_details.swift_code)
-                        json_parameter["bank_branch_code"] = str(base_factory.bank_details.branch_code)
+                        json_parameter["bank_name"] = str(factory.bank_details.name)
+                        json_parameter["bank_address"] = str(factory.bank_details.address)
+                        json_parameter["bank_account_number"] = str(factory.bank_details.account_number)
+                        json_parameter["bank_ifsc_code"] = str(factory.bank_details.ifsc_code)
+                        json_parameter["bank_swift_code"] = str(factory.bank_details.swift_code)
+                        json_parameter["bank_branch_code"] = str(factory.bank_details.branch_code)
                     except Exception as e:
                         json_parameter["bank_name"] = ""
                         json_parameter["bank_address"] = ""
@@ -769,7 +770,7 @@ class DownloadPIBulkAPI(APIView):
 
                 try:
                     factory = Factory.objects.get(pk=factory_pk)
-                    base_factory = factory
+                    factory = factory
                     temp_proforma_invoice.factory = factory
                     temp_proforma_invoice.save()
                     
@@ -777,19 +778,19 @@ class DownloadPIBulkAPI(APIView):
                     
                     if factory.products > 0:
 
-                        base_factory = factory
+                        factory = factory
 
                         json_parameter = {}
                         json_parameter["factory_name"] = str(factory.name)
-                        json_parameter["factory_address"] = str(base_factory.address)
-                        json_parameter["loading_port"] = str(base_factory.loading_port)
+                        json_parameter["factory_address"] = str(factory.address)
+                        json_parameter["loading_port"] = str(factory.loading_port)
                         try:
-                            json_parameter["bank_name"] = str(base_factory.bank_details.name)
-                            json_parameter["bank_address"] = str(base_factory.bank_details.address)
-                            json_parameter["bank_account_number"] = str(base_factory.bank_details.account_number)
-                            json_parameter["bank_ifsc_code"] = str(base_factory.bank_details.ifsc_code)
-                            json_parameter["bank_swift_code"] = str(base_factory.bank_details.swift_code)
-                            json_parameter["bank_branch_code"] = str(base_factory.bank_details.branch_code)
+                            json_parameter["bank_name"] = str(factory.bank_details.name)
+                            json_parameter["bank_address"] = str(factory.bank_details.address)
+                            json_parameter["bank_account_number"] = str(factory.bank_details.account_number)
+                            json_parameter["bank_ifsc_code"] = str(factory.bank_details.ifsc_code)
+                            json_parameter["bank_swift_code"] = str(factory.bank_details.swift_code)
+                            json_parameter["bank_branch_code"] = str(factory.bank_details.branch_code)
                         except Exception as e:
                             json_parameter["bank_name"] = ""
                             json_parameter["bank_address"] = ""
