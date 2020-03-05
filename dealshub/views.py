@@ -2155,6 +2155,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["name"] = str(prod.product_name)
                     temp_dict2["displayId"] = str(prod.product_id)
                     temp_dict2["uuid"] = str(prod.uuid)
+
+                    if is_dealshub==True:
+                        temp_dict2["category"] = prod.base_product.category
+                        temp_dict2["currency"] = "AED"
+
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
 
