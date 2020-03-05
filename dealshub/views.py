@@ -2409,6 +2409,22 @@ class AddProductToSectionAPI(APIView):
             section_obj = Section.objects.get(uuid=section_uuid)
             product_obj = Product.objects.get(uuid=product_uuid)
 
+            temp_dict = {}
+
+            main_images_list = ImageBucket.objects.none()
+            try:
+                main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
+                main_images_list |= main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                images = create_response_images_main(main_images_list)
+                response["thumbnailImageUrl"] = images[0]["midimage_url"]
+            except Exception as e:
+                response["thumbnailImageUrl"] = ""
+
+            
+            response["name"] = str(product_obj.product_name)
+            response["displayId"] = str(product_obj.product_id)
+
             section_obj.products.add(product_obj)
             section_obj.save()
             
