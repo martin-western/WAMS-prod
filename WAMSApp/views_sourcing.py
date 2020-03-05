@@ -32,8 +32,6 @@ import xlrd
 from datetime import datetime
 from django.utils import timezone
 
-IP_ADDR = "http://13.235.116.162:8004"
-
 logger = logging.getLogger(__name__)
 
 class FetchFactoryDetailsAPI(APIView):
@@ -763,7 +761,6 @@ class DownloadPIBulkAPI(APIView):
 
                 try:
                     factory = Factory.objects.get(pk=factory_pk)
-                    factory = factory
                     temp_proforma_invoice.factory = factory
                     temp_proforma_invoice.save()
                     
@@ -808,28 +805,25 @@ class DownloadPIBulkAPI(APIView):
                         product_info = []
                         for product in products:
                             
-                            product = BaseProduct.objects.get(product=product)
-                            product = product
+                            sourcing_product = SourcingProduct.objects.get(product=product)
+                            
                             temp_dict = {} 
-                            temp_dict["image_url"] = ""
-                            if product.images.count()>0:
-                                temp_dict["image_url"] = "file:///"+BASE_DIR + product.images.all()[0].image.url
-                            temp_dict["code"] = str(product.code)
-                            temp_dict["brand_category"] = str(product.brand_category)
-                            temp_dict["other_info"] = str(product.other_info)
-                            temp_dict["size"] = str(product.size)
-                            temp_dict["weight"] = str(product.weight)
-                            temp_dict["design"] = str(product.design)
-                            temp_dict["colors"] = " ".join([i.name for i in product.color_group.all()])
-                            temp_dict["pkg_inner"] = str(product.pkg_inner)
-                            temp_dict["pkg_m_ctn"] = str(product.pkg_m_ctn)
-                            temp_dict["p_ctn_cbm"] = str(product.p_ctn_cbm)
-                            temp_dict["ttl_ctn"] = str(product.ttl_ctn)
-                            temp_dict["ttl_cbm"] = str(product.ttl_cbm)
-                            temp_dict["ship_lot_number"] = str(product.ship_lot_number)
+                            temp_dict["code"] = str(sourcing_product.code)
+                            temp_dict["brand_category"] = str(sourcing_product.brand.name)
+                            temp_dict["other_info"] = str(sourcing_product.other_info)
+                            temp_dict["size"] = str(sourcing_product.size)
+                            temp_dict["weight"] = str(sourcing_product.weight)
+                            temp_dict["design"] = str(sourcing_product.design)
+                            temp_dict["colors"] = str(product.color)
+                            temp_dict["pkg_inner"] = str(sourcing_product.pkg_inner)
+                            temp_dict["pkg_m_ctn"] = str(sourcing_product.pkg_m_ctn)
+                            temp_dict["p_ctn_cbm"] = str(sourcing_product.p_ctn_cbm)
+                            temp_dict["ttl_ctn"] = str(sourcing_product.ttl_ctn)
+                            temp_dict["ttl_cbm"] = str(sourcing_product.ttl_cbm)
+                            temp_dict["ship_lot_number"] = str(sourcing_product.ship_lot_number)
                             temp_dict["order_quantity"] = str(selected_products_dict[str(product.pk)])
-                            temp_dict["qty_metric"] = str(product.qty_metric)
-                            temp_dict["price"] = str(product.price)
+                            temp_dict["qty_metric"] = str(sourcing_product.qty_metric)
+                            temp_dict["price"] = str(sourcing_product.price)
                             product_info.append(temp_dict)
 
                         json_parameter["product_info"] = product_info
@@ -847,8 +841,10 @@ class DownloadPIBulkAPI(APIView):
                         logger.info("proforma_pdf_url tpi %s", str(tpi.proforma_pdf.url[1:]))
                         zf.write(tpi.proforma_pdf.url[1:])
                     zf.close()
+
                     resp_filepath = '/'+zf.filename
                     logger.info("resp_filepath %s: ", str(resp_filepath))
+                    
                     response['pdf_file'] = resp_filepath
                     response['status'] = 200
                     response['error_msg'] = ''
@@ -889,14 +885,15 @@ class GenerateDraftPILineAPI(APIView):
                 lines=list_of_draft_lines)
                 
             for row_number in range(1,product_sheet.nrows):
-                temp_product = BaseProduct.objects.get(
+                sourcing_product = SourcingProduct.objects.get(
                     code=product_sheet.cell_value(row_number, 1))
 
-                temp_factory = Factory.objects.filter(products = temp_product.product)[0]
+
+                factory = Factory.objects.filter(products = sourcing_product.product)[0]
 
                 temp_draft_PI_line = DraftProformaInvoiceLine.objects.create(
-                    product = temp_product,
-                    factory = temp_factory,
+                    product = sourcing_product.product,
+                    factory = factory,
                     quantity = product_sheet.cell_value(row_number, 2),
                     draft_proforma_invoice=temp_draft_pi_invoice)
                 list_of_draft_lines.append(int(temp_draft_PI_line.pk))
@@ -964,11 +961,7 @@ class FetchDraftProformaInvoiceAPI(APIView):
                 temp_dict["moq"] = str(product.product.minimum_order_qty)
                 temp_dict["draft_line_id"] = line_id
                 temp_dict["draft_pi_id"] = draft_pi.pk
-                if product.images.all().count()>0:
-                    temp_dict["image_url"] = product.images.all()[0].image.url
-                else :
-                    temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
-
+                
                 draft_lines.append(temp_dict)
 
             # response["draft_pi_pk"] = str(temp_draft_pi_invoice.pk)
