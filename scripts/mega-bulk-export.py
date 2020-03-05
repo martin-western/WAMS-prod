@@ -34,7 +34,7 @@ for product in products:
 
         product_features = json.loads(product.pfl_product_features)[:5]
         for i in range(product_features):
-        	common_row[3+i] = product_features[i]
+            common_row[3+i] = product_features[i]
 
         common_row[3] = str(product.color)
         common_row[3] = str(product.color_map)
@@ -69,32 +69,42 @@ for product in products:
         main_image = main_images.main_images.all()[0]
         common_row[] = main_image.image.image.url
 
-		sub_images = SubImages.objects.get(product=product, is_sourced=True)
+        sub_images = SubImages.objects.get(product=product, is_sourced=True)
         sub_images = sub_images.sub_images.all()[:5]
         for sub_image in sub_images:
-			common_row[] = sub_image.image.image.url
+            common_row[] = sub_image.image.image.url
 
-		for image in product.white_background_images.all()[:5]:
-			common_row[] = image.image.url
+        for image in product.white_background_images.all()[:5]:
+            common_row[] = image.image.url
 
-		for image in product.pfl_images.all()[:5]:
-			common_row[] = image.image.url
+        for image in product.pfl_images.all()[:5]:
+            common_row[] = image.image.url
 
-		for image in product.lifestyle_images.all()[:5]:
-			common_row[] = image.image.url
+        for image in product.lifestyle_images.all()[:5]:
+            common_row[] = image.image.url
 
-		for image in product.certificate_images.all()[:5]:
-			common_row[] = image.image.url
+        for image in product.certificate_images.all()[:5]:
+            common_row[] = image.image.url
 
-		for image in product.giftbox_images.all()[:5]:
-			common_row[] = image.image.url
+        for image in product.giftbox_images.all()[:5]:
+            common_row[] = image.image.url
 
-		for image in product.diecut_images.all()[:5]:
-			common_row[] = image.image.url
+        for image in product.diecut_images.all()[:5]:
+            common_row[] = image.image.url
 
-		
+        for image in product.aplus_content_images.all()[:5]:
+            common_row[] = image.image.url
 
+        for image in product.base_product.unedited_images.all()[:5]:
+            common_row[] = image.image.url
 
+        for image in product.transparent_images.all()[:5]:
+            common_row[] = image.image.url
+        
+
+        ############################################ Amazon UK
+
+        amazon_uk_product_json = 
 
         common_row[3] = str(product.)
         common_row[3] = str(product.base_product.brand)
