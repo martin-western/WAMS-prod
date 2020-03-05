@@ -162,7 +162,56 @@ amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
 
+class Bank(models.Model): 
 
+    name = models.CharField(max_length=300, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    account_number = models.CharField(max_length=300, null=True, blank=True)
+    ifsc_code = models.CharField(max_length=300, null=True, blank=True)
+    swift_code = models.CharField(max_length=300, null=True, blank=True)
+    branch_code = models.CharField(max_length=300, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Bank"
+        verbose_name_plural = "Banks"
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+        super(Bank, self).save(*args, **kwargs)
+
+
+class Factory(models.Model): 
+
+    factory_code = models.CharField(max_length=300)
+    name = models.CharField(max_length=300)
+    products = models.ManyToManyField(Product, blank=True)
+    images = models.ManyToManyField(Image, blank=True)
+    other_info = models.TextField(null=True, blank=True)
+    background_poster = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="background_poster")
+    business_card = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="business_card")
+    phone_numbers = models.ManyToManyField(PhoneNumber,blank=True)
+    factory_emailid = models.CharField(max_length=300, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    operating_hours = models.ManyToManyField(OperatingHour, blank=True)
+    bank_details = models.ForeignKey(Bank, null=True, blank=True, on_delete=models.SET_NULL, related_name="related_factory")
+    average_delivery_days = models.IntegerField(null=True, blank=True)
+    average_turn_around_time = models.IntegerField(null=True, blank=True)
+    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL,related_name="logo")
+    contact_person_name = models.CharField(max_length=300, null=True, blank=True)
+    contact_person_emailid = models.CharField(max_length=300, null=True, blank=True)
+    contact_person_mobile_no = models.CharField(max_length=300, null=True, blank=True)
+    social_media_tag = models.CharField(max_length=300, null=True, blank=True)
+    social_media_tag_information = models.CharField(max_length=300, null=True, blank=True)
+    loading_port = models.CharField(max_length=300, null=True, blank=True)
+    location = models.CharField(max_length=300, null=True, blank=True)
+    created_date = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(OmnyCommUser,blank=True)
+
+    class Meta:
+        verbose_name = "BaseFactory"
+        verbose_name_plural = "BaseFactories"
 
 class Image(models.Model):
 
