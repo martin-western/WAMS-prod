@@ -950,15 +950,17 @@ class FetchDraftProformaInvoiceAPI(APIView):
                 temp_dict = {}
                 draft_line = DraftProformaInvoiceLine.objects.get(pk = line_id)
                 product = draft_line.product
+                sourcing_product = SourcingProduct.objects.get(product=product)
+
                 factory = draft_line.factory
                 temp_dict["quantity"] = draft_line.quantity
                 temp_dict["factory_name"] = factory.name
                 temp_dict["factory_pk"] = factory.pk
                 temp_dict["product_name"] = product.name
                 temp_dict["product_pk"] = product.pk 
-                temp_dict["product_code"] = product.code
-                temp_dict["price"] = product.price
-                temp_dict["moq"] = str(product.product.minimum_order_qty)
+                temp_dict["product_code"] = sourcing_product.code
+                temp_dict["price"] = sourcing_product.price
+                temp_dict["minimum_order_qty"] = str(sourcing_product.minimum_order_qty)
                 temp_dict["draft_line_id"] = line_id
                 temp_dict["draft_pi_id"] = draft_pi.pk
                 
@@ -1046,10 +1048,11 @@ class CreateDraftPIFromProductSelectionAPI(APIView):
             
             draft_pi_line_list = []
             draft_proforma_invoice = DraftProformaInvoice.objects.create()
+            
             for factory_pk in factorywise_products:
                 temp_products = factorywise_products[factory_pk]
                 for temp_product in temp_products:
-                    product = BaseProduct.objects.get(pk = temp_product["product_pk"])
+                    product = Product.objects.get(pk = temp_product["product_pk"])
                     factory = Factory.objects.get(pk = temp_product["factory_pk"])
 
                     draft_pi_line = DraftProformaInvoiceLine.objects.create(product = product,factory = factory, quantity = temp_product["quantity"],
@@ -1160,106 +1163,3 @@ class FetchDraftProformaInvoicesCartAPI(APIView):
 
         return Response(data=response)
 
-
-
-UploadFactoryImage = UploadFactoryImageAPI.as_view()
-
-FetchFactoryNameFromUUID = FetchFactoryNameFromUUIDAPI.as_view()
-
-FetchFactoryForOmnyCommUser = FetchFactoryForOmnyCommUserAPI.as_view()
-
-FetchFactoriesForOmnyCommUser = FetchFactoriesForOmnyCommUserAPI.as_view()
-
-FetchOmnyCommUserDetails = FetchOmnyCommUserDetailsAPI.as_view()
-
-FetchProductsFromFactory = FetchProductsFromFactoryAPI.as_view()
-
-FetchSharedProductsForFactory = FetchSharedProductsForFactoryAPI.as_view()
-
-FetchFactorywiseProductListing = FetchFactorywiseProductListingAPI.as_view()
-
-SaveFactoryProductDetails = SaveFactoryProductDetailsAPI.as_view()
-
-FetchFactoryProductDetails = FetchFactoryProductDetailsAPI.as_view()
-
-SaveFactoryManagerFactoryDetails = SaveFactoryManagerFactoryDetailsAPI.as_view()
-
-UploadFactoryProductImage = UploadFactoryProductImageAPI.as_view()
-
-ChangeGoLiveStatus = ChangeGoLiveStatusAPI.as_view()
-
-DownloadPI = DownloadPIAPI.as_view()
-
-GenerateDraftPILine = GenerateDraftPILineAPI.as_view()
-
-SaveSourcingProductDetails = SaveSourcingProductDetailsAPI.as_view()
-
-SaveSourcingFactoryDetails = SaveSourcingFactoryDetailsAPI.as_view()
-
-FetchSourcingProductDetails = FetchSourcingProductDetailsAPI.as_view()
-
-UploadSourcingProductProductImage = UploadSourcingProductProductImageAPI.as_view()
-
-FetchDraftProformaInvoice = FetchDraftProformaInvoiceAPI.as_view()
-
-DeleteDraftLine = DeleteDraftLineAPI.as_view()
-
-DownloadPIBulk = DownloadPIBulkAPI.as_view()
-
-CreateDraftPIFromProductSelection = CreateDraftPIFromProductSelectionAPI.as_view()
-
-FetchProformaInvoiceList = FetchProformaInvoiceListAPI.as_view()
-
-FetchDraftProformaInvoicesCart =  FetchDraftProformaInvoicesCartAPI.as_view()
-
-FetchFactories = FetchFactoriesAPI.as_view()
-
-AddNewFactory = AddNewFactoryAPI.as_view()
-
-FetchFactoryDetails = FetchFactoryDetailsAPI.as_view()
-
-FetchConstants = FetchConstantsAPI.as_view()
-
-AddNewProduct = AddNewProductAPI.as_view()
-
-FetchProductDetails = FetchProductDetailsAPI.as_view()
-
-SavePhoneNumbers = SavePhoneNumbersAPI.as_view()
-
-SaveAddress = SaveAddressAPI.as_view()
-
-SaveFactoryName = SaveFactoryNameAPI.as_view()
-
-SaveProductDetails = SaveProductDetailsAPI.as_view()
-
-SaveBusinessCard = SaveBusinessCardAPI.as_view()
-
-UploadProductImage = UploadProductImageAPI.as_view()
-
-DeleteImage = DeleteImageAPI.as_view()
-
-UploadAttachment = UploadAttachmentAPI.as_view()
-
-DeleteAttachment = DeleteAttachmentAPI.as_view()
-
-FetchProductCards = FetchProductCardsAPI.as_view()
-
-SaveFactoryDetails = SaveFactoryDetailsAPI.as_view()
-
-ExportFactories = ExportFactoriesAPI.as_view()
-
-SearchFactories = SearchFactoriesAPI.as_view()
-
-SearchFactoriesByDate = SearchFactoriesByDateAPI.as_view()
-
-SearchProducts = SearchProductsAPI.as_view()
-
-ShareFactory = ShareFactoryAPI.as_view()
-
-SendFactoryShareEmail = SendFactoryShareEmailAPI.as_view()
-
-ShareProduct = ShareProductAPI.as_view()
-
-UploadFactoriesProducts = UploadFactoriesProductsAPI.as_view()
-
-UploadFactoriesProductsFromSourcing = UploadFactoriesProductsFromSourcingAPI.as_view()
