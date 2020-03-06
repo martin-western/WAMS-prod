@@ -1138,7 +1138,10 @@ class FetchProductDetailsAPI(APIView):
             response["standard_price"] = "" if product_obj.standard_price == None else product_obj.standard_price
             response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
             response["factory_notes"] = product_obj.factory_notes
-            response["factory_code"] = product_obj.factory_code
+            try:
+                response["factory_code"] = product_obj.factory.factory_code
+            except Exception as e:
+                response["factory_code"] = ""
             response["is_dealshub_product_created"] = product_obj.is_dealshub_product_created
             response["verified"] = product_obj.verified
             response["color_map"] = product_obj.color_map
@@ -1531,7 +1534,12 @@ class SaveProductAPI(APIView):
             product_obj.pfl_product_features = json.dumps(pfl_product_features)
 
             product_obj.factory_notes = factory_notes
-            product_obj.factory_code = factory_code
+
+            try:
+                factory_obj = Factory.objects.get(factory_code=factory_code)
+                product_obj.factory = factory_obj
+            except Exception as e:
+                pass
             
             product_obj.save()
 
@@ -4779,7 +4787,10 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
                 temp_dict["product_id"] = product_obj.product_id
                 temp_dict["product_id_type"] = str(product_obj.product_id_type)
                 temp_dict["barcode"] = str(product_obj.barcode_string)
-                temp_dict["factory_code"] = str(product_obj.factory_code)
+                try:
+                    temp_dict["factory_code"] = str(product_obj.factory.factory_code)
+                except Exception as e:
+                    temp_dict["factory_code"] = ""
                 temp_dict["color"] = str(product_obj.color)
                 temp_dict["color_map"] = str(product_obj.color_map)
                 temp_dict["material_type"] = str(product_obj.material_type)
