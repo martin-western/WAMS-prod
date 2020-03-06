@@ -12,18 +12,15 @@ urlpatterns = [
     url(r'^save-factory-details/$', views.SaveFactoryDetails),
     url(r'^fetch-factorywise-products/$', views.FetchFactorywiseProductListing),
     url(r'^upload-factory-image/$', views.UploadFactoryImage),
-    
-
-    url(r'^fetch-draft-proforma-invoice/$', views.FetchDraftProformaInvoice),
-    url(r'^download-pi-bulk/$', views.DownloadPIBulk),
-    url(r'^create-draft-pi-from-product-selection/$',views.CreateDraftPIFromProductSelection),
-
 
     url(r'^change-go-live-status/$', views.ChangeGoLiveStatus),
     url(r'^download-pi/$', views.DownloadPI),
+    url(r'^download-pi-bulk/$', views.DownloadPIBulk),
+    url(r'^generate-draft-pi-line/$', views.GenerateDraftPILine),
     url(r'^delete-draft-line/$',views.DeleteDraftLine),
+    url(r'^fetch-draft-proforma-invoice/$', views.FetchDraftProformaInvoice),
+    url(r'^create-draft-pi-from-product-selection/$',views.CreateDraftPIFromProductSelection),
     url(r'^proforma-invoices-list/$',views.FetchProformaInvoiceList),
-    url(r'^draft-proforma-invoices/$', views.DraftProformaInvoices),
     url(r'^fetch-draft-proforma-invoice-cart/$',views.FetchDraftProformaInvoicesCart),
 
 
