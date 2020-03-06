@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
+
 from auditlog.models import *
 from dealshub.models import DealsHubProduct, Category
 from WAMSApp.utils import *
@@ -23,6 +24,7 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
+from WAMSApp.views_sourcing import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
