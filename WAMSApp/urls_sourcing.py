@@ -9,25 +9,23 @@ urlpatterns = [
     url(r'^fetch-factory-details/$', views.FetchFactoryDetails),
     url(r'^fetch-factories/$', views.FetchFactoriesList),
     url(r'^fetch-products-from-factory/$', views.FetchProductsFromFactory),
-    url(r'^fetch-factory-details/$', views.FetchFactoryDetails),
-    url(r'^fetch-factory-details/$', views.FetchFactoryDetails),
-    url(r'^fetch-factory-details/$', views.FetchFactoryDetails),
-    url(r'^fetch-factory-details/$', views.FetchFactoryDetails),
-    url(r'^fetch-factory-details/$', views.FetchFactoryDetails),
+    url(r'^save-factory-details/$', views.SaveFactoryDetails),
+    url(r'^fetch-factorywise-products/$', views.FetchFactorywiseProductListing),
+    url(r'^upload-factory-image/$', views.UploadFactoryImage),
+    
+
+    url(r'^fetch-draft-proforma-invoice/$', views.FetchDraftProformaInvoice),
+    url(r'^download-pi-bulk/$', views.DownloadPIBulk),
+    url(r'^create-draft-pi-from-product-selection/$',views.CreateDraftPIFromProductSelection),
 
 
-SaveFactoryDetails = SaveFactoryDetailsAPI.as_view()
-FetchFactorywiseProductListing = FetchFactorywiseProductListingAPI.as_view()
-UploadFactoryImage = UploadFactoryImageAPI.as_view()
-ChangeGoLiveStatus = ChangeGoLiveStatusAPI.as_view()
-DownloadPI = DownloadPIAPI.as_view()
-DownloadPIBulk = DownloadPIBulkAPI.as_view()
-GenerateDraftPILine = GenerateDraftPILineAPI.as_view()
-FetchDraftProformaInvoice = FetchDraftProformaInvoiceAPI.as_view()
-DeleteDraftLine = DeleteDraftLineAPI.as_view()
-CreateDraftPIFromProductSelection = CreateDraftPIFromProductSelectionAPI.as_view()
-FetchProformaInvoiceList = FetchProformaInvoiceListAPI.as_view()
-FetchDraftProformaInvoicesCart = FetchDraftProformaInvoicesCartAPI.as_view()
+    url(r'^change-go-live-status/$', views.ChangeGoLiveStatus),
+    url(r'^download-pi/$', views.DownloadPI),
+    url(r'^delete-draft-line/$',views.DeleteDraftLine),
+    url(r'^proforma-invoices-list/$',views.FetchProformaInvoiceList),
+    url(r'^draft-proforma-invoices/$', views.DraftProformaInvoices),
+    url(r'^fetch-draft-proforma-invoice-cart/$',views.FetchDraftProformaInvoicesCart),
+
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
