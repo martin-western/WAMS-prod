@@ -519,7 +519,7 @@ class Product(models.Model):
     is_dealshub_product_created = models.BooleanField(default=False)
     no_of_images_for_filter = models.IntegerField(default=0)
 
-    factory = models.ForeignKey(Factory,blank=True)
+    factory = models.ForeignKey(Factory, null=True, blank=True)
 
     class Meta:
         verbose_name = "Product"
