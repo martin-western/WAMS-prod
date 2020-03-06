@@ -5,7 +5,7 @@ import urllib.request, urllib.error, urllib.parse
 import datetime
 import os
 
-f = open("scripts/13022020.json", "r")
+f = open("scripts/06032020.json", "r")
 all_data_json = json.loads(f.read())
 f.close()
 
@@ -215,7 +215,7 @@ for data in all_data_json:
             status = data["fields"]["status"]
             verified = data["fields"]["verified"]
             pfl_product_name = data["fields"]["pfl_product_name"]
-            pfl_product_features = json.loads(data["fields"]["pfl_product_features"])
+            pfl_product_features = data["fields"]["pfl_product_features"]
             
             product_name_sap = data["fields"]["product_name_sap"]
             product_name_amazon_uk = data["fields"]["product_name_amazon_uk"]
