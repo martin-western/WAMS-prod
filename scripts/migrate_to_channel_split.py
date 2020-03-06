@@ -287,7 +287,9 @@ for data in all_data_json:
             item_display_width_metric = data["fields"]["item_display_width_metric"]
             item_display_height = data["fields"]["item_display_height"]
             item_display_height_metric = data["fields"]["item_display_height_metric"]
-            
+    
+            no_of_images_for_filter = 0
+
             item_count = data["fields"]["item_count"]
             item_count_metric = data["fields"]["item_count_metric"]
             item_condition_note = data["fields"]["item_condition_note"]
@@ -332,6 +334,7 @@ for data in all_data_json:
             main_images = data["fields"]["main_images"]
             main_image_buckets = []
             for main_image in main_images:
+                no_of_images_for_filter += 1
                 image_bucket_pk = main_image
                 mapped_image_bucket_pk = image_bucket_pk_mapping[image_bucket_pk]
                 image_bucket_obj = ImageBucket.objects.get(pk=mapped_image_bucket_pk)
@@ -340,6 +343,7 @@ for data in all_data_json:
             sub_images = data["fields"]["sub_images"]
             sub_image_buckets = []
             for sub_image in sub_images:
+                no_of_images_for_filter += 1
                 image_bucket_pk = sub_image
                 mapped_image_bucket_pk = image_bucket_pk_mapping[image_bucket_pk]
                 image_bucket_obj = ImageBucket.objects.get(pk=mapped_image_bucket_pk)
@@ -357,6 +361,7 @@ for data in all_data_json:
             white_background_images = data["fields"]["white_background_images"]
             white_background_images_objs = []
             for white_background_image in white_background_images:
+                no_of_images_for_filter += 1
                 image_pk = white_background_image
                 mapped_white_background_image_pk = image_pk_mapping[image_pk]
                 image_obj = Image.objects.get(pk=mapped_white_background_image_pk)
@@ -365,6 +370,7 @@ for data in all_data_json:
             lifestyle_images = data["fields"]["lifestyle_images"]
             lifestyle_images_objs = []
             for lifestyle_image in lifestyle_images:
+                no_of_images_for_filter += 1
                 image_pk = lifestyle_image
                 mapped_lifestyle_image_pk = image_pk_mapping[image_pk]
                 image_obj = Image.objects.get(pk=mapped_lifestyle_image_pk)
@@ -381,6 +387,7 @@ for data in all_data_json:
             giftbox_images = data["fields"]["giftbox_images"]
             giftbox_images_objs = []
             for giftbox_image in giftbox_images:
+                no_of_images_for_filter += 1
                 image_pk = giftbox_image
                 mapped_giftbox_image_pk = image_pk_mapping[image_pk]
                 image_obj = Image.objects.get(pk=mapped_giftbox_image_pk)
@@ -429,6 +436,7 @@ for data in all_data_json:
             transparent_images = data["fields"]["transparent_images"]
             transparent_images_objs = []
             for transparent_image in transparent_images:
+                no_of_images_for_filter += 1
                 image_pk = transparent_image
                 mapped_transparent_image_pk = image_pk_mapping[image_pk]
                 image_obj = Image.objects.get(pk=mapped_transparent_image_pk)
@@ -496,6 +504,7 @@ for data in all_data_json:
                                                  barcode=barcode_obj,
                                                  barcode_string=barcode_string,
                                                  outdoor_price=outdoor_price,
+                                                 no_of_images_for_filter = no_of_images_for_filter,
                                                  factory_notes=factory_notes
                                                  )
 
@@ -587,6 +596,7 @@ for data in all_data_json:
             noon_product["product_name"] = product_name_noon
             noon_product["category"] = category
             noon_product["sub_category"] = subtitle
+            noon_product["subtitle"] = subtitle
             noon_product["product_description"] = product_description_noon
             if product_description_noon != None and product_description_noon != "":
                 channel_product_obj.is_noon_product_created=True
@@ -677,6 +687,7 @@ for data in all_data_json:
             for transparent_image in transparent_images_objs:
                 product_obj.transparent_images.add(transparent_image)
 
+            product_obj.is_dealshub_product_created=True
 
             main_images_obj.save()
             sub_images_obj.save()
@@ -779,3 +790,20 @@ f_flyer = open("files/flyer_pk_mapping.txt","w")
 flyer_pk_mapping_json = json.dumps(flyer_pk_mapping)
 f_flyer.write(flyer_pk_mapping_json)
 f_flyer.close()
+
+prods = Product.objects.filter(base_product__brand__name="Geepas")
+for prod in prods:
+    category_obj = None
+    category = prod.base_product.category
+    if category!="":
+        category_obj, created = Category.objects.get_or_create(name=category)
+    sub_category_obj = None
+    sub_category = prod.base_product.sub_category
+    if sub_category!="":
+        sub_category_obj, created = SubCategory.objects.get_or_create(name=sub_category, category=category_obj)
+    d = DealsHubProduct.objects.filter(product=prod)[0]
+    d.category = category_obj
+    d.sub_category = sub_category_obj
+    d.save()
+
+DealsHubProduct.objects.filter(product__base_product__brand__name="Geepas").update(is_published=True)

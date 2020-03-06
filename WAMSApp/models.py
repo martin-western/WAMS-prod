@@ -7,8 +7,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-#from WAMSApp.utils import *
-
 from PIL import Image as IMAGE
 #from io import BytesIO as StringIO
 from io import BytesIO
@@ -164,6 +162,31 @@ amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
 
+
+class PhoneNumber(models.Model):
+
+    number = models.CharField(max_length=300)
+
+    class Meta:
+        verbose_name = "PhoneNumber"
+        verbose_name_plural = "PhoneNumbers"
+
+    def __str__(self):
+        return str(self.number)
+
+class OperatingHour(models.Model):
+
+    day = models.CharField(max_length=10)
+    from_time = models.TimeField(null=True, blank=True)
+    to_time = models.TimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "OperatingHour"
+        verbose_name_plural = "OperatingHours"
+
+    def __str__(self):
+        return str(self.day)+" "+str(self.from_time)+"-"+str(self.to_time)
+
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -207,6 +230,25 @@ class Image(models.Model):
 
         super(Image, self).save(*args, **kwargs)
 
+class Bank(models.Model): 
+
+    name = models.CharField(max_length=300, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    account_number = models.CharField(max_length=300, null=True, blank=True)
+    ifsc_code = models.CharField(max_length=300, null=True, blank=True)
+    swift_code = models.CharField(max_length=300, null=True, blank=True)
+    branch_code = models.CharField(max_length=300, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Bank"
+        verbose_name_plural = "Banks"
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+        super(Bank, self).save(*args, **kwargs)
+
 class OmnyCommUser(User):
 
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
@@ -225,6 +267,36 @@ class OmnyCommUser(User):
     class Meta:
         verbose_name = "OmnyCommUser"
         verbose_name_plural = "OmnyCommUser"
+
+class Factory(models.Model): 
+
+    factory_code = models.CharField(max_length=300)
+    name = models.CharField(max_length=300)
+    images = models.ManyToManyField(Image, blank=True)
+    other_info = models.TextField(null=True, blank=True)
+    background_poster = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="background_poster")
+    business_card = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="business_card")
+    phone_numbers = models.ManyToManyField(PhoneNumber,blank=True)
+    factory_emailid = models.CharField(max_length=300, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    operating_hours = models.ManyToManyField(OperatingHour, blank=True)
+    bank_details = models.ForeignKey(Bank, null=True, blank=True, on_delete=models.SET_NULL, related_name="related_factory")
+    average_delivery_days = models.IntegerField(null=True, blank=True)
+    average_turn_around_time = models.IntegerField(null=True, blank=True)
+    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL,related_name="logo")
+    contact_person_name = models.CharField(max_length=300, null=True, blank=True)
+    contact_person_emailid = models.CharField(max_length=300, null=True, blank=True)
+    contact_person_mobile_no = models.CharField(max_length=300, null=True, blank=True)
+    social_media_tag = models.CharField(max_length=300, null=True, blank=True)
+    social_media_tag_information = models.CharField(max_length=300, null=True, blank=True)
+    loading_port = models.CharField(max_length=300, null=True, blank=True)
+    location = models.CharField(max_length=300, null=True, blank=True)
+    created_date = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(OmnyCommUser,blank=True)
+
+    class Meta:
+        verbose_name = "BaseFactory"
+        verbose_name_plural = "BaseFactories"
 
 class ImageBucket(models.Model):
 
@@ -406,7 +478,6 @@ class Product(models.Model):
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
-    factory_code = models.CharField(null=True,max_length=200)
     product_description = models.TextField(blank=True)
 
     #PFL
@@ -418,6 +489,7 @@ class Product(models.Model):
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
+    currency = models.CharField(max_length=100, default="")
     quantity = models.IntegerField(null=True, blank=True)
 
     pfl_images = models.ManyToManyField(Image, related_name="pfl_images", blank=True)
@@ -446,6 +518,8 @@ class Product(models.Model):
 
     is_dealshub_product_created = models.BooleanField(default=False)
     no_of_images_for_filter = models.IntegerField(default=0)
+
+    factory = models.ForeignKey(Factory,blank=True)
 
     class Meta:
         verbose_name = "Product"
@@ -693,12 +767,90 @@ class RequestHelp(models.Model):
             self.uuid = str(uuid.uuid4())
         super(RequestHelp, self).save(*args, **kwargs)
 
-
-
 @receiver(post_save, sender=Product, dispatch_uid="create_pfl")
 def update_stock(sender, instance, **kwargs):
     if PFL.objects.filter(product=instance).exists()==False:
         PFL.objects.create(product=instance, name=str(instance.product_name_sap)+"_PFL")
+
+
+##############################################################################################
+
+#  Sourcing Module Models
+
+##############################################################################################
+
+
+class SourcingProduct(object):
+    
+    code = models.CharField(max_length=300, null=True)
+    price = models.FloatField(default=0, null=True, blank=True)
+    currency = models.CharField(max_length=300, null=True, blank=True)
+    other_info = models.TextField(null=True, blank=True)
+    minimum_order_qty = models.IntegerField(null=True, blank=True)
+    order_qty = models.IntegerField(null=True, blank=True)
+    qty_metric = models.CharField(max_length=300, null=True, blank=True)
+    inner_box_qty = models.IntegerField(null=True, blank=True)
+    is_pr_ready = models.BooleanField(default=False)
+    go_live = models.BooleanField(default=False)
+    size = models.CharField(max_length=300, null=True, blank=True)
+    weight = models.CharField(max_length=300, null=True, blank=True)
+    weight_metric = models.CharField(max_length=300, null=True, blank=True)
+    design = models.CharField(max_length=300, null=True, blank=True)
+    pkg_inner = models.CharField(max_length=300, null=True, blank=True)
+    pkg_m_ctn = models.CharField(max_length=300, null=True, blank=True)
+    p_ctn_cbm = models.CharField(max_length=300, null=True, blank=True)
+    ttl_ctn = models.CharField(max_length=300, null=True, blank=True)
+    ttl_cbm = models.CharField(max_length=300, null=True, blank=True)
+    ship_lot_number = models.CharField(max_length=300, null=True, blank=True)
+    giftbox_die_cut = models.CharField(max_length=300, null=True, blank=True)
+    spare_part_name = models.CharField(max_length=300, null=True, blank=True)
+    spare_part_qty = models.IntegerField(null=True)
+    delivery_days = models.IntegerField(default=0, null=True)
+    created_by = models.ForeignKey(OmnyCommUser,blank=True)
+    
+    product = models.ForeignKey(Product,blank=True,null=True, on_delete=models.SET_NULL)
+    
+    class Meta:
+        verbose_name = "SourcingProduct"
+        verbose_name_plural = "SourcingProducts"
+
+class ProformaInvoice(models.Model): 
+    
+    products = models.ManyToManyField(Product, blank=True)
+    proforma_pdf = models.FileField(blank=True, null=True, default=None)
+    payment_terms = models.CharField(max_length=500, null=True, blank=True)
+    advance = models.CharField(max_length=500, default='adv', blank=True)
+    inco_terms = models.CharField(max_length=500, default="", blank=True)
+    ttl_cntrs = models.CharField(max_length=500, default="", blank=True)
+    delivery_terms = models.CharField(max_length=500, default="", blank=True)
+    factory = models.ForeignKey(Factory, null=True, blank=True, on_delete=models.SET_NULL)
+    created_date = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Proforma Invoice"
+        verbose_name_plural = "Proforma Invoices"
+
+
+class DraftProformaInvoice(models.Model):
+    
+    lines = models.CharField(max_length=500, default="", blank=True)
+    created_date = models.DateTimeField(auto_now=True, null=True, blank=True)   
+
+    class Meta:
+        verbose_name = "Draft Proforma Invoice"
+        verbose_name_plural = "Draft Proforma Invoices"
+
+
+class DraftProformaInvoiceLine(models.Model):
+    
+    product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
+    factory = models.ForeignKey(Factory, blank=True, null=True, on_delete=models.SET_NULL, related_name='sourcing_user_factory')
+    quantity = models.CharField(max_length=500, default="", blank=True)
+    draft_proforma_invoice = models.ForeignKey(DraftProformaInvoice, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
+
+    class Meta:
+        verbose_name = "Draft Proforma Invoice Line"
+        verbose_name_plural = "Draft Proforma Invoice Lines"
 
 
 
