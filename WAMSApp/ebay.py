@@ -65,7 +65,7 @@ def export_ebay(products):
                 common_row[0] = "Add"
                 common_row[1] = ebay_product["category"]
                 common_row[2] = ebay_product["product_name"]
-                common_row[3] = str(ebay_product["subtitle"])
+                #common_row[3] = str(ebay_product["subtitle"])
                 common_row[4] = ebay_product["product_description"]
                 common_row[5] = "1000"
                 
