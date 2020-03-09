@@ -10,7 +10,8 @@ import xlsxwriter
 workbook = xlsxwriter.Workbook('./files/csv/mega-bulk-export.xlsx')
 worksheet = workbook.add_worksheet()
 
-products = Product.objects.filter(base_product__brand__name="geepas")
+#products = Product.objects.filter(base_product__brand__name="geepas")
+products = Product.objects.filter(pk=15331)
 
 cnt = 0
 for product in products[:5]:
@@ -213,18 +214,19 @@ for product in products[:5]:
         common_row[152] = dimensions["item_display_volume_metric"]
         common_row[153] = dimensions["item_display_length"]
         common_row[154] = dimensions["item_display_length_metric"]
-        common_row[155] = dimensions["item_weight"]
-        common_row[156] = dimensions["item_weight_metric"]
-        common_row[157] = dimensions["item_length"]
-        common_row[158] = dimensions["item_length_metric"]
-        common_row[159] = dimensions["item_width"]
-        common_row[160] = dimensions["item_width_metric"]
-        common_row[161] = dimensions["item_height"]
-        common_row[162] = dimensions["item_height_metric"]
-        common_row[163] = dimensions["item_display_width"]
-        common_row[164] = dimensions["item_display_width_metric"]
-        common_row[165] = dimensions["item_display_height"]
-        common_row[166] = dimensions["item_display_height_metric"]
+        common_row[155] = dimensions["item_display_width"]
+        common_row[156] = dimensions["item_display_width_metric"]
+        common_row[157] = dimensions["item_display_height"]
+        common_row[158] = dimensions["item_display_height_metric"]
+        common_row[159] = dimensions["item_weight"]
+        common_row[160] = dimensions["item_weight_metric"]
+        common_row[161] = dimensions["item_length"]
+        common_row[162] = dimensions["item_length_metric"]
+        common_row[163] = dimensions["item_width"]
+        common_row[164] = dimensions["item_width_metric"]
+        common_row[165] = dimensions["item_height"]
+        common_row[166] = dimensions["item_height_metric"]
+
         #common_row[167] = amazon_verified
         amazon_uae_product_json = json.loads(product.channel_product.amazon_uae_product_json)
         common_row[168] = str(product.channel_product.is_amazon_uae_product_created)
@@ -250,21 +252,22 @@ for product in products[:5]:
         common_row[191] = ebay_product_json["sub_category"]
         #common_row[192] = ebay_verified
         noon_product_json = json.loads(product.channel_product.noon_product_json)
-        common_row[193] = product.channel_product.is_noon_product_created
+        common_row[193] = str(product.channel_product.is_noon_product_created)
         common_row[194] = noon_product_json["product_name"]
-        common_row[195] = noon_product_json["product_type"]
-        common_row[196] = noon_product_json["product_subtype"]
-        common_row[197] = noon_product_json["parent_sku"]
-        common_row[198] = noon_product_json["category"]
-        #common_row[199] = noon_product_json["subtitle"]
-        common_row[200] = noon_product_json["model_number"]
-        common_row[201] = noon_product_json["model_name"]
+        common_row[195] = noon_product_json["product_description"]
+        common_row[196] = noon_product_json["product_type"]
+        common_row[197] = noon_product_json["product_subtype"]
+        common_row[198] = noon_product_json["parent_sku"]
+        common_row[199] = noon_product_json["category"]
+        #common_row[200] = noon_product_json["subtitle"]
+        common_row[201] = noon_product_json["model_number"]
+        common_row[202] = noon_product_json["model_name"]
         attributes = noon_product_json["product_attribute_list"][:5]
         for i in range(len(attributes)):
-            common_row[202+i] = attributes[i]
-        common_row[207] = noon_product_json["msrp_ae"]
-        common_row[208] = noon_product_json["msrp_ae_unit"]
-        #common_row[209] = noon_verified
+            common_row[203+i] = attributes[i]
+        common_row[208] = noon_product_json["msrp_ae"]
+        common_row[209] = noon_product_json["msrp_ae_unit"]
+        #common_row[210] = noon_verified
         colnum = 0
         for k in common_row:
             worksheet.write(cnt, colnum, k)
