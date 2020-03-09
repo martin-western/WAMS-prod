@@ -156,6 +156,12 @@ def current_user(request):
     return Response(serializer.data)
 
 
+def generate_report_view(request, brand_name):
+
+    generate_report(brand_name)
+    return HttpResponseRedirect("/files/csv/images-count-report.xlsx")
+
+
 class UserList(APIView):
 
     permission_classes = (permissions.AllowAny,)
