@@ -7,6 +7,7 @@ from auditlog.models import *
 from dealshub.models import DealsHubProduct, Category
 from WAMSApp.utils import *
 from WAMSApp.serializers import UserSerializer, UserSerializerWithToken
+from WAMSApp.constants import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -4928,6 +4929,53 @@ class MoveToSubImagesAPI(APIView):
         return Response(data=response)
 
 
+class GenerateReportsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("GenerateReportsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            filter_parameters = data["filter_parameters"]  
+
+            search_list_product_objs = Product.objects.none()
+
+            search_list_product_objs = custom_permission_filter_products(request.user)
+
+
+            if filter_parameters["brand_name"] != "":
+                brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
+                search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
+
+            without_images = 0
+            if filter_parameters["has_image"] == "1":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "0":
+                without_images = 1
+                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
+
+            generate_images_report(search_list_product_objs)
+            generate_mega_bulk_upload(search_list_product_objs)
+
+            response["file_path_1"] = "http://"+SERVER_IP+"/files/csv/images-count-report.xlsx"
+            response["file_path_2"] = "http://"+SERVER_IP+"/files/csv/mega-bulk-export.xlsx"
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GenerateReportsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 SapIntegration = SapIntegrationAPI.as_view()
 
@@ -5058,3 +5106,5 @@ FetchProductDetailsSalesIntegration = FetchProductDetailsSalesIntegrationAPI.as_
 MoveToMainImages = MoveToMainImagesAPI.as_view()
 
 MoveToSubImages = MoveToSubImagesAPI.as_view()
+
+GenerateReports = GenerateReportsAPI.as_view()
