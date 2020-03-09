@@ -2154,13 +2154,12 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     
                     temp_dict2["name"] = str(prod.product_name)
                     temp_dict2["displayId"] = str(prod.product_id)
-                    temp_dict2["category"] = str(prod.base_product.category)
-                    if organization_name=="geepas":
-                        temp_dict2["price"] = "0"
-                    else:
-                        temp_dict2["price"] = str(prod.standard_price)
-                    temp_dict2["currency"] = "AED"
                     temp_dict2["uuid"] = str(prod.uuid)
+
+                    if is_dealshub==True:
+                        temp_dict2["category"] = prod.base_product.category
+                        temp_dict2["currency"] = "AED"
+
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
 
@@ -2264,7 +2263,9 @@ class SearchSectionProductsAutocompleteAPI(APIView):
             search_string = data["searchString"]
             organization_name = data["organizationName"]
 
-            dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__organization__name=organization_name, product__base_product__seller_sku__icontains=search_string, product__product_name__icontains=search_string)[:10]
+            dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__organization__name=organization_name)
+
+            dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))[:10]
 
             dealshub_products_list = []
             for dealshub_product in dealshub_products:
@@ -2391,6 +2392,51 @@ class FetchCompanyProfileDealshubAPI(APIView):
         return Response(data=response)
 
 
+class AddProductToSectionAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddProductToSectionAPI: %s", str(data))
+
+            section_uuid = data["sectionUuid"]
+            product_uuid = data["productUuid"]
+
+            section_obj = Section.objects.get(uuid=section_uuid)
+            product_obj = Product.objects.get(uuid=product_uuid)
+
+            temp_dict = {}
+
+            main_images_list = ImageBucket.objects.none()
+            try:
+                main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
+                main_images_list |= main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                images = create_response_images_main(main_images_list)
+                response["thumbnailImageUrl"] = images[0]["midimage_url"]
+            except Exception as e:
+                response["thumbnailImageUrl"] = ""
+
+            
+            response["name"] = str(product_obj.product_name)
+            response["displayId"] = str(product_obj.product_id)
+
+            section_obj.products.add(product_obj)
+            section_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddProductToSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2471,3 +2517,5 @@ SearchProductsAutocomplete = SearchProductsAutocompleteAPI.as_view()
 FetchDealshubPrice = FetchDealshubPriceAPI.as_view()
 
 FetchCompanyProfileDealshub = FetchCompanyProfileDealshubAPI.as_view()
+
+AddProductToSection = AddProductToSectionAPI.as_view()

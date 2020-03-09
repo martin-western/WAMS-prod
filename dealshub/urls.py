@@ -24,6 +24,7 @@ urlpatterns = [
 
     url(r'^unpublish-admin-category/$', views.UnPublishAdminCategory),
     url(r'^section-bulk-upload/$', views.SectionBulkUpload),
+    url(r'^add-product-to-section/$', views.AddProductToSection),
 
     url(r'^fetch-banner-types/$', views.FetchBannerTypes),
     url(r'^create-banner/$', views.CreateBanner),
