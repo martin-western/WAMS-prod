@@ -138,7 +138,8 @@ urlpatterns = [
 
     url(r'^move-to-main-images/$',views.MoveToMainImages),
     url(r'^move-to-sub-images/$',views.MoveToSubImages),
-    
+
+    url(r'^generate-report/(?P<brand_name>[\w-]+)/$',views.generate_report_view),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

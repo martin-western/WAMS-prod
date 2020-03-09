@@ -13,6 +13,9 @@ import requests
 import xmltodict
 import json
 from django.utils import timezone
+import sys
+import xlsxwriter
+
 
 def my_jwt_response_handler(token, user=None, request=None):
     return {
@@ -288,3 +291,76 @@ def fetch_prices_dealshub(uuid1, company_code):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_prices_dealshub: %s at %s", e, str(exc_tb.tb_lineno))
         return "0"
+
+
+def generate_report(brand_name):
+    try:
+        os.system("rm ./files/csv/images-count-report.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/images-count-report.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    product_objs = Product.objects.filter(base_product__brand__name=brand_name)
+
+    row = ["Sr. No.",
+           "Product ID",
+           "Seller SKU",
+           "Product Name",
+           "Main Images",
+           "Sub Images",
+           "PFL Images",
+           "White Background Images",
+           "Lifestyle Images",
+           "Certificate Images",
+           "Giftbox Images",
+           "Diecut Images",
+           "A+ Content Images",
+           "Ads Images",
+           "Unedited Images"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    for product_obj in product_objs:
+        try:
+            cnt += 1
+            common_row = ["" for i in range(15)]
+            common_row[0] = str(cnt)
+            common_row[1] = str(product_obj.product_id)
+            common_row[2] = str(product_obj.base_product.seller_sku)
+            common_row[3] = str(product_obj.product_name)
+            try:
+                common_row[4] = str(MainImages.objects.get(product=product_obj, is_sourced=True).main_images.count())
+            except Exception as e:
+                common_row[4] = "0"
+            
+            try:
+                common_row[5] = str(SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count())
+            except Exception as e:
+                common_row[5] = "0"
+
+            common_row[6] = str(product_obj.pfl_images.count())
+            common_row[7] = str(product_obj.white_background_images.count())
+            common_row[8] = str(product_obj.lifestyle_images.count())
+            common_row[9] = str(product_obj.certificate_images.count())
+            common_row[10] = str(product_obj.giftbox_images.count())
+            common_row[11] = str(product_obj.diecut_images.count())
+            common_row[12] = str(product_obj.aplus_content_images.count())
+            common_row[13] = str(product_obj.ads_images.count())
+            common_row[14] = str(product_obj.base_product.unedited_images.count())
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print("Error: %s at %s", e, str(exc_tb.tb_lineno), product_obj.product_id)
+
+    workbook.close()
