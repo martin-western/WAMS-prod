@@ -140,6 +140,7 @@ urlpatterns = [
     url(r'^move-to-sub-images/$',views.MoveToSubImages),
 
     url(r'^generate-report/(?P<brand_name>[\w-]+)/$',views.generate_report_view),
+    url(r'^generate-reports/$',views.GenerateReports),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
