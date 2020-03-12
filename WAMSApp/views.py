@@ -4950,6 +4950,7 @@ class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
                     temp_dict["variants"] = variants
                     bulk_product_information_list.append(temp_dict)
                 except Exception as e:
+                    logger.error("FetchBulkProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     temp_dict = {}
                     temp_dict["seller_sku"] = seller_sku
                     bulk_product_information_list.append(temp_dict)
