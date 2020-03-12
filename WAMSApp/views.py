@@ -4883,7 +4883,7 @@ class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
                 try:
                     base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
                     product_objs = Product.objects.filter(base_product__seller_sku=seller_sku)
-
+                    temp_dict = {}
                     temp_dict["product_name"] = base_product_obj.base_product_name
                     temp_dict["seller_sku"] = base_product_obj.seller_sku
                     temp_dict["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
