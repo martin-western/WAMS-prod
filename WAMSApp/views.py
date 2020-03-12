@@ -4872,6 +4872,10 @@ class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
                 data = json.loads(data)
 
             seller_sku_list = data["articleNumberList"]
+            try:
+                seller_sku_list = json.loads(seller_sku_list)
+            except Exception as e:
+                pass
 
             bulk_product_information_list = []
 
