@@ -135,6 +135,7 @@ urlpatterns = [
     url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),
     url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock),
     url(r'^fetch-product-details-sales-integration/$',views.FetchProductDetailsSalesIntegration),
+    url(r'^fetch-bulk-product-details-sales-integration/$',views.FetchBulkProductDetailsSalesIntegration),
 
     url(r'^move-to-main-images/$',views.MoveToMainImages),
     url(r'^move-to-sub-images/$',views.MoveToSubImages),
