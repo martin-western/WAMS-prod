@@ -1629,6 +1629,7 @@ class FetchProductListAPI(APIView):
             
             search_list_base_product_objs = search_list_product_objs.values_list('base_product',flat=True).order_by('-pk')
 
+            search_list_base_product_objs = list(dict.fromkeys(search_list_base_product_objs))
             products = []
 
             paginator = Paginator(search_list_base_product_objs, 20)
