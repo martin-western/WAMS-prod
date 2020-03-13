@@ -2149,7 +2149,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         images = create_response_images_main(main_images_list)
                         temp_dict2["thumbnailImageUrl"] = images[0]["midimage_url"]
                     except Exception as e:
-                        temp_dict2["thumbnailImageUrl"] = ""
+                        temp_dict2["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
                     
                     temp_dict2["name"] = str(prod.product_name)
