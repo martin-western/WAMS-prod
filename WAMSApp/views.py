@@ -4210,7 +4210,7 @@ class FetchAuditLogsByUserAPI(APIView):
                     temp_dict = {}
                     object_pk = log_entry_obj.object_pk
                     content_type = str(log_entry_obj.content_type)
-                    
+                    logger.info("%s ",content_type)
                     temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
                     temp_dict["resource"] = content_type
 
