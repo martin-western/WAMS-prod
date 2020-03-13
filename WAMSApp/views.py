@@ -1625,7 +1625,8 @@ class FetchProductListAPI(APIView):
                         Q(product_id__icontains=tag) |
                         Q(base_product__seller_sku__icontains=tag)
                     )
-                search_list_product_objs = search_list_product_lookup.distinct()
+                
+            search_list_product_objs = search_list_product_lookup.distinct()
             
             for prod in search_list_product_objs:
                 search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
