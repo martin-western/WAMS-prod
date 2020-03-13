@@ -1576,7 +1576,6 @@ class FetchProductListAPI(APIView):
             page = int(data['page'])  
 
             search_list_product_objs = Product.objects.none()
-            search_list_base_product_objs = BaseProduct.objects.none()
 
             search_list_product_objs = custom_permission_filter_products(request.user)
 
@@ -1628,18 +1627,17 @@ class FetchProductListAPI(APIView):
                 
                 search_list_product_objs = search_list_product_lookup.distinct()
             
-            search_list_base_product_objs = search_list_product_objs.values('base_product')
-
-            search_list_base_product_objs = search_list_base_product_objs.distinct().order_by('-pk')
+            search_list_base_product_objs = search_list_product_objs.values_list('base_product',flat=True).order_by('-pk')
 
             products = []
 
             paginator = Paginator(search_list_base_product_objs, 20)
             base_product_objs = paginator.page(page)
 
-            for base_product_obj in base_product_objs:
+            for base_product_pk in base_product_objs:
+                base_product_obj = BaseProduct.objects.get(pk=base_product_pk)
                 temp_dict = {}
-                temp_dict["base_product_pk"] = base_product_obj.pk
+                temp_dict["base_product_pk"] = base_product_pk
                 temp_dict["product_name"] = base_product_obj.base_product_name
                 temp_dict["manufacturer"] = base_product_obj.manufacturer
                 temp_dict["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
