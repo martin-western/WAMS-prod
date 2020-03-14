@@ -977,8 +977,8 @@ class SearchAPI(APIView):
 
                     temp_dict["currency"] = "AED"
                     temp_dict["discount"] = "10%"
-                    temp_dict["rating"] = "4.5"
-                    temp_dict["totalRatings"] = "453"
+                    temp_dict["rating"] = "0"
+                    temp_dict["totalRatings"] = "0"
                     temp_dict["uuid"] = product.uuid
                     temp_dict["id"] = product.uuid
                     
