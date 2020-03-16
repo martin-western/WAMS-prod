@@ -3469,7 +3469,7 @@
             var images = response["external_images_bucket_list"];
             for(var i=0;i<images.length;i++)
             {
-              global_external_image_bucket.push({"url":images[i]["url"], "high-res-url":images[i]["high_res_url"]});
+              global_external_image_bucket.push({"url":images[i]["url"], "high_res_url":images[i]["high_res_url"]});
             }
             update_external_image_bucket();
           }

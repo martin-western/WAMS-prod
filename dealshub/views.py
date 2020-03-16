@@ -350,9 +350,9 @@ class FetchSectionsProductsAPI(APIView):
 
                     temp_dict2["prevPrice"] = temp_dict2["price"]
                     temp_dict2["currency"] = "AED"
-                    temp_dict2["discount"] = "10"
-                    temp_dict2["rating"] = "4.5"
-                    temp_dict2["totalRatings"] = "5,372"
+                    #temp_dict2["discount"] = "10"
+                    temp_dict2["rating"] = "0"
+                    temp_dict2["totalRatings"] = "0"
                     temp_dict2["id"] = str(product_obj.uuid)
                     main_images_list = ImageBucket.objects.none()
                     main_images_objs = MainImages.objects.filter(product=product_obj)
@@ -476,9 +476,9 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2["price"] = "0"
                 temp_dict2["prevPrice"] = temp_dict2["price"]
                 temp_dict2["currency"] = "AED"
-                temp_dict2["discount"] = "10%"
-                temp_dict2["rating"] = "4.5"
-                temp_dict2["totalRatings"] = "5,372"
+                #temp_dict2["discount"] = "10%"
+                temp_dict2["rating"] = "0"
+                temp_dict2["totalRatings"] = "0"
                 temp_dict2["uuid"] = str(product_obj.uuid)
                 temp_dict2["id"] = str(product_obj.uuid)
                 main_images_list = ImageBucket.objects.none()

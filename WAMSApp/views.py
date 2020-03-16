@@ -2712,7 +2712,7 @@ class FetchFlyerDetailsAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["url"] = external_images_bucket_obj.mid_image.url
-                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["high_res_url"] = external_images_bucket_obj.image.url
                     temp_dict["image_pk"] = external_images_bucket_obj.pk
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
@@ -2815,7 +2815,7 @@ class FetchPFLDetailsAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["url"] = external_images_bucket_obj.mid_image.url
-                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["high_res_url"] = external_images_bucket_obj.image.url
                     temp_dict["image_pk"] = external_images_bucket_obj.pk
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
@@ -2960,7 +2960,7 @@ class FetchProductListFlyerPFLAPI(APIView):
                     short_product_name = str(product_obj.product_name_sap)
                     if len(short_product_name)>char_len:
                         short_product_name = short_product_name[:char_len] + "..."
-                    temp_dict["product_name_autocomplete"] = short_product_name + " | " + str(product_obj.product_id)
+                    temp_dict["product_name_autocomplete"] = short_product_name + " | " + str(product_obj.base_product.seller_sku) + " | " + str(product_obj.product_id)
                     main_image_url = None
                     
                     try:
@@ -3922,7 +3922,7 @@ class UploadFlyerExternalImagesAPI(APIView):
                     flyer_obj.external_images_bucket.add(image_obj)
                     temp_dict = {}
                     temp_dict["url"] = image_obj.mid_image.url
-                    temp_dict["high-res-url"] = image_obj.image.url
+                    temp_dict["high_res_url"] = image_obj.image.url
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
                     pass
@@ -3967,7 +3967,7 @@ class UploadPFLExternalImagesAPI(APIView):
                     pfl_obj.external_images_bucket.add(image_obj)
                     temp_dict = {}
                     temp_dict["url"] = image_obj.mid_image.url
-                    temp_dict["high-res-url"] = image_obj.image.url
+                    temp_dict["high_res_url"] = image_obj.image.url
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
                     pass
