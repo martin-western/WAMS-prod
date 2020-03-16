@@ -2437,6 +2437,48 @@ class AddProductToSectionAPI(APIView):
         return Response(data=response)
 
 
+class FetchBulkProductInfoAPI(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchBulkProductInfoAPI: %s", str(data))
+
+            uuidList = json.loads(data["uuidList"])
+
+            productInfo = {}
+            for uuid in uuidList:
+                product_obj = Product.objects.get(uuid=uuid)
+
+                main_image_url = Config.objects.all()[0].product_404_image.image.url
+                try:
+                    main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
+                    main_images_list = main_images_obj.main_images.all()
+                    main_image_url = main_images_list.all()[0].image.mid_image.url
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchBulkProductInfoAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+                temp_dict = {
+                    "productName": product_obj.product_name,
+                    "productImageUrl": main_image_url
+                }
+
+                productInfo[uuid] = temp_dict
+            
+            response["productInfo"] = productInfo
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBulkProductInfoAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2519,3 +2561,5 @@ FetchDealshubPrice = FetchDealshubPriceAPI.as_view()
 FetchCompanyProfileDealshub = FetchCompanyProfileDealshubAPI.as_view()
 
 AddProductToSection = AddProductToSectionAPI.as_view()
+
+FetchBulkProductInfo = FetchBulkProductInfoAPI.as_view()
