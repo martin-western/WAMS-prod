@@ -1983,8 +1983,20 @@
                     $(".product-title-info-description").attr("placeholder", "description");
                     $(".product-price-info").attr("placeholder", "price");
 
+                    //Replace the old links
+                    if ($("#flyer-div").css("background-image")!="none" ){
+                      $("#flyer-div").css("background-image", "url('" +original_bg_image_url+ "')");
+                    }
 
-                    $("#flyer-div").css("background-image", "url('" +original_bg_image_url+ "')");
+                    for (var i = 0; i <image_links.length; i++){
+                      var grid_ele_id = image_links[i]["key"];
+                      if(grid_ele_id != "background_image"){
+                        var url = image_links[i]["url"];
+                        $("#"+grid_ele_id).attr('src', url);
+                      }
+                    }
+
+
                     //$(".product-strikeprice-info").attr("placeholder", "strikeprice");
 
                     var image_data = canvas.toDataURL();
