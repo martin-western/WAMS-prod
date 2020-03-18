@@ -3752,7 +3752,8 @@ class SaveFlyerInBucketAPI(APIView):
         try:
 
             data = request.data
-            logger.info("SavePFLInBucketAPI: %s", str(data))
+            #logger.info("SavePFLInBucketAPI: %s", str(data))
+            logger.info("SavePFLInBucketAPI called")
 
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
 
