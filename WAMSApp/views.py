@@ -2943,6 +2943,8 @@ class FetchProductListFlyerPFLAPI(APIView):
                     brand_obj = Flyer.objects.get(
                         pk=int(data["flyer_pk"])).brand
                     product_objs = product_objs.filter(base_product__brand=brand_obj)
+                    search_string = data["search_string"]
+                    product_objs = product_objs.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
                     
             except Exception as e:
                 logger.warning("Issue with filtering brands %s", str(e))

@@ -2671,7 +2671,8 @@
           'X-CSRFToken':getCsrfToken()
         },
         data: {
-          "flyer_pk": window.location.pathname.split("/")[2]
+          "flyer_pk": window.location.pathname.split("/")[2],
+          "search_string": $("#autocomplete-input").val()
         },
         success: function(response) {
           console.log("Success!", response);
@@ -2699,9 +2700,14 @@
       });
     }
 
-    fetch_product_list_autocomplete();
-
-
+    var autocomplete_timer_id;
+    $("#autocomplete-input").keyup(function() {
+      clearTimeout(autocomplete_timer_id);
+      autocomplete_timer_id = setTimeout(function(){
+        //console.log("Here!", $("#autocomplete-input").val());
+        fetch_product_list_autocomplete();
+      }, 500);
+    });
 
     $(document).on('click', '.product-basket-card-btn', function(){
       //$(".product-basket-card").css('background-color', "transparent");
