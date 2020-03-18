@@ -3490,12 +3490,12 @@ class FetchFlyerListAPI(APIView):
             page = int(data["page"])
 
             permissible_brands = custom_permission_filter_brands(request.user)
-            flyer_objs = Flyer.objects.filter(brand__in=permissible_brands)
+            flyer_objs = Flyer.objects.filter(brand__in=permissible_brands).order_by('-pk')
 
             chip_data = data["tags"]
 
             if len(chip_data) > 0:
-                flyer_objs = Flyer.objects.all()
+                flyer_objs = Flyer.objects.all().order_by('-pk')
                 search_list_objs = []
 
                 for flyer_obj in flyer_objs:
