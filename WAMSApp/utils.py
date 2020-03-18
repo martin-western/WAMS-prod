@@ -930,7 +930,7 @@ def generate_mega_bulk_upload(product_objs):
 
 def generate_dynamic_row(data_point_list):
 
-    row = []
+    row = ["Sr. No."]
     for data_point in data_point_list:
         data_point_obj = DataPoint.objects.get(variable=data_point)
         row.append(data_point_obj.name)

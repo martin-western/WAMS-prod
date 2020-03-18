@@ -2389,7 +2389,8 @@ class CreateFlyerAPI(APIView):
             flyer_obj = Flyer.objects.create(name=convert_to_ascii(data["name"]),
                                              template_data="{}",
                                              brand=brand_obj,
-                                             mode=mode)
+                                             mode=mode,
+                                             user=request.user)
 
             create_option = data["create_option"]
 
