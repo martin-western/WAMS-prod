@@ -2693,6 +2693,8 @@
               add_to_product_basket();
             }
           });
+
+          $("#autocomplete-input").autocomplete("open");
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
