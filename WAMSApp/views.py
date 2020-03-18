@@ -5156,7 +5156,7 @@ class SearchBulkExportAPI(APIView):
             product_objs = Product.objects.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
 
             product_list = []
-            for product_obj in product_list:
+            for product_obj in product_objs:
                 try:
                     temp_dict = {}
                     temp_dict["name"] = product_obj.product_name
