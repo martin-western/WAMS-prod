@@ -926,3 +926,650 @@ def generate_mega_bulk_upload(product_objs):
             print("Error ", e, str(exc_tb.tb_lineno))
 
     workbook.close()
+
+
+def generate_dynamic_row(data_point_list):
+
+    row = []
+    for data_point in data_point_list:
+        data_point_obj = DataPoint.objects.get(variable=data_point)
+        row.append(data_point_obj.name)
+
+    return row
+
+
+def get_data_value(product_obj, base_product_obj, channel_product_obj, data_point_variable):
+    try:
+        if data_point_variable=="product_name":
+            return product_obj.product_name
+        if data_point_variable=="product_id":
+            return product_obj.product_id
+        if data_point_variable=="product_id_type":
+            return str(product_obj.product_id_type)
+        if data_point_variable=="product_description":
+            return product_obj.product_description
+        if data_point_variable=="pfl_product_feature_1":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=1:
+                return pfl_product_features[0]
+            return ""
+        if data_point_variable=="pfl_product_feature_2":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=2:
+                return pfl_product_features[1]
+            return ""
+        if data_point_variable=="pfl_product_feature_3":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=3:
+                return pfl_product_features[2]
+            return ""
+        if data_point_variable=="pfl_product_feature_4":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=4:
+                return pfl_product_features[3]
+            return ""
+        if data_point_variable=="pfl_product_feature_5":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=5:
+                return pfl_product_features[4]
+            return ""
+
+        if data_point_variable=="color_map":
+            return product_obj.color_map
+        if data_point_variable=="color":
+            return product_obj.color
+        if data_point_variable=="material_type":
+            return str(product_obj.material_type)
+        if data_point_variable=="standard_price":
+            return "" if product_obj.standard_price==None else product_obj.standard_price
+        if data_point_variable=="currency":
+            return product_obj.currency
+        if data_point_variable=="quantity":
+            return "" if product_obj.quantity==None else product_obj.quantity
+
+        if data_point_variable=="main_image":
+            if MainImages.objects.get(product=product_obj, is_sourced=True).main_images.count()>0:
+                return MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+            return ""
+
+        if data_point_variable=="sub_image_1":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>0:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[0].image.image.url
+            return ""
+        if data_point_variable=="sub_image_2":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>1:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[1].image.image.url
+            return ""
+        if data_point_variable=="sub_image_3":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>2:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[2].image.image.url
+            return ""
+        if data_point_variable=="sub_image_4":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>3:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[3].image.image.url
+            return ""
+        if data_point_variable=="sub_image_5":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>4:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[4].image.image.url
+            return ""
+
+        if data_point_variable=="white_background_image_1":
+            if product_obj.white_background_images.count()>=1:
+                return product_obj.white_background_images.all()[0].image.url
+            return ""
+        if data_point_variable=="white_background_image_2":
+            if product_obj.white_background_images.count()>=2:
+                return product_obj.white_background_images.all()[1].image.url
+            return ""
+        if data_point_variable=="white_background_image_3":
+            if product_obj.white_background_images.count()>=3:
+                return product_obj.white_background_images.all()[2].image.url
+            return ""
+        if data_point_variable=="white_background_image_4":
+            if product_obj.white_background_images.count()>=4:
+                return product_obj.white_background_images.all()[3].image.url
+            return ""
+        if data_point_variable=="white_background_image_5":
+            if product_obj.white_background_images.count()>=5:
+                return product_obj.white_background_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="lifestyle_image_1":
+            if product_obj.lifestyle_images.count()>=1:
+                return product_obj.lifestyle_images.all()[0].image.url
+            return ""
+        if data_point_variable=="lifestyle_image_2":
+            if product_obj.lifestyle_images.count()>=2:
+                return product_obj.lifestyle_images.all()[1].image.url
+            return ""
+        if data_point_variable=="lifestyle_image_3":
+            if product_obj.lifestyle_images.count()>=3:
+                return product_obj.lifestyle_images.all()[2].image.url
+            return ""
+        if data_point_variable=="lifestyle_image_4":
+            if product_obj.lifestyle_images.count()>=4:
+                return product_obj.lifestyle_images.all()[3].image.url
+            return ""
+        if data_point_variable=="lifestyle_image_5":
+            if product_obj.lifestyle_images.count()>=5:
+                return product_obj.lifestyle_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="certificate_image_1":
+            if product_obj.certificate_images.count()>=1:
+                return product_obj.certificate_images.all()[0].image.url
+            return ""
+        if data_point_variable=="certificate_image_2":
+            if product_obj.certificate_images.count()>=2:
+                return product_obj.certificate_images.all()[1].image.url
+            return ""
+        if data_point_variable=="certificate_image_3":
+            if product_obj.certificate_images.count()>=3:
+                return product_obj.certificate_images.all()[2].image.url
+            return ""
+        if data_point_variable=="certificate_image_4":
+            if product_obj.certificate_images.count()>=4:
+                return product_obj.certificate_images.all()[3].image.url
+            return ""
+        if data_point_variable=="certificate_image_5":
+            if product_obj.certificate_images.count()>=5:
+                return product_obj.certificate_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="giftbox_image_1":
+            if product_obj.giftbox_images.count()>=1:
+                return product_obj.giftbox_images.all()[0].image.url
+            return ""
+        if data_point_variable=="giftbox_image_2":
+            if product_obj.giftbox_images.count()>=2:
+                return product_obj.giftbox_images.all()[1].image.url
+            return ""
+        if data_point_variable=="giftbox_image_3":
+            if product_obj.giftbox_images.count()>=3:
+                return product_obj.giftbox_images.all()[2].image.url
+            return ""
+        if data_point_variable=="giftbox_image_4":
+            if product_obj.giftbox_images.count()>=4:
+                return product_obj.giftbox_images.all()[3].image.url
+            return ""
+        if data_point_variable=="giftbox_image_5":
+            if product_obj.giftbox_images.count()>=5:
+                return product_obj.giftbox_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="diecut_image_1":
+            if product_obj.diecut_images.count()>=1:
+                return product_obj.diecut_images.all()[0].image.url
+            return ""
+        if data_point_variable=="diecut_image_2":
+            if product_obj.diecut_images.count()>=2:
+                return product_obj.diecut_images.all()[1].image.url
+            return ""
+        if data_point_variable=="diecut_image_3":
+            if product_obj.diecut_images.count()>=3:
+                return product_obj.diecut_images.all()[2].image.url
+            return ""
+        if data_point_variable=="diecut_image_4":
+            if product_obj.diecut_images.count()>=4:
+                return product_obj.diecut_images.all()[3].image.url
+            return ""
+        if data_point_variable=="diecut_image_5":
+            if product_obj.diecut_images.count()>=5:
+                return product_obj.diecut_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="aplus_content_image_1":
+            if product_obj.aplus_content_images.count()>=1:
+                return product_obj.aplus_content_images.all()[0].image.url
+            return ""
+        if data_point_variable=="aplus_content_image_2":
+            if product_obj.aplus_content_images.count()>=2:
+                return product_obj.aplus_content_images.all()[1].image.url
+            return ""
+        if data_point_variable=="aplus_content_image_3":
+            if product_obj.aplus_content_images.count()>=3:
+                return product_obj.aplus_content_images.all()[2].image.url
+            return ""
+        if data_point_variable=="aplus_content_image_4":
+            if product_obj.aplus_content_images.count()>=4:
+                return product_obj.aplus_content_images.all()[3].image.url
+            return ""
+        if data_point_variable=="aplus_content_image_5":
+            if product_obj.aplus_content_images.count()>=5:
+                return product_obj.aplus_content_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="ads_image_1":
+            if product_obj.ads_images.count()>=1:
+                return product_obj.ads_images.all()[0].image.url
+            return ""
+        if data_point_variable=="ads_image_2":
+            if product_obj.ads_images.count()>=2:
+                return product_obj.ads_images.all()[1].image.url
+            return ""
+        if data_point_variable=="ads_image_3":
+            if product_obj.ads_images.count()>=3:
+                return product_obj.ads_images.all()[2].image.url
+            return ""
+        if data_point_variable=="ads_image_4":
+            if product_obj.ads_images.count()>=4:
+                return product_obj.ads_images.all()[3].image.url
+            return ""
+        if data_point_variable=="ads_image_5":
+            if product_obj.ads_images.count()>=5:
+                return product_obj.ads_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="transparent_image_1":
+            if product_obj.transparent_images.count()>=1:
+                return product_obj.transparent_images.all()[0].image.url
+            return ""
+        if data_point_variable=="transparent_image_2":
+            if product_obj.transparent_images.count()>=2:
+                return product_obj.transparent_images.all()[1].image.url
+            return ""
+        if data_point_variable=="transparent_image_3":
+            if product_obj.transparent_images.count()>=3:
+                return product_obj.transparent_images.all()[2].image.url
+            return ""
+        if data_point_variable=="transparent_image_4":
+            if product_obj.transparent_images.count()>=4:
+                return product_obj.transparent_images.all()[3].image.url
+            return ""
+        if data_point_variable=="transparent_image_5":
+            if product_obj.transparent_images.count()>=5:
+                return product_obj.transparent_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="unedited_image_1":
+            if base_product_obj.unedited_images.count()>=1:
+                return base_product_obj.unedited_images.all()[0].image.url
+            return ""
+        if data_point_variable=="unedited_image_2":
+            if base_product_obj.unedited_images.count()>=2:
+                return base_product_obj.unedited_images.all()[1].image.url
+            return ""
+        if data_point_variable=="unedited_image_3":
+            if base_product_obj.unedited_images.count()>=3:
+                return base_product_obj.unedited_images.all()[2].image.url
+            return ""
+        if data_point_variable=="unedited_image_4":
+            if base_product_obj.unedited_images.count()>=4:
+                return base_product_obj.unedited_images.all()[3].image.url
+            return ""
+        if data_point_variable=="unedited_image_5":
+            if base_product_obj.unedited_images.count()>=5:
+                return base_product_obj.unedited_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="barcode_string":
+            return product_obj.barcode_string
+        if data_point_variable=="factory_notes":
+            return product_obj.factory_notes
+        if data_point_variable=="seller_sku":
+            return base_product_obj.seller_sku
+        if data_point_variable=="category":
+            return base_product_obj.category
+        if data_point_variable=="sub_category":
+            return base_product_obj.sub_category
+        if data_point_variable=="brand":
+            return str(base_product_obj.brand)
+        if data_point_variable=="manufacturer":
+            return base_product_obj.manufacturer
+        if data_point_variable=="manufacturer_part_number":
+            return base_product_obj.manufacturer_part_number
+        
+        dimensions = json.loads(base_product.dimensions)
+        if data_point_variable in dimensions:
+            return dimensions[data_point_variable]
+        
+        amazon_uk_product_json = json.loads(channel_product_obj.amazon_uk_product_json)
+
+        if data_point_variable=="amazonuk_product_name":
+            return amazon_uk_product_json["product_name"]
+        if data_point_variable=="amazonuk_product_description":
+            return amazon_uk_product_json["product_description"]
+
+        if data_point_variable=="amazonuk_product_attribute_list_1":
+            if len(amazon_uk_product_json["product_attribute_list"])>0:
+                return amazon_uk_product_json["product_attribute_list"][0]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_product_attribute_list_2":
+            if len(amazon_uk_product_json["product_attribute_list"])>1:
+                return amazon_uk_product_json["product_attribute_list"][1]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_product_attribute_list_3":
+            if len(amazon_uk_product_json["product_attribute_list"])>2:
+                return amazon_uk_product_json["product_attribute_list"][2]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_product_attribute_list_4":
+            if len(amazon_uk_product_json["product_attribute_list"])>3:
+                return amazon_uk_product_json["product_attribute_list"][3]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_product_attribute_list_5":
+            if len(amazon_uk_product_json["product_attribute_list"])>4:
+                return amazon_uk_product_json["product_attribute_list"][4]
+            else:
+                return ""
+
+        if data_point_variable=="amazonuk_category":
+            return amazon_uk_product_json["category"]
+        if data_point_variable=="amazonuk_sub_category":
+            return amazon_uk_product_json["sub_category"]
+        if data_point_variable=="amazonuk_parentage":
+            return amazon_uk_product_json["parentage"]
+        if data_point_variable=="amazonuk_parent_sku":
+            return amazon_uk_product_json["parent_sku"]
+        if data_point_variable=="amazonuk_relationship_type":
+            return amazon_uk_product_json["relationship_type"]
+        if data_point_variable=="amazonuk_variation_theme":
+            return amazon_uk_product_json["variation_theme"]
+        if data_point_variable=="amazonuk_feed_product_type":
+            return amazon_uk_product_json["feed_product_type"]
+        if data_point_variable=="amazonuk_update_delete":
+            return amazon_uk_product_json["update_delete"]
+        if data_point_variable=="amazonuk_recommended_browse_nodes":
+            return amazon_uk_product_json["recommended_browse_nodes"]
+        if data_point_variable=="amazonuk_search_terms":
+            return amazon_uk_product_json["search_terms"]
+        if data_point_variable=="amazonuk_enclosure_material":
+            return amazon_uk_product_json["enclosure_material"]
+        if data_point_variable=="amazonuk_cover_material_type":
+            return amazon_uk_product_json["cover_material_type"]
+        if data_point_variable=="amazonuk_special_feature_1":
+            if len(amazon_uk_product_json["special_features"])>0:
+                return amazon_uk_product_json["special_features"][0]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_special_feature_2":
+            if len(amazon_uk_product_json["special_features"])>1:
+                return amazon_uk_product_json["special_features"][1]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_special_feature_3":
+            if len(amazon_uk_product_json["special_features"])>2:
+                return amazon_uk_product_json["special_features"][2]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_special_feature_4":
+            if len(amazon_uk_product_json["special_features"])>3:
+                return amazon_uk_product_json["special_features"][3]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_special_feature_5":
+            if len(amazon_uk_product_json["special_features"])>4:
+                return amazon_uk_product_json["special_features"][4]
+            else:
+                return ""
+
+        if data_point_variable=="amazonuk_sale_price":
+            return amazon_uk_product_json["sale_price"]
+        if data_point_variable=="amazonuk_sale_from":
+            return amazon_uk_product_json["sale_from"]
+        if data_point_variable=="amazonuk_sale_end":
+            return amazon_uk_product_json["sale_end"]
+        if data_point_variable=="amazonuk_wattage":
+            return amazon_uk_product_json["wattage"]
+        if data_point_variable=="amazonuk_wattage_metric":
+            return amazon_uk_product_json["wattage_metric"]
+        if data_point_variable=="amazonuk_item_count":
+            return amazon_uk_product_json["item_count"]
+        if data_point_variable=="amazonuk_item_count_metric":
+            return amazon_uk_product_json["item_count_metric"]
+        if data_point_variable=="amazonuk_item_condition_note":
+            return amazon_uk_product_json["item_condition_note"]
+        if data_point_variable=="amazonuk_max_order_quantity":
+            return amazon_uk_product_json["max_order_quantity"]
+        if data_point_variable=="amazonuk_number_of_items":
+            return amazon_uk_product_json["number_of_items"]
+        if data_point_variable=="amazonuk_condition_type":
+            return amazon_uk_product_json["condition_type"]
+        if data_point_variable=="amazonuk_number_of_items":
+            return amazon_uk_product_json["number_of_items"]
+        if data_point_variable=="amazonuk_package_length":
+            return amazon_uk_product_json["dimensions"]["package_length"]
+        if data_point_variable=="amazonuk_package_length_metric":
+            return amazon_uk_product_json["dimensions"]["package_length_metric"]
+        if data_point_variable=="amazonuk_package_width":
+            return amazon_uk_product_json["dimensions"]["package_width"]
+        if data_point_variable=="amazonuk_package_width_metric":
+            return amazon_uk_product_json["dimensions"]["package_width_metric"]
+        if data_point_variable=="amazonuk_package_height":
+            return amazon_uk_product_json["dimensions"]["package_height"]
+        if data_point_variable=="amazonuk_package_height_metric":
+            return amazon_uk_product_json["dimensions"]["package_height_metric"]
+        if data_point_variable=="amazonuk_package_weight":
+            return amazon_uk_product_json["dimensions"]["package_weight"]
+        if data_point_variable=="amazonuk_package_weight_metric":
+            return amazon_uk_product_json["dimensions"]["package_weight_metric"]
+        if data_point_variable=="amazonuk_package_quantity":
+            return amazon_uk_product_json["dimensions"]["package_quantity"]
+        if data_point_variable=="amazonuk_shipping_weight":
+            return amazon_uk_product_json["dimensions"]["shipping_weight"]
+        if data_point_variable=="amazonuk_shipping_weight_metric":
+            return amazon_uk_product_json["dimensions"]["shipping_weight_metric"]
+        if data_point_variable=="amazonuk_item_display_weight":
+            return amazon_uk_product_json["dimensions"]["item_display_weight"]
+        if data_point_variable=="amazonuk_item_display_weight_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_weight_metric"]
+        if data_point_variable=="amazonuk_item_display_volume":
+            return amazon_uk_product_json["dimensions"]["item_display_volume"]
+        if data_point_variable=="amazonuk_item_display_volume_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_volume_metric"]
+        if data_point_variable=="amazonuk_item_display_length":
+            return amazon_uk_product_json["dimensions"]["item_display_length"]
+        if data_point_variable=="amazonuk_item_display_length_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_length_metric"]
+        if data_point_variable=="amazonuk_item_weight":
+            return amazon_uk_product_json["dimensions"]["item_weight_metric"]
+        if data_point_variable=="amazonuk_item_weight_metric":
+            return amazon_uk_product_json["dimensions"]["item_weight_metric"]
+        if data_point_variable=="amazonuk_item_length":
+            return amazon_uk_product_json["dimensions"]["item_length"]
+        if data_point_variable=="amazonuk_item_length_metric":
+            return amazon_uk_product_json["dimensions"]["item_length_metric"]
+        if data_point_variable=="amazonuk_item_width":
+            return amazon_uk_product_json["dimensions"]["item_width"]
+        if data_point_variable=="amazonuk_item_width_metric":
+            return amazon_uk_product_json["dimensions"]["item_width_metric"]
+        if data_point_variable=="amazonuk_item_height":
+            return amazon_uk_product_json["dimensions"]["item_height"]
+        if data_point_variable=="amazonuk_item_heigth_metric":
+            return amazon_uk_product_json["dimensions"]["item_heigth_metric"]
+        if data_point_variable=="amazonuk_item_display_width":
+            return amazon_uk_product_json["dimensions"]["item_display_width"]
+        if data_point_variable=="amazonuk_item_display_width_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_width_metric"]
+        if data_point_variable=="amazonuk_item_display_height":
+            return amazon_uk_product_json["dimensions"]["item_display_height"]
+        if data_point_variable=="amazonuk_item_display_height_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_height_metric"]
+        if data_point_variable=="amazonuk_http_link":
+            return amazon_uk_product_json["http_link"]
+
+        
+        amazon_uae_product_json = json.loads(channel_product_obj.amazon_uae_product_json)
+
+        if data_point_variable=="amazonuae_product_name":
+            return amazon_uae_product_json["product_name"]
+        if data_point_variable=="amazonuae_product_description":
+            return amazon_uae_product_json["product_description"]
+
+        if data_point_variable=="amazonuae_product_attribute_list_1":
+            if len(amazon_uae_product_json["product_attribute_list"])>0:
+                return amazon_uae_product_json["product_attribute_list"][0]
+            else:
+                return ""
+        if data_point_variable=="amazonuae_product_attribute_list_2":
+            if len(amazon_uae_product_json["product_attribute_list"])>1:
+                return amazon_uae_product_json["product_attribute_list"][1]
+            else:
+                return ""
+        if data_point_variable=="amazonuae_product_attribute_list_3":
+            if len(amazon_uae_product_json["product_attribute_list"])>2:
+                return amazon_uae_product_json["product_attribute_list"][2]
+            else:
+                return ""
+        if data_point_variable=="amazonuae_product_attribute_list_4":
+            if len(amazon_uae_product_json["product_attribute_list"])>3:
+                return amazon_uae_product_json["product_attribute_list"][3]
+            else:
+                return ""
+        if data_point_variable=="amazonuae_product_attribute_list_5":
+            if len(amazon_uae_product_json["product_attribute_list"])>4:
+                return amazon_uae_product_json["product_attribute_list"][4]
+            else:
+                return ""
+
+        if data_point_variable=="amazonuae_category":
+            return amazon_uae_product_json["category"]
+        if data_point_variable=="amazonuae_sub_category":
+            return amazon_uae_product_json["sub_category"]
+        if data_point_variable=="amazonuae_feed_product_type":
+            return amazon_uae_product_json["feed_product_type"]
+        if data_point_variable=="amazonuae_recommended_browse_nodes":
+            return amazon_uae_product_json["recommended_browse_nodes"]
+        if data_point_variable=="amazonuae_update_delete":
+            return amazon_uae_product_json["update_delete"]
+        if data_point_variable=="amazonuae_http_link":
+            return amazon_uae_product_json["http_link"]
+
+        ebay_product_json = json.loads(channel_product_obj.ebay_product_json)
+
+        if data_point_variable=="ebay_category":
+            return ebay_product_json["category"]
+        if data_point_variable=="ebay_sub_category":
+            return ebay_product_json["sub_category"]
+        if data_point_variable=="ebay_product_name":
+            return ebay_product_json["product_name"]
+        if data_point_variable=="ebay_product_description":
+            return ebay_product_json["product_description"]
+        if data_point_variable=="ebay_product_attribute_list_1":
+            if len(ebay_product_json["product_attribute_list"])>0:
+                return ebay_product_json["product_attribute_list"][0]
+            else:
+                return ""
+        if data_point_variable=="ebay_product_attribute_list_2":
+            if len(ebay_product_json["product_attribute_list"])>1:
+                return ebay_product_json["product_attribute_list"][1]
+            else:
+                return ""
+        if data_point_variable=="ebay_product_attribute_list_3":
+            if len(ebay_product_json["product_attribute_list"])>2:
+                return ebay_product_json["product_attribute_list"][2]
+            else:
+                return ""
+        if data_point_variable=="ebay_product_attribute_list_4":
+            if len(ebay_product_json["product_attribute_list"])>3:
+                return ebay_product_json["product_attribute_list"][3]
+            else:
+                return ""
+        if data_point_variable=="ebay_product_attribute_list_5":
+            if len(ebay_product_json["product_attribute_list"])>4:
+                return ebay_product_json["product_attribute_list"][4]
+            else:
+                return ""
+        if data_point_variable=="ebay_http_link":
+            return ebay_product_json["http_link"]
+
+        noon_product_json = json.loads(channel_product_obj.noon_product_json)
+
+        if data_point_variable=="noon_product_name":
+            return noon_product_json["product_name"]
+        if data_point_variable=="noon_product_type":
+            return noon_product_json["product_type"]
+        if data_point_variable=="noon_product_subtype":
+            return noon_product_json["product_subtype"]
+        if data_point_variable=="noon_parent_sku":
+            return noon_product_json["parent_sku"]
+        if data_point_variable=="noon_category":
+            return noon_product_json["category"]
+        if data_point_variable=="noon_subtitle":
+            return noon_product_json["subtitle"]
+        if data_point_variable=="noon_sub_category":
+            return noon_product_json["sub_category"]
+        if data_point_variable=="noon_model_number":
+            return noon_product_json["model_number"]
+        if data_point_variable=="noon_model_name":
+            return noon_product_json["model_name"]
+        if data_point_variable=="noon_msrp_ae":
+            return noon_product_json["msrp_ae"]
+        if data_point_variable=="noon_msrp_ae_unit":
+            return noon_product_json["msrp_ae_unit"]
+        if data_point_variable=="noon_product_description":
+            return noon_product_json["product_description"]
+        if data_point_variable=="product_attribute_list_1":
+            if len(noon_product_json["product_attribute_list"])>0:
+                return noon_product_json["product_attribute_list"][0]
+            else:
+                return ""
+        if data_point_variable=="product_attribute_list_2":
+            if len(noon_product_json["product_attribute_list"])>1:
+                return noon_product_json["product_attribute_list"][1]
+            else:
+                return ""
+        if data_point_variable=="product_attribute_list_3":
+            if len(noon_product_json["product_attribute_list"])>2:
+                return noon_product_json["product_attribute_list"][2]
+            else:
+                return ""
+        if data_point_variable=="product_attribute_list_4":
+            if len(noon_product_json["product_attribute_list"])>3:
+                return noon_product_json["product_attribute_list"][3]
+            else:
+                return ""
+        if data_point_variable=="product_attribute_list_5":
+            if len(noon_product_json["product_attribute_list"])>4:
+                return noon_product_json["product_attribute_list"][4]
+            else:
+                return ""
+        if data_point_variable=="noon_http_link":
+            return noon_product_json["http_link"]
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_data_value: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""
+
+
+def generate_dynamic_export(product_uuid_list, data_point_list):
+
+    try:
+        os.system("rm ./files/csv/dynamic_export.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/dynamic_export.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    row = generate_dynamic_row(data_point_list)
+    cnt = 0        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    for product_uuid in product_uuid_list:
+        try:
+            cnt += 1
+            product_obj = Product.objects.get(uuid=product_uuid)
+            base_product_obj = product_obj.base_product
+            channel_product_obj = ChannelProduct.objects.get(product=product_obj)
+
+            common_row = ["" for i in range(len(data_point_list)+1)]
+            common_row[0] = str(cnt)
+            for i in range(len(data_point_list)):
+                common_row[i+1] = get_data_value(product_obj, base_product_obj, channel_product_obj, data_point_list[i])
+
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print("Error ", e, str(exc_tb.tb_lineno))
+
+    workbook.close()

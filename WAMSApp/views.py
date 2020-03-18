@@ -5089,6 +5089,157 @@ class GenerateReportsAPI(APIView):
         return Response(data=response)
 
 
+class UploadBulkExportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("UploadBulkExportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            path = default_storage.save('tmp/temp-bulk-upload.xlsx', data["import_file"])
+            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            product_list = []
+            for i in range(rows):
+                try:
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_obj = Product.objects.get(product_id=product_id)
+                    temp_dict = {}
+                    temp_dict["name"] = product_obj.product_name
+                    temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["uuid"] = product_obj.uuid
+                    try:
+                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+                    except Exception as e:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    product_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            response["product_list"] = product_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SearchBulkExportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("SearchBulkExportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            search_string = data["search_string"]
+
+            product_objs = Product.objects.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
+
+            product_list = []
+            for product_obj in product_list:
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = product_obj.product_name
+                    temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["uuid"] = product_obj.uuid
+                    try:
+                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+                    except Exception as e:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    product_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            response["product_list"] = product_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchDataPointsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchDataPointsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data_point_objs = DataPoint.objects.all()
+            data_point_list = []
+            for data_point_obj in data_point_objs:
+                temp_dict = {}
+                temp_dict["name"] = data_point_obj.name
+                temp_dict["variable"] = data_point_obj.variable
+                data_point_list.append(temp_dict)
+            
+            response["data_point_list"] = data_point_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDataPointsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DownloadBulkExportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("DownloadBulkExportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data_point_list = data["data_point_list"]
+            product_uuid_list = data["product_uuid_list"]
+
+            generate_dynamic_export(product_uuid_list, data_point_list)
+            response["file_path"] = "https://"+SERVER_IP+"/files/csv/dynamic_export.xlsx"
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DownloadBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5222,3 +5373,12 @@ MoveToMainImages = MoveToMainImagesAPI.as_view()
 MoveToSubImages = MoveToSubImagesAPI.as_view()
 
 GenerateReports = GenerateReportsAPI.as_view()
+
+# Bulk Export APIs
+UploadBulkExport = UploadBulkExportAPI.as_view()
+
+SearchBulkExport = SearchBulkExportAPI.as_view()
+
+FetchDataPoints = FetchDataPointsAPI.as_view()
+
+DownloadBulkExport = DownloadBulkExportAPI.as_view()

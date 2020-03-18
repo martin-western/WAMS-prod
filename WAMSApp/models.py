@@ -853,9 +853,13 @@ class DraftProformaInvoiceLine(models.Model):
         verbose_name_plural = "Draft Proforma Invoice Lines"
 
 
+class DataPoint(models.Model):
 
+    name = models.CharField(max_length=200, default="")
+    variable = models.CharField(max_length=200, default="", unique=True)
 
-
+    def __str__(self):
+        return self.name
 
 
 

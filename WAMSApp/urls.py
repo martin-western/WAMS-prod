@@ -143,5 +143,10 @@ urlpatterns = [
     url(r'^generate-report/(?P<brand_name>[\w-]+)/$',views.generate_report_view),
     url(r'^generate-reports/$',views.GenerateReports),
 
+    url(r'^upload-bulk-export/$',views.UploadBulkExport),
+    url(r'^search-bulk-export/$',views.SearchBulkExport),
+    url(r'^fetch-data-points/$',views.FetchDataPoints),
+    url(r'^download-bulk-export/$',views.DownloadBulkExport),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
