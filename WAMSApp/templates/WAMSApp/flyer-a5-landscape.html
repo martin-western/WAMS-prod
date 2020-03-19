@@ -1296,27 +1296,33 @@
 
 
 
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize Promotional Tags</span>
-          </span>
           <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
-                <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="promo-resizer" min="10" max="80" value="40" />
-                </p>
+            <div class="col s6">
+              <span style="font-size: 14px;font-weight: bold;">Resize Promotional Tags</span>
+              <p class="range-field" style="width:100%;">
+                <input class="custom-slider" type="range" id="promo-resizer" min="10" max="80" value="40" />
+              </p>
+            </div>
+
+            <div class="col s6">
+              <span style="font-size: 14px;font-weight: bold;">Resize All Promotional Tags</span>
+              <p class="range-field" style="width:100%;">
+                <input class="custom-slider" type="range" id="all-promo-resizer" min="10" max="80" value="40" />
+              </p>
             </div>
           </div>
 
-
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Promotional Tags</span>
-          </span>
           <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
+            <div class="col s6">
+              <span style="font-size: 14px;font-weight: bold;">Resize Warranty Tags</span>
                 <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="all-promo-resizer" min="10" max="80" value="40" />
+                  <input class="custom-slider" type="range" id="warranty-resizer" min="10" max="80" value="40" />
+                </p>
+            </div>
+            <div class="col s6">
+                <span style="font-size: 14px;font-weight: bold;">Resize All Warranty Tags</span>
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="all-warranty-resizer" min="10" max="80" value="40" />
                 </p>
             </div>
           </div>
@@ -1819,6 +1825,7 @@
     var global_header_opacity = "1";
     var global_footer_opacity = "1";
     var global_all_promo_resizer = "40";
+    var global_all_warranty_resizer = "40";
     var global_all_image_resizer = "100";
     var global_super_brand_logo = false;
     var global_iso_logo = false;
@@ -2227,8 +2234,8 @@
       $(".grid-item-sticker img").css("width", R+"px");
       $("#promo-resizer").val(R);    
       $(".grid-item-sticker img").attr("resizer", R);
-      $(".banner-img-left").css("width", R+"px");
-      $(".banner-img-left").attr("resizer", R);
+      // $(".banner-img-left").css("width", R+"px");
+      // $(".banner-img-left").attr("resizer", R);
     });
 
     $("#promo-resizer").change(function() {
@@ -2236,9 +2243,24 @@
       $("#banner-img-"+global_selected_grid_id).css("width", R+"px");
       $("#banner-img-"+global_selected_grid_id).attr("resizer", R);
 
+      // $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
+      // $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);      
+    });
+
+
+    $("#all-warranty-resizer").change(function() {
+      var R = $("#all-warranty-resizer").val();
+      global_all_warranty_resizer = R;
+      $("#warranty-resizer").val(R);
+      $(".banner-img-left").css("width", R+"px");
+      $(".banner-img-left").attr("resizer", R);
+    });
+
+    $("#warranty-resizer").change(function() {
+      var R = $("#warranty-resizer").val();
       $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
-      $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);      
-    });    
+      $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);
+    });  
 
 
     $("#product-info-save-btn").click(function(){
@@ -2264,6 +2286,7 @@
       var banner_img = flyer_dict["banner-img"];
       var image_resizer = flyer_dict["image-resizer"];
       var promo_resizer = flyer_dict["promo-resizer"];
+      var warranty_resizer = flyer_dict["warranty-resizer"];
       var width = flyer_dict["width"];
       var height = flyer_dict["height"];
       var x = flyer_dict["x"];
@@ -2289,7 +2312,7 @@
                   <img class="banner-img" id="banner-img-`+grid_id+`" src="`+banner_img+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
                 </div>
                 <div style="position: absolute;left:10px;top:10px;">
-                  <img class="banner-img-left" id="banner-img-left-`+grid_id+`" src="`+warranty_img+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
+                  <img class="banner-img-left" id="banner-img-left-`+grid_id+`" src="`+warranty_img+`" style="width: `+warranty_resizer+`px" resizer="`+warranty_resizer+`" />
                 </div>
               </div>
               <div class="grid-item-footer-container" > 
@@ -2327,6 +2350,7 @@
 
       $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
       $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
+      $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
 
       var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
       if(banner_img=="")
@@ -2410,6 +2434,7 @@
         flyer_dict["banner-img"] = item_data[i]["data"]["banner-img"];
         flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
         flyer_dict["promo-resizer"] = item_data[i]["data"]["promo-resizer"];
+        flyer_dict["warranty-resizer"] = item_data[i]["data"]["warranty-resizer"];
         flyer_dict["width"] = item_data[i]["container"]["width"];
         flyer_dict["height"] = item_data[i]["container"]["height"];
         flyer_dict["x"] = item_data[i]["container"]["x"];
@@ -2527,6 +2552,7 @@
       flyer_dict["image-url"] = "";
       flyer_dict["image-resizer"] = global_all_image_resizer;
       flyer_dict["promo-resizer"] = global_all_promo_resizer;
+      flyer_dict["warranty-resizer"] = global_all_warranty_resizer;
       flyer_dict["banner-img"] = "";
       flyer_dict["width"] = "3";
       flyer_dict["height"] = "3";
@@ -2741,7 +2767,7 @@
       {
         html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
           <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.5em;">
-            <a class="imgselect" id="imgselect_`+images[i]["pk"]+`" href="#!"><img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;" high-res-url="`+images[i]["high-res-url"]+`"></a>
+            <a class="imgselect" id="imgselect_`+images[i]["pk"]+`" href="#!"><img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;" high-res-url="`+images[i]["high_res_url"]+`"></a>
           </div>
         </div>`;
       }
@@ -2781,7 +2807,7 @@
         html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
           <div style="border:2px solid #E9E9E9;text-align:center;padding-top:0.4em;">
             <a class="imgselect2" href="#!">
-              <img src="`+images[i]["url"]+`" high-res-url="`+images[i]["high-res-url"]+`" style="width:90%;height:3em;object-fit:cover;">
+              <img src="`+images[i]["url"]+`" high-res-url="`+images[i]["high_res_url"]+`" style="width:90%;height:3em;object-fit:cover;">
             </a>
           </div>
         </div>`;
@@ -2903,6 +2929,7 @@
           global_header_opacity = common["header-opacity"];
           global_footer_opacity = common["footer-opacity"];
           global_all_promo_resizer = common["all-promo-resizer"];
+          global_all_warranty_resizer = common["all-warranty-resizer"];
           global_all_image_resizer = common["all-image-resizer"];
           global_footer_text = common["footer-text"];
 
@@ -2945,6 +2972,7 @@
 
         $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
         $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
+        $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
 
         var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
         if(banner_img=="")
@@ -3035,6 +3063,7 @@
         var banner_img = $("#banner-img-"+grid_id).attr("src");
         var image_resizer = $("#gridimg-"+grid_id).attr("resizer");
         var promo_resizer = $("#banner-img-"+grid_id).attr("resizer");
+        var warranty_resizer = $("#banner-img-left-"+grid_id).attr("resizer");
         var product_title = $("#product-title-info2-"+grid_id).val();
         var description = $("#product-title-info-"+grid_id).val();
         var price = $("#product-price-info-"+grid_id).val();
@@ -3055,6 +3084,7 @@
             "warranty-img": warranty_img,
             "image-resizer": image_resizer,
             "promo-resizer": promo_resizer,
+            "warranty-resizer": warranty_resizer,
             "price": price,
             "strikeprice": strikeprice,
             "title": product_title,
@@ -3104,6 +3134,7 @@
         "header-opacity": global_header_opacity,
         "footer-opacity": global_footer_opacity,
         "all-promo-resizer": global_all_promo_resizer,
+        "all-warranty-resizer": global_all_warranty_resizer,
         "all-image-resizer": global_all_image_resizer,
         "footer-text": global_footer_text
       };
@@ -3304,6 +3335,9 @@
       //Promo Resizer
       $("#all-promo-resizer").val(global_all_promo_resizer);
 
+      //Warranty Resizer
+      $("#all-warranty-resizer").val(global_all_warranty_resizer);
+
 
       // Product Title Settings
       $("#product-title-font-size").val(global_product_title_font_size);
@@ -3417,7 +3451,7 @@
             var images = response["external_images_bucket_list"];
             for(var i=0;i<images.length;i++)
             {
-              global_external_image_bucket.push({"url":images[i]["url"], "high-res-url":images[i]["high-res-url"]});
+              global_external_image_bucket.push({"url":images[i]["url"], "high-res-url":images[i]["high_res_url"]});
             }
             update_external_image_bucket();
           }

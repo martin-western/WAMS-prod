@@ -90,16 +90,15 @@ def export_ebay(products):
                 try:
                     main_images_list = ImageBucket.objects.none()
                     main_images_obj = MainImages.objects.get(product = product, channel__name="Ebay")
-                    sub_images_obj = SubImages.objects.get(product = product, channel__name="Ebay")
-
                     main_images_list = main_images_obj.main_images.distinct()
-                    sub_images_list = sub_images_obj.sub_images.distinct()
-
                     for main_image in main_images_list:
                         images_link.append(str(main_image.image.image.url))
-                
-                    for sub_image in sub_images_list:
-                        images_link.append(str(sub_image.image.image.url))
+
+                    if SubImages.objects.filter(product = product, channel__name="Ebay").exists():
+                        sub_images_obj = SubImages.objects.get(product = product, channel__name="Ebay")
+                        sub_images_list = sub_images_obj.sub_images.distinct()
+                        for sub_image in sub_images_list:
+                            images_link.append(str(sub_image.image.image.url))
                 
                     pic_url = "|".join(images_link)
                     common_row[6] = pic_url
