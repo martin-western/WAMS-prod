@@ -5116,7 +5116,7 @@ class UploadBulkExportAPI(APIView):
             product_list = []
             for i in range(rows):
                 try:
-                    product_id = str(dfs.iloc[i][0]).strip()
+                    search_string = str(dfs.iloc[i][0]).strip()
                     #product_obj = Product.objects.get(product_id=product_id)
                     product_objs = Product.objects.filter(Q(base_product__seller_sku=search_string) | Q(product_id=search_string))
                     for product_obj in product_objs:
