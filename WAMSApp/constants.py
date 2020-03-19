@@ -1,1 +1,1 @@
-SERVER_IP = "13.232.143.29:8004"
+SERVER_IP = "omnycomm.com:8004"
