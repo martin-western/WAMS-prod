@@ -9,7 +9,7 @@ from os.path import isfile, join
 import xlsxwriter
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-filepath = "/home/ubuntu/GEEPAS_IMAGES/MAIN_IMAGES"
+filepath = "/home/ubuntu/ROYALFORD_IMAGES/MAIN_IMAGES"
 # #filepath = "/home/nisarg/Desktop/IDENTIFIED/"
 
 all_f = []
@@ -17,7 +17,7 @@ for (dirpath, dirnames, filenames) in walk(filepath):
     for filename in filenames:
         all_f.append((filename, dirpath+"/"+filename))
 
-workbook = xlsxwriter.Workbook('./files/csv/geepas-main-images.xlsx')
+workbook = xlsxwriter.Workbook('./files/csv/royalford-main_images-images.xlsx')
 worksheet = workbook.add_worksheet()
 product_pk = {}
 rownum =0
@@ -105,7 +105,7 @@ workbook.close()
 
 
 product_pk = {}
-filepath = "/home/ubuntu/GEEPAS_IMAGES/SUB_IMAGES"
+filepath = "/home/ubuntu/ROYALFORD_IMAGES/SUB_IMAGES"
 #filepath = "/home/nisarg/Desktop/IDENTIFIED/"
 
 all_f = []
@@ -113,7 +113,7 @@ for (dirpath, dirnames, filenames) in walk(filepath):
     for filename in filenames:
         all_f.append((filename, dirpath+"/"+filename))
 
-workbook = xlsxwriter.Workbook('./files/csv/geepas-sub-images.xlsx')
+workbook = xlsxwriter.Workbook('./files/csv/royalford-sub-images.xlsx')
 worksheet = workbook.add_worksheet()
 nesto_images_identified_product_pk = []
 rownum =0
@@ -201,7 +201,7 @@ for filename, filepath in all_f:
 workbook.close()
 
 product_pk = {}
-filepath = "/home/ubuntu/GEEPAS_IMAGES/LIFESTYLE_IMAGES"
+filepath = "/home/ubuntu/ROYALFORD_IMAGES/LIFESTYLE_IMAGES"
 #filepath = "/home/nisarg/Desktop/IDENTIFIED/"
 
 all_f = []
@@ -209,7 +209,7 @@ for (dirpath, dirnames, filenames) in walk(filepath):
     for filename in filenames:
         all_f.append((filename, dirpath+"/"+filename))
 
-workbook = xlsxwriter.Workbook('./files/csv/geepas-lifestyle-images.xlsx')
+workbook = xlsxwriter.Workbook('./files/csv/royalford-lifestyle-images.xlsx')
 worksheet = workbook.add_worksheet()
 nesto_images_identified_product_pk = []
 rownum =0
@@ -275,7 +275,7 @@ workbook.close()
 
 
 product_pk = {}
-filepath = "/home/ubuntu/GEEPAS_IMAGES/GIFTBOX_IMAGES"
+filepath = "/home/ubuntu/ROYALFORD_IMAGES/GIFTBOX_IMAGES"
 #filepath = "/home/nisarg/Desktop/IDENTIFIED/"
 
 all_f = []
@@ -283,7 +283,7 @@ for (dirpath, dirnames, filenames) in walk(filepath):
     for filename in filenames:
         all_f.append((filename, dirpath+"/"+filename))
 
-workbook = xlsxwriter.Workbook('./files/csv/geepas-giftbox-images.xlsx')
+workbook = xlsxwriter.Workbook('./files/csv/royalford-giftbox-images.xlsx')
 worksheet = workbook.add_worksheet()
 nesto_images_identified_product_pk = []
 rownum =0
@@ -348,7 +348,7 @@ for filename, filepath in all_f:
 workbook.close()
 
 product_pk = {}
-filepath = "/home/ubuntu/GEEPAS_IMAGES/TRANSPERANT_IMAGES"
+filepath = "/home/ubuntu/ROYALFORD_IMAGES/TRANSPERANT_IMAGES"
 #filepath = "/home/nisarg/Desktop/IDENTIFIED/"
 
 all_f = []
@@ -356,7 +356,7 @@ for (dirpath, dirnames, filenames) in walk(filepath):
     for filename in filenames:
         all_f.append((filename, dirpath+"/"+filename))
 
-workbook = xlsxwriter.Workbook('./files/csv/geepas-transparent-images.xlsx')
+workbook = xlsxwriter.Workbook('./files/csv/royalford-transparent-images.xlsx')
 worksheet = workbook.add_worksheet()
 nesto_images_identified_product_pk = []
 rownum =0

@@ -12,18 +12,16 @@
 # """
 
 # from __future__ import print_function
-# # import boto3
-# # import os
-# # import base64
-# # import json
-# # import logging
-# # from botocore.client import Config
-# # from botocore.client import ClientError
+
+# import os
+# import base64
+# import json
+# import logging
+# import botocore
 # import aws_encryption_sdk
 
-# key_arn = "arn:aws:kms:eu-west-2:320594085615:key/7f226d3a-0b17-47a6-8220-598281a6690a"
 
-# def cycle_string(key_arn, source_plaintext, botocore_session=None):
+# def cycle_string(key_arn, source_plaintext, botocore_session):
 #     """Encrypts and then decrypts a string using a KMS customer master key (CMK)
 
 #     :param str key_arn: Amazon Resource Name (ARN) of the KMS CMK
@@ -70,8 +68,10 @@
 
 
 # text =  "Raj"
+# key_arn = "arn:aws:kms:eu-west-2:320594085615:key/7f226d3a-0b17-47a6-8220-598281a6690a"
+# botocore_session = botocore.session.get_session()
 
-# cycle_string(key_arn,text,botocore_session=None)
+# cycle_string(key_arn,text,botocore_session)
 
 import boto3
 import base64
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     kms = session.client('kms', region_name='eu-west-2')
 
     key_id = 'alias/myapp-key'
-    stuff = kms.encrypt(KeyId=key_id, Plaintext='Nisarg Tike')
+    stuff = kms.encrypt(KeyId=key_id, Plaintext='Geepas')
     binary_encrypted = stuff[u'CiphertextBlob']
     encrypted_password = base64.b64encode(binary_encrypted)
     print("Encrypted : ")

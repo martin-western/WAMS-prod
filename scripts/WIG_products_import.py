@@ -88,3 +88,16 @@ for channel_product in channel_products:
     except Exception as e:
         print(str(e))
         pass  
+
+products = Product.objects.all()
+cnt=0
+for channel_product in products:
+    try:
+        amazon_uk_product = json.loads(channel_product.pfl_product_features)
+        print(type(channel_product.pfl_product_features))
+        print(amazon_uk_product)
+        cnt+=1
+        print("Cnt : ",cnt)
+    except Exception as e:
+        print(str(e))
+        pass  
