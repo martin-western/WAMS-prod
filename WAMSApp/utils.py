@@ -13,6 +13,9 @@ import requests
 import xmltodict
 import json
 from django.utils import timezone
+import sys
+import xlsxwriter
+
 
 def my_jwt_response_handler(token, user=None, request=None):
     return {
@@ -288,3 +291,1285 @@ def fetch_prices_dealshub(uuid1, company_code):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_prices_dealshub: %s at %s", e, str(exc_tb.tb_lineno))
         return "0"
+
+
+def generate_report(brand_name):
+    try:
+        os.system("rm ./files/csv/images-count-report.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/images-count-report.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    product_objs = Product.objects.filter(base_product__brand__name=brand_name)
+
+    row = ["Sr. No.",
+           "Product ID",
+           "Seller SKU",
+           "Product Name",
+           "Main Images",
+           "Sub Images",
+           "PFL Images",
+           "White Background Images",
+           "Lifestyle Images",
+           "Certificate Images",
+           "Giftbox Images",
+           "Diecut Images",
+           "A+ Content Images",
+           "Ads Images",
+           "Unedited Images"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    for product_obj in product_objs:
+        try:
+            cnt += 1
+            common_row = ["" for i in range(15)]
+            common_row[0] = str(cnt)
+            common_row[1] = str(product_obj.product_id)
+            common_row[2] = str(product_obj.base_product.seller_sku)
+            common_row[3] = str(product_obj.product_name)
+            try:
+                common_row[4] = str(MainImages.objects.get(product=product_obj, is_sourced=True).main_images.count())
+            except Exception as e:
+                common_row[4] = "0"
+            
+            try:
+                common_row[5] = str(SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count())
+            except Exception as e:
+                common_row[5] = "0"
+
+            common_row[6] = str(product_obj.pfl_images.count())
+            common_row[7] = str(product_obj.white_background_images.count())
+            common_row[8] = str(product_obj.lifestyle_images.count())
+            common_row[9] = str(product_obj.certificate_images.count())
+            common_row[10] = str(product_obj.giftbox_images.count())
+            common_row[11] = str(product_obj.diecut_images.count())
+            common_row[12] = str(product_obj.aplus_content_images.count())
+            common_row[13] = str(product_obj.ads_images.count())
+            common_row[14] = str(product_obj.base_product.unedited_images.count())
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print("Error: %s at %s", e, str(exc_tb.tb_lineno), product_obj.product_id)
+
+    workbook.close()
+
+
+
+def generate_images_report(product_objs):
+    try:
+        os.system("rm ./files/csv/images-count-report.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/images-count-report.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    row = ["Sr. No.",
+           "Product ID",
+           "Seller SKU",
+           "Product Name",
+           "Main Images",
+           "Sub Images",
+           "PFL Images",
+           "White Background Images",
+           "Lifestyle Images",
+           "Certificate Images",
+           "Giftbox Images",
+           "Diecut Images",
+           "A+ Content Images",
+           "Ads Images",
+           "Unedited Images"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    for product_obj in product_objs:
+        try:
+            cnt += 1
+            common_row = ["" for i in range(15)]
+            common_row[0] = str(cnt)
+            common_row[1] = str(product_obj.product_id)
+            common_row[2] = str(product_obj.base_product.seller_sku)
+            common_row[3] = str(product_obj.product_name)
+            try:
+                common_row[4] = str(MainImages.objects.get(product=product_obj, is_sourced=True).main_images.count())
+            except Exception as e:
+                common_row[4] = "0"
+            
+            try:
+                common_row[5] = str(SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count())
+            except Exception as e:
+                common_row[5] = "0"
+
+            common_row[6] = str(product_obj.pfl_images.count())
+            common_row[7] = str(product_obj.white_background_images.count())
+            common_row[8] = str(product_obj.lifestyle_images.count())
+            common_row[9] = str(product_obj.certificate_images.count())
+            common_row[10] = str(product_obj.giftbox_images.count())
+            common_row[11] = str(product_obj.diecut_images.count())
+            common_row[12] = str(product_obj.aplus_content_images.count())
+            common_row[13] = str(product_obj.ads_images.count())
+            common_row[14] = str(product_obj.base_product.unedited_images.count())
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print("Error: %s at %s", e, str(exc_tb.tb_lineno), product_obj.product_id)
+
+    workbook.close()
+
+
+def generate_mega_bulk_upload(product_objs):
+
+    workbook = xlsxwriter.Workbook('./files/csv/mega-bulk-export.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    #products = Product.objects.filter(base_product__brand__name="geepas")
+    row = ["Sr. No.",
+           "Product ID*",
+           "Product Name*",
+           "Brand*",
+           "Category*",
+           "Sub Category*",
+           "Seller SKU*",
+           "Manufacturer",
+           "M. Part Number",
+           "Product ID Type*",
+           "Description",
+           "Feature 1",
+           "Feature 2",
+           "Feature 3",
+           "Feature 4",
+           "Feature 5",
+           "Color",
+           "Color Map",
+           "Material Type",
+           "Standard Price",
+           "MOQ",
+           "Barcode",
+           "Export Qty Length",
+           "Export Qty Length Metric",
+           "Export Qty Breadth",
+           "Export Qty Breadth Metric",
+           "Export Qty Height",
+           "Export Qty Height Metric",
+           "Export Carton CBM Length",
+           "Export Carton CBM Length Metric",
+           "Export Carton CBM Breadth",
+           "Export Carton CBM Breadth Metric",
+           "Export Carton CBM Height",
+           "Export Carton CBM Height Metric",
+           "Product Dimension Length",
+           "Product Dimension Length Metric",
+           "Product Dimension Breadth",
+           "Product Dimension Breadth Metric",
+           "Product Dimension Height",
+           "Product Dimension Height Metric",
+           "GiftBox Length",
+           "GiftBox Length Metric",
+           "GiftBox Breadth",
+           "GiftBox Breadth Metric",
+           "GiftBox Height",
+           "GiftBox Height Metric",
+           "Main Image",
+           "Sub Image 1",
+           "Sub Image 2",
+           "Sub Image 3",
+           "Sub Image 4",
+           "Sub Image 5",
+           "White Background Image 1",
+           "White Background Image 2",
+           "White Background Image 3",
+           "White Background Image 4",
+           "White Background Image 5",
+           "PFL Image 1",
+           "PFL Image 2",
+           "PFL Image 3",
+           "PFL Image 4",
+           "PFL Image 5",
+           "Lifestyle Image 1",
+           "Lifestyle Image 2",
+           "Lifestyle Image 3",
+           "Lifestyle Image 4",
+           "Lifestyle Image 5",
+           "Certificate Image 1",
+           "Certificate Image 2",
+           "Certificate Image 3",
+           "Certificate Image 4",
+           "Certificate Image 5",
+           "Giftbox Image 1",
+           "Giftbox Image 2",
+           "Giftbox Image 3",
+           "Giftbox Image 4",
+           "Giftbox Image 5",
+           "Diecut Image 1",
+           "Diecut Image 2",
+           "Diecut Image 3",
+           "Diecut Image 4",
+           "Diecut Image 5",
+           "A+ Content Image 1",
+           "A+ Content Image 2",
+           "A+ Content Image 3",
+           "A+ Content Image 4",
+           "A+ Content Image 5",
+           "Ads Image 1",
+           "Ads Image 2",
+           "Ads Image 3",
+           "Ads Image 4",
+           "Ads Image 5",
+           "Unedited Image 1",
+           "Unedited Image 2",
+           "Unedited Image 3",
+           "Unedited Image 4",
+           "Unedited Image 5",
+           "Transparent Image 1",
+           "Transparent Image 2",
+           "Transparent Image 3",
+           "Transparent Image 4",
+           "Transparent Image 5",
+           "Is Amazon UK Channel",
+           "Product Name",
+           "Amazon UK Product Description*",
+           "Attribute 1",
+           "Attribute 2",
+           "Attribute 3",
+           "Attribute 4",
+           "Attribute 5",
+           "Category*",
+           "SubCategory",
+           "Parentage",
+           "Parent SKU",
+           "Relationship Type",
+           "Variation Theme",
+           "Feed Product Type",
+           "Update Delete",
+           "Recommended Browse Nodes",
+           "Search Terms",
+           "Enclosure Material",
+           "Cover Material Type",
+           "Special Feature 1",
+           "Special Feature 2",
+           "Special Feature 3",
+           "Special Feature 4",
+           "Special Feature 5",
+           "Sale Price",
+           "Sale From",
+           "Sale End",
+           "Wattage",
+           "Wattage Metric",
+           "Item Count",
+           "Item Count Metric",
+           "Item Condition Note",
+           "MOQ",
+           "No. Of. Items",
+           "Condition Type",
+           "Package Length",
+           "Package Length Metric",
+           "Package Width",
+           "Package Width Metric",
+           "Package Height",
+           "Package Height Metric",
+           "Package Weight",
+           "Package Weight Metric",
+           "Package Quantity",
+           "Shipping Weight",
+           "Shipping Weight Metric",
+           "Item Display Weight",
+           "Item Display Weight Metric",
+           "Item Display Volume",
+           "Item Display Volume Metric",
+           "Item Display Length",
+           "Item Display Length Metric",
+           "Item Display Width",
+           "Item Display Width Metric",
+           "Item Display Height",
+           "Item Display Height Metric",
+           "Item Weight",
+           "Item Weight Metric",
+           "Item Length",
+           "Item Length Metric",
+           "Item Width",
+           "Item Width Metric",
+           "Item Height",
+           "Item Height Metric",
+           "Is Amazon UK Verified",
+           "Is Amazon UAE Channel",
+           "Product Name",
+           "Amazon UAE Product Description*",
+           "Attribute 1",
+           "Attribute 2",
+           "Attribute 3",
+           "Attribute 4",
+           "Attribute 5",
+           "Category*",
+           "SubCategory",
+           "Feed Product Type",
+           "Recommended Browse Nodes",
+           "Update Delete",
+           "Is Amazon UAE Verified",
+           "Is Ebay Product",
+           "Product Name",
+           "Ebay Product Description*",
+           "Attribute 1",
+           "Attribute 2",
+           "Attribute 3",
+           "Attribute 4",
+           "Attribute 5",
+           "Category*",
+           "SubCategory",
+           "Is Ebay Verified",
+           "Is Noon Product",
+           "Product Name",
+           "Noon Product Description*",
+           "Product Type",
+           "Product SubType",
+           "Parent SKU",
+           "Category*",
+           "SubCategory",
+           "Model Number",
+           "Model Name",
+           "Attribute 1",
+           "Attribute 2",
+           "Attribute 3",
+           "Attribute 4",
+           "Attribute 5",
+           "MSRP AE",
+           "MSRP AE Unit",
+           "Is Noon Verified"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+    
+    for product in product_objs:
+        try:
+            common_row = ["" for i in range(210)]
+            cnt += 1
+            common_row[0] = str(cnt)
+            common_row[1] = product.product_id
+            common_row[2] = product.product_name
+            common_row[3] = str(product.base_product.brand)
+            common_row[4] = str(product.base_product.category)
+            common_row[5] = str(product.base_product.sub_category)
+            common_row[6] = str(product.base_product.seller_sku)
+            common_row[7] = str(product.base_product.manufacturer)
+            common_row[8] = str(product.base_product.manufacturer_part_number)
+            common_row[9] = str(product.product_id_type)
+            common_row[10] = str(product.product_description)
+            product_features = json.loads(product.pfl_product_features)[:5]
+            for i in range(len(product_features)):
+                common_row[11+i] = product_features[i]
+            common_row[16] = str(product.color)
+            common_row[17] = str(product.color_map)
+            common_row[18] = str(product.material_type)
+            common_row[19] = "" if product.standard_price==None else str(product.standard_price)
+            common_row[20] = "" if product.quantity==None else str(product.quantity)
+            common_row[21] = str(product.barcode_string)
+            dimensions = json.loads(product.base_product.dimensions)
+
+
+            common_row[22] = str(dimensions["export_carton_quantity_l"])
+            common_row[23] = str(dimensions["export_carton_quantity_l_metric"])
+            common_row[24] = str(dimensions["export_carton_quantity_b"])
+            common_row[25] = str(dimensions["export_carton_quantity_b_metric"])
+            common_row[26] = str(dimensions["export_carton_quantity_h"])
+            common_row[27] = str(dimensions["export_carton_quantity_h_metric"])
+            common_row[28] = str(dimensions["export_carton_crm_l"])
+            common_row[29] = str(dimensions["export_carton_crm_l_metric"])
+            common_row[30] = str(dimensions["export_carton_crm_b"])
+            common_row[31] = str(dimensions["export_carton_crm_b_metric"])
+            common_row[32] = str(dimensions["export_carton_crm_h"])
+            common_row[33] = str(dimensions["export_carton_crm_h_metric"])
+            common_row[34] = str(dimensions["product_dimension_l"])
+            common_row[35] = str(dimensions["product_dimension_l_metric"])
+            common_row[36] = str(dimensions["product_dimension_b"])
+            common_row[37] = str(dimensions["product_dimension_b_metric"])
+            common_row[38] = str(dimensions["product_dimension_h"])
+            common_row[39] = str(dimensions["product_dimension_h_metric"])
+            common_row[40] = str(dimensions["giftbox_l"])
+            common_row[41] = str(dimensions["giftbox_l_metric"])
+            common_row[42] = str(dimensions["giftbox_b"])
+            common_row[43] = str(dimensions["giftbox_b_metric"])
+            common_row[44] = str(dimensions["giftbox_h"])
+            common_row[45] = str(dimensions["giftbox_h_metric"])
+
+            try:
+                main_images = MainImages.objects.get(product=product, is_sourced=True)
+                main_image = main_images.main_images.all()[0]
+                common_row[46] = main_image.image.image.url
+            except Exception as e:
+                pass
+
+            try:
+                sub_images = SubImages.objects.get(product=product, is_sourced=True)
+                sub_images = sub_images.sub_images.all()[:5]
+                iterr = 0
+                for sub_image in sub_images:
+                    common_row[47+iterr] = sub_image.image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:
+                iterr = 0
+                for image in product.white_background_images.all()[:5]:
+                    common_row[52+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:            
+                iterr = 0
+                for image in product.pfl_images.all()[:5]:
+                    common_row[57+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:
+                iterr = 0
+                for image in product.lifestyle_images.all()[:5]:
+                    common_row[62+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:
+                iterr = 0
+                for image in product.certificate_images.all()[:5]:
+                    common_row[67+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:
+                iterr = 0
+                for image in product.giftbox_images.all()[:5]:
+                    common_row[72+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:
+                iterr = 0
+                for image in product.diecut_images.all()[:5]:
+                    common_row[77+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:
+                iterr = 0
+                for image in product.aplus_content_images.all()[:5]:
+                    common_row[82+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:
+                iterr = 0
+                for image in product.ads_images.all()[:5]:
+                    common_row[87+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:
+                iterr = 0
+                for image in product.base_product.unedited_images.all()[:5]:
+                    common_row[92+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+
+            try:
+                iterr = 0
+                for image in product.transparent_images.all()[:5]:
+                    common_row[97+iterr] = image.image.url
+                    iterr += 1
+            except Exception as e:
+                pass
+            ############################################ Amazon UK
+            amazon_uk_product_json = json.loads(product.channel_product.amazon_uk_product_json)
+            common_row[102] = str(product.channel_product.is_amazon_uk_product_created)
+            common_row[103] = str(amazon_uk_product_json["product_name"])
+            common_row[104] = str(amazon_uk_product_json["product_description"])
+            attributes = amazon_uk_product_json["product_attribute_list"][:5]
+            for i in range(len(attributes)):
+                common_row[105+i] = str(attributes[i])
+            common_row[110] = str(amazon_uk_product_json["category"])
+            common_row[111] = str(amazon_uk_product_json["sub_category"])
+            common_row[112] = str(amazon_uk_product_json["parentage"])
+            common_row[113] = str(amazon_uk_product_json["parent_sku"])
+            common_row[114] = str(amazon_uk_product_json["relationship_type"])
+            common_row[115] = str(amazon_uk_product_json["variation_theme"])
+            common_row[116] = str(amazon_uk_product_json["feed_product_type"])
+            common_row[117] = str(amazon_uk_product_json["update_delete"])
+            common_row[118] = str(amazon_uk_product_json["recommended_browse_nodes"])
+            common_row[119] = str(amazon_uk_product_json["search_terms"])
+            common_row[120] = str(amazon_uk_product_json["enclosure_material"])
+            common_row[121] = str(amazon_uk_product_json["cover_material_type"])
+            special_features = amazon_uk_product_json["special_features"][:5]
+            for i in range(len(special_features)):
+                common_row[122+i] = str(special_features[i])        
+            common_row[127] = str(amazon_uk_product_json["sale_price"])
+            common_row[128] = str(amazon_uk_product_json["sale_from"])
+            common_row[129] = str(amazon_uk_product_json["sale_end"])
+            common_row[130] = str(amazon_uk_product_json["wattage"])
+            common_row[131] = str(amazon_uk_product_json["wattage_metric"])
+            common_row[132] = str(amazon_uk_product_json["item_count"])
+            common_row[133] = str(amazon_uk_product_json["item_count_metric"])
+            common_row[134] = str(amazon_uk_product_json["item_condition_note"])
+            common_row[135] = str(amazon_uk_product_json["max_order_quantity"])
+            common_row[136] = str(amazon_uk_product_json["number_of_items"])
+            common_row[137] = str(amazon_uk_product_json["condition_type"])
+            dimensions = amazon_uk_product_json["dimensions"]
+            common_row[138] = dimensions["package_length"]
+            common_row[139] = dimensions["package_length_metric"]
+            common_row[140] = dimensions["package_width"]
+            common_row[141] = dimensions["package_width_metric"]
+            common_row[142] = dimensions["package_height"]
+            common_row[143] = dimensions["package_height_metric"]
+            common_row[144] = dimensions["package_weight"]
+            common_row[145] = dimensions["package_weight_metric"]
+            #common_row[146] = dimensions["package_quantity"]
+            common_row[147] = dimensions["shipping_weight"]
+            common_row[148] = dimensions["shipping_weight_metric"]
+            common_row[149] = dimensions["item_display_weight"]
+            common_row[150] = dimensions["item_display_weight_metric"]
+            common_row[151] = dimensions["item_display_volume"]
+            common_row[152] = dimensions["item_display_volume_metric"]
+            common_row[153] = dimensions["item_display_length"]
+            common_row[154] = dimensions["item_display_length_metric"]
+            common_row[155] = dimensions["item_display_width"]
+            common_row[156] = dimensions["item_display_width_metric"]
+            common_row[157] = dimensions["item_display_height"]
+            common_row[158] = dimensions["item_display_height_metric"]
+            common_row[159] = dimensions["item_weight"]
+            common_row[160] = dimensions["item_weight_metric"]
+            common_row[161] = dimensions["item_length"]
+            common_row[162] = dimensions["item_length_metric"]
+            common_row[163] = dimensions["item_width"]
+            common_row[164] = dimensions["item_width_metric"]
+            common_row[165] = dimensions["item_height"]
+            common_row[166] = dimensions["item_height_metric"]
+
+            #common_row[167] = amazon_verified
+            amazon_uae_product_json = json.loads(product.channel_product.amazon_uae_product_json)
+            common_row[168] = str(product.channel_product.is_amazon_uae_product_created)
+            common_row[169] = amazon_uae_product_json["product_name"]
+            common_row[170] = amazon_uae_product_json["product_description"]
+            attributes = amazon_uae_product_json["product_attribute_list"][:5]
+            for i in range(len(attributes)):
+                common_row[171+i] = attributes[i]
+            common_row[176] = amazon_uae_product_json["category"]
+            common_row[177] = amazon_uae_product_json["sub_category"]
+            common_row[178] = amazon_uae_product_json["feed_product_type"]
+            common_row[179] = amazon_uae_product_json["recommended_browse_nodes"]
+            common_row[180] = amazon_uae_product_json["update_delete"]
+            #common_row[181] = amazon_verified
+            ebay_product_json = json.loads(product.channel_product.ebay_product_json)
+            common_row[182] = str(product.channel_product.is_ebay_product_created)
+            common_row[183] = ebay_product_json["product_name"]
+            common_row[184] = ebay_product_json["product_description"]
+            attributes = ebay_product_json["product_attribute_list"][:5]
+            for i in range(len(attributes)):
+                common_row[185+i] = attributes[i]
+            common_row[190] = ebay_product_json["category"]
+            common_row[191] = ebay_product_json["sub_category"]
+            #common_row[192] = ebay_verified
+            noon_product_json = json.loads(product.channel_product.noon_product_json)
+            common_row[193] = str(product.channel_product.is_noon_product_created)
+            common_row[194] = noon_product_json["product_name"]
+            common_row[195] = noon_product_json["product_description"]
+            common_row[196] = noon_product_json["product_type"]
+            common_row[197] = noon_product_json["product_subtype"]
+            common_row[198] = noon_product_json["parent_sku"]
+            common_row[199] = noon_product_json["category"]
+            #common_row[200] = noon_product_json["subtitle"]
+            common_row[201] = noon_product_json["model_number"]
+            common_row[202] = noon_product_json["model_name"]
+            attributes = noon_product_json["product_attribute_list"][:5]
+            for i in range(len(attributes)):
+                common_row[203+i] = attributes[i]
+            common_row[208] = noon_product_json["msrp_ae"]
+            common_row[209] = noon_product_json["msrp_ae_unit"]
+            #common_row[210] = noon_verified
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print("Error ", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
+
+
+def generate_dynamic_row(data_point_list):
+
+    row = ["Sr. No."]
+    for data_point in data_point_list:
+        data_point_obj = DataPoint.objects.get(variable=data_point)
+        row.append(data_point_obj.name)
+
+    return row
+
+
+def get_data_value(product_obj, base_product_obj, channel_product_obj, data_point_variable):
+    try:
+        if data_point_variable=="product_name":
+            return product_obj.product_name
+        if data_point_variable=="product_id":
+            return product_obj.product_id
+        if data_point_variable=="product_id_type":
+            return str(product_obj.product_id_type)
+        if data_point_variable=="product_description":
+            return product_obj.product_description
+        if data_point_variable=="pfl_product_feature_1":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=1:
+                return pfl_product_features[0]
+            return ""
+        if data_point_variable=="pfl_product_feature_2":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=2:
+                return pfl_product_features[1]
+            return ""
+        if data_point_variable=="pfl_product_feature_3":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=3:
+                return pfl_product_features[2]
+            return ""
+        if data_point_variable=="pfl_product_feature_4":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=4:
+                return pfl_product_features[3]
+            return ""
+        if data_point_variable=="pfl_product_feature_5":
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(product_obj)>=5:
+                return pfl_product_features[4]
+            return ""
+
+        if data_point_variable=="color_map":
+            return product_obj.color_map
+        if data_point_variable=="color":
+            return product_obj.color
+        if data_point_variable=="material_type":
+            return str(product_obj.material_type)
+        if data_point_variable=="standard_price":
+            return "" if product_obj.standard_price==None else product_obj.standard_price
+        if data_point_variable=="currency":
+            return product_obj.currency
+        if data_point_variable=="quantity":
+            return "" if product_obj.quantity==None else product_obj.quantity
+
+        if data_point_variable=="main_image":
+            if MainImages.objects.get(product=product_obj, is_sourced=True).main_images.count()>0:
+                return MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+            return ""
+
+        if data_point_variable=="sub_image_1":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>0:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[0].image.image.url
+            return ""
+        if data_point_variable=="sub_image_2":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>1:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[1].image.image.url
+            return ""
+        if data_point_variable=="sub_image_3":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>2:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[2].image.image.url
+            return ""
+        if data_point_variable=="sub_image_4":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>3:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[3].image.image.url
+            return ""
+        if data_point_variable=="sub_image_5":
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>4:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[4].image.image.url
+            return ""
+
+        if data_point_variable=="white_background_image_1":
+            if product_obj.white_background_images.count()>=1:
+                return product_obj.white_background_images.all()[0].image.url
+            return ""
+        if data_point_variable=="white_background_image_2":
+            if product_obj.white_background_images.count()>=2:
+                return product_obj.white_background_images.all()[1].image.url
+            return ""
+        if data_point_variable=="white_background_image_3":
+            if product_obj.white_background_images.count()>=3:
+                return product_obj.white_background_images.all()[2].image.url
+            return ""
+        if data_point_variable=="white_background_image_4":
+            if product_obj.white_background_images.count()>=4:
+                return product_obj.white_background_images.all()[3].image.url
+            return ""
+        if data_point_variable=="white_background_image_5":
+            if product_obj.white_background_images.count()>=5:
+                return product_obj.white_background_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="lifestyle_image_1":
+            if product_obj.lifestyle_images.count()>=1:
+                return product_obj.lifestyle_images.all()[0].image.url
+            return ""
+        if data_point_variable=="lifestyle_image_2":
+            if product_obj.lifestyle_images.count()>=2:
+                return product_obj.lifestyle_images.all()[1].image.url
+            return ""
+        if data_point_variable=="lifestyle_image_3":
+            if product_obj.lifestyle_images.count()>=3:
+                return product_obj.lifestyle_images.all()[2].image.url
+            return ""
+        if data_point_variable=="lifestyle_image_4":
+            if product_obj.lifestyle_images.count()>=4:
+                return product_obj.lifestyle_images.all()[3].image.url
+            return ""
+        if data_point_variable=="lifestyle_image_5":
+            if product_obj.lifestyle_images.count()>=5:
+                return product_obj.lifestyle_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="certificate_image_1":
+            if product_obj.certificate_images.count()>=1:
+                return product_obj.certificate_images.all()[0].image.url
+            return ""
+        if data_point_variable=="certificate_image_2":
+            if product_obj.certificate_images.count()>=2:
+                return product_obj.certificate_images.all()[1].image.url
+            return ""
+        if data_point_variable=="certificate_image_3":
+            if product_obj.certificate_images.count()>=3:
+                return product_obj.certificate_images.all()[2].image.url
+            return ""
+        if data_point_variable=="certificate_image_4":
+            if product_obj.certificate_images.count()>=4:
+                return product_obj.certificate_images.all()[3].image.url
+            return ""
+        if data_point_variable=="certificate_image_5":
+            if product_obj.certificate_images.count()>=5:
+                return product_obj.certificate_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="giftbox_image_1":
+            if product_obj.giftbox_images.count()>=1:
+                return product_obj.giftbox_images.all()[0].image.url
+            return ""
+        if data_point_variable=="giftbox_image_2":
+            if product_obj.giftbox_images.count()>=2:
+                return product_obj.giftbox_images.all()[1].image.url
+            return ""
+        if data_point_variable=="giftbox_image_3":
+            if product_obj.giftbox_images.count()>=3:
+                return product_obj.giftbox_images.all()[2].image.url
+            return ""
+        if data_point_variable=="giftbox_image_4":
+            if product_obj.giftbox_images.count()>=4:
+                return product_obj.giftbox_images.all()[3].image.url
+            return ""
+        if data_point_variable=="giftbox_image_5":
+            if product_obj.giftbox_images.count()>=5:
+                return product_obj.giftbox_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="diecut_image_1":
+            if product_obj.diecut_images.count()>=1:
+                return product_obj.diecut_images.all()[0].image.url
+            return ""
+        if data_point_variable=="diecut_image_2":
+            if product_obj.diecut_images.count()>=2:
+                return product_obj.diecut_images.all()[1].image.url
+            return ""
+        if data_point_variable=="diecut_image_3":
+            if product_obj.diecut_images.count()>=3:
+                return product_obj.diecut_images.all()[2].image.url
+            return ""
+        if data_point_variable=="diecut_image_4":
+            if product_obj.diecut_images.count()>=4:
+                return product_obj.diecut_images.all()[3].image.url
+            return ""
+        if data_point_variable=="diecut_image_5":
+            if product_obj.diecut_images.count()>=5:
+                return product_obj.diecut_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="aplus_content_image_1":
+            if product_obj.aplus_content_images.count()>=1:
+                return product_obj.aplus_content_images.all()[0].image.url
+            return ""
+        if data_point_variable=="aplus_content_image_2":
+            if product_obj.aplus_content_images.count()>=2:
+                return product_obj.aplus_content_images.all()[1].image.url
+            return ""
+        if data_point_variable=="aplus_content_image_3":
+            if product_obj.aplus_content_images.count()>=3:
+                return product_obj.aplus_content_images.all()[2].image.url
+            return ""
+        if data_point_variable=="aplus_content_image_4":
+            if product_obj.aplus_content_images.count()>=4:
+                return product_obj.aplus_content_images.all()[3].image.url
+            return ""
+        if data_point_variable=="aplus_content_image_5":
+            if product_obj.aplus_content_images.count()>=5:
+                return product_obj.aplus_content_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="ads_image_1":
+            if product_obj.ads_images.count()>=1:
+                return product_obj.ads_images.all()[0].image.url
+            return ""
+        if data_point_variable=="ads_image_2":
+            if product_obj.ads_images.count()>=2:
+                return product_obj.ads_images.all()[1].image.url
+            return ""
+        if data_point_variable=="ads_image_3":
+            if product_obj.ads_images.count()>=3:
+                return product_obj.ads_images.all()[2].image.url
+            return ""
+        if data_point_variable=="ads_image_4":
+            if product_obj.ads_images.count()>=4:
+                return product_obj.ads_images.all()[3].image.url
+            return ""
+        if data_point_variable=="ads_image_5":
+            if product_obj.ads_images.count()>=5:
+                return product_obj.ads_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="transparent_image_1":
+            if product_obj.transparent_images.count()>=1:
+                return product_obj.transparent_images.all()[0].image.url
+            return ""
+        if data_point_variable=="transparent_image_2":
+            if product_obj.transparent_images.count()>=2:
+                return product_obj.transparent_images.all()[1].image.url
+            return ""
+        if data_point_variable=="transparent_image_3":
+            if product_obj.transparent_images.count()>=3:
+                return product_obj.transparent_images.all()[2].image.url
+            return ""
+        if data_point_variable=="transparent_image_4":
+            if product_obj.transparent_images.count()>=4:
+                return product_obj.transparent_images.all()[3].image.url
+            return ""
+        if data_point_variable=="transparent_image_5":
+            if product_obj.transparent_images.count()>=5:
+                return product_obj.transparent_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="unedited_image_1":
+            if base_product_obj.unedited_images.count()>=1:
+                return base_product_obj.unedited_images.all()[0].image.url
+            return ""
+        if data_point_variable=="unedited_image_2":
+            if base_product_obj.unedited_images.count()>=2:
+                return base_product_obj.unedited_images.all()[1].image.url
+            return ""
+        if data_point_variable=="unedited_image_3":
+            if base_product_obj.unedited_images.count()>=3:
+                return base_product_obj.unedited_images.all()[2].image.url
+            return ""
+        if data_point_variable=="unedited_image_4":
+            if base_product_obj.unedited_images.count()>=4:
+                return base_product_obj.unedited_images.all()[3].image.url
+            return ""
+        if data_point_variable=="unedited_image_5":
+            if base_product_obj.unedited_images.count()>=5:
+                return base_product_obj.unedited_images.all()[4].image.url
+            return ""
+
+        if data_point_variable=="barcode_string":
+            return product_obj.barcode_string
+        if data_point_variable=="factory_notes":
+            return product_obj.factory_notes
+        if data_point_variable=="seller_sku":
+            return base_product_obj.seller_sku
+        if data_point_variable=="category":
+            return base_product_obj.category
+        if data_point_variable=="sub_category":
+            return base_product_obj.sub_category
+        if data_point_variable=="brand":
+            return str(base_product_obj.brand)
+        if data_point_variable=="manufacturer":
+            return base_product_obj.manufacturer
+        if data_point_variable=="manufacturer_part_number":
+            return base_product_obj.manufacturer_part_number
+        
+        dimensions = json.loads(base_product.dimensions)
+        if data_point_variable in dimensions:
+            return dimensions[data_point_variable]
+        
+        amazon_uk_product_json = json.loads(channel_product_obj.amazon_uk_product_json)
+
+        if data_point_variable=="amazonuk_product_name":
+            return amazon_uk_product_json["product_name"]
+        if data_point_variable=="amazonuk_product_description":
+            return amazon_uk_product_json["product_description"]
+
+        if data_point_variable=="amazonuk_product_attribute_list_1":
+            if len(amazon_uk_product_json["product_attribute_list"])>0:
+                return amazon_uk_product_json["product_attribute_list"][0]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_product_attribute_list_2":
+            if len(amazon_uk_product_json["product_attribute_list"])>1:
+                return amazon_uk_product_json["product_attribute_list"][1]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_product_attribute_list_3":
+            if len(amazon_uk_product_json["product_attribute_list"])>2:
+                return amazon_uk_product_json["product_attribute_list"][2]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_product_attribute_list_4":
+            if len(amazon_uk_product_json["product_attribute_list"])>3:
+                return amazon_uk_product_json["product_attribute_list"][3]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_product_attribute_list_5":
+            if len(amazon_uk_product_json["product_attribute_list"])>4:
+                return amazon_uk_product_json["product_attribute_list"][4]
+            else:
+                return ""
+
+        if data_point_variable=="amazonuk_category":
+            return amazon_uk_product_json["category"]
+        if data_point_variable=="amazonuk_sub_category":
+            return amazon_uk_product_json["sub_category"]
+        if data_point_variable=="amazonuk_parentage":
+            return amazon_uk_product_json["parentage"]
+        if data_point_variable=="amazonuk_parent_sku":
+            return amazon_uk_product_json["parent_sku"]
+        if data_point_variable=="amazonuk_relationship_type":
+            return amazon_uk_product_json["relationship_type"]
+        if data_point_variable=="amazonuk_variation_theme":
+            return amazon_uk_product_json["variation_theme"]
+        if data_point_variable=="amazonuk_feed_product_type":
+            return amazon_uk_product_json["feed_product_type"]
+        if data_point_variable=="amazonuk_update_delete":
+            return amazon_uk_product_json["update_delete"]
+        if data_point_variable=="amazonuk_recommended_browse_nodes":
+            return amazon_uk_product_json["recommended_browse_nodes"]
+        if data_point_variable=="amazonuk_search_terms":
+            return amazon_uk_product_json["search_terms"]
+        if data_point_variable=="amazonuk_enclosure_material":
+            return amazon_uk_product_json["enclosure_material"]
+        if data_point_variable=="amazonuk_cover_material_type":
+            return amazon_uk_product_json["cover_material_type"]
+        if data_point_variable=="amazonuk_special_feature_1":
+            if len(amazon_uk_product_json["special_features"])>0:
+                return amazon_uk_product_json["special_features"][0]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_special_feature_2":
+            if len(amazon_uk_product_json["special_features"])>1:
+                return amazon_uk_product_json["special_features"][1]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_special_feature_3":
+            if len(amazon_uk_product_json["special_features"])>2:
+                return amazon_uk_product_json["special_features"][2]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_special_feature_4":
+            if len(amazon_uk_product_json["special_features"])>3:
+                return amazon_uk_product_json["special_features"][3]
+            else:
+                return ""
+        if data_point_variable=="amazonuk_special_feature_5":
+            if len(amazon_uk_product_json["special_features"])>4:
+                return amazon_uk_product_json["special_features"][4]
+            else:
+                return ""
+
+        if data_point_variable=="amazonuk_sale_price":
+            return amazon_uk_product_json["sale_price"]
+        if data_point_variable=="amazonuk_sale_from":
+            return amazon_uk_product_json["sale_from"]
+        if data_point_variable=="amazonuk_sale_end":
+            return amazon_uk_product_json["sale_end"]
+        if data_point_variable=="amazonuk_wattage":
+            return amazon_uk_product_json["wattage"]
+        if data_point_variable=="amazonuk_wattage_metric":
+            return amazon_uk_product_json["wattage_metric"]
+        if data_point_variable=="amazonuk_item_count":
+            return amazon_uk_product_json["item_count"]
+        if data_point_variable=="amazonuk_item_count_metric":
+            return amazon_uk_product_json["item_count_metric"]
+        if data_point_variable=="amazonuk_item_condition_note":
+            return amazon_uk_product_json["item_condition_note"]
+        if data_point_variable=="amazonuk_max_order_quantity":
+            return amazon_uk_product_json["max_order_quantity"]
+        if data_point_variable=="amazonuk_number_of_items":
+            return amazon_uk_product_json["number_of_items"]
+        if data_point_variable=="amazonuk_condition_type":
+            return amazon_uk_product_json["condition_type"]
+        if data_point_variable=="amazonuk_number_of_items":
+            return amazon_uk_product_json["number_of_items"]
+        if data_point_variable=="amazonuk_package_length":
+            return amazon_uk_product_json["dimensions"]["package_length"]
+        if data_point_variable=="amazonuk_package_length_metric":
+            return amazon_uk_product_json["dimensions"]["package_length_metric"]
+        if data_point_variable=="amazonuk_package_width":
+            return amazon_uk_product_json["dimensions"]["package_width"]
+        if data_point_variable=="amazonuk_package_width_metric":
+            return amazon_uk_product_json["dimensions"]["package_width_metric"]
+        if data_point_variable=="amazonuk_package_height":
+            return amazon_uk_product_json["dimensions"]["package_height"]
+        if data_point_variable=="amazonuk_package_height_metric":
+            return amazon_uk_product_json["dimensions"]["package_height_metric"]
+        if data_point_variable=="amazonuk_package_weight":
+            return amazon_uk_product_json["dimensions"]["package_weight"]
+        if data_point_variable=="amazonuk_package_weight_metric":
+            return amazon_uk_product_json["dimensions"]["package_weight_metric"]
+        if data_point_variable=="amazonuk_package_quantity":
+            return amazon_uk_product_json["dimensions"]["package_quantity"]
+        if data_point_variable=="amazonuk_shipping_weight":
+            return amazon_uk_product_json["dimensions"]["shipping_weight"]
+        if data_point_variable=="amazonuk_shipping_weight_metric":
+            return amazon_uk_product_json["dimensions"]["shipping_weight_metric"]
+        if data_point_variable=="amazonuk_item_display_weight":
+            return amazon_uk_product_json["dimensions"]["item_display_weight"]
+        if data_point_variable=="amazonuk_item_display_weight_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_weight_metric"]
+        if data_point_variable=="amazonuk_item_display_volume":
+            return amazon_uk_product_json["dimensions"]["item_display_volume"]
+        if data_point_variable=="amazonuk_item_display_volume_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_volume_metric"]
+        if data_point_variable=="amazonuk_item_display_length":
+            return amazon_uk_product_json["dimensions"]["item_display_length"]
+        if data_point_variable=="amazonuk_item_display_length_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_length_metric"]
+        if data_point_variable=="amazonuk_item_weight":
+            return amazon_uk_product_json["dimensions"]["item_weight_metric"]
+        if data_point_variable=="amazonuk_item_weight_metric":
+            return amazon_uk_product_json["dimensions"]["item_weight_metric"]
+        if data_point_variable=="amazonuk_item_length":
+            return amazon_uk_product_json["dimensions"]["item_length"]
+        if data_point_variable=="amazonuk_item_length_metric":
+            return amazon_uk_product_json["dimensions"]["item_length_metric"]
+        if data_point_variable=="amazonuk_item_width":
+            return amazon_uk_product_json["dimensions"]["item_width"]
+        if data_point_variable=="amazonuk_item_width_metric":
+            return amazon_uk_product_json["dimensions"]["item_width_metric"]
+        if data_point_variable=="amazonuk_item_height":
+            return amazon_uk_product_json["dimensions"]["item_height"]
+        if data_point_variable=="amazonuk_item_heigth_metric":
+            return amazon_uk_product_json["dimensions"]["item_heigth_metric"]
+        if data_point_variable=="amazonuk_item_display_width":
+            return amazon_uk_product_json["dimensions"]["item_display_width"]
+        if data_point_variable=="amazonuk_item_display_width_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_width_metric"]
+        if data_point_variable=="amazonuk_item_display_height":
+            return amazon_uk_product_json["dimensions"]["item_display_height"]
+        if data_point_variable=="amazonuk_item_display_height_metric":
+            return amazon_uk_product_json["dimensions"]["item_display_height_metric"]
+        if data_point_variable=="amazonuk_http_link":
+            return amazon_uk_product_json["http_link"]
+
+        
+        amazon_uae_product_json = json.loads(channel_product_obj.amazon_uae_product_json)
+
+        if data_point_variable=="amazonuae_product_name":
+            return amazon_uae_product_json["product_name"]
+        if data_point_variable=="amazonuae_product_description":
+            return amazon_uae_product_json["product_description"]
+
+        if data_point_variable=="amazonuae_product_attribute_list_1":
+            if len(amazon_uae_product_json["product_attribute_list"])>0:
+                return amazon_uae_product_json["product_attribute_list"][0]
+            else:
+                return ""
+        if data_point_variable=="amazonuae_product_attribute_list_2":
+            if len(amazon_uae_product_json["product_attribute_list"])>1:
+                return amazon_uae_product_json["product_attribute_list"][1]
+            else:
+                return ""
+        if data_point_variable=="amazonuae_product_attribute_list_3":
+            if len(amazon_uae_product_json["product_attribute_list"])>2:
+                return amazon_uae_product_json["product_attribute_list"][2]
+            else:
+                return ""
+        if data_point_variable=="amazonuae_product_attribute_list_4":
+            if len(amazon_uae_product_json["product_attribute_list"])>3:
+                return amazon_uae_product_json["product_attribute_list"][3]
+            else:
+                return ""
+        if data_point_variable=="amazonuae_product_attribute_list_5":
+            if len(amazon_uae_product_json["product_attribute_list"])>4:
+                return amazon_uae_product_json["product_attribute_list"][4]
+            else:
+                return ""
+
+        if data_point_variable=="amazonuae_category":
+            return amazon_uae_product_json["category"]
+        if data_point_variable=="amazonuae_sub_category":
+            return amazon_uae_product_json["sub_category"]
+        if data_point_variable=="amazonuae_feed_product_type":
+            return amazon_uae_product_json["feed_product_type"]
+        if data_point_variable=="amazonuae_recommended_browse_nodes":
+            return amazon_uae_product_json["recommended_browse_nodes"]
+        if data_point_variable=="amazonuae_update_delete":
+            return amazon_uae_product_json["update_delete"]
+        if data_point_variable=="amazonuae_http_link":
+            return amazon_uae_product_json["http_link"]
+
+        ebay_product_json = json.loads(channel_product_obj.ebay_product_json)
+
+        if data_point_variable=="ebay_category":
+            return ebay_product_json["category"]
+        if data_point_variable=="ebay_sub_category":
+            return ebay_product_json["sub_category"]
+        if data_point_variable=="ebay_product_name":
+            return ebay_product_json["product_name"]
+        if data_point_variable=="ebay_product_description":
+            return ebay_product_json["product_description"]
+        if data_point_variable=="ebay_product_attribute_list_1":
+            if len(ebay_product_json["product_attribute_list"])>0:
+                return ebay_product_json["product_attribute_list"][0]
+            else:
+                return ""
+        if data_point_variable=="ebay_product_attribute_list_2":
+            if len(ebay_product_json["product_attribute_list"])>1:
+                return ebay_product_json["product_attribute_list"][1]
+            else:
+                return ""
+        if data_point_variable=="ebay_product_attribute_list_3":
+            if len(ebay_product_json["product_attribute_list"])>2:
+                return ebay_product_json["product_attribute_list"][2]
+            else:
+                return ""
+        if data_point_variable=="ebay_product_attribute_list_4":
+            if len(ebay_product_json["product_attribute_list"])>3:
+                return ebay_product_json["product_attribute_list"][3]
+            else:
+                return ""
+        if data_point_variable=="ebay_product_attribute_list_5":
+            if len(ebay_product_json["product_attribute_list"])>4:
+                return ebay_product_json["product_attribute_list"][4]
+            else:
+                return ""
+        if data_point_variable=="ebay_http_link":
+            return ebay_product_json["http_link"]
+
+        noon_product_json = json.loads(channel_product_obj.noon_product_json)
+
+        if data_point_variable=="noon_product_name":
+            return noon_product_json["product_name"]
+        if data_point_variable=="noon_product_type":
+            return noon_product_json["product_type"]
+        if data_point_variable=="noon_product_subtype":
+            return noon_product_json["product_subtype"]
+        if data_point_variable=="noon_parent_sku":
+            return noon_product_json["parent_sku"]
+        if data_point_variable=="noon_category":
+            return noon_product_json["category"]
+        if data_point_variable=="noon_subtitle":
+            return noon_product_json["subtitle"]
+        if data_point_variable=="noon_sub_category":
+            return noon_product_json["sub_category"]
+        if data_point_variable=="noon_model_number":
+            return noon_product_json["model_number"]
+        if data_point_variable=="noon_model_name":
+            return noon_product_json["model_name"]
+        if data_point_variable=="noon_msrp_ae":
+            return noon_product_json["msrp_ae"]
+        if data_point_variable=="noon_msrp_ae_unit":
+            return noon_product_json["msrp_ae_unit"]
+        if data_point_variable=="noon_product_description":
+            return noon_product_json["product_description"]
+        if data_point_variable=="product_attribute_list_1":
+            if len(noon_product_json["product_attribute_list"])>0:
+                return noon_product_json["product_attribute_list"][0]
+            else:
+                return ""
+        if data_point_variable=="product_attribute_list_2":
+            if len(noon_product_json["product_attribute_list"])>1:
+                return noon_product_json["product_attribute_list"][1]
+            else:
+                return ""
+        if data_point_variable=="product_attribute_list_3":
+            if len(noon_product_json["product_attribute_list"])>2:
+                return noon_product_json["product_attribute_list"][2]
+            else:
+                return ""
+        if data_point_variable=="product_attribute_list_4":
+            if len(noon_product_json["product_attribute_list"])>3:
+                return noon_product_json["product_attribute_list"][3]
+            else:
+                return ""
+        if data_point_variable=="product_attribute_list_5":
+            if len(noon_product_json["product_attribute_list"])>4:
+                return noon_product_json["product_attribute_list"][4]
+            else:
+                return ""
+        if data_point_variable=="noon_http_link":
+            return noon_product_json["http_link"]
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_data_value: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""
+
+
+def generate_dynamic_export(product_uuid_list, data_point_list):
+
+    try:
+        os.system("rm ./files/csv/dynamic_export.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/dynamic_export.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    row = generate_dynamic_row(data_point_list)
+    cnt = 0        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    for product_uuid in product_uuid_list:
+        try:
+            cnt += 1
+            product_obj = Product.objects.get(uuid=product_uuid)
+            base_product_obj = product_obj.base_product
+            channel_product_obj = ChannelProduct.objects.get(product=product_obj)
+
+            common_row = ["" for i in range(len(data_point_list)+1)]
+            common_row[0] = str(cnt)
+            for i in range(len(data_point_list)):
+                common_row[i+1] = get_data_value(product_obj, base_product_obj, channel_product_obj, data_point_list[i])
+
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print("Error ", e, str(exc_tb.tb_lineno))
+
+    workbook.close()

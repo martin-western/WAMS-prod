@@ -2,10 +2,12 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
+
 from auditlog.models import *
 from dealshub.models import DealsHubProduct, Category
 from WAMSApp.utils import *
 from WAMSApp.serializers import UserSerializer, UserSerializerWithToken
+from WAMSApp.constants import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -23,6 +25,7 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
+from WAMSApp.views_sourcing import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -114,14 +117,15 @@ def PFLDashboardPage(request):
 #@login_required(login_url='/login/')
 def FlyerPage(request, pk):
     flyer_obj = Flyer.objects.get(pk=int(pk))
-    if flyer_obj.mode=="A4 Portrait":
-        return render(request, 'WAMSApp/flyer.html')
-    elif flyer_obj.mode=="A4 Landscape":
-        return render(request, 'WAMSApp/flyer-landscape.html')
-    elif flyer_obj.mode=="A5 Portrait":
-        return render(request, 'WAMSApp/flyer-a5-portrait.html')
-    elif flyer_obj.mode=="A5 Landscape":
-        return render(request, 'WAMSApp/flyer-a5-landscape.html')
+    return render(request, 'WAMSApp/flyer.html')
+    # if flyer_obj.mode=="A4 Portrait":
+    #     return render(request, 'WAMSApp/flyer.html')
+    # elif flyer_obj.mode=="A4 Landscape":
+    #     return render(request, 'WAMSApp/flyer-landscape.html')
+    # elif flyer_obj.mode=="A5 Portrait":
+    #     return render(request, 'WAMSApp/flyer-a5-portrait.html')
+    # elif flyer_obj.mode=="A5 Landscape":
+    #     return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
 @login_required(login_url='/login/')
@@ -151,6 +155,12 @@ def current_user(request):
     
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
+
+
+def generate_report_view(request, brand_name):
+
+    generate_report(brand_name)
+    return HttpResponseRedirect("/files/csv/images-count-report.xlsx")
 
 
 class UserList(APIView):
@@ -1135,13 +1145,16 @@ class FetchProductDetailsAPI(APIView):
             response["standard_price"] = "" if product_obj.standard_price == None else product_obj.standard_price
             response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
             response["factory_notes"] = product_obj.factory_notes
-            response["factory_code"] = product_obj.factory_code
+            try:
+                response["factory_code"] = product_obj.factory.factory_code
+            except Exception as e:
+                response["factory_code"] = ""
             response["is_dealshub_product_created"] = product_obj.is_dealshub_product_created
             response["verified"] = product_obj.verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
 
-            response["product_description_amazon_uk"] = amazon_uk_product_dict["product_description"]
+            response["product_description_amazon_uk"] = product_obj.product_description
             try:
                 response["special_features"] = json.loads(amazon_uk_product_dict["special_features"])
             except Exception as e:
@@ -1528,7 +1541,12 @@ class SaveProductAPI(APIView):
             product_obj.pfl_product_features = json.dumps(pfl_product_features)
 
             product_obj.factory_notes = factory_notes
-            product_obj.factory_code = factory_code
+
+            try:
+                factory_obj = Factory.objects.get(factory_code=factory_code)
+                product_obj.factory = factory_obj
+            except Exception as e:
+                pass
             
             product_obj.save()
 
@@ -1558,7 +1576,6 @@ class FetchProductListAPI(APIView):
             page = int(data['page'])  
 
             search_list_product_objs = Product.objects.none()
-            search_list_base_product_objs = BaseProduct.objects.none()
 
             search_list_product_objs = custom_permission_filter_products(request.user)
 
@@ -1607,21 +1624,21 @@ class FetchProductListAPI(APIView):
                         Q(product_id__icontains=tag) |
                         Q(base_product__seller_sku__icontains=tag)
                     )
+                
                 search_list_product_objs = search_list_product_lookup.distinct()
             
-            for prod in search_list_product_objs:
-                search_list_base_product_objs |= BaseProduct.objects.filter(pk=prod.base_product.pk)
-            
-            search_list_base_product_objs = search_list_base_product_objs.distinct().order_by('-pk')
+            search_list_base_product_objs = search_list_product_objs.values_list('base_product',flat=True).order_by('-pk')
 
+            search_list_base_product_objs = list(dict.fromkeys(search_list_base_product_objs))
             products = []
 
             paginator = Paginator(search_list_base_product_objs, 20)
             base_product_objs = paginator.page(page)
 
-            for base_product_obj in base_product_objs:
+            for base_product_pk in base_product_objs:
+                base_product_obj = BaseProduct.objects.get(pk=base_product_pk)
                 temp_dict = {}
-                temp_dict["base_product_pk"] = base_product_obj.pk
+                temp_dict["base_product_pk"] = base_product_pk
                 temp_dict["product_name"] = base_product_obj.base_product_name
                 temp_dict["manufacturer"] = base_product_obj.manufacturer
                 temp_dict["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
@@ -1926,6 +1943,7 @@ class FetchExportProductListAPI(APIView):
                     amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
                     temp_dict["amazon_uk_product"] = amazon_uk_product
                     temp_dict["product_id"] = product.product_id
+                    temp_dict["seller_sku"] = product.base_product.seller_sku
                     temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
                     try:
@@ -2371,7 +2389,8 @@ class CreateFlyerAPI(APIView):
             flyer_obj = Flyer.objects.create(name=convert_to_ascii(data["name"]),
                                              template_data="{}",
                                              brand=brand_obj,
-                                             mode=mode)
+                                             mode=mode,
+                                             user=request.user)
 
             create_option = data["create_option"]
 
@@ -2410,6 +2429,7 @@ class CreateFlyerAPI(APIView):
                 "header-opacity": "1",
                 "footer-opacity": "1",
                 "all-promo-resizer": "40",
+                "all-warranty-resizer": "40",
                 "all-image-resizer": "100",
                 "footer-text": "Your Footer Here"
             }
@@ -2440,6 +2460,7 @@ class CreateFlyerAPI(APIView):
                             "warranty-img": "",
                             "image-resizer": "100",
                             "promo-resizer": "40",
+                            "warranty-resizer": "40",
                             "price": "",
                             "strikeprice": "strikeprice",
                             "title": "",
@@ -2565,6 +2586,7 @@ class CreateFlyerAPI(APIView):
                                 "warranty-img": "",
                                 "image-resizer": "100",
                                 "promo-resizer": "40",
+                                "warranty-resizer": "40",
                                 "price": str(product_price),
                                 "strikeprice": str(product_strikeprice),
                                 "title": str(product_title),
@@ -2691,7 +2713,7 @@ class FetchFlyerDetailsAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["url"] = external_images_bucket_obj.mid_image.url
-                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["high_res_url"] = external_images_bucket_obj.image.url
                     temp_dict["image_pk"] = external_images_bucket_obj.pk
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
@@ -2713,6 +2735,7 @@ class FetchFlyerDetailsAPI(APIView):
             response["background_images_bucket"] = background_images_bucket
             response["brand_image_url"] = brand_image_url
             response["brand-name"] = str(flyer_obj.brand)
+            response["mode"] = flyer_obj.mode
 
             response['status'] = 200
 
@@ -2793,7 +2816,7 @@ class FetchPFLDetailsAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["url"] = external_images_bucket_obj.mid_image.url
-                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["high_res_url"] = external_images_bucket_obj.image.url
                     temp_dict["image_pk"] = external_images_bucket_obj.pk
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
@@ -2920,6 +2943,8 @@ class FetchProductListFlyerPFLAPI(APIView):
                     brand_obj = Flyer.objects.get(
                         pk=int(data["flyer_pk"])).brand
                     product_objs = product_objs.filter(base_product__brand=brand_obj)
+                    search_string = data["search_string"]
+                    product_objs = product_objs.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
                     
             except Exception as e:
                 logger.warning("Issue with filtering brands %s", str(e))
@@ -2938,7 +2963,7 @@ class FetchProductListFlyerPFLAPI(APIView):
                     short_product_name = str(product_obj.product_name_sap)
                     if len(short_product_name)>char_len:
                         short_product_name = short_product_name[:char_len] + "..."
-                    temp_dict["product_name_autocomplete"] = short_product_name + " | " + str(product_obj.product_id)
+                    temp_dict["product_name_autocomplete"] = short_product_name + " | " + str(product_obj.base_product.seller_sku) + " | " + str(product_obj.product_id)
                     main_image_url = None
                     
                     try:
@@ -2976,15 +3001,17 @@ class FetchProductListFlyerPFLAPI(APIView):
 
 class AddProductFlyerBucketAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_flyer') == False:
-                logger.warning("AddProductFlyerBucketAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_flyer') == False:
+            #     logger.warning("AddProductFlyerBucketAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("AddProductFlyerBucketAPI: %s", str(data))
@@ -3076,15 +3103,17 @@ class AddProductFlyerBucketAPI(APIView):
 
 class AddProductPFLBucketAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_pfl') == False:
-                logger.warning("AddProductPFLBucketAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_pfl') == False:
+            #     logger.warning("AddProductPFLBucketAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("AddProductPFLBucketAPI: %s", str(data))
@@ -3227,15 +3256,17 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
 
 class SaveFlyerTemplateAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_flyer') == False:
-                logger.warning("SaveFlyerTemplateAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_flyer') == False:
+            #     logger.warning("SaveFlyerTemplateAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("SaveFlyerTemplateAPI: %s", str(data))
@@ -3256,15 +3287,17 @@ class SaveFlyerTemplateAPI(APIView):
 
 class SavePFLTemplateAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_pfl') == False:
-                logger.warning("SavePFLTemplateAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_pfl') == False:
+            #     logger.warning("SavePFLTemplateAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("SavePFLTemplateAPI: %s", str(data))
@@ -3298,6 +3331,8 @@ class SavePFLTemplateAPI(APIView):
 
 class UploadImageExternalBucketFlyerAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3323,6 +3358,8 @@ class UploadImageExternalBucketFlyerAPI(APIView):
 
 
 class UploadImageExternalBucketPFLAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
@@ -3453,12 +3490,12 @@ class FetchFlyerListAPI(APIView):
             page = int(data["page"])
 
             permissible_brands = custom_permission_filter_brands(request.user)
-            flyer_objs = Flyer.objects.filter(brand__in=permissible_brands)
+            flyer_objs = Flyer.objects.filter(brand__in=permissible_brands).order_by('-pk')
 
             chip_data = data["tags"]
 
             if len(chip_data) > 0:
-                flyer_objs = Flyer.objects.all()
+                flyer_objs = Flyer.objects.all().order_by('-pk')
                 search_list_objs = []
 
                 for flyer_obj in flyer_objs:
@@ -3520,15 +3557,17 @@ class FetchFlyerListAPI(APIView):
 
 class UploadNewFlyerBGImageAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm('WAMSApp.change_flyer') == False:
-                logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.change_flyer') == False:
+            #     logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("UploadNewFlyerBGImageAPI: %s", str(data))
@@ -3549,6 +3588,8 @@ class UploadNewFlyerBGImageAPI(APIView):
 
 
 class DownloadImagesS3API(APIView):
+
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
@@ -3656,6 +3697,8 @@ class FetchChannelsAPI(APIView):
 
 class SavePFLInBucketAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3700,6 +3743,8 @@ class SavePFLInBucketAPI(APIView):
 
 class SaveFlyerInBucketAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3707,7 +3752,8 @@ class SaveFlyerInBucketAPI(APIView):
         try:
 
             data = request.data
-            logger.info("SavePFLInBucketAPI: %s", str(data))
+            #logger.info("SavePFLInBucketAPI: %s", str(data))
+            logger.info("SavePFLInBucketAPI called")
 
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
 
@@ -3855,15 +3901,17 @@ class RemoveProductFromExportListAPI(APIView):
 
 class UploadFlyerExternalImagesAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm("WAMSApp.add_image") == False:
-                logger.warning("UploadProductImageAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm("WAMSApp.add_image") == False:
+            #     logger.warning("UploadProductImageAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
@@ -3878,7 +3926,7 @@ class UploadFlyerExternalImagesAPI(APIView):
                     flyer_obj.external_images_bucket.add(image_obj)
                     temp_dict = {}
                     temp_dict["url"] = image_obj.mid_image.url
-                    temp_dict["high-res-url"] = image_obj.image.url
+                    temp_dict["high_res_url"] = image_obj.image.url
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
                     pass
@@ -3898,15 +3946,17 @@ class UploadFlyerExternalImagesAPI(APIView):
 
 class UploadPFLExternalImagesAPI(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            if request.user.has_perm("WAMSApp.add_image") == False:
-                logger.warning("UploadPFLExternalImagesAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm("WAMSApp.add_image") == False:
+            #     logger.warning("UploadPFLExternalImagesAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             data = request.data
             logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
@@ -3921,7 +3971,7 @@ class UploadPFLExternalImagesAPI(APIView):
                     pfl_obj.external_images_bucket.add(image_obj)
                     temp_dict = {}
                     temp_dict["url"] = image_obj.mid_image.url
-                    temp_dict["high-res-url"] = image_obj.image.url
+                    temp_dict["high_res_url"] = image_obj.image.url
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
                     pass
@@ -4163,7 +4213,7 @@ class FetchAuditLogsByUserAPI(APIView):
                     temp_dict = {}
                     object_pk = log_entry_obj.object_pk
                     content_type = str(log_entry_obj.content_type)
-                    
+                    logger.info("%s ",content_type)
                     temp_dict["created_date"] = datetime.datetime.strftime(log_entry_obj.timestamp, "%b %d, %Y")
                     temp_dict["resource"] = content_type
 
@@ -4747,7 +4797,10 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
                 temp_dict["product_id"] = product_obj.product_id
                 temp_dict["product_id_type"] = str(product_obj.product_id_type)
                 temp_dict["barcode"] = str(product_obj.barcode_string)
-                temp_dict["factory_code"] = str(product_obj.factory_code)
+                try:
+                    temp_dict["factory_code"] = str(product_obj.factory.factory_code)
+                except Exception as e:
+                    temp_dict["factory_code"] = ""
                 temp_dict["color"] = str(product_obj.color)
                 temp_dict["color_map"] = str(product_obj.color_map)
                 temp_dict["material_type"] = str(product_obj.material_type)
@@ -4799,6 +4852,119 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchBulkProductDetailsSalesIntegrationAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            seller_sku_list = data["articleNumberList"]
+            try:
+                seller_sku_list = json.loads(seller_sku_list)
+            except Exception as e:
+                pass
+
+            bulk_product_information_list = []
+
+            for seller_sku in seller_sku_list:
+                try:
+                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
+                    product_objs = Product.objects.filter(base_product__seller_sku=seller_sku)
+                    temp_dict = {}
+                    temp_dict["product_name"] = base_product_obj.base_product_name
+                    temp_dict["seller_sku"] = base_product_obj.seller_sku
+                    temp_dict["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
+                    temp_dict["brand_name"] = str(base_product_obj.brand)
+                    temp_dict["manufacturer"] = str(base_product_obj.manufacturer)
+                    temp_dict["category"] = base_product_obj.category
+                    temp_dict["sub_category"] = base_product_obj.sub_category
+                    temp_dict["dimensions"] = json.loads(base_product_obj.dimensions)
+                    variants = []
+                    for product_obj in product_objs:
+                        temp_dict2 = {}
+                        temp_dict2["product_name"] = product_obj.product_name
+                        temp_dict2["product_id"] = product_obj.product_id
+                        temp_dict2["product_id_type"] = str(product_obj.product_id_type)
+                        temp_dict2["barcode"] = str(product_obj.barcode_string)
+                        try:
+                            temp_dict2["factory_code"] = str(product_obj.factory.factory_code)
+                        except Exception as e:
+                            temp_dict2["factory_code"] = ""
+                        temp_dict2["color"] = str(product_obj.color)
+                        temp_dict2["color_map"] = str(product_obj.color_map)
+                        temp_dict2["material_type"] = str(product_obj.material_type)
+                        temp_dict2["moq"] = "" if product_obj.quantity==None else str(product_obj.quantity)
+                        temp_dict2["factory_notes"] = str(product_obj.factory_notes)
+                        temp_dict2["product_description"] = str(product_obj.product_description)
+                        temp_dict2["product_features"] = json.loads(product_obj.pfl_product_features)
+                        images = {}
+
+                        try:
+                            main_images_list = ImageBucket.objects.none()
+                            sub_images_list = ImageBucket.objects.none()
+                            
+                            main_images_objs = MainImages.objects.filter(product=product_obj)
+                            for main_images_obj in main_images_objs:
+                                main_images_list |= main_images_obj.main_images.all()
+                            main_images_list = main_images_list.distinct()
+                            images["main_images"] = create_response_images_main_sub_list(main_images_list)
+
+                            sub_images_objs = SubImages.objects.filter(product=product_obj)
+                            for sub_images_obj in sub_images_objs:
+                                sub_images_list |= sub_images_obj.sub_images.all()
+                            sub_images_list = sub_images_list.distinct()
+                            images["sub_images"] = create_response_images_main_sub_list(sub_images_list)
+
+                            images["pfl_images"] = create_response_images_list(product_obj.pfl_images.all())
+                            images["pfl_generated_images"] = create_response_images_list(product_obj.pfl_images.all())
+                            images["white_background_images"] = create_response_images_list(product_obj.pfl_images.all())
+                            images["lifestyle_images"] = create_response_images_list(product_obj.pfl_images.all())
+                            images["certificate_images"] = create_response_images_list(product_obj.pfl_images.all())
+                            images["giftbox_images"] = create_response_images_list(product_obj.pfl_images.all())
+                            images["diecut_images"] = create_response_images_list(product_obj.pfl_images.all())
+                            images["aplus_content_images"] = create_response_images_list(product_obj.pfl_images.all())
+                            images["ads_images"] = create_response_images_list(product_obj.pfl_images.all())
+                            images["transparent_images"] = create_response_images_list(product_obj.pfl_images.all())
+
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.error("FetchBulkProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                            images["main_images"] = []
+                            pass
+
+                        temp_dict2["images"] = images
+                        variants.append(temp_dict2)
+                    temp_dict["variants"] = variants
+                    bulk_product_information_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchBulkProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    temp_dict = {}
+                    temp_dict["seller_sku"] = seller_sku
+                    bulk_product_information_list.append(temp_dict)
+
+            response["products"] = bulk_product_information_list
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBulkProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4878,6 +5044,207 @@ class MoveToSubImagesAPI(APIView):
 
         return Response(data=response)
 
+
+class GenerateReportsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("GenerateReportsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            filter_parameters = data["filter_parameters"]  
+
+            search_list_product_objs = Product.objects.none()
+
+            search_list_product_objs = custom_permission_filter_products(request.user)
+
+
+            if filter_parameters["brand_name"] != "":
+                brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
+                search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
+
+            without_images = 0
+            if filter_parameters["has_image"] == "1":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "0":
+                without_images = 1
+                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
+
+            generate_images_report(search_list_product_objs)
+            generate_mega_bulk_upload(search_list_product_objs)
+
+            response["file_path_1"] = "https://"+SERVER_IP+"/files/csv/images-count-report.xlsx"
+            response["file_path_2"] = "https://"+SERVER_IP+"/files/csv/mega-bulk-export.xlsx"
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GenerateReportsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadBulkExportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("UploadBulkExportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            path = default_storage.save('tmp/temp-bulk-upload.xlsx', data["import_file"])
+            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            product_list = []
+            for i in range(rows):
+                try:
+                    search_string = str(dfs.iloc[i][0]).strip()
+                    #product_obj = Product.objects.get(product_id=product_id)
+                    product_objs = Product.objects.filter(Q(base_product__seller_sku=search_string) | Q(product_id=search_string))
+                    for product_obj in product_objs:
+                        temp_dict = {}
+                        temp_dict["name"] = product_obj.product_name
+                        temp_dict["product_id"] = product_obj.product_id
+                        temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                        temp_dict["uuid"] = product_obj.uuid
+                        try:
+                            temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+                        except Exception as e:
+                            temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                        product_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("UploadBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["product_list"] = product_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SearchBulkExportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("SearchBulkExportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            search_string = data["search_string"]
+
+            product_objs = Product.objects.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
+
+            product_list = []
+            for product_obj in product_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = product_obj.product_name
+                    temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["uuid"] = product_obj.uuid
+                    try:
+                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+                    except Exception as e:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    product_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            response["product_list"] = product_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchDataPointsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchDataPointsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data_point_objs = DataPoint.objects.all()
+            data_point_list = []
+            for data_point_obj in data_point_objs:
+                temp_dict = {}
+                temp_dict["name"] = data_point_obj.name
+                temp_dict["variable"] = data_point_obj.variable
+                data_point_list.append(temp_dict)
+            
+            response["data_point_list"] = data_point_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDataPointsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DownloadBulkExportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("DownloadBulkExportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data_point_list = data["data_point_list"]
+            product_uuid_list = data["product_uuid_list"]
+
+            generate_dynamic_export(product_uuid_list, data_point_list)
+            response["file_path"] = "https://"+SERVER_IP+"/files/csv/dynamic_export.xlsx"
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DownloadBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 
 SapIntegration = SapIntegrationAPI.as_view()
@@ -5006,6 +5373,19 @@ RefreshPagePriceAndStock = RefreshPagePriceAndStockAPI.as_view()
 
 FetchProductDetailsSalesIntegration = FetchProductDetailsSalesIntegrationAPI.as_view()
 
+FetchBulkProductDetailsSalesIntegration = FetchBulkProductDetailsSalesIntegrationAPI.as_view()
+
 MoveToMainImages = MoveToMainImagesAPI.as_view()
 
 MoveToSubImages = MoveToSubImagesAPI.as_view()
+
+GenerateReports = GenerateReportsAPI.as_view()
+
+# Bulk Export APIs
+UploadBulkExport = UploadBulkExportAPI.as_view()
+
+SearchBulkExport = SearchBulkExportAPI.as_view()
+
+FetchDataPoints = FetchDataPointsAPI.as_view()
+
+DownloadBulkExport = DownloadBulkExportAPI.as_view()
