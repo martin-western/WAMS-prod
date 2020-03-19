@@ -216,14 +216,6 @@ class FetchConstantValuesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            category_list = []
-            category_objs = Category.objects.all()
-            for category_obj in category_objs:
-                temp_dict = {}
-                temp_dict["name"] = category_obj.name
-                temp_dict["pk"] = category_obj.pk
-                category_list.append(temp_dict)
-
             material_list = []
             material_objs = MaterialType.objects.all()
             for material_obj in material_objs:
@@ -257,7 +249,7 @@ class FetchConstantValuesAPI(APIView):
                 temp_dict["pk"] = ebay_category_obj.pk
                 ebay_category_list.append(temp_dict)
 
-            response["category_list"] = category_list
+            
             response["ebay_category_list"] = ebay_category_list
             response["material_list"] = material_list
             response["brand_list"] = brand_list
@@ -5247,6 +5239,49 @@ class DownloadBulkExportAPI(APIView):
         return Response(data=response)
 
 
+class FetchCategoriesSubCategoriesAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchCategoriesSubCategoriesAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            category_list = []
+            category_objs = Category.objects.all()
+            for category_obj in category_objs:
+                temp_dict = {}
+                temp_dict["name"] = category_obj.name
+                temp_dict["pk"] = category_obj.pk
+                category_list.append(temp_dict)
+
+
+            sub_category_list = []
+            sub_category_objs = SubCategory.objects.all()
+            for sub_category_obj in sub_category_objs:
+                temp_dict = {}
+                temp_dict["name"] = sub_category_obj.name
+                temp_dict["pk"] = sub_category_obj.pk
+                sub_category_list.append(temp_dict)
+
+            response["category_list"] = category_list
+            response["sub_category_list"] = sub_category_list
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoriesSubCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5389,3 +5424,5 @@ SearchBulkExport = SearchBulkExportAPI.as_view()
 FetchDataPoints = FetchDataPointsAPI.as_view()
 
 DownloadBulkExport = DownloadBulkExportAPI.as_view()
+
+FetchCategoriesSubCategories = FetchCategoriesSubCategoriesAPI.as_view()

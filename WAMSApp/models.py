@@ -363,18 +363,6 @@ class Brand(models.Model):
     def __str__(self):
         return str(self.name)
 
-class Category(models.Model):
-
-    name = models.CharField(unique=True, max_length=250)
-
-    class Meta:
-        verbose_name = "Category"
-        verbose_name_plural = "Category"
-
-    def __str__(self):
-        return str(self.name)
-
-
 class ProductIDType(models.Model):
 
     name = models.CharField(unique=True, max_length=100)
