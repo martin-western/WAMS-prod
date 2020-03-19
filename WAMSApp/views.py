@@ -2439,6 +2439,7 @@ class CreateFlyerAPI(APIView):
                 "all-promo-resizer": "40",
                 "all-warranty-resizer": "40",
                 "all-image-resizer": "100",
+                "all-image-rotator": "0",
                 "footer-text": "Your Footer Here"
             }
 
@@ -2467,6 +2468,7 @@ class CreateFlyerAPI(APIView):
                             "banner-img": "",
                             "warranty-img": "",
                             "image-resizer": "100",
+                            "image-rotator": "0",
                             "promo-resizer": "40",
                             "warranty-resizer": "40",
                             "price": "",
@@ -2593,6 +2595,7 @@ class CreateFlyerAPI(APIView):
                                 "banner-img": "",
                                 "warranty-img": "",
                                 "image-resizer": "100",
+                                "image-rotator": "0",
                                 "promo-resizer": "40",
                                 "warranty-resizer": "40",
                                 "price": str(product_price),

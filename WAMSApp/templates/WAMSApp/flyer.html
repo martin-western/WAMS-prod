@@ -778,7 +778,38 @@
                 </p>
             </div>
           </div>
+
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">camera_font</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Rotate Image</span>
+          </span>
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="image-rotator" min="-90" max="90" value="0" />
+                </p>
+            </div>
+          </div>
+
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">compare</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Rotate All Images</span>
+          </span>
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="all-image-rotator" min="-90" max="90" value="0" />
+                </p>
+            </div>
+          </div>
+
+
         </div>
+
+
+
 
 
         <!-- Product Title Settings -->        
@@ -1838,6 +1869,7 @@
     var global_all_promo_resizer = "40";
     var global_all_warranty_resizer = "40";
     var global_all_image_resizer = "100";
+    var global_all_image_rotator = "0";
     var global_super_brand_logo = false;
     var global_iso_logo = false;
     var global_consumer_logo = false;
@@ -2246,6 +2278,32 @@
     });
 
 
+
+
+    $("#image-rotator").change(function() {
+      var R = $("#image-rotator").val();
+
+      $("#gridimg-"+global_selected_grid_id).css("transform", "rotate("+R+"deg)");
+      $("#gridimg-"+global_selected_grid_id).attr("rotator", R);
+    });
+
+    $("#all-image-rotator").change(function() {
+      var R = $("#all-image-rotator").val();
+
+      var grid_images = $(".grid-images");
+      for(var i=0;i<grid_images.length;i++)
+      {
+        $(grid_images[i]).css("transform", "rotate("+R+"deg)");
+        $(grid_images[i]).attr("rotator", R);
+      }
+      $("#image-rotator").val(R);
+      global_all_image_rotator = R;
+    });
+
+
+
+
+
     $("#price-resizer").change(function() {
       var R = $("#price-resizer").val();
       $(".grid-item-footer-right").css("max-width", R+"px");
@@ -2311,6 +2369,7 @@
       var image_url = flyer_dict["image-url"];
       var banner_img = flyer_dict["banner-img"];
       var image_resizer = flyer_dict["image-resizer"];
+      var image_rotator = flyer_dict["image-rotator"];
       var promo_resizer = flyer_dict["promo-resizer"];
       var warranty_resizer = flyer_dict["warranty-resizer"];
       var width = flyer_dict["width"];
@@ -2333,7 +2392,7 @@
               <div class="grid-item-img-container">
                 <a id="gridbox-`+grid_id+`" href="#!" class="flyer-item-box" style="color:black;height:100%;width:100%;">
                   <div class="divgrid" id="divgrid-`+grid_id+`" style="text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;height:auto;width:100%">
-                      <img class="grid-images" resizer="`+image_resizer+`" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:`+image_resizer+`%;height:auto;"/>
+                      <img class="grid-images" resizer="`+image_resizer+`" rotator="`+image_rotator+`" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:`+image_resizer+`%;transform:rotate(`+image_rotator+`deg);height:auto;"/>
                   </div>
                 </a>
                 <div class="grid-item-sticker">
@@ -2377,6 +2436,7 @@
       $("#divgrid-1").parent().parent().css("border", "0.14em dashed");
 
       $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
+      $("#image-rotator").val($("#gridimg-"+global_selected_grid_id).attr("rotator"));
       $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
       $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
 
@@ -2460,6 +2520,7 @@
         flyer_dict["image-url"] = item_data[i]["data"]["image-url"];
         flyer_dict["banner-img"] = item_data[i]["data"]["banner-img"];
         flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
+        flyer_dict["image-rotator"] = item_data[i]["data"]["image-rotator"];
         flyer_dict["promo-resizer"] = item_data[i]["data"]["promo-resizer"];
         flyer_dict["warranty-resizer"] = item_data[i]["data"]["warranty-resizer"];
         flyer_dict["width"] = item_data[i]["container"]["width"];
@@ -2578,6 +2639,7 @@
       flyer_dict["currency"] = global_currency_unit;
       flyer_dict["image-url"] = "";
       flyer_dict["image-resizer"] = global_all_image_resizer;
+      flyer_dict["image-rotator"] = global_all_image_rotator;
       flyer_dict["promo-resizer"] = global_all_promo_resizer;
       flyer_dict["warranty-resizer"] = global_all_warranty_resizer;
       flyer_dict["banner-img"] = "";
@@ -2970,6 +3032,7 @@
           global_all_promo_resizer = common["all-promo-resizer"];
           global_all_warranty_resizer = common["all-warranty-resizer"];
           global_all_image_resizer = common["all-image-resizer"];
+          global_all_image_rotator = common["all-image-rotator"];
           global_footer_text = common["footer-text"];
 
           update_editor_settings();
@@ -3010,6 +3073,7 @@
         $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
         $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
+        $("#image-rotator").val($("#gridimg-"+global_selected_grid_id).attr("rotator"));
         $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
         $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
 
@@ -3102,6 +3166,7 @@
         var warranty_img = $("#banner-img-left-"+grid_id).attr("src");
 
         var image_resizer = $("#gridimg-"+grid_id).attr("resizer");
+        var image_rotator = $("#gridimg-"+grid_id).attr("rotator");
         var promo_resizer = $("#banner-img-"+grid_id).attr("resizer");
         var warranty_resizer = $("#banner-img-left-"+grid_id).attr("resizer");
         var product_title = $("#product-title-info2-"+grid_id).val();
@@ -3121,6 +3186,7 @@
             "banner-img": banner_img,
             "warranty-img": warranty_img,
             "image-resizer": image_resizer,
+            "image-rotator": image_rotator,
             "promo-resizer": promo_resizer,
             "warranty-resizer": warranty_resizer,
             "price": price,
@@ -3174,6 +3240,7 @@
         "all-promo-resizer": global_all_promo_resizer,
         "all-warranty-resizer": global_all_warranty_resizer,
         "all-image-resizer": global_all_image_resizer,
+        "all-image-rotator": global_all_image_rotator,
         "footer-text":global_footer_text
       };
 
@@ -3370,6 +3437,9 @@
 
       //Image Resizer
       $("#all-image-resizer").val(global_all_image_resizer);
+
+      //Image Rotator
+      $("#all-image-rotator").val(global_all_image_rotator);      
 
       //Promo Resizer
       $("#all-promo-resizer").val(global_all_promo_resizer);
