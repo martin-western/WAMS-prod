@@ -612,6 +612,8 @@ class Flyer(models.Model):
     background_images_bucket = models.ManyToManyField(Image, blank=True, related_name="background_images_bucket")
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     mode = models.CharField(max_length=100, default="A4 Portrait")
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    created_date = models.DateTimeField(null=True, blank=True)
 
     history = AuditlogHistoryField()
 
@@ -622,7 +624,12 @@ class Flyer(models.Model):
     def __str__(self):
         return str(self.name)
 
-auditlog.register(Flyer, exclude_fields=['template_data','background_images_bucket' , 'pk'])
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+        super(Flyer, self).save(*args, **kwargs)
+
+auditlog.register(Flyer, exclude_fields=['template_data','background_images_bucket' , 'created_date', 'pk'])
 auditlog.register(Flyer.product_bucket.through)
 
 class PFL(models.Model):
@@ -853,9 +860,13 @@ class DraftProformaInvoiceLine(models.Model):
         verbose_name_plural = "Draft Proforma Invoice Lines"
 
 
+class DataPoint(models.Model):
 
+    name = models.CharField(max_length=200, default="")
+    variable = models.CharField(max_length=200, default="", unique=True)
 
-
+    def __str__(self):
+        return self.name
 
 
 

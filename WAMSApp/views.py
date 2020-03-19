@@ -1629,6 +1629,7 @@ class FetchProductListAPI(APIView):
             
             search_list_base_product_objs = search_list_product_objs.values_list('base_product',flat=True).order_by('-pk')
 
+            search_list_base_product_objs = list(dict.fromkeys(search_list_base_product_objs))
             products = []
 
             paginator = Paginator(search_list_base_product_objs, 20)
@@ -2388,7 +2389,8 @@ class CreateFlyerAPI(APIView):
             flyer_obj = Flyer.objects.create(name=convert_to_ascii(data["name"]),
                                              template_data="{}",
                                              brand=brand_obj,
-                                             mode=mode)
+                                             mode=mode,
+                                             user=request.user)
 
             create_option = data["create_option"]
 
@@ -2711,7 +2713,7 @@ class FetchFlyerDetailsAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["url"] = external_images_bucket_obj.mid_image.url
-                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["high_res_url"] = external_images_bucket_obj.image.url
                     temp_dict["image_pk"] = external_images_bucket_obj.pk
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
@@ -2814,7 +2816,7 @@ class FetchPFLDetailsAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["url"] = external_images_bucket_obj.mid_image.url
-                    temp_dict["high-res-url"] = external_images_bucket_obj.image.url
+                    temp_dict["high_res_url"] = external_images_bucket_obj.image.url
                     temp_dict["image_pk"] = external_images_bucket_obj.pk
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
@@ -2941,6 +2943,8 @@ class FetchProductListFlyerPFLAPI(APIView):
                     brand_obj = Flyer.objects.get(
                         pk=int(data["flyer_pk"])).brand
                     product_objs = product_objs.filter(base_product__brand=brand_obj)
+                    search_string = data["search_string"]
+                    product_objs = product_objs.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
                     
             except Exception as e:
                 logger.warning("Issue with filtering brands %s", str(e))
@@ -2959,7 +2963,7 @@ class FetchProductListFlyerPFLAPI(APIView):
                     short_product_name = str(product_obj.product_name_sap)
                     if len(short_product_name)>char_len:
                         short_product_name = short_product_name[:char_len] + "..."
-                    temp_dict["product_name_autocomplete"] = short_product_name + " | " + str(product_obj.product_id)
+                    temp_dict["product_name_autocomplete"] = short_product_name + " | " + str(product_obj.base_product.seller_sku) + " | " + str(product_obj.product_id)
                     main_image_url = None
                     
                     try:
@@ -3486,12 +3490,12 @@ class FetchFlyerListAPI(APIView):
             page = int(data["page"])
 
             permissible_brands = custom_permission_filter_brands(request.user)
-            flyer_objs = Flyer.objects.filter(brand__in=permissible_brands)
+            flyer_objs = Flyer.objects.filter(brand__in=permissible_brands).order_by('-pk')
 
             chip_data = data["tags"]
 
             if len(chip_data) > 0:
-                flyer_objs = Flyer.objects.all()
+                flyer_objs = Flyer.objects.all().order_by('-pk')
                 search_list_objs = []
 
                 for flyer_obj in flyer_objs:
@@ -3748,7 +3752,8 @@ class SaveFlyerInBucketAPI(APIView):
         try:
 
             data = request.data
-            logger.info("SavePFLInBucketAPI: %s", str(data))
+            #logger.info("SavePFLInBucketAPI: %s", str(data))
+            logger.info("SavePFLInBucketAPI called")
 
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
 
@@ -3921,7 +3926,7 @@ class UploadFlyerExternalImagesAPI(APIView):
                     flyer_obj.external_images_bucket.add(image_obj)
                     temp_dict = {}
                     temp_dict["url"] = image_obj.mid_image.url
-                    temp_dict["high-res-url"] = image_obj.image.url
+                    temp_dict["high_res_url"] = image_obj.image.url
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
                     pass
@@ -3966,7 +3971,7 @@ class UploadPFLExternalImagesAPI(APIView):
                     pfl_obj.external_images_bucket.add(image_obj)
                     temp_dict = {}
                     temp_dict["url"] = image_obj.mid_image.url
-                    temp_dict["high-res-url"] = image_obj.image.url
+                    temp_dict["high_res_url"] = image_obj.image.url
                     external_images_bucket_list.append(temp_dict)
                 except Exception as e:
                     pass
@@ -5077,13 +5082,164 @@ class GenerateReportsAPI(APIView):
             generate_images_report(search_list_product_objs)
             generate_mega_bulk_upload(search_list_product_objs)
 
-            response["file_path_1"] = "http://"+SERVER_IP+"/files/csv/images-count-report.xlsx"
-            response["file_path_2"] = "http://"+SERVER_IP+"/files/csv/mega-bulk-export.xlsx"
+            response["file_path_1"] = "https://"+SERVER_IP+"/files/csv/images-count-report.xlsx"
+            response["file_path_2"] = "https://"+SERVER_IP+"/files/csv/mega-bulk-export.xlsx"
             
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("GenerateReportsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadBulkExportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("UploadBulkExportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            path = default_storage.save('tmp/temp-bulk-upload.xlsx', data["import_file"])
+            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            product_list = []
+            for i in range(rows):
+                try:
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_obj = Product.objects.get(product_id=product_id)
+                    temp_dict = {}
+                    temp_dict["name"] = product_obj.product_name
+                    temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["uuid"] = product_obj.uuid
+                    try:
+                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+                    except Exception as e:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    product_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            response["product_list"] = product_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SearchBulkExportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("SearchBulkExportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            search_string = data["search_string"]
+
+            product_objs = Product.objects.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
+
+            product_list = []
+            for product_obj in product_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = product_obj.product_name
+                    temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["uuid"] = product_obj.uuid
+                    try:
+                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+                    except Exception as e:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    product_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            response["product_list"] = product_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchDataPointsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchDataPointsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data_point_objs = DataPoint.objects.all()
+            data_point_list = []
+            for data_point_obj in data_point_objs:
+                temp_dict = {}
+                temp_dict["name"] = data_point_obj.name
+                temp_dict["variable"] = data_point_obj.variable
+                data_point_list.append(temp_dict)
+            
+            response["data_point_list"] = data_point_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDataPointsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DownloadBulkExportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("DownloadBulkExportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data_point_list = data["data_point_list"]
+            product_uuid_list = data["product_uuid_list"]
+
+            generate_dynamic_export(product_uuid_list, data_point_list)
+            response["file_path"] = "https://"+SERVER_IP+"/files/csv/dynamic_export.xlsx"
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DownloadBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5221,3 +5377,12 @@ MoveToMainImages = MoveToMainImagesAPI.as_view()
 MoveToSubImages = MoveToSubImagesAPI.as_view()
 
 GenerateReports = GenerateReportsAPI.as_view()
+
+# Bulk Export APIs
+UploadBulkExport = UploadBulkExportAPI.as_view()
+
+SearchBulkExport = SearchBulkExportAPI.as_view()
+
+FetchDataPoints = FetchDataPointsAPI.as_view()
+
+DownloadBulkExport = DownloadBulkExportAPI.as_view()

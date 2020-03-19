@@ -350,9 +350,9 @@ class FetchSectionsProductsAPI(APIView):
 
                     temp_dict2["prevPrice"] = temp_dict2["price"]
                     temp_dict2["currency"] = "AED"
-                    temp_dict2["discount"] = "10"
-                    temp_dict2["rating"] = "4.5"
-                    temp_dict2["totalRatings"] = "5,372"
+                    #temp_dict2["discount"] = "10"
+                    temp_dict2["rating"] = "0"
+                    temp_dict2["totalRatings"] = "0"
                     temp_dict2["id"] = str(product_obj.uuid)
                     main_images_list = ImageBucket.objects.none()
                     main_images_objs = MainImages.objects.filter(product=product_obj)
@@ -476,9 +476,9 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2["price"] = "0"
                 temp_dict2["prevPrice"] = temp_dict2["price"]
                 temp_dict2["currency"] = "AED"
-                temp_dict2["discount"] = "10%"
-                temp_dict2["rating"] = "4.5"
-                temp_dict2["totalRatings"] = "5,372"
+                #temp_dict2["discount"] = "10%"
+                temp_dict2["rating"] = "0"
+                temp_dict2["totalRatings"] = "0"
                 temp_dict2["uuid"] = str(product_obj.uuid)
                 temp_dict2["id"] = str(product_obj.uuid)
                 main_images_list = ImageBucket.objects.none()
@@ -976,9 +976,9 @@ class SearchAPI(APIView):
                         temp_dict["price"] = product.standard_price
 
                     temp_dict["currency"] = "AED"
-                    temp_dict["discount"] = "10%"
-                    temp_dict["rating"] = "4.5"
-                    temp_dict["totalRatings"] = "453"
+                    #temp_dict["discount"] = "0"
+                    temp_dict["rating"] = "0"
+                    temp_dict["totalRatings"] = "0"
                     temp_dict["uuid"] = product.uuid
                     temp_dict["id"] = product.uuid
                     
@@ -2437,6 +2437,48 @@ class AddProductToSectionAPI(APIView):
         return Response(data=response)
 
 
+class FetchBulkProductInfoAPI(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchBulkProductInfoAPI: %s", str(data))
+
+            uuidList = json.loads(data["uuidList"])
+
+            productInfo = {}
+            for uuid in uuidList:
+                product_obj = Product.objects.get(uuid=uuid)
+
+                main_image_url = Config.objects.all()[0].product_404_image.image.url
+                try:
+                    main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
+                    main_images_list = main_images_obj.main_images.all()
+                    main_image_url = main_images_list.all()[0].image.mid_image.url
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchBulkProductInfoAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+                temp_dict = {
+                    "productName": product_obj.product_name,
+                    "productImageUrl": main_image_url
+                }
+
+                productInfo[uuid] = temp_dict
+            
+            response["productInfo"] = productInfo
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBulkProductInfoAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2519,3 +2561,5 @@ FetchDealshubPrice = FetchDealshubPriceAPI.as_view()
 FetchCompanyProfileDealshub = FetchCompanyProfileDealshubAPI.as_view()
 
 AddProductToSection = AddProductToSectionAPI.as_view()
+
+FetchBulkProductInfo = FetchBulkProductInfoAPI.as_view()
