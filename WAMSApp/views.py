@@ -1298,7 +1298,7 @@ class FetchDealsHubProductsAPI(APIView):
                 temp_product_objs_list = Product.objects.none()
                 for search_key in search_list:
                     temp_product_objs_list |= product_objs_list.filter(Q(base_product__base_product_name__icontains=search_key) | Q(product_name__icontains=search_key) | Q(product_name_sap__icontains=search_key) | Q(product_id__icontains=search_key) | Q(base_product__seller_sku__icontains=search_key))
-                product_objs_list = temp_product_objs_list
+                product_objs_list = temp_product_objs_list.distinct()
                 
             page = int(data['page'])
             paginator = Paginator(product_objs_list, 20)
