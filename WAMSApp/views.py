@@ -5117,17 +5117,19 @@ class UploadBulkExportAPI(APIView):
             for i in range(rows):
                 try:
                     product_id = str(dfs.iloc[i][0]).strip()
-                    product_obj = Product.objects.get(product_id=product_id)
-                    temp_dict = {}
-                    temp_dict["name"] = product_obj.product_name
-                    temp_dict["product_id"] = product_obj.product_id
-                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
-                    temp_dict["uuid"] = product_obj.uuid
-                    try:
-                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
-                    except Exception as e:
-                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
-                    product_list.append(temp_dict)
+                    #product_obj = Product.objects.get(product_id=product_id)
+                    product_objs = Product.objects.filter(Q(base_product__seller_sku=search_string) | Q(product_id=search_string))
+                    for product_obj in product_objs:
+                        temp_dict = {}
+                        temp_dict["name"] = product_obj.product_name
+                        temp_dict["product_id"] = product_obj.product_id
+                        temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                        temp_dict["uuid"] = product_obj.uuid
+                        try:
+                            temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+                        except Exception as e:
+                            temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                        product_list.append(temp_dict)
                 except Exception as e:
                     pass
 
