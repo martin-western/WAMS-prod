@@ -5131,7 +5131,8 @@ class UploadBulkExportAPI(APIView):
                             temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
                         product_list.append(temp_dict)
                 except Exception as e:
-                    pass
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("UploadBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["product_list"] = product_list
             response['status'] = 200
