@@ -1617,7 +1617,7 @@ class FetchProductListAPI(APIView):
             if len(chip_data) != 0:
                 search_list_product_lookup = Product.objects.none()
                 for tag in chip_data:
-                    search_list_product_objs |= search_list_product_objs.filter(
+                    search_list_product_lookup |= search_list_product_objs.filter(
                         Q(base_product__base_product_name__icontains=tag) |
                         Q(product_name__icontains=tag) |
                         Q(product_name_sap__icontains=tag) |
