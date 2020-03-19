@@ -1290,8 +1290,16 @@ class FetchDealsHubProductsAPI(APIView):
 
             (base_product_objs_list, product_objs_list) = custom_permission_filter_base_products_and_products(request.user)
 
+            search_list = data.get("search_list", [])
+
             product_objs_list = product_objs_list.filter(is_dealshub_product_created=True)
 
+            if len(search_list)>0:
+                temp_product_objs_list = Product.objects.none()
+                for search_key in search_list:
+                    temp_product_objs_list |= product_objs_list.filter(Q(base_product__base_product_name__icontains=search_key) | Q(product_name__icontains=search_key) | Q(product_name_sap__icontains=search_key) | Q(product_id__icontains=search_key) | Q(base_product__seller_sku__icontains=search_key))
+                product_objs_list = temp_product_objs_list
+                
             page = int(data['page'])
             paginator = Paginator(product_objs_list, 20)
             product_objs_list_subset = paginator.page(page)
