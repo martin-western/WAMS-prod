@@ -1181,6 +1181,51 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
                 return product_obj.transparent_images.all()[4].image.url
             return ""
 
+
+        if data_point_variable=="pfl_image_1":
+            if product_obj.pfl_images.count()>=1:
+                return product_obj.pfl_images.all()[0].image.url
+            return ""
+        if data_point_variable=="pfl_image_2":
+            if product_obj.pfl_images.count()>=2:
+                return product_obj.pfl_images.all()[1].image.url
+            return ""
+        if data_point_variable=="pfl_image_3":
+            if product_obj.pfl_images.count()>=3:
+                return product_obj.pfl_images.all()[2].image.url
+            return ""
+        if data_point_variable=="pfl_image_4":
+            if product_obj.pfl_images.count()>=4:
+                return product_obj.pfl_images.all()[3].image.url
+            return ""
+        if data_point_variable=="pfl_image_5":
+            if product_obj.pfl_images.count()>=5:
+                return product_obj.pfl_images.all()[4].image.url
+            return ""
+
+
+        if data_point_variable=="pfl_generated_image_1":
+            if product_obj.pfl_images.count()>=1:
+                return product_obj.pfl_generated_images.all()[0].image.url
+            return ""
+        if data_point_variable=="pfl_generated_image_2":
+            if product_obj.pfl_images.count()>=2:
+                return product_obj.pfl_generated_images.all()[1].image.url
+            return ""
+        if data_point_variable=="pfl_generated_image_3":
+            if product_obj.pfl_images.count()>=3:
+                return product_obj.pfl_generated_images.all()[2].image.url
+            return ""
+        if data_point_variable=="pfl_generated_image_4":
+            if product_obj.pfl_images.count()>=4:
+                return product_obj.pfl_generated_images.all()[3].image.url
+            return ""
+        if data_point_variable=="pfl_generated_image_5":
+            if product_obj.pfl_images.count()>=5:
+                return product_obj.pfl_generated_images.all()[4].image.url
+            return ""
+
+
         if data_point_variable=="unedited_image_1":
             if base_product_obj.unedited_images.count()>=1:
                 return base_product_obj.unedited_images.all()[0].image.url

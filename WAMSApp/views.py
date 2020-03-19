@@ -5126,7 +5126,7 @@ class UploadBulkExportAPI(APIView):
                         temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                         temp_dict["uuid"] = product_obj.uuid
                         try:
-                            temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+                            temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.mid_image.url
                         except Exception as e:
                             temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
                         product_list.append(temp_dict)
@@ -5171,7 +5171,7 @@ class SearchBulkExportAPI(APIView):
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["uuid"] = product_obj.uuid
                     try:
-                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.mid_image.url
                     except Exception as e:
                         temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
                     product_list.append(temp_dict)
