@@ -1290,8 +1290,16 @@ class FetchDealsHubProductsAPI(APIView):
 
             (base_product_objs_list, product_objs_list) = custom_permission_filter_base_products_and_products(request.user)
 
+            search_list = data.get("search_list", [])
+
             product_objs_list = product_objs_list.filter(is_dealshub_product_created=True)
 
+            if len(search_list)>0:
+                temp_product_objs_list = Product.objects.none()
+                for search_key in search_list:
+                    temp_product_objs_list |= product_objs_list.filter(Q(base_product__base_product_name__icontains=search_key) | Q(product_name__icontains=search_key) | Q(product_name_sap__icontains=search_key) | Q(product_id__icontains=search_key) | Q(base_product__seller_sku__icontains=search_key))
+                product_objs_list = temp_product_objs_list.distinct()
+                
             page = int(data['page'])
             paginator = Paginator(product_objs_list, 20)
             product_objs_list_subset = paginator.page(page)
@@ -2431,6 +2439,7 @@ class CreateFlyerAPI(APIView):
                 "all-promo-resizer": "40",
                 "all-warranty-resizer": "40",
                 "all-image-resizer": "100",
+                "all-image-rotator": "0",
                 "footer-text": "Your Footer Here"
             }
 
@@ -2459,6 +2468,7 @@ class CreateFlyerAPI(APIView):
                             "banner-img": "",
                             "warranty-img": "",
                             "image-resizer": "100",
+                            "image-rotator": "0",
                             "promo-resizer": "40",
                             "warranty-resizer": "40",
                             "price": "",
@@ -2585,6 +2595,7 @@ class CreateFlyerAPI(APIView):
                                 "banner-img": "",
                                 "warranty-img": "",
                                 "image-resizer": "100",
+                                "image-rotator": "0",
                                 "promo-resizer": "40",
                                 "warranty-resizer": "40",
                                 "price": str(product_price),
@@ -5247,6 +5258,48 @@ class DownloadBulkExportAPI(APIView):
         return Response(data=response)
 
 
+class TransferBulkChannelAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("TransferBulkChannelAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_list = data["channel_list"]
+            product_uuid_list = data["product_uuid_list"]
+
+            for product_uuid in product_uuid_list:
+                try:
+                    channel_product_obj = ChannelProduct.objects.get(product__uuid=product_uuid)
+                    if "Amazon UK" in channel_list:
+                        channel_product_obj.is_amazon_uk_product_created = True
+                    if "Amazon UAE" in channel_list:
+                        channel_product_obj.is_amazon_uae_product_created = True
+                    if "Ebay" in channel_list:
+                        channel_product_obj.is_ebay_product_created = True
+                    if "Noon" in channel_list:
+                        channel_product_obj.is_noon_product_created = True
+                    channel_product_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("TransferBulkChannelAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("TransferBulkChannelAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5389,3 +5442,5 @@ SearchBulkExport = SearchBulkExportAPI.as_view()
 FetchDataPoints = FetchDataPointsAPI.as_view()
 
 DownloadBulkExport = DownloadBulkExportAPI.as_view()
+
+TransferBulkChannel = TransferBulkChannelAPI.as_view()
