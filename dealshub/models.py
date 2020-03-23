@@ -14,56 +14,14 @@ import json
 import uuid
 
 
-from WAMSApp.models import Product, Image, Organization
+from WAMSApp.models import Product, Image, Organization, Category, SubCategory
 from dealshub.synchronization import *
 
 logger = logging.getLogger(__name__)
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=256, blank=True, default='')
-    description = models.CharField(max_length=256, blank=True, default='')
-    category_id = models.CharField(max_length=256, blank=True, default='')
-    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True)
-    property_data = models.TextField(default="[]", blank=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = "Category"
-        verbose_name_plural = "Categories"
-
-    def save(self, *args, **kwargs):
-        
-        if self.category_id == None or self.category_id == "":
-            self.category_id = str(uuid.uuid4())
-        
-        super(Category, self).save(*args, **kwargs)
-
-
-class SubCategory(models.Model):
-    category = models.ForeignKey(
-        Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
-    name = models.CharField(max_length=256, blank=True, default='')
-    desription = models.CharField(max_length=256, blank=True, default='')
-    sub_category_id = models.CharField(max_length=256, blank=True, default='')
-    property_data = models.TextField(default="[]", blank=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = "Sub-category"
-        verbose_name_plural = "Sub Categories"
-
-
 class DealsHubProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, blank=True,null=True)
-    sub_category = models.ForeignKey(
-        SubCategory, on_delete=models.CASCADE, blank=True, null=True)
     properties = models.TextField(null=True, blank=True, default="{}")
     is_published = models.BooleanField(default=False)
 

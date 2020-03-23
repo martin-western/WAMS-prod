@@ -6,11 +6,8 @@ from django.contrib import admin
 from dealshub.models import *
 
 
-admin.site.register(Category)
-admin.site.register(SubCategory)
-
 class DealsHubProductAdmin(admin.ModelAdmin):
-    list_display = ('product', 'category')
+    list_display = ('product',)
 
 
 class DealshubAdminSectionOrderAdmin(admin.ModelAdmin):
