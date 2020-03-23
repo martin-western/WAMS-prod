@@ -1254,9 +1254,9 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
         if data_point_variable=="seller_sku":
             return base_product_obj.seller_sku
         if data_point_variable=="category":
-            return base_product_obj.category
+            return str(base_product_obj.category)
         if data_point_variable=="sub_category":
-            return base_product_obj.sub_category
+            return str(base_product_obj.sub_category)
         if data_point_variable=="brand":
             return str(base_product_obj.brand)
         if data_point_variable=="manufacturer":

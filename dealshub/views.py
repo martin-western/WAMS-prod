@@ -145,8 +145,8 @@ class FetchProductDetailsAPI(APIView):
             product_obj = temp_product_obj.product
             base_product_obj = product_obj.base_product
 
-            response["category"] = None if temp_product_obj.category==None else str(temp_product_obj.category)
-            response["subCategory"] = None if temp_product_obj.sub_category==None else str(temp_product_obj.sub_category)
+            response["category"] = "" if temp_product_obj.product.base_product.category==None else str(temp_product_obj.product.base_product.category)
+            response["subCategory"] = "" if temp_product_obj.product.base_product.sub_category==None else str(temp_product_obj.product.base_product.sub_category)
             response["id"] = temp_product_obj.product.uuid
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
@@ -200,7 +200,7 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
-            response["sub_category"] = base_product_obj.sub_category
+            response["sub_category"] = "" if base_product.sub_category==None else str(base_product_obj.sub_category)
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
@@ -339,8 +339,8 @@ class FetchSectionsProductsAPI(APIView):
                 for product_obj in product_objs:
                     temp_dict2 = {}
                     temp_dict2["productName"] = product_obj.product_name
-                    temp_dict2["productCategory"] = product_obj.base_product.category
-                    temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
+                    temp_dict2["productCategory"] = "" if product_obj.base_product.category==None else str(product_obj.base_product.category)
+                    temp_dict2["productSubCategory"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
                     temp_dict2["brand"] = str(product_obj.base_product.brand)
                     
                     if(product.base_product.brand.name=="Geepas"):
@@ -406,8 +406,8 @@ class FetchSectionsProductsLimitAPI(APIView):
                 for product_obj in product_objs[:12]:
                     temp_dict2 = {}
                     temp_dict2["productName"] = product_obj.product_name
-                    temp_dict2["productCategory"] = product_obj.base_product.category
-                    temp_dict2["productSubCategory"] = product_obj.base_product.sub_category
+                    temp_dict2["productCategory"] = "" if product_obj.base_product.category==None else str(product_obj.base_product.category)
+                    temp_dict2["productSubCategory"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
                     temp_dict2["brand"] = str(product_obj.base_product.brand)
 
                     if(product_obj.base_product.brand.name=="Geepas"):
@@ -518,7 +518,6 @@ class FetchCategoriesAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-            from dealshub.models import Category
             data = request.data
             logger.info("FetchCategoriesAPI: %s", str(data))
             organization_name = data["organizationName"]
@@ -529,7 +528,7 @@ class FetchCategoriesAPI(APIView):
             for category_obj in category_objs:
                 temp_dict = {}
                 temp_dict["name"] = category_obj.name
-                temp_dict["uuid"] = category_obj.category_id
+                temp_dict["uuid"] = category_obj.uuid
                 category_list.append(temp_dict)
 
             response['categoryList'] = category_list
@@ -940,7 +939,7 @@ class SearchAPI(APIView):
             products_by_category = Product.objects.filter(base_product__brand__organization__name=query_string_organization)
             if query_string_category!="ALL":
                 query_string_category = query_string_category.replace("-", " ")
-                products_by_category = products_by_category.filter(base_product__category__icontains = query_string_category)
+                products_by_category = products_by_category.filter(base_product__category__name__icontains = query_string_category)
             products_by_name = products_by_category
             if query_string_name!="":
                 products_by_name = products_by_category.filter(product_name__icontains=query_string_name)
@@ -1000,7 +999,6 @@ class SearchAPI(APIView):
 
             filters = []
             try:
-                from dealshub.models import Category
                 if query_string_category!="ALL":
                     category_obj = Category.objects.get(name = query_string_category)
                     property_data = json.loads(category_obj.property_data)
@@ -1555,28 +1553,6 @@ class UnPublishBannerAPI(APIView):
         return Response(data=response)
 
 
-class CreateDealsHubProductAPI(APIView):
-    
-    def post(self, request, *args, **kwargs):
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("CreateDealsHubProductAPI: %s", str(data))
-            product_pk = data["product_pk"]
-            product_obj = Product.objects.get(pk=product_pk)
-            product_obj.is_dealshub_product_created = True
-            product_obj.save()
-            if(DealsHubProduct.objects.filter(product=product_obj).exists()==False):
-                DealsHubProduct.objects.create(product=product_obj)
-            response['status'] = 200
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateDealsHubProductAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
 class PublishDealsHubProductAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -1827,7 +1803,7 @@ class FetchHeadingDataAdminAPI(APIView):
                 category_objs = dealshub_heading_obj.categories.all()
                 for category_obj in category_objs:
                     temp_dict2 = {}
-                    temp_dict2["key"] = category_obj.category_id+"|"+category_obj.name
+                    temp_dict2["key"] = category_obj.uuid+"|"+category_obj.name
 
                     category_list.append(temp_dict2)
                 temp_dict["categoryList"] = category_list
@@ -1874,7 +1850,7 @@ class FetchHeadingCategoryListAPI(APIView):
             for category_obj in category_objs:
                 temp_dict = {}
                 temp_dict["name"] = category_obj.name
-                temp_dict["uuid"] = category_obj.category_id+"|"+category_obj.name
+                temp_dict["uuid"] = category_obj.uuid+"|"+category_obj.name
                 category_list.append(temp_dict)
             
             response["categoryList"] = category_list
@@ -1961,7 +1937,7 @@ class SaveHeadingDataAPI(APIView):
             dealshub_heading_obj.categories.clear()            
             dealshub_heading_obj.name = heading_name
             for category in category_list:
-                category_obj = Category.objects.get(category_id=category["key"].split("|")[0])
+                category_obj = Category.objects.get(uuid=category["key"].split("|")[0])
                 dealshub_heading_obj.categories.add(category_obj)
 
             dealshub_heading_obj.save()
@@ -2157,7 +2133,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["uuid"] = str(prod.uuid)
 
                     if is_dealshub==True:
-                        temp_dict2["category"] = prod.base_product.category
+                        temp_dict2["category"] = "" if prod.base_product.category==None else str(prod.base_product.category)
                         temp_dict2["currency"] = "AED"
 
                     temp_products.append(temp_dict2)
@@ -2299,13 +2275,13 @@ class SearchProductsAutocompleteAPI(APIView):
             search_string = data["searchString"]
             organization_name = data["organizationName"]
 
-            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__organization__name=organization_name, product__product_name__icontains=search_string).values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
+            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__organization__name=organization_name, product__product_name__icontains=search_string).values('product__base_product__category').annotate(dcount=Count('product__base_product__category')).order_by('-dcount')[:5]
 
             category_list = []
             from dealshub.models import Category
             for category_key in category_key_list:
                 try:
-                    category_name = Category.objects.get(pk=category_key["category"]).name
+                    category_name = Category.objects.get(pk=category_key["product__base_product__category"]).name
                     category_list.append(category_name)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2512,9 +2488,6 @@ UpdateLinkBanner = UpdateLinkBannerAPI.as_view()
 AddBannerImage = AddBannerImageAPI.as_view()
 
 DeleteBannerImage = DeleteBannerImageAPI.as_view()
-
-
-CreateDealsHubProduct = CreateDealsHubProductAPI.as_view()
 
 PublishDealsHubProduct = PublishDealsHubProductAPI.as_view()
 

@@ -338,6 +338,51 @@ class Organization(models.Model):
         return str(self.name)
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=256, blank=True, default='')
+    description = models.CharField(max_length=256, blank=True, default='')
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True)
+    property_data = models.TextField(default="[]", blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(Category, self).save(*args, **kwargs)
+
+
+class SubCategory(models.Model):
+    category = models.ForeignKey(
+        Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
+    name = models.CharField(max_length=256, blank=True, default='')
+    desription = models.CharField(max_length=256, blank=True, default='')
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    property_data = models.TextField(default="[]", blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Sub Category"
+        verbose_name_plural = "Sub Categories"
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(SubCategory, self).save(*args, **kwargs)
+
+
 class Channel(models.Model):
     
     name = models.CharField(unique=True,max_length=200)
@@ -362,6 +407,7 @@ class Brand(models.Model):
 
     def __str__(self):
         return str(self.name)
+        
 
 class ProductIDType(models.Model):
 
@@ -393,8 +439,8 @@ class BaseProduct(models.Model):
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     seller_sku = models.CharField(max_length=200, unique=True)
-    category = models.CharField(max_length=200, default="")
-    sub_category = models.CharField(max_length=200, default="")
+    category = models.ForeignKey(Category, null=True, blank=True, default=None, on_delete=models.SET_NULL)
+    sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
@@ -504,10 +550,11 @@ class Product(models.Model):
     sap_cache = models.TextField(default="[]")
     sap_cache_time = models.DateTimeField(default=timezone.now)
 
-    is_dealshub_product_created = models.BooleanField(default=False)
     no_of_images_for_filter = models.IntegerField(default=0)
 
     factory = models.ForeignKey(Factory, null=True, blank=True)
+
+    dynamic_form_attributes = models.TextField(default="{}")
 
     class Meta:
         verbose_name = "Product"
@@ -540,8 +587,7 @@ auditlog.register(Product, exclude_fields=['modified_date' ,
                                            'base_product',
                                            'sap_cache',
                                            'sap_cache_time',
-                                           'no_of_images_for_filter',
-                                           'is_dealshub_product_created'])
+                                           'no_of_images_for_filter'])
 
 auditlog.register(Product.pfl_images.through)
 auditlog.register(Product.white_background_images.through)
