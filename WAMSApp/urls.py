@@ -13,7 +13,6 @@ urlpatterns = [
     url(r'^current_user/', views.current_user),
     url(r'^users/', views.UserList.as_view()),
 
-    url(r'^fetch-constant-values/$', views.FetchConstantValues),
     url(r'^create-new-base-product/$', views.CreateNewBaseProduct),
     url(r'^create-new-product/$', views.CreateNewProduct),
 
@@ -148,7 +147,6 @@ urlpatterns = [
     url(r'^fetch-data-points/$',views.FetchDataPoints),
     url(r'^download-bulk-export/$',views.DownloadBulkExport),
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
-
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
