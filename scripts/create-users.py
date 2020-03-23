@@ -39,7 +39,8 @@ user_list = [
     {"username": "arsal", "password": "5a917320"},
     {"username": "umesh", "password": "5e3a10ef"},
     {"username": "ijilal", "password": "6ecf5c9a"},
-    {"username": "hari", "password": "a763542q"}
+    {"username": "hari", "password": "a763542q"},
+    {"username": "aswin", "password": "f828239p"}
 ]
 
 from WAMSApp.models import *

@@ -95,3 +95,21 @@ for p in Ps:
     p.save()
     cnt+=1
     print("Cnt : ", cnt)
+
+for i in p:
+    k = json.loads(i.pfl_product_features)
+    if not isinstance(k,list):
+            k = k[1:-1]
+            k = list(k.split(","))
+            for t in range(len(k)):
+                k[t] = k[t].replace("'","")
+            k = json.dumps(k)
+            i.pfl_product_features = k
+            i.save()
+
+C = ChannelProduct.objects.filter(is_amazon_uk_product_created=True)
+for c in C:
+    uk = json.loads(c.amazon_uk_product_json)
+    p = Product.objects.get(channel_product=c)
+    p.pfl_product_features = json.dumps(uk["product_attribute_list"])
+    p.save()
