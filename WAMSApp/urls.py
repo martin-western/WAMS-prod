@@ -147,6 +147,7 @@ urlpatterns = [
     url(r'^fetch-data-points/$',views.FetchDataPoints),
     url(r'^download-bulk-export/$',views.DownloadBulkExport),
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
-
+    url(r'^fetch-all-categories/$',views.FetchAllCategories),
+    
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
