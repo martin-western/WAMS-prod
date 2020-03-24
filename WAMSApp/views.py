@@ -1010,6 +1010,8 @@ class FetchBaseProductDetailsAPI(APIView):
             response["base_product_name"] = base_product_obj.base_product_name
             response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
             response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
+            response["category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.uuid)
+            response["sub_category_uuid"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category.uuid)
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
