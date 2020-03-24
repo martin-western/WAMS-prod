@@ -1540,7 +1540,8 @@ class SaveProductAPI(APIView):
 
             product_obj.factory_notes = factory_notes
 
-            product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
+            if str(dynamic_form_attributes)!="{}":
+                product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
 
             try:
                 factory_obj = Factory.objects.get(factory_code=factory_code)
