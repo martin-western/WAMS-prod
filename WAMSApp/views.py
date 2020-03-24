@@ -1666,7 +1666,7 @@ class FetchProductListAPI(APIView):
                     temp_dict2["product_id"] = product_obj.product_id
                     temp_dict2["product_name"] = product_obj.product_name
                     temp_dict2["brand_name"] = str(product_obj.base_product.brand)
-                    temp_dict2["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_objs.sub_category)
+                    temp_dict2["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
                     temp_dict2["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
                     temp_dict2["product_price"] = product_obj.standard_price
                     if temp_dict2["product_price"]==None:
