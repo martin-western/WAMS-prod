@@ -200,7 +200,7 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
-            response["sub_category"] = "" if base_product.sub_category==None else str(base_product_obj.sub_category)
+            response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
