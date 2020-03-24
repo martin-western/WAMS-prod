@@ -201,34 +201,34 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
-    def save(self, *args, **kwargs):
-        try:  
-            size = 128, 128
-            thumb = IMAGE.open(self.image)
-            thumb.thumbnail(size)
-            infile = self.image.file.name
-            im_type = thumb.format 
-            thumb_io = BytesIO()
-            thumb.save(thumb_io, format=im_type)
+    # def save(self, *args, **kwargs):
+    #     try:  
+    #         size = 128, 128
+    #         thumb = IMAGE.open(self.image)
+    #         thumb.thumbnail(size)
+    #         infile = self.image.file.name
+    #         im_type = thumb.format 
+    #         thumb_io = BytesIO()
+    #         thumb.save(thumb_io, format=im_type)
 
-            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
+    #         thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
 
-            self.thumbnail = thumb_file
+    #         self.thumbnail = thumb_file
 
-            size2 = 512, 512
-            thumb2 = IMAGE.open(self.image)
-            thumb2.thumbnail(size2)
-            thumb_io2 = BytesIO()
-            thumb2.save(thumb_io2, format=im_type)
+    #         size2 = 512, 512
+    #         thumb2 = IMAGE.open(self.image)
+    #         thumb2.thumbnail(size2)
+    #         thumb_io2 = BytesIO()
+    #         thumb2.save(thumb_io2, format=im_type)
 
-            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
+    #         thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
 
-            self.mid_image = thumb_file2
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
+    #         self.mid_image = thumb_file2
+    #     except Exception as e:
+    #         exc_type, exc_obj, exc_tb = sys.exc_info()
+    #         logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
-        super(Image, self).save(*args, **kwargs)
+    #     super(Image, self).save(*args, **kwargs)
 
 class Bank(models.Model): 
 
@@ -364,7 +364,7 @@ class SubCategory(models.Model):
     category = models.ForeignKey(
         Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
     name = models.CharField(max_length=256, blank=True, default='')
-    desription = models.CharField(max_length=256, blank=True, default='')
+    description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     property_data = models.TextField(default="[]", blank=True)
 
@@ -512,7 +512,6 @@ class Product(models.Model):
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
-    product_description = models.TextField(blank=True)
 
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
@@ -546,9 +545,6 @@ class Product(models.Model):
     channel_product = models.ForeignKey(ChannelProduct, null=True, blank=True, on_delete=models.SET_NULL)
     factory_notes = models.TextField(null=True,blank=True)
     history = AuditlogHistoryField()
-
-    sap_cache = models.TextField(default="[]")
-    sap_cache_time = models.DateTimeField(default=timezone.now)
 
     no_of_images_for_filter = models.IntegerField(default=0)
 
@@ -585,8 +581,6 @@ auditlog.register(Product, exclude_fields=['modified_date' ,
                                            'created_date' , 
                                            'uuid', 
                                            'base_product',
-                                           'sap_cache',
-                                           'sap_cache_time',
                                            'no_of_images_for_filter'])
 
 auditlog.register(Product.pfl_images.through)

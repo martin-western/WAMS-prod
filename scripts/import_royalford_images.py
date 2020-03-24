@@ -347,74 +347,74 @@ for filename, filepath in all_f:
  
 workbook.close()
 
-product_pk = {}
-filepath = "/home/ubuntu/ROYALFORD_IMAGES/TRANSPERANT_IMAGES"
-#filepath = "/home/nisarg/Desktop/IDENTIFIED/"
+# product_pk = {}
+# filepath = "/home/ubuntu/ROYALFORD_IMAGES/TRANSPERANT_IMAGES"
+# #filepath = "/home/nisarg/Desktop/IDENTIFIED/"
 
-all_f = []
-for (dirpath, dirnames, filenames) in walk(filepath):
-    for filename in filenames:
-        all_f.append((filename, dirpath+"/"+filename))
+# all_f = []
+# for (dirpath, dirnames, filenames) in walk(filepath):
+#     for filename in filenames:
+#         all_f.append((filename, dirpath+"/"+filename))
 
-workbook = xlsxwriter.Workbook('./files/csv/royalford-transparent-images.xlsx')
-worksheet = workbook.add_worksheet()
-nesto_images_identified_product_pk = []
-rownum =0
+# workbook = xlsxwriter.Workbook('./files/csv/royalford-transparent-images.xlsx')
+# worksheet = workbook.add_worksheet()
+# nesto_images_identified_product_pk = []
+# rownum =0
 
-cnt = 0
-dele=0
-for filename, filepath in all_f:
+# cnt = 0
+# dele=0
+# for filename, filepath in all_f:
      
-    try:
-        #print filename.split(".")[0]
-        to_match = filename.split(".")[0].strip()
-        if "(" in to_match and ")" in to_match:
-            to_match = to_match.split("(")[0].strip()
-        if "_" in to_match:
-            to_match = to_match.split("_")[0].strip()
-        if "-" in to_match:
-            to_match = to_match.split("-")[0].strip()
-        if to_match=="":
-            continue
+#     try:
+#         #print filename.split(".")[0]
+#         to_match = filename.split(".")[0].strip()
+#         if "(" in to_match and ")" in to_match:
+#             to_match = to_match.split("(")[0].strip()
+#         if "_" in to_match:
+#             to_match = to_match.split("_")[0].strip()
+#         if "-" in to_match:
+#             to_match = to_match.split("-")[0].strip()
+#         if to_match=="":
+#             continue
 
-        print(to_match)
+#         print(to_match)
         
-        if BaseProduct.objects.filter(seller_sku__icontains=to_match).exists():
-            product_obj = Product.objects.filter(base_product=BaseProduct.objects.filter(seller_sku__icontains=to_match)[0])[0]
-            cnt += 1
-            print("Cnt: ", cnt)
+#         if BaseProduct.objects.filter(seller_sku__icontains=to_match).exists():
+#             product_obj = Product.objects.filter(base_product=BaseProduct.objects.filter(seller_sku__icontains=to_match)[0])[0]
+#             cnt += 1
+#             print("Cnt: ", cnt)
             
-            thumb = IMage.open(filepath)
-            im_type = thumb.format
-            thumb_io = BytesIO()
-            thumb.save(thumb_io, format=im_type)
+#             thumb = IMage.open(filepath)
+#             im_type = thumb.format
+#             thumb_io = BytesIO()
+#             thumb.save(thumb_io, format=im_type)
 
-            thumb_file = InMemoryUploadedFile(thumb_io, None, filepath, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
+#             thumb_file = InMemoryUploadedFile(thumb_io, None, filepath, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
 
-            image_obj= Image.objects.create(image=thumb_file)
-            worksheet.write(rownum, 0,filename)
-            worksheet.write(rownum, 1,"Identified")
-            worksheet.write(rownum, 2,product_obj.base_product.seller_sku)
-            worksheet.write(rownum, 3,product_obj.product_name_sap)
-            rownum = rownum+1
+#             image_obj= Image.objects.create(image=thumb_file)
+#             worksheet.write(rownum, 0,filename)
+#             worksheet.write(rownum, 1,"Identified")
+#             worksheet.write(rownum, 2,product_obj.base_product.seller_sku)
+#             worksheet.write(rownum, 3,product_obj.product_name_sap)
+#             rownum = rownum+1
             
-            if product_obj.pk not in product_pk:
-                product_obj.transparent_images.clear()
-                product_pk[product_obj.pk] = 1
-            product_obj.transparent_images.add(image_obj)
+#             if product_obj.pk not in product_pk:
+#                 product_obj.transparent_images.clear()
+#                 product_pk[product_obj.pk] = 1
+#             product_obj.transparent_images.add(image_obj)
                     
-            product_obj.save()
-            continue
+#             product_obj.save()
+#             continue
 
-        else:
-            worksheet.write(rownum, 0,filename)
-            worksheet.write(rownum, 1,"Not Identified")
-            rownum = rownum+1
-            print("No match!")
+#         else:
+#             worksheet.write(rownum, 0,filename)
+#             worksheet.write(rownum, 1,"Not Identified")
+#             rownum = rownum+1
+#             print("No match!")
 
-    except Exception as e:
-        import sys
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        print("Error ", str(e), str(exc_tb.tb_lineno))
+#     except Exception as e:
+#         import sys
+#         exc_type, exc_obj, exc_tb = sys.exc_info()
+#         print("Error ", str(e), str(exc_tb.tb_lineno))
  
-workbook.close()
+# workbook.close()
