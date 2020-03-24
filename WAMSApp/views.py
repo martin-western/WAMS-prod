@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from WAMSApp.models import *
 
 from auditlog.models import *
-from dealshub.models import DealsHubProduct, Category
+from dealshub.models import DealsHubProduct
 from WAMSApp.utils import *
 from WAMSApp.serializers import UserSerializer, UserSerializerWithToken
 from WAMSApp.constants import *
@@ -202,68 +202,6 @@ class LoginSubmitAPI(APIView):
         return Response(data=response)
 
 
-class FetchConstantValuesAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("FetchConstantValuesAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            material_list = []
-            material_objs = MaterialType.objects.all()
-            for material_obj in material_objs:
-                temp_dict = {}
-                temp_dict["name"] = material_obj.name
-                temp_dict["pk"] = material_obj.pk
-                material_list.append(temp_dict)
-
-            brand_list = []
-            brand_objs = custom_permission_filter_brands(request.user)
-            for brand_obj in brand_objs:
-                temp_dict = {}
-                temp_dict["name"] = brand_obj.name
-                temp_dict["pk"] = brand_obj.pk
-                brand_list.append(temp_dict)
-
-            product_id_type_list = []
-            product_id_type_objs = ProductIDType.objects.all()
-            for product_id_type_obj in product_id_type_objs:
-                temp_dict = {}
-                temp_dict["name"] = product_id_type_obj.name
-                temp_dict["pk"] = product_id_type_obj.pk
-                product_id_type_list.append(temp_dict)
-
-            ebay_category_list = []
-            ebay_category_objs = EbayCategory.objects.all()
-            for ebay_category_obj in ebay_category_objs:
-                temp_dict = {}
-                temp_dict["name"] = ebay_category_obj.name
-                temp_dict["category_id"] = ebay_category_obj.category_id
-                temp_dict["pk"] = ebay_category_obj.pk
-                ebay_category_list.append(temp_dict)
-
-            
-            response["ebay_category_list"] = ebay_category_list
-            response["material_list"] = material_list
-            response["brand_list"] = brand_list
-            response["product_id_type_list"] = product_id_type_list
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchConstantValuesAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
 class CreateNewBaseProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -285,11 +223,11 @@ class CreateNewBaseProductAPI(APIView):
             product_name = convert_to_ascii(data["base_product_name"])
             seller_sku = convert_to_ascii(data["seller_sku"])
             brand_name = convert_to_ascii(data["brand_name"])
-            category = convert_to_ascii(data["category"])
-            sub_category = convert_to_ascii(data["sub_category"])
             manufacturer = convert_to_ascii(data["manufacturer"])
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
             base_dimensions = json.dumps(data["base_dimensions"])
+            category_uuid = data["category_uuid"]
+            sub_category_uuid = data["sub_category_uuid"]
 
             # Checking brand permission
             brand_obj = None
@@ -313,32 +251,42 @@ class CreateNewBaseProductAPI(APIView):
                 response["status"] = 409
                 return Response(data=response)
 
+            category_obj = None
+            try:
+                category_obj = Category.objects.get(uuid=category_uuid)
+            except Exception as e:
+                pass
+            sub_category_obj = None
+            try:
+                sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
+            except Exception as e:
+                pass
+
             base_product_obj = BaseProduct.objects.create(base_product_name=product_name,
                                               seller_sku=seller_sku,
                                               brand=brand_obj,
-                                              category=category,
-                                              sub_category=sub_category,
+                                              category=category_obj,
+                                              sub_category=sub_category_obj,
                                               manufacturer=manufacturer,
                                               manufacturer_part_number=manufacturer_part_number,
                                               dimensions=base_dimensions)
 
-            product_obj = Product.objects.create(product_name=product_name,
-                                              base_product=base_product_obj,
-                                              is_dealshub_product_created=True)
-
+            dynamic_form_attributes = {}
             try:
-                organization_obj = brand_obj.organization
-                category_obj = None
-                from dealshub.models import Category
-                if Category.objects.filter(organization=organization_obj, name=category).exists():
-                    category_obj = Category.objects.get(organization=organization_obj, name=category)
-                else:
-                    category_obj = Category.objects.create(organization=organization_obj, name=category)
-                    
-                DealsHubProduct.objects.create(product=product_obj, category=category_obj)
+                property_data = json.loads(category_obj.property_data)
+                for prop_data in property_data:
+                    dynamic_form_attributes[prop_data["key"]] = {
+                        "type": "dropdown",
+                        "labelText": prop_data["key"].title(),
+                        "value": "",
+                        "options": prop_data["values"]
+                    }
             except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("CreateNewBaseProductAPI Dealshub Product not created! %s at %s", e, str(exc_tb.tb_lineno))
+                pass
+
+            product_obj = Product.objects.create(product_name=product_name, base_product=base_product_obj, dynamic_form_attributes=json.dumps(dynamic_form_attributes))
+
+            DealsHubProduct.objects.create(product=product_obj)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -386,26 +334,28 @@ class CreateNewProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            dynamic_form_attributes = {}
+            try:
+                property_data = json.loads(category_obj.property_data)
+                for prop_data in property_data:
+                    dynamic_form_attributes[prop_data["key"]] = {
+                        "type": "dropdown",
+                        "labelText": prop_data["key"].title(),
+                        "value": "",
+                        "options": prop_data["values"]
+                    }
+            except Exception as e:
+                pass
+
             product_name = base_product_obj.base_product_name
             product_obj = Product.objects.create(product_name = product_name,
                                             product_name_sap=product_name,
                                             pfl_product_name=product_name,
                                             base_product=base_product_obj,
-                                            is_dealshub_product_created=True)
+                                            dynamic_form_attributes=json.dumps(dynamic_form_attributes))
 
 
-            try:
-                organization_obj = brand_obj.organization
-                category_obj = None
-                category = product_obj.base_product.category
-                from dealshub.models import Category
-                if Category.objects.filter(organization=organization_obj, name=category).exists():
-                    category_obj = Category.objects.get(organization=organization_obj, name=category)
-
-                DealsHubProduct.objects.create(product=product_obj, category=category_obj)
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("CreateNewProductAPI Dealshub Product not created! %s at %s", e, str(exc_tb.tb_lineno))
+            DealsHubProduct.objects.create(product=product_obj)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -1058,8 +1008,8 @@ class FetchBaseProductDetailsAPI(APIView):
                 response["brand_name"] = brand_obj.name
             
             response["base_product_name"] = base_product_obj.base_product_name
-            response["category"] = base_product_obj.category
-            response["sub_category"] = base_product_obj.sub_category
+            response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
+            response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
@@ -1122,8 +1072,8 @@ class FetchProductDetailsAPI(APIView):
                 response["brand_name"] = brand_obj.name
             
             response["base_product_name"] = base_product_obj.base_product_name
-            response["category"] = base_product_obj.category
-            response["sub_category"] = base_product_obj.sub_category
+            response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
+            response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
             response["seller_sku"] = base_product_obj.seller_sku
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["manufacturer"] = base_product_obj.manufacturer
@@ -1141,7 +1091,6 @@ class FetchProductDetailsAPI(APIView):
                 response["factory_code"] = product_obj.factory.factory_code
             except Exception as e:
                 response["factory_code"] = ""
-            response["is_dealshub_product_created"] = product_obj.is_dealshub_product_created
             response["verified"] = product_obj.verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
@@ -1167,6 +1116,14 @@ class FetchProductDetailsAPI(APIView):
             
             warehouses_information = []
             response["warehouses_information"] = warehouses_information
+
+
+            dynamic_form_attributes = {}
+            try:
+                dynamic_form_attributes = json.loads(product_obj.dynamic_form_attributes)
+            except Exception as e:
+                pass
+            response["dynamic_form_attributes"] = dynamic_form_attributes
 
             images = {}
 
@@ -1284,8 +1241,6 @@ class FetchDealsHubProductsAPI(APIView):
 
             search_list = data.get("search_list", [])
 
-            product_objs_list = product_objs_list.filter(is_dealshub_product_created=True)
-
             if len(search_list)>0:
                 temp_product_objs_list = Product.objects.none()
                 for search_key in search_list:
@@ -1306,8 +1261,8 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     channel_status = DealsHubProduct.objects.get(product=product_obj).is_published
                     temp_dict["channel_status"] = "active" if channel_status==True else "inactive"
-                    temp_dict["category"] = product_obj.base_product.category
-                    temp_dict["sub_category"] = product_obj.base_product.sub_category
+                    temp_dict["category"] = "" if product_obj.base_product.category==None else str(product_obj.base_product.category)
+                    temp_dict["sub_category"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
 
                     repr_image_url = Config.objects.all()[0].product_404_image.image.url
                     repr_high_def_url = repr_image_url
@@ -1391,8 +1346,8 @@ class SaveBaseProductAPI(APIView):
             brand_name = convert_to_ascii(data["brand_name"])
             manufacturer = convert_to_ascii(data["manufacturer"])
             manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
-            category = convert_to_ascii(data["category"])
-            sub_category = convert_to_ascii(data["sub_category"])
+            category_uuid = data["category_uuid"]
+            sub_category_uuid = data["sub_category_uuid"]
             
             dimensions = data["base_dimensions"]
             
@@ -1411,16 +1366,50 @@ class SaveBaseProductAPI(APIView):
                 response['status'] = 409
                 return Response(data=response)
 
+            category_obj = None
+            try:
+                category_obj = Category.objects.get(uuid=category_uuid)
+            except Exception as e:
+                pass
+            sub_category_obj = None
+            try:
+                sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
+            except Exception as e:
+                pass
+
+            is_category_updated = False
+            if base_product_obj.category!=category_obj:
+                is_category_updated = True
+
             base_product_obj.base_product_name = base_product_name
             base_product_obj.seller_sku = seller_sku
             base_product_obj.brand = brand_obj
             base_product_obj.manufacturer = manufacturer
             base_product_obj.manufacturer_part_number = manufacturer_part_number
-            base_product_obj.category = category
-            base_product_obj.sub_category = sub_category
+            base_product_obj.category = category_obj
+            base_product_obj.sub_category = sub_category_obj
             base_product_obj.dimensions = dimensions
             
             base_product_obj.save()
+
+            # Update dynamic_form_attributes for all Variants
+            try:
+                if is_category_updated:
+                    dynamic_form_attributes = {}
+                    property_data = json.loads(category_obj.property_data)
+                    for prop_data in property_data:
+                        dynamic_form_attributes[prop_data["key"]] = {
+                            "type": "dropdown",
+                            "labelText": prop_data["key"].title(),
+                            "value": "",
+                            "options": prop_data["values"]
+                        }
+
+                    product_objs = Product.objects.filter(base_product=base_product_obj)
+                    product_objs.update(dynamic_form_attributes=json.dumps(dynamic_form_attributes))
+
+            except Exception as e:
+                pass
             
             response['status'] = 200
 
@@ -1496,6 +1485,8 @@ class SaveProductAPI(APIView):
             factory_notes = convert_to_ascii(data["factory_notes"])
             factory_code = convert_to_ascii(data["factory_code"])
 
+            dynamic_form_attributes = data["dynamic_form_attributes"]
+
             product_obj.product_id = product_id
 
             try:
@@ -1541,6 +1532,8 @@ class SaveProductAPI(APIView):
             product_obj.pfl_product_features = json.dumps(pfl_product_features)
 
             product_obj.factory_notes = factory_notes
+
+            product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
 
             try:
                 factory_obj = Factory.objects.get(factory_code=factory_code)
@@ -1657,8 +1650,8 @@ class FetchProductListAPI(APIView):
                 temp_dict["dimensions"] = {}
 
                 temp_dict["seller_sku"] = base_product_obj.seller_sku
-                temp_dict["category"] = base_product_obj.category
-                temp_dict["sub_category"] = base_product_obj.sub_category
+                temp_dict["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
+                temp_dict["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
                 temp_dict["dimensions"] = json.dumps(base_product_obj.dimensions)
                 
                 product_objs = search_list_product_objs.filter(base_product = base_product_obj)
@@ -1670,10 +1663,9 @@ class FetchProductListAPI(APIView):
                     temp_dict2["product_id"] = product_obj.product_id
                     temp_dict2["product_name"] = product_obj.product_name
                     temp_dict2["brand_name"] = str(product_obj.base_product.brand)
-                    temp_dict2["sub_category"] = base_product_obj.sub_category
-                    temp_dict2["category"] = base_product_obj.category
+                    temp_dict2["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_objs.sub_category)
+                    temp_dict2["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
                     temp_dict2["product_price"] = product_obj.standard_price
-                    temp_dict2["is_dealshub_product_created"] = product_obj.is_dealshub_product_created
                     if temp_dict2["product_price"]==None:
                         temp_dict2["product_price"] = "-"
                     temp_dict2["status"] = product_obj.status
@@ -4790,8 +4782,8 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
             response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
             response["brand_name"] = str(base_product_obj.brand)
             response["manufacturer"] = str(base_product_obj.manufacturer)
-            response["category"] = base_product_obj.category
-            response["sub_category"] = base_product_obj.sub_category
+            response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
+            response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
             response["dimensions"] = json.loads(base_product_obj.dimensions)
             variants = []
             for product_obj in product_objs:
@@ -4895,8 +4887,8 @@ class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
                     temp_dict["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
                     temp_dict["brand_name"] = str(base_product_obj.brand)
                     temp_dict["manufacturer"] = str(base_product_obj.manufacturer)
-                    temp_dict["category"] = base_product_obj.category
-                    temp_dict["sub_category"] = base_product_obj.sub_category
+                    temp_dict["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
+                    temp_dict["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
                     temp_dict["dimensions"] = json.loads(base_product_obj.dimensions)
                     variants = []
                     for product_obj in product_objs:
@@ -5292,13 +5284,57 @@ class TransferBulkChannelAPI(APIView):
         return Response(data=response)
 
 
+class FetchAllCategoriesAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchAllCategoriesAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            category_objs = Category.objects.all()
+
+            category_list = []
+            for category_obj in category_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = category_obj.name
+                    temp_dict["category_uuid"] = category_obj.uuid
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    sub_category_list = []
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict2 = {}
+                        temp_dict2["name"] = sub_category_obj.name
+                        temp_dict2["sub_category_uuid"] = sub_category_obj.uuid
+                        sub_category_list.append(temp_dict2)
+                    temp_dict["sub_category_list"] = sub_category_list
+                    category_list.append(temp_dict) 
+                
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchAllCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response["category_list"] = category_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAllCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
 
 LoginSubmit = LoginSubmitAPI.as_view()
-
-FetchConstantValues = FetchConstantValuesAPI.as_view()
 
 CreateNewProduct = CreateNewProductAPI.as_view()
 
@@ -5436,3 +5472,5 @@ FetchDataPoints = FetchDataPointsAPI.as_view()
 DownloadBulkExport = DownloadBulkExportAPI.as_view()
 
 TransferBulkChannel = TransferBulkChannelAPI.as_view()
+
+FetchAllCategories = FetchAllCategoriesAPI.as_view()

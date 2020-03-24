@@ -687,8 +687,6 @@ for data in all_data_json:
             for transparent_image in transparent_images_objs:
                 product_obj.transparent_images.add(transparent_image)
 
-            product_obj.is_dealshub_product_created=True
-
             main_images_obj.save()
             sub_images_obj.save()
 
