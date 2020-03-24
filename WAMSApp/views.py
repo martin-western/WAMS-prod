@@ -334,9 +334,11 @@ class CreateNewProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            product_name = base_product_obj.base_product_name
+
             dynamic_form_attributes = {}
             try:
-                property_data = json.loads(category_obj.property_data)
+                property_data = json.loads(base_product_obj.category.property_data)
                 for prop_data in property_data:
                     dynamic_form_attributes[prop_data["key"]] = {
                         "type": "dropdown",
@@ -347,7 +349,6 @@ class CreateNewProductAPI(APIView):
             except Exception as e:
                 pass
 
-            product_name = base_product_obj.base_product_name
             product_obj = Product.objects.create(product_name = product_name,
                                             product_name_sap=product_name,
                                             pfl_product_name=product_name,
