@@ -347,7 +347,8 @@ class CreateNewProductAPI(APIView):
                         "options": prop_data["values"]
                     }
             except Exception as e:
-                pass
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("CreateNewProductAPI: %s at %s", e, str(exc_tb.tb_lineno))          
 
             product_obj = Product.objects.create(product_name = product_name,
                                             product_name_sap=product_name,
