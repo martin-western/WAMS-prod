@@ -1613,3 +1613,57 @@ def generate_dynamic_export(product_uuid_list, data_point_list):
             print("Error ", e, str(exc_tb.tb_lineno))
 
     workbook.close()
+
+
+def generate_flyer_report():
+
+    try:
+        os.system("rm ./files/csv/flyer-report.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/flyer-report.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    row = ["Sr. No.",
+           "Flyer Name",
+           "Brand",
+           "Mode",
+           "Date Created",
+           "User"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    flyer_objs = Flyer.objects.all()
+    for flyer_obj in flyer_objs:
+        try:
+            cnt += 1
+            common_row = ["" for i in range(15)]
+            common_row[0] = str(cnt)
+            common_row[1] = str(flyer_obj.name)
+            common_row[2] = str(flyer_obj.brand)
+            common_row[3] = str(flyer_obj.mode)
+            try:
+                common_row[4] = str(flyer_obj.created_date)
+            except Exception as e:
+                common_row[4] = "NA"
+            try:
+                common_row[5] = str(flyer_obj.user)
+            except Exception as e:
+                common_row[5] = "NA"
+
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print("Error: %s at %s", e, str(exc_tb.tb_lineno), product_obj.product_id)
+
+    workbook.close()

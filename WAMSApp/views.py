@@ -5024,9 +5024,11 @@ class GenerateReportsAPI(APIView):
 
             generate_images_report(search_list_product_objs)
             generate_mega_bulk_upload(search_list_product_objs)
+            generate_flyer_report()
 
             response["file_path_1"] = "https://"+SERVER_IP+"/files/csv/images-count-report.xlsx"
             response["file_path_2"] = "https://"+SERVER_IP+"/files/csv/mega-bulk-export.xlsx"
+            response["file_path_3"] = "https://"+SERVER_IP+"/files/csv/flyer-report.xlsx"
             
             response['status'] = 200
         except Exception as e:
