@@ -935,15 +935,7 @@ class SearchAPI(APIView):
             filter_list = json.loads(filter_list)
 
             page = data.get("page", 1)
-            search = {}
-
-
-            query_string_name = ""
-            query_string_category = "Fryer"
-            query_string_organization = "geepas"
-            filter_list = [{"key": "Pan Capacity", "values": ["2.5 L - 3 L"]}]
-
-            
+            search = {}            
 
             available_dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__organization__name=query_string_organization, is_published=True)
             if query_string_category!="ALL":
