@@ -953,14 +953,18 @@ class SearchAPI(APIView):
                 try:
                     if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
                         continue
-
+                        Pan Capacity
                     try:
                         if len(filter_list)>0:
                             dealshub_product = DealsHubProduct.objects.get(product=product)
                             dynamic_form_attributes = json.loads(dealshub_product.product.dynamic_form_attributes)
+                            logger.info("dynamic_form_attributes %s", str(product))
+                            logger.info("dynamic_form_attributes %s", str(dynamic_form_attributes))
                             flag_match = True
                             for filter_metric in filter_list:
+                                logger.info("filter_metric %s", str(filter_metric))
                                 if dynamic_form_attributes[filter_metric["key"]]["value"] not in filter_metric["values"]:
+                                    logger.info("Not available")
                                     flag_match = False
                                     break
                             if flag_match==False:
