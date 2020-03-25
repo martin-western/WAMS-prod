@@ -953,7 +953,6 @@ class SearchAPI(APIView):
                 try:
                     if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
                         continue
-                        Pan Capacity
                     try:
                         if len(filter_list)>0:
                             dealshub_product = DealsHubProduct.objects.get(product=product)
