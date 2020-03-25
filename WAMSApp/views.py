@@ -4889,80 +4889,20 @@ class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
                 try:
                     base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
                     product_objs = Product.objects.filter(base_product__seller_sku=seller_sku)
-                    temp_dict = {}
-                    temp_dict["product_name"] = base_product_obj.base_product_name
-                    temp_dict["seller_sku"] = base_product_obj.seller_sku
-                    temp_dict["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
-                    temp_dict["brand_name"] = str(base_product_obj.brand)
-                    temp_dict["manufacturer"] = str(base_product_obj.manufacturer)
-                    temp_dict["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
-                    temp_dict["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
-                    temp_dict["dimensions"] = json.loads(base_product_obj.dimensions)
-                    variants = []
+                    
+                    main_images_list = ImageBucket.objects.none()
                     for product_obj in product_objs:
-                        temp_dict2 = {}
-                        temp_dict2["product_name"] = product_obj.product_name
-                        temp_dict2["product_id"] = product_obj.product_id
-                        temp_dict2["product_id_type"] = str(product_obj.product_id_type)
-                        temp_dict2["barcode"] = str(product_obj.barcode_string)
-                        try:
-                            temp_dict2["factory_code"] = str(product_obj.factory.factory_code)
-                        except Exception as e:
-                            temp_dict2["factory_code"] = ""
-                        temp_dict2["color"] = str(product_obj.color)
-                        temp_dict2["color_map"] = str(product_obj.color_map)
-                        temp_dict2["material_type"] = str(product_obj.material_type)
-                        temp_dict2["moq"] = "" if product_obj.quantity==None else str(product_obj.quantity)
-                        temp_dict2["factory_notes"] = str(product_obj.factory_notes)
-                        temp_dict2["product_description"] = str(product_obj.product_description)
-                        temp_dict2["product_features"] = json.loads(product_obj.pfl_product_features)
-                        images = {}
+                        main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
+                        main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = main_images_list.distinct()
+                    bulk_product_information_list.append(main_images_list[0].image.image.url)
 
-                        try:
-                            main_images_list = ImageBucket.objects.none()
-                            sub_images_list = ImageBucket.objects.none()
-                            
-                            main_images_objs = MainImages.objects.filter(product=product_obj)
-                            for main_images_obj in main_images_objs:
-                                main_images_list |= main_images_obj.main_images.all()
-                            main_images_list = main_images_list.distinct()
-                            images["main_images"] = create_response_images_main_sub_list(main_images_list)
-
-                            sub_images_objs = SubImages.objects.filter(product=product_obj)
-                            for sub_images_obj in sub_images_objs:
-                                sub_images_list |= sub_images_obj.sub_images.all()
-                            sub_images_list = sub_images_list.distinct()
-                            images["sub_images"] = create_response_images_main_sub_list(sub_images_list)
-
-                            images["pfl_images"] = create_response_images_list(product_obj.pfl_images.all())
-                            images["pfl_generated_images"] = create_response_images_list(product_obj.pfl_images.all())
-                            images["white_background_images"] = create_response_images_list(product_obj.pfl_images.all())
-                            images["lifestyle_images"] = create_response_images_list(product_obj.pfl_images.all())
-                            images["certificate_images"] = create_response_images_list(product_obj.pfl_images.all())
-                            images["giftbox_images"] = create_response_images_list(product_obj.pfl_images.all())
-                            images["diecut_images"] = create_response_images_list(product_obj.pfl_images.all())
-                            images["aplus_content_images"] = create_response_images_list(product_obj.pfl_images.all())
-                            images["ads_images"] = create_response_images_list(product_obj.pfl_images.all())
-                            images["transparent_images"] = create_response_images_list(product_obj.pfl_images.all())
-
-                        except Exception as e:
-                            exc_type, exc_obj, exc_tb = sys.exc_info()
-                            logger.error("FetchBulkProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
-                            images["main_images"] = []
-                            pass
-
-                        temp_dict2["images"] = images
-                        variants.append(temp_dict2)
-                    temp_dict["variants"] = variants
-                    bulk_product_information_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchBulkProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
-                    temp_dict = {}
-                    temp_dict["seller_sku"] = seller_sku
-                    bulk_product_information_list.append(temp_dict)
+                    bulk_product_information_list.append("")
 
-            response["products"] = bulk_product_information_list
+            response["imagesList"] = bulk_product_information_list
             
             response['status'] = 200
         except Exception as e:
