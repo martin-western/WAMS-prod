@@ -937,42 +937,35 @@ class SearchAPI(APIView):
             page = data.get("page", 1)
             search = {}
             
-            products_by_category = Product.objects.filter(base_product__brand__organization__name=query_string_organization)
+
+            available_dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__organization__name=query_string_organization, is_published=True)
             if query_string_category!="ALL":
                 query_string_category = query_string_category.replace("-", " ")
-                products_by_category = products_by_category.filter(base_product__category__name__icontains = query_string_category)
-            products_by_name = products_by_category
+                available_dealshub_products = available_dealshub_products.filter(product__base_product__category__name=query_string_category)
+            
             if query_string_name!="":
-                products_by_name = products_by_category.filter(product_name__icontains=query_string_name)
+                available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=query_string_name)
+
+            filtered_products = DealsHubProduct.objects.none()
+            try:
+                if len(filter_list)>0:
+                    for filter_metric in filter_list:
+                        for filter_value in filter_metric["values"]:
+                            filtered_products |= available_dealshub_products.objects.filter(product__dynamic_form_attributes__icontains="'value': '"+filter_value+"'")
+                    filtered_products = filtered_products.distinct()
+                else:
+                    filtered_products = available_dealshub_products
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+            paginator = Paginator(filtered_products, 20)
+            dealshub_products_list = paginator.page(page)            
             products = []
-
-            paginator = Paginator(products_by_name, 20)
-            products_list = paginator.page(page)            
-
-            for product in products_list:
+            for dealshub_product in dealshub_products_list:
                 try:
-                    if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
-                        continue
-                    try:
-                        if len(filter_list)>0:
-                            dealshub_product = DealsHubProduct.objects.get(product=product)
-                            dynamic_form_attributes = json.loads(dealshub_product.product.dynamic_form_attributes)
-                            logger.info("dynamic_form_attributes %s", str(product))
-                            logger.info("dynamic_form_attributes %s", str(dynamic_form_attributes))
-                            flag_match = True
-                            for filter_metric in filter_list:
-                                logger.info("filter_metric %s", str(filter_metric))
-                                if dynamic_form_attributes[filter_metric["key"]]["value"] not in filter_metric["values"]:
-                                    logger.info("Not available")
-                                    flag_match = False
-                                    break
-                            if flag_match==False:
-                                continue
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-
+                    product = dealshub_product.product
                     temp_dict = {}
                     temp_dict["name"] = product.product_name
                     temp_dict["brand"] = str(product.base_product.brand)
