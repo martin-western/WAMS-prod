@@ -1649,7 +1649,7 @@ def generate_flyer_report():
             common_row[2] = str(flyer_obj.brand)
             common_row[3] = str(flyer_obj.mode)
             try:
-                common_row[4] = str(flyer_obj.created_date)
+                common_row[4] = str(flyer_obj.created_date.strftime("%d %b, %Y"))
             except Exception as e:
                 common_row[4] = "NA"
             try:
