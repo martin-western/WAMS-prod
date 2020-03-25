@@ -1017,7 +1017,7 @@ class SearchAPI(APIView):
                 is_available = False
 
             response["is_available"] = is_available
-            response["total_products"] = len(products_by_name)
+            response["total_products"] = len(filtered_products)
 
             search['filters'] = filters
             search['category'] = query_string_category
