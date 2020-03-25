@@ -2113,7 +2113,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 section_products = section_obj.products.all()
                 if limit==True:
                     if section_obj.listing_type=="Carousel":
-                        section_products = section_products[:21]
+                        section_products = section_products[:14]
                     elif section_obj.listing_type=="Grid Stack":
                         section_products = section_products[:14]
 
