@@ -931,7 +931,8 @@ class SearchAPI(APIView):
             query_string_name = data.get("name", "")
             query_string_category = data.get("category", "")
             query_string_organization = data.get("organizationName", "geepas")
-            filter_list = data.get("filters", [])
+            filter_list = data.get("filters", "[]")
+            filter_list = json.loads(filter_list)
 
             page = data.get("page", 1)
             search = {}
