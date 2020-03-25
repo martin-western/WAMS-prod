@@ -951,7 +951,7 @@ class SearchAPI(APIView):
                 if len(filter_list)>0:
                     for filter_metric in filter_list:
                         for filter_value in filter_metric["values"]:
-                            filtered_products |= available_dealshub_products.objects.filter(product__dynamic_form_attributes__icontains="'value': '"+filter_value+"'")
+                            filtered_products |= available_dealshub_products.filter(product__dynamic_form_attributes__icontains="'value': '"+filter_value+"'")
                     filtered_products = filtered_products.distinct()
                 else:
                     filtered_products = available_dealshub_products
