@@ -953,17 +953,20 @@ class SearchAPI(APIView):
                     if DealsHubProduct.objects.filter(product=product, is_published=True).exists()==False:
                         continue
 
-                    dealshub_product = DealsHubProduct.objects.get(product=product)
-                    properties = json.loads(dealshub_product.properties)
-                    flag_match = True
-                    for filter_metric in filter_list:
-                        for prop in properties:
-                            if prop["key"]==filter_metric["key"]:
-                                if prop["value"] not in filter_metric["values"]:
+                    try:
+                        if len(filter_list)>0:
+                            dealshub_product = DealsHubProduct.objects.get(product=product)
+                            dynamic_form_attributes = json.loads(dealshub_product.product.dynamic_form_attributes)
+                            flag_match = True
+                            for filter_metric in filter_list:
+                                if dynamic_form_attributes[filter_metric["key"]]["value"] not in filter_metric["values"]:
                                     flag_match = False
-                                break
-                    if flag_match==False:
-                        continue
+                                    break
+                            if flag_match==False:
+                                continue
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
 
                     temp_dict = {}
