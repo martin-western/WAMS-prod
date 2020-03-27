@@ -329,6 +329,7 @@ class Organization(models.Model):
     twitter_link = models.CharField(max_length=100,blank=True, default='')
     instagram_link = models.CharField(max_length=100,blank=True, default='')
     youtube_link = models.CharField(max_length=100,blank=True, default='')
+    payment_credentials = models.TextField(default="{}")
 
     class Meta:
         verbose_name = "Organization"
