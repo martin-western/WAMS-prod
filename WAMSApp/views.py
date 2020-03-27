@@ -5281,7 +5281,7 @@ class FetchAllCategoriesAPI(APIView):
 
 
 class FetchOrganizationCredentialsAPI(APIView):
-
+    permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
 
         response = {}
