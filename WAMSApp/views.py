@@ -5315,12 +5315,13 @@ class FetchOrganizationCredentialsAPI(APIView):
 
 class PaymentTransactionAPI(APIView):
     permission_classes = (permissions.AllowAny,)
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         
         try:
+            logger.info("PaymentTransactionAPI: %s", str(request))
             data = request.data
 
             logger.info("PaymentTransactionAPI: %s", str(data))
@@ -5339,7 +5340,7 @@ class PaymentTransactionAPI(APIView):
 
 class PaymentNotificationAPI(APIView):
     permission_classes = (permissions.AllowAny,)
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
