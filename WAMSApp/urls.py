@@ -149,6 +149,9 @@ urlpatterns = [
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
     url(r'^fetch-organization-credentials/$',views.FetchOrganizationCredentials),
+
+    url(r'^payfort/payment-transaction/$',views.PaymentTransaction),
+    url(r'^payfort/payment-notification/$',views.PaymentNotification),
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
