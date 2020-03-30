@@ -5313,6 +5313,54 @@ class FetchOrganizationCredentialsAPI(APIView):
         return Response(data=response)
 
 
+class PaymentTransactionAPI(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("PaymentTransactionAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class PaymentNotificationAPI(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("PaymentNotificationAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PaymentNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5459,3 +5507,7 @@ TransferBulkChannel = TransferBulkChannelAPI.as_view()
 FetchAllCategories = FetchAllCategoriesAPI.as_view()
 
 FetchOrganizationCredentials = FetchOrganizationCredentialsAPI.as_view()
+
+PaymentTransaction = PaymentTransactionAPI.as_view()
+
+PaymentNotification = PaymentNotificationAPI.as_view()
