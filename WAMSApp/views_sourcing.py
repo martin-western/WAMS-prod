@@ -175,7 +175,7 @@ class FetchFactoriesListAPI(APIView):
                     temp_dict["logo"] = Config.objects.all()[
                         0].product_404_image.image.url
               
-                temp_dict["total_products"] = factory.products.all().count()
+                temp_dict["total_products"] = Product.objects.filter(factory=factory).count()
 
                 temp_dict["average_delivery_days"] = factory.average_delivery_days
                 temp_dict["average_turn_around_time"] = factory.average_turn_around_time
