@@ -105,7 +105,7 @@ class FetchFactoryDetailsAPI(APIView):
                 temp_dict["logo"] = Config.objects.all()[
                     0].product_404_image.image.url
             # temp_dict["bank_details"] = factory.bank_details
-            temp_dict["total_products"] = factory.products.all().count()
+            temp_dict["total_products"] = Product.objects.filter(factory=factory).count()
 
             response["factory"] = temp_dict
             response["status"] = 200
