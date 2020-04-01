@@ -127,7 +127,8 @@ class FetchFactoriesListAPI(APIView):
             
             user = OmnyCommUser.objects.get(username=request.user.username)
             
-            chip_data = json.loads(data['tags'])
+            #chip_data = json.loads(data['tags'])
+            chip_data = data['tags']
 
             factories = Factory.objects.filter(Q(created_by=user) | Q(created_by__reports_to=user))
             
