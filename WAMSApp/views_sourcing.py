@@ -16,6 +16,9 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
+from django.db.models import Q
+from django.db.models import Count
+from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils import timezone
 
