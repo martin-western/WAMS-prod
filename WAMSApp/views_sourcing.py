@@ -133,11 +133,11 @@ class FetchFactoriesListAPI(APIView):
             #chip_data = json.loads(data['tags'])
             chip_data = data['tags']
 
-            factories = Factory.objects.filter(Q(created_by=user) | Q(created_by__reports_to=user))
+            factories = Factory.objects.filter(Q(created_by=user))
             
-            if len(chip_data)>0:
-                for tag in chip_data:
-                    factories = factories.filter(name__icontains = tag)
+            # if len(chip_data)>0:
+            #     for tag in chip_data:
+            #         factories = factories.filter(name__icontains = tag)
             factory_list = []
             
             for factory in factories:
