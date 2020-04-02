@@ -274,6 +274,10 @@ class Factory(models.Model):
         verbose_name = "BaseFactory"
         verbose_name_plural = "BaseFactories"
 
+    def __str__(self):
+        return str(self.name)
+        
+
 class ImageBucket(models.Model):
 
     description = models.TextField(null=True, blank=True)

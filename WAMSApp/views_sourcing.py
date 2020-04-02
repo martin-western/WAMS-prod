@@ -32,9 +32,13 @@ import uuid
 import logging
 import sys
 import xlrd
+import zipfile
+
 
 from datetime import datetime
 from django.utils import timezone
+from django.core.files import File
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +56,7 @@ class FetchFactoryListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            chip_data = data['tags']
+            chip_data = data.get('tags', [])
 
             factory_objs = Factory.objects.all()
             
@@ -62,7 +66,7 @@ class FetchFactoryListAPI(APIView):
                     factory_objs |= Factory.objects.filter(name__icontains=tag)
                 factory_objs = factory_objs.distinct()
 
-            page = int(data['page'])
+            page = int(data.get('page', 1))
             paginator = Paginator(factory_objs, 20)
             total_factories = factory_objs.count()
             factory_objs = paginator.page(page)
@@ -197,7 +201,7 @@ class FetchProductListingForPIAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
                 
-            chip_data = data['tags']
+            chip_data = data.get('tags', [])
 
             product_objs = Product.objects.exclude(factory=None)
             if "factory_pk" in data:
@@ -220,12 +224,13 @@ class FetchProductListingForPIAPI(APIView):
 
                     temp_dict["factory_pk"] = product_obj.factory.pk
                     temp_dict["factory_name"] =  product_obj.factory.name
+                    temp_dict["factory_code"] =  product_obj.factory.factory_code
                     temp_dict["product_name"] = product_obj.product_name
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["brand_name"] = str(product_obj.base_product.brand)
-                    temp_dict["category"] = str(product_obj.base_product.category)
-                    temp_dict["sub_category"] = str(product_obj.base_product.sub_category)
-                    temp_dict["price"] = sourcing_product.standard_price
+                    temp_dict["category"] = "" if product_obj.base_product.category==None else str(product_obj.base_product.category)
+                    temp_dict["sub_category"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
+                    temp_dict["price"] = sourcing_product.price
                     temp_dict["currency"] = sourcing_product.currency
                     temp_dict["minimum_order_qty"] = sourcing_product.minimum_order_qty
                     temp_dict["qty_metric"] = sourcing_product.qty_metric
@@ -357,7 +362,7 @@ class DownloadBulkPIAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            factory_list = data["factory_list"]
+            factory_list = json.loads(data["factory_list"])
 
             proforma_invoice_bundle_obj = ProformaInvoiceBundle.objects.create()
 
@@ -366,26 +371,39 @@ class DownloadBulkPIAPI(APIView):
                 filepath = generate_pi(factory["factory_code"], factory["invoice_details"], factory["product_list"])
                 filepath_list.append(filepath)
                 invoice_details = factory["invoice_details"]
-                factory_obj = Factory.objects.get(factory_code=factory_code)
+                factory_obj = Factory.objects.get(factory_code=factory["factory_code"])
+
+                local_file = open(filepath, "rb")
+                djangofile = File(local_file)
+
                 proforma_invoice_obj = ProformaInvoice.objects.create(payment_terms=invoice_details["payment_terms"],
                                                                       advance=invoice_details["advance"],
                                                                       inco_terms=invoice_details["inco_terms"],
                                                                       ttl_cntrs=invoice_details["ttl_cntrs"],
                                                                       delivery_terms=invoice_details["delivery_terms"],
                                                                       factory=factory_obj,
+                                                                      invoice_number=invoice_details["invoice_number"],
                                                                       proforma_invoice_bundle=proforma_invoice_bundle_obj)
+                proforma_invoice_obj.proforma_pdf.save(filepath.split("/")[-1], djangofile, save=True)
+                local_file.close()
 
                 for product in factory["product_list"]:
                     product_obj = Product.objects.get(uuid=product["uuid"])
                     UnitProformaInvoice.objects.create(product=product_obj, quantity=int(product["quantity"]), proforma_invoice=proforma_invoice_obj)
 
 
-            zf = zipfile.ZipFile("files/proforma_invoice.zip", "w")
+            zip_path = "files/invoices/proforma_invoice.zip"
+            zf = zipfile.ZipFile(zip_path, "w")
             for filepath in filepath_list:
                 zf.write(filepath)
             zf.close()
+
+            local_file = open(zip_path, "rb")
+            djangofile = File(local_file)
+            proforma_invoice_bundle_obj.proforma_zip.save(zip_path.split("/")[-1], djangofile, save=True)
+            local_file.close()
                     
-            response['filepath'] = "some path"
+            response['filepath'] = proforma_invoice_bundle_obj.proforma_zip.url
             response['status'] = 200
 
         except Exception as e:
@@ -411,28 +429,41 @@ class FetchProformaBundleListAPI(APIView):
 
             proforma_invoice_bundle_objs = ProformaInvoiceBundle.objects.all().order_by("-pk")
 
-            page = int(data['page'])
+            page = int(data.get('page',1))
             paginator = Paginator(proforma_invoice_bundle_objs, 20)
             total_bundle_count = proforma_invoice_bundle_objs.count()
             proforma_invoice_bundle_objs = paginator.page(page)
 
             proforma_invoice_bundle_list = []
             for proforma_invoice_bundle_obj in proforma_invoice_bundle_objs:
-                temp_dict["uuid"] = proforma_invoice_bundle_obj.uuid
-                proforma_invoice_objs = ProformaInvoice.objects.filter(proforma_invoice_bundle=proforma_invoice_bundle_obj)
-                factory_list = []
-                for proforma_invoice_obj in proforma_invoice_objs:
-                    temp_dict2 = {}
-                    temp_dict2["uuid"] = proforma_invoice_obj.uuid
-                    temp_dict2["factory_code"] = proforma_invoice_obj.factory.factory_code
-                    temp_dict2["factory_name"] = proforma_invoice_obj.factory.name
-                    temp_dict2["filepath"] = proforma_invoice_obj.proforma_pdf.url
-                    temp_dict2["product_count"] = UnitProformaInvoice.objects.filter(proforma_invoice=proforma_invoice_obj).count()
-                    factory_list.append()
-                temp_dict["factory_list"] = factory_list
-                temp_dict["filepath"] = proforma_invoice_bundle_obj.proforma_zip.url
-                proforma_invoice_bundle_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["uuid"] = proforma_invoice_bundle_obj.uuid
+                    proforma_invoice_objs = ProformaInvoice.objects.filter(proforma_invoice_bundle=proforma_invoice_bundle_obj)
+                    factory_list = []
+                    for proforma_invoice_obj in proforma_invoice_objs:
+                        temp_dict2 = {}
+                        temp_dict2["uuid"] = proforma_invoice_obj.uuid
+                        temp_dict2["factory_code"] = proforma_invoice_obj.factory.factory_code
+                        temp_dict2["factory_name"] = proforma_invoice_obj.factory.name
+                        temp_dict2["filepath"] = proforma_invoice_obj.proforma_pdf.url
+                        temp_dict2["product_count"] = UnitProformaInvoice.objects.filter(proforma_invoice=proforma_invoice_obj).count()
+                        factory_list.append(temp_dict2)
+                    temp_dict["factory_list"] = factory_list
+                    temp_dict["filepath"] = proforma_invoice_bundle_obj.proforma_zip.url
+                    proforma_invoice_bundle_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchProformaBundleList: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_available = True
             
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            
+            response["total_bundle_count"] = total_bundle_count
             response["proforma_invoice_bundle_list"] = proforma_invoice_bundle_list
             response['status'] = 200
 
