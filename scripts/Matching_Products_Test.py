@@ -103,7 +103,9 @@ while i < rows: #len(rows):
             cnt+=1
             print("Cnt: ",cnt)
 
-            if(cnt%5==0):
+            if(cnt%20==0):
+                time.sleep(5)
+            elif(cnt%5==0):
                 time.sleep(2)
 
         temp = barcode_type
