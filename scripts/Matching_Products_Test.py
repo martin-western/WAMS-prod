@@ -1,5 +1,5 @@
 from MWS import APIs
-
+import time
 import pandas as pd
 from WAMSApp.models import *
 import xlsxwriter
@@ -102,6 +102,9 @@ while i < rows: #len(rows):
 
             cnt+=1
             print("Cnt: ",cnt)
+
+            if(cnt%5==0):
+                time.sleep(2)
 
         temp = barcode_type
         i+=1
