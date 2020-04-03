@@ -362,7 +362,7 @@ class DownloadBulkPIAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            factory_list = json.loads(data["factory_list"])
+            factory_list = data["factory_list"]
 
             proforma_invoice_bundle_obj = ProformaInvoiceBundle.objects.create()
 
