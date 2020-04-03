@@ -178,6 +178,11 @@ def generate_pi(factory_code, invoice_details, product_list):
                       rel="stylesheet">
 
                     <style type="text/css">
+                      /*body:before {
+                        white-space: pre;
+                        font-family: monospace;
+                        content: "Errno::ENOENT: No such file or directory @ rb_sysopen - main.scss"; 
+                      }*/
 
                       html {
                         -webkit-box-sizing: border-box;
@@ -200,9 +205,9 @@ def generate_pi(factory_code, invoice_details, product_list):
                           margin: 0px;
                       }
                       .center-element {
-                          display: flex;
-                          justify-content: center;
-                          align-items: center;
+                          display: -webkit-box;;
+                          /*justify-content: center;*/
+                          /*align-items: center;*/
                       }
                       .pi-page-container {
                           min-height: 100vh;
@@ -213,9 +218,9 @@ def generate_pi(factory_code, invoice_details, product_list):
                       }
 
                       nav {
-                          display: flex;
-                          justify-content: space-between;
-                          align-items: center;
+                          display: -webkit-box;
+                          /*justify-content: space-between;*/
+                          /*align-items: center;*/
                           position: relative;
                           text-align: center;
                           padding: 10px;
@@ -243,8 +248,8 @@ def generate_pi(factory_code, invoice_details, product_list):
 
 
                       .details-cards-container {
-                          display: flex;
-                          justify-content: space-between;
+                          display: -webkit-box;
+                          /*justify-content: space-between;*/
                       }
 
 
@@ -254,11 +259,13 @@ def generate_pi(factory_code, invoice_details, product_list):
                       }
                       .details-cards-left-container {
                           width: 49%;
+                          padding:10px;
                           background-color: white;
                           min-height: 500px;
                       }
                       .details-cards-right-container {
                           width: 49%;
+                          padding:10px;
                           background-color: white;
                           min-height: 500px;
                       }
@@ -281,14 +288,14 @@ def generate_pi(factory_code, invoice_details, product_list):
                           margin: 0px;
                       }
                       .details-card-list {
-                          display: flex;
+                          display: -webkit-box;
                           margin-bottom: 5px;
                       }
                       .list-title {
                           width: 30%;
                       }
                       .list-value {
-                          width: 70%;
+                          width: 90%;
                           font-weight: 500;
                           font-size: 1em;
                       }
@@ -306,7 +313,7 @@ def generate_pi(factory_code, invoice_details, product_list):
                       }
                       .product-table-head {
                           border-bottom: 1px solid black;
-                          display: flex;
+                          display: -webkit-box;
                           
                       }
                       .product-table-head-text {
@@ -315,14 +322,9 @@ def generate_pi(factory_code, invoice_details, product_list):
                       }
 
                       .product-table-head-serial-container {
-                          width: 10%;
+                          width: 5%;
                           border-right: 1px solid black !important;
-                          padding: 10px 10px;
-                      }
-                      .product-table-head-serial-container {
-                          width: 10%;
-                          border-right: 1px solid black !important;
-                          padding: 10px 10px;
+                          padding: 5px 5px;
                       }
                       .product-table-head-products-container {
                           width: 50%;
@@ -353,12 +355,12 @@ def generate_pi(factory_code, invoice_details, product_list):
                           padding: 10px 10px;
                       }
                       .product-table-body{
-                          display: flex;
+                          display: -webkit-box;
                       }
                       .product-table-footer{
                           padding: 10px;
                           border-top: 1px solid black;
-                          display: flex;
+                          display: -webkit-box;
                       }
                       .product-table-footer .label-container {
                           width: 15%;
@@ -370,21 +372,21 @@ def generate_pi(factory_code, invoice_details, product_list):
                           width: 50%;
                           border-right: 1px solid black !important;
                           padding: 10px 10px;
-                          display: flex;
+                          display: -webkit-box;
                           align-items: center;
                       }
 
                       .product-table-products-container .img-container  {
-                          width: 20%;
+                          width: 30%;
                       }
                       .product-table-products-container .label-container  {
-                          width: 25%;
+                          width: 30%;
                       }
                       .product-table-products-container .label-container p {
                           margin-bottom: 5px;
                       }
                       .product-table-products-container .value-container  {
-                          width: 55%;
+                          width: 40%;
                       }
                       .product-table-products-container .value-container .list-value {
                           margin-bottom: 5px;
@@ -399,7 +401,7 @@ def generate_pi(factory_code, invoice_details, product_list):
                           border: 1px solid black;
                           border-radius: 5px;
                           margin-bottom: 20px;
-                          display: flex;
+                          display: -webkit-box;
                       }
                       .signature-left-container{
                           width: 50%;
@@ -429,7 +431,7 @@ def generate_pi(factory_code, invoice_details, product_list):
 
 
                       .product-specification-nav {
-                          display: flex;
+                          display: -webkit-box;
                           background-color: #FFC403;
                           border-radius: 5px;
                           margin-bottom: 20px;
@@ -453,7 +455,7 @@ def generate_pi(factory_code, invoice_details, product_list):
                           border: 1px solid black;
                           border-radius: 5px;
                           padding: 20px 0px;
-                          display: flex;
+                          display: -webkit-box;
                           align-items: center;
                           margin-bottom: 20px;
                       }
@@ -480,7 +482,7 @@ def generate_pi(factory_code, invoice_details, product_list):
                       }
 
                       .product-content-box-1 {
-                          display: flex;
+                          display: -webkit-box;
                           width: 100%;
                           margin-bottom: 5px;
                       }
@@ -497,7 +499,7 @@ def generate_pi(factory_code, invoice_details, product_list):
 
 
                       .product-content-box-2 {
-                          display: flex;
+                          display: -webkit-box;
                           width: 100%;
                           margin-bottom: 5px;
 
@@ -510,7 +512,7 @@ def generate_pi(factory_code, invoice_details, product_list):
                       }
 
                       .product-content-box-3 {
-                          display: flex;
+                          display: -webkit-box;
                           width: 100%;
                           margin-bottom: 5px;
 
