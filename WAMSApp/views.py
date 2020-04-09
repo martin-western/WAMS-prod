@@ -5069,6 +5069,7 @@ class UploadBulkExportAPI(APIView):
                         temp_dict = {}
                         temp_dict["name"] = product_obj.product_name
                         temp_dict["product_id"] = product_obj.product_id
+                        temp_dict["product_pk"] = product_obj.pk
                         temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                         temp_dict["uuid"] = product_obj.uuid
                         try:
@@ -5114,6 +5115,7 @@ class SearchBulkExportAPI(APIView):
                     temp_dict = {}
                     temp_dict["name"] = product_obj.product_name
                     temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["product_pk"] = product_obj.pk
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["uuid"] = product_obj.uuid
                     try:
