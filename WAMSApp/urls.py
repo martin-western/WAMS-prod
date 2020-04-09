@@ -149,6 +149,13 @@ urlpatterns = [
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
     url(r'^fetch-organization-credentials/$',views.FetchOrganizationCredentials),
+
+    url(r'^fetch-orders-for-account-manager/$',views.FetchOrdersForAccountManager),
+    url(r'^fetch-orders-for-warehouse-manager/$',views.FetchOrdersForWarehouseManager),
+    url(r'^fetch-shipping-method/$',views.FetchShippingMethod),
+    url(r'^set-shipping-method/$',views.SetShippingMethod),
+    url(r'^set-orders-status/$',views.SetOrdersStatus),
+    url(r'^cancel-orders/$',views.CancelOrders),
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
