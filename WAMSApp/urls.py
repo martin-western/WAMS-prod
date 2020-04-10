@@ -157,13 +157,5 @@ urlpatterns = [
     url(r'^set-orders-status/$',views.SetOrdersStatus),
     url(r'^cancel-orders/$',views.CancelOrders),
 
-#################################################################################
-
-############################## MWS URLS ########################################
-
-################################################################################# 
-
-    url(r'^get-matching-products-mws/$',views.GetMatchingProductsMWS),
-      
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

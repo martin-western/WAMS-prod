@@ -700,6 +700,7 @@ class CustomPermission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     brands = models.ManyToManyField(Brand, blank=True)
     channels = models.ManyToManyField(Channel, blank=True)
+    mws_functions = models.TextField(default="{}")
 
     class Meta:
         verbose_name = "CustomPermission"
