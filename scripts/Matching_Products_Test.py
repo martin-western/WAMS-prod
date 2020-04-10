@@ -9,6 +9,7 @@ seller_id = 'A3DNFJ8JVFH39T' #replace with your seller id
 secret_key = '9un2k+5Q4eCFI4SRDjNyLhjTAHXrsFkZe0mWIRop' #replace with your secret key
 marketplace_ae = 'A2VIGQ35RCS4UG'
 
+products_api = APIs.Products(access_key, secret_key, seller_id, region='AE')
 
 filename = "scripts/final-barcode.xlsx"
 
@@ -70,7 +71,6 @@ while i < rows: #len(rows):
             
             print(id_list)
 
-            products_api = APIs.Products(access_key, secret_key, seller_id, region='AE')
 
             products = products_api.get_matching_product_for_id(marketplace_id=marketplace_ae, type_=temp, ids = id_list)
             # print(products.parsed)
