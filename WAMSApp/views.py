@@ -26,6 +26,7 @@ from django.db.models import Count
 from django.conf import settings
 
 from WAMSApp.views_sourcing import *
+from WAMSApp.views_dh import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -5068,6 +5069,7 @@ class UploadBulkExportAPI(APIView):
                         temp_dict = {}
                         temp_dict["name"] = product_obj.product_name
                         temp_dict["product_id"] = product_obj.product_id
+                        temp_dict["product_pk"] = product_obj.pk
                         temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                         temp_dict["uuid"] = product_obj.uuid
                         try:
@@ -5113,6 +5115,7 @@ class SearchBulkExportAPI(APIView):
                     temp_dict = {}
                     temp_dict["name"] = product_obj.product_name
                     temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["product_pk"] = product_obj.pk
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["uuid"] = product_obj.uuid
                     try:
@@ -5280,6 +5283,39 @@ class FetchAllCategoriesAPI(APIView):
         return Response(data=response)
 
 
+class FetchOrganizationCredentialsAPI(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchOrganizationCredentialsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            organization_name = data["organization_name"]
+            api_access = data["api_access"]
+
+            if api_access!="5a72db78-b0f2-41ff-b09e-6af02c5b4c77":
+                response["status"] = 403
+                return Response(data=response)
+
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            response["credentials"] = json.loads(organization_obj.payment_credentials)
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrganizationCredentialsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5424,3 +5460,5 @@ DownloadBulkExport = DownloadBulkExportAPI.as_view()
 TransferBulkChannel = TransferBulkChannelAPI.as_view()
 
 FetchAllCategories = FetchAllCategoriesAPI.as_view()
+
+FetchOrganizationCredentials = FetchOrganizationCredentialsAPI.as_view()

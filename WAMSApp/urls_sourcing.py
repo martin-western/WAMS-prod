@@ -6,23 +6,15 @@ from django.http import HttpResponseRedirect
 
 urlpatterns = [
 
+    url(r'^fetch-factory-list/$', views.FetchFactoryList),
     url(r'^fetch-factory-details/$', views.FetchFactoryDetails),
-    url(r'^fetch-factories/$', views.FetchFactoriesList),
-    url(r'^fetch-products-from-factory/$', views.FetchProductsFromFactory),
+    url(r'^fetch-product-listing-for-pi/$', views.FetchProductListingForPI),
+
     url(r'^save-factory-details/$', views.SaveFactoryDetails),
-    url(r'^fetch-factorywise-products/$', views.FetchFactorywiseProductListing),
-    url(r'^upload-factory-image/$', views.UploadFactoryImage),
+    url(r'^upload-factory-images/$', views.UploadFactoryImages),
 
-    url(r'^change-go-live-status/$', views.ChangeGoLiveStatus),
-    url(r'^download-pi/$', views.DownloadPI),
-    url(r'^download-pi-bulk/$', views.DownloadPIBulk),
-    url(r'^generate-draft-pi-line/$', views.GenerateDraftPILine),
-    url(r'^delete-draft-line/$',views.DeleteDraftLine),
-    url(r'^fetch-draft-proforma-invoice/$', views.FetchDraftProformaInvoice),
-    url(r'^create-draft-pi-from-product-selection/$',views.CreateDraftPIFromProductSelection),
-    url(r'^proforma-invoices-list/$',views.FetchProformaInvoiceList),
-    url(r'^fetch-draft-proforma-invoice-cart/$',views.FetchDraftProformaInvoicesCart),
+    url(r'^download-bulk-pi/$', views.DownloadBulkPI),
+    url(r'^fetch-proforma-bundle-list/$', views.FetchProformaBundleList),
 
 
-]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
