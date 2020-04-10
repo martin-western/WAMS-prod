@@ -26,6 +26,7 @@ from django.db.models import Count
 from django.conf import settings
 
 from WAMSApp.views_sourcing import *
+from WAMSApp.views_MWS import *
 from WAMSApp.views_dh import *
 
 from PIL import Image as IMage
