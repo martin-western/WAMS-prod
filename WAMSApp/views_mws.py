@@ -91,7 +91,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
             marketplace_id = mws.Marketplaces["UK"].marketplace_id
 
             barcodes_list = []
-            response["matched_products_list"] = []
+            matched_products_list = []
 
             for product_pk in product_pk_list:
 
@@ -109,7 +109,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                     temp_dict["product_pk"] = product_pk
                     temp_dict["matched_ASIN"] = ""
                     temp_dict["matched_product_title"] = ""
-                    response["matched_products_list"].append(temp_dict)
+                    matched_products_list.append(temp_dict)
 
             final_barcodes_list = sorted(barcodes_list, key=lambda x: x[0])
 
@@ -172,7 +172,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                             else :
                                 temp_dict["status"] = "Ivalid Barcode Value"
 
-                            response["matched_products_list"].append(temp_dict)
+                            matched_products_list.append(temp_dict)
 
                     else:
                         temp_dict = {}
@@ -196,7 +196,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                         else :
                             temp_dict["status"] = "Ivalid Barcode Value"
 
-                        response["matched_products_list"].append(temp_dict)
+                        matched_products_list.append(temp_dict)
                         
                     id_list = []
                     pk_list = []
@@ -212,6 +212,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                 if len(id_list)==0:
                     flag=0
 
+            response['matched_products_list'] = matched_products_list
             response['status'] = 200
 
         except Exception as e:
