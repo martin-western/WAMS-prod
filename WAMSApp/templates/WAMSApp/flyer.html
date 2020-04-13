@@ -1412,6 +1412,21 @@
         </div>
 
 
+        <!-- Tag Bucket -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Tag Bucket</span>
+            <a href="#add-new-bg-modal" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px; ">
+              <i class="material-icons" style="background-color: #1ABC9C;">add</i>
+            </a>
+          </span>
+
+          <div id="tag-bucket-thumbnails-div" class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
+          </div>
+        </div>
+
+
 
 
 
@@ -1578,71 +1593,61 @@
     </div>
   </div>
 
+
+
+
+  <div id="add-new-tag-modal" class="modal">
+    <div class="modal-content">
+      <h5 style="font-family: 'AvenirNext';font-size: 18px">NEW TAG IMAGE</h5>
+      <br>
+      <div class="row">
+        
+        <div class="file-field input-field col s10">
+          <div class="btn" style="background-color: #1ABC9C;">
+            <span>File</span>
+            <input id="new-bg-image" type="file">
+          </div>
+          <div class="file-path-wrapper">
+            <input class="file-path validate" type="text">
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
+      <a id="upload-new-tag-image-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #1ABC9C;">Save</a>
+    </div>
+  </div>
+
+
   <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
   <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.min2.js' %}"></script>
-  <!-- <script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> -->
   <script type="text/javascript">
 
+    var elems = document.querySelectorAll('.modal');
+    var instances = M.Modal.init(elems);
 
-    // $('.sidenav').sidenav({
-    //   "inDuration": 150,
-    //   "outDuration": 150
-    // });
+    elems  = document.querySelectorAll("input[type=range]");  
+    M.Range.init(elems);
 
-    // $("select").formSelect();
-    //$('.modal').modal();
+    var global_product_bucket_list = [];
+    var global_selected_product_pk = "";
+    var global_selected_product_name = "";
+    var global_product_images_dict = {};
+    var global_selected_grid_id = "";
+    var global_template_data = {};
+    var global_selected_product_info_id = "";
+    var global_background_images_bucket = [];
+    var global_brand_name = "";
+    var global_external_image_bucket = [];
 
-    $(document).on("change", "#super-brand-option", function(){
-      if($("#super-brand-option").prop("checked"))
-      {
-        $("#super-brand-img").show();
-        global_super_brand_logo = true;
-      }
-      else
-      {
-        $("#super-brand-img").hide();
-        global_super_brand_logo = false;
-      }
-    });
+    var global_flyer_name = "flyer";
 
-    $(document).on("change", "#iso-option", function(){
-      if($("#iso-option").prop("checked"))
-      {
-        $("#iso-img").show();
-        global_iso_logo = true;
-      }
-      else
-      {
-        $("#iso-img").hide();
-        global_iso_logo = false;
-      }
-    });
+    var global_save_signal = false;
 
-    $(document).on("change", "#consumer-option", function(){
-      if($("#consumer-option").prop("checked"))
-      {
-        $("#consumer-img").show();
-        global_consumer_logo = true;
-      }
-      else
-      {
-        $("#consumer-img").hide();
-        global_consumer_logo = false;
-      }
-    });
+    var global_primary_grid = "";
 
-    $(document).on("change", "#small-brand-option", function(){
-      if($("#small-brand-option").prop("checked"))
-      {
-        $(".brand-text").show();
-        global_brand_name_visible = true;
-      }
-      else
-      {
-        $(".brand-text").hide();
-        global_brand_name_visible = false;
-      }
-    });
 
     $(document).on("change", "#white-option", function(){
       if($("#white-option").prop("checked"))
@@ -1656,233 +1661,6 @@
         global_white_container = false;
       }
     });
-
-
-    $('input[type=radio][name=group1]').change(function() {
-
-        if (this.value == "None") {
-            $("#local-none").click();
-            $(".banner-img").attr("src", "");
-            $(".banner-img").hide();
-        }
-        else if (this.value == "Sale") {
-            $("#local-sale").click();
-            $(".banner-img").attr("src", "/files/banner1.png");
-            $(".banner-img").show();
-        }
-        else if(this.value == "Combo Offers")
-        {
-            $("#local-combo").click();
-            $(".banner-img").attr("src", "/files/combo.png");
-            $(".banner-img").show();
-        }
-        else if(this.value == "Wow")
-        {
-            $("#local-wow").click();
-            $(".banner-img").attr("src", "/files/wow.png");
-            $(".banner-img").show();
-        }
-        else if(this.value == "Half Price")
-        {
-            $("#local-half-price").click();
-            $(".banner-img").attr("src", "/files/half-price.png");
-            $(".banner-img").show();
-        }
-        else if(this.value == "Killer Offer")
-        {
-            $("#local-killer-offer").click();
-            $(".banner-img").attr("src", "/files/killer-offer.png");
-            $(".banner-img").show();
-        }
-    });
-
-
-    $('input[type=radio][name=group2]').change(function() {
-        if (this.value == "None") {
-            $("#banner-img-"+global_selected_grid_id).attr("src", "");
-            $("#banner-img-"+global_selected_grid_id).hide();
-        }
-        else if (this.value == "Sale") {
-            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/banner1.png");
-            $("#banner-img-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "Combo Offers")
-        {
-            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/combo.png");
-            $("#banner-img-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "Wow")
-        { 
-            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/wow.png");
-            $("#banner-img-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "Half Price")
-        { 
-            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/half-price.png");
-            $("#banner-img-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "Killer Offer")
-        { 
-            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/killer-offer.png");
-            $("#banner-img-"+global_selected_grid_id).show();
-        }
-    });
-
-    // Global Warranty
-    $('input[type=radio][name=group3]').change(function() {
-
-        if (this.value == "None") {
-            $("#local-no-warranty").click();
-            $(".banner-img-left").attr("src", "");
-            $(".banner-img-left").hide();
-        }
-        else if (this.value == "geepas-warranty-1") {
-            $("#local-geepas-warranty-1").click();
-            $(".banner-img-left").attr("src", "/files/geepas-warranty-1.png");
-            $(".banner-img-left").show();
-        }
-        else if(this.value == "geepas-warranty-2")
-        {
-            $("#local-geepas-warranty-2").click();
-            $(".banner-img-left").attr("src", "/files/geepas-warranty-2.png");
-            $(".banner-img-left").show();
-        }
-        else if(this.value == "geepas-warranty-3")
-        {
-            $("#local-geepas-warranty-3").click();
-            $(".banner-img-left").attr("src", "/files/geepas-warranty-3.png");
-            $(".banner-img-left").show();
-        }
-        else if(this.value == "geepas-warranty-5")
-        {
-            $("#local-geepas-warranty-5").click();
-            $(".banner-img-left").attr("src", "/files/geepas-warranty-5.png");
-            $(".banner-img-left").show();
-        }
-        else if(this.value == "geepas-warranty-7")
-        {
-            $("#local-geepas-warranty-7").click();
-            $(".banner-img-left").attr("src", "/files/geepas-warranty-7.png");
-            $(".banner-img-left").show();
-        }
-        else if(this.value == "olsenmark-warranty-2")
-        {
-            $("#local-olsenmark-warranty-2").click();
-            $(".banner-img-left").attr("src", "/files/olsenmark-warranty-2.png");
-            $(".banner-img-left").show();
-        }
-        else if(this.value == "krypton-warranty-2")
-        {
-            $("#local-krypton-warranty-2").click();
-            $(".banner-img-left").attr("src", "/files/krypton-warranty-2.png");
-            $(".banner-img-left").show();
-        }
-    });
-
-
-    // Local Warranty
-    $('input[type=radio][name=group4]').change(function() {
-
-        if (this.value == "None") {
-            $("#banner-img-left-"+global_selected_grid_id).attr("src", "");
-            $("#banner-img-left-"+global_selected_grid_id).hide();
-        }
-        else if (this.value == "geepas-warranty-1") {
-            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-1.png");
-            $("#banner-img-left-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "geepas-warranty-2")
-        {
-            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-2.png");
-            $("#banner-img-left-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "geepas-warranty-3")
-        {
-            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-3.png");
-            $("#banner-img-left-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "geepas-warranty-5")
-        {
-            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-5.png");
-            $("#banner-img-left-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "geepas-warranty-7")
-        {
-            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-7.png");
-            $("#banner-img-left-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "olsenmark-warranty-2")
-        {
-            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/olsenmark-warranty-2.png");
-            $("#banner-img-left-"+global_selected_grid_id).show();
-        }
-        else if(this.value == "krypton-warranty-2")
-        {
-            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/krypton-warranty-2.png");
-            $("#banner-img-left-"+global_selected_grid_id).show();
-        }
-    });
-
-
-
-    var elems  = document.querySelectorAll("input[type=range]");  
-    M.Range.init(elems);
-
-
-    var global_product_bucket_list = [];
-    var global_selected_product_pk = "";
-    var global_selected_product_name = "";
-    var global_product_images_dict = {};
-    var global_selected_grid_id = "";
-    var global_template_data = {};
-    var global_selected_product_info_id = "";
-    var global_background_images_bucket = [];
-    var global_brand_name = "";
-    var global_external_image_bucket = [];
-    
-    var global_currency_unit = "AED"
-    var global_border_visible = true;
-    var global_border_color = "#E9E9E9";
-    var global_background_image_url = "none";
-    var global_product_title_font_size = "12";
-    var global_product_title_font_family = "AvenirNextRegular";
-    var global_product_title_font_weight = "normal";
-    var global_product_title_font_color = "#181818";
-    var global_price_font_size = "12";
-    var global_price_font_family = "AvenirNextRegular";
-    var global_price_font_weight = "normal";
-    var global_price_font_color = "#181818";
-    var global_strikeprice_font_size = "12";
-    var global_strikeprice_font_family = "AvenirNextRegular";
-    var global_strikeprice_font_weight = "normal";
-    var global_strikeprice_font_color = "#181818";
-    var global_currency_font_size = "12";
-    var global_currency_font_family = "AvenirNextRegular";
-    var global_currency_font_weight = "normal";
-    var global_currency_font_color = "#181818";
-    var global_price_box_bg_color = "#fbf00b";
-    var global_header_color = "#181818";
-    var global_footer_color = "#181818";
-    var global_header_opacity = "1";
-    var global_footer_opacity = "1";    
-    var global_all_promo_resizer = "40";
-    var global_all_warranty_resizer = "40";
-    var global_all_image_resizer = "100";
-    var global_all_image_rotator = "0";
-    var global_super_brand_logo = false;
-    var global_iso_logo = false;
-    var global_consumer_logo = false;
-    var global_brand_name_visible = false;
-    var global_white_container = false;
-    var global_price_resizer = "100";
-    var global_strikeprice_visible = false;
-    var global_footer_text = "www.geepas.com";
-
-    var global_flyer_name = "flyer";
-
-    var global_save_signal = false;
-
-    var global_primary_grid = "";
 
 
     $("#download-flyer-btn").click(function(e){
@@ -2064,10 +1842,6 @@
 
     });
 
-    $(document).on('click', '.productinfobtn', function(){
-        global_selected_product_info_id = this.id.split("-")[1]
-    });
-
 
     $(document).on("change", "#border-option", function(){
       if($("#border-option").prop("checked"))
@@ -2118,144 +1892,45 @@
     })
 
 
-    $(document).on("change", "#product-title-font-size", function(){
-        $(".product-title-info").css("font-size", this.value+"px");
-        global_product_title_font_size = this.value;
-    });
 
-    $(document).on("change", "#product-price-font-size", function(){
-        $(".product-price-info").css("font-size", this.value+"px");
-        global_price_font_size = this.value;
-    });
+    $("#upload-flyer-tag-btn").click(function(){
 
-    $(document).on("change", "#currency-font-size", function(){
-        $(".product-currency-info").css("font-size", this.value+"px");
-        global_currency_font_size = this.value;
-    });
+      var fd = new FormData();
+      var tag_image = document.getElementById("tag-image");
+      fd.append('tag_image', tag_image.files[0]);
 
-    $(document).on("change", "#product-strikeprice-font-size", function(){
-        $(".product-strikeprice-info").css("font-size", this.value+"px");
-        global_strikeprice_font_size = this.value;
-    });
+      $.ajax({
+        url: "/upload-flyer-tag/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        processData: false,
+        contentType: false,
+        data: fd,
+        success: function(response) {
+          console.log("Success!", response);
+          if(response["status"]==200)
+          {
+            global_tag_bucket.push({"pk":response["tag_image_pk"], "url":response["tag_image_url"]});
+            update_background_image_bucket();
+            
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to add tags!"});
+          }
+          else
+          {
+            M.toast({html: "Error adding tags!"}); 
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
 
-
-    $(document).on("change", "#product-title-font-weight", function(){
-        $(".product-title-info").css("font-weight", this.value);
-        global_product_title_font_weight = this.value;
-    });
-
-    $(document).on("change", "#product-price-font-weight", function(){
-        $(".product-price-info").css("font-weight", this.value);
-        global_price_font_weight = this.value;
-    });
-
-    $(document).on("change", "#currency-font-weight", function(){
-        $(".product-currency-info").css("font-weight", this.value);
-        global_currency_font_weight = this.value;
-    });
-
-    $(document).on("change", "#product-strikeprice-font-weight", function(){
-        $(".product-strikeprice-info").css("font-weight", this.value);
-        global_strikeprice_font_weight = this.value;
-    });
-
-
-
-    $(document).on("change", "#product-title-font-color", function(){
-        $(".product-title-info").css("color", this.value);
-        global_product_title_font_color = this.value;
-    });
-
-    $(document).on("change", "#product-price-font-color", function(){
-        $(".product-price-info").css("color", this.value);
-        global_price_font_color = this.value;
-    });
-
-    $(document).on("change", "#currency-font-color", function(){
-        $(".product-currency-info").css("color", this.value);
-        global_currency_font_color = this.value;
-    });
-
-    $(document).on("change", "#product-strikeprice-font-color", function(){
-        $(".product-strikeprice-info").css("color", this.value);
-        global_strikeprice_font_color = this.value;
-    });
-
-
-    $(document).on("change", "#product-title-font-family", function(){
-        $(".product-title-info").css("font-family", this.value);
-        global_product_title_font_family = this.value;
-    });
-    $(document).on("change", "#product-price-font-family", function(){
-        $(".product-price-info").css("font-family", this.value);
-        global_price_font_family = this.value;
-    });
-    $(document).on("change", "#currency-font-family", function(){
-        $(".product-currency-info").css("font-family", this.value);
-        global_currency_font_family = this.value;
-    });
-    $(document).on("change", "#product-strikeprice-font-family", function(){
-        $(".product-strikeprice-info").css("font-family", this.value);
-        global_strikeprice_font_family = this.value;
-    });
-
-
-    $(document).on("change", "#header-color", function(){
-        global_header_color = this.value;
-        set_header_style();
-    });
-
-
-    $(document).on("change", "#footer-color", function(){
-        global_footer_color = this.value;
-        set_footer_style();
-    });
-
-    $(document).on("change", "#header-opacity", function(){
-        global_header_opacity = this.value;
-        set_header_style();
-    });
-
-    $(document).on("change", "#footer-opacity", function(){
-        global_footer_opacity = this.value;
-        set_footer_style();
-    });
-
-
-    $(document).on("keyup", "#currency-unit", function(){
-        $(".product-currency-info").val(this.value);
-        global_currency_unit = this.value;
-    });
-
-    $(document).on("change", "#price-box-bg-color", function(){
-      $(".grid-item-footer-right input").css("background", this.value);
-      global_price_box_bg_color = this.value;
-    });
-
-
-    $(document).on("change", "#border-color", function(){
-      global_border_color = this.value;
-      if($("#border-option").prop("checked"))
-      {
-        $(".divgrid").parent().parent().parent().css("border", "2px solid "+this.value);
-      }
-    });
-
-
-    $(document).on("change", "#strikeprice-option", function(){
-      if($("#strikeprice-option").prop("checked"))
-      {
-        $(".footer-top-right").show();
-        global_strikeprice_visible = true;
-      }
-      else
-      {
-        $(".footer-top-right").hide();
-        global_strikeprice_visible = false;
-      }
-    });
-
-
+    })
 
 
     $("#image-resizer").change(function() {
@@ -2303,60 +1978,6 @@
 
 
 
-
-
-    $("#price-resizer").change(function() {
-      var R = $("#price-resizer").val();
-      $(".grid-item-footer-right").css("max-width", R+"px");
-      global_price_resizer = R;
-    });
-
-
-    $("#all-promo-resizer").change(function() {
-      var R = $("#all-promo-resizer").val();
-      global_all_promo_resizer = R;
-      $(".grid-item-sticker img").css("width", R+"px");
-      $("#promo-resizer").val(R);    
-      $(".grid-item-sticker img").attr("resizer", R);
-      // $(".banner-img-left").css("width", R+"px");
-      // $(".banner-img-left").attr("resizer", R);
-    });
-
-    $("#promo-resizer").change(function() {
-      var R = $("#promo-resizer").val();
-      $("#banner-img-"+global_selected_grid_id).css("width", R+"px");
-      $("#banner-img-"+global_selected_grid_id).attr("resizer", R);
-
-      // $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
-      // $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);      
-    });
-
-
-    $("#all-warranty-resizer").change(function() {
-      var R = $("#all-warranty-resizer").val();
-      global_all_warranty_resizer = R;
-      $("#warranty-resizer").val(R);
-      $(".banner-img-left").css("width", R+"px");
-      $(".banner-img-left").attr("resizer", R);
-    });
-
-    $("#warranty-resizer").change(function() {
-      var R = $("#warranty-resizer").val();
-      $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
-      $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);
-    });
-
-
-
-    $("#product-info-save-btn").click(function(){
-
-        var product_name = $("#product-info-name").val();
-        var product_price = $("#product-info-price").val();
-
-        $("#productinfoname-"+global_selected_product_info_id).html(product_name);
-        $("#productinfoprice-"+global_selected_product_info_id).html(product_price);
-    });
-
     function create_unit_tag_html(tag_dict)
     {
       var html_string = `
@@ -2377,10 +1998,7 @@
           <div class="grid-stack-item-content secondary-grid-stack-item-content" style="overflow:hidden;">
             <div class="row" style="margin: 0em;padding:0em;">
               <div class="col s10" style="margin-bottom: 0em;">
-                <input type="text" class="left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;">
-              </div>
-              <div class="col s10">
-                <input type="text" class="left" placeholder="description" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;">
+                <textarea class="materialize-textarea left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;"></textarea>
               </div>
             </div>
           </div>
@@ -2410,8 +2028,6 @@
     {
       
     }
-
-    var grid_cnt = 0;
 
     function create_flyer_grid()
     {
@@ -2802,6 +2418,25 @@
       }
 
       $("#background-image-bucket-thumbnails-div").html(html_string);
+    }
+
+    function update_tag_bucket()
+    {
+      var html_string = "";
+
+      var images = global_tag_bucket;
+      for(var i=0;i<images.length;i++)
+      {
+        html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
+          <div style="border:2px solid #495561;text-align:center;padding-top:0.4em;">
+            <a class="bgimgselect" id="bgimgselect_`+images[i]["pk"]+`" href="#!">
+              <img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;">
+            </a>
+          </div>
+        </div>`;
+      }
+
+      $("#tag-bucket-thumbnails-div").html(html_string);
     }
 
     function update_external_image_bucket()
