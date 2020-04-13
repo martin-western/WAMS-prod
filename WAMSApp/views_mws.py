@@ -106,6 +106,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                     temp_dict = {}
                     temp_dict["status"] = "Barcode Not Found"
                     temp_dict["matched_ASIN"] = ""
+                    temp_dict["matched_product_title"] = ""
                     temp_dict["pricing_information"] = []
                     response["matched_products_list"].append(temp_dict)
 
@@ -148,11 +149,12 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                         temp_dict["matched_ASIN"] = ""
                         if temp_dict["status"] == "Success":
                             parsed_products = products.parsed[j]["Products"]["Product"]
-                            
                             if isinstance(parsed_products,list):
                                 temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+                                temp_dict["matched_product_title"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["Title"]
                             else:
                                 temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+                                temp_dict["matched_product_title"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]
                         else :
                             temp_dict["status"] = "Ivalid Barcode Value"
 
