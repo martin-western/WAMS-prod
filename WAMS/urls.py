@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'', include('WAMSApp.urls')),
     url(r'^sourcing/', include('WAMSApp.urls_sourcing')),
+    url(r'^mws/', include('WAMSApp.urls_mws')),
     url(r'^dealshub/', include('dealshub.urls')),
     url(r'^token-auth/', obtain_jwt_token)
 ]
