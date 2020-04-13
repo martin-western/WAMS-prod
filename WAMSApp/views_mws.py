@@ -122,9 +122,9 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
 
             while i < len(final_barcodes_list):
                 
-                barcode_type = final_barcodes_list[0]
-                barcode_string = final_barcodes_list[1]
-                pk = final_barcodes_list[2]
+                barcode_type = final_barcodes_list[i][0]
+                barcode_string = final_barcodes_list[i][1]
+                pk = final_barcodes_list[i][2]
 
                 id_list.append(barcode_string)
                 pk_list.append(pk)
