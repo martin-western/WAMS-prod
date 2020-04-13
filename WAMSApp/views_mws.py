@@ -35,6 +35,7 @@ import logging
 import sys
 import xlrd
 import zipfile
+import time
 
 
 from datetime import datetime
@@ -101,13 +102,13 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                 barcode_string = product_obj.barcode_string
 
                 if barcode_string!= None and barcode_string!="" and product_id_type!=None:
-                    barcodes_list.append((product_id_type,barcode_string))
+                    barcodes_list.append((product_id_type,barcode_string,product_pk))
                 else:
                     temp_dict = {}
                     temp_dict["status"] = "Barcode Not Found"
+                    temp_dict["product_pk"] = product_pk
                     temp_dict["matched_ASIN"] = ""
                     temp_dict["matched_product_title"] = ""
-                    temp_dict["pricing_information"] = []
                     response["matched_products_list"].append(temp_dict)
 
             final_barcodes_list = sorted(barcodes_list, key=lambda x: x[0])
@@ -134,20 +135,23 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                     if i%5 == 4:
                         flag=1
 
-                if i == rows - 1:
+                if i == len(final_barcodes_list) - 1:
                     flag=1
 
                 if flag==1 and len(id_list) !=0:
                     
 
-                    products = products_api.get_matching_product_for_id(marketplace_id=marketplace_ae, type_=temp, ids = id_list)
+                    products = products_api.get_matching_product_for_id(marketplace_id=marketplace_id, type_=temp, ids = id_list)
                     # print(products.parsed)
                     for j in range(len(products.parsed)):
                         
                         temp_dict = {}
                         temp_dict["status"] = products.parsed[j]["status"]["value"]
+                        temp_dict["product_pk"] = tupl[2]
                         temp_dict["matched_ASIN"] = ""
                         if temp_dict["status"] == "Success":
+                            channel_product = Product.objects.get(pk=product_pk).channel_product
+                            amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
                             parsed_products = products.parsed[j]["Products"]["Product"]
                             if isinstance(parsed_products,list):
                                 temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
@@ -155,6 +159,9 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                             else:
                                 temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
                                 temp_dict["matched_product_title"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]
+                            amazon_uk_product["ASIN"] = temp_dict["matched_ASIN"]
+                            channel_product = json.dumps(amazon_uk_product)
+                            channel_product.save()
                         else :
                             temp_dict["status"] = "Ivalid Barcode Value"
 
@@ -178,6 +185,130 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("GetMatchingProductsAmazonUKMWSAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class GetPricingProductsAmazonUKMWSAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
+                logger.warning("GetPricingProductsAmazonUKMWSAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("GetPricingProductsAmazonUKMWSAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk_list = data["product_pk_list"]
+
+            if(len(product_pk_list)>30):
+                logger.warning("GetPricingProductsAmazonUKMWSAPI More then 30 Products!")
+                response['status'] = 429
+                return Response(data=response)
+
+            permissible_channels = custom_permission_filter_channels(request.user)
+            channel_obj = Channel.objects.get(name="Amazon UK")
+
+            if channel_obj not in permissible_channels:
+                logger.warning(
+                    "GetPricingProductsAmazonUKMWSAPI Restricted Access of UK Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            products_api = APIs.Products(MWS_ACCESS_KEY,SECRET_KEY,SELLER_ID, 
+                                        region='UK')
+
+            marketplace_id = mws.Marketplaces["UK"].marketplace_id
+
+            barcodes_list = []
+            response["products_pricing_list"] = []
+
+            for product_pk in product_pk_list:
+
+                product_obj = Product.objects.get(pk=product_pk)
+                channel_product = product_obj.channel_product
+                amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
+                product_asin = amazon_uk_product["ASIN"]
+
+                if product_asin!="":
+                    barcodes_list.append((product_asin,product_pk))
+                else:
+                    temp_dict = {}
+                    temp_dict["status"] = "ASIN Not Found"
+                    temp_dict["product_pk"] = product_pk
+                    temp_dict["pricing_information"] = []
+                    response["products_pricing_list"].append(temp_dict)
+
+            id_list = []
+            cnt=0
+            i=0
+
+            for tupl in final_barcodes_list:
+                
+                barcode_string = tupl[0]
+
+                id_list.append(barcode_string)
+                
+                if i%5 == 4:
+                    flag=1
+
+                if i == len(final_barcodes_list) - 1:
+                    flag=1
+
+                if flag==1:
+                    
+                    products = products_api.get_competitive_pricing_for_asin(marketplace_id=marketplace_id, asins = id_list)
+                    # parsed[0]["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                    for j in range(len(products.parsed)):
+                        
+                        temp_dict = {}
+                        temp_dict["status"] = products.parsed[j]["status"]["value"]
+                        temp_dict["product_pk"] = tupl[2]
+                        temp_dict["matched_ASIN"] = ""
+                        if temp_dict["status"] == "Success":
+                            channel_product = Product.objects.get(pk=product_pk).channel_product
+                            amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
+                            parsed_products = products.parsed[j]["Products"]["Product"]
+                            if isinstance(parsed_products,list):
+                                temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+                                temp_dict["matched_product_title"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["Title"]
+                            else:
+                                temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+                                temp_dict["matched_product_title"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]
+                            amazon_uk_product["ASIN"] = temp_dict["matched_ASIN"]
+                            channel_product = json.dumps(amazon_uk_product)
+                            channel_product.save()
+                        else :
+                            temp_dict["status"] = "Ivalid Barcode Value"
+
+                        response["matched_products_list"].append(temp_dict)
+                        
+                    id_list = []
+                    flag = 0
+                    cnt+=1
+
+                    if(cnt%2==0):
+                        time.sleep(1)
+
+                temp = barcode_type
+                i+=1
+
+                if len(id_list)==0:
+                    flag=0
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GetPricingProductsAmazonUKMWSAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -229,5 +360,7 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
         return Response(data=response)
 
 GetMatchingProductsAmazonUKMWS = GetMatchingProductsAmazonUKMWSAPI.as_view()
+
+GetPricingProductsAmazonUKMWS = GetPricingProductsAmazonUKMWSAPI.as_view()
 
 GetMatchingProductsAmazonUAEMWS = GetMatchingProductsAmazonUAEMWSAPI.as_view()
