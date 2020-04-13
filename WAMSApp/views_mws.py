@@ -191,7 +191,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                                 temp_dict["matched_ASIN"] = products.parsed["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
                                 temp_dict["matched_product_title"] = products.parsed["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
                             amazon_uk_product["ASIN"] = temp_dict["matched_ASIN"]
-                            channel_product = json.dumps(amazon_uk_product)
+                            channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
                             channel_product.save()
                         else :
                             temp_dict["status"] = "Ivalid Barcode Value"
