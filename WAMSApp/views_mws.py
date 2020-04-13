@@ -104,7 +104,6 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                 if barcode_string!= None and barcode_string!="" and product_id_type!=None:
                     barcodes_list.append((product_id_type.name,barcode_string,product_pk))
                 else:
-                    logger.info("Hii")
                     temp_dict = {}
                     temp_dict["status"] = "Barcode Not Found"
                     temp_dict["product_pk"] = product_pk
@@ -121,11 +120,11 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
             cnt=0
             i=0
 
-            for tupl in final_barcodes_list:
+            while i < len(final_barcodes_list):
                 
-                barcode_type = tupl[0]
-                barcode_string = tupl[1]
-                pk = tupl[2]
+                barcode_type = final_barcodes_list[0]
+                barcode_string = final_barcodes_list[1]
+                pk = final_barcodes_list[2]
 
                 id_list.append(barcode_string)
                 pk_list.append(pk)
@@ -172,7 +171,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                                 channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
                                 channel_product.save()
                             else :
-                                temp_dict["status"] = "Ivalid Barcode Value"
+                                temp_dict["status"] = "Not Found!"
 
                             matched_products_list.append(temp_dict)
 
