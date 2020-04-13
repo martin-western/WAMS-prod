@@ -85,7 +85,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            products_api = APIs.Products(MWS_ACCESS_KEY,SECRET_KEY,SELLER_ID, 
+            products_api = APIs.Products(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region='UK')
 
             marketplace_id = mws.Marketplaces["UK"].marketplace_id
@@ -223,7 +223,7 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            products_api = APIs.Products(MWS_ACCESS_KEY,SECRET_KEY,SELLER_ID, 
+            products_api = APIs.Products(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region='UK')
 
             marketplace_id = mws.Marketplaces["UK"].marketplace_id
