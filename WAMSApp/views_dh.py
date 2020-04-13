@@ -176,7 +176,7 @@ class SetShippingMethodAPI(APIView):
             shipping_method = data["shippingMethod"]
             unit_order_uuid_list = data["unitOrderUuidList"]
 
-            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/set-shipping-method/", data={"shippingMethod": shippingMethod, "unitOrderUuidList": json.dumps(unitOrderUuidList), "api_access":api_access}, verify=False)
+            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/set-shipping-method/", data={"shippingMethod": shipping_method, "unitOrderUuidList": json.dumps(unit_order_uuid_list), "api_access":api_access}, verify=False)
             response = json.loads(r.content)
 
         except Exception as e:
@@ -205,7 +205,7 @@ class SetOrdersStatusAPI(APIView):
             order_status = data["orderStatus"]
             unit_order_uuid_list = data["unitOrderUuidList"]
 
-            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/set-shipping-method/", data={"orderStatus": order_status, "unitOrderUuidList": json.dumps(unitOrderUuidList), "api_access":api_access}, verify=False)
+            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/set-shipping-method/", data={"orderStatus": order_status, "unitOrderUuidList": json.dumps(unit_order_uuid_list), "api_access":api_access}, verify=False)
             response = json.loads(r.content)
 
         except Exception as e:
@@ -234,7 +234,7 @@ class SetOrdersStatusAPI(APIView):
             order_status = data["orderStatus"]
             unit_order_uuid_list = data["unitOrderUuidList"]
 
-            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/set-orders-status/", data={"orderStatus": order_status, "unitOrderUuidList": json.dumps(unitOrderUuidList), "api_access":api_access}, verify=False)
+            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/set-orders-status/", data={"orderStatus": order_status, "unitOrderUuidList": json.dumps(unit_order_uuid_list), "api_access":api_access}, verify=False)
             response = json.loads(r.content)
 
         except Exception as e:
