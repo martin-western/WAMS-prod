@@ -68,15 +68,19 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            channel_name = data["channel_name"]
+            product_pk_list = data["product_pk_list"]
 
-            permissible_channels = custom_permission_filter_channels(
-                request.user)
-            channel_obj = Channel.objects.get(name=channel_name)
+            if(len(product_pk_list)>30):
+                logger.warning("GetMatchingProductsAmazonUKMWSAPI More then 30 Products!")
+                response['status'] = 429
+                return Response(data=response)
+
+            permissible_channels = custom_permission_filter_channels(request.user)
+            channel_obj = Channel.objects.get(name="Amazon UK")
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "GetMatchingProductsAmazonUKMWSAPI Restricted Access of Noon Channel!")
+                    "GetMatchingProductsAmazonUKMWSAPI Restricted Access of UK Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -85,9 +89,87 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
 
             marketplace_id = mws.Marketplaces["UK"].marketplace_id
 
-            product_id_type = data["product_id_type"]
-            ProductIDType = product_id_type.objects.get(name=product_id_type)
+            barcodes_list = []
+            response["matched_products_list"] = []
 
+            for product_pk in product_pk_list:
+
+                product_obj = Product.objects.get(pk=product_pk)
+                product_id_type = None
+                if(product_obj.product_id_type!=None):
+                    product_id_type = product_obj.product_id_type
+                barcode_string = product_obj.barcode_string
+
+                if barcode_string!= None and barcode_string!="" and product_id_type!=None:
+                    barcodes_list.append((product_id_type,barcode_string))
+                else:
+                    temp_dict = {}
+                    temp_dict["status"] = "Barcode Not Found"
+                    temp_dict["matched_ASIN"] = ""
+                    temp_dict["pricing_information"] = []
+                    response["matched_products_list"].append(temp_dict)
+
+            final_barcodes_list = sorted(barcodes_list, key=lambda x: x[0])
+
+            temp = final_barcodes_list[0][0]
+            flag=0
+            id_list = []
+            cnt=0
+            i=0
+
+            for tupl in final_barcodes_list:
+                
+                barcode_type = tupl[0]
+                barcode_string = tupl[1]
+
+                id_list.append(barcode_string)
+                
+                if temp != barcode_type:
+                    flag=1
+                    i-=1
+                    id_list.pop()
+                
+                if flag != 1:
+                    if i%5 == 4:
+                        flag=1
+
+                if i == rows - 1:
+                    flag=1
+
+                if flag==1 and len(id_list) !=0:
+                    
+
+                    products = products_api.get_matching_product_for_id(marketplace_id=marketplace_ae, type_=temp, ids = id_list)
+                    # print(products.parsed)
+                    for j in range(len(products.parsed)):
+                        
+                        temp_dict = {}
+                        temp_dict["status"] = products.parsed[j]["status"]["value"]
+                        temp_dict["matched_ASIN"] = ""
+                        if temp_dict["status"] == "Success":
+                            parsed_products = products.parsed[j]["Products"]["Product"]
+                            
+                            if isinstance(parsed_products,list):
+                                temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+                            else:
+                                temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+                        else :
+                            temp_dict["status"] = "Ivalid Barcode Value"
+
+                        response["matched_products_list"].append(temp_dict)
+                        
+                    id_list = []
+                    flag = 0
+                    cnt+=1
+
+                    if(cnt%2==0):
+                        time.sleep(1)
+
+                temp = barcode_type
+                i+=1
+
+                if len(id_list)==0:
+                    flag=0
 
             response['status'] = 200
 
