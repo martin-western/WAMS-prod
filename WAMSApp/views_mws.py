@@ -101,13 +101,13 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                 barcode_string = product_obj.barcode_string
 
                 if barcode_string!= None and barcode_string!="" and product_id_type!=None:
-                    barcodes_list.append((product_id_type,barcode_string))
+                    barcodes_list.append((product_id_type,barcode_string,product_pk))
                 else:
                     temp_dict = {}
                     temp_dict["status"] = "Barcode Not Found"
+                    temp_dict["product_pk"] = product_pk
                     temp_dict["matched_ASIN"] = ""
                     temp_dict["matched_product_title"] = ""
-                    temp_dict["pricing_information"] = []
                     response["matched_products_list"].append(temp_dict)
 
             final_barcodes_list = sorted(barcodes_list, key=lambda x: x[0])
@@ -146,8 +146,11 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                         
                         temp_dict = {}
                         temp_dict["status"] = products.parsed[j]["status"]["value"]
+                        temp_dict["product_pk"] = tupl[2]
                         temp_dict["matched_ASIN"] = ""
                         if temp_dict["status"] == "Success":
+                            channel_product = Product.objects.get(pk=product_pk).channel_product
+                            amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
                             parsed_products = products.parsed[j]["Products"]["Product"]
                             if isinstance(parsed_products,list):
                                 temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
@@ -155,6 +158,9 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                             else:
                                 temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
                                 temp_dict["matched_product_title"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]
+                            amazon_uk_product["ASIN"] = temp_dict["matched_ASIN"]
+                            channel_product = json.dumps(amazon_uk_product)
+                            channel_product.save()
                         else :
                             temp_dict["status"] = "Ivalid Barcode Value"
 
