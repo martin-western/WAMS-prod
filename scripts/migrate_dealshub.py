@@ -107,9 +107,10 @@ for i in p:
             i.pfl_product_features = k
             i.save()
 
+from WAMSApp.models import *
 C = ChannelProduct.objects.filter(is_amazon_uk_product_created=True)
 for c in C:
     uk = json.loads(c.amazon_uk_product_json)
-    p = Product.objects.get(channel_product=c)
-    p.pfl_product_features = json.dumps(uk["product_attribute_list"])
-    p.save()
+    uk["ASIN"] = ""
+    c.amazon_uk_product_json = json.dumps(uk)
+    c.save()
