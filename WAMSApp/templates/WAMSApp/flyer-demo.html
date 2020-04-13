@@ -7,11 +7,14 @@
   
   <title>OmnyComm</title>
 
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
   <link rel="stylesheet" href="{% static 'WAMSApp/css/materialize.min.css' %}">
 
   <link href="{% static 'WAMSApp/css/style.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
 
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/base/jquery-ui.css"> -->
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.css" />
 
@@ -663,13 +666,16 @@
 
   <script type="text/javascript" src="{% static 'WAMSApp/js/jquery.js' %}"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js" type="text/javascript"></script>
-  
+
+  <script type="text/javascript" src="{% static 'WAMSApp/js/jquery.dataTables.min.js' %}"></script>
+  <!-- <script type="text/javascript" src="{% static 'WAMSApp/js/materialize-.js' %}"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
 
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.all.js"></script>
-  
-  <!-- <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.jQueryUI.min.js' %}"></script> -->
+
+  <!-- <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.min.js' %}"></script> -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/gridstack@0.3.0/dist/gridstack.all.js"></script>
+  <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.jQueryUI.min.js' %}"></script>
 
   
   <div class="row" style="margin-bottom: 0em;">
@@ -1510,8 +1516,67 @@
 
 
           <div id="flyer-grid" class="col s12" style="width: 210mm;">
-            <div id="grid-stack-div" class="grid-stack primary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
+            <div class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
 
+              <div id="item1" class="grid-stack-item mygrid" data-gs-x="0" data-gs-y="0" data-gs-width="10" data-gs-height="20">
+                <div id="my-img2" gridid="item1" class="grid-stack-item-content" style="border:2px solid grey;background-image: url('https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/GK9901_2.jpg');background-size: 50%;background-position: 10% 10%;background-repeat: no-repeat;overflow: hidden;">
+                  <div class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
+                    <div class="grid-stack-item sub" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;">
+                      <div class="grid-stack-item-content" style="background-image: url('http://127.0.0.1/files/warranty.png');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
+                        
+                      </div>
+                    </div>
+                    <div class="grid-stack-item sub" data-gs-x="3" data-gs-y="6" data-gs-width="18" data-gs-height="5">
+                      <div class="grid-stack-item-content" style="overflow:hidden;">
+                        <div class="row" style="margin: 0em;padding:0em;">
+                          <div class="col s10" style="margin-bottom: 0em;">
+                            <input type="text" class="left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;">
+                          </div>
+                          <div class="col s10">
+                            <input type="text" class="left" placeholder="description" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="grid-stack-item sub" data-gs-x="10" data-gs-y="0" data-gs-width="5" data-gs-height="3">
+                      <div class="grid-stack-item-content" style="background-image: url('http://127.0.0.1/files/wow.png');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div id="item2" class="grid-stack-item mygrid" data-gs-x="12" data-gs-y="0" data-gs-width="10" data-gs-height="20">
+                <div gridid="item2" id="my-img" class="grid-stack-item-content" style="border:2px solid grey;background-image: url('https://wig-wams-s3-bucket.s3.amazonaws.com/midsize/1569936191GK5459WKF-D215.jpg');background-size: 50%;background-position: 10% 10%;background-repeat: no-repeat;overflow: hidden;">
+                  <div class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
+                    <div class="grid-stack-item sub" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;">
+                      <div class="grid-stack-item-content" style="background-image: url('http://127.0.0.1/files/warranty.png');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
+                        
+                      </div>
+                    </div>
+                    <div class="grid-stack-item sub" data-gs-x="3" data-gs-y="6" data-gs-width="18" data-gs-height="5">
+                      <div class="grid-stack-item-content" style="overflow:hidden;">
+                        <div class="row" style="margin: 0em;padding:0em;">
+                          <div class="col s10" style="margin-bottom: 0em;">
+                            <input type="text" class="left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;">
+                          </div>
+                          <div class="col s10">
+                            <input type="text" class="left" placeholder="description" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="grid-stack-item sub" data-gs-x="10" data-gs-y="0" data-gs-width="5" data-gs-height="3">
+                      <div class="grid-stack-item-content" style="background-image: url('http://127.0.0.1/files/wow.png');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
 
@@ -1584,13 +1649,13 @@
   <script type="text/javascript">
 
 
-    // $('.sidenav').sidenav({
-    //   "inDuration": 150,
-    //   "outDuration": 150
-    // });
+    $('.sidenav').sidenav({
+      "inDuration": 150,
+      "outDuration": 150
+    });
 
-    // $("select").formSelect();
-    //$('.modal').modal();
+    $("select").formSelect();
+    $('.modal').modal();
 
     $(document).on("change", "#super-brand-option", function(){
       if($("#super-brand-option").prop("checked"))
@@ -1881,8 +1946,6 @@
     var global_flyer_name = "flyer";
 
     var global_save_signal = false;
-
-    var global_primary_grid = "";
 
 
     $("#download-flyer-btn").click(function(e){
@@ -2357,58 +2420,149 @@
         $("#productinfoprice-"+global_selected_product_info_id).html(product_price);
     });
 
-    function create_unit_tag_html(tag_dict)
-    {
-      var html_string = `
-        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;">
-          <div class="grid-stack-item-content secondary-grid-stack-item-content" style="background-image: url('http://127.0.0.1/files/warranty.png');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
-            
-          </div>
-        </div>`
-
-      return html_string;
-    }
-
-
-    function create_unit_info_container_html(tag_dict)
-    {
-      var html_string = `
-        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="3" data-gs-y="6" data-gs-width="18" data-gs-height="5">
-          <div class="grid-stack-item-content secondary-grid-stack-item-content" style="overflow:hidden;">
-            <div class="row" style="margin: 0em;padding:0em;">
-              <div class="col s10" style="margin-bottom: 0em;">
-                <input type="text" class="left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;">
-              </div>
-              <div class="col s10">
-                <input type="text" class="left" placeholder="description" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;">
-              </div>
-            </div>
-          </div>
-        </div>`
-
-      return html_string;
-    }
 
 
     function create_unit_flyer_html(flyer_dict)
     {
-      var grid_id = flyer_dict["grid_id"];
+      var grid_id = flyer_dict["grid-id"];
+      var product_title = flyer_dict["product-title"];
+      var product_info = flyer_dict["product-info"];
+      var price = flyer_dict["price"];
+      var strikeprice = flyer_dict["strikeprice"];
+      var currency = flyer_dict["currency"];
+      var image_url = flyer_dict["image-url"];
+      var banner_img = flyer_dict["banner-img"];
+      var image_resizer = flyer_dict["image-resizer"];
+      var image_rotator = flyer_dict["image-rotator"];
+      var promo_resizer = flyer_dict["promo-resizer"];
+      var warranty_resizer = flyer_dict["warranty-resizer"];
+      var width = flyer_dict["width"];
+      var height = flyer_dict["height"];
+      var x = flyer_dict["x"];
+      var y = flyer_dict["y"];
+      var warranty_img = flyer_dict["warranty-img"];
 
-      var html_string = `
-        <div class="grid-stack-item primary-grid-stack-item" data-gs-width="10" data-gs-height="20" grid-id="`+grid_id+`">
-          <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid grey;background-size: 50%;background-position: 50% 50%;background-repeat: no-repeat;overflow: hidden;">
-            <div id="secondary-grid-stack-`+grid_id+`" class="grid-stack secondary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
+      var background_color = "background-color: transparent";
+      if( $("#white-option").prop("checked"))
+      {
+        background_color = "background-color: white";
+      }
+
+      console.log(flyer_dict);
+
+      var html_string = 
+          `<div grid-id="`+grid_id+`" class="grid-stack-item" data-gs-width=`+width+` data-gs-height=`+height+` data-gs-x=`+x+` data-gs-y=`+y+` style="text-align:center;padding:0em !important;">
+            <div class="grid-stack-item-content hoverable" style="border: 2px solid `+global_border_color+`;`+background_color+`">
+              <div class="grid-item-img-container">
+                <a id="gridbox-`+grid_id+`" href="#!" class="flyer-item-box" style="color:black;height:100%;width:100%;">
+                  <div class="divgrid" id="divgrid-`+grid_id+`" style="text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;height:auto;width:100%">
+                      <img class="grid-images" resizer="`+image_resizer+`" rotator="`+image_rotator+`" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:`+image_resizer+`%;transform:rotate(`+image_rotator+`deg);height:auto;"/>
+                  </div>
+                </a>
+                <div class="grid-item-sticker">
+                  <img class="banner-img" id="banner-img-`+grid_id+`" src="`+banner_img+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
+                </div>
+                <div style="position: absolute;left:10px;top:10px;">
+                  <img class="banner-img-left" id="banner-img-left-`+grid_id+`" src="`+warranty_img+`" style="width: `+warranty_resizer+`px" resizer="`+warranty_resizer+`" />
+                </div>
+              </div>
+              <div class="grid-item-footer-container" > 
+                <div class="footer-top">
+                  <div class="footer-top-left valign-wrapper">
+                    <p class="grid-item-text brand-text" style="text-align:left;"></p>
+                  </div>
+                  <div class="footer-top-right">
+                    <p id="product-strikeprice-info-`+grid_id+`" class="grid-item-text-4 strikethrough product-strikeprice-info browser-default" type="text" contenteditable="true">`+strikeprice+`</p>
+                  </div>
+                </div>
+                <div class="footer-bottom">
+                  <div class="grid-item-footer-left">
+                      <input id="product-title-info2-`+grid_id+`" class=" font-to-avenir footer-bottom-left-input product-title-info product-title-info-title browser-default" type="text" name="name" placeholder="product name" value="`+product_title+`">
+                      <input id="product-title-info-`+grid_id+`" class="footer-bottom-left-input product-title-info product-title-info-description font-to-avenir browser-default" type="text" name="description" placeholder="description" value="`+product_info+`">
+                  </div>
+                  <div class="grid-item-footer-right">
+                      <input id="product-currency-info-`+grid_id+`" class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" value="`+currency+`" >
+                      <input id="product-price-info-`+grid_id+`" class="grid-item-text-3 footer-bottom-left-input product-price-info font-to-avenir browser-default" type="text" name="price" placeholder="price" value="`+price+`">
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>`
+          </div>`
 
-      return html_string;
+        return html_string;
     }
 
 
     function select_cell(grid_id)
     {
-      
+      global_selected_grid_id = grid_id;
+
+      $("#divgrid-1").parent().parent().css("border", "0.14em dashed");
+
+      $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
+      $("#image-rotator").val($("#gridimg-"+global_selected_grid_id).attr("rotator"));
+      $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
+      $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
+
+      var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
+      if(banner_img=="")
+      {
+        $("#local-none").click();
+      } 
+      else if(banner_img=="/files/combo.png")
+      {
+        $("#local-combo").click();
+      }
+      else if(banner_img=="/files/banner1.png")
+      {
+        $("#local-sale").click();
+      }
+      else if(banner_img=="/files/wow.png")
+      {
+        $("#local-wow").click();
+      }
+      else if(banner_img=="/files/half-price.png")
+      {
+        $("#local-half-price").click();
+      }
+      else if(banner_img=="/files/killer-offer.png")
+      {
+        $("#local-killer-offer").click();
+      }
+
+      var banner_img_url = $("#banner-img-left-"+global_selected_grid_id).attr("src");
+      if(banner_img_url=="")
+      {
+        $("#local-no-warranty").click();
+      }
+      else if(banner_img_url=="/files/geepas-warranty-1.png")
+      {
+        $("#local-geepas-warranty-1").click(); 
+      }
+      else if(banner_img_url=="/files/geepas-warranty-2.png")
+      {
+        $("#local-geepas-warranty-2").click(); 
+      }
+      else if(banner_img_url=="/files/geepas-warranty-3.png")
+      {
+        $("#local-geepas-warranty-3").click(); 
+      }
+      else if(banner_img_url=="/files/geepas-warranty-5.png")
+      {
+        $("#local-geepas-warranty-5").click(); 
+      }
+      else if(banner_img_url=="/files/geepas-warranty-7.png")
+      {
+        $("#local-geepas-warranty-7").click();
+      }
+      else if(banner_img_url=="/files/olsenmark-warranty-2.png")
+      {
+        $("#local-olsenmark-warranty-2").click(); 
+      }
+      else if(banner_img_url=="/files/krypton-warranty-2.png")
+      {
+        $("#local-krypton-warranty-2").click();
+      }
     }
 
     var grid_cnt = 0;
@@ -2422,31 +2576,31 @@
       for(var i=0; i< item_data.length; i ++)
       {
         var flyer_dict = {}
-        // flyer_dict["grid-id"] = i+1;
-        // flyer_dict["product-title"] = item_data[i]["data"]["title"];
-        // flyer_dict["product-info"] = item_data[i]["data"]["description"];
-        // flyer_dict["price"] = item_data[i]["data"]["price"];
-        // flyer_dict["strikeprice"] = item_data[i]["data"]["strikeprice"];
-        // flyer_dict["image-url"] = item_data[i]["data"]["image-url"];
-        // flyer_dict["banner-img"] = item_data[i]["data"]["banner-img"];
-        // flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
-        // flyer_dict["image-rotator"] = item_data[i]["data"]["image-rotator"];
-        // flyer_dict["promo-resizer"] = item_data[i]["data"]["promo-resizer"];
-        // flyer_dict["warranty-resizer"] = item_data[i]["data"]["warranty-resizer"];
-        // flyer_dict["width"] = item_data[i]["container"]["width"];
-        // flyer_dict["height"] = item_data[i]["container"]["height"];
-        // flyer_dict["x"] = item_data[i]["container"]["x"];
-        // flyer_dict["y"] = item_data[i]["container"]["y"];
-        // flyer_dict["warranty-img"] = item_data[i]["data"]["warranty-img"];
+        flyer_dict["grid-id"] = i+1;
+        flyer_dict["product-title"] = item_data[i]["data"]["title"];
+        flyer_dict["product-info"] = item_data[i]["data"]["description"];
+        flyer_dict["price"] = item_data[i]["data"]["price"];
+        flyer_dict["strikeprice"] = item_data[i]["data"]["strikeprice"];
+        flyer_dict["image-url"] = item_data[i]["data"]["image-url"];
+        flyer_dict["banner-img"] = item_data[i]["data"]["banner-img"];
+        flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
+        flyer_dict["image-rotator"] = item_data[i]["data"]["image-rotator"];
+        flyer_dict["promo-resizer"] = item_data[i]["data"]["promo-resizer"];
+        flyer_dict["warranty-resizer"] = item_data[i]["data"]["warranty-resizer"];
+        flyer_dict["width"] = item_data[i]["container"]["width"];
+        flyer_dict["height"] = item_data[i]["container"]["height"];
+        flyer_dict["x"] = item_data[i]["container"]["x"];
+        flyer_dict["y"] = item_data[i]["container"]["y"];
+        flyer_dict["warranty-img"] = item_data[i]["data"]["warranty-img"];
 
         var temp_html = create_unit_flyer_html(flyer_dict);
         html_string += temp_html;
       }
        
       $('#grid-stack-div').html(html_string);
-      
-      global_primary_grid = GridStack.init({
+      $('.grid-stack').gridstack({
         animate: true,
+        removable: true,
         verticalMargin: 6,
         column: 24,
         cellHeight: 10,
@@ -2454,19 +2608,12 @@
           handles: 'e, se, s, sw, w, n'
         },
         float:true
-      }, '.primary-grid-stack');
+      });
 
+      $(".brand-text").html(global_brand_name);
+      $(".product-currency-info").val(global_currency_unit)
 
-      // $('.primary-grid-stack').gridstack({
-      //   animate: true,
-      //   verticalMargin: 6,
-      //   column: 24,
-      //   cellHeight: 10,
-      //   resizable: {
-      //     handles: 'e, se, s, sw, w, n'
-      //   },
-      //   float:true
-      // });
+      select_cell(1);
     }
 
 
@@ -2543,38 +2690,47 @@
 
     $("#add-grid-item-btn").click(function(){
 
+      var i = grid_cnt+1;
       grid_cnt += 1;
+      console.log(i);
 
       var flyer_dict = {};
-      flyer_dict["grid_id"] = grid_cnt
+
+      flyer_dict["grid-id"] = (i+1);
+      flyer_dict["product-title"] = "";
+      flyer_dict["product-info"] = "";
+      flyer_dict["price"] = "";
+      flyer_dict["strikeprice"] = "strikeprice";
+      flyer_dict["currency"] = global_currency_unit;
+      flyer_dict["image-url"] = "";
+      flyer_dict["image-resizer"] = global_all_image_resizer;
+      flyer_dict["image-rotator"] = global_all_image_rotator;
+      flyer_dict["promo-resizer"] = global_all_promo_resizer;
+      flyer_dict["warranty-resizer"] = global_all_warranty_resizer;
+      flyer_dict["banner-img"] = "";
+      flyer_dict["width"] = "3";
+      flyer_dict["height"] = "3";
+      flyer_dict["x"] = "7";
+      flyer_dict["y"] = "7";
+      flyer_dict["warranty-img"] = "";
+
       var html_string = create_unit_flyer_html(flyer_dict);
 
-      var el = $(html_string);
-      global_primary_grid.addWidget(el, 0, 0, 8, 20, true);
 
-      secondary_grid = GridStack.init({
-        animate: true,
-        verticalMargin: 6,
-        column: 24,
-        cellHeight: 10,
-        resizable: {
-          handles: 'e, se, s, sw, w, n'
-        },
-        float:true
-      }, '#secondary-grid-stack-'+grid_cnt);
+      $("#grid-stack-div").append(html_string);
 
-      console.log(secondary_grid);
+      var grid = $('.grid-stack').data('gridstack');
+      var el = $('.grid-stack').children()[$('.grid-stack').children().length-1];
+      grid.addWidget(el, 0, 0, 3, 3, true);
 
-      html_string = create_unit_info_container_html(flyer_dict);
-      var el = $(html_string);
-      secondary_grid.addWidget(el, 0, 0, 18, 4, true);
-
+      set_editor_style();
     });
 
 
     $("#delete-grid-item-btn").click(function(){
-      var el =  $(".grid-stack-item[grid-id="+active_grid_id+"]");
-      global_primary_grid.removeWidget(el);
+      var el =  $(".grid-stack-item[grid-id="+global_selected_grid_id+"]");
+      var grid = $('.grid-stack').data('gridstack');
+      grid.removeWidget(el);
     })
 
 
@@ -2721,7 +2877,7 @@
 
       update_image_categories("all_images");
       $("#image-categories-thumbnails-select").val("all_images");
-      //$("select").formSelect();
+      $("select").formSelect();
 
     });
 
@@ -2838,12 +2994,11 @@
         //var image_url = $(this).children()[0].src;
         var image_url = $($(this).children()[0]).attr("high-res-url");
         console.log(image_pk, image_url, global_selected_grid_id);
-        $("div[gridid="+active_grid_id+"]").css("background-image", "url('"+image_url+"')");
-        //$("#gridimg-"+global_selected_grid_id).attr("src", image_url);
+        $("#gridimg-"+global_selected_grid_id).attr("src", image_url);
         //if($("#product-title-info2-"+global_selected_grid_id).val()=="")
-        // $("#product-title-info2-"+global_selected_grid_id).val(global_selected_product_name);
-        // $("#gridimg-"+global_selected_grid_id).show();
-        // $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
+        $("#product-title-info2-"+global_selected_grid_id).val(global_selected_product_name);
+        $("#gridimg-"+global_selected_grid_id).show();
+        $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
     });
 
 
@@ -3211,14 +3366,12 @@
           if(document.activeElement.type=="text")
             return;
 
-          if(active_grid_id=="")
-            return;
           //console.log("Hola", event.which, event.keyCode, event.shiftKey);
-          var position = $("div[gridid="+active_grid_id+"]").css("background-position");
+          var position = $("div[gridid="+mygridid+"]").css("background-position");
           var position_x = parseInt(position.split(" ")[0].replace("%", "")); 
           var position_y = parseInt(position.split(" ")[1].replace("%", ""));
           console.log("Old: ", position);
-          var size = $("div[gridid="+active_grid_id+"]").css("background-size").replace("%", "");
+          var size = $("div[gridid="+mygridid+"]").css("background-size").replace("%", "");
 
           var inc = 1;
           if(event.shiftKey)
@@ -3256,10 +3409,10 @@
           size = size+"%";
           console.log("Updated: ", position);
 
-          console.log(active_grid_id, "mygridid");
+          console.log(mygridid, "mygridid");
 
-          $("div[gridid="+active_grid_id+"]").css("background-position", position);
-          $("div[gridid="+active_grid_id+"]").css("background-size", size);
+          $("div[gridid="+mygridid+"]").css("background-position", position);
+          $("div[gridid="+mygridid+"]").css("background-size", size);
           
           if(event.keyCode==37)
           {
@@ -3268,12 +3421,13 @@
           }
     });
 
-    var active_grid_id = "";
-    $(document).on("click", ".primary-grid-stack-item-content", function(){
-      active_grid_id = $(this).attr("gridid");
+    var mygridid = "";
+    $(document).on("click", ".mygrid", function(){
+      var gridid = $(this).attr("id");
+      mygridid = gridid;
       $("div[gridid]").css("border", "2px solid black");
-      $("div[gridid="+active_grid_id+"]").css("border", "5px dotted black");
-      console.log("hererre", active_grid_id);
+      $("div[gridid="+gridid+"]").css("border", "2px dotted green");
+      console.log("hererre", gridid);
     });
 
 
@@ -3472,7 +3626,7 @@
         global_footer_text = "Footer Text"
       $("#footer-text").text(global_footer_text);
       
-      //$("select").formSelect();
+      $("select").formSelect();
     }
 
     // Sets the current global editor styles to all elements
