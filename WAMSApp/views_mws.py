@@ -175,7 +175,6 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                             response["matched_products_list"].append(temp_dict)
 
                     else:
-                        if len(products.parsed)==1:
                         temp_dict = {}
                         temp_dict["status"] = products.parsed["status"]["value"]
                         temp_dict["product_pk"] = pk_list[j]
