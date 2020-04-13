@@ -147,9 +147,9 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
 
                     products = products_api.get_matching_product_for_id(marketplace_id=marketplace_id, type_=temp, ids = id_list)
                     # print(products.parsed)
+                    logger.info("Parsed Products : %s ",products.parsed)
                     if len(products.parsed)==1:
                         temp_dict = {}
-                        logger.info("Parsed Products : %s ",products.parsed)
                         temp_dict["status"] = products.parsed["status"]["value"]
                         temp_dict["product_pk"] = pk_list[j]
                         temp_dict["matched_ASIN"] = ""
@@ -175,7 +175,6 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                         for j in range(len(products.parsed)):
                             
                             temp_dict = {}
-                            logger.info("Parsed Products : %s ",products.parsed)
                             temp_dict["status"] = products.parsed[j]["status"]["value"]
                             temp_dict["product_pk"] = pk_list[j]
                             temp_dict["matched_ASIN"] = ""
