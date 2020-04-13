@@ -150,6 +150,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                     for j in range(len(products.parsed)):
                         
                         temp_dict = {}
+                        logger.info("Parsed Products : %s ",products.parsed)
                         temp_dict["status"] = products.parsed[j]["status"]["value"]
                         temp_dict["product_pk"] = pk_list[j]
                         temp_dict["matched_ASIN"] = ""
