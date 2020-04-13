@@ -70,6 +70,18 @@ def custom_permission_filter_brands(user):
         logger.error("custom_permission_filter_brands: %s at %s", e, str(exc_tb.tb_lineno))
         return []
 
+def custom_permission_mws_functions(user,permission):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        mws_functions = json.loads(permission_obj.mws_functions)
+        return mws_functions[permission]
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_mws_functions: %s at %s", e, str(exc_tb.tb_lineno))
+        return False
+
 def custom_permission_filter_channels(user):
 
     try:

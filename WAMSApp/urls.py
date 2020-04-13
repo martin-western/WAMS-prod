@@ -156,6 +156,6 @@ urlpatterns = [
     url(r'^set-shipping-method/$',views.SetShippingMethod),
     url(r'^set-orders-status/$',views.SetOrdersStatus),
     url(r'^cancel-orders/$',views.CancelOrders),
-    
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

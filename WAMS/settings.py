@@ -81,18 +81,16 @@ DATABASES = {
 }
 """
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wamsprod3',
+        'NAME': 'wamsqa',
         'USER': 'nisarg',
         'PASSWORD': 'nisargtike',
         'HOST': 'localhost',
         'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -232,3 +230,12 @@ CORS_ORIGIN_ALLOW_ALL = True
 FILE_UPLOAD_HANDLERS = [
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 ]
+
+MWS_PARAMS = {
+ 
+    "MWS_ACCESS_KEY" : 'AKIAI7PSOABCBAJGX36Q', #replace with your access key
+    "SELLER_ID" : 'A3DNFJ8JVFH39T', #replace with your seller id
+    "MWS_SECRET_KEY" : '9un2k+5Q4eCFI4SRDjNyLhjTAHXrsFkZe0mWIRop', #replace with your secret key
+
+}
+

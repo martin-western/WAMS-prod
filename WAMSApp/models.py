@@ -555,6 +555,16 @@ class Product(models.Model):
         if self.channel_product == None:
             channel_product_obj = ChannelProduct.objects.create()
             self.channel_product = channel_product_obj
+
+        if len(self.barcode_string)==10:
+            self.product_id_type = ProductIDType.objects.get(name="ASIN")
+        elif len(self.barcode_string)==12:
+            self.product_id_type = ProductIDType.objects.get(name="UPC")
+        elif len(self.barcode_string)==13:
+            self.product_id_type = ProductIDType.objects.get(name="EAN")
+        else:
+            self.barcode_string=""
+            self.product_id_type = None
         
         super(Product, self).save(*args, **kwargs)
 
@@ -700,6 +710,7 @@ class CustomPermission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     brands = models.ManyToManyField(Brand, blank=True)
     channels = models.ManyToManyField(Channel, blank=True)
+    mws_functions = models.TextField(default="{}")
 
     class Meta:
         verbose_name = "CustomPermission"
