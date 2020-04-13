@@ -116,6 +116,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
             temp = final_barcodes_list[0][0]
             flag=0
             id_list = []
+            pk_list = []
             cnt=0
             i=0
 
@@ -123,13 +124,16 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                 
                 barcode_type = tupl[0]
                 barcode_string = tupl[1]
+                pk = tupl[2]
 
                 id_list.append(barcode_string)
+                pk_list.append(pk)
                 
                 if temp != barcode_type:
                     flag=1
                     i-=1
                     id_list.pop()
+                    pk_list.pop()
                 
                 if flag != 1:
                     if i%5 == 4:
@@ -147,7 +151,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                         
                         temp_dict = {}
                         temp_dict["status"] = products.parsed[j]["status"]["value"]
-                        temp_dict["product_pk"] = tupl[2]
+                        temp_dict["product_pk"] = pk_list[j]
                         temp_dict["matched_ASIN"] = ""
                         if temp_dict["status"] == "Success":
                             channel_product = Product.objects.get(pk=product_pk).channel_product
@@ -155,10 +159,10 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                             parsed_products = products.parsed[j]["Products"]["Product"]
                             if isinstance(parsed_products,list):
                                 temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
-                                temp_dict["matched_product_title"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["Title"]
+                                temp_dict["matched_product_title"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
                             else:
                                 temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
-                                temp_dict["matched_product_title"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]
+                                temp_dict["matched_product_title"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
                             amazon_uk_product["ASIN"] = temp_dict["matched_ASIN"]
                             channel_product = json.dumps(amazon_uk_product)
                             channel_product.save()
@@ -168,6 +172,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                         response["matched_products_list"].append(temp_dict)
                         
                     id_list = []
+                    pk_list = []
                     flag = 0
                     cnt+=1
 
