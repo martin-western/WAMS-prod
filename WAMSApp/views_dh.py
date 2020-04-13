@@ -64,10 +64,35 @@ class FetchOrdersForAccountManagerAPI(APIView):
             
             api_access = "5a72db78-b0f2-41ff-b09e-6af02c5b4c77"
 
-            filterStatus = data["filterStatus"]
+            from_date = data.get("fromDate", "")
+            to_date = data.get("toDate", "")
+            payment_type_list = data.get("paymentTypeList", [])
+            min_qty = data.get("minQty", "")
+            max_qty = data.get("maxQty", "")
+            min_price = data.get("minPrice", "")
+            max_price = data.get("maxPrice", "")
+            currency_list = data.get("currencyList", [])
+            shipping_method_list = data.get("shippingMethodList", [])
+            tracking_status_list = data.get("trackingStatusList", [])
+
             page = data.get("page", 1)
 
-            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/fetch-orders-for-account-manager/", data={"filterStatus": filterStatus, "page":page, "api_access":api_access}, verify=False)
+            request_data = {
+                "fromDate":from_date,
+                "toDate":to_date,
+                "paymentTypeList":json.dumps(payment_type_list),
+                "minQty":min_qty,
+                "maxQty":max_qty,
+                "minPrice":min_price,
+                "maxPrice":max_price,
+                "currencyList":json.dumps(currency_list),
+                "shippingMethodList":json.dumps(shipping_method_list),
+                "trackingStatusList":json.dumps(tracking_status_list),
+                "page":page, 
+                "api_access":api_access
+            }
+
+            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/fetch-orders-for-account-manager/", data=request_data, verify=False)
             response = json.loads(r.content)
 
         except Exception as e:
