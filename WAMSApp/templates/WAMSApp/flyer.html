@@ -656,6 +656,7 @@
   }
 
 
+
   </style>
 
   {% csrf_token %}
@@ -706,24 +707,6 @@
           </span>
 
           <div class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;">
-            <div class="input-field col s8" style="margin-top: 0em;">
-              <select id="image-categories-thumbnails-select" style="font-size: 0.8em;">
-                <option value="all_images" id="all-images-option">All Images</option>
-                <option value="main_images" id="main-images-option">Main Images</option>
-                <option value="sub_images" id="sub-images-option">Sub Images</option>
-                <option value="pfl_images" id="pfl-images-option">PFL Images</option>
-                <option value="white_background_images" id="white-background-images-option">White Background Images</option>
-                <option value="lifestyle_images" id="lifestyle-images-option">Lifestyle Images</option>
-                <option value="certificate_images" id="certificate-images-option">Certificate Images</option>
-                <option value="giftbox_images" id="giftbox-images-option">Giftbox Images</option>
-                <option value="diecut_images" id="diecut-images-option">Diecut Images</option>
-                <option value="aplus_content_images" id="aplus-content-images-option">A+ Content Images</option>
-                <option value="ads_images" id="ads-images-option">Ads Images</option>
-                <option value="unedited_images" id="unedited-images-option">Unedited Images</option>
-                <option value="transparent_images" id="transparent-images-option">Transparent Images</option>
-              </select>
-            </div>
-
             <div class="col s12">
               <div id="image-categories-thumbnails-div" class="scroll-style-1 row" style="max-height: 10em;overflow-y:auto;margin-bottom: 0em;">
               </div>
@@ -747,8 +730,46 @@
               </div>
             </div>
           </div>
+        </div>
 
 
+
+
+
+
+        <!-- Tag Bucket -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Tag Bucket</span>
+            <div class="switch">
+              <label>
+                One
+                <input id="tag-multi-option" type="checkbox">
+                <span class="lever"></span>
+                All
+              </label>
+            </div>
+            <a href="#add-new-tag-modal" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px; ">
+              <i class="material-icons" style="background-color: #1ABC9C;">add</i>
+            </a>
+          </span>
+
+          <div id="tag-bucket-thumbnails-div" class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <!-- Image Resize Settings -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">camera_font</i>
             <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Resizer</span>
@@ -798,9 +819,13 @@
                 </p>
             </div>
           </div>
-
-
         </div>
+
+
+
+
+        
+
 
 
 
@@ -851,268 +876,6 @@
 
 
 
-         <!-- Price Box Settings -->        
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
-
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Price Box Settings</span>
-          </span>
-          
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;">
-            <!-- Font Size -->
-            <div class="input-field col s6" style="margin-top: 2em !important;">
-              <input id="product-price-font-size" type="number" value="18" class="custom-text3">
-              <label for="product-price-font-size">Price Font Size</label>
-            </div>
-
-            <div class="input-field col s6" style="margin-top: 2em !important;">
-              <input id="currency-font-size" type="number" value="8.5" class="custom-text3">
-              <label for="currency-font-size">Currency Font Size</label>  
-            </div>
-
-
-            <!-- Font Family -->
-            <div class="input-field col s6" style="margin-bottom: 1em;">
-              <select id="product-price-font-family">
-                <option value="Arial">Arial</option> 
-                <option value="Impact">Impact</option>
-                <option value="Helvetica" selected>Helvetica</option>
-                <option value="AvenirNextRegular">AvenirNextRegular</option>
-                <option value="BebasNeueRegular">Bebas Neue Regular</option>
-                <option value="FrankRegular">Frank Regular</option>
-                <option value="GothamBookRegular">Gotham Book Regular</option>
-              </select>
-              <label>Price Font Family</label>
-            </div>
-
-            <div class="input-field col s6" style="margin-bottom: 1em;">
-              <select id="currency-font-family">
-                <option value="Arial">Arial</option> 
-                <option value="Impact">Impact</option>
-                <option value="Helvetica" selected>Helvetica</option>
-                <option value="AvenirNextRegular">AvenirNextRegular</option>
-                <option value="BebasNeueRegular">Bebas Neue Regular</option>
-                <option value="FrankRegular">Frank Regular</option>
-                <option value="GothamBookRegular">Gotham Book Regular</option>
-              </select>
-              <label>Currency Font Family</label>
-            </div>
-
-
-            <!-- Font Weight -->
-            <div class="input-field col s6" style="margin-bottom: 1em;">
-              <select id="product-price-font-weight">
-                <option value="normal">Normal</option> 
-                <option value="bold">Bold</option>
-              </select>
-              <label>Price Font Weight</label>
-            </div>
-
-            <div class="input-field col s6" style="margin-bottom: 1em;">
-              <select id="currency-font-weight">
-                <option value="normal">Normal</option> 
-                <option value="bold">Bold</option>
-              </select>
-              <label>Currency Font Weight</label>
-            </div>
-
-
-            <!-- Font Color -->
-            <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span class="custom-text2">Price Font Color</span>
-              <input id="product-price-font-color" type="color" value="#181818"> 
-            </div>
-
-            
-            <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span class="custom-text2">Currency Font Color</span>
-              <input id="currency-font-color" type="color" value="#181818"> 
-            </div>
-
-
-            <div class="input-field col s6" style="margin-top: 1em !important;">
-              <input id="currency-unit" type="text" value="AED" class="custom-text3">
-              <label for="currency-unit">Currency</label>  
-            </div>
-
-            <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span class="custom-text2">Box BG Color</span>
-              <input id="price-box-bg-color" type="color" value="#FBF00B"> 
-            </div>
-
-          </div>
-
-
-           <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize Price Box</span>
-          </span>
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
-                <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="price-resizer" min="10" max="150" value="80" />
-                </p>
-            </div>
-          </div>
-
-        </div>
-
-
-
-
-
-
-
-
-
-
-        <!-- Strike Price Settings -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
-
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Strike Price Settings</span>
-          </span>
-          
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;">
-
-            <!-- Font Size -->
-            <div class="input-field col s6" style="margin-top: 2em;">
-              <input id="product-strikeprice-font-size" type="number" value="8.5" class="custom-text3">
-              <label for="product-strikeprice-font-size">Price Font Size</label>
-            </div>
-
-            <!-- Font Family -->
-            <div class="input-field col s6" style="margin-top: 2em">
-              <select id="product-strikeprice-font-family">
-                <option value="Arial">Arial</option> 
-                <option value="Impact">Impact</option>
-                <option value="Helvetica" selected>Helvetica</option>
-                <option value="AvenirNextRegular">AvenirNextRegular</option>
-                <option value="BebasNeueRegular">Bebas Neue Regular</option>
-                <option value="FrankRegular">Frank Regular</option>
-                <option value="GothamBookRegular">Gotham Book Regular</option>
-              </select>
-              <label>Price Font Family</label>
-            </div>
-
-
-            <!-- Font Weight -->
-            <div class="input-field col s6" style="margin-bottom: 1em;">
-              <select id="product-strikeprice-font-weight">
-                <option value="normal">Normal</option> 
-                <option value="bold">Bold</option>
-              </select>
-              <label>Price Font Weight</label>
-            </div>
-
-
-            <!-- Font Color -->
-            <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span class="custom-text2">Price Font Color</span>
-              <input id="product-strikeprice-font-color" type="color" value="#181818" class="custom-text3"> 
-            </div>
-
-            <!-- Show/Hide -->
-            <div class="col s12" style="margin: 8px 0">
-              <label>
-                <input id="strikeprice-option" type="checkbox" class="filled-in checkbox-flyer" checked />
-                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Strike Price Visible</span>
-              </label>
-            </div>
-
-
-          </div>
-
-
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">dashboard</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header Logos</span>
-          </span>
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12" style="margin: 8px 0">
-              <label>
-                <input id="super-brand-option" type="checkbox" class="filled-in checkbox-flyer" checked />
-                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Superbrands</span>
-              </label>
-            </div>
-            <div class="col s12" style="margin: 8px 0">
-              <label>
-                <input id="iso-option" type="checkbox" class="filled-in checkbox-flyer" checked />
-                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">ISO</span>
-              </label>
-            </div>
-            <div class="col s12" style="margin: 8px 0">
-              <label>
-                <input id="consumer-option" type="checkbox" class="filled-in checkbox-flyer" checked />
-                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Tagline</span>
-              </label>
-            </div>
-            <div class="col s12" style="margin: 8px 0">
-              <label>
-                <input id="small-brand-option" type="checkbox" class="filled-in checkbox-flyer" checked />
-                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Brand (Container)</span>
-              </label>
-            </div>
-            <div class="col s12" style="margin: 8px 0">
-              <label>
-                <input id="white-option" type="checkbox" class="filled-in checkbox-flyer" checked />
-                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">White (Container)</span>
-              </label>
-            </div>
-          </div>
-
-        </div>
-
-
-
-
-
-
-
-
-        <!-- Header Footer Settings -->        
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
-
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">view_day</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header/Footer Settings</span>
-          </span>
-          
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding:5px;">
-            <div class="input-field col s6" style="margin-top: 0em !important;">
-              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;" class="custom-text2">Header Color</p>
-              <input id="header-color" type="color" value="#181818">  
-            </div>
-
-            <div class="input-field col s6" style="margin-top: 0em !important;">
-              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;" class="custom-text2">Footer Color</p>
-              <input id="footer-color" type="color" value="#181818">
-            </div>
-
-
-
-            <div class="col s6">
-              <p style="margin-bottom: 0em;" class="custom-text2">Header Opacity</p>
-              <p class="range-field" style="width:100%;margin-top: 0em;">
-                <input class="custom-slider" type="range" id="header-opacity" min="0" max="1" value="1" step="0.01" />
-              </p>
-            </div>
-
-            <div class="col s6">
-              <p style="margin-bottom: 0em;" class="custom-text2">Footer Opacity</p>
-              <p class="range-field" style="width:100%;margin-top: 0em;">
-                <input class="custom-slider" type="range" id="footer-opacity" min="0" max="1" value="1" step="0.01" />
-              </p>
-            </div>
-
-          </div>
-        </div>
-
-
-
-
 
 
 
@@ -1139,255 +902,6 @@
             </div>
 
           </div>
-
-          
-
-
-         
-
-
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">book</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Promotional/Warranty Tags</span>
-          </span>
-          <div class="row custom-bc2 hoverable scroll-style-1" style="margin-top:0.5em;padding: 1em;max-height: 20em;overflow-y: auto;">
-            <div class="col s6">
-              <span style="font-family: 'AvenirNext';color:#717171;">
-                <span style="font-size: 14px;font-weight: bold;">Apply to All</span>
-              </span>
-              <form action="#">
-                <p class="custom-text2">Promotional Tags</p>
-                <p>
-                  <label>
-                    <input id="global-none" value="None" name="group1" type="radio" checked />
-                    <span>None</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-sale" value="Sale" name="group1" type="radio" />
-                    <span>Sale</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-combo" value="Combo Offers" name="group1" type="radio" />
-                    <span>Combo Offers</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-wow" value="Wow" name="group1" type="radio"  />
-                    <span>Wow</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-half-price" value="Half Price" name="group1" type="radio"  />
-                    <span>Half Price</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-killer-offer" value="Killer Offer" name="group1" type="radio"  />
-                    <span>Killer Offer</span>
-                  </label>
-                </p>
-                <br>
-                <p class="custom-text2">Warranty Tags</p>
-                <p>
-                  <label>
-                    <input id="global-no-warranty" value="None" name="group3" type="radio"  />
-                    <span>None</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-geepas-warranty-1" value="geepas-warranty-1" name="group3" type="radio"  />
-                    <span>Geepas Warranty 1 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-geepas-warranty-2" value="geepas-warranty-2" name="group3" type="radio"  />
-                    <span>Geepas Warranty 2 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-geepas-warranty-3" value="geepas-warranty-3" name="group3" type="radio"  />
-                    <span>Geepas Warranty 3 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-geepas-warranty-5" value="geepas-warranty-5" name="group3" type="radio"  />
-                    <span>Geepas Warranty 5 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-geepas-warranty-7" value="geepas-warranty-7" name="group3" type="radio"  />
-                    <span>Geepas Warranty 7 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-olsenmark-warranty-2" value="olsenmark-warranty-2" name="group3" type="radio"  />
-                    <span>Olsenmark Warranty 2 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="global-krypton-warranty-2" value="krypton-warranty-2" name="group3" type="radio"  />
-                    <span>Krypton Warranty 2 Year</span>
-                  </label>
-                </p>
-              </form>
-            </div>
-            <div class="col s6">
-              <span style="font-family: 'AvenirNext';color:#717171;">
-                <span style="font-size: 14px;font-weight: bold;">Apply to One</span>
-              </span>
-              <form action="#">
-                <p>&nbsp;</p>
-                <p>
-                  <label>
-                    <input id="local-none" value="None" name="group2" type="radio" checked />
-                    <span>None</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-sale" value="Sale" name="group2" type="radio" />
-                    <span>Sale</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-combo" value="Combo Offers" name="group2" type="radio" />
-                    <span>Combo Offers</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-wow" value="Wow" name="group2" type="radio"  />
-                    <span>Wow</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-half-price" value="Half Price" name="group2" type="radio"  />
-                    <span>Half Price</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-killer-offer" value="Killer Offer" name="group2" type="radio"  />
-                    <span>Killer Offer</span>
-                  </label>
-                </p>
-                <br>
-                <p>&nbsp;</p>
-                <p>
-                  <label>
-                    <input id="local-no-warranty" value="None" name="group4" type="radio"  />
-                    <span>None</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-geepas-warranty-1" value="geepas-warranty-1" name="group4" type="radio"  />
-                    <span>Geepas Warranty 1 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-geepas-warranty-2" value="geepas-warranty-2" name="group4" type="radio"  />
-                    <span>Geepas Warranty 2 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-geepas-warranty-3" value="geepas-warranty-3" name="group4" type="radio"  />
-                    <span>Geepas Warranty 3 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-geepas-warranty-5" value="geepas-warranty-5" name="group4" type="radio"  />
-                    <span>Geepas Warranty 5 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-geepas-warranty-7" value="geepas-warranty-7" name="group4" type="radio"  />
-                    <span>Geepas Warranty 7 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-olsenmark-warranty-2" value="olsenmark-warranty-2" name="group4" type="radio"  />
-                    <span>Olsenmark Warranty 2 Year</span>
-                  </label>
-                </p>
-                <p>
-                  <label>
-                    <input id="local-krypton-warranty-2" value="krypton-warranty-2" name="group4" type="radio"  />
-                    <span>Krypton Warranty 2 Year</span>
-                  </label>
-                </p>
-              </form>
-            </div>
-          </div>
-
-
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s6">
-              <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize Promotional Tags</span>
-              <p class="range-field" style="width:100%;">
-                <input class="custom-slider" type="range" id="promo-resizer" min="10" max="80" value="40" />
-              </p>
-            </div>
-
-            <div class="col s6">
-              <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize All Promotional Tags</span>
-              <p class="range-field" style="width:100%;">
-                <input class="custom-slider" type="range" id="all-promo-resizer" min="10" max="80" value="40" />
-              </p>
-            </div>
-          </div>
-
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s6">
-              <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize Warranty Tags</span>
-                <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="warranty-resizer" min="10" max="80" value="40" />
-                </p>
-            </div>
-            <div class="col s6">
-                <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize All Warranty Tags</span>
-                <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="all-warranty-resizer" min="10" max="80" value="40" />
-                </p>
-            </div>
-          </div>
-
-
-          <!-- <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
-            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Warranty Tags</span>
-          </span>
-          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
-                <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="all-warranty-resizer" min="10" max="80" value="40" />
-                </p>
-            </div>
-          </div> -->
-
-
-
         </div>
 
 
@@ -1408,21 +922,6 @@
           </span>
 
           <div id="background-image-bucket-thumbnails-div" class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
-          </div>
-        </div>
-
-
-        <!-- Tag Bucket -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
-          <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Tag Bucket</span>
-            <a href="#add-new-bg-modal" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px; ">
-              <i class="material-icons" style="background-color: #1ABC9C;">add</i>
-            </a>
-          </span>
-
-          <div id="tag-bucket-thumbnails-div" class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
           </div>
         </div>
 
@@ -1605,7 +1104,7 @@
         <div class="file-field input-field col s10">
           <div class="btn" style="background-color: #1ABC9C;">
             <span>File</span>
-            <input id="new-bg-image" type="file">
+            <input id="tag-image" type="file">
           </div>
           <div class="file-path-wrapper">
             <input class="file-path validate" type="text">
@@ -1616,9 +1115,25 @@
     </div>
     <div class="modal-footer">
       <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
-      <a id="upload-new-tag-image-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #1ABC9C;">Save</a>
+      <a id="upload-flyer-tag-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #1ABC9C;">Upload</a>
     </div>
   </div>
+
+
+  <nav id="context-menu" class="context-menu">
+    <ul class="context-menu__items">
+      <li class="context-menu__item">
+        <a href="#" class="context-menu__link" data-action="View"><i class="fa fa-eye"></i> View Task</a>
+      </li>
+      <li class="context-menu__item">
+        <a href="#" class="context-menu__link" data-action="Edit"><i class="fa fa-edit"></i> Edit Task</a>
+      </li>
+      <li class="context-menu__item">
+        <a href="#" class="context-menu__link" data-action="Delete"><i class="fa fa-times"></i> Delete Task</a>
+      </li>
+    </ul>
+  </nav>
+
 
 
   <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
@@ -1641,12 +1156,17 @@
     var global_background_images_bucket = [];
     var global_brand_name = "";
     var global_external_image_bucket = [];
+    var global_tag_bucket = [];
 
     var global_flyer_name = "flyer";
 
     var global_save_signal = false;
 
     var global_primary_grid = "";
+
+    var active_grid_id = "";
+
+    var global_grid_store = {};
 
 
     $(document).on("change", "#white-option", function(){
@@ -1913,7 +1433,7 @@
           if(response["status"]==200)
           {
             global_tag_bucket.push({"pk":response["tag_image_pk"], "url":response["tag_image_url"]});
-            update_background_image_bucket();
+            update_tag_bucket();
             
           }
           else if(response["status"]==403)
@@ -1980,9 +1500,11 @@
 
     function create_unit_tag_html(tag_dict)
     {
+      var image_url = tag_dict["image-url"];
+
       var html_string = `
         <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;">
-          <div class="grid-stack-item-content secondary-grid-stack-item-content" style="background-image: url('http://127.0.0.1/files/warranty.png');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
+          <div class="grid-stack-item-content secondary-grid-stack-item-content" style="background-image: url('`+image_url+`');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
             
           </div>
         </div>`
@@ -2181,6 +1703,9 @@
 
       console.log(secondary_grid);
 
+      global_grid_store[grid_cnt] = secondary_grid;
+
+
       html_string = create_unit_info_container_html(flyer_dict);
       var el = $(html_string);
       secondary_grid.addWidget(el, 0, 0, 18, 4, true);
@@ -2336,7 +1861,6 @@
       $("#transparent-images-option").html("Transparent Images ("+global_product_images_dict[global_selected_product_pk]["transparent_images"].length+")");
 
       update_image_categories("all_images");
-      $("#image-categories-thumbnails-select").val("all_images");
       //$("select").formSelect();
 
     });
@@ -2429,7 +1953,7 @@
       {
         html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
           <div style="border:2px solid #495561;text-align:center;padding-top:0.4em;">
-            <a class="bgimgselect" id="bgimgselect_`+images[i]["pk"]+`" href="#!">
+            <a class="tagimgselect" id="tagimgselect_`+images[i]["pk"]+`" href="#!">
               <img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;">
             </a>
           </div>
@@ -2470,27 +1994,9 @@
     $(document).on('click', '.imgselect', function(){
 
         var image_pk = this.id.split("_")[1];
-        //var image_url = $(this).children()[0].src;
         var image_url = $($(this).children()[0]).attr("high-res-url");
         console.log(image_pk, image_url, global_selected_grid_id);
         $("div[gridid="+active_grid_id+"]").css("background-image", "url('"+image_url+"')");
-        //$("#gridimg-"+global_selected_grid_id).attr("src", image_url);
-        //if($("#product-title-info2-"+global_selected_grid_id).val()=="")
-        // $("#product-title-info2-"+global_selected_grid_id).val(global_selected_product_name);
-        // $("#gridimg-"+global_selected_grid_id).show();
-        // $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
-    });
-
-
-    $(document).on('click', '.imgselect2', function(){
-
-        var image_pk = this.id.split("_")[1];
-        //var image_url = $(this).children()[0].src;
-        var image_url = $($(this).children()[0]).attr("high-res-url");
-        console.log(image_pk, image_url, global_selected_grid_id);
-        $("#gridimg-"+global_selected_grid_id).attr("src", image_url);
-        $("#gridimg-"+global_selected_grid_id).show();
-        $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
     });
 
 
@@ -2501,13 +2007,22 @@
 
         $("#flyer-div").css("background-image", "url("+image_url+")");
         $("#flyer-div").css("background-position", "center");
-        //$("#flyer-div").css("background-size", "100% 297mm");
     });
 
 
+    $(document).on('click', '.tagimgselect', function(){
+        var image_pk = this.id.split("_")[1];
+        var image_url = $(this).children()[0].src;
 
-    $("#image-categories-thumbnails-select").on("change", function(){
-      update_image_categories($("#image-categories-thumbnails-select").val());
+        var flyer_dict = {};
+        flyer_dict["image-url"] = image_url
+        var html_string = create_unit_tag_html(flyer_dict);
+
+        var secondary_grid = global_grid_store[active_grid_id];
+
+        var el = $(html_string);
+        secondary_grid.addWidget(el, 0, 0, 4, 4, true);
+
     });
 
 
@@ -2536,6 +2051,7 @@
           global_product_images_dict = response['images'];
           global_template_data = response["template_data"];
           global_background_images_bucket = response["background_images_bucket"];
+          global_tag_bucket = response["tag_bucket"]
           global_external_image_bucket = response["external_images_bucket_list"];
           global_brand_name = response["brand-name"];
 
@@ -2587,6 +2103,7 @@
 
           set_product_basket();
           update_background_image_bucket();
+          update_tag_bucket();
           update_external_image_bucket();
           set_brand_image(response["brand_image_url"]);
 
@@ -2597,91 +2114,6 @@
         }
       });
     }
-
-
-
-    $(document).on("click", ".flyer-item-box", function(){
-        global_selected_grid_id = this.id.split("-")[1];
-        $(".divgrid").parent().parent().css("border", "none");
-        if($("#border-option").prop("checked"))
-        {
-          //$(".divgrid").css("border-bottom", "2px solid #E9E9E9");
-          //$(".divgrid").css("border-bottom", "none");
-          //$(".divgrid").parent().parent().css("border", "2px solid #E9E9E9");
-        }
-        else
-        {
-          $(".divgrid").parent().parent().css("border-bottom", "none");
-          //$(".divgrid").parent().parent().css("border", "none");
-        }
-
-        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
-
-        $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
-        $("#image-rotator").val($("#gridimg-"+global_selected_grid_id).attr("rotator"));
-        $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
-        $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
-
-        var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
-        if(banner_img=="")
-        {
-          $("#local-none").click();
-        } 
-        else if(banner_img=="/files/combo.png")
-        {
-          $("#local-combo").click();
-        }
-        else if(banner_img=="/files/banner1.png")
-        {
-          $("#local-sale").click();
-        }
-        else if(banner_img=="/files/wow.png")
-        {
-          $("#local-wow").click();
-        }
-        else if(banner_img=="/files/half-price.png")
-        {
-          $("#local-half-price").click();
-        }
-        else if(banner_img=="/files/killer-offer.png")
-        {
-          $("#local-killer-offer").click();
-        }
-
-        var banner_img_url = $("#banner-img-left-"+global_selected_grid_id).attr("src");
-        if(banner_img_url=="")
-        {
-          $("#local-no-warranty").click();
-        }
-        else if(banner_img_url=="/files/geepas-warranty-1.png")
-        {
-          $("#local-geepas-warranty-1").click(); 
-        }
-        else if(banner_img_url=="/files/geepas-warranty-2.png")
-        {
-          $("#local-geepas-warranty-2").click(); 
-        }
-        else if(banner_img_url=="/files/geepas-warranty-3.png")
-        {
-          $("#local-geepas-warranty-3").click(); 
-        }
-        else if(banner_img_url=="/files/geepas-warranty-5.png")
-        {
-          $("#local-geepas-warranty-5").click(); 
-        }
-        else if(banner_img_url=="/files/geepas-warranty-7.png")
-        {
-          $("#local-geepas-warranty-7").click();
-        }
-        else if(banner_img_url=="/files/olsenmark-warranty-2.png")
-        {
-          $("#local-olsenmark-warranty-2").click(); 
-        }
-        else if(banner_img_url=="/files/krypton-warranty-2.png")
-        {
-          $("#local-krypton-warranty-2").click();
-        }
-    });
 
     fetch_flyer_details();
 
@@ -2825,22 +2257,6 @@
     });
 
 
-    $(document).on(".remove-product-btn", "click", function(){
-      
-    })
-
-    // $(window).keydown(function(event) {
-    //   console.log(event.which, event.keyCode, event.ctrlKey);
-    //   if(event.which == 83 && event.ctrlKey)
-    //   {
-    //     event.preventDefault();
-    //     $("#save-flyer-template-btn").click();
-    //     return false;
-    //   }
-    // });
-
-
-
     $(window).keydown(function(event) {
 
           if(document.activeElement.type=="text")
@@ -2903,7 +2319,6 @@
           }
     });
 
-    var active_grid_id = "";
     $(document).on("click", ".primary-grid-stack-item-content", function(){
       active_grid_id = $(this).attr("gridid");
       $("div[gridid]").css("border", "2px solid black");
@@ -2936,29 +2351,6 @@
       } 
     }
 
-    function set_header_logos()
-    {
-      if(global_super_brand_logo)
-        $("#super-brand-img").show();
-      else
-        $("#super-brand-img").hide();
-
-
-      if(global_iso_logo)
-        $("#iso-img").show();
-      else
-        $("#iso-img").hide();
-
-      if(global_consumer_logo)
-        $("#consumer-img").show();
-      else
-        $("#consumer-img").hide();
-
-      if(global_brand_name_visible)
-        $(".brand-text").show();
-      else
-        $(".brand-text").hide();
-    }
 
     function set_product_title_style()
     {
@@ -2966,39 +2358,6 @@
       $(".product-title-info").css("font-family", global_product_title_font_family);
       $(".product-title-info").css("font-weight", global_product_title_font_weight);
       $(".product-title-info").css("color", global_product_title_font_color);
-    }
-
-    function set_price_box_style()
-    {
-      //Actual Price
-      $(".product-price-info").css("font-size", global_price_font_size+"px");
-      $(".product-price-info").css("font-family", global_price_font_family);
-      $(".product-price-info").css("font-weight", global_price_font_weight);
-      $(".product-price-info").css("color", global_price_font_color);
-
-      //currency
-      $(".product-currency-info").css("font-size", global_currency_font_size+"px");
-      $(".product-currency-info").css("font-family", global_currency_font_family);
-      $(".product-currency-info").css("font-weight", global_currency_font_weight);
-      $(".product-currency-info").css("color", global_currency_font_color);
-      $(".product-currency-info").html(global_currency_unit);
-
-      $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
-      $(".grid-item-footer-right").css("max-width", global_price_resizer+"px");
-    }
-
-    function set_strike_price_style()
-    {
-      //strikeprice
-      $(".product-strikeprice-info").css("font-size", global_strikeprice_font_size+"px");
-      $(".product-strikeprice-info").css("font-family", global_strikeprice_font_family);
-      $(".product-strikeprice-info").css("font-weight", global_strikeprice_font_weight);
-      $(".product-strikeprice-info").css("color", global_strikeprice_font_color);
-
-      if(global_strikeprice_visible)
-        $(".footer-top-right").show();
-      else
-        $(".footer-top-right").hide();
     }
 
 
@@ -3016,98 +2375,11 @@
       throw new Error('Bad Hex');
     }
 
-    function set_header_style()
-    {
-      var color = HEXtoRGBA(global_header_color, global_header_opacity);
-      $("#header-div").css("background", color);
-    }
-
-    function set_footer_style()
-    {
-      var color = HEXtoRGBA(global_footer_color, global_footer_opacity);
-      $("#footer-div").css("background", color);
-    }
-
-
-
+    
     // Updates the editor // One time call
     function update_editor_settings()
     {
 
-      //Border Settings
-      $("#border-option").prop("checked", global_border_visible);
-      $("#border-color").val(global_border_color);
-
-
-      //Header Logos
-      $("#super-brand-option").prop("checked", global_super_brand_logo);
-      $("#iso-option").prop("checked", global_iso_logo);
-      $("#consumer-option").prop("checked", global_consumer_logo)
-      $("#small-brand-option").prop("checked", global_brand_name_visible);
-      $("#white-option").prop("checked", global_white_container)
-
-      //Price Resizer
-      $("#price-resizer").val(global_price_resizer);
-
-      //Image Resizer
-      $("#all-image-resizer").val(global_all_image_resizer);
-
-      //Image Rotator
-      $("#all-image-rotator").val(global_all_image_rotator);      
-
-      //Promo Resizer
-      $("#all-promo-resizer").val(global_all_promo_resizer);
-
-      //Warranty Resizer
-      $("#all-warranty-resizer").val(global_all_warranty_resizer);      
-
-
-      // Product Title Settings
-      $("#product-title-font-size").val(global_product_title_font_size);
-      $("#product-title-font-family").val(global_product_title_font_family);
-      $("#product-title-font-weight").val(global_product_title_font_weight);
-      $("#product-title-font-color").val(global_product_title_font_color);
-
-
-
-      //Price Box
-      $("#product-price-font-size").val(global_price_font_size);
-      $("#product-price-font-family").val(global_price_font_family);
-      $("#product-price-font-weight").val(global_price_font_weight);
-      $("#product-price-font-color").val(global_price_font_color);
-
-      $("#currency-font-size").val(global_currency_font_size);
-      $("#currency-font-family").val(global_currency_font_family);
-      $("#currency-font-weight").val(global_currency_font_weight);
-      $("#currency-font-color").val(global_currency_font_color);
-      
-      $("#currency-unit").val(global_currency_unit);
-      $("#price-box-bg-color").val(global_price_box_bg_color);
-      
-
-      //Strikeprice settings
-      $("#product-strikeprice-font-size").val(global_strikeprice_font_size);
-      $("#product-strikeprice-font-family").val(global_strikeprice_font_family);
-      $("#product-strikeprice-font-weight").val(global_strikeprice_font_weight);
-      $("#product-strikeprice-font-color").val(global_strikeprice_font_color);
-      
-      if(global_strikeprice_visible)
-        $("#strikeprice-option").prop("checked", true);
-      else
-        $("#strikeprice-option").prop("checked", false);
-      
-      //Header/Footer settings
-      $("#header-color").val(global_header_color);
-      $("#footer-color").val(global_footer_color);
-
-      $("#header-opacity").val(global_header_opacity);
-      $("#footer-opacity").val(global_footer_opacity);
-
-      if(global_footer_text=="")
-        global_footer_text = "Footer Text"
-      $("#footer-text").text(global_footer_text);
-      
-      //$("select").formSelect();
     }
 
     // Sets the current global editor styles to all elements
@@ -3119,21 +2391,9 @@
       //Border Settings
       set_border_style();
 
-      //Header Logos
-      set_header_logos();
 
       //Product Title Settings
       set_product_title_style();
-
-      //Price Box Settings
-      set_price_box_style()
-
-      //Strike Price Settings
-      set_strike_price_style();
-
-      //Header/Footer Settings
-      set_header_style();
-      set_footer_style();
     }
 
     $("#upload-image-btn").click(function(){
@@ -3273,6 +2533,7 @@
         $("#flyer-div").css("background-size", "100% 148mm");
       }
     }
+
 
   </script>
 
