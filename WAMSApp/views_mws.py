@@ -180,7 +180,8 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                         temp_dict["product_pk"] = pk_list[0]
                         temp_dict["matched_ASIN"] = ""
                         if temp_dict["status"] == "Success":
-                            channel_product = Product.objects.get(pk=product_pk).channel_product
+                            product_obj = Product.objects.get(pk=product_pk)
+                            channel_product = product_obj.channel_product
                             amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
                             parsed_products = products.parsed["Products"]["Product"]
                             if isinstance(parsed_products,list):
