@@ -195,7 +195,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                             channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
                             channel_product.save()
                         else :
-                            temp_dict["status"] = "Ivalid Barcode Value"
+                            temp_dict["status"] = "Not Found!"
 
                         matched_products_list.append(temp_dict)
                         
