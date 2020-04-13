@@ -102,7 +102,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                 barcode_string = product_obj.barcode_string
 
                 if barcode_string!= None and barcode_string!="" and product_id_type!=None:
-                    barcodes_list.append((product_id_type,barcode_string,product_pk))
+                    barcodes_list.append((product_id_type.name,barcode_string,product_pk))
                 else:
                     temp_dict = {}
                     temp_dict["status"] = "Barcode Not Found"
