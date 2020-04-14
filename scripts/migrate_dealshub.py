@@ -109,17 +109,17 @@ for i in p:
 
 import json
 from WAMSApp.models import *
-C = ChannelProduct.objects.filter(is_amazon_uk_product_created=True)
+C = ChannelProduct.objects.filter(is_amazon_uae_product_created=True)
 cnt=0
 for c in C:
     try:
-        uk = json.loads(c.amazon_uk_product_json)
-        print(uk["ASIN"])
+        uae = json.loads(c.amazon_uae_product_json)
+        print(uae["ASIN"])
         cnt+=1
         print("Cnt : ",cnt)
     except Exception as e:
-        uk["ASIN"] = ""
-        c.amazon_uk_product_json = json.dumps(uk)
+        uae["ASIN"] = ""
+        c.amazon_uae_product_json = json.dumps(uae)
         c.save()
         pass
 
