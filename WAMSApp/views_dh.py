@@ -74,6 +74,7 @@ class FetchOrdersForAccountManagerAPI(APIView):
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
+            search_list = data.get("searchList", [])
 
             page = data.get("page", 1)
 
@@ -88,6 +89,7 @@ class FetchOrdersForAccountManagerAPI(APIView):
                 "currencyList":json.dumps(currency_list),
                 "shippingMethodList":json.dumps(shipping_method_list),
                 "trackingStatusList":json.dumps(tracking_status_list),
+                "searchList":json.dumps(search_list),
                 "page":page, 
                 "api_access":api_access
             }
@@ -128,6 +130,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
+            search_list = data.get("searchList", [])
 
             page = data.get("page", 1)
 
@@ -142,6 +145,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 "currencyList":json.dumps(currency_list),
                 "shippingMethodList":json.dumps(shipping_method_list),
                 "trackingStatusList":json.dumps(tracking_status_list),
+                "searchList":json.dumps(search_list),
                 "page":page, 
                 "api_access":api_access
             }
