@@ -312,7 +312,7 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
                 if i%5 == 4:
                     flag=1
 
-                if i == len(final_barcodes_list) - 1:
+                if i == len(barcodes_list) - 1:
                     flag=1
 
                 if flag==1:
