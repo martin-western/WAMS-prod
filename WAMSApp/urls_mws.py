@@ -14,7 +14,9 @@ urlpatterns = [
 
     url(r'^get-matching-products-amazon-uk/$',views.GetMatchingProductsAmazonUKMWS),
     url(r'^get-pricing-of-products-amazon-uk/$',views.GetPricingProductsAmazonUKMWS),
+    
     url(r'^get-matching-products-amazon-uae/$',views.GetMatchingProductsAmazonUAEMWS),
+    url(r'^get-pricing-of-products-amazon-uae/$',views.GetPricingProductsAmazonUAEMWS),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
