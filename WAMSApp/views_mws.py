@@ -340,7 +340,7 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
                     else:
                         temp_dict = {}
                         temp_dict["status"] = products.parsed["status"]["value"]
-                        temp_dict["product_pk"] = pk_list[j]
+                        temp_dict["product_pk"] = pk_list[0]
                         temp_dict["competitive_pricing"] = {}
                         if temp_dict["status"] == "Success":
                             parsed_products = products.parsed["Products"]["Product"]
