@@ -171,7 +171,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                                 channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
                                 channel_product.save()
                             else :
-                                temp_dict["status"] = "Not Found!"
+                                temp_dict["status"] = "New Product"
 
                             matched_products_list.append(temp_dict)
 
@@ -195,7 +195,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
                             channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
                             channel_product.save()
                         else :
-                            temp_dict["status"] = "Not Found!"
+                            temp_dict["status"] = "New Product"
 
                         matched_products_list.append(temp_dict)
                         
@@ -263,7 +263,10 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
             marketplace_id = mws.Marketplaces["UK"].marketplace_id
 
             barcodes_list = []
-            response["products_pricing_list"] = []
+            pricing_information = {}
+            competitive_pricing_list = []
+            lowest_offer_listings_list = []
+            lowest_priced_offers_list = []
 
             for product_pk in product_pk_list:
 
@@ -278,18 +281,33 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
                     temp_dict = {}
                     temp_dict["status"] = "ASIN Not Found"
                     temp_dict["product_pk"] = product_pk
-                    temp_dict["pricing_information"] = []
-                    response["products_pricing_list"].append(temp_dict)
+                    temp_dict["competitive_pricing"] = {}
+                    competitive_pricing_list.append(temp_dict)
+                    temp_dict = {}
+                    temp_dict["status"] = "ASIN Not Found"
+                    temp_dict["product_pk"] = product_pk
+                    temp_dict["lowest_priced_offers"] = {}
+                    lowest_priced_offers_list.append(temp_dict)
+                    temp_dict = {}
+                    temp_dict["status"] = "ASIN Not Found"
+                    temp_dict["product_pk"] = product_pk
+                    temp_dict["lowest_offer_listings"] = {}
+                    lowest_offer_listings_list.append(temp_dict)
+
+                    
 
             id_list = []
+            pk_list = []
             cnt=0
             i=0
 
-            for tupl in final_barcodes_list:
+            while i < len(barcodes_list):
                 
-                barcode_string = tupl[0]
+                barcode_string = barcodes_list[i][0]
+                pk = barcodes_list[i][1]
 
                 id_list.append(barcode_string)
+                pk_list.append(pk)
                 
                 if i%5 == 4:
                     flag=1
@@ -301,43 +319,57 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
                     
                     products = products_api.get_competitive_pricing_for_asin(marketplace_id=marketplace_id, asins = id_list)
                     # parsed[0]["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
-                    for j in range(len(products.parsed)):
+                    if isinstance(products.parsed,list):
                         
-                        temp_dict = {}
-                        temp_dict["status"] = products.parsed[j]["status"]["value"]
-                        temp_dict["product_pk"] = tupl[2]
-                        temp_dict["matched_ASIN"] = ""
-                        if temp_dict["status"] == "Success":
-                            channel_product = Product.objects.get(pk=product_pk).channel_product
-                            amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
-                            parsed_products = products.parsed[j]["Products"]["Product"]
-                            if isinstance(parsed_products,list):
-                                temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
-                                temp_dict["matched_product_title"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["Title"]
-                            else:
-                                temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
-                                temp_dict["matched_product_title"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]
-                            amazon_uk_product["ASIN"] = temp_dict["matched_ASIN"]
-                            channel_product = json.dumps(amazon_uk_product)
-                            channel_product.save()
-                        else :
-                            temp_dict["status"] = "Ivalid Barcode Value"
+                        for j in range(len(products.parsed)):
+                            temp_dict = {}
+                            temp_dict["product_pk"] = pk_list[j]
+                            temp_dict["competitive_pricing"] = {}
+                            temp_dict["status"] = products.parsed[j]["status"]["value"]
+                            if temp_dict["status"] == "Success":
+                                parsed_products = products.parsed[j]["Products"]["Product"]
+                                if isinstance(parsed_products,list):
+                                    temp_dict["competitive_pricing"] = parsed_products[0]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                                else:
+                                    temp_dict["competitive_pricing"] = products.parsed[j]["Products"]["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                            else :
+                                temp_dict["status"] = "Competitive Price Not Found"
 
-                        response["matched_products_list"].append(temp_dict)
+                            competitive_pricing_list.append(temp_dict)
+
+                    else:
+                        temp_dict = {}
+                        temp_dict["status"] = products.parsed["status"]["value"]
+                        temp_dict["product_pk"] = pk_list[j]
+                        temp_dict["competitive_pricing"] = {}
+                        if temp_dict["status"] == "Success":
+                            parsed_products = products.parsed["Products"]["Product"]
+                            if isinstance(parsed_products,list):
+                                temp_dict["competitive_pricing"] = parsed_products[0]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                            else:
+                                temp_dict["competitive_pricing"] = products.parsed["Products"]["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                        else :
+                            temp_dict["status"] = "Competitive Price Not Found"
+
+                        competitive_pricing_list.append(temp_dict)
                         
                     id_list = []
+                    pk_list = []
                     flag = 0
                     cnt+=1
 
                     if(cnt%2==0):
                         time.sleep(1)
 
-                temp = barcode_type
                 i+=1
 
                 if len(id_list)==0:
                     flag=0
 
+            pricing_information["competitive_pricing_list"] = competitive_pricing_list
+            pricing_information["lowest_priced_offers_list"] = lowest_priced_offers_list
+            pricing_information["lowest_offer_listings_list"] = lowest_offer_listings_list
+            response["pricing_information"] = pricing_information
             response['status'] = 200
 
         except Exception as e:
@@ -383,6 +415,7 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
             products_api = APIs.Products(MWS_PARAMS["MWS_ACCESS_KEY"], 
                                         MWS_PARAMS["SECRET_KEY"],
                                         MWS_PARAMS["SELLER_ID"], region='UK')
+
 
             response['status'] = 200
 
