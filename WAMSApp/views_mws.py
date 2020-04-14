@@ -300,6 +300,7 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
             pk_list = []
             cnt=0
             i=0
+            flag=0
 
             while i < len(barcodes_list):
                 
