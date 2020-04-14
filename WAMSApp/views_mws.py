@@ -329,10 +329,13 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
                             temp_dict["status"] = products.parsed[j]["status"]["value"]
                             if temp_dict["status"] == "Success":
                                 parsed_products = products.parsed[j]["Product"]
-                                if isinstance(parsed_products,list):
-                                    temp_dict["competitive_pricing"] = parsed_products[0]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
-                                else:
-                                    temp_dict["competitive_pricing"] = products.parsed[j]["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                                try:
+                                    if isinstance(parsed_products,list):
+                                        temp_dict["competitive_pricing"] = parsed_products[0]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                                    else:
+                                        temp_dict["competitive_pricing"] = products.parsed[j]["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                                except Exception as e:
+                                    temp_dict["status"] = "Competitive Price Not Found"
                             else :
                                 temp_dict["status"] = "Competitive Price Not Found"
 
