@@ -108,9 +108,14 @@ for i in p:
             i.save()
 
 from WAMSApp.models import *
-C = ChannelProduct.objects.filter(is_amazon_uk_product_created=True)
-for c in C:
-    uk = json.loads(c.amazon_uk_product_json)
-    uk["ASIN"] = ""
-    c.amazon_uk_product_json = json.dumps(uk)
-    c.save()
+P = Product.objects.exclude(barcode_string="")
+cnt=0
+for p in P:
+    barcode_string = p.barcode_string
+    if barcode_string == "62940200000" or barcode_string==" ":
+        p.barcode_string=""
+        p.product_id_type = None
+        cnt+=1
+        print("Cnt : ",cnt)
+        p.save()
+
