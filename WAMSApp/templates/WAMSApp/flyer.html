@@ -1165,6 +1165,7 @@
     var global_primary_grid = "";
 
     var active_grid_id = "";
+    var grid_active = "PRIMARY";
 
     var global_grid_store = {};
 
@@ -1501,10 +1502,11 @@
     function create_unit_tag_html(tag_dict)
     {
       var image_url = tag_dict["image-url"];
+      var grid_id = tag_dict["grid-id"];
 
       var html_string = `
-        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;">
-          <div class="grid-stack-item-content secondary-grid-stack-item-content" style="background-image: url('`+image_url+`');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
+        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
+          <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="background-image: url('`+image_url+`');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
             
           </div>
         </div>`
@@ -1703,12 +1705,16 @@
 
       console.log(secondary_grid);
 
-      global_grid_store[grid_cnt] = secondary_grid;
-
+      global_grid_store[grid_cnt] = {
+        "grid": secondary_grid,
+        "grid-cnt": 0
+      };
 
       html_string = create_unit_info_container_html(flyer_dict);
       var el = $(html_string);
       secondary_grid.addWidget(el, 0, 0, 18, 4, true);
+    
+      global_grid_store[grid_cnt]["grid-cnt"]++;
 
     });
 
@@ -2015,14 +2021,15 @@
         var image_url = $(this).children()[0].src;
 
         var flyer_dict = {};
-        flyer_dict["image-url"] = image_url
+        flyer_dict["image-url"] = image_url;
+        flyer_dict["grid-id"] = global_grid_store[active_grid_id]["grid-cnt"]+1;
         var html_string = create_unit_tag_html(flyer_dict);
 
-        var secondary_grid = global_grid_store[active_grid_id];
+        var secondary_grid = global_grid_store[active_grid_id]["grid"];
 
         var el = $(html_string);
         secondary_grid.addWidget(el, 0, 0, 4, 4, true);
-
+        global_grid_store[active_grid_id]["grid-cnt"]++;
     });
 
 
@@ -2320,10 +2327,27 @@
     });
 
     $(document).on("click", ".primary-grid-stack-item-content", function(){
+
       active_grid_id = $(this).attr("gridid");
-      $("div[gridid]").css("border", "2px solid black");
+      grid_active = "PRIMARY";
+
+      $(".primary-grid-stack-item-content").css("border", "2px solid black");
+      $(".secondary-grid-stack-item-content").css("border", "none");
+
       $("div[gridid="+active_grid_id+"]").css("border", "5px dotted black");
-      console.log("hererre", active_grid_id);
+      console.log("primary-grid-stack clicked ", active_grid_id);
+    });
+
+
+    $(document).on("click", ".secondary-grid-stack-item-content", function(){
+      active_grid_id = $(this).attr("gridid");
+      grid_active = "SECONDARY";
+
+      $(".primary-grid-stack-item-content").css("border", "2px solid black");
+      $(".secondary-grid-stack-item-content").css("border", "none");
+
+      $("div[gridid="+active_grid_id+"]").css("border", "5px dotted black");
+      console.log("secondary-grid-stack clicked", active_grid_id);
     });
 
 
