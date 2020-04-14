@@ -289,7 +289,6 @@ class CancelOrdersAPI(APIView):
             
             api_access = "5a72db78-b0f2-41ff-b09e-6af02c5b4c77"
 
-            order_status = data["orderStatus"]
             unit_order_uuid_list = data["unitOrderUuidList"]
             cancelling_note = data["cancellingNote"]
 
