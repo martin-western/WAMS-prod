@@ -327,11 +327,11 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
                             temp_dict["competitive_pricing"] = {}
                             temp_dict["status"] = products.parsed[j]["status"]["value"]
                             if temp_dict["status"] == "Success":
-                                parsed_products = products.parsed[j]["Products"]["Product"]
+                                parsed_products = products.parsed[j]["Product"]
                                 if isinstance(parsed_products,list):
                                     temp_dict["competitive_pricing"] = parsed_products[0]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
                                 else:
-                                    temp_dict["competitive_pricing"] = products.parsed[j]["Products"]["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                                    temp_dict["competitive_pricing"] = products.parsed[j]["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
                             else :
                                 temp_dict["status"] = "Competitive Price Not Found"
 
@@ -343,11 +343,11 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
                         temp_dict["product_pk"] = pk_list[0]
                         temp_dict["competitive_pricing"] = {}
                         if temp_dict["status"] == "Success":
-                            parsed_products = products.parsed["Products"]["Product"]
+                            parsed_products = products.parsed["Product"]
                             if isinstance(parsed_products,list):
                                 temp_dict["competitive_pricing"] = parsed_products[0]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
                             else:
-                                temp_dict["competitive_pricing"] = products.parsed["Products"]["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
+                                temp_dict["competitive_pricing"] = products.parsed["Product"]["CompetitivePricing"]["CompetitivePrices"]["CompetitivePrice"]["Price"]
                         else :
                             temp_dict["status"] = "Competitive Price Not Found"
 
