@@ -2326,15 +2326,21 @@
           }
     });
 
-    $(document).on("click", ".primary-grid-stack-item-content", function(){
+    $(document).on("click", ".primary-grid-stack-item-content", function(e){
 
+      console.log(e.target.classList)
+      if(e.target.classList.contains("secondary-grid-stack-item-content"))
+      {
+        console.log("All Primary Solid Black")
+        return;
+      }
       active_grid_id = $(this).attr("gridid");
       grid_active = "PRIMARY";
 
       $(".primary-grid-stack-item-content").css("border", "2px solid black");
       $(".secondary-grid-stack-item-content").css("border", "none");
 
-      $("div[gridid="+active_grid_id+"]").css("border", "5px dotted black");
+      $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "5px dotted black");
       console.log("primary-grid-stack clicked ", active_grid_id);
     });
 
@@ -2342,11 +2348,12 @@
     $(document).on("click", ".secondary-grid-stack-item-content", function(){
       active_grid_id = $(this).attr("gridid");
       grid_active = "SECONDARY";
+      console.log("active is ", active_grid_id);
 
       $(".primary-grid-stack-item-content").css("border", "2px solid black");
       $(".secondary-grid-stack-item-content").css("border", "none");
 
-      $("div[gridid="+active_grid_id+"]").css("border", "5px dotted black");
+      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "5px dotted black");
       console.log("secondary-grid-stack clicked", active_grid_id);
     });
 
