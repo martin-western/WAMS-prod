@@ -656,7 +656,9 @@
   }
 
 
-
+  .keyboard-focused .collapsible-header:focus {
+    background-color: blue;
+  }
   </style>
 
   {% csrf_token %}
@@ -766,21 +768,35 @@
 
 
 
-
-
-        <!-- Image Resize Settings -->
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">camera_font</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Resizer</span>
-          </span>
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
+          <ul class="collapsible" style="width:100%;border:none;">
+            <li style="width:100%;">
+              <div class="collapsible-header custom-bc2 white-text" style="width:100%;border-color:black;">
+                <i class="material-icons">camera_font</i>Image Resizer
+              </div>
+              <div class="collapsible-body" style="width:100%;">
                 <p class="range-field" style="width:100%;">
                   <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="100" />
                 </p>
-            </div>
-          </div>
+              </div>
+            </li>
+
+            <li style="width:100%;">
+              <div class="collapsible-header custom-bc2 white-text" style="width:100%;border-color:black;">
+                <i class="material-icons">compare</i>All Image Resizer
+              </div>
+              <div class="collapsible-body" style="width:100%;">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="100" />
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Image Resize Settings -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
+          
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">compare</i>
@@ -999,46 +1015,18 @@
           <p id="mode-label-top" style="color: silver;"></p>
         </div>
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0;">
-        <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;margin-bottom: 0em;">
-
-         <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 210mm;padding: 20px;">  
-            <div class="col s6 left-horizontally">  
-              <img id="super-brand-img" src="/files/super-brand.png" style="display:none;max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
-              <img id="iso-img" src="/files/iso.png" style="display:none;max-width: 73.5mm;max-height:15mm;margin-right:10px">  
-              <img id="consumer-img" src="/files/consumer.png" style="display:none;max-width: 73.5mm;max-height:15mm;margin-right:10px;max-height: 40px;">
-                  
-            </div>  
-            <div class="col s6 right-horizontally" style="">  
-              <img id="brand-image-img" src="" style="max-width: 73.5mm;max-height:15mm;">  
-            </div>  
-          </div>
-
-
-          <!-- <div id="flyer-grid" class="col s12" style="width: 210mm;">
-            <div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">
-              
-            </div>
-          </div> -->
-
-
+        <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;margin-bottom: 0em;padding-top: 1em;">
 
 
           <div id="flyer-grid" class="col s12" style="width: 210mm;">
             <div id="grid-stack-div" class="grid-stack primary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
 
             </div>
-
-
-            <div id="footer-div" class="col s12" style="background-color:#181818;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
-              <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
-                <p id="footer-text" class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';" contenteditable="true"></p>
-              </div>
-            </div>
           </div>
-          <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0">
-          <div>
-            <p id="mode-label-bottom" style="color: silver;"></p>
-          </div>
+        </div>
+        <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0">
+        <div>
+          <p id="mode-label-bottom" style="color: silver;"></p>
         </div>
       </div>
     </div>
@@ -1143,6 +1131,9 @@
     var elems = document.querySelectorAll('.modal');
     var instances = M.Modal.init(elems);
 
+    elems = document.querySelectorAll('.collapsible');
+    instances = M.Collapsible.init(elems);
+
     elems  = document.querySelectorAll("input[type=range]");  
     M.Range.init(elems);
 
@@ -1168,7 +1159,217 @@
     var grid_active = "PRIMARY";
 
     var global_grid_store = {};
+    var global_grid_cnt = 0;
 
+
+
+
+
+    // ------------------ Grid Stack Logic START ------------------
+
+
+    function initialize_grid()
+    {
+      global_primary_grid = GridStack.init({
+        animate: true,
+        verticalMargin: 6,
+        column: 24,
+        cellHeight: 10,
+        resizable: {
+          handles: 'e, se, s, sw, w, n'
+        },
+        float:true
+      }, '.primary-grid-stack');
+    }
+
+
+    function create_unit_tag_html(tag_dict)
+    {
+      var image_url = tag_dict["image-url"];
+      var grid_id = tag_dict["grid-id"];
+      var rotation = tag_dict["rotation"]
+
+      var html_string = `
+        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
+          <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="background-image: url('`+image_url+`');background-size: 100% auto;background-repeat: no-repeat;background-position: center;transform:rotate(`+rotation+`deg)" rotation=`+rotation+`>
+            
+          </div>
+        </div>`
+
+      return html_string;
+    }
+
+
+    function create_unit_info_container_html(tag_dict)
+    {
+      var grid_id = tag_dict["grid-id"];
+
+      var html_string = `
+        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="3" data-gs-y="6" data-gs-width="18" data-gs-height="5" grid-id="`+grid_id+`">
+          <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="overflow:hidden;">
+            <div class="row" style="margin: 0em;padding:0em;">
+              <div class="col s10" style="margin-bottom: 0em;">
+                <textarea class="materialize-textarea left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>`
+
+      return html_string;
+    }
+
+
+    function create_unit_flyer_html(flyer_dict)
+    {
+      var grid_id = flyer_dict["grid-id"];
+
+      var html_string = `
+        <div class="grid-stack-item primary-grid-stack-item" data-gs-width="10" data-gs-height="20" grid-id="`+grid_id+`">
+          <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid grey;background-size: 50%;background-position: 50% 50%;background-repeat: no-repeat;overflow: hidden;">
+            <div id="secondary-grid-stack-`+grid_id+`" class="grid-stack secondary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
+            </div>
+          </div>
+        </div>`
+
+      return html_string;
+    }
+
+
+    function add_primary_grid_item()
+    {
+      global_grid_cnt += 1;
+
+      var flyer_dict = {};
+      flyer_dict["grid-id"] = global_grid_cnt
+      var html_string = create_unit_flyer_html(flyer_dict);
+
+      var el = $(html_string);
+      global_primary_grid.addWidget(el, 0, 0, 8, 20, true);
+
+      secondary_grid = GridStack.init({
+        animate: true,
+        verticalMargin: 6,
+        column: 24,
+        cellHeight: 10,
+        resizable: {
+          handles: 'e, se, s, sw, w, n'
+        },
+        float:true
+      }, '#secondary-grid-stack-'+global_grid_cnt);
+
+      global_grid_store[global_grid_cnt] = {
+        "grid": secondary_grid,
+        "grid-cnt": 1
+      };
+
+      flyer_dict = {}
+      flyer_dict["grid-id"] = global_grid_cnt+"-1";
+      html_string = create_unit_info_container_html(flyer_dict);
+      el = $(html_string);
+      secondary_grid.addWidget(el, 0, 0, 18, 4, true);
+    }
+
+
+    function add_tag_one(image_url)
+    {
+      if(grid_active=="SECONDARY")
+        return;
+
+      global_grid_store[active_grid_id]["grid-cnt"]++;
+
+      var flyer_dict = {};
+      flyer_dict["image-url"] = image_url;
+
+      flyer_dict["grid-id"] = active_grid_id+"-"+global_grid_store[active_grid_id]["grid-cnt"];
+      flyer_dict["rotation"] = "0";
+      var html_string = create_unit_tag_html(flyer_dict);
+
+      var secondary_grid = global_grid_store[active_grid_id]["grid"];
+
+      var el = $(html_string);
+      secondary_grid.addWidget(el, 0, 0, 4, 4, true);
+    }
+
+
+    function add_tag_all(image_url)
+    {
+      for(key in global_grid_store)
+      {
+        global_grid_store[key]["grid-cnt"]++;
+        
+        var flyer_dict = {};
+        flyer_dict["image-url"] = image_url;
+        flyer_dict["grid-id"] = key+"-"+global_grid_store[key]["grid-cnt"];
+        flyer_dict["rotation"] = "0";
+        
+        var html_string = create_unit_tag_html(flyer_dict);
+        var secondary_grid = global_grid_store[key]["grid"];
+        var el = $(html_string);
+        secondary_grid.addWidget(el, 0, 0, 4, 4, true);
+      }
+    }
+
+
+    function delete_grid_item()
+    {
+      if(grid_active=="PRIMARY")
+      {
+        var el =  $(".grid-stack-item[grid-id="+active_grid_id+"]");
+        global_primary_grid.removeWidget(el);
+      }
+      else if(grid_active=="SECONDARY")
+      {
+        var el =  $(".grid-stack-item[grid-id="+active_grid_id+"]");
+        var parent_grid_id = active_grid_id.split("-")[0];
+        secondary_grid = global_grid_store[parent_grid_id]["grid"];
+        secondary_grid.removeWidget(el);
+      }
+    }
+
+
+    $(document).on("click", ".primary-grid-stack-item-content", function(e){
+
+      if(e.target.classList.contains("secondary-grid-stack-item-content"))
+        return;
+
+      active_grid_id = $(this).attr("gridid");
+      grid_active = "PRIMARY";
+
+      $(".primary-grid-stack-item-content").css("border", "2px solid black");
+      $(".secondary-grid-stack-item-content").css("border", "none");
+
+      $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "5px dotted black");
+    });
+
+
+    $(document).on("click", ".secondary-grid-stack-item-content", function(){
+      active_grid_id = $(this).attr("gridid");
+      console.log(active_grid_id, "secondary-grid-stack");
+      grid_active = "SECONDARY";
+
+      $(".primary-grid-stack-item-content").css("border", "2px solid black");
+      $(".secondary-grid-stack-item-content").css("border", "none");
+
+      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "5px dotted black");
+    });
+
+
+
+
+
+    initialize_grid();
+
+
+
+
+
+
+
+
+
+
+
+    // ------------------ Grid Stack Logic END ------------------
 
     $(document).on("change", "#white-option", function(){
       if($("#white-option").prop("checked"))
@@ -1499,115 +1700,15 @@
 
 
 
-    function create_unit_tag_html(tag_dict)
-    {
-      var image_url = tag_dict["image-url"];
-      var grid_id = tag_dict["grid-id"];
-
-      var html_string = `
-        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
-          <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="background-image: url('`+image_url+`');background-size: 100% auto;background-repeat: no-repeat;background-position: center;">
-            
-          </div>
-        </div>`
-
-      return html_string;
-    }
-
-
-    function create_unit_info_container_html(tag_dict)
-    {
-      var html_string = `
-        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="3" data-gs-y="6" data-gs-width="18" data-gs-height="5">
-          <div class="grid-stack-item-content secondary-grid-stack-item-content" style="overflow:hidden;">
-            <div class="row" style="margin: 0em;padding:0em;">
-              <div class="col s10" style="margin-bottom: 0em;">
-                <textarea class="materialize-textarea left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>`
-
-      return html_string;
-    }
-
-
-    function create_unit_flyer_html(flyer_dict)
-    {
-      var grid_id = flyer_dict["grid_id"];
-
-      var html_string = `
-        <div class="grid-stack-item primary-grid-stack-item" data-gs-width="10" data-gs-height="20" grid-id="`+grid_id+`">
-          <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid grey;background-size: 50%;background-position: 50% 50%;background-repeat: no-repeat;overflow: hidden;">
-            <div id="secondary-grid-stack-`+grid_id+`" class="grid-stack secondary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
-            </div>
-          </div>
-        </div>`
-
-      return html_string;
-    }
+    
 
 
     function select_cell(grid_id)
     {
       
     }
-
-    function create_flyer_grid()
-    {
-      var item_data = global_template_data["item-data"];
-
-      grid_cnt = item_data.length+1;
-      var html_string = '';
-      for(var i=0; i< item_data.length; i ++)
-      {
-        var flyer_dict = {}
-        // flyer_dict["grid-id"] = i+1;
-        // flyer_dict["product-title"] = item_data[i]["data"]["title"];
-        // flyer_dict["product-info"] = item_data[i]["data"]["description"];
-        // flyer_dict["price"] = item_data[i]["data"]["price"];
-        // flyer_dict["strikeprice"] = item_data[i]["data"]["strikeprice"];
-        // flyer_dict["image-url"] = item_data[i]["data"]["image-url"];
-        // flyer_dict["banner-img"] = item_data[i]["data"]["banner-img"];
-        // flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
-        // flyer_dict["image-rotator"] = item_data[i]["data"]["image-rotator"];
-        // flyer_dict["promo-resizer"] = item_data[i]["data"]["promo-resizer"];
-        // flyer_dict["warranty-resizer"] = item_data[i]["data"]["warranty-resizer"];
-        // flyer_dict["width"] = item_data[i]["container"]["width"];
-        // flyer_dict["height"] = item_data[i]["container"]["height"];
-        // flyer_dict["x"] = item_data[i]["container"]["x"];
-        // flyer_dict["y"] = item_data[i]["container"]["y"];
-        // flyer_dict["warranty-img"] = item_data[i]["data"]["warranty-img"];
-
-        var temp_html = create_unit_flyer_html(flyer_dict);
-        html_string += temp_html;
-      }
-       
-      $('#grid-stack-div').html(html_string);
       
-      global_primary_grid = GridStack.init({
-        animate: true,
-        verticalMargin: 6,
-        column: 24,
-        cellHeight: 10,
-        resizable: {
-          handles: 'e, se, s, sw, w, n'
-        },
-        float:true
-      }, '.primary-grid-stack');
-
-
-      // $('.primary-grid-stack').gridstack({
-      //   animate: true,
-      //   verticalMargin: 6,
-      //   column: 24,
-      //   cellHeight: 10,
-      //   resizable: {
-      //     handles: 'e, se, s, sw, w, n'
-      //   },
-      //   float:true
-      // });
-    }
+      
 
 
 
@@ -1621,7 +1722,7 @@
       grid.destroy();
       var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">`
       $("#flyer-grid").html(html_string);
-      create_flyer_grid();
+      //create_flyer_grid();
       set_editor_style();
     });
 
@@ -1683,45 +1784,13 @@
 
     $("#add-grid-item-btn").click(function(){
 
-      grid_cnt += 1;
-
-      var flyer_dict = {};
-      flyer_dict["grid_id"] = grid_cnt
-      var html_string = create_unit_flyer_html(flyer_dict);
-
-      var el = $(html_string);
-      global_primary_grid.addWidget(el, 0, 0, 8, 20, true);
-
-      secondary_grid = GridStack.init({
-        animate: true,
-        verticalMargin: 6,
-        column: 24,
-        cellHeight: 10,
-        resizable: {
-          handles: 'e, se, s, sw, w, n'
-        },
-        float:true
-      }, '#secondary-grid-stack-'+grid_cnt);
-
-      console.log(secondary_grid);
-
-      global_grid_store[grid_cnt] = {
-        "grid": secondary_grid,
-        "grid-cnt": 0
-      };
-
-      html_string = create_unit_info_container_html(flyer_dict);
-      var el = $(html_string);
-      secondary_grid.addWidget(el, 0, 0, 18, 4, true);
-    
-      global_grid_store[grid_cnt]["grid-cnt"]++;
+      add_primary_grid_item();
 
     });
 
 
     $("#delete-grid-item-btn").click(function(){
-      var el =  $(".grid-stack-item[grid-id="+active_grid_id+"]");
-      global_primary_grid.removeWidget(el);
+      delete_grid_item();
     })
 
 
@@ -2017,19 +2086,16 @@
 
 
     $(document).on('click', '.tagimgselect', function(){
-        var image_pk = this.id.split("_")[1];
+
         var image_url = $(this).children()[0].src;
-
-        var flyer_dict = {};
-        flyer_dict["image-url"] = image_url;
-        flyer_dict["grid-id"] = global_grid_store[active_grid_id]["grid-cnt"]+1;
-        var html_string = create_unit_tag_html(flyer_dict);
-
-        var secondary_grid = global_grid_store[active_grid_id]["grid"];
-
-        var el = $(html_string);
-        secondary_grid.addWidget(el, 0, 0, 4, 4, true);
-        global_grid_store[active_grid_id]["grid-cnt"]++;
+        if($("#tag-multi-option").prop("checked")==false)
+        {
+          add_tag_one(image_url);
+        }
+        else
+        {
+          add_tag_all(image_url);
+        }
     });
 
 
@@ -2104,7 +2170,7 @@
           global_footer_text = common["footer-text"];
 
           update_editor_settings();
-          create_flyer_grid();
+          //create_flyer_grid();
           set_editor_style();
 
 
@@ -2266,96 +2332,98 @@
 
     $(window).keydown(function(event) {
 
-          if(document.activeElement.type=="text")
-            return;
-
-          if(active_grid_id=="")
-            return;
-          //console.log("Hola", event.which, event.keyCode, event.shiftKey);
-          var position = $("div[gridid="+active_grid_id+"]").css("background-position");
-          var position_x = parseInt(position.split(" ")[0].replace("%", "")); 
-          var position_y = parseInt(position.split(" ")[1].replace("%", ""));
-          console.log("Old: ", position);
-          var size = $("div[gridid="+active_grid_id+"]").css("background-size").replace("%", "");
-
-          var inc = 1;
-          if(event.shiftKey)
-            inc = 10;
-          if(event.keyCode==65)
-          {
-            position_x -= inc;
-          }
-
-          if(event.keyCode==87)
-          {
-            position_y -= inc;
-          }
-
-          if(event.keyCode==68)
-          {
-            position_x += inc;
-          }
-
-          if(event.keyCode==83)
-          {
-            position_y += inc;
-          }
-
-          if(event.keyCode==187)
-          {
-            size++;
-          }
-          if(event.keyCode==189)
-          {
-            size--;
-          }
-
-          position = position_x+"% "+position_y+"%";
-          size = size+"%";
-          console.log("Updated: ", position);
-
-          console.log(active_grid_id, "mygridid");
-
-          $("div[gridid="+active_grid_id+"]").css("background-position", position);
-          $("div[gridid="+active_grid_id+"]").css("background-size", size);
-          
-          if(event.keyCode==37)
-          {
-            event.preventDefault();
-            return false;
-          }
-    });
-
-    $(document).on("click", ".primary-grid-stack-item-content", function(e){
-
-      console.log(e.target.classList)
-      if(e.target.classList.contains("secondary-grid-stack-item-content"))
-      {
-        console.log("All Primary Solid Black")
+      if(grid_active=="SECONDARY")
         return;
+
+      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
+        return;
+
+      if(active_grid_id=="")
+        return;
+      //console.log("Hola", event.which, event.keyCode, event.shiftKey);
+      var position = $("div[gridid="+active_grid_id+"]").css("background-position");
+      var position_x = parseInt(position.split(" ")[0].replace("%", "")); 
+      var position_y = parseInt(position.split(" ")[1].replace("%", ""));
+      console.log("Old: ", position);
+      var size = $("div[gridid="+active_grid_id+"]").css("background-size").replace("%", "");
+
+      var inc = 1;
+      if(event.shiftKey)
+        inc = 10;
+      if(event.keyCode==65)
+      {
+        position_x -= inc;
       }
-      active_grid_id = $(this).attr("gridid");
-      grid_active = "PRIMARY";
 
-      $(".primary-grid-stack-item-content").css("border", "2px solid black");
-      $(".secondary-grid-stack-item-content").css("border", "none");
+      if(event.keyCode==87)
+      {
+        position_y -= inc;
+      }
 
-      $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "5px dotted black");
-      console.log("primary-grid-stack clicked ", active_grid_id);
+      if(event.keyCode==68)
+      {
+        position_x += inc;
+      }
+
+      if(event.keyCode==83)
+      {
+        position_y += inc;
+      }
+
+      if(event.keyCode==187)
+      {
+        size++;
+      }
+      if(event.keyCode==189)
+      {
+        size--;
+      }
+
+      position = position_x+"% "+position_y+"%";
+      size = size+"%";
+      console.log("Updated: ", position);
+
+      console.log(active_grid_id, "mygridid");
+
+      $("div[gridid="+active_grid_id+"]").css("background-position", position);
+      $("div[gridid="+active_grid_id+"]").css("background-size", size);
+      
+      if(event.keyCode==37)
+      {
+        event.preventDefault();
+        return false;
+      }
     });
 
 
-    $(document).on("click", ".secondary-grid-stack-item-content", function(){
-      active_grid_id = $(this).attr("gridid");
-      grid_active = "SECONDARY";
-      console.log("active is ", active_grid_id);
+    $(window).keydown(function(event) {
 
-      $(".primary-grid-stack-item-content").css("border", "2px solid black");
-      $(".secondary-grid-stack-item-content").css("border", "none");
+      if(grid_active=="PRIMARY")
+        return;
 
-      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "5px dotted black");
-      console.log("secondary-grid-stack clicked", active_grid_id);
+      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
+        return;
+
+      if(active_grid_id=="")
+        return;
+      
+      var rotation = parseInt($(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").attr("rotation"));
+      if(event.keyCode==69)
+      {
+        rotation += 1;
+      }
+      if(event.keyCode==81)
+      {
+        rotation -= 1;
+      }
+
+      rotation_str = "rotate("+rotation+"deg)";
+
+      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("transform", rotation_str);
+      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").attr("rotation", rotation);
     });
+
+    
 
 
 
