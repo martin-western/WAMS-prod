@@ -657,7 +657,7 @@
 
 
   .keyboard-focused .collapsible-header:focus {
-    background-color: blue;
+    background-color: #3B4853;
   }
   </style>
 
@@ -744,14 +744,31 @@
           <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
             <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Tag Bucket</span>
-            <div class="switch">
-              <label>
-                One
-                <input id="tag-multi-option" type="checkbox">
-                <span class="lever"></span>
-                All
-              </label>
+
+            <div class="row" style="margin-bottom: 0em;">
+              <div class="col s6">
+                <div class="switch">
+                  <label>
+                    One
+                    <input id="tag-multi-option" type="checkbox">
+                    <span class="lever"></span>
+                    All
+                  </label>
+                </div>
+              </div>
+
+              <div class="col s6">
+                <div class="switch">
+                  <label>
+                    Add
+                    <input id="tag-delete-option" type="checkbox">
+                    <span class="lever"></span>
+                    Delete
+                  </label>
+                </div>
+              </div>
             </div>
+
             <a href="#add-new-tag-modal" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px; ">
               <i class="material-icons" style="background-color: #1ABC9C;">add</i>
             </a>
@@ -787,56 +804,34 @@
               </div>
               <div class="collapsible-body" style="width:100%;">
                 <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="100" />
+                  <input class="custom-slider" type="range" id="all-image-resizer" min="10" max="150" value="100" />
+                </p>
+              </div>
+            </li>
+
+            <li style="width:100%;">
+              <div class="collapsible-header custom-bc2 white-text" style="width:100%;border-color:black;">
+                <i class="material-icons">camera_font</i>Image Rotate
+              </div>
+              <div class="collapsible-body" style="width:100%;">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="image-rotator" min="-90" max="90" value="0" />
+                </p>
+              </div>
+            </li>
+
+            <li style="width:100%;">
+              <div class="collapsible-header custom-bc2 white-text" style="width:100%;border-color:black;">
+                <i class="material-icons">compare</i>All Image Rotate
+              </div>
+              <div class="collapsible-body" style="width:100%;">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="all-image-rotator" min="-90" max="90" value="0" />
                 </p>
               </div>
             </li>
           </ul>
         </div>
-
-        <!-- Image Resize Settings -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
-          
-
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">compare</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Images</span>
-          </span>
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
-                <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="all-image-resizer" min="10" max="150" value="100" />
-                </p>
-            </div>
-          </div>
-
-
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">camera_font</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Rotate Image</span>
-          </span>
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
-                <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="image-rotator" min="-90" max="90" value="0" />
-                </p>
-            </div>
-          </div>
-
-
-          <span style="font-family: 'AvenirNextRegular';color:#717171;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">compare</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Rotate All Images</span>
-          </span>
-          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
-            <div class="col s12">
-                <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="all-image-rotator" min="-90" max="90" value="0" />
-                </p>
-            </div>
-          </div>
-        </div>
-
 
 
 
@@ -847,18 +842,18 @@
 
 
 
-        <!-- Product Title Settings -->        
+        <!-- Font Settings -->        
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Title Settings</span>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Font Settings</span>
           </span>
           
           <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding:5px">
             <div class="input-field col s6" style="margin-top: 1em !important;">
-              <input id="product-title-font-size" type="number" value="12" class="custom-text3">
-              <label for="product-title-font-size">Font Size</label>  
+              <input id="font-size" type="number" value="12" class="custom-text3">
+              <label for="font-size">Font Size</label>  
             </div>
 
             <div class="input-field col s6" style="margin-bottom: 1em;">
@@ -1128,14 +1123,7 @@
   <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.min2.js' %}"></script>
   <script type="text/javascript">
 
-    var elems = document.querySelectorAll('.modal');
-    var instances = M.Modal.init(elems);
-
-    elems = document.querySelectorAll('.collapsible');
-    instances = M.Collapsible.init(elems);
-
-    elems  = document.querySelectorAll("input[type=range]");  
-    M.Range.init(elems);
+    M.AutoInit();
 
     var global_product_bucket_list = [];
     var global_selected_product_pk = "";
@@ -1187,11 +1175,12 @@
     {
       var image_url = tag_dict["image-url"];
       var grid_id = tag_dict["grid-id"];
-      var rotation = tag_dict["rotation"]
+      var rotation = tag_dict["rotation"];
+      var image_pk = tag_dict["image-pk"];
 
       var html_string = `
         <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
-          <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="background-image: url('`+image_url+`');background-size: 100% auto;background-repeat: no-repeat;background-position: center;transform:rotate(`+rotation+`deg)" rotation=`+rotation+`>
+          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" style="background-image: url('`+image_url+`');background-size: 100% auto;background-repeat: no-repeat;background-position: center;transform:rotate(`+rotation+`deg)" rotation=`+rotation+`>
             
           </div>
         </div>`
@@ -1209,7 +1198,7 @@
           <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="overflow:hidden;">
             <div class="row" style="margin: 0em;padding:0em;">
               <div class="col s10" style="margin-bottom: 0em;">
-                <textarea class="materialize-textarea left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;"></textarea>
+                <textarea text-grid-id="`+grid_id+`" class="materialize-textarea left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;"></textarea>
               </div>
             </div>
           </div>
@@ -1266,11 +1255,11 @@
       flyer_dict["grid-id"] = global_grid_cnt+"-1";
       html_string = create_unit_info_container_html(flyer_dict);
       el = $(html_string);
-      secondary_grid.addWidget(el, 0, 0, 18, 4, true);
+      secondary_grid.addWidget(el, 0, 15, 18, 4, false);
     }
 
 
-    function add_tag_one(image_url)
+    function add_tag_one(image_url, image_pk)
     {
       if(grid_active=="SECONDARY")
         return;
@@ -1279,6 +1268,7 @@
 
       var flyer_dict = {};
       flyer_dict["image-url"] = image_url;
+      flyer_dict["image-pk"] = image_pk;
 
       flyer_dict["grid-id"] = active_grid_id+"-"+global_grid_store[active_grid_id]["grid-cnt"];
       flyer_dict["rotation"] = "0";
@@ -1287,11 +1277,11 @@
       var secondary_grid = global_grid_store[active_grid_id]["grid"];
 
       var el = $(html_string);
-      secondary_grid.addWidget(el, 0, 0, 4, 4, true);
+      secondary_grid.addWidget(el, 0, 0, 5, 5, true);
     }
 
 
-    function add_tag_all(image_url)
+    function add_tag_all(image_url, image_pk)
     {
       for(key in global_grid_store)
       {
@@ -1299,13 +1289,14 @@
         
         var flyer_dict = {};
         flyer_dict["image-url"] = image_url;
+        flyer_dict["image-pk"] = image_pk;
         flyer_dict["grid-id"] = key+"-"+global_grid_store[key]["grid-cnt"];
         flyer_dict["rotation"] = "0";
         
         var html_string = create_unit_tag_html(flyer_dict);
         var secondary_grid = global_grid_store[key]["grid"];
         var el = $(html_string);
-        secondary_grid.addWidget(el, 0, 0, 4, 4, true);
+        secondary_grid.addWidget(el, 0, 0, 5, 5, true);
       }
     }
 
@@ -1326,6 +1317,20 @@
       }
     }
 
+    function delete_tag_all(image_pk)
+    {
+      var nodes = $("div[grid-image-pk="+image_pk+"]");
+      for(var i=0;i<nodes.length;i++)
+      {
+        var grid_id = $(nodes[i]).attr("gridid");
+
+        var el =  $(".grid-stack-item[grid-id="+grid_id+"]");
+        var parent_grid_id = grid_id.split("-")[0];
+        secondary_grid = global_grid_store[parent_grid_id]["grid"];
+        secondary_grid.removeWidget(el);
+      }
+    }
+
 
     $(document).on("click", ".primary-grid-stack-item-content", function(e){
 
@@ -1338,19 +1343,18 @@
       $(".primary-grid-stack-item-content").css("border", "2px solid black");
       $(".secondary-grid-stack-item-content").css("border", "none");
 
-      $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "5px dotted black");
+      $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted black");
     });
 
 
     $(document).on("click", ".secondary-grid-stack-item-content", function(){
       active_grid_id = $(this).attr("gridid");
-      console.log(active_grid_id, "secondary-grid-stack");
       grid_active = "SECONDARY";
 
       $(".primary-grid-stack-item-content").css("border", "2px solid black");
       $(".secondary-grid-stack-item-content").css("border", "none");
 
-      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "5px dotted black");
+      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted black");
     });
 
 
@@ -1413,8 +1417,6 @@
       {
         image_links.push({"key": "brand-image-img", "url": $("#brand-image-img").attr("src")});
       }
-
-      console.log("Image Links: ", image_links);
 
       $.ajax({
         url: "/download-images-s3/",
@@ -1656,46 +1658,45 @@
 
 
     $("#image-resizer").change(function() {
+
+      if(grid_active=="SECONDARY")
+        return;
+
       var R = $("#image-resizer").val();
 
-      $("#gridimg-"+global_selected_grid_id).css("max-width", R+"%");
-      $("#gridimg-"+global_selected_grid_id).attr("resizer", R);
+      $("div[gridid="+active_grid_id+"]").css("background-size", R+"%");
+      $("div[gridid="+active_grid_id+"]").attr("image-resizer", R);
+      
     });
 
     $("#all-image-resizer").change(function() {
       var R = $("#all-image-resizer").val();
 
-      var grid_images = $(".grid-images");
-      for(var i=0;i<grid_images.length;i++)
-      {
-        $(grid_images[i]).css("max-width", R+"%");
-        $(grid_images[i]).attr("resizer", R);
-      }
       $("#image-resizer").val(R);
-      global_all_image_resizer = R;
+
+      $(".primary-grid-stack-item-content").css("background-size", R+"%");
+      $(".primary-grid-stack-item-content").attr("image-resizer", R);
+      
     });
 
-
-
-
     $("#image-rotator").change(function() {
+      
+      if(grid_active=="PRIMARY")
+        return;
+
       var R = $("#image-rotator").val();
 
-      $("#gridimg-"+global_selected_grid_id).css("transform", "rotate("+R+"deg)");
-      $("#gridimg-"+global_selected_grid_id).attr("rotator", R);
+      $(".secondary-grid-stack-item-tag-content[gridid="+active_grid_id+"]").css("transform", "rotate("+R+"deg)");
+      $(".secondary-grid-stack-item-tag-content[gridid="+active_grid_id+"]").attr("rotation", R);
     });
 
     $("#all-image-rotator").change(function() {
-      var R = $("#all-image-rotator").val();
 
-      var grid_images = $(".grid-images");
-      for(var i=0;i<grid_images.length;i++)
-      {
-        $(grid_images[i]).css("transform", "rotate("+R+"deg)");
-        $(grid_images[i]).attr("rotator", R);
-      }
+      var R = $("#all-image-rotator").val();
       $("#image-rotator").val(R);
-      global_all_image_rotator = R;
+
+      $(".secondary-grid-stack-item-tag-content").css("transform", "rotate("+R+"deg)");
+      $(".secondary-grid-stack-item-tag-content").attr("rotation", R);
     });
 
 
@@ -1751,8 +1752,7 @@
 
 
     $("#increase-height-btn").click(function(){
-      var grid_items = $(".grid-stack-item");
-      var grid = $('.grid-stack').data('gridstack');
+      var grid_items = $(".primary-grid-stack-item");
       for(var i=0;i<grid_items.length;i++)
       {
         var old_height = $(grid_items[i]).attr("data-gs-height");
@@ -1760,14 +1760,12 @@
         var new_height = parseInt(old_height)+1;
 
         el = $(grid_items[i]);
-        console.log(el);
-        grid.resize(el, old_width, new_height);
+        global_primary_grid.resize(el, old_width, new_height);
       }
     });
 
     $("#decrease-height-btn").click(function(){
-      var grid_items = $(".grid-stack-item");
-      var grid = $('.grid-stack').data('gridstack');
+      var grid_items = $(".primary-grid-stack-item");
       for(var i=0;i<grid_items.length;i++)
       {
         var old_height = $(grid_items[i]).attr("data-gs-height");
@@ -1775,8 +1773,7 @@
         var new_height = parseInt(old_height)-1;
 
         el = $(grid_items[i]);
-        console.log(el);
-        grid.resize(el, old_width, new_height);
+        global_primary_grid.resize(el, old_width, new_height);
       }
     });    
 
@@ -1883,7 +1880,8 @@
             autocomplete_data[product_list[i]["product_name_autocomplete"]] = product_list[i]["main_image_url"]; 
           }
 
-          $('#autocomplete-input').autocomplete({
+          var el = document.getElementById("autocomplete-input");
+          var options = {
             data: autocomplete_data,
             minLength: 3,
             limit: 50,
@@ -1891,9 +1889,10 @@
             {
               add_to_product_basket();
             }
-          });
+          }
 
-          $("#autocomplete-input").autocomplete("open");
+          var instance = M.Autocomplete.init(el, options);
+          instance.open();
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -1905,7 +1904,6 @@
     $("#autocomplete-input").keyup(function() {
       clearTimeout(autocomplete_timer_id);
       autocomplete_timer_id = setTimeout(function(){
-        //console.log("Here!", $("#autocomplete-input").val());
         fetch_product_list_autocomplete();
       }, 500);
     });
@@ -2028,7 +2026,7 @@
       {
         html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
           <div style="border:2px solid #495561;text-align:center;padding-top:0.4em;">
-            <a class="tagimgselect" id="tagimgselect_`+images[i]["pk"]+`" href="#!">
+            <a class="tagimgselect" image-pk="`+images[i]["pk"]+`" href="#!">
               <img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;">
             </a>
           </div>
@@ -2070,8 +2068,8 @@
 
         var image_pk = this.id.split("_")[1];
         var image_url = $($(this).children()[0]).attr("high-res-url");
-        console.log(image_pk, image_url, global_selected_grid_id);
         $("div[gridid="+active_grid_id+"]").css("background-image", "url('"+image_url+"')");
+        $("textarea[text-grid-id="+active_grid_id+"-1]").html(global_selected_product_name);
     });
 
 
@@ -2088,13 +2086,19 @@
     $(document).on('click', '.tagimgselect', function(){
 
         var image_url = $(this).children()[0].src;
-        if($("#tag-multi-option").prop("checked")==false)
+        var image_pk = $(this).attr("image-pk");
+
+        if($("#tag-delete-option").prop("checked"))
         {
-          add_tag_one(image_url);
+          delete_tag_all(image_pk);
+        }
+        else if($("#tag-multi-option").prop("checked")==false)
+        {
+          add_tag_one(image_url, image_pk);
         }
         else
         {
-          add_tag_all(image_url);
+          add_tag_all(image_url, image_pk);
         }
     });
 
@@ -2247,8 +2251,6 @@
           }
         }
 
-        console.log(temp_dict);
-
         item_data.push(temp_dict);
       }
       global_footer_text =$("#footer-text").html();
@@ -2340,11 +2342,11 @@
 
       if(active_grid_id=="")
         return;
-      //console.log("Hola", event.which, event.keyCode, event.shiftKey);
+
       var position = $("div[gridid="+active_grid_id+"]").css("background-position");
       var position_x = parseInt(position.split(" ")[0].replace("%", "")); 
       var position_y = parseInt(position.split(" ")[1].replace("%", ""));
-      console.log("Old: ", position);
+      
       var size = $("div[gridid="+active_grid_id+"]").css("background-size").replace("%", "");
 
       var inc = 1;
@@ -2381,9 +2383,6 @@
 
       position = position_x+"% "+position_y+"%";
       size = size+"%";
-      console.log("Updated: ", position);
-
-      console.log(active_grid_id, "mygridid");
 
       $("div[gridid="+active_grid_id+"]").css("background-position", position);
       $("div[gridid="+active_grid_id+"]").css("background-size", size);
