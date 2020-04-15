@@ -1684,10 +1684,10 @@ def generate_xml_for_post_product_data_amazon_uk(product_pk_list,seller_id):
 
             product_obj = Product.objects.get(pk=int(product_pk))
             message_id = str(product_pk)
-            seller_sku = product.base_product.seller_sku
-            brand_name = product.base_product.brand.name
+            seller_sku = product_obj.base_product.seller_sku
+            brand_name = product_obj.base_product.brand.name
             product_id_type = product_obj.product_id_type.name
-            product_id = product.barcode_string
+            product_id = product_obj.barcode_string
             amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
             product_name = amazon_uk_product["product_name"]
             product_description = amazon_uk_product["product_description"]
