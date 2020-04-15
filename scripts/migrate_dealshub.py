@@ -107,15 +107,19 @@ for i in p:
             i.pfl_product_features = k
             i.save()
 
+import json
 from WAMSApp.models import *
-P = Product.objects.exclude(barcode_string="")
+C = ChannelProduct.objects.filter(is_amazon_uae_product_created=True)
 cnt=0
-for p in P:
-    barcode_string = p.barcode_string
-    if barcode_string == "62940200000" or barcode_string==" ":
-        p.barcode_string=""
-        p.product_id_type = None
+for c in C:
+    try:
+        uae = json.loads(c.amazon_uae_product_json)
+        print(uae["ASIN"])
         cnt+=1
         print("Cnt : ",cnt)
-        p.save()
+    except Exception as e:
+        uae["ASIN"] = ""
+        c.amazon_uae_product_json = json.dumps(uae)
+        c.save()
+        pass
 
