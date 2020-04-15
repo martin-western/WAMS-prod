@@ -12,9 +12,12 @@ urlpatterns = [
 
 ################################################################################# 
 
+    url(r'^push-products-amazon-uk/$',views.PushProductsAmazonUK),
+    url(r'^push-products-amazon-uae/$',views.PushProductsAmazonUAE),
+    
     url(r'^get-matching-products-amazon-uk/$',views.GetMatchingProductsAmazonUKMWS),
     url(r'^get-pricing-of-products-amazon-uk/$',views.GetPricingProductsAmazonUKMWS),
-    
+
     url(r'^get-matching-products-amazon-uae/$',views.GetMatchingProductsAmazonUAEMWS),
     url(r'^get-pricing-of-products-amazon-uae/$',views.GetPricingProductsAmazonUAEMWS),
 
