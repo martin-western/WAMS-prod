@@ -659,6 +659,21 @@
   .keyboard-focused .collapsible-header:focus {
     background-color: #3B4853;
   }
+
+
+  input[type="color"] {
+    -webkit-appearance: none;
+    border: none;
+    width: 24px;
+    height: 24px;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+  }
+
   </style>
 
   {% csrf_token %}
@@ -793,7 +808,7 @@
               </div>
               <div class="collapsible-body" style="width:100%;">
                 <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="100" />
+                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="50" />
                 </p>
               </div>
             </li>
@@ -804,7 +819,7 @@
               </div>
               <div class="collapsible-body" style="width:100%;">
                 <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="all-image-resizer" min="10" max="150" value="100" />
+                  <input class="custom-slider" type="range" id="all-image-resizer" min="10" max="150" value="50" />
                 </p>
               </div>
             </li>
@@ -848,38 +863,45 @@
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
             <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Font Settings</span>
+            <div class="switch right">
+              <label>
+                One
+                <input id="font-multi-option" type="checkbox" checked>
+                <span class="lever"></span>
+                All
+              </label>
+            </div>
+
           </span>
           
           <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding:5px">
-            <div class="input-field col s6" style="margin-top: 1em !important;">
+            <div class="col s6" style="margin: 0em;padding-top:0em;">
               <input id="font-size" type="number" value="12" class="custom-text3">
-              <label for="font-size">Font Size</label>  
             </div>
 
-            <div class="input-field col s6" style="margin-bottom: 1em;">
-              <select id="product-title-font-family">
-                <option value="Arial">Arial</option> 
-                <option value="Impact">Impact</option>
-                <option value="Helvetica" selected>Helvetica</option>
-                <option value="AvenirNextRegular">AvenirNextRegular</option>
-                <option value="BebasNeueRegular">Bebas Neue Regular</option>
-                <option value="FrankRegular">Frank Regular</option>
-                <option value="GothamBookRegular">Gotham Book Regular</option>
-              </select>
-              <label>Font Family</label>
+            <div class="col s6" style="margin: 0em;padding-top:0em;">
+                <select id="font-family">
+                  <option value="Arial">Arial</option> 
+                  <option value="Impact">Impact</option>
+                  <option value="Helvetica" selected>Helvetica</option>
+                  <option value="AvenirNextRegular">AvenirNextRegular</option>
+                  <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                  <option value="FrankRegular">Frank Regular</option>
+                  <option value="GothamBookRegular">Gotham Book Regular</option>
+                </select>
             </div>
 
-            <div class="input-field col s6" style="margin-bottom: 1em;">
-              <select id="product-title-font-weight">
-                <option value="normal">Normal</option> 
-                <option value="bold">Bold</option>
-              </select>
-              <label>Font Weight</label>
-            </div>  
+            <div class="col s6" style="margin-top: 1em;padding-right: 0em;">
+              <a href="#!" id="format-bold-btn" bold=false><i class="material-icons white-text">format_bold</i></a>
+              <a href="#!" id="format-underlined-btn" underlined=false><i class="material-icons white-text">format_underlined</i></a>
+              <a href="#!" id="format-italic-btn" italic=false><i class="material-icons white-text">format_italic</i></a>
+              <a href="#!" id="font-align-left-btn" class="font-alignment" value="left"><i class="material-icons white-text">format_align_left</i></a>
+              <a href="#!" id="font-align-center-btn" class="font-alignment" value="center"><i class="material-icons white-text">format_align_center</i></a>
+              <a href="#!" id="font-align-right-btn" class="font-alignment" value="right"><i class="material-icons white-text">format_align_right</i></a>
+            </div> 
 
-            <div class="input-field col s6" style="margin-top: 2em !important;">
-              <span class="custom-text2">Font Color</span>
-              <input id="product-title-font-color" type="color" value="#181818"> 
+            <div class="col s6" style="margin-top: 1em;padding-top:0em;">
+              <input id="font-color" type="color" value="#000000" class="custom-text3">
             </div>
 
           </div>
@@ -891,12 +913,12 @@
 
 
 
-        <!-- Border Settings -->        
+        <!-- General Settings -->        
         <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">border_all</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Border Settings</span>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">General Settings</span>
           </span>
           
           <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
@@ -904,12 +926,16 @@
               <label>
                 <input id="border-option" class="filled-in checkbox-flyer" type="checkbox" checked />
                 <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Border Visible</span>
-              </label>
+              </label>&nbsp;&nbsp;
+
+              <input id="border-color" type="color" value="black"> 
             </div>
 
-            <div class="input-field col s6">
-              <span class="custom-text2">Border Color</span>
-              <input id="border-color" type="color" value="#EBEBEB"> 
+            <div class="col s6" style="margin-top: 1em;">
+              <label>
+                <input id="white-option" class="filled-in checkbox-flyer" type="checkbox" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">White Container</span>
+              </label>
             </div>
 
           </div>
@@ -1121,6 +1147,7 @@
 
   <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
   <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.min2.js' %}"></script>
+  <!-- <script type="text/javascript" src="{% static 'WAMSApp/js/jscolor.js' %}"></script> -->
   <script type="text/javascript">
 
     M.AutoInit();
@@ -1198,7 +1225,7 @@
           <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="overflow:hidden;">
             <div class="row" style="margin: 0em;padding:0em;">
               <div class="col s10" style="margin-bottom: 0em;">
-                <textarea text-grid-id="`+grid_id+`" class="materialize-textarea left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;"></textarea>
+                <textarea text-grid-id="`+grid_id+`" class="materialize-textarea left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;" bold=false underlined=false italic=false></textarea>
               </div>
             </div>
           </div>
@@ -1214,7 +1241,7 @@
 
       var html_string = `
         <div class="grid-stack-item primary-grid-stack-item" data-gs-width="10" data-gs-height="20" grid-id="`+grid_id+`">
-          <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid grey;background-size: 50%;background-position: 50% 50%;background-repeat: no-repeat;overflow: hidden;">
+          <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid `+global_border_color+`;background-size: 50%;background-position: 50% 50%;background-repeat: no-repeat;overflow: hidden;" image-resizer=50>
             <div id="secondary-grid-stack-`+grid_id+`" class="grid-stack secondary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
             </div>
           </div>
@@ -1256,6 +1283,8 @@
       html_string = create_unit_info_container_html(flyer_dict);
       el = $(html_string);
       secondary_grid.addWidget(el, 0, 15, 18, 4, false);
+
+      select_primary_cell(global_grid_cnt);
     }
 
 
@@ -1332,29 +1361,45 @@
     }
 
 
+    function select_primary_cell(grid_id)
+    {
+      grid_active = "PRIMARY";
+
+      set_border_style();
+
+      $(".primary-grid-stack-item-content[gridid="+grid_id+"]").css("border", "3px dotted "+global_border_color);
+
+      var image_resizer = $(".primary-grid-stack-item-content[gridid="+grid_id+"]").attr("image-resizer");
+      $("#image-resizer").val(image_resizer);
+
+      active_grid_id = grid_id;
+    }
+
+    function select_secondary_cell(grid_id)
+    {
+      grid_active = "SECONDARY";
+
+      set_border_style();
+
+      $(".secondary-grid-stack-item-content[gridid="+grid_id+"]").css("border", "3px dotted "+global_border_color);
+
+      var image_rotator = $(".secondary-grid-stack-item-content[gridid="+grid_id+"]").attr("rotation");
+      $("#image-rotator").val(image_rotator);
+    }
+
     $(document).on("click", ".primary-grid-stack-item-content", function(e){
 
-      if(e.target.classList.contains("secondary-grid-stack-item-content"))
+      if(e.target.classList.contains("secondary-grid-stack-item-content") || e.target.classList.contains("materialize-textarea"))
         return;
 
       active_grid_id = $(this).attr("gridid");
-      grid_active = "PRIMARY";
-
-      $(".primary-grid-stack-item-content").css("border", "2px solid black");
-      $(".secondary-grid-stack-item-content").css("border", "none");
-
-      $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted black");
+      select_primary_cell(active_grid_id);
     });
 
 
     $(document).on("click", ".secondary-grid-stack-item-content", function(){
       active_grid_id = $(this).attr("gridid");
-      grid_active = "SECONDARY";
-
-      $(".primary-grid-stack-item-content").css("border", "2px solid black");
-      $(".secondary-grid-stack-item-content").css("border", "none");
-
-      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted black");
+      select_secondary_cell(active_grid_id);
     });
 
 
@@ -1375,18 +1420,122 @@
 
     // ------------------ Grid Stack Logic END ------------------
 
-    $(document).on("change", "#white-option", function(){
-      if($("#white-option").prop("checked"))
+
+    $(document).on("change", "#font-size", function(){
+      var font_size = $("#font-size").val();
+      if($("#font-multi-option").prop("checked"))
       {
-        $(".grid-stack-item-content").css("background-color", "white");
-        global_white_container = true;
+        $("textarea").css("font-size", font_size+"px"); 
       }
       else
       {
-        $(".grid-stack-item-content").css("background-color", "transparent");
-        global_white_container = false;
+        $("textarea[text-grid-id="+active_grid_id+"]").css("font-size", font_size+"px");
       }
     });
+
+    $(document).on("change", "#font-family", function(){
+      var font_family = $("#font-family").val();
+      if($("#font-multi-option").prop("checked"))
+      {
+        $("textarea").css("font-family", font_family); 
+      }
+      else
+      {
+        $("textarea[text-grid-id="+active_grid_id+"]").css("font-family", font_family);
+      }
+    });
+
+    $(document).on("click", "#format-bold-btn", function(){
+      var val = "";
+      if($(this).attr("bold")=="true")
+      {
+        $(this).attr("bold", "false")
+        val = "normal";
+      }
+      else
+      {
+        $(this).attr("bold", "true")
+        val = "bolder"; 
+      }
+      if($("#font-multi-option").prop("checked"))
+      {
+        $("textarea").css("font-weight", val); 
+      }
+      else
+      {
+        $("textarea[text-grid-id="+active_grid_id+"]").css("font-weight", val);
+      }
+    });
+
+    $(document).on("click", "#format-underlined-btn", function(){
+      var val = "";
+      if($(this).attr("underlined")=="true")
+      {
+        $(this).attr("underlined", "false")
+        val = "none";
+      }
+      else
+      {
+        $(this).attr("underlined", "true")
+        val = "underline"; 
+      }
+      if($("#font-multi-option").prop("checked"))
+      {
+        $("textarea").css("text-decoration", val); 
+      }
+      else
+      {
+        $("textarea[text-grid-id="+active_grid_id+"]").css("text-decoration", val);
+      }
+    });
+
+    $(document).on("click", "#format-italic-btn", function(){
+      var val = "";
+      if($(this).attr("italic")=="true")
+      {
+        $(this).attr("italic", "false")
+        val = "normal";
+      }
+      else
+      {
+        $(this).attr("italic", "true")
+        val = "italic"; 
+      }
+      if($("#font-multi-option").prop("checked"))
+      {
+        $("textarea").css("font-style", val); 
+      }
+      else
+      {
+        $("textarea[text-grid-id="+active_grid_id+"]").css("font-style", val);
+      }
+    });
+
+    $(document).on("click", ".font-alignment", function(){
+      var font_alignment = $(this).attr("value");
+      if($("#font-multi-option").prop("checked"))
+      {
+        $("textarea").css("text-align", font_alignment); 
+      }
+      else
+      {
+        $("textarea[text-grid-id="+active_grid_id+"]").css("text-align", font_alignment);
+      }
+    });
+
+    $(document).on("change", "#font-color", function(){
+      var color = $("#font-color").val();
+      if($("#font-multi-option").prop("checked"))
+      {
+        $("textarea").css("color", color); 
+      }
+      else
+      {
+        $("textarea[text-grid-id="+active_grid_id+"]").css("color", color);
+      }
+    });
+
+
 
 
     $("#download-flyer-btn").click(function(e){
@@ -1575,6 +1724,15 @@
       set_border_style();
     });
 
+    $(document).on("change", "#border-color", function(){
+      console.log("adadaw")
+      if($("#border-option").prop("checked"))
+      {
+        global_border_color = $("#border-color").val();
+      }
+      set_border_style();
+    });
+
     $("#upload-new-bg-image-btn").click(function(){
 
       var fd = new FormData();
@@ -1697,34 +1855,18 @@
 
       $(".secondary-grid-stack-item-tag-content").css("transform", "rotate("+R+"deg)");
       $(".secondary-grid-stack-item-tag-content").attr("rotation", R);
-    });
+    });  
 
 
-
-    
-
-
-    function select_cell(grid_id)
-    {
-      
-    }
-      
-      
-
-
-
-  
     $("#refresh-template-btn").click(function (){
 
-      global_template_data["item-data"] = [];
+      global_primary_grid.destroy();
+      var html_string = `<div id="grid-stack-div" class="grid-stack primary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
 
-      var grid = $('.grid-stack').data('gridstack');
-
-      grid.destroy();
-      var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">`
+            </div>`
       $("#flyer-grid").html(html_string);
-      //create_flyer_grid();
-      set_editor_style();
+      global_grid_cnt = 0;
+      initialize_grid();
     });
 
 
@@ -1733,20 +1875,13 @@
       if($("#hide-cursor-btn").attr("cursor-status")=="on") //Make cursor invisible
       {
         $("#hide-cursor-btn").attr("cursor-status", "off");
-        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "none");
-        if($("#border-option").prop("checked"))
-        {
-          //$("#divgrid-"+global_selected_grid_id).css("border-bottom", "2px solid #E9E9E9");
-        }
-        else
-        {
-          $("#divgrid-"+global_selected_grid_id).parent().parent().css("border-bottom", "none");
-        }
+        set_border_style();
       }
       else  //Make cursor visible
       {
         $("#hide-cursor-btn").attr("cursor-status", "on");
-        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
+        set_border_style();
+        $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted "+global_border_color);
       }
     });
 
@@ -2137,7 +2272,8 @@
 
           global_background_image_url = common["background-image-url"]
           global_border_visible = common["border-visible"];
-          global_border_color = common["border-color"];
+          //global_border_color = common["border-color"];
+          global_border_color = "black";
           global_super_brand_logo = common["super-brand-logo"];
           global_iso_logo = common["iso-logo"];
           global_consumer_logo = common["consumer-logo"];
@@ -2437,15 +2573,14 @@
 
     function set_border_style()
     {
+      $(".secondary-grid-stack-item-content").css("border", "none");
       if(global_border_visible)
       {
-        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
-        $(".divgrid").parent().parent().parent().css("border", "2px solid "+global_border_color);
+        $(".primary-grid-stack-item-content").css("border", "2px solid "+global_border_color);
       }
       else
       {
-        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
-        $(".divgrid").parent().parent().parent().css("border", "none");
+        $(".primary-grid-stack-item-content").css("border", "none");
       } 
     }
 
