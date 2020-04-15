@@ -450,6 +450,7 @@ class FetchProformaBundleListAPI(APIView):
                         temp_dict2["product_count"] = UnitProformaInvoice.objects.filter(proforma_invoice=proforma_invoice_obj).count()
                         factory_list.append(temp_dict2)
                     temp_dict["factory_list"] = factory_list
+                    temp_dict["created_date"] = proforma_invoice_bundle_obj.created_date.strftime("%d %b, %Y")
                     temp_dict["filepath"] = proforma_invoice_bundle_obj.proforma_zip.url
                     proforma_invoice_bundle_list.append(temp_dict)
                 except Exception as e:
