@@ -214,8 +214,6 @@ def fetch_prices(product_id,company_code):
         return []
 
 
-
-
 def fetch_prices_dealshub(uuid1, company_code):
     try:
         product_obj = Product.objects.get(uuid=uuid1)
@@ -1667,3 +1665,60 @@ def generate_flyer_report():
             print("Error: %s at %s", e, str(exc_tb.tb_lineno), product_obj.product_id)
 
     workbook.close()
+
+
+def generate_xml_for_post_product_data_amazon_uk(product_pk_list,seller_id):
+    try:
+         # Check if Cached
+        xml_string = """<?xml version="1.0"?>
+                        <AmazonEnvelope xsi:noNamespaceSchemaLocation="amzn-envelope.xsd"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Header>
+                                <DocumentVersion>1.01</DocumentVersion>
+                                <MerchantIdentifier>"""+seller_id+"""</MerchantIdentifier>
+                            </Header>
+                            <MessageType>Product</MessageType>
+                            <PurgeAndReplace>false</PurgeAndReplace>"""
+        
+        for product_pk in product_pk_list:
+
+            product_obj = Product.objects.get(pk=int(product_pk))
+            message_id = str(product_pk)
+            seller_sku = product.base_product.seller_sku
+            brand_name = product.base_product.brand.name
+            product_id_type = product_obj.product_id_type.name
+            product_id = product.barcode_string
+            amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
+            product_name = amazon_uk_product["product_name"]
+            product_description = amazon_uk_product["product_description"]
+
+            xml_string += """<Message>
+                                <MessageID>"""+ message_id +"""</MessageID>
+                                <OperationType>Update</OperationType> 
+                                <Product>
+                                    <SKU>"""+ seller_sku +"""</SKU>
+                                    <StandardProductID>
+                                        <Type>"""+product_id_type+"""</Type>
+                                        <Value>"""+product_id +"""</Value>
+                                    </StandardProductID>
+                                    <DescriptionData>
+                                        <Title>"""+ product_name + """</Title>
+                                        <Brand>""" + brand_name +"""</Brand>
+                                        <Description>""" + product_description + """</Description>
+                                    </DescriptionData>
+                                    <Condition>
+                                        <ConditionType>New</ConditionType>
+                                    </Condition>
+                                </Product>
+                            </Message> """
+
+        xml_string += """</AmazonEnvelope>"""
+        print(xml_string)
+        return xml_string
+
+    except Exception as e:
+        print(str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Generating XML: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""
+
