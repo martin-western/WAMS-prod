@@ -386,6 +386,51 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
 
         return Response(data=response)
 
+class PushProductsAmazonUKAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
+                logger.warning("PushProductsAmazonUKAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("PushProductsAmazonUKAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk_list = data["product_pk_list"]
+
+            if(len(product_pk_list)>30):
+                logger.warning("PushProductsAmazonUKAPI More then 30 Products!")
+                response['status'] = 429
+                return Response(data=response)
+
+            permissible_channels = custom_permission_filter_channels(request.user)
+            channel_obj = Channel.objects.get(name="Amazon UK")
+
+            if channel_obj not in permissible_channels:
+                logger.warning(
+                    "PushProductsAmazonUKAPI Restricted Access of UK Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            xml_string = generate_xml_for_post_product_data_amazon_uk(product_pk_list)
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PushProductsAmazonUKAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class GetMatchingProductsAmazonUAEMWSAPI(APIView):
 
@@ -722,10 +767,60 @@ class GetPricingProductsAmazonUAEMWSAPI(APIView):
 
         return Response(data=response)
 
+class PushProductsAmazonUAEAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
+                logger.warning("PushProductsAmazonUAEAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("PushProductsAmazonUAEAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk_list = data["product_pk_list"]
+
+            if(len(product_pk_list)>30):
+                logger.warning("PushProductsAmazonUAEAPI More then 30 Products!")
+                response['status'] = 429
+                return Response(data=response)
+
+            permissible_channels = custom_permission_filter_channels(request.user)
+            channel_obj = Channel.objects.get(name="Amazon UAE")
+
+            if channel_obj not in permissible_channels:
+                logger.warning(
+                    "PushProductsAmazonUAEAPI Restricted Access of UK Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            xml_string = generate_xml_for_post_product_data_amazon_uae(product_pk_list)
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PushProductsAmazonUAEAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 GetMatchingProductsAmazonUKMWS = GetMatchingProductsAmazonUKMWSAPI.as_view()
 
 GetPricingProductsAmazonUKMWS = GetPricingProductsAmazonUKMWSAPI.as_view()
 
+PushProductsAmazonUK = PushProductsAmazonUKAPI.as_view()
+
 GetMatchingProductsAmazonUAEMWS = GetMatchingProductsAmazonUAEMWSAPI.as_view()
 
 GetPricingProductsAmazonUAEMWS = GetPricingProductsAmazonUAEMWSAPI.as_view()
+
+PushProductsAmazonUAE = PushProductsAmazonUAEAPI.as_view()
