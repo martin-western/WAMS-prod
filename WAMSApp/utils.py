@@ -1704,7 +1704,6 @@ def generate_xml_for_post_product_data_amazon_uk(product_pk_list,seller_id):
                                     <DescriptionData>
                                         <Title>"""+ product_name + """</Title>
                                         <Brand>""" + brand_name +"""</Brand>
-                                        <Description>""" + product_description + """</Description>
                                     </DescriptionData>
                                     <Condition>
                                         <ConditionType>New</ConditionType>
