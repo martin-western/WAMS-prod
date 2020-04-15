@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jun 26 15:42:07 2012
-
-Borrowed from https://github.com/timotheus/ebaysdk-python
-
-@author: pierre
-"""
 from __future__ import absolute_import
 import re
 import base64
@@ -15,18 +7,6 @@ import xml.etree.ElementTree as ET
 
 
 class ObjectDict(dict):
-    """
-    Extension of dict to allow accessing keys as attributes.
-
-    Example:
-    >>> a = ObjectDict()
-    >>> a.fish = 'fish'
-    >>> a['fish']
-    'fish'
-    >>> a['water'] = 'water'
-    >>> a.water
-    'water'
-    """
 
     def __init__(self, initd=None):
         if initd is None:
@@ -48,27 +28,11 @@ class ObjectDict(dict):
         self.__setitem__(item, value)
 
     def __iter__(self):
-        """
-        A fix for instances where we expect a list, but get a single item.
-
-        If the parser finds multiple keys by the same name under the same parent node,
-        the node will create a list of ObjectDicts to that key. However, if we expect a list
-        in downstream code when only a single item is returned, we will find a single ObjectDict.
-        Attempting to iterate over that object will iterate through dict keys,
-        which is not what we want.
-
-        This override will send back an iterator of a list with a single element if necessary
-        to allow iteration of any node with a single element. If accessing directly, we will
-        still get a list or ObjectDict, as originally expected.
-        """
         if not isinstance(self, list):
             return iter([self, ])
         return self
 
     def getvalue(self, item, value=None):
-        """
-        Old Python 2-compatible getter method for default value.
-        """
         return self.get(item, {}).get('value', value)
 
 

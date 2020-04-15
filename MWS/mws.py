@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Main module for python-amazon-mws package.
-"""
 
 from __future__ import absolute_import
 
