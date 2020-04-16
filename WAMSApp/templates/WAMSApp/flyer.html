@@ -554,13 +554,12 @@
       var html_string = `
         <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
           <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" style="overflow:hidden;">
-            <img grid-image-pk="`+image_pk+`" gridid="`+grid_id+`"  src="`+image_url+`" style="width:100%;transform:rotate(`+rotation+`deg)" rotation=`+rotation+`>
+            <img class="secondary-grid-stack-item-content-img" grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" image-rotator=0  src="`+image_url+`" style="width:100%;transform:rotate(`+rotation+`deg)" rotation=`+rotation+`>
           </div>
         </div>`
 
       return html_string;
     }
-
 
     function create_unit_info_container_html(tag_dict)
     {
@@ -590,7 +589,7 @@
           <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid `+global_border_color+`;overflow: hidden;">
             <div id="secondary-grid-stack-`+grid_id+`" class="grid-stack secondary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
             </div>
-            <img gridid="`+grid_id+`" image-resizer=50 image-rotator=0 top=50 left=25 src="" style="width:50%;position:absolute;top:50%;left:25%;z-index:-10;">
+            <img class="primary-grid-stack-item-content-img" gridid="`+grid_id+`" image-resizer=50 image-rotator=0 top=25 left=25 src="" style="width:50%;position:absolute;top:25%;left:25%;z-index:-10;">
           </div>
         </div>`
 
@@ -736,13 +735,18 @@
 
     $(document).on("click", ".primary-grid-stack-item-content", function(e){
 
-      if(e.target.classList.contains("secondary-grid-stack-item-content") || e.target.classList.contains("materialize-textarea"))
+      if(e.target.classList.contains("secondary-grid-stack-item-content") || e.target.classList.contains("secondary-grid-stack-item-content-img") || e.target.classList.contains("materialize-textarea"))
         return;
 
       active_grid_id = $(this).attr("gridid");
       select_primary_cell(active_grid_id);
     });
 
+
+    $(document).on("click", ".secondary-grid-stack-item-content-img", function(){
+      active_grid_id = $(this).attr("gridid");
+      select_secondary_cell(active_grid_id);
+    });
 
     $(document).on("click", ".secondary-grid-stack-item-content", function(){
       active_grid_id = $(this).attr("gridid");
@@ -914,20 +918,25 @@
 
       $("#image-resizer").val(R);
 
-      $(".primary-grid-stack-item-content img").css("width", R+"%");
-      $(".primary-grid-stack-item-content img").attr("image-resizer", R);
+      $(".primary-grid-stack-item-content-img").css("width", R+"%");
+      $(".primary-grid-stack-item-content-img").attr("image-resizer", R);
       
     });
 
     $("#image-rotator").change(function() {
       
-      if(grid_active=="PRIMARY")
-        return;
-
       var R = $("#image-rotator").val();
 
-      $(".secondary-grid-stack-item-tag-content[gridid="+active_grid_id+"]").css("transform", "rotate("+R+"deg)");
-      $(".secondary-grid-stack-item-tag-content[gridid="+active_grid_id+"]").attr("rotation", R);
+      if(grid_active=="PRIMARY")
+      {
+        $("img[gridid="+active_grid_id+"]").css("transform", "rotate("+R+"deg)");
+        $("img[gridid="+active_grid_id+"]").attr("image-rotator", R);
+      }
+      else
+      {
+        $(".secondary-grid-stack-item-tag-content[gridid="+active_grid_id+"]").css("transform", "rotate("+R+"deg)");
+        $(".secondary-grid-stack-item-tag-content[gridid="+active_grid_id+"]").attr("image-rotator", R);
+      }
     });
 
     $("#all-image-rotator").change(function() {
@@ -935,12 +944,16 @@
       var R = $("#all-image-rotator").val();
       $("#image-rotator").val(R);
 
+      $(".primary-grid-stack-item-content-img").css("transform", "rotate("+R+"deg)");
+      $(".primary-grid-stack-item-content-img").attr("rotation", R);
+    
       $(".secondary-grid-stack-item-tag-content").css("transform", "rotate("+R+"deg)");
       $(".secondary-grid-stack-item-tag-content").attr("rotation", R);
     });
 
     $(document).on('click', '.imgselect', function(){
-
+        if(grid_active=="SECONDARY")
+          return;
         var image_pk = this.id.split("_")[1];
         var image_url = $($(this).children()[0]).attr("high-res-url");
         $("img[gridid="+active_grid_id+"]").attr("src", image_url);
@@ -1483,22 +1496,22 @@
       var image_links = [];
 
       //Primary Grid Images
-      for(var i=0;i<$(".primary-grid-stack-item-content").length;i++)
+      for(var i=0;i<$(".primary-grid-stack-item-content-img").length;i++)
       {
-        var grid_id = $($(".primary-grid-stack-item-content")[i]).attr("gridid");
-        var image_url = $($(".primary-grid-stack-item-content")[i]).css("background-image").replace('url("', "").replace('")', "");
-        if(image_url!="none")
+        var grid_id = $($(".primary-grid-stack-item-content-img")[i]).attr("gridid");
+        var image_url = $($(".primary-grid-stack-item-content-img")[i]).attr("src");
+        if(image_url!="")
         {
           image_links.push({"key": grid_id, "url": image_url});
         }
       }
 
       //Secondary Grid Images
-      for(var i=0;i<$(".secondary-grid-stack-item-content").length;i++)
+      for(var i=0;i<$(".secondary-grid-stack-item-content-img").length;i++)
       {
-        var grid_id = $($(".secondary-grid-stack-item-content")[i]).attr("gridid");
-        var image_url = $($(".secondary-grid-stack-item-content")[i]).css("background-image").replace('url("', "").replace('")', "");
-        if(image_url!="none")
+        var grid_id = $($(".secondary-grid-stack-item-content-img")[i]).attr("gridid");
+        var image_url = $($(".secondary-grid-stack-item-content-img")[i]).attr("src");
+        if(image_url!="")
         {
           image_links.push({"key": grid_id, "url": image_url});
         }
@@ -1536,7 +1549,7 @@
 
               if(key!="background-image")
               {
-                $("div[gridid="+key+"]").css("background-image", 'url("'+url+'")')
+                $("img[gridid="+key+"]").attr("src", url)
               }
               else
               {
@@ -1596,7 +1609,7 @@
 
                 if(key!="background-image")
                 {
-                  $("div[gridid="+key+"]").css("background-image", 'url("'+url+'")')
+                  $("img[gridid="+key+"]").attr("src", url)
                 }
                 else
                 {
@@ -1607,7 +1620,7 @@
 
 
               //Save as thumbnail
-              var image_data = canvas.toDataURL();
+              var image_data = canvas.toDataURL("image/jpeg", 0.4);
 
               var fd = new FormData();
               fd.append('image_data', image_data);
@@ -1814,8 +1827,8 @@
 
     $(window).keydown(function(event) {
 
-      if(grid_active=="PRIMARY")
-        return;
+      // if(grid_active=="PRIMARY")
+      //   return;
 
       if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
         return;
@@ -1823,7 +1836,7 @@
       if(active_grid_id=="")
         return;
       
-      var rotation = parseInt($(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").attr("rotation"));
+      var rotation = parseInt($("img[gridid="+active_grid_id+"]").attr("image-rotator"));
       if(event.keyCode==69)
       {
         rotation += 1;
@@ -1835,8 +1848,15 @@
 
       rotation_str = "rotate("+rotation+"deg)";
 
-      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("transform", rotation_str);
-      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").attr("rotation", rotation);
+      if(grid_active=="PRIMARY")
+      {
+        $("img[gridid="+active_grid_id+"]").css("transform", rotation_str);
+      }
+      else
+      {
+        $("img[gridid="+active_grid_id+"]").parent().css("transform", rotation_str);
+      }
+      $("img[gridid="+active_grid_id+"]").attr("image-rotator", rotation);
     });
 
     
