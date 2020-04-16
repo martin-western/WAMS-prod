@@ -17,5 +17,7 @@ urlpatterns = [
     url(r'^fetch-proforma-bundle-list/$', views.FetchProformaBundleList),
     url(r'^fetch-pi-factory-list/$', views.FetchPIFactoryList),
     url(r'^upload-factory-pi/$', views.UploadFactoryPI),
+    url(r'^fetch-pi-form/$', views.FetchPIForm),
+    url(r'^save-pi-form/$', views.SavePIForm),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

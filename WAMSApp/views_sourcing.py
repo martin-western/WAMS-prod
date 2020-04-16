@@ -19,9 +19,11 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db.models import Count
+from django.db.models import Sum
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils import timezone
+
 
 import requests
 import json
@@ -507,6 +509,8 @@ class FetchPIFactoryListAPI(APIView):
                         temp_dict["pdf_ready"] = True
                         temp_dict["filepath"] = proforma_invoice_obj.proforma_pdf.url
                     temp_dict["product_count"] = UnitProformaInvoice.objects.filter(proforma_invoice=proforma_invoice_obj).count()
+                    temp_dict["product_qty_count"] = UnitProformaInvoice.objects.filter(proforma_invoice=proforma_invoice_obj).aggregate(Sum('quantity'))["quantity__sum"]
+
                     temp_dict["created_date"] = proforma_invoice_bundle_obj.created_date.strftime("%d %b, %Y")
                     pi_factory_list.append(temp_dict)
                 except Exception as e:
@@ -550,6 +554,129 @@ class UploadFactoryPIAPI(APIView):
         return Response(data=response)
 
 
+class FetchPIFormAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            logger.info("FetchPIFormAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            proforma_invoice_obj = ProformaInvoice.objects.get(uuid=data["uuid"])
+            factory_obj = proforma_invoice_obj.factory
+            bank_obj = factory_obj.bank_details
+
+            response["factory_name"] = str(factory_obj.name)
+            response["factory_address"] = str(factory_obj.address)
+            try:
+                response["factory_number"] = str(json.loads(factory_obj.phone_numbers)[0])
+            except Exception as e:
+                response["factory_number"] = ""
+
+            response["contact_person_name"] = str(factory_obj.contact_person_name)
+            response["contact_person_mobile_number"] = str(factory_obj.contact_person_mobile_no)
+            response["loading_port"] = str(factory_obj.loading_port)
+            response["discharge_port"] = str(proforma_invoice_obj.discharge_port)
+            response["vessel_details"] = str(proforma_invoice_obj.vessel_details)
+            response["vessel_final_destination"] = str(proforma_invoice_obj.vessel_final_destination)
+            response["payment_terms"] = str(proforma_invoice_obj.contact_person_name)
+            response["inco_terms"] = str(proforma_invoice_obj.contact_person_name)
+            response["delivery_terms"] = str(proforma_invoice_obj.contact_person_name)
+            response["shipment_lot_number"] = str(proforma_invoice_obj.contact_person_name)
+            response["invoice_number"] = str(proforma_invoice_obj.contact_person_name)
+            response["invoice_date"] = str(proforma_invoice_obj.contact_person_name)
+            response["bank_name"] = str(bank_obj.name)
+            response["account_number"] = str(bank_obj.account_number)
+            response["ifsc_code"] = str(bank_obj.ifsc_code)
+            response["swift_code"] = str(bank_obj.swift_code)
+            response["branch_code"] = str(bank_obj.branch_code)
+            response["bank_address"] = str(bank_obj.address)
+            response["important_notes"] = str(proforma_invoice_obj.important_notes)
+            response["terms_and_condition"] = str(proforma_invoice_obj.terms_and_condition)
+            
+            unit_proforma_invoice_objs = UnitProformaInvoice.objects.filter(proforma_invoice=proforma_invoice_obj)
+            unit_proforma_invoice_list = []
+            for unit_proforma_invoice_obj in unit_proforma_invoice_objs:
+                try:
+                    product_obj = unit_proforma_invoice_obj.product
+                    sourcing_product_obj = SourcingProduct.objects.get(product=product_obj)
+                    temp_dict = {}
+                    temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["brand_name"] = str(product_obj.base_product.brand)
+                    temp_dict["size"] = str(sourcing_product_obj.size)
+                    temp_dict["weight"] = str(sourcing_product_obj.weight) + " " + str(sourcing_product_obj.weight_metric)
+                    temp_dict["thickness"] = "NA"
+                    temp_dict["design"] = str(sourcing_product_obj.design)
+                    temp_dict["pkg_m_ctn"] = str(sourcing_product_obj.pkg_m_ctn)
+                    temp_dict["p_ctn_cbm"] = str(sourcing_product_obj.p_ctn_cbm)
+                    temp_dict["pkg_inner"] = str(sourcing_product_obj.pkg_inner)
+                    temp_dict["ttl_ctn"] = str(sourcing_product_obj.ttl_ctn)
+                    temp_dict["ttl_cbm"] = str(sourcing_product_obj.ttl_cbm)
+                    temp_dict["quantity"] = str(unit_proforma_invoice_obj.quantity)
+                    temp_dict["quantity_meteric"] = "Sets"
+                    temp_dict["price"] = str(sourcing_product_obj.price)
+                    temp_dict["amount"] = str(round(float(temp_dict["price"])*float(temp_dict["quantity"]), 2))
+
+                    unit_proforma_invoice_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchPIFormAPI: %s at %s", e, str(exc_tb.tb_lineno))        
+            
+            
+            response["unit_proforma_invoice_list"] = unit_proforma_invoice_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchPIFormAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SavePIFormAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            logger.info("SavePIFormAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            proforma_invoice_obj = ProformaInvoice.objects.get(uuid=data["uuid"])
+            factory_obj = proforma_invoice_obj.factory
+
+            proforma_invoice_obj.discharge_port = data["discharge_port"]
+            proforma_invoice_obj.vessel_details = data["vessel_details"]
+            proforma_invoice_obj.vessel_final_destination = data["vessel_final_destination"]
+            proforma_invoice_obj.payment_terms = data["payment_terms"]
+            proforma_invoice_obj.inco_terms = data["inco_terms"]
+            proforma_invoice_obj.delivery_terms = data["delivery_terms"]
+            proforma_invoice_obj.shipment_lot_number = data["shipment_lot_number"]
+            proforma_invoice_obj.invoice_number = data["invoice_number"]
+            #proforma_invoice_obj.invoice_date = data["invoice_date"]
+            proforma_invoice_obj.important_notes = data["important_notes"]
+            proforma_invoice_obj.terms_and_condition = data["terms_and_condition"]
+            proforma_invoice_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SavePIFormAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 
 FetchFactoryList = FetchFactoryListAPI.as_view()
@@ -569,3 +696,7 @@ FetchProformaBundleList = FetchProformaBundleListAPI.as_view()
 FetchPIFactoryList = FetchPIFactoryListAPI.as_view()
 
 UploadFactoryPI = UploadFactoryPIAPI.as_view()
+
+FetchPIForm = FetchPIFormAPI.as_view()
+
+SavePIForm = SavePIFormAPI.as_view()
