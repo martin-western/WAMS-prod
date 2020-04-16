@@ -475,6 +475,83 @@ class FetchProformaBundleListAPI(APIView):
         return Response(data=response)
 
 
+class FetchPIFactoryListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            logger.info("FetchPIFactoryListAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            proforma_invoice_bundle_obj = ProformaInvoiceBundle.objects.get(uuid=data["uuid"])
+
+            proforma_invoice_objs = ProformaInvoice.objects.filter(proforma_invoice_bundle=proforma_invoice_bundle_obj)
+
+            pi_factory_list = []
+            for proforma_invoice_obj in proforma_invoice_objs:
+                try:
+                    proforma_invoice_bundle_obj = proforma_invoice_obj.proforma_invoice_bundle
+                    temp_dict = {}
+                    temp_dict["uuid"] = proforma_invoice_obj.uuid
+                    temp_dict["factory_code"] = proforma_invoice_obj.factory.factory_code
+                    temp_dict["factory_name"] = proforma_invoice_obj.factory.name
+                    if proforma_invoice_obj.proforma_pdf==None:
+                        temp_dict["pdf_ready"] = False
+                    else:
+                        temp_dict["pdf_ready"] = True
+                        temp_dict["filepath"] = proforma_invoice_obj.proforma_pdf.url
+                    temp_dict["product_count"] = UnitProformaInvoice.objects.filter(proforma_invoice=proforma_invoice_obj).count()
+                    temp_dict["created_date"] = proforma_invoice_bundle_obj.created_date.strftime("%d %b, %Y")
+                    pi_factory_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchProformaBundleList: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response["pi_factory_list"] = pi_factory_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchPIFactoryListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadFactoryPIAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            logger.info("UploadFactoryPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            proforma_invoice_obj = ProformaInvoice.objects.get(uuid=data["uuid"])
+            proforma_invoice_obj.proforma_pdf = data["proforma_pdf"]
+            proforma_invoice_obj.save()
+        
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFactoryPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+
 FetchFactoryList = FetchFactoryListAPI.as_view()
 
 FetchFactoryDetails = FetchFactoryDetailsAPI.as_view() 
@@ -488,3 +565,7 @@ UploadFactoryImages = UploadFactoryImagesAPI.as_view()
 DownloadBulkPI = DownloadBulkPIAPI.as_view()
 
 FetchProformaBundleList = FetchProformaBundleListAPI.as_view()
+
+FetchPIFactoryList = FetchPIFactoryListAPI.as_view()
+
+UploadFactoryPI = UploadFactoryPIAPI.as_view()
