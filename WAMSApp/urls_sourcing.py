@@ -15,6 +15,7 @@ urlpatterns = [
 
     url(r'^download-bulk-pi/$', views.DownloadBulkPI),
     url(r'^fetch-proforma-bundle-list/$', views.FetchProformaBundleList),
-
+    url(r'^fetch-pi-factory-list/$', views.FetchPIFactoryList),
+    url(r'^upload-factory-pi/$', views.UploadFactoryPI),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
