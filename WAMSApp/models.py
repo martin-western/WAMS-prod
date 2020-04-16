@@ -878,6 +878,12 @@ class ProformaInvoice(models.Model):
     proforma_invoice_bundle = models.ForeignKey(ProformaInvoiceBundle, default=None, blank=True, on_delete=models.CASCADE)
     invoice_number = models.CharField(max_length=250, default="", blank=True)
     invoice_date = models.DateTimeField(null=True, blank=True)
+    discharge_port = models.CharField(default="", max_length=100)
+    vessel_details = models.CharField(default="", max_length=100)
+    vessel_final_destination = models.CharField(default="", max_length=100)
+    ship_lot_number = models.CharField(default="", max_length=100)
+    important_notes = models.TextField(default="")
+    terms_and_condition = models.TextField(default="")
     uuid = models.CharField(max_length=200, unique=True)
 
     class Meta:
