@@ -501,11 +501,8 @@
     var global_selected_product_pk = "";
     var global_selected_product_name = "";
     var global_product_images_dict = {};
-    var global_selected_grid_id = "";
     var global_template_data = {};
-    var global_selected_product_info_id = "";
     var global_background_images_bucket = [];
-    var global_brand_name = "";
     var global_external_image_bucket = [];
     var global_tag_bucket = [];
 
@@ -523,6 +520,10 @@
 
 
 
+    function getCsrfToken() {
+      var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+      return CSRF_TOKEN;
+    }
 
 
     // ------------------ Grid Stack Logic START ------------------
@@ -552,8 +553,8 @@
 
       var html_string = `
         <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
-          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" style="background-image: url('`+image_url+`');background-size: 100% auto;background-repeat: no-repeat;background-position: center;transform:rotate(`+rotation+`deg)" rotation=`+rotation+`>
-            
+          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" style="overflow:hidden;">
+            <img grid-image-pk="`+image_pk+`" gridid="`+grid_id+`"  src="`+image_url+`" style="width:100%;transform:rotate(`+rotation+`deg)" rotation=`+rotation+`>
           </div>
         </div>`
 
@@ -586,9 +587,10 @@
 
       var html_string = `
         <div class="grid-stack-item primary-grid-stack-item" data-gs-width="10" data-gs-height="20" grid-id="`+grid_id+`">
-          <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid `+global_border_color+`;background-size: 50%;background-position: 50% 50%;background-repeat: no-repeat;overflow: hidden;" image-resizer=50>
+          <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid `+global_border_color+`;overflow: hidden;">
             <div id="secondary-grid-stack-`+grid_id+`" class="grid-stack secondary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
             </div>
+            <img gridid="`+grid_id+`" image-resizer=50 image-rotator=0 top=50 left=25 src="" style="width:50%;position:absolute;top:50%;left:25%;z-index:-10;">
           </div>
         </div>`
 
@@ -747,24 +749,22 @@
       select_secondary_cell(active_grid_id);
     });
 
-
-
-
-
     initialize_grid();
-
-
-
-
-
-
-
-
-
-
 
     // ------------------ Grid Stack Logic END ------------------
 
+
+
+
+
+
+
+
+
+
+
+
+    // ------------------ Editor Trigger Logic START ------------------
 
     $(document).on("change", "#font-size", function(){
       var font_size = $("#font-size").val();
@@ -881,231 +881,6 @@
     });
 
 
-    $("#download-flyer-btn").click(function(e)
-    {
-      var scale = 3;
-      var div = document.getElementById('flyer-div');
-      var canvas = document.createElement('canvas');
-      var h = div.scrollHeight;
-      var ratio = canvas.width/canvas.height;
-      var w = h * ratio;
-      canvas.width = scale*window.devicePixelRatio*div.scrollWidth;
-      canvas.height = scale*window.devicePixelRatio*div.scrollHeight;
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
-      var context = canvas.getContext('2d');
-      context.scale(scale, scale);
-
-      function dataURLtoBlob(dataurl) {
-        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-        while(n--){
-            u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new Blob([u8arr], {type:mime});
-      }
-
-      window.scrollTo(0,0);
-      html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0, useCORS: true, allowTaint: true, logging:true}).then(function(canvas) {
-            console.log("Downloading it!!!");
-            
-            var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-
-            var blob = dataURLtoBlob(dataURI);
-            var objurl = URL.createObjectURL(blob);
-            
-
-            if(global_save_signal==false)
-            {
-              $("#download-flyer-btn").removeAttr("disabled");
-              $("#loader-div").hide();
-              var a = document.createElement('a');
-              a.download = 'test1.jpg';
-              a.href = objurl;
-              a.click();
-            }
-            global_save_signal = false;
-          });
-    });
-
-    $("#download-flyer-btn2").click(function(e){
-
-      if(global_save_signal==false)
-      {
-        $("#download-flyer-btn").attr("disabled", "disabled");
-        $("#loader-div").show();
-      }
-
-      var total_grids = $(".grid-stack-item").length;
-      var image_links = [];
-      var original_bg_image_url = "none";
-      if ($("#flyer-div").css("background-image")!="none" ){
-        image_links.push({"key": "background_image", "url": $("#flyer-div").css("background-image").split("\"")[1]});
-        original_bg_image_url = $("#flyer-div").css("background-image").split("\"")[1];
-      }
-
-      for (var i = 0; i <total_grids; i++){
-        var grid_id = $($(".grid-stack-item")[i]).attr("grid-id");
-        if($("#gridimg-"+grid_id).attr('src')!="null")
-        {
-          image_links.push({"key": "gridimg-" + grid_id, "url": $("#gridimg-"+grid_id).attr('src')});
-        }
-      }
-
-      if($("#brand-image-img").attr("src")!="")
-      {
-        image_links.push({"key": "brand-image-img", "url": $("#brand-image-img").attr("src")});
-      }
-
-      $.ajax({
-        url: "/download-images-s3/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        data: { 
-          links : JSON.stringify(image_links)
-        },
-        success: function(response) {
-            console.log("Success! ", response);
-
-            if(response["status"]==200)
-            {
-              //[{"key": "grind-1", "url": "aws/im1.png"}, {}]
-              var local_links = response["local_links"];
-              
-              for(var i=0;i<response["local_links"].length;i++){
-                if (local_links[i]["key"] != "background_image"){
-                  $("#"+local_links[i]["key"]).attr("src", local_links[i]["url"]);
-                }
-                else
-                {
-                  $("#flyer-div").css("background-image", "url('" +local_links[i]["url"]+ "')");
-                }
-              }
-
-              e.preventDefault();
-
-              var scale = 5;
-              var div = document.getElementById('flyer-div');
-              var canvas = document.createElement('canvas');
-              var h = div.scrollHeight;
-              var ratio = canvas.width/canvas.height;
-              var w = h * ratio;
-              canvas.width = scale*window.devicePixelRatio*div.scrollWidth;
-              canvas.height = scale*window.devicePixelRatio*div.scrollHeight;
-              canvas.style.width = w + 'px';
-              canvas.style.height = h + 'px';
-              var context = canvas.getContext('2d');
-              context.scale(scale, scale);
-
-
-              
-
-              $(".divgrid").parent().parent().css("border", "none");
-              if($("#border-option").prop("checked"))
-              {
-                //$(".divgrid").css("border-bottom", "2px solid #E9E9E9");
-                //$(".divgrid").parent().parent().css("border", "2px solid #E9E9E9");
-              }
-              else
-              {
-                $(".divgrid").parent().parent().css("border-bottom", "none");
-                $(".divgrid").parent().parent().parent().css("border", "none");
-              }
-
-              function dataURLtoBlob(dataurl) {
-                var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-                while(n--){
-                    u8arr[n] = bstr.charCodeAt(n);
-                }
-                return new Blob([u8arr], {type:mime});
-              }
-
-
-              //Hide placeholder
-              $(".product-title-info").removeAttr("placeholder");
-              $(".product-title-info-description").removeAttr("placeholder");
-              $(".product-price-info").removeAttr("placeholder");
-              //$(".product-strikeprice-info").removeAttr("placeholder");
-
-              window.scrollTo(0,0);
-              html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
-                    console.log("Downloading it!!!");
-                    
-                    var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-
-                    var blob = dataURLtoBlob(dataURI);
-                    var objurl = URL.createObjectURL(blob);
-                    
-
-                    if(global_save_signal==false)
-                    {
-                      $("#download-flyer-btn").removeAttr("disabled");
-                      $("#loader-div").hide();
-                      var a = document.createElement('a');
-                      a.download = global_flyer_name+'.jpg';
-                      a.href = objurl;
-                      a.click();
-                    }
-                    global_save_signal = false;
-
-                    $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
-
-                    $(".product-title-info-title").attr("placeholder", "product name");
-                    $(".product-title-info-description").attr("placeholder", "description");
-                    $(".product-price-info").attr("placeholder", "price");
-
-                    //Replace the old links
-                    if ($("#flyer-div").css("background-image")!="none" ){
-                      $("#flyer-div").css("background-image", "url('" +original_bg_image_url+ "')");
-                    }
-
-                    for (var i = 0; i <image_links.length; i++){
-                      var grid_ele_id = image_links[i]["key"];
-                      if(grid_ele_id != "background_image"){
-                        var url = image_links[i]["url"];
-                        $("#"+grid_ele_id).attr('src', url);
-                      }
-                    }
-
-
-                    //$(".product-strikeprice-info").attr("placeholder", "strikeprice");
-
-                    var image_data = canvas.toDataURL();
-
-                    var fd = new FormData();
-                    fd.append('image_data', image_data);
-                    fd.append('flyer_pk', window.location.pathname.split("/")[2]);
-
-                    $.ajax({
-                      url: "/save-flyer-in-bucket/",
-                      type: "POST",
-                      headers:{
-                        'X-CSRFToken':getCsrfToken()
-                      },
-                      processData: false,
-                      contentType: false,
-                      data: fd,
-                      success: function(response) {
-                        console.log("Success!", response);
-                      },
-                      error: function(xhr, textstatus, errorthrown) {
-                        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-                      }
-                    });
-              });
-            }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-        }
-      });
-
-    });
-
-
     $(document).on("change", "#border-option", function(){
       if($("#border-option").prop("checked"))
         global_border_visible  = true;
@@ -1122,87 +897,6 @@
       set_border_style();
     });
 
-    $("#upload-new-bg-image-btn").click(function(){
-
-      var fd = new FormData();
-      var bg_image = document.getElementById("new-bg-image"); 
-      fd.append('bg_image', bg_image.files[0]);
-      fd.append('flyer_pk', window.location.pathname.split("/")[2])
-
-      $.ajax({
-        url: "/upload-new-flyer-bg-image/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        processData: false,
-        contentType: false,
-        data: fd,
-        success: function(response) {
-          console.log("Success!", response);
-          if(response["status"]==200)
-          {
-            global_background_images_bucket.push({"pk":response["bg_image_pk"], "url":response["bg_image_url"]});
-            update_background_image_bucket();
-            $("#add-new-bg-modal").modal("close");
-          }
-          else if(response["status"]==403)
-          {
-            M.toast({html: "You do not have permission to add background images!"});
-          }
-          else
-          {
-            M.toast({html: "Error adding background images!"}); 
-          }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-        }
-      });
-
-    })
-
-
-
-    $("#upload-flyer-tag-btn").click(function(){
-
-      var fd = new FormData();
-      var tag_image = document.getElementById("tag-image");
-      fd.append('tag_image', tag_image.files[0]);
-
-      $.ajax({
-        url: "/upload-flyer-tag/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        processData: false,
-        contentType: false,
-        data: fd,
-        success: function(response) {
-          console.log("Success!", response);
-          if(response["status"]==200)
-          {
-            global_tag_bucket.push({"pk":response["tag_image_pk"], "url":response["tag_image_url"]});
-            update_tag_bucket();
-            
-          }
-          else if(response["status"]==403)
-          {
-            M.toast({html: "You do not have permission to add tags!"});
-          }
-          else
-          {
-            M.toast({html: "Error adding tags!"}); 
-          }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-        }
-      });
-
-    })
-
 
     $("#image-resizer").change(function() {
 
@@ -1211,9 +905,8 @@
 
       var R = $("#image-resizer").val();
 
-      $("div[gridid="+active_grid_id+"]").css("background-size", R+"%");
-      $("div[gridid="+active_grid_id+"]").attr("image-resizer", R);
-      
+      $("img[gridid="+active_grid_id+"]").css("width", R+"%");
+      $("img[gridid="+active_grid_id+"]").attr("image-resizer", R);
     });
 
     $("#all-image-resizer").change(function() {
@@ -1221,8 +914,8 @@
 
       $("#image-resizer").val(R);
 
-      $(".primary-grid-stack-item-content").css("background-size", R+"%");
-      $(".primary-grid-stack-item-content").attr("image-resizer", R);
+      $(".primary-grid-stack-item-content img").css("width", R+"%");
+      $(".primary-grid-stack-item-content img").attr("image-resizer", R);
       
     });
 
@@ -1244,99 +937,69 @@
 
       $(".secondary-grid-stack-item-tag-content").css("transform", "rotate("+R+"deg)");
       $(".secondary-grid-stack-item-tag-content").attr("rotation", R);
-    });  
+    });
 
+    $(document).on('click', '.imgselect', function(){
 
-    $("#refresh-template-btn").click(function (){
-
-      global_primary_grid.destroy();
-      var html_string = `<div id="grid-stack-div" class="grid-stack primary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
-
-            </div>`
-      $("#flyer-grid").html(html_string);
-      global_grid_cnt = 0;
-      initialize_grid();
+        var image_pk = this.id.split("_")[1];
+        var image_url = $($(this).children()[0]).attr("high-res-url");
+        $("img[gridid="+active_grid_id+"]").attr("src", image_url);
+        $("textarea[text-grid-id="+active_grid_id+"-1]").html(global_selected_product_name);
     });
 
 
-    $("#hide-cursor-btn").click(function() {
+    $(document).on('click', '.bgimgselect', function(){
+        var image_pk = this.id.split("_")[1];
+        var image_url = $(this).children()[0].src
+        global_background_image_url = image_url;
 
-      if($("#hide-cursor-btn").attr("cursor-status")=="on") //Make cursor invisible
-      {
-        $("#hide-cursor-btn").attr("cursor-status", "off");
-        set_border_style();
-      }
-      else  //Make cursor visible
-      {
-        $("#hide-cursor-btn").attr("cursor-status", "on");
-        set_border_style();
-        $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted "+global_border_color);
-      }
+        $("#flyer-div").css("background-image", "url("+image_url+")");
+        $("#flyer-div").css("background-position", "center");
     });
 
 
-    $("#increase-height-btn").click(function(){
-      var grid_items = $(".primary-grid-stack-item");
-      for(var i=0;i<grid_items.length;i++)
-      {
-        var old_height = $(grid_items[i]).attr("data-gs-height");
-        var old_width = $(grid_items[i]).attr("data-gs-width");
-        var new_height = parseInt(old_height)+1;
+    $(document).on('click', '.tagimgselect', function(){
 
-        el = $(grid_items[i]);
-        global_primary_grid.resize(el, old_width, new_height);
-      }
-    });
+        var image_url = $(this).children()[0].src;
+        var image_pk = $(this).attr("image-pk");
 
-    $("#decrease-height-btn").click(function(){
-      var grid_items = $(".primary-grid-stack-item");
-      for(var i=0;i<grid_items.length;i++)
-      {
-        var old_height = $(grid_items[i]).attr("data-gs-height");
-        var old_width = $(grid_items[i]).attr("data-gs-width");
-        var new_height = parseInt(old_height)-1;
-
-        el = $(grid_items[i]);
-        global_primary_grid.resize(el, old_width, new_height);
-      }
-    });    
-
-
-
-    $("#add-grid-item-btn").click(function(){
-      add_primary_grid_item();
+        if($("#tag-delete-option").prop("checked"))
+        {
+          delete_tag_all(image_pk);
+        }
+        else if($("#tag-multi-option").prop("checked")==false)
+        {
+          add_tag_one(image_url, image_pk);
+        }
+        else
+        {
+          add_tag_all(image_url, image_pk);
+        }
     });
 
 
-    $("#delete-grid-item-btn").click(function(){
-      delete_grid_item();
-    })
+    $(document).on('click', '.product-basket-card-btn', function(){
+      
+      $(".product-basket-border-div").css("border", "2px solid #495561")
+      $(this).children()[0].style.border = "2px solid #1ABC9C";
 
+      global_selected_product_pk = this.id.split("_")[1];
+      global_selected_product_name = $("#product-basket-card-name-"+global_selected_product_pk).attr("title");
 
-    function render_fetures()
-    {
-      var html_string = `<br><br>`;
-      var feature_text = $(".feature-text");
-      for(var i=0;i<feature_text.length;i++)
-      {
-        html_string += `<h6>- `+feature_text[i].value+`</h6>`
-
-      }
-      $("#features-preview-div").html(html_string);
-    }
-
-
-    $("#product-name-input").keyup(function(){
-      $("#product-name-preview").html($("#product-name-input").val());
+      update_image_categories("all_images");
     });
 
-    
+    // ------------------ Editor Trigger Logic END ------------------
 
-    function getCsrfToken() {
-      var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
-      return CSRF_TOKEN;
-    }
 
+
+
+
+
+
+
+
+    // ------------------ Editor Update Logic START ------------------
 
     function add_to_product_basket()
     {
@@ -1428,35 +1091,6 @@
       }, 500);
     });
 
-    $(document).on('click', '.product-basket-card-btn', function(){
-      //$(".product-basket-card").css('background-color', "transparent");
-      $(".product-basket-border-div").css("border", "2px solid #495561")
-
-      //$($(this).children()[0]).children()[1].style.background = "#1ABC9C";
-      $(this).children()[0].style.border = "2px solid #1ABC9C";
-
-
-      global_selected_product_pk = this.id.split("_")[1];
-      global_selected_product_name = $("#product-basket-card-name-"+global_selected_product_pk).attr("title");
-
-      $("#all-images-option").html("All Images ("+global_product_images_dict[global_selected_product_pk]["all_images"].length+")");
-      $("#main-images-option").html("Main Images ("+global_product_images_dict[global_selected_product_pk]["main_images"].length+")");
-      $("#sub-images-option").html("Sub Images ("+global_product_images_dict[global_selected_product_pk]["sub_images"].length+")");
-      $("#pfl-images-option").html("PFL Images ("+global_product_images_dict[global_selected_product_pk]["pfl_images"].length+")");
-      $("#white-background-images-option").html("White Background Images ("+global_product_images_dict[global_selected_product_pk]["white_background_images"].length+")");
-      $("#lifestyle-images-option").html("Lifestyle Images ("+global_product_images_dict[global_selected_product_pk]["lifestyle_images"].length+")");
-      $("#certificate-images-option").html("Certificate Images ("+global_product_images_dict[global_selected_product_pk]["certificate_images"].length+")");
-      $("#giftbox-images-option").html("Giftbox Images ("+global_product_images_dict[global_selected_product_pk]["giftbox_images"].length+")");
-      $("#diecut-images-option").html("Diecut Images ("+global_product_images_dict[global_selected_product_pk]["diecut_images"].length+")");
-      $("#aplus-content-images-option").html("A+ Content Images ("+global_product_images_dict[global_selected_product_pk]["aplus_content_images"].length+")");
-      $("#ads-images-option").html("Ads Images ("+global_product_images_dict[global_selected_product_pk]["ads_images"].length+")");
-      $("#unedited-images-option").html("Unedited Images ("+global_product_images_dict[global_selected_product_pk]["unedited_images"].length+")");
-      $("#transparent-images-option").html("Transparent Images ("+global_product_images_dict[global_selected_product_pk]["transparent_images"].length+")");
-
-      update_image_categories("all_images");
-      //$("select").formSelect();
-
-    });
 
     function set_product_basket()
     {
@@ -1576,230 +1210,141 @@
     }
 
 
-    function set_product_name()
-    {
-      $("#product-name-preview").html(global_product_name);
-      $("#product-name-input").val(global_product_name);
-      M.updateTextFields();
-    }
+    // ------------------ Editor Update Logic END ------------------
 
 
-    $(document).on('click', '.imgselect', function(){
 
-        var image_pk = this.id.split("_")[1];
-        var image_url = $($(this).children()[0]).attr("high-res-url");
-        $("div[gridid="+active_grid_id+"]").css("background-image", "url('"+image_url+"')");
-        $("textarea[text-grid-id="+active_grid_id+"-1]").html(global_selected_product_name);
+
+
+
+
+
+
+
+
+
+    // ------------------ Top Menu Logic START ------------------
+
+
+    $("#refresh-template-btn").click(function (){
+
+      global_primary_grid.destroy();
+      var html_string = `<div id="grid-stack-div" class="grid-stack primary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
+
+            </div>`
+      $("#flyer-grid").html(html_string);
+      global_grid_cnt = 0;
+      initialize_grid();
     });
 
 
-    $(document).on('click', '.bgimgselect', function(){
-        var image_pk = this.id.split("_")[1];
-        var image_url = $(this).children()[0].src
-        global_background_image_url = image_url;
+    $("#hide-cursor-btn").click(function() {
 
-        $("#flyer-div").css("background-image", "url("+image_url+")");
-        $("#flyer-div").css("background-position", "center");
-    });
-
-
-    $(document).on('click', '.tagimgselect', function(){
-
-        var image_url = $(this).children()[0].src;
-        var image_pk = $(this).attr("image-pk");
-
-        if($("#tag-delete-option").prop("checked"))
-        {
-          delete_tag_all(image_pk);
-        }
-        else if($("#tag-multi-option").prop("checked")==false)
-        {
-          add_tag_one(image_url, image_pk);
-        }
-        else
-        {
-          add_tag_all(image_url, image_pk);
-        }
-    });
-
-    function fetch_flyer_details()
-    {
-      $.ajax({
-        url: "/fetch-flyer-details/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        data: {
-          pk: window.location.pathname.split("/")[2]
-        },
-        success: function(response) {
-          console.log("Success!", response);
-
-          set_canvas_mode(response["mode"]);
-
-          global_product_bucket_list = response["product_bucket_list"];
-          global_product_images_dict = response['images'];
-          global_template_data = response["template_data"];
-          global_background_images_bucket = response["background_images_bucket"];
-          global_tag_bucket = response["tag_bucket"]
-          global_external_image_bucket = response["external_images_bucket_list"];
-          global_brand_name = response["brand-name"];
-
-          var common = global_template_data["common"];
-
-
-          global_background_image_url = common["background-image-url"]
-          global_border_visible = common["border-visible"];
-          //global_border_color = common["border-color"];
-          global_border_color = "black";
-          global_super_brand_logo = common["super-brand-logo"];
-          global_iso_logo = common["iso-logo"];
-          global_consumer_logo = common["consumer-logo"];
-          global_brand_name_visible = common["brand-name-visible"];
-          global_white_container = common["white-container"];
-          global_price_resizer = common["price-resizer"];
-          global_product_title_font_size = common["product-title-font-size"];
-          global_product_title_font_family = common["product-title-font-family"];
-          global_product_title_font_weight = common["product-title-font-weight"];
-          global_product_title_font_color = common["product-title-font-color"];
-          global_price_font_size = common["price-font-size"];
-          global_price_font_family = common["price-font-family"];
-          global_price_font_weight = common["price-font-weight"];
-          global_price_font_color = common["price-font-color"];
-          global_currency_font_size = common["currency-font-size"];
-          global_currency_font_family = common["currency-font-family"];
-          global_currency_font_weight = common["currency-font-weight"];
-          global_currency_font_color = common["currency-font-color"];
-          global_currency_unit = common["currency-unit"];
-          global_price_box_bg_color = common["price-box-bg-color"];
-          global_strikeprice_font_size = common["strikeprice-font-size"];
-          global_strikeprice_font_family = common["strikeprice-font-family"];
-          global_strikeprice_font_weight = common["strikeprice-font-weight"];
-          global_strikeprice_font_color = common["strikeprice-font-color"];
-          global_strikeprice_visible = common["strikeprice-visible"]   
-          global_header_color = common["header-color"];
-          global_footer_color = common["footer-color"];
-          global_header_opacity = common["header-opacity"];
-          global_footer_opacity = common["footer-opacity"];
-          global_all_promo_resizer = common["all-promo-resizer"];
-          global_all_warranty_resizer = common["all-warranty-resizer"];
-          global_all_image_resizer = common["all-image-resizer"];
-          global_all_image_rotator = common["all-image-rotator"];
-          global_footer_text = common["footer-text"];
-
-          update_editor_settings();
-          //create_flyer_grid();
-          set_editor_style();
-
-
-          set_product_basket();
-          update_background_image_bucket();
-          update_tag_bucket();
-          update_external_image_bucket();
-
-          global_flyer_name = response["flyer_name"];
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-        }
-      });
-    }
-
-    fetch_flyer_details();
-
-
-    $("#save-flyer-template-btn").click(function(){
-
-      global_save_signal = true;
-      $("#download-flyer-btn").click();
-      
-      $("#save-flyer-template-btn").attr("disabled", "disabled");
-
-      var grid_stack_items = $(".grid-stack-item");
-      global_template_data = {};
-      var item_data = [];
-      for(var i=0;i<grid_stack_items.length;i++)
+      if($("#hide-cursor-btn").attr("cursor-status")=="on") //Make cursor invisible
       {
-        var width = $(grid_stack_items[i]).attr("data-gs-width");
-        var height = $(grid_stack_items[i]).attr("data-gs-height");
-        var x = $(grid_stack_items[i]).attr("data-gs-x");
-        var y = $(grid_stack_items[i]).attr("data-gs-y");
-
-        var grid_id = $(grid_stack_items[i]).attr("grid-id");
-
-        var image_url = $("#gridimg-"+grid_id).attr("src");
-        var banner_img = $("#banner-img-"+grid_id).attr("src");
-
-        var warranty_img = $("#banner-img-left-"+grid_id).attr("src");
-
-        var image_resizer = $("#gridimg-"+grid_id).attr("resizer");
-        var image_rotator = $("#gridimg-"+grid_id).attr("rotator");
-        var promo_resizer = $("#banner-img-"+grid_id).attr("resizer");
-        var warranty_resizer = $("#banner-img-left-"+grid_id).attr("resizer");
-        var product_title = $("#product-title-info2-"+grid_id).val();
-        var description = $("#product-title-info-"+grid_id).val();
-        var price = $("#product-price-info-"+grid_id).val();
-        var strikeprice = $("#product-strikeprice-info-"+grid_id).html();
-
-        var temp_dict = {
-          "container": {
-            "width": width,
-            "height": height,
-            "x": x,
-            "y": y
-          },
-          "data": {
-            "image-url": image_url,
-            "banner-img": banner_img,
-            "warranty-img": warranty_img,
-            "image-resizer": image_resizer,
-            "image-rotator": image_rotator,
-            "promo-resizer": promo_resizer,
-            "warranty-resizer": warranty_resizer,
-            "price": price,
-            "strikeprice": strikeprice,
-            "title": product_title,
-            "description": description,
-            "price": price
-          }
-        }
-
-        item_data.push(temp_dict);
+        $("#hide-cursor-btn").attr("cursor-status", "off");
+        set_border_style();
       }
-      global_footer_text =$("#footer-text").html();
-      global_template_data["item-data"] = item_data;
+      else  //Make cursor visible
+      {
+        $("#hide-cursor-btn").attr("cursor-status", "on");
+        set_border_style();
+        $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted "+global_border_color);
+      }
+    });
 
-      var common = {
-        
-      };
 
-      global_template_data["common"] = common;
+    $("#increase-height-btn").click(function(){
+      var grid_items = $(".primary-grid-stack-item");
+      for(var i=0;i<grid_items.length;i++)
+      {
+        var old_height = $(grid_items[i]).attr("data-gs-height");
+        var old_width = $(grid_items[i]).attr("data-gs-width");
+        var new_height = parseInt(old_height)+1;
+
+        el = $(grid_items[i]);
+        global_primary_grid.resize(el, old_width, new_height);
+      }
+    });
+
+    $("#decrease-height-btn").click(function(){
+      var grid_items = $(".primary-grid-stack-item");
+      for(var i=0;i<grid_items.length;i++)
+      {
+        var old_height = $(grid_items[i]).attr("data-gs-height");
+        var old_width = $(grid_items[i]).attr("data-gs-width");
+        var new_height = parseInt(old_height)-1;
+
+        el = $(grid_items[i]);
+        global_primary_grid.resize(el, old_width, new_height);
+      }
+    });    
+
+
+
+    $("#add-grid-item-btn").click(function(){
+      add_primary_grid_item();
+    });
+
+
+    $("#delete-grid-item-btn").click(function(){
+      delete_grid_item();
+    })
+
+    // ------------------ Top Menu Logic END ------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ------------------ Upload Logic Start ------------------
+
+
+
+    $("#upload-new-bg-image-btn").click(function(){
+
+      var fd = new FormData();
+      var bg_image = document.getElementById("new-bg-image"); 
+      fd.append('bg_image', bg_image.files[0]);
+      fd.append('flyer_pk', window.location.pathname.split("/")[2])
 
       $.ajax({
-        url: "/save-flyer-template/",
+        url: "/upload-new-flyer-bg-image/",
         type: "POST",
         headers:{
           'X-CSRFToken':getCsrfToken()
         },
-        data: {
-          flyer_pk: window.location.pathname.split("/")[2],
-          template_data: JSON.stringify(global_template_data)
-        },
+        processData: false,
+        contentType: false,
+        data: fd,
         success: function(response) {
           console.log("Success!", response);
-          $("#save-flyer-template-btn").removeAttr("disabled");
           if(response["status"]==200)
           {
-            M.toast({html: "Flyer template saved successfully!"});
+            global_background_images_bucket.push({"pk":response["bg_image_pk"], "url":response["bg_image_url"]});
+            update_background_image_bucket();
+            $("#add-new-bg-modal").modal("close");
           }
           else if(response["status"]==403)
           {
-            M.toast({html: "You do not have permission to save flyer!"}); 
+            M.toast({html: "You do not have permission to add background images!"});
           }
           else
           {
-            M.toast({html: "Error saving flyer!"});
+            M.toast({html: "Error adding background images!"}); 
           }
         },
         error: function(xhr, textstatus, errorthrown) {
@@ -1807,156 +1352,50 @@
         }
       });
 
-    });
-
-
-    $(window).keydown(function(event) {
-
-      if(grid_active=="SECONDARY")
-        return;
-
-      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
-        return;
-
-      if(active_grid_id=="")
-        return;
-
-      var position = $("div[gridid="+active_grid_id+"]").css("background-position");
-      var position_x = parseInt(position.split(" ")[0].replace("%", "")); 
-      var position_y = parseInt(position.split(" ")[1].replace("%", ""));
-      
-      var size = $("div[gridid="+active_grid_id+"]").css("background-size").replace("%", "");
-
-      var inc = 1;
-      if(event.shiftKey)
-        inc = 10;
-      if(event.keyCode==65)
-      {
-        position_x -= inc;
-      }
-
-      if(event.keyCode==87)
-      {
-        position_y -= inc;
-      }
-
-      if(event.keyCode==68)
-      {
-        position_x += inc;
-      }
-
-      if(event.keyCode==83)
-      {
-        position_y += inc;
-      }
-
-      if(event.keyCode==187)
-      {
-        size++;
-      }
-      if(event.keyCode==189)
-      {
-        size--;
-      }
-
-      position = position_x+"% "+position_y+"%";
-      size = size+"%";
-
-      $("div[gridid="+active_grid_id+"]").css("background-position", position);
-      $("div[gridid="+active_grid_id+"]").css("background-size", size);
-      
-      if(event.keyCode==37)
-      {
-        event.preventDefault();
-        return false;
-      }
-    });
-
-
-    $(window).keydown(function(event) {
-
-      if(grid_active=="PRIMARY")
-        return;
-
-      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
-        return;
-
-      if(active_grid_id=="")
-        return;
-      
-      var rotation = parseInt($(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").attr("rotation"));
-      if(event.keyCode==69)
-      {
-        rotation += 1;
-      }
-      if(event.keyCode==81)
-      {
-        rotation -= 1;
-      }
-
-      rotation_str = "rotate("+rotation+"deg)";
-
-      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("transform", rotation_str);
-      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").attr("rotation", rotation);
-    });
-
-    
+    })
 
 
 
+    $("#upload-flyer-tag-btn").click(function(){
 
+      var fd = new FormData();
+      var tag_image = document.getElementById("tag-image");
+      fd.append('tag_image', tag_image.files[0]);
 
-    function set_background_image()
-    {
-      $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
-      $("#flyer-div").css("background-position", "center");
-      //$("#flyer-div").css("background-size", "100% 297mm");
-    }
-
-    function set_border_style()
-    {
-      $(".secondary-grid-stack-item-content").css("border", "none");
-      if(global_border_visible)
-      {
-        $(".primary-grid-stack-item-content").css("border", "2px solid "+global_border_color);
-      }
-      else
-      {
-        $(".primary-grid-stack-item-content").css("border", "none");
-      } 
-    }
-
-
-    function HEXtoRGBA(hex, opacity)
-    {
-      var c;
-      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
-        c= hex.substring(1).split('');
-        if(c.length== 3){
-          c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+      $.ajax({
+        url: "/upload-flyer-tag/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        processData: false,
+        contentType: false,
+        data: fd,
+        success: function(response) {
+          console.log("Success!", response);
+          if(response["status"]==200)
+          {
+            global_tag_bucket.push({"pk":response["tag_image_pk"], "url":response["tag_image_url"]});
+            update_tag_bucket();
+            
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to add tags!"});
+          }
+          else
+          {
+            M.toast({html: "Error adding tags!"}); 
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
         }
-        c= '0x'+c.join('');
-        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
-      }
-      throw new Error('Bad Hex');
-    }
+      });
 
-    
-    // Updates the editor // One time call
-    function update_editor_settings()
-    {
+    })
 
-    }
 
-    // Sets the current global editor styles to all elements
-    function set_editor_style()
-    {
-      //Background Image
-      set_background_image();
-
-      //Border Settings
-      set_border_style();
-    }
 
     $("#upload-image-btn").click(function(){
 
@@ -2014,6 +1453,430 @@
         }
       });
     });
+
+
+
+    // ------------------ Upload Logic END ------------------
+
+
+
+
+
+
+
+    // ------------------ Download Logic START ------------------
+
+    $("#download-flyer-btn").click(function(e)
+    {
+
+      if(global_save_signal==false)
+      {
+        $("#download-flyer-btn").attr("disabled", "disabled");
+        $("#loader-div").show();
+      }
+      else
+      {
+        return;
+      }
+
+
+      var image_links = [];
+
+      //Primary Grid Images
+      for(var i=0;i<$(".primary-grid-stack-item-content").length;i++)
+      {
+        var grid_id = $($(".primary-grid-stack-item-content")[i]).attr("gridid");
+        var image_url = $($(".primary-grid-stack-item-content")[i]).css("background-image").replace('url("', "").replace('")', "");
+        if(image_url!="none")
+        {
+          image_links.push({"key": grid_id, "url": image_url});
+        }
+      }
+
+      //Secondary Grid Images
+      for(var i=0;i<$(".secondary-grid-stack-item-content").length;i++)
+      {
+        var grid_id = $($(".secondary-grid-stack-item-content")[i]).attr("gridid");
+        var image_url = $($(".secondary-grid-stack-item-content")[i]).css("background-image").replace('url("', "").replace('")', "");
+        if(image_url!="none")
+        {
+          image_links.push({"key": grid_id, "url": image_url});
+        }
+      }
+
+      //Background Image
+      if($("#flyer-div").css("background-image")!="none")
+      {
+        var key = "background-image";
+        var url = $("#flyer-div").css("background-image").replace('url("', "").replace('")', "");
+        image_links.push({"key":"background-image", "url": url});
+      }
+
+
+      $.ajax({
+        url: "/download-images-s3/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: { 
+          links : JSON.stringify(image_links)
+        },
+        success: function(response) {
+          console.log("Success! ", response);
+
+          if(response["status"]==200)
+          {
+            var local_links = response["local_links"];
+            
+            for(var i=0;i<local_links.length;i++)
+            {
+              var key = local_links[i]["key"];
+              var url = local_links[i]["url"];
+
+              if(key!="background-image")
+              {
+                $("div[gridid="+key+"]").css("background-image", 'url("'+url+'")')
+              }
+              else
+              {
+                $("#flyer-div").css("background-image", 'url("'+url+'")')
+              }
+            }
+
+            e.preventDefault();
+
+            var scale = 5;
+            var div = document.getElementById('flyer-div');
+            var canvas = document.createElement('canvas');
+            var h = div.scrollHeight;
+            var ratio = canvas.width/canvas.height;
+            var w = h * ratio;
+            canvas.width = scale*window.devicePixelRatio*div.scrollWidth;
+            canvas.height = scale*window.devicePixelRatio*div.scrollHeight;
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+            var context = canvas.getContext('2d');
+            context.scale(scale, scale);
+
+            function dataURLtoBlob(dataurl) {
+              var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                  bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+              while(n--){
+                  u8arr[n] = bstr.charCodeAt(n);
+              }
+              return new Blob([u8arr], {type:mime});
+            }
+
+            window.scrollTo(0,0);
+            html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
+              console.log("Downloading Flyer...");
+                  
+              var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+
+              var blob = dataURLtoBlob(dataURI);
+              var objurl = URL.createObjectURL(blob);
+                  
+              if(global_save_signal==false)
+              {
+                $("#download-flyer-btn").removeAttr("disabled");
+                $("#loader-div").hide();
+                var a = document.createElement('a');
+                a.download = 'test1.jpg';
+                a.href = objurl;
+                a.click();
+              }
+              global_save_signal = false;
+
+              //Restore original links
+              for(var i=0;i<image_links.length;i++)
+              {
+                var key = image_links[i]["key"];
+                var url = image_links[i]["url"];
+
+                if(key!="background-image")
+                {
+                  $("div[gridid="+key+"]").css("background-image", 'url("'+url+'")')
+                }
+                else
+                {
+                  $("#flyer-div").css("background-image", 'url("'+url+'")')
+                }
+              }
+
+
+
+              //Save as thumbnail
+              var image_data = canvas.toDataURL();
+
+              var fd = new FormData();
+              fd.append('image_data', image_data);
+              fd.append('flyer_pk', window.location.pathname.split("/")[2]);
+
+              $.ajax({
+                url: "/save-flyer-in-bucket/",
+                type: "POST",
+                headers:{
+                  'X-CSRFToken':getCsrfToken()
+                },
+                processData: false,
+                contentType: false,
+                data: fd,
+                success: function(response) {
+                  console.log("Success!", response);
+                },
+                error: function(xhr, textstatus, errorthrown) {
+                  console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+                }
+              });
+            });
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+    });
+
+
+    $("#save-flyer-template-btn").click(function(){
+
+      global_save_signal = true;
+      $("#download-flyer-btn").click();
+      
+      $("#save-flyer-template-btn").attr("disabled", "disabled");
+
+      $.ajax({
+        url: "/save-flyer-template/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: {
+          flyer_pk: window.location.pathname.split("/")[2],
+          template_data: JSON.stringify(global_template_data)
+        },
+        success: function(response) {
+          console.log("Success!", response);
+          $("#save-flyer-template-btn").removeAttr("disabled");
+          if(response["status"]==200)
+          {
+            M.toast({html: "Flyer template saved successfully!"});
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to save flyer!"}); 
+          }
+          else
+          {
+            M.toast({html: "Error saving flyer!"});
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+
+    });
+
+    // ------------------ Download Logic END ------------------
+    
+
+    
+
+
+      
+
+
+    
+
+    
+
+    
+
+
+    
+
+
+
+    
+
+    function fetch_flyer_details()
+    {
+      $.ajax({
+        url: "/fetch-flyer-details/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: {
+          pk: window.location.pathname.split("/")[2]
+        },
+        success: function(response) {
+          console.log("Success!", response);
+
+          set_canvas_mode(response["mode"]);
+
+          global_product_bucket_list = response["product_bucket_list"];
+          global_product_images_dict = response['images'];
+          global_template_data = response["template_data"];
+          global_background_images_bucket = response["background_images_bucket"];
+          global_tag_bucket = response["tag_bucket"]
+          global_external_image_bucket = response["external_images_bucket_list"];
+
+          var common = global_template_data["common"];
+
+          global_background_image_url = common["background-image-url"]
+          global_border_visible = common["border-visible"];
+          global_border_color = common["border-color"];
+
+
+          set_product_basket();
+          update_background_image_bucket();
+          update_tag_bucket();
+          update_external_image_bucket();
+
+          global_flyer_name = response["flyer_name"];
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+    }
+
+    fetch_flyer_details();
+
+
+
+    $(window).keydown(function(event) {
+
+      if(grid_active=="SECONDARY")
+        return;
+
+      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
+        return;
+
+      if(active_grid_id=="")
+        return;
+
+      var top = parseInt($("img[gridid="+active_grid_id+"]").attr("top"));
+      var left = parseInt($("img[gridid="+active_grid_id+"]").attr("left"));
+      var size = parseInt($("img[gridid="+active_grid_id+"]").attr("image-resizer"));
+
+      var inc = 1;
+      if(event.shiftKey)
+        inc = 5;
+      if(event.keyCode==65)
+      {
+        left -= inc;
+      }
+
+      if(event.keyCode==87)
+      {
+        top -= inc;
+      }
+
+      if(event.keyCode==68)
+      {
+        left += inc;
+      }
+
+      if(event.keyCode==83)
+      {
+        top += inc;
+      }
+
+      if(event.keyCode==187)
+      {
+        size++;
+      }
+      if(event.keyCode==189)
+      {
+        size--;
+      }
+
+      console.log(top, left, size);
+      $("img[gridid="+active_grid_id+"]").css("top", top+"%");
+      $("img[gridid="+active_grid_id+"]").css("left", left+"%");
+      $("img[gridid="+active_grid_id+"]").css("width", size+"%");
+
+      $("img[gridid="+active_grid_id+"]").attr("top", top);
+      $("img[gridid="+active_grid_id+"]").attr("left", left);
+      $("img[gridid="+active_grid_id+"]").attr("image-resizer", size);
+      
+      if(event.keyCode==37)
+      {
+        event.preventDefault();
+        return false;
+      }
+    });
+
+
+    $(window).keydown(function(event) {
+
+      if(grid_active=="PRIMARY")
+        return;
+
+      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
+        return;
+
+      if(active_grid_id=="")
+        return;
+      
+      var rotation = parseInt($(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").attr("rotation"));
+      if(event.keyCode==69)
+      {
+        rotation += 1;
+      }
+      if(event.keyCode==81)
+      {
+        rotation -= 1;
+      }
+
+      rotation_str = "rotate("+rotation+"deg)";
+
+      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("transform", rotation_str);
+      $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").attr("rotation", rotation);
+    });
+
+    
+
+    function set_background_image()
+    {
+      $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
+      $("#flyer-div").css("background-position", "center");
+    }
+
+    function set_border_style()
+    {
+      $(".secondary-grid-stack-item-content").css("border", "none");
+      if(global_border_visible)
+      {
+        $(".primary-grid-stack-item-content").css("border", "2px solid "+global_border_color);
+      }
+      else
+      {
+        $(".primary-grid-stack-item-content").css("border", "none");
+      } 
+    }
+
+
+    function HEXtoRGBA(hex, opacity)
+    {
+      var c;
+      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+          c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
+      }
+      throw new Error('Bad Hex');
+    }
+
+
+    
 
 
     function set_canvas_mode(mode)
