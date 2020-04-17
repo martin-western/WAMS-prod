@@ -90,6 +90,27 @@ def decode_base64_file(data):
 
         return ContentFile(decoded_file, name=complete_file_name)
 
+
+def decode_base64_pdf(data):
+
+    if isinstance(data, six.string_types):
+        if 'data:' in data and ';base64,' in data:
+            header, data = data.split(';base64,')
+
+        try:
+            decoded_file = base64.b64decode(data)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Error Invalid Image : %s at %s", e, str(exc_tb.tb_lineno))
+                
+        file_name = str(uuid.uuid4())[:12]
+        file_extension = "pdf"
+
+        complete_file_name = "%s.%s" % (file_name, file_extension, )
+
+        return ContentFile(decoded_file, name=complete_file_name)
+
+
 def fetch_prices(product_id,company_code):
     try:
 
