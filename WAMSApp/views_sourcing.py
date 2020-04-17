@@ -588,7 +588,7 @@ class FetchPIFormAPI(APIView):
             response["payment_terms"] = str(proforma_invoice_obj.payment_terms)
             response["inco_terms"] = str(proforma_invoice_obj.inco_terms)
             response["delivery_terms"] = str(proforma_invoice_obj.delivery_terms)
-            response["shipment_lot_number"] = str(proforma_invoice_obj.shipment_lot_number)
+            response["shipment_lot_number"] = str(proforma_invoice_obj.ship_lot_number)
             response["invoice_number"] = str(proforma_invoice_obj.invoice_number)
             response["invoice_date"] = str(proforma_invoice_obj.invoice_date)
             response["bank_name"] = str(bank_obj.name)
@@ -663,7 +663,7 @@ class SavePIFormAPI(APIView):
             proforma_invoice_obj.payment_terms = data["payment_terms"]
             proforma_invoice_obj.inco_terms = data["inco_terms"]
             proforma_invoice_obj.delivery_terms = data["delivery_terms"]
-            proforma_invoice_obj.shipment_lot_number = data["shipment_lot_number"]
+            proforma_invoice_obj.ship_lot_number = data["shipment_lot_number"]
             proforma_invoice_obj.invoice_number = data["invoice_number"]
             #proforma_invoice_obj.invoice_date = data["invoice_date"]
             proforma_invoice_obj.important_notes = data["important_notes"]
