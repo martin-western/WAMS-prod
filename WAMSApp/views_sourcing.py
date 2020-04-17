@@ -436,7 +436,11 @@ class FetchProformaBundleListAPI(APIView):
                         temp_dict2["uuid"] = proforma_invoice_obj.uuid
                         temp_dict2["factory_code"] = proforma_invoice_obj.factory.factory_code
                         temp_dict2["factory_name"] = proforma_invoice_obj.factory.name
-                        temp_dict2["filepath"] = proforma_invoice_obj.proforma_pdf.url
+                        if proforma_invoice_obj.proforma_pdf==None:
+                            temp_dict2["pdf_ready"] = False
+                        else:
+                            temp_dict2["pdf_ready"] = True
+                            temp_dict2["filepath"] = proforma_invoice_obj.proforma_pdf.url
                         temp_dict2["product_count"] = UnitProformaInvoice.objects.filter(proforma_invoice=proforma_invoice_obj).count()
                         factory_list.append(temp_dict2)
                     temp_dict["factory_list"] = factory_list
