@@ -570,7 +570,7 @@
           <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="overflow:hidden;">
             <div class="row" style="margin: 0em;padding:0em;">
               <div class="col s10" style="margin-bottom: 0em;">
-                <textarea text-grid-id="`+grid_id+`" class="materialize-textarea left" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;" bold=false underlined=false italic=false></textarea>
+                <textarea text-grid-id="`+grid_id+`" class="materialize-textarea left secondary-grid-stack-item-content-info" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;" bold=false underlined=false italic=false></textarea>
               </div>
             </div>
           </div>
@@ -1677,8 +1677,27 @@
             "width": $($(".primary-grid-stack-item")[0]).attr("data-gs-width")
           },
           "data": {
-            "image-url": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("src")
-          }
+            "image-url": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("src"),
+            "zoom": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("image-resizer"),
+            "rotation": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("image-rotator"),
+            "top": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("top"),
+            "left": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("left"),
+          },
+          "info-container": {
+              "container-id": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").attr("gridid"),
+              "container": {
+                  "x": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").attr("gridid").parent().attr("data-gs-x"),
+                  "y": "",
+                  "height": "",
+                  "width": ""
+              },
+              "product-name": "",
+              "description": "",
+              "font-color": "",
+              "font-size": "",
+              "font-family": "",
+              "font-weight": "",
+          },
         }
       }
 
