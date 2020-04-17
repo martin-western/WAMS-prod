@@ -436,7 +436,7 @@ class FetchProformaBundleListAPI(APIView):
                         temp_dict2["uuid"] = proforma_invoice_obj.uuid
                         temp_dict2["factory_code"] = proforma_invoice_obj.factory.factory_code
                         temp_dict2["factory_name"] = proforma_invoice_obj.factory.name
-                        if proforma_invoice_obj.proforma_pdf==None:
+                        if proforma_invoice_obj.proforma_pdf=="":
                             temp_dict2["pdf_ready"] = False
                         else:
                             temp_dict2["pdf_ready"] = True
@@ -495,7 +495,7 @@ class FetchPIFactoryListAPI(APIView):
                     temp_dict["uuid"] = proforma_invoice_obj.uuid
                     temp_dict["factory_code"] = proforma_invoice_obj.factory.factory_code
                     temp_dict["factory_name"] = proforma_invoice_obj.factory.name
-                    if proforma_invoice_obj.proforma_pdf==None:
+                    if proforma_invoice_obj.proforma_pdf=="":
                         temp_dict["pdf_ready"] = False
                     else:
                         temp_dict["pdf_ready"] = True
