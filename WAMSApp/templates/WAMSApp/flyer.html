@@ -715,10 +715,14 @@
 
       $(".primary-grid-stack-item-content[gridid="+grid_id+"]").css("border", "3px dotted "+global_border_color);
 
-      var image_resizer = $(".primary-grid-stack-item-content[gridid="+grid_id+"]").attr("image-resizer");
+      var image_resizer = $("img[gridid="+grid_id+"]").attr("image-resizer");
       $("#image-resizer").val(image_resizer);
 
+      var image_rotator = $("img[gridid="+grid_id+"]").attr("image-rotator");
+      $("#image-rotator").val(image_rotator);
+
       active_grid_id = grid_id;
+      console.log(image_rotator, "Primary")
     }
 
     function select_secondary_cell(grid_id)
@@ -729,8 +733,11 @@
 
       $(".secondary-grid-stack-item-content[gridid="+grid_id+"]").css("border", "3px dotted "+global_border_color);
 
-      var image_rotator = $(".secondary-grid-stack-item-content[gridid="+grid_id+"]").attr("rotation");
+      var image_rotator = $("img[gridid="+grid_id+"]").attr("image-rotator");
       $("#image-rotator").val(image_rotator);
+
+      active_grid_id = grid_id;
+      console.log(image_rotator, "Secon")
     }
 
     $(document).on("click", ".primary-grid-stack-item-content", function(e){
@@ -930,13 +937,12 @@
       if(grid_active=="PRIMARY")
       {
         $("img[gridid="+active_grid_id+"]").css("transform", "rotate("+R+"deg)");
-        $("img[gridid="+active_grid_id+"]").attr("image-rotator", R);
       }
       else
       {
         $(".secondary-grid-stack-item-tag-content[gridid="+active_grid_id+"]").css("transform", "rotate("+R+"deg)");
-        $(".secondary-grid-stack-item-tag-content[gridid="+active_grid_id+"]").attr("image-rotator", R);
       }
+      $("img[gridid="+active_grid_id+"]").attr("image-rotator", R);
     });
 
     $("#all-image-rotator").change(function() {
@@ -945,10 +951,10 @@
       $("#image-rotator").val(R);
 
       $(".primary-grid-stack-item-content-img").css("transform", "rotate("+R+"deg)");
-      $(".primary-grid-stack-item-content-img").attr("rotation", R);
+      $(".primary-grid-stack-item-content-img").attr("image-rotator", R);
     
       $(".secondary-grid-stack-item-tag-content").css("transform", "rotate("+R+"deg)");
-      $(".secondary-grid-stack-item-tag-content").attr("rotation", R);
+      $(".secondary-grid-stack-item-content-img").attr("image-rotator", R);
     });
 
     $(document).on('click', '.imgselect', function(){
@@ -1655,9 +1661,107 @@
     $("#save-flyer-template-btn").click(function(){
 
       global_save_signal = true;
-      $("#download-flyer-btn").click();
-      
       $("#save-flyer-template-btn").attr("disabled", "disabled");
+
+      $("#download-flyer-btn").click();
+
+      for(var i=0;i<$(".primary-grid-stack-item").length;i++)
+      {
+        var grid_id = $($(".primary-grid-stack-item")[0]).attr("grid-id");
+        var temp_dict = {
+          "container-id": grid_id,
+          "container": {
+            "x": $($(".primary-grid-stack-item")[0]).attr("data-gs-x"),
+            "y": $($(".primary-grid-stack-item")[0]).attr("data-gs-y"),
+            "height": $($(".primary-grid-stack-item")[0]).attr("data-gs-height"),
+            "width": $($(".primary-grid-stack-item")[0]).attr("data-gs-width")
+          },
+          "data": {
+            "image-url": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("src")
+          }
+        }
+      }
+
+      global_template_data = {
+
+        "flyerDetails": [
+              {
+                  "container-id": "",
+                  "container": {
+                      "x": "",
+                      "y": "",
+                      "height": "",
+                      "width": ""
+                  },
+                  "data": {
+                      "image-url": "",
+                      "zoom": "",
+                      "rotation": "",
+                      "background-position": ""
+                  },
+                  "info-container": {
+                      "container-id": "",
+                      "container": {
+                          "x": "",
+                          "y": "",
+                          "height": "",
+                          "width": ""
+                      },
+                      "product-name": "",
+                      "description": "",
+                      "font-color": "",
+                      "font-size": "",
+                      "font-family": "",
+                      "font-weight": "",
+                  },
+                  "price-container": {
+                      "container-id": "",
+                      "container": {
+                          "x": "",
+                          "y": "",
+                          "height": "",
+                          "width": ""
+                      },
+                      "currency": "",
+                      "price": "",
+                      "strikeprice": "",
+                      "font-color": "",
+                      "font-size": "",
+                      "font-family": "",
+                      "font-weight": "",
+                      "background-color": ""
+                      "image-url": "",
+                      "zoom": "",
+                      "rotation": "",
+                  }
+                  "tags": [
+                      {
+                          "container-id": "",
+                          "container": {
+                              "x": "",
+                              "y": "",
+                              "height": "",
+                              "width": ""
+                          },
+                          "data": {
+                              "image-url": "",
+                              "zoom": "",
+                              "rotation": "",
+                          }
+                      }
+                  ]
+              }
+          ],
+          "common": {
+              "header-image-url": "",
+              "footer-image-url": "",
+              "background-image-url": "",
+              "border-visible": "",
+              "border-color": ""
+          }
+      }
+
+
 
       $.ajax({
         url: "/save-flyer-template/",
