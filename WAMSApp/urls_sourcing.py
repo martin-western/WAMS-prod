@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^save-factory-details/$', views.SaveFactoryDetails),
     url(r'^upload-factory-images/$', views.UploadFactoryImages),
 
-    url(r'^download-bulk-pi/$', views.DownloadBulkPI),
+    url(r'^create-bulk-pi/$', views.CreateBulkPI),
     url(r'^fetch-proforma-bundle-list/$', views.FetchProformaBundleList),
     url(r'^fetch-pi-factory-list/$', views.FetchPIFactoryList),
     url(r'^upload-factory-pi/$', views.UploadFactoryPI),

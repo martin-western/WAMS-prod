@@ -353,7 +353,7 @@ class UploadFactoryImagesAPI(APIView):
         return Response(data=response)
 
 
-class DownloadBulkPIAPI(APIView):
+class CreateBulkPIAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -362,7 +362,7 @@ class DownloadBulkPIAPI(APIView):
         try:
 
             data = request.data
-            logger.info("DownloadBulkPIAPI: %s", str(data))
+            logger.info("CreateBulkPIAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -370,49 +370,35 @@ class DownloadBulkPIAPI(APIView):
 
             proforma_invoice_bundle_obj = ProformaInvoiceBundle.objects.create()
 
-            filepath_list = []
             for factory in factory_list:
-                filepath = generate_pi(factory["factory_code"], factory["invoice_details"], factory["product_list"])
-                filepath_list.append(filepath)
                 invoice_details = factory["invoice_details"]
                 factory_obj = Factory.objects.get(factory_code=factory["factory_code"])
-
-                local_file = open(filepath, "rb")
-                djangofile = File(local_file)
 
                 proforma_invoice_obj = ProformaInvoice.objects.create(payment_terms=invoice_details["payment_terms"],
                                                                       advance=invoice_details["advance"],
                                                                       inco_terms=invoice_details["inco_terms"],
                                                                       ttl_cntrs=invoice_details["ttl_cntrs"],
                                                                       delivery_terms=invoice_details["delivery_terms"],
+                                                                      ship_lot_number=invoice_details["shipment_lot_no"],
+                                                                      discharge_port=invoice_details["discharge_port"],
+                                                                      vessel_details=invoice_details["vessel_details"],
+                                                                      vessel_final_destination=invoice_details["vessel_final_destination"],
+                                                                      important_notes=invoice_details["important_notes"],
                                                                       factory=factory_obj,
                                                                       invoice_number=invoice_details["invoice_number"],
                                                                       proforma_invoice_bundle=proforma_invoice_bundle_obj)
-                proforma_invoice_obj.proforma_pdf.save(filepath.split("/")[-1], djangofile, save=True)
-                local_file.close()
 
                 for product in factory["product_list"]:
                     product_obj = Product.objects.get(uuid=product["uuid"])
                     UnitProformaInvoice.objects.create(product=product_obj, quantity=int(product["quantity"]), proforma_invoice=proforma_invoice_obj)
 
-
-            zip_path = "files/invoices/proforma_invoice.zip"
-            zf = zipfile.ZipFile(zip_path, "w")
-            for filepath in filepath_list:
-                zf.write(filepath)
-            zf.close()
-
-            local_file = open(zip_path, "rb")
-            djangofile = File(local_file)
-            proforma_invoice_bundle_obj.proforma_zip.save(zip_path.split("/")[-1], djangofile, save=True)
-            local_file.close()
                     
-            response['filepath'] = proforma_invoice_bundle_obj.proforma_zip.url
+            response['uuid'] = proforma_invoice_bundle_obj.uuid
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DownloadBulkPIAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateBulkPIAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -544,7 +530,7 @@ class UploadFactoryPIAPI(APIView):
                 data = json.loads(data)
 
             proforma_invoice_obj = ProformaInvoice.objects.get(uuid=data["uuid"])
-            decoded_file = decode_base64_file(data["proforma_pdf"])
+            decoded_file = decode_base64_pdf(data["proforma_pdf"])
             proforma_invoice_obj.proforma_pdf = decoded_file
             proforma_invoice_obj.save()
         
@@ -717,7 +703,7 @@ SaveFactoryDetails = SaveFactoryDetailsAPI.as_view()
 
 UploadFactoryImages = UploadFactoryImagesAPI.as_view()
 
-DownloadBulkPI = DownloadBulkPIAPI.as_view()
+CreateBulkPI = CreateBulkPIAPI.as_view()
 
 FetchProformaBundleList = FetchProformaBundleListAPI.as_view()
 
