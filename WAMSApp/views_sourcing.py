@@ -35,7 +35,9 @@ import logging
 import sys
 import xlrd
 import zipfile
-
+import inflect
+import boto3
+import urllib.request, urllib.error, urllib.parse
 
 from datetime import datetime
 from django.utils import timezone
@@ -602,6 +604,8 @@ class FetchPIFormAPI(APIView):
             
             unit_proforma_invoice_objs = UnitProformaInvoice.objects.filter(proforma_invoice=proforma_invoice_obj)
             unit_proforma_invoice_list = []
+            total_amount = 0
+            total_amount_in_words = ""
             for unit_proforma_invoice_obj in unit_proforma_invoice_objs:
                 try:
                     product_obj = unit_proforma_invoice_obj.product
@@ -623,12 +627,35 @@ class FetchPIFormAPI(APIView):
                     temp_dict["quantity_meteric"] = "Sets"
                     temp_dict["price"] = str(sourcing_product_obj.price)
                     temp_dict["amount"] = str(round(float(temp_dict["price"])*float(temp_dict["quantity"]), 2))
+                    total_amount += float(temp_dict["price"])*float(temp_dict["quantity"])
+
+                    try:
+                        image_url = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
+
+                        s3 = boto3.client('s3',
+                                          aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+
+                        filename = urllib.parse.unquote(image_url)
+                        filename = "/".join(filename.split("/")[3:])
+                        local_link = "/files/images_s3/" + str(filename)
+                        s3.download_file(settings.AWS_STORAGE_BUCKET_NAME, filename, "." + local_link)
+                        temp_dict["image_url"] = local_link
+                    except Exception as e:
+                        temp_dict["image_url"] = ""
 
                     unit_proforma_invoice_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchPIFormAPI: %s at %s", e, str(exc_tb.tb_lineno))        
             
+            total_quantity = unit_proforma_invoice_objs.aggregate(Sum('quantity'))["quantity__sum"]
+            total_amount = round(total_amount, 2)
+            p = inflect.engine()
+            total_amount_in_words = p.number_to_words(total_amount)
+            response["total_quantity"] = str(total_quantity)
+            response["total_amount"] = str(total_amount)
+            response["total_amount_in_words"] = str(total_amount_in_words)
             
             response["unit_proforma_invoice_list"] = unit_proforma_invoice_list
             response['status'] = 200
