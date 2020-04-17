@@ -544,7 +544,8 @@ class UploadFactoryPIAPI(APIView):
                 data = json.loads(data)
 
             proforma_invoice_obj = ProformaInvoice.objects.get(uuid=data["uuid"])
-            proforma_invoice_obj.proforma_pdf = data["proforma_pdf"]
+            decoded_file = decode_base64_file(data["proforma_pdf"])
+            proforma_invoice_obj.proforma_pdf = decoded_file
             proforma_invoice_obj.save()
         
             response['status'] = 200
