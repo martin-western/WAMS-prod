@@ -13,8 +13,11 @@ urlpatterns = [
     url(r'^save-factory-details/$', views.SaveFactoryDetails),
     url(r'^upload-factory-images/$', views.UploadFactoryImages),
 
-    url(r'^download-bulk-pi/$', views.DownloadBulkPI),
+    url(r'^create-bulk-pi/$', views.CreateBulkPI),
     url(r'^fetch-proforma-bundle-list/$', views.FetchProformaBundleList),
-
+    url(r'^fetch-pi-factory-list/$', views.FetchPIFactoryList),
+    url(r'^upload-factory-pi/$', views.UploadFactoryPI),
+    url(r'^fetch-pi-form/$', views.FetchPIForm),
+    url(r'^save-pi-form/$', views.SavePIForm),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
