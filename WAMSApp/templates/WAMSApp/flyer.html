@@ -583,13 +583,18 @@
     function create_unit_flyer_html(flyer_dict)
     {
       var grid_id = flyer_dict["grid-id"];
+      var image_url = flyer_dict["image-url"];
+      var image_resizer = flyer_dict["image-resizer"];
+      var image_rotator = flyer_dict["image-rotator"];
+      var top = flyer_dict["top"];
+      var left = flyer_dict["left"];
 
       var html_string = `
         <div class="grid-stack-item primary-grid-stack-item" data-gs-width="10" data-gs-height="20" grid-id="`+grid_id+`">
           <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid `+global_border_color+`;overflow: hidden;">
             <div id="secondary-grid-stack-`+grid_id+`" class="grid-stack secondary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
             </div>
-            <img class="primary-grid-stack-item-content-img" gridid="`+grid_id+`" image-resizer=50 image-rotator=0 top=25 left=25 src="" style="width:50%;position:absolute;top:25%;left:25%;z-index:-10;">
+            <img class="primary-grid-stack-item-content-img" gridid="`+grid_id+`" image-resizer=`+image_resizer+` image-rotator=`+image_rotator+` top=`+top+` left=`+left+` src="`+image_url+`" style="width:`+image_resizer+`%;position:absolute;top:`+top+`%;left:`+left+`%;z-index:-10;transform:rotate(`+image_rotator+`deg)">
           </div>
         </div>`
 
@@ -601,8 +606,15 @@
     {
       global_grid_cnt += 1;
 
-      var flyer_dict = {};
-      flyer_dict["grid-id"] = global_grid_cnt
+      var flyer_dict = {
+        "grid-id": global_grid_cnt,
+        "image-url": "",
+        "image-resizer": "50",
+        "image-rotator": "0",
+        "top": "25",
+        "left": "25"
+      };
+
       var html_string = create_unit_flyer_html(flyer_dict);
 
       var el = $(html_string);
@@ -722,7 +734,6 @@
       $("#image-rotator").val(image_rotator);
 
       active_grid_id = grid_id;
-      console.log(image_rotator, "Primary")
     }
 
     function select_secondary_cell(grid_id)
@@ -737,7 +748,6 @@
       $("#image-rotator").val(image_rotator);
 
       active_grid_id = grid_id;
-      console.log(image_rotator, "Secon")
     }
 
     $(document).on("click", ".primary-grid-stack-item-content", function(e){
@@ -761,6 +771,93 @@
     });
 
     initialize_grid();
+
+
+    function create_flyer()
+    {
+      var flyer_details = global_template_data["flyerDetails"];
+
+      for(var i=0;i<flyer_details.length;i++)
+      {
+        global_grid_cnt += 1;
+
+        var flyer_dict ={
+          "grid-id": flyer_details[i]["container-id"],
+          "image-url": flyer_details[i]["data"]["image-url"],
+          "image-resizer": flyer_details[i]["data"]["zoom"],
+          "image-rotator": flyer_details[i]["data"]["rotation"],
+          "top": flyer_details[i]["data"]["top"],
+          "left": flyer_details[i]["data"]["left"]
+        }
+        var html_string = create_unit_flyer_html(flyer_dict);
+
+        var container = flyer_details[i]["container"];
+
+        var el = $(html_string);
+        global_primary_grid.addWidget(el, container["x"], container["y"], container["width"], container["height"], false);
+
+        secondary_grid = GridStack.init({
+          animate: true,
+          verticalMargin: 6,
+          column: 24,
+          cellHeight: 10,
+          resizable: {
+            handles: 'e, se, s, sw, w, n'
+          },
+          float:true
+        }, '#secondary-grid-stack-'+flyer_details[i]["container-id"]);
+
+        global_grid_store[flyer_details[i]["container-id"]] = {
+          "grid": secondary_grid,
+          "grid-cnt": global_grid_cnt
+        };
+
+
+        var info_container = flyer_details[i]["info-container"];
+        flyer_dict = {
+          "grid-id": info_container["container-id"]
+        }
+        html_string = create_unit_info_container_html(flyer_dict);
+        el = $(html_string);
+        secondary_grid.addWidget(el, info_container["container"]["x"], info_container["container"]["y"], info_container["container"]["width"], info_container["container"]["height"], false);
+
+        $("textarea[text-grid-id="+info_container['container-id']+"]").html(info_container["product-info"]);
+        $("textarea[text-grid-id="+info_container['container-id']+"]").css("color", info_container["font-color"]);
+        $("textarea[text-grid-id="+info_container['container-id']+"]").css("font-size", info_container["font-size"]);
+        $("textarea[text-grid-id="+info_container['container-id']+"]").css("font-family", info_container["font-family"]);
+        $("textarea[text-grid-id="+info_container['container-id']+"]").css("font-weight", info_container["bold"]);
+        $("textarea[text-grid-id="+info_container['container-id']+"]").css("text-decoration", info_container["underlined"]);
+        $("textarea[text-grid-id="+info_container['container-id']+"]").css("font-style", info_container["italic"]);
+        $("textarea[text-grid-id="+info_container['container-id']+"]").css("text-align", info_container["font-alignment"]);
+
+
+        select_primary_cell(flyer_details[i]["container-id"]);
+
+        var tags = flyer_details[i]["tags"];
+        for(var j=0;j<tags.length;j++)
+        {
+          global_grid_store[active_grid_id]["grid-cnt"]++;
+
+          var flyer_dict = {
+            "image-url": tags[j]["data"]["image-url"],
+            "image-pk": tags[j]["data"]["image-pk"],
+            "rotation": tags[j]["data"]["rotation"],
+            "grid-id": tags[j]["container-id"]
+          };
+          
+          var html_string = create_unit_tag_html(flyer_dict);
+          el = $(html_string);
+          secondary_grid.addWidget(el, tags[j]["container"]["x"], tags[j]["container"]["y"], tags[j]["container"]["width"], tags[j]["container"]["height"], false);
+        }
+      }
+
+      if(global_background_image_url!="none")
+      {
+        $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
+        $("#flyer-div").css("background-position", "center");
+      }
+
+    }
 
     // ------------------ Grid Stack Logic END ------------------
 
@@ -816,10 +913,12 @@
       if($("#font-multi-option").prop("checked"))
       {
         $("textarea").css("font-weight", val); 
+        $("textarea").attr("bold", val); 
       }
       else
       {
         $("textarea[text-grid-id="+active_grid_id+"]").css("font-weight", val);
+        $("textarea[text-grid-id="+active_grid_id+"]").attr("bold", val);
       }
     });
 
@@ -838,10 +937,12 @@
       if($("#font-multi-option").prop("checked"))
       {
         $("textarea").css("text-decoration", val); 
+        $("textarea").attr("underlined", val); 
       }
       else
       {
         $("textarea[text-grid-id="+active_grid_id+"]").css("text-decoration", val);
+        $("textarea[text-grid-id="+active_grid_id+"]").attr("underlined", val);
       }
     });
 
@@ -860,10 +961,12 @@
       if($("#font-multi-option").prop("checked"))
       {
         $("textarea").css("font-style", val); 
+        $("textarea").attr("italic", val); 
       }
       else
       {
         $("textarea[text-grid-id="+active_grid_id+"]").css("font-style", val);
+        $("textarea[text-grid-id="+active_grid_id+"]").attr("italic", val);
       }
     });
 
@@ -1665,16 +1768,40 @@
 
       $("#download-flyer-btn").click();
 
+      var flyer_details = [];
       for(var i=0;i<$(".primary-grid-stack-item").length;i++)
       {
-        var grid_id = $($(".primary-grid-stack-item")[0]).attr("grid-id");
+        var grid_id = $($(".primary-grid-stack-item")[i]).attr("grid-id");
+
+        var tag_data = [];
+        for(var j=0;j<$(".secondary-grid-stack-item-tag-content[gridid^="+grid_id+"-]").length;j++)
+        {
+          var base_el = $($(".secondary-grid-stack-item-tag-content[gridid^="+grid_id+"-]")[j]);
+          var container_id = base_el.parent().attr("grid-id");
+          var temp_dict = {
+            "container-id": container_id,
+            "container": {
+              "x": base_el.parent().attr("data-gs-x"),
+              "y": base_el.parent().attr("data-gs-y"),
+              "height": base_el.parent().attr("data-gs-height"),
+              "width": base_el.parent().attr("data-gs-width")
+            },
+            "data": {
+              "image-url": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("src"),
+              "rotation": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("image-rotator"),
+              "image-pk": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("grid-image-pk")
+            }
+          }
+          tag_data.push(temp_dict);
+        }
+
         var temp_dict = {
           "container-id": grid_id,
           "container": {
-            "x": $($(".primary-grid-stack-item")[0]).attr("data-gs-x"),
-            "y": $($(".primary-grid-stack-item")[0]).attr("data-gs-y"),
-            "height": $($(".primary-grid-stack-item")[0]).attr("data-gs-height"),
-            "width": $($(".primary-grid-stack-item")[0]).attr("data-gs-width")
+            "x": $($(".primary-grid-stack-item")[i]).attr("data-gs-x"),
+            "y": $($(".primary-grid-stack-item")[i]).attr("data-gs-y"),
+            "height": $($(".primary-grid-stack-item")[i]).attr("data-gs-height"),
+            "width": $($(".primary-grid-stack-item")[i]).attr("data-gs-width")
           },
           "data": {
             "image-url": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("src"),
@@ -1686,101 +1813,34 @@
           "info-container": {
               "container-id": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").attr("gridid"),
               "container": {
-                  "x": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").attr("gridid").parent().attr("data-gs-x"),
-                  "y": "",
-                  "height": "",
-                  "width": ""
+                  "x": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").parent().attr("data-gs-x"),
+                  "y": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").parent().attr("data-gs-y"),
+                  "height": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").parent().attr("data-gs-height"),
+                  "width": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").parent().attr("data-gs-width")
               },
-              "product-name": "",
-              "description": "",
-              "font-color": "",
-              "font-size": "",
-              "font-family": "",
-              "font-weight": "",
+              "product-info": $("textarea[text-grid-id="+grid_id+"-1]").val(),
+              "font-color": $("textarea[text-grid-id="+grid_id+"-1]").css("color"),
+              "font-size": $("textarea[text-grid-id="+grid_id+"-1]").css("font-size"),
+              "font-family": $("textarea[text-grid-id="+grid_id+"-1]").css("font-family"),
+              "bold": $("textarea[text-grid-id="+grid_id+"-1]").css("font-weight"),
+              "underlined": $("textarea[text-grid-id="+grid_id+"-1]").css("text-decoration"),
+              "italic": $("textarea[text-grid-id="+grid_id+"-1]").css("font-style"),
+              "font-alignment": $("textarea[text-grid-id="+grid_id+"-1]").css("text-align")
           },
+          "tags": tag_data
         }
+
+        flyer_details.push(temp_dict);
       }
 
       global_template_data = {
-
-        "flyerDetails": [
-              {
-                  "container-id": "",
-                  "container": {
-                      "x": "",
-                      "y": "",
-                      "height": "",
-                      "width": ""
-                  },
-                  "data": {
-                      "image-url": "",
-                      "zoom": "",
-                      "rotation": "",
-                      "background-position": ""
-                  },
-                  "info-container": {
-                      "container-id": "",
-                      "container": {
-                          "x": "",
-                          "y": "",
-                          "height": "",
-                          "width": ""
-                      },
-                      "product-name": "",
-                      "description": "",
-                      "font-color": "",
-                      "font-size": "",
-                      "font-family": "",
-                      "font-weight": "",
-                  },
-                  "price-container": {
-                      "container-id": "",
-                      "container": {
-                          "x": "",
-                          "y": "",
-                          "height": "",
-                          "width": ""
-                      },
-                      "currency": "",
-                      "price": "",
-                      "strikeprice": "",
-                      "font-color": "",
-                      "font-size": "",
-                      "font-family": "",
-                      "font-weight": "",
-                      "background-color": ""
-                      "image-url": "",
-                      "zoom": "",
-                      "rotation": "",
-                  }
-                  "tags": [
-                      {
-                          "container-id": "",
-                          "container": {
-                              "x": "",
-                              "y": "",
-                              "height": "",
-                              "width": ""
-                          },
-                          "data": {
-                              "image-url": "",
-                              "zoom": "",
-                              "rotation": "",
-                          }
-                      }
-                  ]
-              }
-          ],
-          "common": {
-              "header-image-url": "",
-              "footer-image-url": "",
-              "background-image-url": "",
-              "border-visible": "",
-              "border-color": ""
-          }
+        "flyerDetails": flyer_details,
+        "common": {
+          "background-image-url": global_background_image_url,
+          "border-visible": $("#border-option").prop("checked"),
+          "border-color": $("#border-color").val()
+        }
       }
-
-
 
       $.ajax({
         url: "/save-flyer-template/",
@@ -1860,19 +1920,20 @@
           global_tag_bucket = response["tag_bucket"]
           global_external_image_bucket = response["external_images_bucket_list"];
 
+          global_flyer_name = response["flyer_name"];
+
           var common = global_template_data["common"];
 
-          global_background_image_url = common["background-image-url"]
-          global_border_visible = common["border-visible"];
           global_border_color = common["border-color"];
-
+          global_border_visible = common["border-visible"];
+          global_background_image_url = common["background-image-url"];
 
           set_product_basket();
           update_background_image_bucket();
           update_tag_bucket();
           update_external_image_bucket();
 
-          global_flyer_name = response["flyer_name"];
+          create_flyer();
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -1885,6 +1946,13 @@
 
 
     $(window).keydown(function(event) {
+
+      if(event.keyCode==83 && event.ctrlKey)
+      {
+        $("#save-flyer-template-btn").click();
+        event.preventDefault();
+        return;
+      }
 
       if(grid_active=="SECONDARY")
         return;
@@ -1931,7 +1999,7 @@
         size--;
       }
 
-      console.log(top, left, size);
+
       $("img[gridid="+active_grid_id+"]").css("top", top+"%");
       $("img[gridid="+active_grid_id+"]").css("left", left+"%");
       $("img[gridid="+active_grid_id+"]").css("width", size+"%");
@@ -1949,9 +2017,6 @@
 
 
     $(window).keydown(function(event) {
-
-      // if(grid_active=="PRIMARY")
-      //   return;
 
       if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
         return;
