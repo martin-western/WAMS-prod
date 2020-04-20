@@ -903,6 +903,8 @@ class PushProductsAmazonUAEAPI(APIView):
 
             response["feed_submission_id"] = feed_submission_id
 
+            response['status'] = 200
+            
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PushProductsAmazonUAEAPI: %s at %s",
@@ -951,32 +953,40 @@ class GetPushProductsResultAmazonUAEAPI(APIView):
 
                 feed_submission_result = response_feed_submission_result.parsed
 
-                result = feed_submission_result["ProcessingReport"]["Result"]
+                try :
+                    result = feed_submission_result["ProcessingReport"]["Result"]
 
-                if isinstance(result,list):
+                    if isinstance(result,list):
 
-                    for i in range(len(result)):
+                        for i in range(len(result)):
+                            temp_dict = {}
+                            temp_dict["product_pk"] = result[i]["MessageID"]["value"]
+                            temp_dict["error_type"] = result[i]["ResultCode"]["value"]
+                            temp_dict["error_code"] = result[i]["ResultMessageCode"]["value"]
+                            temp_dict["error_message"] = result[i]["ResultDescription"]["value"]
+                            response["errors"].append(temp_dict)
+
+                    else:
                         temp_dict = {}
-                        temp_dict["product_pk"] = result[i]["MessageID"]["value"]
-                        temp_dict["error_type"] = result[i]["ResultCode"]["value"]
-                        temp_dict["error_code"] = result[i]["ResultMessageCode"]["value"]
-                        temp_dict["error_message"] = result[i]["ResultDescription"]["value"]
+                        temp_dict["product_pk"] = result["MessageID"]["value"]
+                        temp_dict["error_type"] = result["ResultCode"]["value"]
+                        temp_dict["error_code"] = result["ResultMessageCode"]["value"]
+                        temp_dict["error_message"] = result["ResultDescription"]["value"]
                         response["errors"].append(temp_dict)
 
-                else:
-                    temp_dict = {}
-                    temp_dict["product_pk"] = result["MessageID"]["value"]
-                    temp_dict["error_type"] = result["ResultCode"]["value"]
-                    temp_dict["error_code"] = result["ResultMessageCode"]["value"]
-                    temp_dict["error_message"] = result["ResultDescription"]["value"]
-                    response["errors"].append(temp_dict)
-
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
+                    response["status"] = "Done"
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.info("PushProductsAmazonUAEAPI: %s at %s",
+                logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
                 response["status"] = "In Progress"
+
+            response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
