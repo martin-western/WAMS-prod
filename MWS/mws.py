@@ -328,6 +328,7 @@ class MWS(object):
         # Store the response object in the parsed_response for quick access
         parsed_response.response = response
         return parsed_response
+        # return data
 
     def get_proxies(self):
         proxies = {"http": None, "https": None}

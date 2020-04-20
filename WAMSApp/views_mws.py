@@ -803,7 +803,14 @@ class PushProductsAmazonUAEAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            xml_string = generate_xml_for_post_product_data_amazon_uae(product_pk_list)
+            xml_string = generate_xml_for_post_product_data_amazon_uae(product_pk_list,SELLER_ID)
+
+            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
+                                        region='AE')
+
+            response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_DATA_")
+
+
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
