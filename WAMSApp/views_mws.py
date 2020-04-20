@@ -422,7 +422,15 @@ class PushProductsAmazonUKAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            xml_string = generate_xml_for_post_product_data_amazon_uk(product_pk_list)
+            xml_string = generate_xml_for_post_product_data_amazon_uk(product_pk_list,SELLER_ID)
+
+            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
+                                        region='AE')
+
+            marketplace_id = mws.Marketplaces["UK"].marketplace_id
+
+            response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_DATA_",marketplace_ids=marketplace_id)
+
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -808,7 +816,9 @@ class PushProductsAmazonUAEAPI(APIView):
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region='AE')
 
-            response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_DATA_")
+            marketplace_id = mws.Marketplaces["AE"].marketplace_id
+
+            response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_DATA_",marketplace_ids=marketplace_id)
 
 
 
