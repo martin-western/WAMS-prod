@@ -34,7 +34,9 @@ noon_product_json = {
     "product_attribute_list" : [],
     "created_date" : "",
     "is_active" : "",
-    "http_link": ""
+    "http_link": "",
+    "price":"",
+    "quantity":""
 }
 
 amazon_uk_product_json = {
@@ -100,7 +102,9 @@ amazon_uk_product_json = {
         "item_display_height_metric":""
     },
     "is_active" : "",
-    "http_link": ""
+    "http_link": "",
+    "price":"",
+    "quantity":""
 }
 
 amazon_uae_product_json = {
@@ -116,7 +120,9 @@ amazon_uae_product_json = {
     "recommended_browse_nodes" : "",
     "update_delete" : "",
     "is_active" : "",
-    "http_link": ""
+    "http_link": "",
+    "price":"",
+    "quantity":""
 }
 
 ebay_product_json = {
@@ -128,7 +134,9 @@ ebay_product_json = {
     "product_attribute_list" : [],
     "created_date" : "",
     "is_active" : "",
-    "http_link": ""
+    "http_link": "",
+    "price":"",
+    "quantity":""
 }
 
 base_dimensions_json = {
