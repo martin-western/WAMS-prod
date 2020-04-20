@@ -1733,7 +1733,8 @@ def generate_xml_for_post_product_data_amazon_uk(product_pk_list,seller_id):
                             </Message> """
 
         xml_string += """</AmazonEnvelope>"""
-        print(xml_string)
+        xml_string = xml_string.encode('utf-8')
+        # print(xml_string)
         return xml_string
 
     except Exception as e:
@@ -1787,7 +1788,8 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
                             </Message> """
 
         xml_string += """</AmazonEnvelope>"""
-        print(xml_string)
+        xml_string = xml_string.encode('utf-8')
+        # print(xml_string)
         return xml_string
 
     except Exception as e:
