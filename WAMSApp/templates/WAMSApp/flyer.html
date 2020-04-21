@@ -1089,8 +1089,14 @@
       var font_family = $("#font-family").val();
       if($("#font-multi-option").prop("checked"))
       {
-        $("textarea").css("font-family", font_family); 
-        $(".price-tag-input").css("font-family", font_family);  
+        if(price_or_info()=="INFO")
+        {
+          $("textarea").css("font-family", font_family); 
+        }
+        else if(price_or_info()=="PRICE")
+        {
+          $(".price-tag-input").css("font-family", font_family);
+        }
       }
       else
       {
@@ -1112,13 +1118,14 @@
       }
       if($("#font-multi-option").prop("checked"))
       {
-        $("textarea").css("font-weight", val); 
-        $("textarea").attr("bold", val); 
+        if(price_or_info()=="INFO")
+          $("textarea").css("font-weight", val); 
+        else if(price_or_info()=="PRICE")
+          $(".price-tag-input").css("font-weight", val);
       }
       else
       {
-        $("textarea[text-grid-id="+active_grid_id+"]").css("font-weight", val);
-        $("textarea[text-grid-id="+active_grid_id+"]").attr("bold", val);
+        $(".font-controller[font-controller-id="+active_grid_id+"]").css("font-weight", val);
       }
     });
 
@@ -1136,13 +1143,14 @@
       }
       if($("#font-multi-option").prop("checked"))
       {
-        $("textarea").css("text-decoration", val); 
-        $("textarea").attr("underlined", val); 
+        if(price_or_info()=="INFO")
+          $("textarea").css("text-decoration", val);
+        else if(price_or_info()=="PRICE")
+          $(".price-tag-input").css("text-decoration", val);
       }
       else
       {
-        $("textarea[text-grid-id="+active_grid_id+"]").css("text-decoration", val);
-        $("textarea[text-grid-id="+active_grid_id+"]").attr("underlined", val);
+        $(".font-controller[font-controller-id="+active_grid_id+"]").css("text-decoration", val);
       }
     });
 
@@ -1160,13 +1168,14 @@
       }
       if($("#font-multi-option").prop("checked"))
       {
-        $("textarea").css("font-style", val); 
-        $("textarea").attr("italic", val); 
+        if(price_or_info()=="INFO")
+          $("textarea").css("font-style", val);
+        else if(price_or_info()=="PRICE")
+          $(".price-tag-input").css("font-style", val);
       }
       else
       {
-        $("textarea[text-grid-id="+active_grid_id+"]").css("font-style", val);
-        $("textarea[text-grid-id="+active_grid_id+"]").attr("italic", val);
+        $(".font-controller[font-controller-id="+active_grid_id+"]").css("font-style", val);
       }
     });
 
@@ -1174,11 +1183,14 @@
       var font_alignment = $(this).attr("value");
       if($("#font-multi-option").prop("checked"))
       {
-        $("textarea").css("text-align", font_alignment); 
+        if(price_or_info()=="INFO")
+          $("textarea").css("text-align", font_alignment);
+        else if(price_or_info()=="PRICE")
+          $(".price-tag-input").css("text-align", font_alignment); 
       }
       else
       {
-        $("textarea[text-grid-id="+active_grid_id+"]").css("text-align", font_alignment);
+        $(".font-controller[font-controller-id="+active_grid_id+"]").css("text-align", font_alignment);
       }
     });
 
@@ -1186,11 +1198,14 @@
       var color = $("#font-color").val();
       if($("#font-multi-option").prop("checked"))
       {
-        $("textarea").css("color", color); 
+        if(price_or_info()=="INFO")
+          $("textarea").css("color", color); 
+        else if(price_or_info()=="PRICE")
+          $(".price-tag-input").css("color", color);
       }
       else
       {
-        $("textarea[text-grid-id="+active_grid_id+"]").css("color", color);
+        $(".font-controller[font-controller-id="+active_grid_id+"]").css("color", color);
       }
     });
 
