@@ -2714,6 +2714,9 @@ class FetchFlyerDetailsAPI(APIView):
             tag_bucket_objs = TagBucket.objects.all()
             tag_bucket = create_response_images_flyer_pfl_main_sub(tag_bucket_objs)
 
+            price_tag_bucket_objs = PriceTagBucket.objects.all()
+            price_tag_bucket = create_response_images_flyer_pfl_main_sub(price_tag_bucket_objs)
+
             external_images_bucket_list = []
             external_images_bucket_objs = flyer_obj.external_images_bucket.all()
             for external_images_bucket_obj in external_images_bucket_objs:
@@ -2741,6 +2744,7 @@ class FetchFlyerDetailsAPI(APIView):
             response["external_images_bucket_list"] = external_images_bucket_list
             response["background_images_bucket"] = background_images_bucket
             response["tag_bucket"] = tag_bucket
+            response["price_tag_bucket"] = price_tag_bucket
             response["brand_image_url"] = brand_image_url
             response["brand-name"] = str(flyer_obj.brand)
             response["mode"] = flyer_obj.mode
@@ -3625,6 +3629,39 @@ class UploadFlyerTagAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class UploadFlyerPriceTagAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            # if request.user.has_perm('WAMSApp.change_flyer') == False:
+            #     logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
+
+            data = request.data
+            logger.info("UploadFlyerPriceTagAPI: %s", str(data))
+
+            image_obj = Image.objects.create(image=data["price_tag_image"])
+            PriceTagBucket.objects.create(image=image_obj)
+
+            response["price_tag_image_url"] = image_obj.image.url
+            response["price_tag_image_pk"] = image_obj.pk
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFlyerPriceTagAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 
 class DownloadImagesS3API(APIView):
@@ -5417,6 +5454,8 @@ FetchFlyerList = FetchFlyerListAPI.as_view()
 UploadNewFlyerBGImage = UploadNewFlyerBGImageAPI.as_view()
 
 UploadFlyerTag = UploadFlyerTagAPI.as_view()
+
+UploadFlyerPriceTag = UploadFlyerPriceTagAPI.as_view()
 
 DownloadImagesS3 = DownloadImagesS3API.as_view()
 

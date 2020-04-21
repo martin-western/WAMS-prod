@@ -184,6 +184,49 @@
 
 
 
+        <!-- Price Tag Bucket -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Price Tag Bucket</span>
+
+            <div class="row" style="margin-bottom: 0em;">
+              <div class="col s6">
+                <div class="switch">
+                  <label>
+                    One
+                    <input id="price-tag-multi-option" type="checkbox">
+                    <span class="lever"></span>
+                    All
+                  </label>
+                </div>
+              </div>
+
+              <div class="col s6">
+                <div class="switch">
+                  <label>
+                    Add
+                    <input id="price-tag-delete-option" type="checkbox">
+                    <span class="lever"></span>
+                    Delete
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <a href="#add-new-price-tag-modal" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px; ">
+              <i class="material-icons" style="background-color: #1ABC9C;">add</i>
+            </a>
+          </span>
+
+          <div id="price-tag-bucket-thumbnails-div" class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
+          </div>
+        </div>
+
+
+
+
+
 
 
         <!-- Image Options -->
@@ -490,6 +533,33 @@
 
 
 
+
+<div id="add-new-price-tag-modal" class="modal">
+  <div class="modal-content">
+    <h5 style="font-family: 'AvenirNext';font-size: 18px">NEW PRICE TAG IMAGE</h5>
+    <br>
+    <div class="row">
+      
+      <div class="file-field input-field col s10">
+        <div class="btn" style="background-color: #1ABC9C;">
+          <span>File</span>
+          <input id="price-tag-image" type="file">
+        </div>
+        <div class="file-path-wrapper">
+          <input class="file-path validate" type="text">
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
+    <a id="upload-flyer-price-tag-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #1ABC9C;">Upload</a>
+  </div>
+</div>
+
+
+
 <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
 <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.min2.js' %}"></script>
 
@@ -505,6 +575,7 @@
     var global_background_images_bucket = [];
     var global_external_image_bucket = [];
     var global_tag_bucket = [];
+    var global_price_tag_bucket = [];
 
     var global_flyer_name = "flyer";
 
@@ -553,13 +624,35 @@
 
       var html_string = `
         <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
-          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" style="overflow:hidden;">
-            <img class="secondary-grid-stack-item-content-img" grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" image-rotator=0  src="`+image_url+`" style="width:100%;transform:rotate(`+rotation+`deg)" rotation=`+rotation+`>
+          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" is-price-tag=false price=0 style="overflow:hidden;transform:rotate(`+rotation+`deg)">
+            <img class="secondary-grid-stack-item-content-img" grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" image-rotator=0  src="`+image_url+`" style="position:absolute;top:0;left:0;z-index:-1;width:100%;" rotation=`+rotation+`>
           </div>
         </div>`
 
       return html_string;
     }
+
+
+
+    function create_unit_price_tag_html(tag_dict)
+    {
+      var image_url = tag_dict["image-url"];
+      var grid_id = tag_dict["grid-id"];
+      var rotation = tag_dict["rotation"];
+      var image_pk = tag_dict["image-pk"];
+      var price = tag_dict["price"];
+
+      var html_string = `
+        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
+          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" is-price-tag=true price=`+price+` style="overflow:hidden;transform:rotate(`+rotation+`deg)">
+            <img class="secondary-grid-stack-item-content-img" grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" image-rotator=0  src="`+image_url+`" style="position:absolute;top:0;left:0;z-index:-1;width:100%;" rotation=`+rotation+`>
+            <div class="price-tag-input" style="font-size:1em;position:absolute;top:50%;left:50%;" contenteditable onclick='$(this).focus();' price=`+price+`>`+price+`</div>
+          </div>
+        </div>`
+
+      return html_string;
+    }
+
 
     function create_unit_info_container_html(tag_dict)
     {
@@ -642,6 +735,7 @@
       el = $(html_string);
       secondary_grid.addWidget(el, 0, 15, 18, 4, false);
 
+      set_border_style();
       select_primary_cell(global_grid_cnt);
     }
 
@@ -681,6 +775,51 @@
         flyer_dict["rotation"] = "0";
         
         var html_string = create_unit_tag_html(flyer_dict);
+        var secondary_grid = global_grid_store[key]["grid"];
+        var el = $(html_string);
+        secondary_grid.addWidget(el, 0, 0, 5, 5, true);
+      }
+    }
+
+
+
+    function add_price_tag_one(image_url, image_pk)
+    {
+      if(grid_active=="SECONDARY")
+        return;
+
+      global_grid_store[active_grid_id]["grid-cnt"]++;
+
+      var flyer_dict = {};
+      flyer_dict["image-url"] = image_url;
+      flyer_dict["image-pk"] = image_pk;
+
+      flyer_dict["grid-id"] = active_grid_id+"-"+global_grid_store[active_grid_id]["grid-cnt"];
+      flyer_dict["rotation"] = "0";
+      flyer_dict["price"] = "Price";
+      var html_string = create_unit_price_tag_html(flyer_dict);
+
+      var secondary_grid = global_grid_store[active_grid_id]["grid"];
+
+      var el = $(html_string);
+      secondary_grid.addWidget(el, 0, 0, 5, 5, true);
+    }
+
+
+    function add_price_tag_all(image_url, image_pk)
+    {
+      for(key in global_grid_store)
+      {
+        global_grid_store[key]["grid-cnt"]++;
+        
+        var flyer_dict = {};
+        flyer_dict["image-url"] = image_url;
+        flyer_dict["image-pk"] = image_pk;
+        flyer_dict["grid-id"] = key+"-"+global_grid_store[key]["grid-cnt"];
+        flyer_dict["rotation"] = "0";
+        flyer_dict["price"] = "Price";
+
+        var html_string = create_unit_price_tag_html(flyer_dict);
         var secondary_grid = global_grid_store[key]["grid"];
         var el = $(html_string);
         secondary_grid.addWidget(el, 0, 0, 5, 5, true);
@@ -776,10 +915,11 @@
     function create_flyer()
     {
       var flyer_details = global_template_data["flyerDetails"];
+      global_grid_cnt = 0;
 
       for(var i=0;i<flyer_details.length;i++)
       {
-        global_grid_cnt += 1;
+        global_grid_cnt = flyer_details[i]["container-id"];
 
         var flyer_dict ={
           "grid-id": flyer_details[i]["container-id"],
@@ -807,11 +947,6 @@
           float:true
         }, '#secondary-grid-stack-'+flyer_details[i]["container-id"]);
 
-        global_grid_store[flyer_details[i]["container-id"]] = {
-          "grid": secondary_grid,
-          "grid-cnt": global_grid_cnt
-        };
-
 
         var info_container = flyer_details[i]["info-container"];
         flyer_dict = {
@@ -834,9 +969,9 @@
         select_primary_cell(flyer_details[i]["container-id"]);
 
         var tags = flyer_details[i]["tags"];
+        tag_count = 0;
         for(var j=0;j<tags.length;j++)
         {
-          global_grid_store[active_grid_id]["grid-cnt"]++;
 
           var flyer_dict = {
             "image-url": tags[j]["data"]["image-url"],
@@ -845,10 +980,28 @@
             "grid-id": tags[j]["container-id"]
           };
           
-          var html_string = create_unit_tag_html(flyer_dict);
+          var html_string = "";
+          if(tags[j]["data"]["is-price-tag"]=="true")
+          {
+            flyer_dict["price"] = tags[j]["data"]["price"];
+            html_string = create_unit_price_tag_html(flyer_dict); 
+          }
+          else
+          {
+            html_string = create_unit_tag_html(flyer_dict);
+          }
+
+          
           el = $(html_string);
           secondary_grid.addWidget(el, tags[j]["container"]["x"], tags[j]["container"]["y"], tags[j]["container"]["width"], tags[j]["container"]["height"], false);
+
+          tag_count = tags[j]["container-id"];
         }
+
+        global_grid_store[flyer_details[i]["container-id"]] = {
+          "grid": secondary_grid,
+          "grid-cnt": tag_count
+        };
       }
 
       if(global_background_image_url!="none")
@@ -1100,6 +1253,28 @@
     });
 
 
+
+    $(document).on('click', '.pricetagimgselect', function(){
+
+        var image_url = $(this).children()[0].src;
+        var image_pk = $(this).attr("image-pk");
+
+        if($("#price-tag-delete-option").prop("checked"))
+        {
+          delete_tag_all(image_pk);
+        }
+        else if($("#price-tag-multi-option").prop("checked")==false)
+        {
+          add_price_tag_one(image_url, image_pk);
+        }
+        else
+        {
+          add_price_tag_all(image_url, image_pk);
+        }
+    });
+
+
+
     $(document).on('click', '.product-basket-card-btn', function(){
       
       $(".product-basket-border-div").css("border", "2px solid #495561")
@@ -1312,6 +1487,26 @@
       $("#tag-bucket-thumbnails-div").html(html_string);
     }
 
+
+    function update_price_tag_bucket()
+    {
+      var html_string = "";
+
+      var images = global_price_tag_bucket;
+      for(var i=0;i<images.length;i++)
+      {
+        html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
+          <div style="border:2px solid #495561;text-align:center;padding-top:0.4em;">
+            <a class="pricetagimgselect" image-pk="`+images[i]["pk"]+`" href="#!">
+              <img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;">
+            </a>
+          </div>
+        </div>`;
+      }
+
+      $("#price-tag-bucket-thumbnails-div").html(html_string);
+    }
+
     function update_external_image_bucket()
     {
       var html_string = "";
@@ -1356,6 +1551,8 @@
             </div>`
       $("#flyer-grid").html(html_string);
       global_grid_cnt = 0;
+      global_background_image_url = "none";
+      set_background_image();
       initialize_grid();
     });
 
@@ -1371,7 +1568,10 @@
       {
         $("#hide-cursor-btn").attr("cursor-status", "on");
         set_border_style();
-        $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted "+global_border_color);
+        if(grid_active=="PRIMARY")
+          $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted "+global_border_color);
+        else
+          $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted "+global_border_color);
       }
     });
 
@@ -1421,7 +1621,41 @@
 
 
 
+    // ------------------ Price Tag START ------------------
 
+    $(document).on("focusout", ".price-tag-input", function(){
+
+        var final_price = "Price";
+        if($(this).html()=="")
+        {
+          $(this).html("Price");
+        }
+        else
+        {
+          var value = $(this).html().split(".");
+          final_price = $(this).html();
+          if(value.length==2)
+          {
+            var font_size = parseInt($(this).css("font-size").replace("px", ""))/1.6;
+            var html_string = value[0]+".<span style='font-size:"+font_size+"px'>"+value[1]+"</span>";
+            $(this).html(html_string);
+          }
+        }
+        $(this).attr("price", final_price);
+        $(this).parent().attr("price", final_price);
+    });
+
+    $(document).on("keydown", ".price-tag-input", function(e){
+        if(e.keyCode==13)
+        {
+          e.preventDefault();
+          $(this).focusout();
+        }
+    });
+
+    
+
+    // ------------------ Price Tag END ------------------
 
 
 
@@ -1499,7 +1733,6 @@
           {
             global_tag_bucket.push({"pk":response["tag_image_pk"], "url":response["tag_image_url"]});
             update_tag_bucket();
-            
           }
           else if(response["status"]==403)
           {
@@ -1515,7 +1748,53 @@
         }
       });
 
+    });
+
+
+
+
+
+
+    $("#upload-flyer-price-tag-btn").click(function(){
+
+      var fd = new FormData();
+      var price_tag_image = document.getElementById("price-tag-image");
+      fd.append('price_tag_image', price_tag_image.files[0]);
+
+      $.ajax({
+        url: "/upload-flyer-price-tag/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        processData: false,
+        contentType: false,
+        data: fd,
+        success: function(response) {
+          console.log("Success!", response);
+          if(response["status"]==200)
+          {
+            global_price_tag_bucket.push({"pk":response["price_tag_image_pk"], "url":response["price_tag_image_url"]});
+            update_price_tag_bucket();
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to add price tags!"});
+          }
+          else
+          {
+            M.toast({html: "Error adding price tags!"}); 
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+
     })
+
+
+
 
 
 
@@ -1595,10 +1874,6 @@
       {
         $("#download-flyer-btn").attr("disabled", "disabled");
         $("#loader-div").show();
-      }
-      else
-      {
-        return;
       }
 
 
@@ -1778,6 +2053,7 @@
         {
           var base_el = $($(".secondary-grid-stack-item-tag-content[gridid^="+grid_id+"-]")[j]);
           var container_id = base_el.parent().attr("grid-id");
+
           var temp_dict = {
             "container-id": container_id,
             "container": {
@@ -1789,7 +2065,9 @@
             "data": {
               "image-url": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("src"),
               "rotation": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("image-rotator"),
-              "image-pk": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("grid-image-pk")
+              "image-pk": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("grid-image-pk"),
+              "is-price-tag": base_el.attr("is-price-tag"),
+              "price": base_el.attr("price")
             }
           }
           tag_data.push(temp_dict);
@@ -1917,7 +2195,8 @@
           global_product_images_dict = response['images'];
           global_template_data = response["template_data"];
           global_background_images_bucket = response["background_images_bucket"];
-          global_tag_bucket = response["tag_bucket"]
+          global_tag_bucket = response["tag_bucket"];
+          global_price_tag_bucket = response["price_tag_bucket"]
           global_external_image_bucket = response["external_images_bucket_list"];
 
           global_flyer_name = response["flyer_name"];
@@ -1931,6 +2210,7 @@
           set_product_basket();
           update_background_image_bucket();
           update_tag_bucket();
+          update_price_tag_bucket();
           update_external_image_bucket();
 
           create_flyer();
@@ -2051,6 +2331,11 @@
 
     function set_background_image()
     {
+      if(global_background_image_url=="none")
+      {
+        $("#flyer-div").css("background-image", "none");
+        return;
+      }
       $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
       $("#flyer-div").css("background-position", "center");
     }
