@@ -926,99 +926,25 @@ class DataPoint(models.Model):
         return self.name
 
 
+class TagBucket(models.Model):
 
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name = "Tag Image"
+        verbose_name_plural = "Tag Images"
 
+    def __str__(self):
+        return str(self.image.image.url)
 
 
+class PriceTagBucket(models.Model):
 
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name = "Price Tag Image"
+        verbose_name_plural = "Price Tag Images"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def __str__(self):
+        return str(self.image.image.url)
