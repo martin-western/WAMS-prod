@@ -68,6 +68,8 @@ urlpatterns = [
     url(r'^fetch-flyer-list/$', views.FetchFlyerList),
 
     url(r'^upload-new-flyer-bg-image/$', views.UploadNewFlyerBGImage),
+    url(r'^upload-flyer-tag/$', views.UploadFlyerTag),
+    url(r'^upload-flyer-price-tag/$', views.UploadFlyerPriceTag),
     url(r'^download-images-s3/$', views.DownloadImagesS3),
     url(r'^fetch-brands/$', views.FetchBrands),
 
