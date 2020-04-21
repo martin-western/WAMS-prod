@@ -1363,7 +1363,7 @@ class CreateBannerAPI(APIView):
             organization_name = data["organizationName"]
             organization_obj = Organization.objects.get(name=organization_name)
 
-            banner_type_obj = BannerType.objects.get(name=banner_type)
+            banner_type_obj = BannerType.objects.get(name=banner_type, organization=organization_obj)
 
             order_index = Banner.objects.filter(organization=organization_obj).count()+Section.objects.filter(organization=organization_obj).count()+1
 
