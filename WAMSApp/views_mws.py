@@ -974,6 +974,8 @@ class GetPushProductsResultAmazonUAEAPI(APIView):
                         temp_dict["error_message"] = result["ResultDescription"]["value"]
                         response["errors"].append(temp_dict)
 
+                    response["result_status"] = "Done"
+                    
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
