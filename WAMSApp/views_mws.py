@@ -904,7 +904,7 @@ class PushProductsAmazonUAEAPI(APIView):
             response["feed_submission_id"] = feed_submission_id
 
             response['status'] = 200
-            
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PushProductsAmazonUAEAPI: %s at %s",
@@ -978,13 +978,13 @@ class GetPushProductsResultAmazonUAEAPI(APIView):
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
                              e, str(exc_tb.tb_lineno))
-                    response["status"] = "Done"
+                    response["result_status"] = "Done"
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
-                response["status"] = "In Progress"
+                response["result_status"] = "In Progress"
 
             response['status'] = 200
 
