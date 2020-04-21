@@ -624,7 +624,7 @@
 
       var html_string = `
         <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
-          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" is-price-tag=false price=0 style="overflow:hidden;transform:rotate(`+rotation+`deg)">
+          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" is-price-tag=false price=0 top=0 left=0 font-size=0 style="overflow:hidden;transform:rotate(`+rotation+`deg)">
             <img class="secondary-grid-stack-item-content-img" grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" image-rotator=0  src="`+image_url+`" style="position:absolute;top:0;left:0;z-index:-1;width:100%;" rotation=`+rotation+`>
           </div>
         </div>`
@@ -641,12 +641,22 @@
       var rotation = tag_dict["rotation"];
       var image_pk = tag_dict["image-pk"];
       var price = tag_dict["price"];
+      var top = tag_dict["top"];
+      var left = tag_dict["left"];
+      
+      var font_size = tag_dict["font-size"];
+      var font_color = tag_dict["font-color"];
+      var font_family = tag_dict["font-family"];
+      var bold = tag_dict["bold"];
+      var underlined = tag_dict["underlined"];
+      var italic = tag_dict["italic"];
+      var font_alignment = tag_dict["font-alignment"];
 
       var html_string = `
         <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
-          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" is-price-tag=true price=`+price+` style="overflow:hidden;transform:rotate(`+rotation+`deg)">
+          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" is-price-tag=true style="overflow:hidden;transform:rotate(`+rotation+`deg)">
             <img class="secondary-grid-stack-item-content-img" grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" image-rotator=0  src="`+image_url+`" style="position:absolute;top:0;left:0;z-index:-1;width:100%;" rotation=`+rotation+`>
-            <div class="price-tag-input" style="font-size:1em;position:absolute;top:50%;left:50%;" contenteditable onclick='$(this).focus();' price=`+price+`>`+price+`</div>
+            <div price-id="`+grid_id+`" font-controller-id=`+grid_id+` font-controller-type=price class="price-tag-input font-controller" style="font-size:`+font_size+`px;position:absolute;top:`+top+`%;left:`+left+`%;" contenteditable onclick='$(this).focus();' price=`+price+` top=`+top+` left=`+left+` font-size=`+font_size+`>`+price+`</div>
           </div>
         </div>`
 
@@ -658,12 +668,13 @@
     {
       var grid_id = tag_dict["grid-id"];
 
+
       var html_string = `
         <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="3" data-gs-y="6" data-gs-width="18" data-gs-height="5" grid-id="`+grid_id+`">
           <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="overflow:hidden;">
             <div class="row" style="margin: 0em;padding:0em;">
               <div class="col s10" style="margin-bottom: 0em;">
-                <textarea text-grid-id="`+grid_id+`" class="materialize-textarea left secondary-grid-stack-item-content-info" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;" bold=false underlined=false italic=false></textarea>
+                <textarea font-controller-id=`+grid_id+` font-controller-type=info text-grid-id="`+grid_id+`" class="materialize-textarea left secondary-grid-stack-item-content-info font-controller" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;" bold=false underlined=false italic=false></textarea>
               </div>
             </div>
           </div>
@@ -797,6 +808,9 @@
       flyer_dict["grid-id"] = active_grid_id+"-"+global_grid_store[active_grid_id]["grid-cnt"];
       flyer_dict["rotation"] = "0";
       flyer_dict["price"] = "Price";
+      flyer_dict["top"] = "50";
+      flyer_dict["left"] = "50";
+      flyer_dict["font-size"] = "12";
       var html_string = create_unit_price_tag_html(flyer_dict);
 
       var secondary_grid = global_grid_store[active_grid_id]["grid"];
@@ -818,6 +832,10 @@
         flyer_dict["grid-id"] = key+"-"+global_grid_store[key]["grid-cnt"];
         flyer_dict["rotation"] = "0";
         flyer_dict["price"] = "Price";
+
+        flyer_dict["top"] = "50";
+        flyer_dict["left"] = "50";
+        flyer_dict["font-size"] = "12";
 
         var html_string = create_unit_price_tag_html(flyer_dict);
         var secondary_grid = global_grid_store[key]["grid"];
@@ -983,7 +1001,19 @@
           var html_string = "";
           if(tags[j]["data"]["is-price-tag"]=="true")
           {
-            flyer_dict["price"] = tags[j]["data"]["price"];
+            var price = tags[j]["data"]["price"];
+
+            flyer_dict["price"] = price["price"];
+            flyer_dict["top"] = price["top"];
+            flyer_dict["left"] = price["left"];
+            flyer_dict["font-size"] = price["font-size"];
+            flyer_dict["font-color"] = price["font-color"];
+            flyer_dict["font-family"] = price["font-family"];
+            flyer_dict["bold"] = price["bold"];
+            flyer_dict["underlined"] = price["underlined"];
+            flyer_dict["italic"] = price["italic"];
+            flyer_dict["font-alignment"] = price["font-alignment"];
+
             html_string = create_unit_price_tag_html(flyer_dict); 
           }
           else
@@ -1027,15 +1057,31 @@
 
     // ------------------ Editor Trigger Logic START ------------------
 
+    function price_or_info()
+    {
+      if(active_grid_id.substr(-2)=="-1")
+        return "INFO";
+      return "PRICE";
+    }
+
     $(document).on("change", "#font-size", function(){
       var font_size = $("#font-size").val();
       if($("#font-multi-option").prop("checked"))
       {
-        $("textarea").css("font-size", font_size+"px"); 
+        if(price_or_info()=="INFO")
+        {
+          $("textarea").css("font-size", font_size+"px"); 
+        }
+        else if(price_or_info()=="PRICE")
+        {
+          $(".price-tag-input").css("font-size", font_size+"px");
+          font_size = font_size/1.6;
+        $(".price-tag-small-input").css("font-size", font_size+"px");
+        }
       }
       else
       {
-        $("textarea[text-grid-id="+active_grid_id+"]").css("font-size", font_size+"px");
+        $(".font-controller[font-controller-id="+active_grid_id+"]").css("font-size", font_size+"px");
       }
     });
 
@@ -1044,10 +1090,11 @@
       if($("#font-multi-option").prop("checked"))
       {
         $("textarea").css("font-family", font_family); 
+        $(".price-tag-input").css("font-family", font_family);  
       }
       else
       {
-        $("textarea[text-grid-id="+active_grid_id+"]").css("font-family", font_family);
+        $(".font-controller[font-controller-id="+active_grid_id+"]").css("font-family", font_family);
       }
     });
 
@@ -1623,26 +1670,28 @@
 
     // ------------------ Price Tag START ------------------
 
+    function set_split(price, font_size)
+    {
+      if(price=="")
+        return "Price";
+
+      if(price.includes(".")==false)
+        return price;
+      
+      var value = price.split(".");
+      font_size = parseInt(font_size)/1.6;
+      var html_string = value[0]+".<span class='price-tag-small-input' style='font-size:"+font_size+"px'>"+value[1]+"</span>";
+      return html_string;
+    }
+
     $(document).on("focusout", ".price-tag-input", function(){
 
-        var final_price = "Price";
-        if($(this).html()=="")
-        {
-          $(this).html("Price");
-        }
-        else
-        {
-          var value = $(this).html().split(".");
-          final_price = $(this).html();
-          if(value.length==2)
-          {
-            var font_size = parseInt($(this).css("font-size").replace("px", ""))/1.6;
-            var html_string = value[0]+".<span style='font-size:"+font_size+"px'>"+value[1]+"</span>";
-            $(this).html(html_string);
-          }
-        }
-        $(this).attr("price", final_price);
-        $(this).parent().attr("price", final_price);
+        var price = $(this).text();
+        $(this).attr("price", price);
+
+        var font_size = $(this).css("font-size").replace("px", "")
+        var html_string = set_split(price, font_size);
+        $(this).html(html_string);
     });
 
     $(document).on("keydown", ".price-tag-input", function(e){
@@ -2054,6 +2103,25 @@
           var base_el = $($(".secondary-grid-stack-item-tag-content[gridid^="+grid_id+"-]")[j]);
           var container_id = base_el.parent().attr("grid-id");
 
+          var price = {};
+          if(base_el.attr("is-price-tag")=="true")
+          {
+            price_el = $("div[price-id="+container_id+"]")
+            price = {
+              "price": price_el.attr("price"),
+              "top": price_el.attr("top"),
+              "left": price_el.attr("left"),
+              "font-size": price_el.css("font-size"),
+              "font-color": price_el.css("color"),
+              "font-family": price_el.css("font-family"),
+              "bold": price_el.css("font-weight"),
+              "underlined": price_el.css("text-decoration"),
+              "italic": price_el.css("font-style"),
+              "font-alignment": price_el.css("text-align")
+            }
+            console.log("saving price ", price);
+          }
+
           var temp_dict = {
             "container-id": container_id,
             "container": {
@@ -2067,7 +2135,7 @@
               "rotation": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("image-rotator"),
               "image-pk": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("grid-image-pk"),
               "is-price-tag": base_el.attr("is-price-tag"),
-              "price": base_el.attr("price")
+              "price": price
             }
           }
           tag_data.push(temp_dict);
@@ -2325,6 +2393,52 @@
         $("img[gridid="+active_grid_id+"]").parent().css("transform", rotation_str);
       }
       $("img[gridid="+active_grid_id+"]").attr("image-rotator", rotation);
+    });
+
+
+
+    $(window).keydown(function(event) {
+
+      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
+        return;
+
+      if(active_grid_id=="")
+        return;
+      
+      if(grid_active=="PRIMARY")
+        return;
+
+      var top = parseInt($("div[price-id="+active_grid_id+"]").attr("top"));
+      var left = parseInt($("div[price-id="+active_grid_id+"]").attr("left"));
+
+      var inc = 1;
+      if(event.shiftKey)
+        inc = 5;
+      if(event.keyCode==65)
+      {
+        left -= inc;
+      }
+
+      if(event.keyCode==87)
+      {
+        top -= inc;
+      }
+
+      if(event.keyCode==68)
+      {
+        left += inc;
+      }
+
+      if(event.keyCode==83)
+      {
+        top += inc;
+      }
+
+      $("div[price-id="+active_grid_id+"]").css("top", top+"%");
+      $("div[price-id="+active_grid_id+"]").css("left", left+"%");
+
+      $("div[price-id="+active_grid_id+"]").attr("top", top);
+      $("div[price-id="+active_grid_id+"]").attr("left", left);
     });
 
     
