@@ -2525,7 +2525,7 @@ class CreateFlyerAPI(APIView):
                                     "height": str(height)
                                 },
                                 "data": {
-                                    "image-url": "",
+                                    "image-url": image_url,
                                     "zoom": "50",
                                     "rotation": "0",
                                     "top": "25",
