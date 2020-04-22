@@ -2476,7 +2476,6 @@ class CreateFlyerAPI(APIView):
                         for i in range(rows):
 
                             product_description = ""
-                            product_price = ""
                             image_url = ""
                             try:
                                 search_id = str(dfs.iloc[i][0]).strip()
@@ -2539,7 +2538,7 @@ class CreateFlyerAPI(APIView):
                                         "height": "4",
                                         "width": "18"
                                     },
-                                    "product-info": "",
+                                    "product-info": product_description,
                                     "font-color": "black",
                                     "font-size": "12px",
                                     "font-family": "Arial",
