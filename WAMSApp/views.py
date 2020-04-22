@@ -2504,7 +2504,7 @@ class CreateFlyerAPI(APIView):
                                     logger.error("image product index: %s , error: %s at %s", str(i), str(e), str(exc_tb.tb_lineno))
 
                                 try:
-                                    product_description = convert_to_ascii(dfs.iloc[i][1])
+                                    product_description = dfs.iloc[i][1]
                                     if product_description=="nan":
                                         product_description = product_obj.product_name
                                 except Exception as e:
