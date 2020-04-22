@@ -2492,19 +2492,17 @@ class CreateFlyerAPI(APIView):
                                 flyer_obj.product_bucket.add(product_obj)
                                 try:
                                     main_images_objs = MainImages.objects.filter(product = product_obj)
-                                    
-                                    for main_images_obj in main_images_objs:
-                                        if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                                            break
+                                    main_images_list = []
 
-                                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                    
-                                    try:
-                                        image_url = main_image_obj.image.mid_image.url
-                                    except Exception as e:
-                                        image_url = main_image_obj.image.image.url
+                                    for main_images_obj in main_images_objs:
+                                        main_images_list += main_images_obj.main_images.all()
+                                        if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                                            main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                                            image_url = main_image_obj.image.image.url
+                                            break
                                 except Exception as e:
-                                    logger.warning("Main image does not exist for product id %s", dfs.iloc[i][0])
+                                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                                    logger.error("image product index: %s , error: %s at %s", str(i), str(e), str(exc_tb.tb_lineno))
 
                                 try:
                                     product_description = convert_to_ascii(dfs.iloc[i][1])
@@ -2512,22 +2510,6 @@ class CreateFlyerAPI(APIView):
                                         product_description = product_obj.product_name
                                 except Exception as e:
                                     logger.warning("product_description error %s", str(e))
-
-
-                                try:
-                                    try:
-                                        product_price = str(dfs.iloc[i][2])
-                                    except Exception as e:
-                                        product_price = convert_to_ascii(dfs.iloc[i][4])
-                                    
-                                    if product_price == "nan":
-                                        product_price = ""
-                                    try:
-                                        product_price = product_price.strip()
-                                    except Exception as e:
-                                        pass
-                                except Exception as e:
-                                    logger.warning("product_price error %s", str(e))
                                 
 
                             except Exception as e:
