@@ -2421,7 +2421,7 @@ class CreateFlyerAPI(APIView):
                             "container-id": (i+1),
                             "container": {
                                 "x": str((i*width)%24),
-                                "y": str(height*(i/col)),
+                                "y": str(height*int(i/col)),
                                 "width": str(width),
                                 "height": str(height)
                             },
@@ -2538,7 +2538,7 @@ class CreateFlyerAPI(APIView):
                                 "container-id": (i+1),
                                 "container": {
                                     "x": str((i*width)%24),
-                                    "y": str(height*(i/col)),
+                                    "y": str(height*int(i/col)),
                                     "width": str(width),
                                     "height": str(height)
                                 },
