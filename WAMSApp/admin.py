@@ -23,6 +23,7 @@ class SubImagesAdmin(admin.ModelAdmin):
 admin.site.register(OmnyCommUser)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ExportList)
+admin.site.register(Report)
 admin.site.register(Image)
 admin.site.register(MaterialType)
 admin.site.register(Category)

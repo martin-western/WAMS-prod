@@ -8,7 +8,6 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from PIL import Image as IMAGE
-#from io import BytesIO as StringIO
 from io import BytesIO
 import logging
 import sys
@@ -33,7 +32,7 @@ noon_product_json = {
     "product_description" : "",
     "product_attribute_list" : [],
     "created_date" : "",
-    "is_active" : "",
+    "status" : "",
     "http_link": "",
     "price":"",
     "quantity":""
@@ -101,7 +100,7 @@ amazon_uk_product_json = {
         "item_display_height":"",
         "item_display_height_metric":""
     },
-    "is_active" : "",
+    "status" : "",
     "http_link": "",
     "price":"",
     "quantity":""
@@ -119,7 +118,7 @@ amazon_uae_product_json = {
     "ASIN" : "",
     "recommended_browse_nodes" : "",
     "update_delete" : "",
-    "is_active" : "",
+    "status" : "",
     "http_link": "",
     "price":"",
     "quantity":""
@@ -133,7 +132,7 @@ ebay_product_json = {
     "product_description" : "",
     "product_attribute_list" : [],
     "created_date" : "",
-    "is_active" : "",
+    "status" : "",
     "http_link": "",
     "price":"",
     "quantity":""
@@ -171,7 +170,6 @@ amazon_uk_product_json = json.dumps(amazon_uk_product_json)
 amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
-
 
 class Image(models.Model):
 
@@ -330,6 +328,7 @@ class Organization(models.Model):
 
 
 class Category(models.Model):
+
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
@@ -352,8 +351,8 @@ class Category(models.Model):
 
 
 class SubCategory(models.Model):
-    category = models.ForeignKey(
-        Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
+
+    category = models.ForeignKey(Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
@@ -377,6 +376,7 @@ class SubCategory(models.Model):
 class Channel(models.Model):
     
     name = models.CharField(unique=True,max_length=200)
+    channel_charges = models.TextField(blank=True,default="[]")
         
     class Meta:
         verbose_name = "Channel"
@@ -513,6 +513,8 @@ class Product(models.Model):
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
+    minimum_price = models.FloatField(null=True, blank=True)
+    maximum_price = models.FloatField(null=True, blank=True)
     currency = models.CharField(max_length=100, default="")
     quantity = models.IntegerField(null=True, blank=True)
 
@@ -538,9 +540,7 @@ class Product(models.Model):
     history = AuditlogHistoryField()
 
     no_of_images_for_filter = models.IntegerField(default=0)
-
     factory = models.ForeignKey(Factory, null=True, blank=True)
-
     dynamic_form_attributes = models.TextField(default="{}")
 
     class Meta:
@@ -702,6 +702,36 @@ class ExportList(models.Model):
 
 auditlog.register(ExportList, exclude_fields=['created_date' , 'pk'])
 auditlog.register(ExportList.products.through)
+
+class Report(models.Model):
+
+    feed_submission_id = models.CharField(max_length=200)
+    operation_type = models.CharField(max_length=200)
+    status = models.CharField(default="In Progress",max_length=200)
+    is_read = models.BooleanField(default=False)
+    products = models.ManyToManyField(Product, blank=True)
+    created_date = models.DateTimeField()
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    channel = models.ForeignKey(Channel,null=True,blank=True, on_delete=models.SET_NULL)
+
+    history = AuditlogHistoryField()
+    
+    class Meta:
+        verbose_name = "Report"
+        verbose_name_plural = "Reports"
+
+    def __str__(self):
+        return str(self.title)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+        super(Report, self).save(*args, **kwargs)
+
+
+auditlog.register(Report, exclude_fields=['pk','is_read '])
+auditlog.register(Report.products.through)
+
 
 class Config(models.Model):
 
