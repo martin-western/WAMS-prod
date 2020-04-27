@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 
 class DealsHubProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
+    was_price = models.FloatField(default=0)
+    now_price = models.FloatField(default=0)
     properties = models.TextField(null=True, blank=True, default="{}")
     is_published = models.BooleanField(default=False)
 
