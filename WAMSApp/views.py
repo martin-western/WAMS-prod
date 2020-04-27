@@ -1523,18 +1523,28 @@ class SaveProductAPI(APIView):
             now_price = float(data.get("now_price", 0))
             stock = int(data.get("stock", 0))
 
-            product_obj.min_price = min_price
-            product_obj.max_price = max_price
+
+
+            response["variant_price_permission"] = custom_permission_price(request.user, "variant")
+            response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
+
+            response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
+
+            if custom_permission_price(request.user, "variant")==True:
+                product_obj.min_price = min_price
+                product_obj.max_price = max_price
 
             try:
                 dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
-                dealshub_product_obj.was_price = was_price
-                if now_price>=min_price and now_price<=max_price:
-                    dealshub_product_obj.now_price = now_price
+                if custom_permission_price(request.user, "dealshub")==True:
+                    dealshub_product_obj.was_price = was_price
+                    if now_price>=min_price and now_price<=max_price:
+                        dealshub_product_obj.now_price = now_price
+                    dealshub_product_obj.save()
 
-                if stock>=0:
+                if custom_permission_stock(request.user, "dealshub")==True and stock>=0:
                     dealshub_product_obj.stock = stock
-                dealshub_product_obj.save()
+                    dealshub_product_obj.save()
             except Exception as e:
                 pass
 
