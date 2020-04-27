@@ -543,6 +543,9 @@ class Product(models.Model):
 
     dynamic_form_attributes = models.TextField(default="{}")
 
+    min_price = models.FloatField(default=0)
+    max_price = models.FloatField(default=0)
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
