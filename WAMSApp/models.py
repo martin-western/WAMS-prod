@@ -543,6 +543,9 @@ class Product(models.Model):
     factory = models.ForeignKey(Factory, null=True, blank=True)
     dynamic_form_attributes = models.TextField(default="{}")
 
+    min_price = models.FloatField(default=0)
+    max_price = models.FloatField(default=0)
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
@@ -751,6 +754,8 @@ class CustomPermission(models.Model):
     brands = models.ManyToManyField(Brand, blank=True)
     channels = models.ManyToManyField(Channel, blank=True)
     mws_functions = models.TextField(default="{}")
+    price = models.TextField(default="{}")
+    stock = models.TextField(default="{}")
 
     class Meta:
         verbose_name = "CustomPermission"
