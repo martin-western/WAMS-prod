@@ -1104,6 +1104,21 @@ class FetchProductDetailsAPI(APIView):
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
 
+            response["min_price"] = product_obj.min_price
+            response["max_price"] = product_obj.max_price
+
+            try:
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                response["was_price"] = dealshub_product_obj.was_price
+                response["now_price"] = dealshub_product_obj.now_price
+                response["stock"] = dealshub_product_obj.stock
+            except Exception as e:
+                response["was_price"] = 0
+                response["now_price"] = 0
+                response["stock"] = 0
+                pass
+
+
             response["product_description_amazon_uk"] = product_obj.product_description
             try:
                 response["special_features"] = json.loads(amazon_uk_product_dict["special_features"])
@@ -1495,6 +1510,30 @@ class SaveProductAPI(APIView):
             factory_code = convert_to_ascii(data["factory_code"])
 
             dynamic_form_attributes = data["dynamic_form_attributes"]
+
+
+            min_price = float(data.get("min_price", 0))
+            max_price = float(data.get("max_price", 0))
+            was_price = float(data.get("was_price", 0))
+            now_price = float(data.get("now_price", 0))
+            stock = int(data.get("stock", 0))
+
+            product_obj.min_price = min_price
+            product_obj.max_price = max_price
+
+            try:
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.was_price = was_price
+                if now_price>=min_price and now_price<=max_price:
+                    dealshub_product_obj.now_price = now_price
+
+                if stock>=0:
+                    dealshub_product_obj.stock = stock
+                dealshub_product_obj.save()
+            except Exception as e:
+                pass
+
+
 
             product_obj.product_id = product_id
 
