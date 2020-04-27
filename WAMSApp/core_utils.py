@@ -82,6 +82,34 @@ def custom_permission_mws_functions(user,permission):
         logger.error("custom_permission_mws_functions: %s at %s", e, str(exc_tb.tb_lineno))
         return False
 
+
+def custom_permission_price(user,permission):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        price = json.loads(permission_obj.price)
+        return price[permission]
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_price: %s at %s", e, str(exc_tb.tb_lineno))
+        return False
+
+
+def custom_permission_stock(user,permission):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        stock = json.loads(permission_obj.stock)
+        return stock[permission]
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_stock: %s at %s", e, str(exc_tb.tb_lineno))
+        return False
+
+
+
 def custom_permission_filter_channels(user):
 
     try:

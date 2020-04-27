@@ -1118,6 +1118,11 @@ class FetchProductDetailsAPI(APIView):
                 response["stock"] = 0
                 pass
 
+            response["variant_price_permission"] = custom_permission_price(request.user, "variant")
+            response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
+
+            response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
+
 
             response["product_description_amazon_uk"] = product_obj.product_description
             try:
