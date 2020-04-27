@@ -174,6 +174,11 @@ class FetchProductDetailsAPI(APIView):
                 pass
 
             try:
+                response["specifications"] = json.loads(product_obj.dynamic_form_attributes)
+            except Exception as e:
+                response["specifications"] = {}
+
+            try:
                 response["noonHttpLink"] = json.loads(product_obj.channel_product.noon_product_json)["http_link"]
                 response["amazonUKHttpLink"] = json.loads(product_obj.channel_product.amazon_uk_product_json)["http_link"]
                 response["amazonUAEHttpLink"] = json.loads(product_obj.channel_product.amazon_uae_product_json)["http_link"]
