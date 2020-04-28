@@ -178,3 +178,71 @@ f.close()
 f = open("article_id_error.txt", "w")
 f.write(json.dumps(article_id_error))
 f.close()
+
+from WAMSApp.models import *
+import json
+seller_id = 'A3DNFJ8JVFH39T' #replace with your seller id
+
+def generate_xml_for_post_product_data(product_pk_list,seller_id):
+    cnt=0
+    try:
+         # Check if Cached
+        xml_string = """<?xml version="1.0"?>
+                        <AmazonEnvelope xsi:noNamespaceSchemaLocation="amzn-envelope.xsd"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Header>
+                                <DocumentVersion>1.01</DocumentVersion>
+                                <MerchantIdentifier>"""+seller_id+"""</MerchantIdentifier>
+                            </Header>
+                            <MessageType>Product</MessageType>
+                            <PurgeAndReplace>false</PurgeAndReplace>"""
+        
+        for product_pk in product_pk_list:
+
+            try:
+                product_obj = Product.objects.get(pk=int(product_pk))
+                message_id = str(product_pk)
+                seller_sku = product_obj.base_product.seller_sku
+                product_id_type = product_obj.product_id_type.name
+                product_id = product_obj.barcode_string
+
+                xml_string += """<Message>
+                                    <MessageID>"""+ message_id +"""</MessageID>
+                                    <OperationType>Update</OperationType> 
+                                    <Product>
+                                        <SKU>"""+ seller_sku +"""</SKU>
+                                        <StandardProductID>
+                                            <Type>"""+product_id_type+"""</Type>
+                                            <Value>"""+product_id +"""</Value>
+                                        </StandardProductID>
+                                        <Condition>
+                                            <ConditionType>New</ConditionType>
+                                        </Condition>
+                                    </Product>
+                                </Message> """
+                cnt+=1
+                print("Cnt :",cnt)
+            except Exception as e:
+                print("Hii",str(e))
+                pass
+
+        xml_string += """</AmazonEnvelope>"""
+        # xml_string = xml_string.encode('utf-8')
+        # print(xml_string)
+        return xml_string
+
+    except Exception as e:
+        print(str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Generating XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""
+
+product_objs_list = Product.objects.filter(base_product__brand__organization__name="Nesto").exclude(barcode_string="")
+
+product_pk_list = list(product_objs_list.values_list('pk',flat=True))
+
+xml = generate_xml_for_post_product_data(product_pk_list,seller_id)
+
+f = open("feed.txt","w")
+f.write(xml)
+f.close()
