@@ -154,7 +154,9 @@ class FetchProductDetailsAPI(APIView):
             if(product_obj.base_product.brand.name=="Geepas"):
                 response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
             else:
-                response["price"] = product_obj.standard_price
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                response["price"] = dealshub_product_obj.now_price
+                response["wasPrice"] = dealshub_product_obj.was_price
             
             response["currency"] = "AED"
             response["minLimit"] = "1"
@@ -534,6 +536,9 @@ class FetchCategoriesAPI(APIView):
                 temp_dict = {}
                 temp_dict["name"] = category_obj.name
                 temp_dict["uuid"] = category_obj.uuid
+                temp_dict["imageUrl"] = ""
+                if category_obj.image!=None:
+                    temp_dict["imageUrl"] = category_obj.image.thumbnail.url
                 category_list.append(temp_dict)
 
             response['categoryList'] = category_list
@@ -2316,9 +2321,17 @@ class FetchDealshubPriceAPI(APIView):
             uuid1 = data["uuid"]
             company_code = data["companyCode"]
 
-            price = fetch_prices_dealshub(uuid1, company_code)
+            price = 0
+            was_price = 0
+            if company_code in ["nesto"]:
+                dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
+                price = dealshub_product_obj.now_price
+                was_price = dealshub_product_obj.was_price
+            elif company_code in ["1000", "1070"]:
+                price = fetch_prices_dealshub(uuid1, company_code)
 
             response["price"] = price
+            response["wasPrice"] = was_price
             response['status'] = 200
 
         except Exception as e:
@@ -2459,6 +2472,35 @@ class FetchBulkProductInfoAPI(APIView):
         return Response(data=response)
 
 
+class FetchOrganizationBrandsAPI(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchOrganizationBrandsAPI: %s", str(data))
+
+            organization_name = data["organizationName"]
+
+            brand_objs = Brand.objects.filter(organization__name=organization_name)[:100]
+            brand_list = []
+            for brand_obj in brand_objs:
+                temp_dict = {}
+                temp_dict["name"] = brand_obj.name
+                brand_list.append(temp_dict)
+
+            response["brandList"] = brand_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrganizationBrandsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2540,3 +2582,5 @@ FetchCompanyProfileDealshub = FetchCompanyProfileDealshubAPI.as_view()
 AddProductToSection = AddProductToSectionAPI.as_view()
 
 FetchBulkProductInfo = FetchBulkProductInfoAPI.as_view()
+
+FetchOrganizationBrands = FetchOrganizationBrandsAPI.as_view()
