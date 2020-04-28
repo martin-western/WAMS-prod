@@ -335,6 +335,7 @@ class Category(models.Model):
     uuid = models.CharField(max_length=256, blank=True, default='')
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True)
     property_data = models.TextField(default="[]", blank=True)
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
