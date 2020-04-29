@@ -162,16 +162,17 @@ class FetchProductDetailsAPI(APIView):
             response["minLimit"] = "1"
             response["maxLimit"] = "5"
             response["productImagesUrl"] = []
-            product_description = [
-                "Brand new and high quality",
-                "Made of supreme quality, durable EVA crush resistant, anti-shock material.",
-                "Soft inner cloth lining, one mesh pocket inside.",
-                "Compact and functional hard case keeps items safe and extremely portable.",
-                "Force Touch trackpad (13-inch model)"
-            ]
+            # product_description = [
+            #     "Brand new and high quality",
+            #     "Made of supreme quality, durable EVA crush resistant, anti-shock material.",
+            #     "Soft inner cloth lining, one mesh pocket inside.",
+            #     "Compact and functional hard case keeps items safe and extremely portable.",
+            #     "Force Touch trackpad (13-inch model)"
+            # ]
 
             try:
-                product_description = json.loads(product_obj.channel_product.amazon_uk_product_json)["product_description"]
+                #product_description = json.loads(product_obj.channel_product.amazon_uk_product_json)["product_description"]
+                product_description = product_obj.product_description
             except Exception as e:
                 pass
 
