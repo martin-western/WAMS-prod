@@ -2330,8 +2330,8 @@ class FetchDealshubPriceAPI(APIView):
             elif company_code in ["1000", "1070"]:
                 price = fetch_prices_dealshub(uuid1, company_code)
 
-            response["price"] = price
-            response["wasPrice"] = was_price
+            response["price"] = str(price)
+            response["wasPrice"] = str(was_price)
             response['status'] = 200
 
         except Exception as e:
