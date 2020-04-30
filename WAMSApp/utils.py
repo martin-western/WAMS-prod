@@ -1802,7 +1802,7 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
 
 def generate_stock_price_report(dp_objs):
     try:
-        os.system("rm ./files/csv/images-count-report.xlsx")
+        os.system("rm ./files/csv/stock-price-report.xlsx")
     except Exception as e:
         pass
 
@@ -1829,9 +1829,9 @@ def generate_stock_price_report(dp_objs):
             cnt += 1
             common_row = ["" for i in range(15)]
             common_row[0] = str(cnt)
-            common_row[1] = str(dp_obj.product_obj.product_id)
-            common_row[2] = str(dp_obj.product_obj.base_product.seller_sku)
-            common_row[3] = str(dp_obj.product_obj.product_name)
+            common_row[1] = str(dp_obj.product.product_id)
+            common_row[2] = str(dp_obj.product.base_product.seller_sku)
+            common_row[3] = str(dp_obj.product.product_name)
             common_row[4] = str(dp_obj.stock)
             common_row[5] = str(dp_obj.was_price)
             common_row[6] = str(dp_obj.now_price)
@@ -1843,6 +1843,6 @@ def generate_stock_price_report(dp_objs):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            print("Error: %s at %s", e, str(exc_tb.tb_lineno), product_obj.product_id)
+            logger.error("generate_stock_price_report: %s at %s", e, str(exc_tb.tb_lineno))
 
     workbook.close()
