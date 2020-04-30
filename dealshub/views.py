@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
 from WAMSApp.utils import *
+from WAMSApp.constants import *
 from dealshub.models import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
@@ -2504,6 +2505,30 @@ class FetchOrganizationBrandsAPI(APIView):
         return Response(data=response)
 
 
+class GenerateStockPriceReportAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("GenerateStockPriceReportAPI: %s", str(data))
+
+            dp_objs = DealsHubProduct.objects.filter(product__base_product__brand__organization__name="nesto")
+
+            generate_stock_price_report(dp_objs)        
+
+            response["filepath"] = "https://"+SERVER_IP+"/files/csv/stock-price-report.xlsx"
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GenerateStockPriceReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2587,3 +2612,5 @@ AddProductToSection = AddProductToSectionAPI.as_view()
 FetchBulkProductInfo = FetchBulkProductInfoAPI.as_view()
 
 FetchOrganizationBrands = FetchOrganizationBrandsAPI.as_view()
+
+GenerateStockPriceReport = GenerateStockPriceReportAPI.as_view()
