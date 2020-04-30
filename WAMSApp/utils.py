@@ -1797,3 +1797,52 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Generating XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
         return ""
+
+
+
+def generate_stock_price_report(dp_objs):
+    try:
+        os.system("rm ./files/csv/images-count-report.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/stock-price-report.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    row = ["Sr. No.",
+           "Product ID",
+           "Seller SKU",
+           "Product Name",
+           "Stock",
+           "Was Price",
+           "Now Price"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    for dp_obj in dp_objs:
+        try:
+            cnt += 1
+            common_row = ["" for i in range(15)]
+            common_row[0] = str(cnt)
+            common_row[1] = str(dp_obj.product_obj.product_id)
+            common_row[2] = str(dp_obj.product_obj.base_product.seller_sku)
+            common_row[3] = str(dp_obj.product_obj.product_name)
+            common_row[4] = str(dp_obj.stock)
+            common_row[5] = str(dp_obj.was_price)
+            common_row[6] = str(dp_obj.now_price)
+            
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print("Error: %s at %s", e, str(exc_tb.tb_lineno), product_obj.product_id)
+
+    workbook.close()
