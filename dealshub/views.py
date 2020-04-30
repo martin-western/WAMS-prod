@@ -2459,7 +2459,9 @@ class FetchBulkProductInfoAPI(APIView):
 
                 temp_dict = {
                     "productName": product_obj.product_name,
-                    "productImageUrl": main_image_url
+                    "productImageUrl": main_image_url,
+                    "sellerSku": product_obj.base_product.seller_sku,
+                    "productId": product_obj.product_id
                 }
 
                 productInfo[uuid] = temp_dict
