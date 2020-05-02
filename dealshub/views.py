@@ -982,8 +982,10 @@ class SearchAPI(APIView):
                     temp_dict["brand"] = str(product.base_product.brand)
                     if(product.base_product.brand.name=="Geepas"):
                         temp_dict["price"] = "0"
+                        temp_dict["wasPrice"] = "0"
                     else:
-                        temp_dict["price"] = product.standard_price
+                        temp_dict["price"] = str(dealshub_product.now_price)
+                        temp_dict["wasPrice"] = str(dealshub_product.was_price)
 
                     temp_dict["currency"] = "AED"
                     #temp_dict["discount"] = "0"
