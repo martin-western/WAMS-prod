@@ -302,6 +302,57 @@ class CancelOrdersAPI(APIView):
         return Response(data=response)
 
 
+class DownloadOrdersAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            data = request.data
+            logger.info("DownloadOrdersAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            api_access = "5a72db78-b0f2-41ff-b09e-6af02c5b4c77"
+
+            from_date = data.get("fromDate", "")
+            to_date = data.get("toDate", "")
+            payment_type_list = data.get("paymentTypeList", [])
+            min_qty = data.get("minQty", "")
+            max_qty = data.get("maxQty", "")
+            min_price = data.get("minPrice", "")
+            max_price = data.get("maxPrice", "")
+            currency_list = data.get("currencyList", [])
+            shipping_method_list = data.get("shippingMethodList", [])
+            tracking_status_list = data.get("trackingStatusList", [])
+
+            request_data = {
+                "fromDate":from_date,
+                "toDate":to_date,
+                "paymentTypeList":json.dumps(payment_type_list),
+                "minQty":min_qty,
+                "maxQty":max_qty,
+                "minPrice":min_price,
+                "maxPrice":max_price,
+                "currencyList":json.dumps(currency_list),
+                "shippingMethodList":json.dumps(shipping_method_list),
+                "trackingStatusList":json.dumps(tracking_status_list),
+                "api_access":api_access
+            }
+
+            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/download-orders/", data=request_data, verify=False)
+            response = json.loads(r.content)
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DownloadOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchOrdersForAccountManager = FetchOrdersForAccountManagerAPI.as_view()
 
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
@@ -313,3 +364,5 @@ SetShippingMethod = SetShippingMethodAPI.as_view()
 SetOrdersStatus = SetOrdersStatusAPI.as_view()
 
 CancelOrders = CancelOrdersAPI.as_view()
+
+DownloadOrders = DownloadOrdersAPI.as_view()
