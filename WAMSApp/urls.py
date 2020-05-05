@@ -160,6 +160,7 @@ urlpatterns = [
     url(r'^cancel-orders/$',views.CancelOrders),
 
     url(r'^download-orders/$',views.DownloadOrders),
+    url(r'^upload-orders/$',views.UploadOrders),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

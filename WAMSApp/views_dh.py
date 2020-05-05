@@ -353,6 +353,56 @@ class DownloadOrdersAPI(APIView):
         return Response(data=response)
 
 
+class UploadOrdersAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            data = request.data
+            logger.info("UploadOrdersAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+
+            path = default_storage.save('tmp/temp-orders.xlsx', data["import_file"])
+            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            order_list = []
+            for i in range(rows):
+                try:
+                    order_id = str(dfs.iloc[i][0]).strip()
+                    order_status = str(dfs.iloc[i][1]).strip()
+                    temp_dict = {
+                        "orderId": order_id,
+                        "orderStatus": order_status
+                    }
+                    order_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            api_access = "5a72db78-b0f2-41ff-b09e-6af02c5b4c77"
+
+            request_data = {
+                "orderList": order_list,
+                "api_access":api_access
+            }
+
+            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/upload-orders/", data=request_data, verify=False)
+            response = json.loads(r.content)
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchOrdersForAccountManager = FetchOrdersForAccountManagerAPI.as_view()
 
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
@@ -366,3 +416,5 @@ SetOrdersStatus = SetOrdersStatusAPI.as_view()
 CancelOrders = CancelOrdersAPI.as_view()
 
 DownloadOrders = DownloadOrdersAPI.as_view()
+
+UploadOrders = UploadOrdersAPI.as_view()
