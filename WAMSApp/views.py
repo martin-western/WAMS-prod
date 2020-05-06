@@ -5382,7 +5382,7 @@ class FetchCompanyCredentialsAPI(APIView):
 
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
-            response["credentials"] = json.loads(website_group_name.payment_credentials)
+            response["credentials"] = json.loads(website_group_obj.payment_credentials)
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
