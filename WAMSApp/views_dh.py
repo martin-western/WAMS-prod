@@ -389,7 +389,7 @@ class UploadOrdersAPI(APIView):
             api_access = "5a72db78-b0f2-41ff-b09e-6af02c5b4c77"
 
             request_data = {
-                "orderList": order_list,
+                "orderList": json.dumps(order_list),
                 "api_access":api_access
             }
 
