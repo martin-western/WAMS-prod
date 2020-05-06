@@ -1941,7 +1941,7 @@ class FetchDealshubPriceAPI(APIView):
 
             price = 0
             was_price = 0
-            if company_code in ["nesto"]:
+            if company_code in ["shopnesto"]:
                 dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
                 price = dealshub_product_obj.now_price
                 was_price = dealshub_product_obj.was_price
