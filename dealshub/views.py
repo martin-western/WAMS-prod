@@ -1668,7 +1668,6 @@ class DeleteImageHeadingAPI(APIView):
 
 
 class FetchUserWebsiteGroupAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
