@@ -4595,29 +4595,27 @@ class FetchCompanyProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_obj = custom_permission_filter_brands(request.user)[0]
-
-            organization = brand_obj.organization
+            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
 
             company_data = {}
-            company_data["name"] = organization.name
-            company_data["contact_info"] = organization.contact_info
-            company_data["address"] = organization.address
-            company_data["primary_color"] = organization.primary_color
-            company_data["secondary_color"] = organization.secondary_color
-            company_data["facebook_link"] = organization.facebook_link
-            company_data["twitter_link"] = organization.twitter_link
-            company_data["instagram_link"] = organization.instagram_link
-            company_data["youtube_link"] = organization.youtube_link
+            company_data["name"] = website_group_obj.name
+            company_data["contact_info"] = website_group_obj.contact_info
+            company_data["address"] = website_group_obj.address
+            company_data["primary_color"] = website_group_obj.primary_color
+            company_data["secondary_color"] = website_group_obj.secondary_color
+            company_data["facebook_link"] = website_group_obj.facebook_link
+            company_data["twitter_link"] = website_group_obj.twitter_link
+            company_data["instagram_link"] = website_group_obj.instagram_link
+            company_data["youtube_link"] = website_group_obj.youtube_link
             
             company_data["logo"] = []
 
-            if organization.logo != None:
+            if website_group_obj.logo != None:
                 company_data["logo"] = {
                     "uid" : "123",
                     "url" : ""
                 }
-                company_data["logo"]["url"] = organization.logo.image.url
+                company_data["logo"]["url"] = website_group_obj.logo.image.url
 
 
             response["company_data"] = company_data
@@ -4644,13 +4642,11 @@ class SaveCompanyProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_obj = custom_permission_filter_brands(request.user)[0]
-
-            organization = brand_obj.organization
+            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
 
             company_data = data["company_data"]
             
-            name = company_data["name"]
+            #name = company_data["name"]
             contact_info = company_data["contact_info"]
             address = company_data["address"]
             primary_color = company_data["primary_color"]
@@ -4660,15 +4656,15 @@ class SaveCompanyProfileAPI(APIView):
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
         
-            organization.name=name
-            organization.contact_info=contact_info
-            organization.address=address
-            organization.primary_color=primary_color
-            organization.secondary_color=secondary_color
-            organization.facebook_link=facebook_link
-            organization.twitter_link=twitter_link
-            organization.instagram_link=instagram_link
-            organization.youtube_link=youtube_link
+            #organization.name=name
+            website_group_obj.contact_info=contact_info
+            website_group_obj.address=address
+            website_group_obj.primary_color=primary_color
+            website_group_obj.secondary_color=secondary_color
+            website_group_obj.facebook_link=facebook_link
+            website_group_obj.twitter_link=twitter_link
+            website_group_obj.instagram_link=instagram_link
+            website_group_obj.youtube_link=youtube_link
             
             organization.save()
 
@@ -4679,7 +4675,7 @@ class SaveCompanyProfileAPI(APIView):
 
         return Response(data=response)
 
-class UploadOrganizationLogoAPI(APIView):
+class UploadCompanyLogoAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -4687,29 +4683,27 @@ class UploadOrganizationLogoAPI(APIView):
         response['status'] = 500
         try:
             if request.user.has_perm("WAMSApp.add_image") == False:
-                logger.warning("UploadOrganizationLogoAPI Restricted Access!")
+                logger.warning("UploadCompanyLogoAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("UploadOrganizationLogoAPI: %s", str(data))
+            logger.info("UploadCompanyLogoAPI: %s", str(data))
 
-            brand_obj = custom_permission_filter_brands(request.user)[0]
-
-            organization = brand_obj.organization
+            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
            
             logo_image_url = data["logo_image_url"]
 
             if logo_image_url != "":
                 image_obj = Image.objects.create(image=logo_image_url)
-                organization.logo = image_obj
-                organization.save()
+                website_group_obj.logo = image_obj
+                website_group_obj.save()
 
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UploadOrganizationLogoAPI: %s at %s",
+            logger.error("UploadCompanyLogoAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -5364,7 +5358,7 @@ class FetchAllCategoriesAPI(APIView):
         return Response(data=response)
 
 
-class FetchOrganizationCredentialsAPI(APIView):
+class FetchCompanyCredentialsAPI(APIView):
     permission_classes = (permissions.AllowAny,)
     def post(self, request, *args, **kwargs):
 
@@ -5374,25 +5368,25 @@ class FetchOrganizationCredentialsAPI(APIView):
         try:
             data = request.data
 
-            logger.info("FetchOrganizationCredentialsAPI: %s", str(data))
+            logger.info("FetchCompanyCredentialsAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            organization_name = data["organization_name"]
+            website_group_name = data["websiteGroupName"]
             api_access = data["api_access"]
 
             if api_access!="5a72db78-b0f2-41ff-b09e-6af02c5b4c77":
                 response["status"] = 403
                 return Response(data=response)
 
-            organization_obj = Organization.objects.get(name=organization_name)
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
-            response["credentials"] = json.loads(organization_obj.payment_credentials)
+            response["credentials"] = json.loads(website_group_name.payment_credentials)
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrganizationCredentialsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchCompanyCredentialsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5515,7 +5509,7 @@ FetchAuditLogs = FetchAuditLogsAPI.as_view()
 
 SaveCompanyProfile = SaveCompanyProfileAPI.as_view()
 
-UploadOrganizationLogo = UploadOrganizationLogoAPI.as_view()
+UploadCompanyLogo = UploadCompanyLogoAPI.as_view()
 
 FetchCompanyProfile = FetchCompanyProfileAPI.as_view()
 
@@ -5546,4 +5540,4 @@ TransferBulkChannel = TransferBulkChannelAPI.as_view()
 
 FetchAllCategories = FetchAllCategoriesAPI.as_view()
 
-FetchOrganizationCredentials = FetchOrganizationCredentialsAPI.as_view()
+FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()

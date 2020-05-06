@@ -241,6 +241,7 @@ class OmnyCommUser(User):
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
     permission_list = models.TextField(default="[]")
+    website_group = models.ForeignKey("WebsiteGroup", null=True, blank=True, on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -310,16 +311,7 @@ class ImageBucket(models.Model):
 class Organization(models.Model):
 
     name = models.CharField(unique=True, max_length=100)
-    contact_info = models.CharField(max_length=100,blank=True, default='')
-    address = models.TextField(blank=True, default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
-    primary_color = models.CharField(max_length=100,default = "#000000")
-    secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
-    facebook_link = models.CharField(max_length=100,blank=True, default='')
-    twitter_link = models.CharField(max_length=100,blank=True, default='')
-    instagram_link = models.CharField(max_length=100,blank=True, default='')
-    youtube_link = models.CharField(max_length=100,blank=True, default='')
-    payment_credentials = models.TextField(default="{}")
 
     class Meta:
         verbose_name = "Organization"
@@ -333,7 +325,6 @@ class Category(models.Model):
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
-    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True)
     property_data = models.TextField(default="[]", blank=True)
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
 
@@ -399,7 +390,32 @@ class Brand(models.Model):
 
     def __str__(self):
         return str(self.name)
-        
+
+
+class WebsiteGroup(models.Model):
+
+    name = models.CharField(max_length=100, unique=True)
+    brands = models.ManyToManyField(Brand, blank=True)
+    categories = models.ManyToManyField(Category, blank=True)
+
+    contact_info = models.CharField(max_length=100,blank=True, default='')
+    address = models.TextField(blank=True, default='')
+    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    primary_color = models.CharField(max_length=100,default = "#000000")
+    secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
+    facebook_link = models.CharField(max_length=100,blank=True, default='')
+    twitter_link = models.CharField(max_length=100,blank=True, default='')
+    instagram_link = models.CharField(max_length=100,blank=True, default='')
+    youtube_link = models.CharField(max_length=100,blank=True, default='')
+    payment_credentials = models.TextField(default="{}")
+
+    class Meta:
+        verbose_name = "WebsiteGroup"
+        verbose_name_plural = "WebsiteGroup"
+
+    def __str__(self):
+        return str(self.name)
+
 
 class ProductIDType(models.Model):
 

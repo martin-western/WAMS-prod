@@ -130,7 +130,7 @@ urlpatterns = [
     url(r'^fetch-channel-product-list/$',views.FetchChannelProductList),
 
     url(r'^save-company-profile/$',views.SaveCompanyProfile),
-    url(r'^upload-organization-logo/$',views.UploadOrganizationLogo),
+    url(r'^upload-company-logo/$',views.UploadCompanyLogo),
     url(r'^fetch-company-profile/$',views.FetchCompanyProfile),
 
     url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),
@@ -150,7 +150,7 @@ urlpatterns = [
     url(r'^download-bulk-export/$',views.DownloadBulkExport),
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
-    url(r'^fetch-organization-credentials/$',views.FetchOrganizationCredentials),
+    url(r'^fetch-company-credentials/$',views.FetchCompanyCredentials),
 
     url(r'^fetch-orders-for-account-manager/$',views.FetchOrdersForAccountManager),
     url(r'^fetch-orders-for-warehouse-manager/$',views.FetchOrdersForWarehouseManager),
