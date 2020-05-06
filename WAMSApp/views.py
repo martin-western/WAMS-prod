@@ -4666,7 +4666,7 @@ class SaveCompanyProfileAPI(APIView):
             website_group_obj.instagram_link=instagram_link
             website_group_obj.youtube_link=youtube_link
             
-            organization.save()
+            website_group_obj.save()
 
             response['status'] = 200
         except Exception as e:
