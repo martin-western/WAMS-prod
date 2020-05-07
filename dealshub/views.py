@@ -1943,7 +1943,7 @@ class FetchDealshubPriceAPI(APIView):
             was_price = 0
             if company_code in ["shopnesto"]:
                 dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
-                if str(dealshub_product_obj.product.base_product.brand)=="geepas":
+                if str(dealshub_product_obj.product.base_product.brand).lower()=="geepas":
                     price = fetch_prices_dealshub(uuid1, "1000")
                     was_price = price
                 else:
