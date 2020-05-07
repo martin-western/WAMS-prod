@@ -1116,7 +1116,6 @@ class FetchProductDetailsAPI(APIView):
                 response["was_price"] = 0
                 response["now_price"] = 0
                 response["stock"] = 0
-                pass
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
@@ -1242,6 +1241,10 @@ class FetchProductDetailsAPI(APIView):
 
             response["images"] = images
             response["base_product_pk"] = base_product_obj.pk
+
+            cp = CustomPermission.objects.get(user=request.user)
+            response["verify_product"] = cp.verify_product
+
             response['status'] = 200
 
         except Exception as e:
@@ -1473,6 +1476,8 @@ class SaveProductAPI(APIView):
             product_id = data["product_id"]
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
+
+            product_obj.verified = False
             
             # Checking brand permission
             try:
@@ -3867,20 +3872,16 @@ class VerifyProductAPI(APIView):
 
             data = request.data
             logger.info("VerifyProductAPI: %s", str(data))
-
-            if request.user.username not in ["priyanka", "naveed", "ramees"]:
+            
+            cp = CustomPermission.objects.get(user=request.user)
+            if cp.verify_product==False:
                 logger.warning("VerifyProductAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            verify = int(data["verify"])
-            if verify == 1:
-                product_obj.verified = True
-                product_obj.status = "Verified"
-            elif verify == 0:
-                product_obj.verified = False
-                product_obj.status = "Pending"
+            verify = data["verify"]
+            product_obj.verified = verify
 
             product_obj.save()
 
