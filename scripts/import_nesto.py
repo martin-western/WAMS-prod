@@ -246,3 +246,596 @@ xml = generate_xml_for_post_product_data(product_pk_list,seller_id)
 f = open("feed.txt","w")
 f.write(xml)
 f.close()
+
+import json
+import xlsxwriter
+from WAMSApp.models import *
+
+workbook = xlsxwriter.Workbook('./files/csv/all_nesto_products.xlsx')
+worksheet = workbook.add_worksheet()
+rownum =0
+
+worksheet.write(rownum, 0,"Seller SKU")
+worksheet.write(rownum, 1,"Product Name")
+worksheet.write(rownum, 2,"Product ID")
+worksheet.write(rownum, 3,"Product ID Type")
+worksheet.write(rownum, 4,"Barcode")
+worksheet.write(rownum, 5,"Brand")
+worksheet.write(rownum, 6,"Category")
+
+product_objs_list = Product.objects.filter(base_product__brand__organization__name="Nesto")
+
+cnt =0
+
+for prod in product_objs_list:
+    
+    try:
+
+        seller_sku = prod.base_product.seller_sku
+        product_name = prod.product_name
+        product_id = prod.product_id
+        barcode_string = prod.barcode_string
+
+
+        if prod.base_product.brand!=None:
+            brand = prod.base_product.brand.name
+        else:
+            brand = ""
+
+        if prod.base_product.category!=None:
+            category = prod.base_product.category.name
+        else:
+            category = ""
+        
+        if prod.product_id_type!=None:
+            product_id_type = prod.product_id_type.name
+        else:
+            product_id_type = ""
+
+        rownum+=1
+        worksheet.write(rownum, 0,seller_sku)
+        worksheet.write(rownum, 1,product_name)
+        worksheet.write(rownum, 2,product_id)
+        worksheet.write(rownum, 3,product_id_type)
+        worksheet.write(rownum, 4,barcode_string)
+        worksheet.write(rownum, 5,brand)
+        worksheet.write(rownum, 6,category)
+
+        cnt+=1
+        print("Cnt: ",cnt)
+
+    except Exception as e:
+        print(str(e))
+        pass
+
+workbook.close()
+
+
+import pandas as pd
+from WAMSApp.models import *
+
+filename = "scripts/all_nesto_products.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs.loc[:, 'OmnyComm Error'] = ""
+dfs.loc[:, 'OmnyComm Error Mesage'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+
+for i in range(rows): #len(rows):
+    print(i)
+    try:
+
+        seller_sku = str(dfs.iloc[i,0])
+        product_name = str(dfs.iloc[i,1])
+        product_id = str(dfs.iloc[i,2])
+        product_id_type = str(dfs.iloc[i,3])
+        barcode_string = str(dfs.iloc[i,4])
+        brand = str(dfs.iloc[i,5])
+        category = str(dfs.iloc[i,6])
+
+        if "UNDEFINED" in seller_sku:
+            dfs.iloc[i,7] = "OC_01"
+            dfs.iloc[i,8] = "Invalid Seller SKU"
+
+        elif product_id_type == "":
+            dfs.iloc[i,7] = "OC_02"
+            dfs.iloc[i,8] = "Invalid Product ID"
+
+        elif brand == "":
+            dfs.iloc[i,7] = "OC_03"
+            dfs.iloc[i,8] = "Brand not Assigned"
+
+        elif category == "":
+            dfs.iloc[i,7] = "OC_04"
+            dfs.iloc[i,8] = "Category not Assigned"
+
+    except Exception as e:
+        print(str(e))
+        pass
+
+dfs.to_excel(filename,index=False)
+
+# dfs.loc[dfs[dfs["Seller SKU"]=="UNDEFINED_11975"].index, "OmnyComm Error"]
+
+from MWS import APIs
+
+access_key = 'AKIAI7PSOABCBAJGX36Q' #replace with your access key
+seller_id = 'A3DNFJ8JVFH39T' #replace with your seller id
+secret_key = '9un2k+5Q4eCFI4SRDjNyLhjTAHXrsFkZe0mWIRop' #replace with your secret key
+marketplace_ae = 'A2VIGQ35RCS4UG'
+
+feeds_api = APIs.Feeds(access_key, secret_key, seller_id, region='AE')
+response_feed_submission_result = feeds_api.get_feed_submission_result(50582018380)
+
+feed_submission_result = response_feed_submission_result.parsed
+
+errors = []
+
+result = feed_submission_result["ProcessingReport"]["Result"]
+
+if isinstance(result,list):
+    for i in range(len(result)):
+        temp_dict = {}
+        temp_dict["product_pk"] = result[i]["MessageID"]["value"]
+        temp_dict["error_type"] = result[i]["ResultCode"]["value"]
+        temp_dict["error_code"] = result[i]["ResultMessageCode"]["value"]
+        temp_dict["error_message"] = result[i]["ResultDescription"]["value"]
+        temp_dict["seller_sku"] = result[i]["AdditionalInfo"]["SKU"]["value"]
+        errors.append(temp_dict)
+else:
+    temp_dict = {}
+    temp_dict["product_pk"] = result["MessageID"]["value"]
+    temp_dict["error_type"] = result["ResultCode"]["value"]
+    temp_dict["error_code"] = result["ResultMessageCode"]["value"]
+    temp_dict["error_message"] = result["ResultDescription"]["value"]
+    temp_dict["seller_sku"] = result[i]["AdditionalInfo"]["SKU"]["value"]
+    errors.append(temp_dict)
+
+filename = "scripts/all_nesto_products.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+
+dfs.loc[:, 'Amazon Error'] = ""
+dfs.loc[:, 'Amazon Error Mesage'] = ""
+dfs.loc[:, 'Amazon Error 2'] = ""
+dfs.loc[:, 'Amazon Error Mesabarcodes_listge 2'] = ""
+dfs.loc[:, 'Amazon Error 3'] = ""
+dfs.loc[:, 'Amazon Error Mesage 3'] = ""
+
+dfs = dfs.fillna("")
+
+cnt=0
+for i in range(len(errors)):
+    # print(errors[i][seller_sku])
+    cnt+=1
+    print("Cnt :",cnt)
+    find = dfs[dfs["Seller SKU"]==errors[i]["seller_sku"]].index[0]
+    if dfs.loc[find, "Amazon Error"] == "":
+        dfs.loc[find, "Amazon Error"] = errors[i]["error_code"]
+        dfs.loc[find, "Amazon Error Mesage"] = errors[i]["error_message"]
+    elif dfs.loc[find, "Amazon Error 2"] == "":
+        dfs.loc[find, "Amazon Error 2"] = errors[i]["error_code"]
+        dfs.loc[find, "Amazon Error Mesage 2"] = errors[i]["error_message"]
+    else:
+        dfs.loc[find, "Amazon Error 3"] = errors[i]["error_code"]
+        dfs.loc[find, "Amazon Error Mesage 3"] = errors[i]["error_message"]
+
+dfs.to_excel(filename,index=False)
+
+import pandas as pd
+from WAMSApp.models import *
+
+filename = "scripts/Nesto_Products_Report.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+
+barcodes_list = []
+
+for i in range(rows):
+    print(i)
+    
+    try:
+        product_id_type = str(dfs.iloc[i,3])
+        barcode_string = str(dfs.iloc[i,4])
+        amazon_error1 = dfs.iloc[i,9]
+        amazon_error2 = dfs.iloc[i,11]
+        
+        if barcode_string != "" and amazon_error1 != 8105:
+            
+            if amazon_error1 != 8560 and amazon_error1 != 8058:
+                barcodes_list.append((product_id_type,barcode_string))
+            elif amazon_error2 != "":
+                barcodes_list.append((product_id_type,barcode_string))
+            
+
+    except Exception as e:
+        print(str(e))
+        pass
+
+dfs.loc[:, 'Matched/Not Matched'] = ""
+dfs.loc[:, 'Amazon Title'] = ""
+dfs.loc[:, 'ASIN'] = ""
+dfs.loc[:, 'Amazon Brand'] = ""
+dfs.loc[:, 'Item Height'] = ""
+dfs.loc[:, 'Item Length'] = ""
+dfs.loc[:, 'Item Width'] = ""
+dfs.loc[:, 'Item Weight'] = ""
+dfs.loc[:, 'Package Height'] = ""
+dfs.loc[:, 'Package Length'] = ""
+dfs.loc[:, 'Package Width'] = ""
+dfs.loc[:, 'Package Weight'] = ""
+dfs.loc[:, 'Package Quantity'] = ""
+dfs.loc[:, 'Product Group'] = ""
+dfs.loc[:, 'Product Type'] = ""
+dfs.loc[:, 'Image URL'] = ""
+dfs.loc[:, 'Image Height'] = ""
+dfs.loc[:, 'Image Width'] = ""
+dfs.loc[:, 'List Price'] = ""
+dfs.loc[:, 'Currency'] = ""
+dfs.loc[:, 'Size'] = ""
+
+product_barcodes_list = []
+
+for i in range(len(final_barcodes_list)):
+    product_barcodes_list.append((final_barcodes_list[i][0],int(float(final_barcodes_list[i][1]))))
+
+
+temp = final_barcodes_list[0][0]
+flag=0
+id_list = []
+pk_list = []
+cnt=0
+i=0
+
+while i < len(final_barcodes_list):
+    
+    barcode_type = final_barcodes_list[i][0]
+    barcode_string = final_barcodes_list[i][1]
+    id_list.append(barcode_string)
+    
+    if temp != barcode_type:
+        flag=1
+        i-=1
+        id_list.pop()
+    
+    if flag != 1:
+        if i%5 == 4:
+            flag=1
+    
+    if i == len(final_barcodes_list) - 1:
+        flag=1
+    
+    if flag==1 and len(id_list) !=0:
+        
+        respose = products_api.get_matching_product_for_id(marketplace_id=marketplace_ae, type_=temp, ids = id_list)
+        parsed_resposne = respose.parsed
+
+        if isinstance(parsed_resposne,list):
+
+            for j in range(len(parsed_resposne)):
+                
+                find = dfs[dfs["Barcode"]==barcode_string].index[0]
+                status = parsed_resposne[j]["status"]["value"]
+                
+                if status == "Success":
+                    
+                    dfs.loc[find, "Matched/Not Matched"] = "Matched"
+                    parsed_products = parsed_resposne[j]["Products"]["Product"]
+
+                    if isinstance(parsed_products,list):
+                        
+                        dfs.loc[find, "ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+
+                        ItemAttributes = parsed_products[0]["AttributeSets"]["ItemAttributes"]
+                        
+                        dfs.loc[find, "Amazon Title"] = ItemAttributes["Title"]["value"]
+                        dfs.loc[find, "Amazon Brand"] = ItemAttributes["Brand"]["value"]
+
+                        PackageDimensions = ItemAttributes["PackageDimensions"]
+                        dfs.loc[find, "Package Height"] = PackageDimensions["Height"]["value"] + PackageDimensions["Height"]["Units"]["value"]
+                        dfs.loc[find, "Package Width"] = PackageDimensions["Width"]["value"] + PackageDimensions["Width"]["Units"]["value"]
+                        dfs.loc[find, "Package Length"] = PackageDimensions["Length"]["value"] + PackageDimensions["Length"]["Units"]["value"]
+                        dfs.loc[find, "Package Weight"] = PackageDimensions["Weight"]["value"] + PackageDimensions["Weight"]["Units"]["value"]
+                    
+                        ItemDimensions = ItemAttributes["PackageDimensions"]
+                        dfs.loc[find, "Item Height"] = ItemDimensions["Height"]["value"] + ItemDimensions["Height"]["Units"]["value"]
+                        dfs.loc[find, "Item Width"] = ItemDimensions["Width"]["value"] + ItemDimensions["Width"]["Units"]["value"]
+                        dfs.loc[find, "Item Length"] = ItemDimensions["Length"]["value"] + ItemDimensions["Length"]["Units"]["value"]
+                        dfs.loc[find, "Item Weight"] = ItemDimensions["Weight"]["value"] + ItemDimensions["Weight"]["Units"]["value"]
+                    
+                        dfs.loc[find, "Package Quantity"] = ItemAttributes["PackageQuantity"]["value"]
+                        
+                        dfs.loc[find, "Product Group"] = ItemAttributes["ProductGroup"]["value"]
+                        dfs.loc[find, "Product Type"] = ItemAttributes["ProductTypeName"]["value"]
+
+                        ListPrice = ItemAttributes["ListPrice"]
+                        dfs.loc[find, "List Price"] = ListPrice["Amount"]["value"]
+                        dfs.loc[find, "Currency"] = ListPrice["CurrencyCode"]["value"]
+                        
+                        dfs.loc[find, "Size"] = ItemAttributes["Size"]["value"]
+                    
+                        SmallImage = ItemAttributes["SmallImage"]
+                        dfs.loc[find, "Image URL"] = SmallImage["URL"]["value"]
+                        dfs.loc[find, "Image Height"] = SmallImage["Height"]["value"] + SmallImage["Height"]["Units"]["value"]
+                        dfs.loc[find, "Image Width"] = SmallImage["Width"]["value"] + SmallImage["Width"]["Units"]["value"]
+                    
+                    else:
+                        temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+                        temp_dict["matched_product_feed_submission_id"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
+                else :
+                    dfs.loc[find, "Matched/Not Matched"] = "Not Matched"
+
+        else:
+            temp_dict = {}
+            temp_dict["status"] = products.parsed["status"]["value"]
+            temp_dict["matched_ASIN"] = ""
+            if temp_dict["status"] == "Success":
+                parsed_products = products.parsed["Products"]["Product"]
+                if isinstance(parsed_products,list):
+                    temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+                    temp_dict["matched_product_feed_submission_id"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
+                else:
+                    temp_dict["matched_ASIN"] = products.parsed["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
+                    temp_dict["matched_product_feed_submission_id"] = products.parsed["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
+            else :
+                temp_dict["status"] = "New Product"
+
+            matched_products_list.append(temp_dict)
+            
+        id_list = []
+        flag = 0
+        cnt+=1
+
+        time.sleep(1)
+
+    temp = barcode_type
+    i+=1
+
+    if len(id_list)==0:
+        flag=0
+
+import pandas as pd
+
+filename = "scripts/Nesto_Products_Report.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+
+barcodes_list = {}
+seller_sku_list = []
+cnt=0
+for i in range(rows):
+    try:
+        
+        barcode_string = str(dfs.iloc[i,4])
+        seller_sku = str(dfs.iloc[i,0])
+        if barcode_string != "":
+            if barcode_string in barcodes_list:
+                if "UNDEFINED" in seller_sku:
+                    seller_sku_list.append(seller_sku)
+                elif "UNDEFINED" in barcodes_list[barcode_string]:
+                    seller_sku_list.append(barcodes_list[barcode_string])
+                cnt+=1
+            else:
+                if "UNDEFINED" in seller_sku:
+                    barcodes_list[barcode_string] = seller_sku
+                else:
+                    barcodes_list[barcode_string] = "1"
+
+    except Exception as e:
+        print(str(e))
+        pass
+
+print(cnt)
+
+cnt = 0
+for seller_sku in seller_sku_list :
+    cnt+=1
+    find = dfs[dfs["Seller SKU"]==seller_sku].index
+    dfs = dfs.drop(find)
+    print(cnt)
+
+
+import pandas as pd
+import re 
+
+filename = "scripts/Nesto_Products_Report.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Final Report"]
+
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+
+
+Product_Name = dfs["Product Name"]
+dfs.loc[:, 'OmnyComm Size'] = ""
+
+for i in range(len(Product_Name)):
+    try:
+        name = Product_Name[i]
+        name = name.lower()
+        print(name)
+        metric = ""
+        flag=0
+        if "ml" in name :
+            metric = "ml"
+        elif "lt" in name :
+            metric = "lt"
+        elif "gm" in name :
+            metric = "gm"
+        elif "gal" in name :
+            metric = "gal"
+        elif "kg" in name :
+            metric = "kg"
+        elif "lb" in name :
+            metric = "lb"
+        elif "cm" in name :
+            metric = "cm"
+        elif "mm" in name :
+            metric = "mm"
+        elif "inch" in name :
+            metric = "inch"
+        elif "ft" in name :
+            metric = "ft"
+        elif "oz" in name :
+            metric = "oz"
+        elif "lb" in name :
+            metric = "lb"
+        elif "xxl" in name :
+            flag=1
+            metric = "xxl"
+        elif "xl" in name :
+            flag=1
+            metric = "xl"
+        elif "mah" in name :
+            metric = "mah"
+        elif "watt" in name :
+            metric = "watt"
+        elif "a5" in name :
+            metric = "a5"
+            flag=1
+        elif "a4" in name :
+            metric = "a4"
+            flag=1
+        elif "a3" in name :
+            metric = "a3"
+            flag=1
+        elif "a2" in name :
+            metric = "a2"
+            flag=1
+        elif "a1" in name :
+            metric = "a1"
+            flag=1
+        elif "sq" in name:
+            metric = "sq"
+        elif "pkt" in name:
+            metric = "pkt"
+        
+        if flag==1:
+            x=metric
+            dfs.loc[i, "OmnyComm Size"] = x 
+        elif metric != "":
+            # name = jergens foot cream 100ml @20% off
+            # name = J&J Baby Oil 500Ml+200Ml Free
+            x = name.split(metric)[:-1]
+            # x = ['jergens foot cream 100']
+            # x = ['J&J Baby Oil 500' , '+200']
+            x = x[0] 
+            # x[0] = 'jergens foot cream 100'
+            # x[0] = 'J&J Baby Oil 500'
+            y = x.split(" ")[-1]
+            if y== "":
+                y = x.split(" ")[-2]
+            # x = ['jeergens', 'foot', 'cream', '100']
+            if metric =="sq":
+                metric = "sqft"
+            if y!= "" and y[0].isdigit():
+                dfs.loc[i, "OmnyComm Size"] = y + " " + metric
+            print(y + " " + metric)
+    except Exception as e:
+        pass
+    print(i)
+
+dfs.to_excel(filename,index=False)
+
+
+print(cnt_ml_lt_gal)
+print(cnt_gm_kg_oz_lb)
+print(cnt_cm_mm_inch_ft)
+print(cnt_xl_xxl)
+print(cnt_mah_watt)
+print(cnt_a4_a5_a3_a2_a1)
+print(cnt_sqf)
+print(cnt_pkt)
+print("Total Left : " , len(Product_Name) - 
+    cnt_mah_watt - cnt_xl_xxl - 
+    cnt_ml_lt_gal - cnt_gm_kg_oz_lb - 
+    cnt_cm_mm_inch_ft - cnt_a4_a5_a3_a2_a1 - 
+    cnt_sqf - cnt_pkt)
+
+
+dfs.loc[:, 'Documents Required'] = "" 
+cnt=0
+for i in range(rows):
+    print(i)
+    
+    try:
+        amazon_error1 = dfs.iloc[i,10]
+        amazon_error2 = dfs.iloc[i,12]
+        print(amazon_error1,amazon_error2)
+        if(amazon_error1==6024 or amazon_error1==6039 or amazon_error1==8026):
+            cnt+=1
+            dfs.loc[i, "Documents Required"] = "True"
+        elif(amazon_error2==6024 or amazon_error2==6039 or amazon_error2==8026):
+            cnt+=1
+            dfs.loc[i, "Documents Required"] = "True"
+        else:
+            dfs.loc[i, "Documents Required"] = "False"
+
+    except Exception as e:
+        print(str(e))
+        pass
+
+
+import pandas as pd
+from WAMSApp.models import *
+
+filename = "scripts/delcasa_products.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["delcasa total"]
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+
+brand , created = Brand.objects.get_or_create(name="Delcasa")
+
+cnt=0
+
+for i in range(rows):
+
+    try:
+        seller_sku = str(dfs.iloc[i,0])
+        product_name = str(dfs.iloc[i,1])
+        barcode_string = str(dfs.iloc[i,3])
+        product_id = str(dfs.iloc[i,3])
+        category = str(dfs.iloc[i,4])
+
+        product_id_type = ProductIDType.objects.get(name="EAN")
+
+        category , created = Category.objects.get_or_create(name=category)
+
+        base_product,created = BaseProduct.objects.get_or_create(seller_sku=seller_sku)
+
+        base_product.base_product_name=product_name 
+        base_product.category=category
+        base_product.brand = brand
+
+        base_product.save()
+        
+        product = Product.objects.create(base_product=base_product,
+                                        product_name = product_name,
+                                        product_id = product_id,
+                                        barcode_string = barcode_string,
+                                        product_id_type=product_id_type) 
+
+        cnt +=1
+        print("Cnt :",cnt)
+
+    except Exception as e:
+        print(str(e))
+        pass
