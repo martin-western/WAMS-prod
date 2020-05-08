@@ -378,9 +378,13 @@ class UploadOrdersAPI(APIView):
                 try:
                     order_id = str(dfs.iloc[i][0]).strip()
                     order_status = str(dfs.iloc[i][1]).strip()
+                    shipping_method = str(dfs.iloc[i][2]).strip()
+                    description = str(dfs.iloc[i][3]).strip()
                     temp_dict = {
                         "orderId": order_id,
-                        "orderStatus": order_status
+                        "orderStatus": order_status,
+                        "shippingMethod": shipping_method,
+                        "description": description
                     }
                     order_list.append(temp_dict)
                 except Exception as e:
