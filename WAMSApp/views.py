@@ -1,5 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count
 
 from WAMSApp.models import *
 
@@ -1675,6 +1676,9 @@ class FetchProductListAPI(APIView):
             elif filter_parameters["has_image"] == "0":
                 without_images = 1
                 search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "2":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.annotate(c=Count('base_product__unedited_images')).filter(c__gt=1)
                     
             if len(chip_data) != 0:
                 search_list_product_lookup = Product.objects.none()
