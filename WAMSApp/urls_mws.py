@@ -23,6 +23,9 @@ urlpatterns = [
 
     url(r'^get-push-products-result-amazon-uk/$',views.GetPushProductsResultAmazonUK),
     url(r'^get-push-products-result-amazon-uae/$',views.GetPushProductsResultAmazonUAE),
+    
+    url(r'^fetch-report-list/$',views.FetchReportList),
+    url(r'^fetch-report-details/$',views.FetchReportDetails),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
