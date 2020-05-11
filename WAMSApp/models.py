@@ -8,7 +8,6 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from PIL import Image as IMAGE
-#from io import BytesIO as StringIO
 from io import BytesIO
 import logging
 import sys
@@ -33,8 +32,10 @@ noon_product_json = {
     "product_description" : "",
     "product_attribute_list" : [],
     "created_date" : "",
-    "is_active" : "",
-    "http_link": ""
+    "status" : "",
+    "http_link": "",
+    "price":"",
+    "quantity":""
 }
 
 amazon_uk_product_json = {
@@ -50,6 +51,7 @@ amazon_uk_product_json = {
     "relationship_type" : "",
     "variation_theme" : "",
     "feed_product_type" : "",
+    "ASIN" : "",
     "update_delete" : "",
     "recommended_browse_nodes" : "",
     "search_terms" : "",
@@ -98,8 +100,10 @@ amazon_uk_product_json = {
         "item_display_height":"",
         "item_display_height_metric":""
     },
-    "is_active" : "",
-    "http_link": ""
+    "status" : "",
+    "http_link": "",
+    "price":"",
+    "quantity":""
 }
 
 amazon_uae_product_json = {
@@ -111,10 +115,13 @@ amazon_uae_product_json = {
     "sub_category" : "",
     "created_date" : "",
     "feed_product_type" : "",
+    "ASIN" : "",
     "recommended_browse_nodes" : "",
     "update_delete" : "",
-    "is_active" : "",
-    "http_link": ""
+    "status" : "",
+    "http_link": "",
+    "price":"",
+    "quantity":""
 }
 
 ebay_product_json = {
@@ -125,8 +132,10 @@ ebay_product_json = {
     "product_description" : "",
     "product_attribute_list" : [],
     "created_date" : "",
-    "is_active" : "",
-    "http_link": ""
+    "status" : "",
+    "http_link": "",
+    "price":"",
+    "quantity":""
 }
 
 base_dimensions_json = {
@@ -161,31 +170,6 @@ amazon_uk_product_json = json.dumps(amazon_uk_product_json)
 amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
-
-
-class PhoneNumber(models.Model):
-
-    number = models.CharField(max_length=300)
-
-    class Meta:
-        verbose_name = "PhoneNumber"
-        verbose_name_plural = "PhoneNumbers"
-
-    def __str__(self):
-        return str(self.number)
-
-class OperatingHour(models.Model):
-
-    day = models.CharField(max_length=10)
-    from_time = models.TimeField(null=True, blank=True)
-    to_time = models.TimeField(null=True, blank=True)
-
-    class Meta:
-        verbose_name = "OperatingHour"
-        verbose_name_plural = "OperatingHours"
-
-    def __str__(self):
-        return str(self.day)+" "+str(self.from_time)+"-"+str(self.to_time)
 
 class Image(models.Model):
 
@@ -255,6 +239,7 @@ class OmnyCommUser(User):
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
     permission_list = models.TextField(default="[]")
+    website_group = models.ForeignKey("WebsiteGroup", null=True, blank=True, on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -276,10 +261,10 @@ class Factory(models.Model):
     other_info = models.TextField(null=True, blank=True)
     background_poster = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="background_poster")
     business_card = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="business_card")
-    phone_numbers = models.ManyToManyField(PhoneNumber,blank=True)
+    phone_numbers = models.TextField(default="[]", blank=True)
     factory_emailid = models.CharField(max_length=300, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
-    operating_hours = models.ManyToManyField(OperatingHour, blank=True)
+    operating_hours = models.TextField(default="[]", blank=True)
     bank_details = models.ForeignKey(Bank, null=True, blank=True, on_delete=models.SET_NULL, related_name="related_factory")
     average_delivery_days = models.IntegerField(null=True, blank=True)
     average_turn_around_time = models.IntegerField(null=True, blank=True)
@@ -297,6 +282,10 @@ class Factory(models.Model):
     class Meta:
         verbose_name = "BaseFactory"
         verbose_name_plural = "BaseFactories"
+
+    def __str__(self):
+        return str(self.name)
+        
 
 class ImageBucket(models.Model):
 
@@ -320,15 +309,7 @@ class ImageBucket(models.Model):
 class Organization(models.Model):
 
     name = models.CharField(unique=True, max_length=100)
-    contact_info = models.CharField(max_length=100,blank=True, default='')
-    address = models.TextField(blank=True, default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
-    primary_color = models.CharField(max_length=100,default = "#000000")
-    secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
-    facebook_link = models.CharField(max_length=100,blank=True, default='')
-    twitter_link = models.CharField(max_length=100,blank=True, default='')
-    instagram_link = models.CharField(max_length=100,blank=True, default='')
-    youtube_link = models.CharField(max_length=100,blank=True, default='')
 
     class Meta:
         verbose_name = "Organization"
@@ -339,11 +320,12 @@ class Organization(models.Model):
 
 
 class Category(models.Model):
+
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
-    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True)
     property_data = models.TextField(default="[]", blank=True)
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -361,8 +343,8 @@ class Category(models.Model):
 
 
 class SubCategory(models.Model):
-    category = models.ForeignKey(
-        Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
+
+    category = models.ForeignKey(Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
@@ -386,6 +368,7 @@ class SubCategory(models.Model):
 class Channel(models.Model):
     
     name = models.CharField(unique=True,max_length=200)
+    channel_charges = models.TextField(blank=True,default="[]")
         
     class Meta:
         verbose_name = "Channel"
@@ -407,7 +390,32 @@ class Brand(models.Model):
 
     def __str__(self):
         return str(self.name)
-        
+
+
+class WebsiteGroup(models.Model):
+
+    name = models.CharField(max_length=100, unique=True)
+    brands = models.ManyToManyField(Brand, blank=True)
+    categories = models.ManyToManyField(Category, blank=True)
+
+    contact_info = models.CharField(max_length=100,blank=True, default='')
+    address = models.TextField(blank=True, default='')
+    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    primary_color = models.CharField(max_length=100,default = "#000000")
+    secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
+    facebook_link = models.CharField(max_length=100,blank=True, default='')
+    twitter_link = models.CharField(max_length=100,blank=True, default='')
+    instagram_link = models.CharField(max_length=100,blank=True, default='')
+    youtube_link = models.CharField(max_length=100,blank=True, default='')
+    payment_credentials = models.TextField(default="{}")
+
+    class Meta:
+        verbose_name = "WebsiteGroup"
+        verbose_name_plural = "WebsiteGroup"
+
+    def __str__(self):
+        return str(self.name)
+
 
 class ProductIDType(models.Model):
 
@@ -522,6 +530,8 @@ class Product(models.Model):
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
+    minimum_price = models.FloatField(null=True, blank=True)
+    maximum_price = models.FloatField(null=True, blank=True)
     currency = models.CharField(max_length=100, default="")
     quantity = models.IntegerField(null=True, blank=True)
 
@@ -547,10 +557,11 @@ class Product(models.Model):
     history = AuditlogHistoryField()
 
     no_of_images_for_filter = models.IntegerField(default=0)
-
     factory = models.ForeignKey(Factory, null=True, blank=True)
-
     dynamic_form_attributes = models.TextField(default="{}")
+
+    min_price = models.FloatField(default=0)
+    max_price = models.FloatField(default=0)
 
     class Meta:
         verbose_name = "Product"
@@ -574,6 +585,16 @@ class Product(models.Model):
         if self.channel_product == None:
             channel_product_obj = ChannelProduct.objects.create()
             self.channel_product = channel_product_obj
+
+        if len(self.barcode_string)==10:
+            self.product_id_type = ProductIDType.objects.get(name="ASIN")
+        elif len(self.barcode_string)==12:
+            self.product_id_type = ProductIDType.objects.get(name="UPC")
+        elif len(self.barcode_string)==13:
+            self.product_id_type = ProductIDType.objects.get(name="EAN")
+        else:
+            self.barcode_string=""
+            self.product_id_type = None
         
         super(Product, self).save(*args, **kwargs)
 
@@ -702,6 +723,36 @@ class ExportList(models.Model):
 auditlog.register(ExportList, exclude_fields=['created_date' , 'pk'])
 auditlog.register(ExportList.products.through)
 
+class Report(models.Model):
+
+    feed_submission_id = models.CharField(max_length=200)
+    operation_type = models.CharField(max_length=200)
+    status = models.CharField(default="In Progress",max_length=200)
+    is_read = models.BooleanField(default=False)
+    products = models.ManyToManyField(Product, blank=True)
+    created_date = models.DateTimeField()
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    channel = models.ForeignKey(Channel,null=True,blank=True, on_delete=models.SET_NULL)
+
+    history = AuditlogHistoryField()
+    
+    class Meta:
+        verbose_name = "Report"
+        verbose_name_plural = "Reports"
+
+    def __str__(self):
+        return str(self.title)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+        super(Report, self).save(*args, **kwargs)
+
+
+auditlog.register(Report, exclude_fields=['pk','is_read '])
+auditlog.register(Report.products.through)
+
+
 class Config(models.Model):
 
     product_404_image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
@@ -719,6 +770,10 @@ class CustomPermission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     brands = models.ManyToManyField(Brand, blank=True)
     channels = models.ManyToManyField(Channel, blank=True)
+    mws_functions = models.TextField(default="{}")
+    price = models.TextField(default="{}")
+    stock = models.TextField(default="{}")
+    verify_product = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "CustomPermission"
@@ -815,9 +870,8 @@ def update_stock(sender, instance, **kwargs):
 ##############################################################################################
 
 
-class SourcingProduct(object):
+class SourcingProduct(models.Model):
     
-    code = models.CharField(max_length=300, null=True)
     price = models.FloatField(default=0, null=True, blank=True)
     currency = models.CharField(max_length=300, null=True, blank=True)
     other_info = models.TextField(null=True, blank=True)
@@ -849,44 +903,72 @@ class SourcingProduct(object):
         verbose_name = "SourcingProduct"
         verbose_name_plural = "SourcingProducts"
 
+    def __str__(self):
+        return str(self.product)
+
+
+class ProformaInvoiceBundle(models.Model):
+    
+    proforma_zip = models.FileField(blank=True, null=True, default=None)
+    created_date = models.DateTimeField(null=True, blank=True)
+    uuid = models.CharField(max_length=200, unique=True)
+
+    class Meta:
+        verbose_name = "Proforma Invoice Bundle"
+        verbose_name_plural = "Proforma Invoice Bundle"
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.uuid = str(uuid.uuid4())
+        super(ProformaInvoiceBundle, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.created_date.strftime("%d %b, %Y, %H:%M"))
+
+
 class ProformaInvoice(models.Model): 
     
-    products = models.ManyToManyField(Product, blank=True)
     proforma_pdf = models.FileField(blank=True, null=True, default=None)
-    payment_terms = models.CharField(max_length=500, null=True, blank=True)
-    advance = models.CharField(max_length=500, default='adv', blank=True)
-    inco_terms = models.CharField(max_length=500, default="", blank=True)
-    ttl_cntrs = models.CharField(max_length=500, default="", blank=True)
-    delivery_terms = models.CharField(max_length=500, default="", blank=True)
+    payment_terms = models.CharField(max_length=250, null=True, blank=True)
+    advance = models.CharField(max_length=250, default="", blank=True)
+    inco_terms = models.CharField(max_length=250, default="", blank=True)
+    ttl_cntrs = models.CharField(max_length=250, default="", blank=True)
+    delivery_terms = models.CharField(max_length=250, default="", blank=True)
     factory = models.ForeignKey(Factory, null=True, blank=True, on_delete=models.SET_NULL)
-    created_date = models.DateTimeField(auto_now=True, null=True, blank=True)
+    proforma_invoice_bundle = models.ForeignKey(ProformaInvoiceBundle, default=None, blank=True, on_delete=models.CASCADE)
+    invoice_number = models.CharField(max_length=250, default="", blank=True)
+    invoice_date = models.DateTimeField(null=True, blank=True)
+    discharge_port = models.CharField(default="", max_length=100)
+    vessel_details = models.CharField(default="", max_length=100)
+    vessel_final_destination = models.CharField(default="", max_length=100)
+    ship_lot_number = models.CharField(default="", max_length=100)
+    important_notes = models.TextField(default="")
+    terms_and_condition = models.TextField(default="")
+    uuid = models.CharField(max_length=200, unique=True)
 
     class Meta:
         verbose_name = "Proforma Invoice"
         verbose_name_plural = "Proforma Invoices"
 
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        super(ProformaInvoice, self).save(*args, **kwargs)
 
-class DraftProformaInvoice(models.Model):
+
+class UnitProformaInvoice(models.Model):
     
-    lines = models.CharField(max_length=500, default="", blank=True)
-    created_date = models.DateTimeField(auto_now=True, null=True, blank=True)   
+    product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1, blank=True)
+    proforma_invoice = models.ForeignKey(ProformaInvoice, default=None, blank=True, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = "Draft Proforma Invoice"
-        verbose_name_plural = "Draft Proforma Invoices"
+        verbose_name = "Unit Proforma Invoice"
+        verbose_name_plural = "Unit Proforma Invoice"
 
-
-class DraftProformaInvoiceLine(models.Model):
-    
-    product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
-    factory = models.ForeignKey(Factory, blank=True, null=True, on_delete=models.SET_NULL, related_name='sourcing_user_factory')
-    quantity = models.CharField(max_length=500, default="", blank=True)
-    draft_proforma_invoice = models.ForeignKey(DraftProformaInvoice, null=True, blank=True, on_delete=models.SET_NULL, related_name='sourcing_user_products')
-
-    class Meta:
-        verbose_name = "Draft Proforma Invoice Line"
-        verbose_name_plural = "Draft Proforma Invoice Lines"
-
+    def __str__(self):
+        return str(self.product)+" - "+str(self.quantity)
 
 class DataPoint(models.Model):
 
@@ -897,99 +979,25 @@ class DataPoint(models.Model):
         return self.name
 
 
+class TagBucket(models.Model):
 
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name = "Tag Image"
+        verbose_name_plural = "Tag Images"
 
+    def __str__(self):
+        return str(self.image.image.url)
 
 
+class PriceTagBucket(models.Model):
 
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name = "Price Tag Image"
+        verbose_name_plural = "Price Tag Images"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def __str__(self):
+        return str(self.image.image.url)

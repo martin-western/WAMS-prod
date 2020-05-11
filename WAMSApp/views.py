@@ -1,5 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count
 
 from WAMSApp.models import *
 
@@ -26,6 +27,8 @@ from django.db.models import Count
 from django.conf import settings
 
 from WAMSApp.views_sourcing import *
+from WAMSApp.views_mws import *
+from WAMSApp.views_dh import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -1102,6 +1105,25 @@ class FetchProductDetailsAPI(APIView):
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
 
+            response["min_price"] = product_obj.min_price
+            response["max_price"] = product_obj.max_price
+
+            try:
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                response["was_price"] = dealshub_product_obj.was_price
+                response["now_price"] = dealshub_product_obj.now_price
+                response["stock"] = dealshub_product_obj.stock
+            except Exception as e:
+                response["was_price"] = 0
+                response["now_price"] = 0
+                response["stock"] = 0
+
+            response["variant_price_permission"] = custom_permission_price(request.user, "variant")
+            response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
+
+            response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
+
+
             response["product_description_amazon_uk"] = product_obj.product_description
             try:
                 response["special_features"] = json.loads(amazon_uk_product_dict["special_features"])
@@ -1220,6 +1242,10 @@ class FetchProductDetailsAPI(APIView):
 
             response["images"] = images
             response["base_product_pk"] = base_product_obj.pk
+
+            cp = CustomPermission.objects.get(user=request.user)
+            response["verify_product"] = cp.verify_product
+
             response['status'] = 200
 
         except Exception as e:
@@ -1451,6 +1477,8 @@ class SaveProductAPI(APIView):
             product_id = data["product_id"]
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
+
+            product_obj.verified = False
             
             # Checking brand permission
             try:
@@ -1493,6 +1521,40 @@ class SaveProductAPI(APIView):
             factory_code = convert_to_ascii(data["factory_code"])
 
             dynamic_form_attributes = data["dynamic_form_attributes"]
+
+
+            min_price = float(data.get("min_price", 0))
+            max_price = float(data.get("max_price", 0))
+            was_price = float(data.get("was_price", 0))
+            now_price = float(data.get("now_price", 0))
+            stock = int(data.get("stock", 0))
+
+
+
+            response["variant_price_permission"] = custom_permission_price(request.user, "variant")
+            response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
+
+            response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
+
+            if custom_permission_price(request.user, "variant")==True:
+                product_obj.min_price = min_price
+                product_obj.max_price = max_price
+
+            try:
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                if custom_permission_price(request.user, "dealshub")==True:
+                    dealshub_product_obj.was_price = was_price
+                    if now_price>=min_price and now_price<=max_price:
+                        dealshub_product_obj.now_price = now_price
+                    dealshub_product_obj.save()
+
+                if custom_permission_stock(request.user, "dealshub")==True and stock>=0:
+                    dealshub_product_obj.stock = stock
+                    dealshub_product_obj.save()
+            except Exception as e:
+                pass
+
+
 
             product_obj.product_id = product_id
 
@@ -1614,6 +1676,9 @@ class FetchProductListAPI(APIView):
             elif filter_parameters["has_image"] == "0":
                 without_images = 1
                 search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "2":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.annotate(c=Count('base_product__unedited_images')).filter(c__gt=1)
                     
             if len(chip_data) != 0:
                 search_list_product_lookup = Product.objects.none()
@@ -3590,6 +3655,71 @@ class UploadNewFlyerBGImageAPI(APIView):
         return Response(data=response)
 
 
+class UploadFlyerTagAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            # if request.user.has_perm('WAMSApp.change_flyer') == False:
+            #     logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
+
+            data = request.data
+            logger.info("UploadFlyerTagAPI: %s", str(data))
+
+            image_obj = Image.objects.create(image=data["tag_image"])
+            TagBucket.objects.create(image=image_obj)
+
+            response["tag_image_url"] = image_obj.image.url
+            response["tag_image_pk"] = image_obj.pk
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFlyerTagAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadFlyerPriceTagAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            # if request.user.has_perm('WAMSApp.change_flyer') == False:
+            #     logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
+
+            data = request.data
+            logger.info("UploadFlyerPriceTagAPI: %s", str(data))
+
+            image_obj = Image.objects.create(image=data["price_tag_image"])
+            PriceTagBucket.objects.create(image=image_obj)
+
+            response["price_tag_image_url"] = image_obj.image.url
+            response["price_tag_image_pk"] = image_obj.pk
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadFlyerPriceTagAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
 class DownloadImagesS3API(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3785,20 +3915,16 @@ class VerifyProductAPI(APIView):
 
             data = request.data
             logger.info("VerifyProductAPI: %s", str(data))
-
-            if request.user.username not in ["priyanka", "naveed", "ramees"]:
+            
+            cp = CustomPermission.objects.get(user=request.user)
+            if cp.verify_product==False:
                 logger.warning("VerifyProductAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            verify = int(data["verify"])
-            if verify == 1:
-                product_obj.verified = True
-                product_obj.status = "Verified"
-            elif verify == 0:
-                product_obj.verified = False
-                product_obj.status = "Pending"
+            verify = data["verify"]
+            product_obj.verified = verify
 
             product_obj.save()
 
@@ -4513,29 +4639,27 @@ class FetchCompanyProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_obj = custom_permission_filter_brands(request.user)[0]
-
-            organization = brand_obj.organization
+            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
 
             company_data = {}
-            company_data["name"] = organization.name
-            company_data["contact_info"] = organization.contact_info
-            company_data["address"] = organization.address
-            company_data["primary_color"] = organization.primary_color
-            company_data["secondary_color"] = organization.secondary_color
-            company_data["facebook_link"] = organization.facebook_link
-            company_data["twitter_link"] = organization.twitter_link
-            company_data["instagram_link"] = organization.instagram_link
-            company_data["youtube_link"] = organization.youtube_link
+            company_data["name"] = website_group_obj.name
+            company_data["contact_info"] = website_group_obj.contact_info
+            company_data["address"] = website_group_obj.address
+            company_data["primary_color"] = website_group_obj.primary_color
+            company_data["secondary_color"] = website_group_obj.secondary_color
+            company_data["facebook_link"] = website_group_obj.facebook_link
+            company_data["twitter_link"] = website_group_obj.twitter_link
+            company_data["instagram_link"] = website_group_obj.instagram_link
+            company_data["youtube_link"] = website_group_obj.youtube_link
             
             company_data["logo"] = []
 
-            if organization.logo != None:
+            if website_group_obj.logo != None:
                 company_data["logo"] = {
                     "uid" : "123",
                     "url" : ""
                 }
-                company_data["logo"]["url"] = organization.logo.image.url
+                company_data["logo"]["url"] = website_group_obj.logo.image.url
 
 
             response["company_data"] = company_data
@@ -4562,13 +4686,11 @@ class SaveCompanyProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_obj = custom_permission_filter_brands(request.user)[0]
-
-            organization = brand_obj.organization
+            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
 
             company_data = data["company_data"]
             
-            name = company_data["name"]
+            #name = company_data["name"]
             contact_info = company_data["contact_info"]
             address = company_data["address"]
             primary_color = company_data["primary_color"]
@@ -4578,17 +4700,17 @@ class SaveCompanyProfileAPI(APIView):
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
         
-            organization.name=name
-            organization.contact_info=contact_info
-            organization.address=address
-            organization.primary_color=primary_color
-            organization.secondary_color=secondary_color
-            organization.facebook_link=facebook_link
-            organization.twitter_link=twitter_link
-            organization.instagram_link=instagram_link
-            organization.youtube_link=youtube_link
+            #organization.name=name
+            website_group_obj.contact_info=contact_info
+            website_group_obj.address=address
+            website_group_obj.primary_color=primary_color
+            website_group_obj.secondary_color=secondary_color
+            website_group_obj.facebook_link=facebook_link
+            website_group_obj.twitter_link=twitter_link
+            website_group_obj.instagram_link=instagram_link
+            website_group_obj.youtube_link=youtube_link
             
-            organization.save()
+            website_group_obj.save()
 
             response['status'] = 200
         except Exception as e:
@@ -4597,7 +4719,7 @@ class SaveCompanyProfileAPI(APIView):
 
         return Response(data=response)
 
-class UploadOrganizationLogoAPI(APIView):
+class UploadCompanyLogoAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -4605,29 +4727,27 @@ class UploadOrganizationLogoAPI(APIView):
         response['status'] = 500
         try:
             if request.user.has_perm("WAMSApp.add_image") == False:
-                logger.warning("UploadOrganizationLogoAPI Restricted Access!")
+                logger.warning("UploadCompanyLogoAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("UploadOrganizationLogoAPI: %s", str(data))
+            logger.info("UploadCompanyLogoAPI: %s", str(data))
 
-            brand_obj = custom_permission_filter_brands(request.user)[0]
-
-            organization = brand_obj.organization
+            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
            
             logo_image_url = data["logo_image_url"]
 
             if logo_image_url != "":
                 image_obj = Image.objects.create(image=logo_image_url)
-                organization.logo = image_obj
-                organization.save()
+                website_group_obj.logo = image_obj
+                website_group_obj.save()
 
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UploadOrganizationLogoAPI: %s at %s",
+            logger.error("UploadCompanyLogoAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -5068,6 +5188,7 @@ class UploadBulkExportAPI(APIView):
                         temp_dict = {}
                         temp_dict["name"] = product_obj.product_name
                         temp_dict["product_id"] = product_obj.product_id
+                        temp_dict["product_pk"] = product_obj.pk
                         temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                         temp_dict["uuid"] = product_obj.uuid
                         try:
@@ -5113,6 +5234,7 @@ class SearchBulkExportAPI(APIView):
                     temp_dict = {}
                     temp_dict["name"] = product_obj.product_name
                     temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["product_pk"] = product_obj.pk
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["uuid"] = product_obj.uuid
                     try:
@@ -5280,6 +5402,39 @@ class FetchAllCategoriesAPI(APIView):
         return Response(data=response)
 
 
+class FetchCompanyCredentialsAPI(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchCompanyCredentialsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            website_group_name = data["websiteGroupName"]
+            api_access = data["api_access"]
+
+            if api_access!="5a72db78-b0f2-41ff-b09e-6af02c5b4c77":
+                response["status"] = 403
+                return Response(data=response)
+
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            response["credentials"] = json.loads(website_group_obj.payment_credentials)
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCompanyCredentialsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5344,6 +5499,10 @@ FetchFlyerList = FetchFlyerListAPI.as_view()
 
 UploadNewFlyerBGImage = UploadNewFlyerBGImageAPI.as_view()
 
+UploadFlyerTag = UploadFlyerTagAPI.as_view()
+
+UploadFlyerPriceTag = UploadFlyerPriceTagAPI.as_view()
+
 DownloadImagesS3 = DownloadImagesS3API.as_view()
 
 FetchBrands = FetchBrandsAPI.as_view()
@@ -5394,7 +5553,7 @@ FetchAuditLogs = FetchAuditLogsAPI.as_view()
 
 SaveCompanyProfile = SaveCompanyProfileAPI.as_view()
 
-UploadOrganizationLogo = UploadOrganizationLogoAPI.as_view()
+UploadCompanyLogo = UploadCompanyLogoAPI.as_view()
 
 FetchCompanyProfile = FetchCompanyProfileAPI.as_view()
 
@@ -5424,3 +5583,5 @@ DownloadBulkExport = DownloadBulkExportAPI.as_view()
 TransferBulkChannel = TransferBulkChannelAPI.as_view()
 
 FetchAllCategories = FetchAllCategoriesAPI.as_view()
+
+FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()

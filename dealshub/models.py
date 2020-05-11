@@ -14,14 +14,17 @@ import json
 import uuid
 
 
-from WAMSApp.models import Product, Image, Organization, Category, SubCategory
-from dealshub.synchronization import *
+from WAMSApp.models import Product, Image, WebsiteGroup, Category
 
 logger = logging.getLogger(__name__)
 
 
 class DealsHubProduct(models.Model):
+    
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
+    was_price = models.FloatField(default=0)
+    now_price = models.FloatField(default=0)
+    stock = models.IntegerField(default=0)
     properties = models.TextField(null=True, blank=True, default="{}")
     is_published = models.BooleanField(default=False)
 
@@ -36,7 +39,7 @@ class DealsHubProduct(models.Model):
 class Section(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+    website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=300, default="")
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
@@ -70,7 +73,7 @@ class BannerType(models.Model):
     name = models.CharField(max_length=100)
     display_name = models.CharField(max_length=100, default="")
     limit = models.IntegerField(default=1)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+    website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return str(self.name)
@@ -79,7 +82,7 @@ class BannerType(models.Model):
 class Banner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+    website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
     is_published = models.BooleanField(default=False)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
@@ -140,13 +143,13 @@ class ImageLink(models.Model):
 class DealsHubHeading(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+    website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=200, default="")
     categories = models.ManyToManyField(Category, blank=True)
     image_links = models.ManyToManyField(ImageLink, blank=True)
 
     def __str__(self):
-        return str(self.organization)
+        return str(self.name)
 
     def save(self, *args, **kwargs):
         

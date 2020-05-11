@@ -12,8 +12,6 @@ urlpatterns = [
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-categories/$', views.FetchCategories),
 
-    url(r'^fetch-batch-discount-deals/$', views.FetchBatchDiscountDeals),
-    url(r'^fetch-featured-products/$', views.FetchFeaturedProducts),
     url(r'^search/$', views.Search),
 
     url(r'^create-admin-category/$', views.CreateAdminCategory),
@@ -53,7 +51,7 @@ urlpatterns = [
     url(r'^update-image-heading-link/$', views.UpdateImageHeadingLink),
     url(r'^delete-image-heading/$', views.DeleteImageHeading),
 
-    url(r'^fetch-user-organization/$', views.FetchUserOrganization),
+    url(r'^fetch-user-website-group/$', views.FetchUserWebsiteGroup),
 
     url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
     url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
@@ -65,5 +63,8 @@ urlpatterns = [
 
     url(r'^fetch-company-profile-dealshub/$', views.FetchCompanyProfileDealshub),
 
-    url(r'^fetch-bulk-product-info/$', views.FetchBulkProductInfo),    
+    url(r'^fetch-bulk-product-info/$', views.FetchBulkProductInfo),  
+
+    url(r'^fetch-website-group-brands/$', views.FetchWebsiteGroupBrands),   
+    url(r'^generate-stock-price-report/$', views.GenerateStockPriceReport),   
 ]

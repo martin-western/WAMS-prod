@@ -68,6 +68,8 @@ urlpatterns = [
     url(r'^fetch-flyer-list/$', views.FetchFlyerList),
 
     url(r'^upload-new-flyer-bg-image/$', views.UploadNewFlyerBGImage),
+    url(r'^upload-flyer-tag/$', views.UploadFlyerTag),
+    url(r'^upload-flyer-price-tag/$', views.UploadFlyerPriceTag),
     url(r'^download-images-s3/$', views.DownloadImagesS3),
     url(r'^fetch-brands/$', views.FetchBrands),
 
@@ -128,7 +130,7 @@ urlpatterns = [
     url(r'^fetch-channel-product-list/$',views.FetchChannelProductList),
 
     url(r'^save-company-profile/$',views.SaveCompanyProfile),
-    url(r'^upload-organization-logo/$',views.UploadOrganizationLogo),
+    url(r'^upload-company-logo/$',views.UploadCompanyLogo),
     url(r'^fetch-company-profile/$',views.FetchCompanyProfile),
 
     url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),
@@ -148,6 +150,17 @@ urlpatterns = [
     url(r'^download-bulk-export/$',views.DownloadBulkExport),
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
-    
+    url(r'^fetch-company-credentials/$',views.FetchCompanyCredentials),
+
+    url(r'^fetch-orders-for-account-manager/$',views.FetchOrdersForAccountManager),
+    url(r'^fetch-orders-for-warehouse-manager/$',views.FetchOrdersForWarehouseManager),
+    url(r'^fetch-shipping-method/$',views.FetchShippingMethod),
+    url(r'^set-shipping-method/$',views.SetShippingMethod),
+    url(r'^set-orders-status/$',views.SetOrdersStatus),
+    url(r'^cancel-orders/$',views.CancelOrders),
+
+    url(r'^download-orders/$',views.DownloadOrders),
+    url(r'^upload-orders/$',views.UploadOrders),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
