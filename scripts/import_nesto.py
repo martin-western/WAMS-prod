@@ -839,3 +839,119 @@ for i in range(rows):
     except Exception as e:
         print(str(e))
         pass
+
+filename = "scripts/Royalford_Check.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs.loc[:, 'Present'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+
+cnt=0
+for i in range(rows): #len(rows):
+    print(i)
+    try:
+
+        seller_sku = str(dfs.iloc[i,2])
+
+        try:
+            p = BaseProduct.objects.get(seller_sku=seller_sku)
+            dfs.loc[i, "Present"] = "True"
+            cnt+=1
+
+        except Exception as e:
+            dfs.loc[i, "Present"] = "False"
+
+
+    except Exception as e:
+        print(str(e))
+        pass
+
+print("Cnt :",cnt)
+dfs.to_excel(filename,index=False)
+
+
+from WAMSApp.models import *
+
+base_product_objs = BaseProduct.objects.filter(brand__organization__name="Nesto")
+base_product_objs = base_product_objs.filter(seller_sku__icontains="UNDEFINED")
+
+cnt=0
+cnt1=0
+cnt2=0
+cnt3=0
+cnt4=0
+i=0
+for base_product in base_product_objs:
+    try:
+        i+=1
+        print(i)
+        product_objs = Product.objects.filter(base_product=base_product)
+        product_obj = product_objs[0]
+        product_id = product_obj.product_id
+        barcode_string = product_obj.barcode_string
+        matched_product_objs = Product.objects.filter(barcode_string=barcode_string).exclude(base_product__seller_sku__icontains="UNDEFINED")
+        if len(matched_product_objs)>1:
+            matched_product_obj = matched_product_objs[0]
+            matched_product_objs = Product.objects.filter(barcode_string=barcode_string,base_product__seller_sku__icontains="UNDEFINED")
+            for product in matched_product_objs:
+                if product.product_name.lower() in matched_product_obj.product_name:
+                    cnt1+=1
+                    product.delete()
+                    product.base_product.delete()
+            cnt+=1
+        matched_product_objs = Product.objects.filter(base_product__seller_sku=product_id)
+        if len(matched_product_objs)>=1:
+            matched_product_obj = matched_product_objs[0]
+            for product in product_objs:
+                if product.product_name.lower() in matched_product_obj.product_name:
+                    cnt3+=1
+                    product.delete()
+                    product.base_product.delete()
+            cnt4+=1
+        elif product_id != "":
+            try :
+                cnt2+=1
+                base_product.seller_sku = product_id
+                base_product.save()
+            except Exception as e:
+                pass
+    except Exception as e:
+        print(str(e))
+        pass
+
+cnt1=0
+cnt2=0
+i=0
+from WAMSApp.models import *
+
+base_product_objs = BaseProduct.objects.filter(brand__organization__name="Nesto")
+
+for base_product in base_product_objs:
+    i+=1
+    print(i)
+    try:
+        if "UNDEFINED" in base_product.seller_sku:
+            product_objs = Product.objects.filter(base_product=base_product)
+            product_obj = product_objs[0]
+            product_id = product_obj.product_id
+            if len(BaseProduct.objects.filter(seller_sku=product_id)) >0:
+                flag=1
+                for product in product_objs:
+                    if len(Product.objects.filter(barcode_string=product.barcode_string)) >1:
+                        product.delete()
+                    else:
+                        flag=0
+                if flag==1:
+                    base_product.delete()
+                cnt1+=1
+            else:
+                base_product.seller_sku = product_id
+                base_product.save()
+                cnt2+=1
+    except Exception as e:
+        print(str(e))
+        pass
+
