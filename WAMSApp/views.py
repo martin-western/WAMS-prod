@@ -2464,11 +2464,44 @@ class CreateFlyerAPI(APIView):
                 "background-image-url": "none",
                 "border-visible": True,
                 "border-color": "#EBEBEB",
-                "white-container": True
+                "super-brand-logo": False,
+                "iso-logo": False,
+                "consumer-logo": False,
+                "brand-name-visible": True,
+                "white-container": True,
+                "price-resizer": "100",
+                "product-title-font-size": "12",
+                "product-title-font-family": "Helvetica",
+                "product-title-font-weight": "bold",
+                "product-title-font-color": "#181818",
+                "price-font-size": "18",
+                "price-font-family": "Helvetica",
+                "price-font-weight": "bold",
+                "price-font-color": "#181818",
+                "currency-font-size": "8.5",
+                "currency-font-family": "Helvetica",
+                "currency-font-weight": "bold",
+                "currency-font-color": "#181818",
+                "currency-unit": "AED",
+                "price-box-bg-color": "#FBF00B",
+                "strikeprice-font-size": "12",
+                "strikeprice-font-family": "Helvetica",
+                "strikeprice-font-weight": "bold",
+                "strikeprice-font-color": "#181818",
+                "strikeprice-visible": True,
+                "header-color": "#181818",
+                "footer-color": "#181818",
+                "header-opacity": "1",
+                "footer-opacity": "1",
+                "all-promo-resizer": "40",
+                "all-warranty-resizer": "40",
+                "all-image-resizer": "100",
+                "all-image-rotator": "0",
+                "footer-text": "Your Footer Here"
             }
 
             template_data = {
-                "flyerDetails": [],
+                "item-data": [],
                 "common": common
             }
 
@@ -2480,43 +2513,29 @@ class CreateFlyerAPI(APIView):
                     width = int(24/col)
                     height = int(data["grid_item_height"])
                     for i in range(flyer_items):
-                        temp_dict = {
-                            "container-id": (i+1),
-                            "container": {
-                                "x": str((i*width)%24),
-                                "y": str(height*int(i/col)),
-                                "width": str(width),
-                                "height": str(height)
-                            },
-                            "data": {
-                                "image-url": "",
-                                "zoom": "50",
-                                "rotation": "0",
-                                "top": "25",
-                                "left": "25",
-                            },
-                            "info-container": {
-                                "container-id": str(i+1)+"-1",
-                                "container": {
-                                    "x": "0",
-                                    "y": str(height-4),
-                                    "height": "4",
-                                    "width": "18"
-                                },
-                                "product-info": "",
-                                "font-color": "black",
-                                "font-size": "12px",
-                                "font-family": "Arial",
-                                "bold": "normal",
-                                "underlined": "none",
-                                "italic": "normal",
-                                "font-alignment": "left"
-                            },
-                            "tags": []
+                        temp_dict = {}
+                        temp_dict["container"] = {
+                            "x": str((i*width)%24),
+                            "y": str(height*(i/col)),
+                            "width": str(width),
+                            "height": str(height)
+                        }
+                        temp_dict["data"] = {
+                            "image-url": "",
+                            "banner-img": "",
+                            "warranty-img": "",
+                            "image-resizer": "100",
+                            "image-rotator": "0",
+                            "promo-resizer": "40",
+                            "warranty-resizer": "40",
+                            "price": "",
+                            "strikeprice": "strikeprice",
+                            "title": "",
+                            "description": ""
                         }
 
                         item_data.append(temp_dict)
-                    template_data["flyerDetails"] = item_data
+                    template_data["item-data"] = item_data
                     flyer_obj.template_data = json.dumps(template_data)
                     flyer_obj.save()
                 except Exception as e:
@@ -2538,7 +2557,10 @@ class CreateFlyerAPI(APIView):
 
                         for i in range(rows):
 
+                            product_title = ""
                             product_description = ""
+                            product_price = ""
+                            product_strikeprice = ""
                             image_url = ""
                             try:
                                 search_id = str(dfs.iloc[i][0]).strip()
@@ -2548,74 +2570,99 @@ class CreateFlyerAPI(APIView):
                                 elif BaseProduct.objects.filter(seller_sku=search_id).exists():
                                     base_product_obj = BaseProduct.objects.get(seller_sku=search_id)
                                     product_obj = Product.objects.filter(base_product=base_product_obj)[0]
-                                else:
-                                    continue
 
                                 flyer_obj.product_bucket.add(product_obj)
                                 try:
                                     main_images_objs = MainImages.objects.filter(product = product_obj)
-                                    main_images_list = []
-
+                                    
                                     for main_images_obj in main_images_objs:
-                                        main_images_list += main_images_obj.main_images.all()
                                         if main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                                            main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
-                                            image_url = main_image_obj.image.image.url
                                             break
+
+                                    main_image_obj = main_images_obj.main_images.filter(is_main_image=True)[0]
+                                    
+                                    try:
+                                        image_url = main_image_obj.image.mid_image.url
+                                    except Exception as e:
+                                        image_url = main_image_obj.image.image.url
                                 except Exception as e:
-                                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                                    logger.error("image product index: %s , error: %s at %s", str(i), str(e), str(exc_tb.tb_lineno))
+                                    logger.warning("Main image does not exist for product id %s", dfs.iloc[i][0])
 
                                 try:
-                                    product_description = str(dfs.iloc[i][1])
+                                    product_title = convert_to_ascii(dfs.iloc[i][1])
+                                    if product_title == "nan":
+                                        product_title = product_obj.product_name
+                                except Exception as e:
+                                    logger.warning("product_title error %s", str(e))
+
+                                try:
+                                    product_description = convert_to_ascii(dfs.iloc[i][2])
                                     if product_description=="nan":
-                                        product_description = product_obj.product_name
+                                        product_description = ""
                                 except Exception as e:
                                     logger.warning("product_description error %s", str(e))
+
+
+                                try:
+                                    try:
+                                        product_strikeprice = str(dfs.iloc[i][3])    
+                                    except Exception as e:
+                                        product_strikeprice = convert_to_ascii(dfs.iloc[i][3])
+
+                                    if product_strikeprice == "nan":
+                                        product_strikeprice = ""
+                                    try:
+                                        product_strikeprice = product_strikeprice.strip()
+                                    except Exception as e:
+                                        pass
+                                except Exception as e:
+                                    logger.warning("product_strikeprice error %s", str(e))
+
+
+                                try:
+                                    try:
+                                        product_price = str(dfs.iloc[i][4])
+                                    except Exception as e:
+                                        product_price = convert_to_ascii(dfs.iloc[i][4])
+                                    
+                                    if product_price == "nan":
+                                        product_price = ""
+                                    try:
+                                        product_price = product_price.strip()
+                                    except Exception as e:
+                                        pass
+                                except Exception as e:
+                                    logger.warning("product_price error %s", str(e))
                                 
 
                             except Exception as e:
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
                                 logger.error("product index: %s , error: %s at %s", str(i), str(e), str(exc_tb.tb_lineno))
 
-                            temp_dict = {
-                                "container-id": (i+1),
-                                "container": {
-                                    "x": str((i*width)%24),
-                                    "y": str(height*int(i/col)),
-                                    "width": str(width),
-                                    "height": str(height)
-                                },
-                                "data": {
-                                    "image-url": image_url,
-                                    "zoom": "50",
-                                    "rotation": "0",
-                                    "top": "25",
-                                    "left": "25",
-                                },
-                                "info-container": {
-                                    "container-id": str(i+1)+"-1",
-                                    "container": {
-                                        "x": "0",
-                                        "y": str(height-4),
-                                        "height": "4",
-                                        "width": "18"
-                                    },
-                                    "product-info": product_description,
-                                    "font-color": "black",
-                                    "font-size": "12px",
-                                    "font-family": "Arial",
-                                    "bold": "normal",
-                                    "underlined": "none",
-                                    "italic": "normal",
-                                    "font-alignment": "left"
-                                },
-                                "tags": []
-                            }
+                            temp_dict = {}
 
+                            temp_dict["container"] = {
+                                "x": str((i*width)%24),
+                                "y": str(height*(i/col)),
+                                "width": str(width),
+                                "height": str(height)
+                            }
+                            temp_dict["data"] = {
+                                "image-url": str(image_url),
+                                "banner-img": "",
+                                "warranty-img": "",
+                                "image-resizer": "100",
+                                "image-rotator": "0",
+                                "promo-resizer": "40",
+                                "warranty-resizer": "40",
+                                "price": str(product_price),
+                                "strikeprice": str(product_strikeprice),
+                                "title": str(product_title),
+                                "description": str(product_description)
+                            }
                             item_data.append(temp_dict)
-                           
-                        template_data["flyerDetails"] = item_data
+
+                        template_data["item-data"] = item_data
 
                         flyer_obj.template_data = json.dumps(template_data)
                         flyer_obj.save()
@@ -2728,12 +2775,6 @@ class FetchFlyerDetailsAPI(APIView):
             background_image_objs = BackgroundImage.objects.all()
             background_images_bucket = create_response_images_flyer_pfl_main_sub(background_image_objs)
 
-            tag_bucket_objs = TagBucket.objects.all()
-            tag_bucket = create_response_images_flyer_pfl_main_sub(tag_bucket_objs)
-
-            price_tag_bucket_objs = PriceTagBucket.objects.all()
-            price_tag_bucket = create_response_images_flyer_pfl_main_sub(price_tag_bucket_objs)
-
             external_images_bucket_list = []
             external_images_bucket_objs = flyer_obj.external_images_bucket.all()
             for external_images_bucket_obj in external_images_bucket_objs:
@@ -2760,8 +2801,6 @@ class FetchFlyerDetailsAPI(APIView):
             response["images"] = images_dict
             response["external_images_bucket_list"] = external_images_bucket_list
             response["background_images_bucket"] = background_images_bucket
-            response["tag_bucket"] = tag_bucket
-            response["price_tag_bucket"] = price_tag_bucket
             response["brand_image_url"] = brand_image_url
             response["brand-name"] = str(flyer_obj.brand)
             response["mode"] = flyer_obj.mode

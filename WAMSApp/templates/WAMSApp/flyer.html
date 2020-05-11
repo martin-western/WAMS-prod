@@ -7,21 +7,22 @@
   
   <title>OmnyComm</title>
 
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
   <link rel="stylesheet" href="{% static 'WAMSApp/css/materialize.min.css' %}">
 
   <link href="{% static 'WAMSApp/css/style.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
 
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.css" />
+  <!-- <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/base/jquery-ui.css"> -->
 
-  <link href="{% static 'WAMSApp/css/flyer.css' %}" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.css" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 </head>
 
-<body class="scroll-style-1" style="font-family: 'AvenirNext';">
+<body class="scroll-style-1">
 
   <style type="text/css">
     @font-face {
@@ -64,17 +65,617 @@
       font-family: FrankRegular;
       src: url("{% static 'WAMSApp/fonts/general/FrankRegular.otf' %}");
     }
+
+    .spinner-layer {
+      border-color: white;  
+    }
+
+    li span {
+      color: black !important;
+    }
+
+    body{
+      font-family: 'AvenirNext';
+    }
+
+
+    .rotate {
+
+    /* Safari */
+    -webkit-transform: rotate(-90deg);
+
+    /* Firefox */
+    -moz-transform: rotate(-90deg);
+
+    /* IE */
+    -ms-transform: rotate(-90deg);
+
+    /* Opera */
+    -o-transform: rotate(-90deg);
+
+    float: left;
+
+    }
+
+    .flyer-search::-webkit-input-placeholder {
+       font-size:14px;
+       font-family: 'AvenirNextRegular';
+    }
+
+
+    .scroll-style-1::-webkit-scrollbar-track
+    {
+      -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
+      background-color: #36404A;
+    }
+
+    .scroll-style-1::-webkit-scrollbar
+    {
+      width: 3px;
+      background-color: #F5F5F5;
+    }
+
+    .scroll-style-1::-webkit-scrollbar-thumb
+    {
+      background-color: #DEE2E6;
+    }
+
+    li span {
+      font: AvenirNextRegular !important;
+      font-size: 12px !important;
+    }
+
+    .select-wrapper input.select-dropdown {
+      font: AvenirNextRegular !important;
+      font-size: 12px !important; 
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .grid-stack > .grid-stack-item > .grid-stack-item-content {
+      left: 3px !important;
+      right: 3px !important;
+    }
+
+    /*.grid-stack .grid-stack-placeholder > .placeholder-content {
+      left: 2px;
+      right: 2px;
+    }
+    .grid-stack > .grid-stack-item > .grid-stack-item-content {
+      left: 2px;
+      right: 2px;
+    }*/
+
+    .a4-text {
+      position: relative;
+      bottom: -40px;
+    }
+    .a4-text-bottom {
+      position: relative;
+      bottom: 40px;
+    }
+
+
+
+
+
+    .grid-stack > .grid-stack-item {
+  min-width: 4.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="1"] {
+  width: 4.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="1"] {
+  left: 4.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="1"] {
+  min-width: 4.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="1"] {
+  max-width: 4.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="2"] {
+  width: 8.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="2"] {
+  left: 8.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="2"] {
+  min-width: 8.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="2"] {
+  max-width: 8.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="3"] {
+  width: 12.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="3"] {
+  left: 12.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="3"] {
+  min-width: 12.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="3"] {
+  max-width: 12.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="4"] {
+  width: 16.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="4"] {
+  left: 16.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="4"] {
+  min-width: 16.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="4"] {
+  max-width: 16.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="5"] {
+  width: 20.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="5"] {
+  left: 20.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="5"] {
+  min-width: 20.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="5"] {
+  max-width: 20.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="6"] {
+  width: 25%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="6"] {
+  left: 25%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="6"] {
+  min-width: 25%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="6"] {
+  max-width: 25%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="7"] {
+  width: 29.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="7"] {
+  left: 29.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="7"] {
+  min-width: 29.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="7"] {
+  max-width: 29.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="8"] {
+  width: 33.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="8"] {
+  left: 33.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="8"] {
+  min-width: 33.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="8"] {
+  max-width: 33.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="9"] {
+  width: 37.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="9"] {
+  left: 37.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="9"] {
+  min-width: 37.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="9"] {
+  max-width: 37.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="10"] {
+  width: 41.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="10"] {
+  left: 41.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="10"] {
+  min-width: 41.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="10"] {
+  max-width: 41.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="11"] {
+  width: 45.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="11"] {
+  left: 45.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="11"] {
+  min-width: 45.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="11"] {
+  max-width: 45.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="12"] {
+  width: 50%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="12"] {
+  left: 50%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="12"] {
+  min-width: 50%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="12"] {
+  max-width: 50%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="13"] {
+  width: 54.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="13"] {
+  left: 54.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="13"] {
+  min-width: 54.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="13"] {
+  max-width: 54.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="14"] {
+  width: 58.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="14"] {
+  left: 58.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="14"] {
+  min-width: 58.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="14"] {
+  max-width: 58.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="15"] {
+  width: 62.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="15"] {
+  left: 62.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="15"] {
+  min-width: 62.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="15"] {
+  max-width: 62.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="16"] {
+  width: 66.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="16"] {
+  left: 66.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="16"] {
+  min-width: 66.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="16"] {
+  max-width: 66.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="17"] {
+  width: 70.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="17"] {
+  left: 70.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="17"] {
+  min-width: 70.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="17"] {
+  max-width: 70.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="18"] {
+  width: 75%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="18"] {
+  left: 75%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="18"] {
+  min-width: 75%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="18"] {
+  max-width: 75%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="19"] {
+  width: 79.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="19"] {
+  left: 79.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="19"] {
+  min-width: 79.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="19"] {
+  max-width: 79.1666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="20"] {
+  width: 83.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="20"] {
+  left: 83.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="20"] {
+  min-width: 83.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="20"] {
+  max-width: 83.3333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="21"] {
+  width: 87.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="21"] {
+  left: 87.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="21"] {
+  min-width: 87.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="21"] {
+  max-width: 87.5%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="22"] {
+  width: 91.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="22"] {
+  left: 91.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="22"] {
+  min-width: 91.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="22"] {
+  max-width: 91.6666666667%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="23"] {
+  width: 95.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="23"] {
+  left: 95.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="23"] {
+  min-width: 95.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="23"] {
+  max-width: 95.8333333333%;
+}
+.grid-stack > .grid-stack-item[data-gs-width="24"] {
+  width: 100%;
+}
+.grid-stack > .grid-stack-item[data-gs-x="24"] {
+  left: 100%;
+}
+.grid-stack > .grid-stack-item[data-gs-min-width="24"] {
+  min-width: 100%;
+}
+.grid-stack > .grid-stack-item[data-gs-max-width="24"] {
+  max-width: 100%;
+}
+
+
+
+
+
+
+
+
+
+.font-to-avenir {
+      font: AvenirNext;
+    }
+    .grid-item-img-container {
+      height: 80%;
+      width: 100%;
+      /*align-items: center;
+      display: flex;*/
+    }
+    .grid-item-footer-container {
+      height: 20%;
+      width: 100%;
+      /* background-color: red; */
+      margin:0;
+      display: flex;
+      padding: 5px;
+    }
+    .grid-item-footer-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .footer-bottom {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-between !important;
+    }
+    .grid-item-footer-left {
+      display: flex;
+      flex-direction: column;
+      width: 70% ;
+      justify-content: center  !important;
+      text-align: left;
+    }
+    .grid-item-footer-right {
+      display: flex;
+      flex-direction: column;
+      max-width: 80px;
+      justify-content: flex-end  !important;
+      text-align: right;
+      /*background: yellow;*/
+      /*padding: 1%;*/
+    }
+    .grid-item-footer-right > input {
+      text-align: right;
+      background: yellow;
+      padding-right: 5px;
+    }
+    .footer-bottom-left-input {
+      border: none;
+      font-size: 12px;
+      width: 100%;
+    }
+    .footer-bottom-left-input:focus {
+      outline: none;
+      border-bottom: 1px solid rgba(136, 136, 136, 0.521);
+    }
+    .grid-item-text {
+      font-size: 8.5px;
+      margin:0;
+    }
+    .grid-item-text-2 {
+      font-size: 12px;
+      margin:0;
+    }
+    .grid-item-text-3 {
+      font-size: 18px;
+      margin:0;
+    }
+    .grid-item-text-4 {
+      font-size: 8.5px;
+      margin:0;
+    }
+
+    .grid-item-footer-left > input {
+      background-color: transparent
+    }
+    .grid-stack-item-content {
+      /*width: 100% !important;
+      height: 100%;*/
+      position: relative;
+    }
+
+    .custom-slider::-webkit-slider-thumb {
+      background-color: #1ABC9C !important;
+    }
+
+
+    .flyer-item-box {
+      display: flex;
+      align-items: center;
+    }
+
+
+
+    /* grid item sticker */ 
+    .grid-item-sticker {  
+      position: absolute; 
+      top: 10px; 
+      right: 10px;
+    } 
+    .grid-item-sticker > img {  
+      height: auto; 
+      width: 40px;  
+      border-radius: 0 0 0 0; 
+    } 
+  .center-vertically {  
+    display: flex;  
+    align-items: center;  
+  } 
+  .center-horizontally {  
+    display: flex;  
+    justify-content: center;  
+  } 
+  .left-horizontally {  
+    display: flex;  
+    align-items: center;  
+    justify-content: flex-start;  
+  } 
+  .right-horizontally { 
+    display: flex;  
+    align-items: center;  
+    justify-content: flex-end;  
+  } 
+  .align-right {  
+    text-align: right;  
+  } 
+  .align-left { 
+    text-align: left; 
+  } 
+  .align-center { 
+    text-align: center; 
+  } 
+/* Checkbox */  
+  .checkbox-flyer[type="checkbox"].filled-in:checked + span:not(.lever):after   
+  { 
+      border: 2px solid #1ABC9C;    
+      background-color: #1ABC9C;  
+  } 
+    
+/* Radio button */  
+  [type="radio"]:checked + span:after,  
+  [type="radio"].with-gap:checked + span:before,  
+  [type="radio"].with-gap:checked + span:after {  
+   border: 2px solid #1ABC9C; 
+  } 
+  [type="radio"]:checked + span:after,  
+  [type="radio"].with-gap:checked + span:after {  
+    background-color: #1ABC9C;  
+  } 
+  input[type=range]+.thumb {  
+    background-color: #1ABC9C;  
+  }
+
+
+
+
+  /* strikethrough code */
+  .strikethrough {
+    text-decoration:line-through;
+    text-align: right;
+  }
+  .footer-top {
+    display: flex; 
+    flex-direction: row;
+  }
+  .footer-top-left {
+    width: 50%;
+  }
+  .footer-top-right {
+    width: 50%;
+  }
+  .footer-top-right > input {
+    font-size: 8.5px;
+    border: none;
+    width: 100%;
+    text-align: right;
+    background: transparent;
+  }
+    
+  .custom-bc1 {
+    background-color: #36404A;
+  }
+  .custom-bc2 {
+    background-color: #3B4853;
+    border-radius: 5px;
+  }
+  .custom-text1 {
+    color: #DEE2E6;
+  }
+  .custom-text2 {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .custom-text3 {
+    color: #8A8A8A;
+  }
+  .caret {
+    fill: #1ABC9C !important;
+  }
+
+
   </style>
 
   {% csrf_token %}
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
 
   <script type="text/javascript" src="{% static 'WAMSApp/js/jquery.js' %}"></script>
-  
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js" type="text/javascript"></script>
-  
+
+  <script type="text/javascript" src="{% static 'WAMSApp/js/jquery.dataTables.min.js' %}"></script>
+  <!-- <script type="text/javascript" src="{% static 'WAMSApp/js/materialize-.js' %}"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.all.js"></script>
+
+
+  <!-- <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.min.js' %}"></script> -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/gridstack@0.3.0/dist/gridstack.all.js"></script>
+  <script type="text/javascript" src="{% static 'WAMSApp/js/gridstack.jQueryUI.min.js' %}"></script>
 
   
   <div class="row" style="margin-bottom: 0em;">
@@ -104,13 +705,31 @@
 
 
         <!-- Image Categories -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 2em;">
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
             <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Categories</span>
           </span>
 
           <div class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;">
+            <div class="input-field col s8" style="margin-top: 0em;">
+              <select id="image-categories-thumbnails-select" style="font-size: 0.8em;">
+                <option value="all_images" id="all-images-option">All Images</option>
+                <option value="main_images" id="main-images-option">Main Images</option>
+                <option value="sub_images" id="sub-images-option">Sub Images</option>
+                <option value="pfl_images" id="pfl-images-option">PFL Images</option>
+                <option value="white_background_images" id="white-background-images-option">White Background Images</option>
+                <option value="lifestyle_images" id="lifestyle-images-option">Lifestyle Images</option>
+                <option value="certificate_images" id="certificate-images-option">Certificate Images</option>
+                <option value="giftbox_images" id="giftbox-images-option">Giftbox Images</option>
+                <option value="diecut_images" id="diecut-images-option">Diecut Images</option>
+                <option value="aplus_content_images" id="aplus-content-images-option">A+ Content Images</option>
+                <option value="ads_images" id="ads-images-option">Ads Images</option>
+                <option value="unedited_images" id="unedited-images-option">Unedited Images</option>
+                <option value="transparent_images" id="transparent-images-option">Transparent Images</option>
+              </select>
+            </div>
+
             <div class="col s12">
               <div id="image-categories-thumbnails-div" class="scroll-style-1 row" style="max-height: 10em;overflow-y:auto;margin-bottom: 0em;">
               </div>
@@ -120,7 +739,7 @@
 
 
         <!-- External Image Categories -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 2em;position: relative;">
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
             <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;" class="custom-text1">External Image Categories</span>
@@ -134,204 +753,364 @@
               </div>
             </div>
           </div>
-        </div>
 
 
-
-
-
-
-        <!-- Tag Bucket -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 2em;position: relative;">
-          <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Tag Bucket</span>
-
-            <div class="row" style="margin-bottom: 0em;">
-              <div class="col s6">
-                <div class="switch">
-                  <label>
-                    One
-                    <input id="tag-multi-option" type="checkbox">
-                    <span class="lever"></span>
-                    All
-                  </label>
-                </div>
-              </div>
-
-              <div class="col s6">
-                <div class="switch">
-                  <label>
-                    Add
-                    <input id="tag-delete-option" type="checkbox">
-                    <span class="lever"></span>
-                    Delete
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <a href="#add-new-tag-modal" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px; ">
-              <i class="material-icons" style="background-color: #1ABC9C;">add</i>
-            </a>
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">camera_font</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Image Resizer</span>
           </span>
-
-          <div id="tag-bucket-thumbnails-div" class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
-          </div>
-        </div>
-
-
-
-
-
-        <!-- Price Tag Bucket -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 2em;position: relative;">
-          <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
-            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Price Tag Bucket</span>
-
-            <div class="row" style="margin-bottom: 0em;">
-              <div class="col s6">
-                <div class="switch">
-                  <label>
-                    One
-                    <input id="price-tag-multi-option" type="checkbox">
-                    <span class="lever"></span>
-                    All
-                  </label>
-                </div>
-              </div>
-
-              <div class="col s6">
-                <div class="switch">
-                  <label>
-                    Add
-                    <input id="price-tag-delete-option" type="checkbox">
-                    <span class="lever"></span>
-                    Delete
-                  </label>
-                </div>
-              </div>
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="100" />
+                </p>
             </div>
-
-            <a href="#add-new-price-tag-modal" class="right modal-trigger btn-floating btn-small waves-effect waves-light green" style="transform: scale(0.7);position: absolute;right: 0px;top: -8px; ">
-              <i class="material-icons" style="background-color: #1ABC9C;">add</i>
-            </a>
-          </span>
-
-          <div id="price-tag-bucket-thumbnails-div" class="scroll-style-1 row custom-bc2 hoverable" style="margin-top:0.5em;max-height:10em;overflow-y:auto;padding-top: 0.6em;">
           </div>
-        </div>
 
-
-
-
-
-
-
-        <!-- Image Options -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
-          <ul class="collapsible" style="width:100%;border:none;">
-            <li style="width:100%;">
-              <div class="collapsible-header custom-bc2 white-text" style="width:100%;border-color:black;">
-                <i class="material-icons">camera_font</i>Image Resizer <i style="position: absolute;right: 1em;" class="material-icons right">arrow_drop_down</i>
-              </div>
-              <div class="collapsible-body" style="width:100%;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">compare</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Images</span>
+          </span>
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
                 <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="image-resizer" min="10" max="150" value="50" />
+                  <input class="custom-slider" type="range" id="all-image-resizer" min="10" max="150" value="100" />
                 </p>
-              </div>
-            </li>
+            </div>
+          </div>
 
-            <li style="width:100%;">
-              <div class="collapsible-header custom-bc2 white-text" style="width:100%;border-color:black;">
-                <i class="material-icons">compare</i>All Image Resizer <i style="position: absolute;right: 1em;" class="material-icons right">arrow_drop_down</i>
-              </div>
-              <div class="collapsible-body" style="width:100%;">
-                <p class="range-field" style="width:100%;">
-                  <input class="custom-slider" type="range" id="all-image-resizer" min="10" max="150" value="50" />
-                </p>
-              </div>
-            </li>
 
-            <li style="width:100%;">
-              <div class="collapsible-header custom-bc2 white-text" style="width:100%;border-color:black;">
-                <i class="material-icons">camera_font</i>Image Rotate <i style="position: absolute;right: 1em;" class="material-icons right">arrow_drop_down</i>
-              </div>
-              <div class="collapsible-body" style="width:100%;">
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">camera_font</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Rotate Image</span>
+          </span>
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
                 <p class="range-field" style="width:100%;">
                   <input class="custom-slider" type="range" id="image-rotator" min="-90" max="90" value="0" />
                 </p>
-              </div>
-            </li>
+            </div>
+          </div>
 
-            <li style="width:100%;">
-              <div class="collapsible-header custom-bc2 white-text" style="width:100%;border-color:black;">
-                <i class="material-icons">compare</i>All Image Rotate <i style="position: absolute;right: 1em;" class="material-icons right">arrow_drop_down</i>
-              </div>
-              <div class="collapsible-body" style="width:100%;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">compare</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Rotate All Images</span>
+          </span>
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
                 <p class="range-field" style="width:100%;">
                   <input class="custom-slider" type="range" id="all-image-rotator" min="-90" max="90" value="0" />
                 </p>
-              </div>
-            </li>
-          </ul>
+            </div>
+          </div>
+
+
         </div>
 
 
 
-        
 
 
-
-
-
-
-        <!-- Font Settings -->        
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 2em;">
+        <!-- Product Title Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Font Settings</span>
-            <div class="switch right">
-              <label>
-                One
-                <input id="font-multi-option" type="checkbox" checked>
-                <span class="lever"></span>
-                All
-              </label>
-            </div>
-
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Product Title Settings</span>
           </span>
           
           <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding:5px">
-            <div class="col s6" style="margin: 0em;padding-top:0em;">
-              <input id="font-size" type="number" value="12" class="custom-text3">
+            <div class="input-field col s6" style="margin-top: 1em !important;">
+              <input id="product-title-font-size" type="number" value="12" class="custom-text3">
+              <label for="product-title-font-size">Font Size</label>  
             </div>
 
-            <div class="col s6" style="margin: 0em;padding-top:0em;">
-                <select id="font-family">
-                  <option value="Arial">Arial</option> 
-                  <option value="Impact">Impact</option>
-                  <option value="Helvetica" selected>Helvetica</option>
-                  <option value="AvenirNextRegular">AvenirNextRegular</option>
-                  <option value="BebasNeueRegular">Bebas Neue Regular</option>
-                  <option value="FrankRegular">Frank Regular</option>
-                  <option value="GothamBookRegular">Gotham Book Regular</option>
-                </select>
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="product-title-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
+              </select>
+              <label>Font Family</label>
             </div>
 
-            <div class="col s6" style="margin-top: 1em;padding-right: 0em;">
-              <a href="#!" id="format-bold-btn" bold=false><i class="material-icons white-text">format_bold</i></a>
-              <a href="#!" id="format-underlined-btn" underlined=false><i class="material-icons white-text">format_underlined</i></a>
-              <a href="#!" id="format-italic-btn" italic=false><i class="material-icons white-text">format_italic</i></a>
-              <a href="#!" id="font-align-left-btn" class="font-alignment" value="left"><i class="material-icons white-text">format_align_left</i></a>
-              <a href="#!" id="font-align-center-btn" class="font-alignment" value="center"><i class="material-icons white-text">format_align_center</i></a>
-              <a href="#!" id="font-align-right-btn" class="font-alignment" value="right"><i class="material-icons white-text">format_align_right</i></a>
-            </div> 
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="product-title-font-weight">
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
+              </select>
+              <label>Font Weight</label>
+            </div>  
 
-            <div class="col s6" style="margin-top: 1em;padding-top:0em;">
-              <input id="font-color" type="color" value="#000000" class="custom-text3">
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <span class="custom-text2">Font Color</span>
+              <input id="product-title-font-color" type="color" value="#181818"> 
+            </div>
+
+          </div>
+        </div>
+
+
+
+         <!-- Price Box Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Price Box Settings</span>
+          </span>
+          
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;">
+            <!-- Font Size -->
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <input id="product-price-font-size" type="number" value="18" class="custom-text3">
+              <label for="product-price-font-size">Price Font Size</label>
+            </div>
+
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <input id="currency-font-size" type="number" value="8.5" class="custom-text3">
+              <label for="currency-font-size">Currency Font Size</label>  
+            </div>
+
+
+            <!-- Font Family -->
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="product-price-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
+              </select>
+              <label>Price Font Family</label>
+            </div>
+
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="currency-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
+              </select>
+              <label>Currency Font Family</label>
+            </div>
+
+
+            <!-- Font Weight -->
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="product-price-font-weight">
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
+              </select>
+              <label>Price Font Weight</label>
+            </div>
+
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="currency-font-weight">
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
+              </select>
+              <label>Currency Font Weight</label>
+            </div>
+
+
+            <!-- Font Color -->
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <span class="custom-text2">Price Font Color</span>
+              <input id="product-price-font-color" type="color" value="#181818"> 
+            </div>
+
+            
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <span class="custom-text2">Currency Font Color</span>
+              <input id="currency-font-color" type="color" value="#181818"> 
+            </div>
+
+
+            <div class="input-field col s6" style="margin-top: 1em !important;">
+              <input id="currency-unit" type="text" value="AED" class="custom-text3">
+              <label for="currency-unit">Currency</label>  
+            </div>
+
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <span class="custom-text2">Box BG Color</span>
+              <input id="price-box-bg-color" type="color" value="#FBF00B"> 
+            </div>
+
+          </div>
+
+
+           <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize Price Box</span>
+          </span>
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="price-resizer" min="10" max="150" value="80" />
+                </p>
+            </div>
+          </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <!-- Strike Price Settings -->
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">font_download</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Strike Price Settings</span>
+          </span>
+          
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;">
+
+            <!-- Font Size -->
+            <div class="input-field col s6" style="margin-top: 2em;">
+              <input id="product-strikeprice-font-size" type="number" value="8.5" class="custom-text3">
+              <label for="product-strikeprice-font-size">Price Font Size</label>
+            </div>
+
+            <!-- Font Family -->
+            <div class="input-field col s6" style="margin-top: 2em">
+              <select id="product-strikeprice-font-family">
+                <option value="Arial">Arial</option> 
+                <option value="Impact">Impact</option>
+                <option value="Helvetica" selected>Helvetica</option>
+                <option value="AvenirNextRegular">AvenirNextRegular</option>
+                <option value="BebasNeueRegular">Bebas Neue Regular</option>
+                <option value="FrankRegular">Frank Regular</option>
+                <option value="GothamBookRegular">Gotham Book Regular</option>
+              </select>
+              <label>Price Font Family</label>
+            </div>
+
+
+            <!-- Font Weight -->
+            <div class="input-field col s6" style="margin-bottom: 1em;">
+              <select id="product-strikeprice-font-weight">
+                <option value="normal">Normal</option> 
+                <option value="bold">Bold</option>
+              </select>
+              <label>Price Font Weight</label>
+            </div>
+
+
+            <!-- Font Color -->
+            <div class="input-field col s6" style="margin-top: 2em !important;">
+              <span class="custom-text2">Price Font Color</span>
+              <input id="product-strikeprice-font-color" type="color" value="#181818" class="custom-text3"> 
+            </div>
+
+            <!-- Show/Hide -->
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="strikeprice-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Strike Price Visible</span>
+              </label>
+            </div>
+
+
+          </div>
+
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">dashboard</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header Logos</span>
+          </span>
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="super-brand-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Superbrands</span>
+              </label>
+            </div>
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="iso-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">ISO</span>
+              </label>
+            </div>
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="consumer-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Tagline</span>
+              </label>
+            </div>
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="small-brand-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Brand (Container)</span>
+              </label>
+            </div>
+            <div class="col s12" style="margin: 8px 0">
+              <label>
+                <input id="white-option" type="checkbox" class="filled-in checkbox-flyer" checked />
+                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">White (Container)</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- Header Footer Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">view_day</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Header/Footer Settings</span>
+          </span>
+          
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding:5px;">
+            <div class="input-field col s6" style="margin-top: 0em !important;">
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;" class="custom-text2">Header Color</p>
+              <input id="header-color" type="color" value="#181818">  
+            </div>
+
+            <div class="input-field col s6" style="margin-top: 0em !important;">
+              <p style="font-family: 'AvenirNext'; font-size: 14px;margin-bottom: 0em;" class="custom-text2">Footer Color</p>
+              <input id="footer-color" type="color" value="#181818">
+            </div>
+
+
+
+            <div class="col s6">
+              <p style="margin-bottom: 0em;" class="custom-text2">Header Opacity</p>
+              <p class="range-field" style="width:100%;margin-top: 0em;">
+                <input class="custom-slider" type="range" id="header-opacity" min="0" max="1" value="1" step="0.01" />
+              </p>
+            </div>
+
+            <div class="col s6">
+              <p style="margin-bottom: 0em;" class="custom-text2">Footer Opacity</p>
+              <p class="range-field" style="width:100%;margin-top: 0em;">
+                <input class="custom-slider" type="range" id="footer-opacity" min="0" max="1" value="1" step="0.01" />
+              </p>
             </div>
 
           </div>
@@ -343,12 +1122,13 @@
 
 
 
-        <!-- General Settings -->        
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 2em;">
+
+        <!-- Border Settings -->        
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;">
 
           <span style="font-family: 'AvenirNextRegular';color:#717171;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">border_all</i>
-            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">General Settings</span>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Border Settings</span>
           </span>
           
           <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
@@ -356,19 +1136,264 @@
               <label>
                 <input id="border-option" class="filled-in checkbox-flyer" type="checkbox" checked />
                 <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">Border Visible</span>
-              </label>&nbsp;&nbsp;
-
-              <input id="border-color" type="color" value="black"> 
-            </div>
-
-            <div class="col s6" style="margin-top: 1em;">
-              <label>
-                <input id="white-option" class="filled-in checkbox-flyer" type="checkbox" checked />
-                <span class="left" style="font-size: 14px;font-family: 'AvenirNext';">White Container</span>
               </label>
             </div>
 
+            <div class="input-field col s6">
+              <span class="custom-text2">Border Color</span>
+              <input id="border-color" type="color" value="#EBEBEB"> 
+            </div>
+
           </div>
+
+          
+
+
+         
+
+
+          <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons custom-text1" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">book</i>
+            <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Promotional/Warranty Tags</span>
+          </span>
+          <div class="row custom-bc2 hoverable scroll-style-1" style="margin-top:0.5em;padding: 1em;max-height: 20em;overflow-y: auto;">
+            <div class="col s6">
+              <span style="font-family: 'AvenirNext';color:#717171;">
+                <span style="font-size: 14px;font-weight: bold;">Apply to All</span>
+              </span>
+              <form action="#">
+                <p class="custom-text2">Promotional Tags</p>
+                <p>
+                  <label>
+                    <input id="global-none" value="None" name="group1" type="radio" checked />
+                    <span>None</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-sale" value="Sale" name="group1" type="radio" />
+                    <span>Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-combo" value="Combo Offers" name="group1" type="radio" />
+                    <span>Combo Offers</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-wow" value="Wow" name="group1" type="radio"  />
+                    <span>Wow</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-half-price" value="Half Price" name="group1" type="radio"  />
+                    <span>Half Price</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-killer-offer" value="Killer Offer" name="group1" type="radio"  />
+                    <span>Killer Offer</span>
+                  </label>
+                </p>
+                <br>
+                <p class="custom-text2">Warranty Tags</p>
+                <p>
+                  <label>
+                    <input id="global-no-warranty" value="None" name="group3" type="radio"  />
+                    <span>None</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-geepas-warranty-1" value="geepas-warranty-1" name="group3" type="radio"  />
+                    <span>Geepas Warranty 1 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-geepas-warranty-2" value="geepas-warranty-2" name="group3" type="radio"  />
+                    <span>Geepas Warranty 2 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-geepas-warranty-3" value="geepas-warranty-3" name="group3" type="radio"  />
+                    <span>Geepas Warranty 3 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-geepas-warranty-5" value="geepas-warranty-5" name="group3" type="radio"  />
+                    <span>Geepas Warranty 5 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-geepas-warranty-7" value="geepas-warranty-7" name="group3" type="radio"  />
+                    <span>Geepas Warranty 7 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-olsenmark-warranty-2" value="olsenmark-warranty-2" name="group3" type="radio"  />
+                    <span>Olsenmark Warranty 2 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="global-krypton-warranty-2" value="krypton-warranty-2" name="group3" type="radio"  />
+                    <span>Krypton Warranty 2 Year</span>
+                  </label>
+                </p>
+              </form>
+            </div>
+            <div class="col s6">
+              <span style="font-family: 'AvenirNext';color:#717171;">
+                <span style="font-size: 14px;font-weight: bold;">Apply to One</span>
+              </span>
+              <form action="#">
+                <p>&nbsp;</p>
+                <p>
+                  <label>
+                    <input id="local-none" value="None" name="group2" type="radio" checked />
+                    <span>None</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-sale" value="Sale" name="group2" type="radio" />
+                    <span>Sale</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-combo" value="Combo Offers" name="group2" type="radio" />
+                    <span>Combo Offers</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-wow" value="Wow" name="group2" type="radio"  />
+                    <span>Wow</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-half-price" value="Half Price" name="group2" type="radio"  />
+                    <span>Half Price</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-killer-offer" value="Killer Offer" name="group2" type="radio"  />
+                    <span>Killer Offer</span>
+                  </label>
+                </p>
+                <br>
+                <p>&nbsp;</p>
+                <p>
+                  <label>
+                    <input id="local-no-warranty" value="None" name="group4" type="radio"  />
+                    <span>None</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-geepas-warranty-1" value="geepas-warranty-1" name="group4" type="radio"  />
+                    <span>Geepas Warranty 1 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-geepas-warranty-2" value="geepas-warranty-2" name="group4" type="radio"  />
+                    <span>Geepas Warranty 2 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-geepas-warranty-3" value="geepas-warranty-3" name="group4" type="radio"  />
+                    <span>Geepas Warranty 3 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-geepas-warranty-5" value="geepas-warranty-5" name="group4" type="radio"  />
+                    <span>Geepas Warranty 5 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-geepas-warranty-7" value="geepas-warranty-7" name="group4" type="radio"  />
+                    <span>Geepas Warranty 7 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-olsenmark-warranty-2" value="olsenmark-warranty-2" name="group4" type="radio"  />
+                    <span>Olsenmark Warranty 2 Year</span>
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    <input id="local-krypton-warranty-2" value="krypton-warranty-2" name="group4" type="radio"  />
+                    <span>Krypton Warranty 2 Year</span>
+                  </label>
+                </p>
+              </form>
+            </div>
+          </div>
+
+
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s6">
+              <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize Promotional Tags</span>
+              <p class="range-field" style="width:100%;">
+                <input class="custom-slider" type="range" id="promo-resizer" min="10" max="80" value="40" />
+              </p>
+            </div>
+
+            <div class="col s6">
+              <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize All Promotional Tags</span>
+              <p class="range-field" style="width:100%;">
+                <input class="custom-slider" type="range" id="all-promo-resizer" min="10" max="80" value="40" />
+              </p>
+            </div>
+          </div>
+
+          <div class="row custom-bc2 hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s6">
+              <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize Warranty Tags</span>
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="warranty-resizer" min="10" max="80" value="40" />
+                </p>
+            </div>
+            <div class="col s6">
+                <span class="custom-text2" style="font-size: 14px;font-weight: bold;">Resize All Warranty Tags</span>
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="all-warranty-resizer" min="10" max="80" value="40" />
+                </p>
+            </div>
+          </div>
+
+
+          <!-- <span style="font-family: 'AvenirNextRegular';color:#717171;">
+            <i class="material-icons" style="position: absolute;font-size: 1.3em;margin-left: -0.5em;">transform</i>
+            <span style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Resize All Warranty Tags</span>
+          </span>
+          <div class="row white hoverable" style="margin-top:0.5em;padding-top:0.6em;padding-bottom: 0.6em;">
+            <div class="col s12">
+                <p class="range-field" style="width:100%;">
+                  <input class="custom-slider" type="range" id="all-warranty-resizer" min="10" max="80" value="40" />
+                </p>
+            </div>
+          </div> -->
+
+
+
         </div>
 
 
@@ -379,7 +1404,7 @@
 
 
         <!-- Background Image Bucket -->
-        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 2em;position: relative;">
+        <div class="col s12" style="width: 90%;margin-left: 5%;margin-top: 1em;position: relative;">
           <span style="font-family: 'AvenirNextRegular';color:#717171;margin-bottom: 1em;">
             <i class="material-icons custom-text1" style="position: absolute;font-size: 1.5em;margin-left: -0.5em;">image</i>
             <span class="custom-text1" style="margin-left: 1.5em;font-size: 14px;font-weight: bold;">Background Image Bucket</span>
@@ -392,6 +1417,35 @@
           </div>
         </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         
+
+
+
+        
+
+
+
+
+
+        
+
+
+        
 
 
         <div class="col s12" style="width: 90%;margin-left: 5%;padding-right: 0em;">
@@ -416,7 +1470,6 @@
             <a id="increase-height-btn" class="btn custom-bc2" title="Increase Height" style="position:absolute;text-transform: none;margin-left: 20em;"><i class="material-icons">keyboard_arrow_up</i></a>
             <a id="decrease-height-btn" class="btn custom-bc2" title="Decrease Height" style="position:absolute;text-transform: none;margin-left: 24em;"><i class="material-icons">keyboard_arrow_down</i></a>
 
-
             <a id="download-flyer-btn" class="btn hoverable" style="width:10em;text-align: left;text-transform: none;margin-left: 172mm;position: relative;background-color:#1ABC9C">Download<i class="material-icons right">file_download</i>
               <div id="loader-div" class="preloader-wrapper small active" style = "display:none;position: absolute;left: -50px; top: 0px;">
                 <div class="spinner-layer spinner-green-only">
@@ -437,24 +1490,45 @@
         <div>
           <p id="mode-label-top" style="color: silver;"></p>
         </div>
-        
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0;">
-        
-        <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;margin-bottom: 0em;padding-top: 1em;">
-          <div id="flyer-grid" class="col s12" style="width: 210mm;">
-            <div id="grid-stack-div" class="grid-stack primary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
+        <div id="flyer-div" class="row white" style="text-align: center;margin-left: auto;margin-right: auto; height: 297mm;width: 210mm;margin-bottom: 0em;">
 
+         <div id="header-div" class="col s12 row valign-wrapper" style="background-color: #181818;text-align: center;width: 210mm;padding: 20px;">  
+            <div class="col s6 left-horizontally">  
+              <img id="super-brand-img" src="/files/super-brand.png" style="display:none;max-width: 73.5mm;max-height:15mm; margin-right:10px;"> 
+              <img id="iso-img" src="/files/iso.png" style="display:none;max-width: 73.5mm;max-height:15mm;margin-right:10px">  
+              <img id="consumer-img" src="/files/consumer.png" style="display:none;max-width: 73.5mm;max-height:15mm;margin-right:10px;max-height: 40px;">
+                  
+            </div>  
+            <div class="col s6 right-horizontally" style="">  
+              <img id="brand-image-img" src="" style="max-width: 73.5mm;max-height:15mm;">  
+            </div>  
+          </div>
+
+
+          <div id="flyer-grid" class="col s12" style="width: 210mm;">
+            <div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">
+              
             </div>
           </div>
+
+
+          <div id="footer-div" class="col s12" style="background-color:#181818;position: absolute;margin-top: 287mm;width:210mm;height: 10mm;">
+            <div class="white-text" style="font-size: 1.1em;margin-top:-1mm;">
+              <p id="footer-text" class="right" style="font-size: 0.8em;color:white;font-family:'AvenirNextRegular';" contenteditable="true"></p>
+            </div>
+          </div>
+
+
         </div>
-        
         <hr style="border-bottom: 1px dashed silver;opacity: .3;margin:0">
-        
         <div>
           <p id="mode-label-bottom" style="color: silver;"></p>
         </div>
+
       </div>
     </div>
+  </div>
 
 
 
@@ -481,733 +1555,516 @@
 </div>
 
 
-<div id="add-new-bg-modal" class="modal">
-  <div class="modal-content">
-    <h5 style="font-family: 'AvenirNext';font-size: 18px">NEW BACKGROUND IMAGE</h5>
-    <br>
-    <div class="row">
-      
-      <div class="file-field input-field col s10">
-        <div class="btn" style="background-color: #1ABC9C;">
-          <span>File</span>
-          <input id="new-bg-image" type="file">
+  <div id="add-new-bg-modal" class="modal">
+    <div class="modal-content">
+      <h5 style="font-family: 'AvenirNext';font-size: 18px">NEW BACKGROUND IMAGE</h5>
+      <br>
+      <div class="row">
+        
+        <div class="file-field input-field col s10">
+          <div class="btn" style="background-color: #1ABC9C;">
+            <span>File</span>
+            <input id="new-bg-image" type="file">
+          </div>
+          <div class="file-path-wrapper">
+            <input class="file-path validate" type="text">
+          </div>
         </div>
-        <div class="file-path-wrapper">
-          <input class="file-path validate" type="text">
-        </div>
-      </div>
 
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
+      <a id="upload-new-bg-image-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #1ABC9C;">Save</a>
     </div>
   </div>
-  <div class="modal-footer">
-    <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
-    <a id="upload-new-bg-image-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #1ABC9C;">Save</a>
-  </div>
-</div>
+
+  <script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
+  <script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.min2.js' %}"></script>
+  <!-- <script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> -->
+  <script type="text/javascript">
+
+
+    $('.sidenav').sidenav({
+      "inDuration": 150,
+      "outDuration": 150
+    });
+
+    $("select").formSelect();
+    $('.modal').modal();
+
+    $(document).on("change", "#super-brand-option", function(){
+      if($("#super-brand-option").prop("checked"))
+      {
+        $("#super-brand-img").show();
+        global_super_brand_logo = true;
+      }
+      else
+      {
+        $("#super-brand-img").hide();
+        global_super_brand_logo = false;
+      }
+    });
+
+    $(document).on("change", "#iso-option", function(){
+      if($("#iso-option").prop("checked"))
+      {
+        $("#iso-img").show();
+        global_iso_logo = true;
+      }
+      else
+      {
+        $("#iso-img").hide();
+        global_iso_logo = false;
+      }
+    });
+
+    $(document).on("change", "#consumer-option", function(){
+      if($("#consumer-option").prop("checked"))
+      {
+        $("#consumer-img").show();
+        global_consumer_logo = true;
+      }
+      else
+      {
+        $("#consumer-img").hide();
+        global_consumer_logo = false;
+      }
+    });
+
+    $(document).on("change", "#small-brand-option", function(){
+      if($("#small-brand-option").prop("checked"))
+      {
+        $(".brand-text").show();
+        global_brand_name_visible = true;
+      }
+      else
+      {
+        $(".brand-text").hide();
+        global_brand_name_visible = false;
+      }
+    });
+
+    $(document).on("change", "#white-option", function(){
+      if($("#white-option").prop("checked"))
+      {
+        $(".grid-stack-item-content").css("background-color", "white");
+        global_white_container = true;
+      }
+      else
+      {
+        $(".grid-stack-item-content").css("background-color", "transparent");
+        global_white_container = false;
+      }
+    });
+
+
+    $('input[type=radio][name=group1]').change(function() {
+
+        if (this.value == "None") {
+            $("#local-none").click();
+            $(".banner-img").attr("src", "");
+            $(".banner-img").hide();
+        }
+        else if (this.value == "Sale") {
+            $("#local-sale").click();
+            $(".banner-img").attr("src", "/files/banner1.png");
+            $(".banner-img").show();
+        }
+        else if(this.value == "Combo Offers")
+        {
+            $("#local-combo").click();
+            $(".banner-img").attr("src", "/files/combo.png");
+            $(".banner-img").show();
+        }
+        else if(this.value == "Wow")
+        {
+            $("#local-wow").click();
+            $(".banner-img").attr("src", "/files/wow.png");
+            $(".banner-img").show();
+        }
+        else if(this.value == "Half Price")
+        {
+            $("#local-half-price").click();
+            $(".banner-img").attr("src", "/files/half-price.png");
+            $(".banner-img").show();
+        }
+        else if(this.value == "Killer Offer")
+        {
+            $("#local-killer-offer").click();
+            $(".banner-img").attr("src", "/files/killer-offer.png");
+            $(".banner-img").show();
+        }
+    });
+
+
+    $('input[type=radio][name=group2]').change(function() {
+        if (this.value == "None") {
+            $("#banner-img-"+global_selected_grid_id).attr("src", "");
+            $("#banner-img-"+global_selected_grid_id).hide();
+        }
+        else if (this.value == "Sale") {
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/banner1.png");
+            $("#banner-img-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "Combo Offers")
+        {
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/combo.png");
+            $("#banner-img-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "Wow")
+        { 
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/wow.png");
+            $("#banner-img-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "Half Price")
+        { 
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/half-price.png");
+            $("#banner-img-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "Killer Offer")
+        { 
+            $("#banner-img-"+global_selected_grid_id).attr("src", "/files/killer-offer.png");
+            $("#banner-img-"+global_selected_grid_id).show();
+        }
+    });
+
+    // Global Warranty
+    $('input[type=radio][name=group3]').change(function() {
+
+        if (this.value == "None") {
+            $("#local-no-warranty").click();
+            $(".banner-img-left").attr("src", "");
+            $(".banner-img-left").hide();
+        }
+        else if (this.value == "geepas-warranty-1") {
+            $("#local-geepas-warranty-1").click();
+            $(".banner-img-left").attr("src", "/files/geepas-warranty-1.png");
+            $(".banner-img-left").show();
+        }
+        else if(this.value == "geepas-warranty-2")
+        {
+            $("#local-geepas-warranty-2").click();
+            $(".banner-img-left").attr("src", "/files/geepas-warranty-2.png");
+            $(".banner-img-left").show();
+        }
+        else if(this.value == "geepas-warranty-3")
+        {
+            $("#local-geepas-warranty-3").click();
+            $(".banner-img-left").attr("src", "/files/geepas-warranty-3.png");
+            $(".banner-img-left").show();
+        }
+        else if(this.value == "geepas-warranty-5")
+        {
+            $("#local-geepas-warranty-5").click();
+            $(".banner-img-left").attr("src", "/files/geepas-warranty-5.png");
+            $(".banner-img-left").show();
+        }
+        else if(this.value == "geepas-warranty-7")
+        {
+            $("#local-geepas-warranty-7").click();
+            $(".banner-img-left").attr("src", "/files/geepas-warranty-7.png");
+            $(".banner-img-left").show();
+        }
+        else if(this.value == "olsenmark-warranty-2")
+        {
+            $("#local-olsenmark-warranty-2").click();
+            $(".banner-img-left").attr("src", "/files/olsenmark-warranty-2.png");
+            $(".banner-img-left").show();
+        }
+        else if(this.value == "krypton-warranty-2")
+        {
+            $("#local-krypton-warranty-2").click();
+            $(".banner-img-left").attr("src", "/files/krypton-warranty-2.png");
+            $(".banner-img-left").show();
+        }
+    });
+
+
+    // Local Warranty
+    $('input[type=radio][name=group4]').change(function() {
+
+        if (this.value == "None") {
+            $("#banner-img-left-"+global_selected_grid_id).attr("src", "");
+            $("#banner-img-left-"+global_selected_grid_id).hide();
+        }
+        else if (this.value == "geepas-warranty-1") {
+            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-1.png");
+            $("#banner-img-left-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "geepas-warranty-2")
+        {
+            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-2.png");
+            $("#banner-img-left-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "geepas-warranty-3")
+        {
+            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-3.png");
+            $("#banner-img-left-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "geepas-warranty-5")
+        {
+            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-5.png");
+            $("#banner-img-left-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "geepas-warranty-7")
+        {
+            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/geepas-warranty-7.png");
+            $("#banner-img-left-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "olsenmark-warranty-2")
+        {
+            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/olsenmark-warranty-2.png");
+            $("#banner-img-left-"+global_selected_grid_id).show();
+        }
+        else if(this.value == "krypton-warranty-2")
+        {
+            $("#banner-img-left-"+global_selected_grid_id).attr("src", "/files/krypton-warranty-2.png");
+            $("#banner-img-left-"+global_selected_grid_id).show();
+        }
+    });
 
 
 
+    var elems  = document.querySelectorAll("input[type=range]");  
+    M.Range.init(elems);
 
-<div id="add-new-tag-modal" class="modal">
-  <div class="modal-content">
-    <h5 style="font-family: 'AvenirNext';font-size: 18px">NEW TAG IMAGE</h5>
-    <br>
-    <div class="row">
-      
-      <div class="file-field input-field col s10">
-        <div class="btn" style="background-color: #1ABC9C;">
-          <span>File</span>
-          <input id="tag-image" type="file">
-        </div>
-        <div class="file-path-wrapper">
-          <input class="file-path validate" type="text">
-        </div>
-      </div>
-
-    </div>
-  </div>
-  <div class="modal-footer">
-    <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
-    <a id="upload-flyer-tag-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #1ABC9C;">Upload</a>
-  </div>
-</div>
-
-
-
-
-<div id="add-new-price-tag-modal" class="modal">
-  <div class="modal-content">
-    <h5 style="font-family: 'AvenirNext';font-size: 18px">NEW PRICE TAG IMAGE</h5>
-    <br>
-    <div class="row">
-      
-      <div class="file-field input-field col s10">
-        <div class="btn" style="background-color: #1ABC9C;">
-          <span>File</span>
-          <input id="price-tag-image" type="file">
-        </div>
-        <div class="file-path-wrapper">
-          <input class="file-path validate" type="text">
-        </div>
-      </div>
-
-    </div>
-  </div>
-  <div class="modal-footer">
-    <a href="#!" class="modal-close waves-effect btn-flat">Cancel</a>
-    <a id="upload-flyer-price-tag-btn" href="#!" class="waves-effect btn-flat white-text" style="background-color: #1ABC9C;">Upload</a>
-  </div>
-</div>
-
-
-
-<script type="text/javascript" src="{% static 'WAMSApp/js/canvas2image.js' %}"></script>
-<script type="text/javascript" src="{% static 'WAMSApp/js/html2canvas.min2.js' %}"></script>
-
-<script type="text/javascript">
-
-    M.AutoInit();
 
     var global_product_bucket_list = [];
     var global_selected_product_pk = "";
     var global_selected_product_name = "";
     var global_product_images_dict = {};
+    var global_selected_grid_id = "";
     var global_template_data = {};
+    var global_selected_product_info_id = "";
     var global_background_images_bucket = [];
+    var global_brand_name = "";
     var global_external_image_bucket = [];
-    var global_tag_bucket = [];
-    var global_price_tag_bucket = [];
+    
+    var global_currency_unit = "AED"
+    var global_border_visible = true;
+    var global_border_color = "#E9E9E9";
+    var global_background_image_url = "none";
+    var global_product_title_font_size = "12";
+    var global_product_title_font_family = "AvenirNextRegular";
+    var global_product_title_font_weight = "normal";
+    var global_product_title_font_color = "#181818";
+    var global_price_font_size = "12";
+    var global_price_font_family = "AvenirNextRegular";
+    var global_price_font_weight = "normal";
+    var global_price_font_color = "#181818";
+    var global_strikeprice_font_size = "12";
+    var global_strikeprice_font_family = "AvenirNextRegular";
+    var global_strikeprice_font_weight = "normal";
+    var global_strikeprice_font_color = "#181818";
+    var global_currency_font_size = "12";
+    var global_currency_font_family = "AvenirNextRegular";
+    var global_currency_font_weight = "normal";
+    var global_currency_font_color = "#181818";
+    var global_price_box_bg_color = "#fbf00b";
+    var global_header_color = "#181818";
+    var global_footer_color = "#181818";
+    var global_header_opacity = "1";
+    var global_footer_opacity = "1";    
+    var global_all_promo_resizer = "40";
+    var global_all_warranty_resizer = "40";
+    var global_all_image_resizer = "100";
+    var global_all_image_rotator = "0";
+    var global_super_brand_logo = false;
+    var global_iso_logo = false;
+    var global_consumer_logo = false;
+    var global_brand_name_visible = false;
+    var global_white_container = false;
+    var global_price_resizer = "100";
+    var global_strikeprice_visible = false;
+    var global_footer_text = "www.geepas.com";
 
     var global_flyer_name = "flyer";
 
     var global_save_signal = false;
 
-    var global_primary_grid = "";
 
-    var active_grid_id = "";
-    var grid_active = "PRIMARY";
+    $("#download-flyer-btn").click(function(e){
 
-    var global_grid_store = {};
-    var global_grid_cnt = 0;
+      if(global_save_signal==false)
+      {
+        $("#download-flyer-btn").attr("disabled", "disabled");
+        $("#loader-div").show();
+      }
 
+      var total_grids = $(".grid-stack-item").length;
+      var image_links = [];
+      var original_bg_image_url = "none";
+      if ($("#flyer-div").css("background-image")!="none" ){
+        image_links.push({"key": "background_image", "url": $("#flyer-div").css("background-image").split("\"")[1]});
+        original_bg_image_url = $("#flyer-div").css("background-image").split("\"")[1];
+      }
 
+      for (var i = 0; i <total_grids; i++){
+        var grid_id = $($(".grid-stack-item")[i]).attr("grid-id");
+        if($("#gridimg-"+grid_id).attr('src')!="null")
+        {
+          image_links.push({"key": "gridimg-" + grid_id, "url": $("#gridimg-"+grid_id).attr('src')});
+        }
+      }
 
-    function getCsrfToken() {
-      var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
-      return CSRF_TOKEN;
-    }
+      if($("#brand-image-img").attr("src")!="")
+      {
+        image_links.push({"key": "brand-image-img", "url": $("#brand-image-img").attr("src")});
+      }
 
+      console.log("Image Links: ", image_links);
 
-    // ------------------ Grid Stack Logic START ------------------
-
-
-    function initialize_grid()
-    {
-      global_primary_grid = GridStack.init({
-        animate: true,
-        verticalMargin: 6,
-        column: 24,
-        cellHeight: 10,
-        resizable: {
-          handles: 'e, se, s, sw, w, n'
+      $.ajax({
+        url: "/download-images-s3/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
         },
-        float:true
-      }, '.primary-grid-stack');
-    }
-
-
-    function create_unit_tag_html(tag_dict)
-    {
-      var image_url = tag_dict["image-url"];
-      var grid_id = tag_dict["grid-id"];
-      var rotation = tag_dict["rotation"];
-      var image_pk = tag_dict["image-pk"];
-
-      var html_string = `
-        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
-          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" is-price-tag=false price=0 top=0 left=0 font-size=0 style="overflow:hidden;transform:rotate(`+rotation+`deg)">
-            <img class="secondary-grid-stack-item-content-img" grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" image-rotator=0  src="`+image_url+`" style="position:absolute;top:0;left:0;z-index:-1;width:100%;" rotation=`+rotation+`>
-          </div>
-        </div>`
-
-      return html_string;
-    }
-
-
-
-    function create_unit_price_tag_html(tag_dict)
-    {
-      var image_url = tag_dict["image-url"];
-      var grid_id = tag_dict["grid-id"];
-      var rotation = tag_dict["rotation"];
-      var image_pk = tag_dict["image-pk"];
-      var price = tag_dict["price"];
-      var top = tag_dict["top"];
-      var left = tag_dict["left"];
-      
-      var font_size = tag_dict["font-size"];
-      var font_color = tag_dict["font-color"];
-      var font_family = tag_dict["font-family"];
-      var bold = tag_dict["bold"];
-      var underlined = tag_dict["underlined"];
-      var italic = tag_dict["italic"];
-      var font_alignment = tag_dict["font-alignment"];
-
-      var html_string = `
-        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="5" data-gs-height="3" style="background-color: transparent;" grid-id="`+grid_id+`">
-          <div grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content secondary-grid-stack-item-tag-content" is-price-tag=true style="overflow:hidden;transform:rotate(`+rotation+`deg)">
-            <img class="secondary-grid-stack-item-content-img" grid-image-pk="`+image_pk+`" gridid="`+grid_id+`" image-rotator=0  src="`+image_url+`" style="position:absolute;top:0;left:0;z-index:-1;width:100%;" rotation=`+rotation+`>
-            <div price-id="`+grid_id+`" font-controller-id=`+grid_id+` font-controller-type=price class="price-tag-input font-controller" style="font-size:`+font_size+`px;position:absolute;top:`+top+`%;left:`+left+`%;" contenteditable onclick='$(this).focus();' price=`+price+` top=`+top+` left=`+left+` font-size=`+font_size+`>`+price+`</div>
-          </div>
-        </div>`
-
-      return html_string;
-    }
-
-
-    function create_unit_info_container_html(tag_dict)
-    {
-      var grid_id = tag_dict["grid-id"];
-
-
-      var html_string = `
-        <div class="grid-stack-item secondary-grid-stack-item" data-gs-x="3" data-gs-y="6" data-gs-width="18" data-gs-height="5" grid-id="`+grid_id+`">
-          <div gridid="`+grid_id+`" class="grid-stack-item-content secondary-grid-stack-item-content" style="overflow:hidden;">
-            <div class="row" style="margin: 0em;padding:0em;">
-              <div class="col s10" style="margin-bottom: 0em;">
-                <textarea font-controller-id=`+grid_id+` font-controller-type=info text-grid-id="`+grid_id+`" class="materialize-textarea left secondary-grid-stack-item-content-info font-controller" placeholder="product name" style="height: 30px;border:0em;box-shadow: none;margin-bottom:0em;" bold=false underlined=false italic=false></textarea>
-              </div>
-            </div>
-          </div>
-        </div>`
-
-      return html_string;
-    }
-
-
-    function create_unit_flyer_html(flyer_dict)
-    {
-      var grid_id = flyer_dict["grid-id"];
-      var image_url = flyer_dict["image-url"];
-      var image_resizer = flyer_dict["image-resizer"];
-      var image_rotator = flyer_dict["image-rotator"];
-      var top = flyer_dict["top"];
-      var left = flyer_dict["left"];
-
-      var html_string = `
-        <div class="grid-stack-item primary-grid-stack-item" data-gs-width="10" data-gs-height="20" grid-id="`+grid_id+`">
-          <div gridid="`+grid_id+`" class="grid-stack-item-content primary-grid-stack-item-content" style="border:2px solid `+global_border_color+`;overflow: hidden;">
-            <div id="secondary-grid-stack-`+grid_id+`" class="grid-stack secondary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
-            </div>
-            <img class="primary-grid-stack-item-content-img" gridid="`+grid_id+`" image-resizer=`+image_resizer+` image-rotator=`+image_rotator+` top=`+top+` left=`+left+` src="`+image_url+`" style="width:`+image_resizer+`%;position:absolute;top:`+top+`%;left:`+left+`%;z-index:-10;transform:rotate(`+image_rotator+`deg)">
-          </div>
-        </div>`
-
-      return html_string;
-    }
-
-
-    function add_primary_grid_item()
-    {
-      global_grid_cnt += 1;
-
-      var flyer_dict = {
-        "grid-id": global_grid_cnt,
-        "image-url": "",
-        "image-resizer": "50",
-        "image-rotator": "0",
-        "top": "25",
-        "left": "25"
-      };
-
-      var html_string = create_unit_flyer_html(flyer_dict);
-
-      var el = $(html_string);
-      global_primary_grid.addWidget(el, 0, 0, 8, 20, true);
-
-      secondary_grid = GridStack.init({
-        animate: true,
-        verticalMargin: 6,
-        column: 24,
-        cellHeight: 10,
-        resizable: {
-          handles: 'e, se, s, sw, w, n'
+        data: { 
+          links : JSON.stringify(image_links)
         },
-        float:true
-      }, '#secondary-grid-stack-'+global_grid_cnt);
+        success: function(response) {
+            console.log("Success! ", response);
 
-      global_grid_store[global_grid_cnt] = {
-        "grid": secondary_grid,
-        "grid-cnt": 1
-      };
+            if(response["status"]==200)
+            {
+              //[{"key": "grind-1", "url": "aws/im1.png"}, {}]
+              var local_links = response["local_links"];
+              
+              for(var i=0;i<response["local_links"].length;i++){
+                if (local_links[i]["key"] != "background_image"){
+                  $("#"+local_links[i]["key"]).attr("src", local_links[i]["url"]);
+                }
+                else
+                {
+                  $("#flyer-div").css("background-image", "url('" +local_links[i]["url"]+ "')");
+                }
+              }
 
-      flyer_dict = {}
-      flyer_dict["grid-id"] = global_grid_cnt+"-1";
-      html_string = create_unit_info_container_html(flyer_dict);
-      el = $(html_string);
-      secondary_grid.addWidget(el, 0, 15, 18, 4, false);
+              e.preventDefault();
 
-      set_border_style();
-      select_primary_cell(global_grid_cnt);
-    }
-
-
-    function add_tag_one(image_url, image_pk)
-    {
-      if(grid_active=="SECONDARY")
-        return;
-
-      global_grid_store[active_grid_id]["grid-cnt"]++;
-
-      var flyer_dict = {};
-      flyer_dict["image-url"] = image_url;
-      flyer_dict["image-pk"] = image_pk;
-
-      flyer_dict["grid-id"] = active_grid_id+"-"+global_grid_store[active_grid_id]["grid-cnt"];
-      flyer_dict["rotation"] = "0";
-      var html_string = create_unit_tag_html(flyer_dict);
-
-      var secondary_grid = global_grid_store[active_grid_id]["grid"];
-
-      var el = $(html_string);
-      secondary_grid.addWidget(el, 0, 0, 5, 5, true);
-    }
+              var scale = 5;
+              var div = document.getElementById('flyer-div');
+              var canvas = document.createElement('canvas');
+              var h = div.scrollHeight;
+              var ratio = canvas.width/canvas.height;
+              var w = h * ratio;
+              canvas.width = scale*window.devicePixelRatio*div.scrollWidth;
+              canvas.height = scale*window.devicePixelRatio*div.scrollHeight;
+              canvas.style.width = w + 'px';
+              canvas.style.height = h + 'px';
+              var context = canvas.getContext('2d');
+              context.scale(scale, scale);
 
 
-    function add_tag_all(image_url, image_pk)
-    {
-      for(key in global_grid_store)
-      {
-        global_grid_store[key]["grid-cnt"]++;
-        
-        var flyer_dict = {};
-        flyer_dict["image-url"] = image_url;
-        flyer_dict["image-pk"] = image_pk;
-        flyer_dict["grid-id"] = key+"-"+global_grid_store[key]["grid-cnt"];
-        flyer_dict["rotation"] = "0";
-        
-        var html_string = create_unit_tag_html(flyer_dict);
-        var secondary_grid = global_grid_store[key]["grid"];
-        var el = $(html_string);
-        secondary_grid.addWidget(el, 0, 0, 5, 5, true);
-      }
-    }
+              
+
+              $(".divgrid").parent().parent().css("border", "none");
+              if($("#border-option").prop("checked"))
+              {
+                //$(".divgrid").css("border-bottom", "2px solid #E9E9E9");
+                //$(".divgrid").parent().parent().css("border", "2px solid #E9E9E9");
+              }
+              else
+              {
+                $(".divgrid").parent().parent().css("border-bottom", "none");
+                $(".divgrid").parent().parent().parent().css("border", "none");
+              }
+
+              function dataURLtoBlob(dataurl) {
+                var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                while(n--){
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new Blob([u8arr], {type:mime});
+              }
 
 
+              //Hide placeholder
+              $(".product-title-info").removeAttr("placeholder");
+              $(".product-title-info-description").removeAttr("placeholder");
+              $(".product-price-info").removeAttr("placeholder");
+              //$(".product-strikeprice-info").removeAttr("placeholder");
 
-    function add_price_tag_one(image_url, image_pk)
-    {
-      if(grid_active=="SECONDARY")
-        return;
+              window.scrollTo(0,0);
+              html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
+                    console.log("Downloading it!!!");
+                    
+                    var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
 
-      global_grid_store[active_grid_id]["grid-cnt"]++;
+                    var blob = dataURLtoBlob(dataURI);
+                    var objurl = URL.createObjectURL(blob);
+                    
 
-      var flyer_dict = {};
-      flyer_dict["image-url"] = image_url;
-      flyer_dict["image-pk"] = image_pk;
+                    if(global_save_signal==false)
+                    {
+                      $("#download-flyer-btn").removeAttr("disabled");
+                      $("#loader-div").hide();
+                      var a = document.createElement('a');
+                      a.download = global_flyer_name+'.jpg';
+                      a.href = objurl;
+                      a.click();
+                    }
+                    global_save_signal = false;
 
-      flyer_dict["grid-id"] = active_grid_id+"-"+global_grid_store[active_grid_id]["grid-cnt"];
-      flyer_dict["rotation"] = "0";
-      flyer_dict["price"] = "Price";
-      flyer_dict["top"] = "50";
-      flyer_dict["left"] = "50";
-      flyer_dict["font-size"] = "12";
-      var html_string = create_unit_price_tag_html(flyer_dict);
+                    $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
 
-      var secondary_grid = global_grid_store[active_grid_id]["grid"];
+                    $(".product-title-info-title").attr("placeholder", "product name");
+                    $(".product-title-info-description").attr("placeholder", "description");
+                    $(".product-price-info").attr("placeholder", "price");
 
-      var el = $(html_string);
-      secondary_grid.addWidget(el, 0, 0, 5, 5, true);
-    }
+                    //Replace the old links
+                    if ($("#flyer-div").css("background-image")!="none" ){
+                      $("#flyer-div").css("background-image", "url('" +original_bg_image_url+ "')");
+                    }
 
-
-    function add_price_tag_all(image_url, image_pk)
-    {
-      for(key in global_grid_store)
-      {
-        global_grid_store[key]["grid-cnt"]++;
-        
-        var flyer_dict = {};
-        flyer_dict["image-url"] = image_url;
-        flyer_dict["image-pk"] = image_pk;
-        flyer_dict["grid-id"] = key+"-"+global_grid_store[key]["grid-cnt"];
-        flyer_dict["rotation"] = "0";
-        flyer_dict["price"] = "Price";
-
-        flyer_dict["top"] = "50";
-        flyer_dict["left"] = "50";
-        flyer_dict["font-size"] = "12";
-
-        var html_string = create_unit_price_tag_html(flyer_dict);
-        var secondary_grid = global_grid_store[key]["grid"];
-        var el = $(html_string);
-        secondary_grid.addWidget(el, 0, 0, 5, 5, true);
-      }
-    }
+                    for (var i = 0; i <image_links.length; i++){
+                      var grid_ele_id = image_links[i]["key"];
+                      if(grid_ele_id != "background_image"){
+                        var url = image_links[i]["url"];
+                        $("#"+grid_ele_id).attr('src', url);
+                      }
+                    }
 
 
-    function delete_grid_item()
-    {
-      if(grid_active=="PRIMARY")
-      {
-        var el =  $(".grid-stack-item[grid-id="+active_grid_id+"]");
-        global_primary_grid.removeWidget(el);
-      }
-      else if(grid_active=="SECONDARY")
-      {
-        var el =  $(".grid-stack-item[grid-id="+active_grid_id+"]");
-        var parent_grid_id = active_grid_id.split("-")[0];
-        secondary_grid = global_grid_store[parent_grid_id]["grid"];
-        secondary_grid.removeWidget(el);
-      }
-    }
+                    //$(".product-strikeprice-info").attr("placeholder", "strikeprice");
 
-    function delete_tag_all(image_pk)
-    {
-      var nodes = $("div[grid-image-pk="+image_pk+"]");
-      for(var i=0;i<nodes.length;i++)
-      {
-        var grid_id = $(nodes[i]).attr("gridid");
+                    var image_data = canvas.toDataURL();
 
-        var el =  $(".grid-stack-item[grid-id="+grid_id+"]");
-        var parent_grid_id = grid_id.split("-")[0];
-        secondary_grid = global_grid_store[parent_grid_id]["grid"];
-        secondary_grid.removeWidget(el);
-      }
-    }
+                    var fd = new FormData();
+                    fd.append('image_data', image_data);
+                    fd.append('flyer_pk', window.location.pathname.split("/")[2]);
 
-
-    function select_primary_cell(grid_id)
-    {
-      grid_active = "PRIMARY";
-
-      set_border_style();
-
-      $(".primary-grid-stack-item-content[gridid="+grid_id+"]").css("border", "3px dotted "+global_border_color);
-
-      var image_resizer = $("img[gridid="+grid_id+"]").attr("image-resizer");
-      $("#image-resizer").val(image_resizer);
-
-      var image_rotator = $("img[gridid="+grid_id+"]").attr("image-rotator");
-      $("#image-rotator").val(image_rotator);
-
-      active_grid_id = grid_id;
-    }
-
-    function select_secondary_cell(grid_id)
-    {
-      grid_active = "SECONDARY";
-
-      set_border_style();
-
-      $(".secondary-grid-stack-item-content[gridid="+grid_id+"]").css("border", "3px dotted "+global_border_color);
-
-      var image_rotator = $("img[gridid="+grid_id+"]").attr("image-rotator");
-      $("#image-rotator").val(image_rotator);
-
-      active_grid_id = grid_id;
-    }
-
-    $(document).on("click", ".primary-grid-stack-item-content", function(e){
-
-      if(e.target.classList.contains("secondary-grid-stack-item-content") || e.target.classList.contains("secondary-grid-stack-item-content-img") || e.target.classList.contains("materialize-textarea"))
-        return;
-
-      active_grid_id = $(this).attr("gridid");
-      select_primary_cell(active_grid_id);
-    });
-
-
-    $(document).on("click", ".secondary-grid-stack-item-content-img", function(){
-      active_grid_id = $(this).attr("gridid");
-      select_secondary_cell(active_grid_id);
-    });
-
-    $(document).on("click", ".secondary-grid-stack-item-content", function(){
-      active_grid_id = $(this).attr("gridid");
-      select_secondary_cell(active_grid_id);
-    });
-
-    initialize_grid();
-
-
-    function create_flyer()
-    {
-      var flyer_details = global_template_data["flyerDetails"];
-      global_grid_cnt = 0;
-
-      for(var i=0;i<flyer_details.length;i++)
-      {
-        global_grid_cnt = flyer_details[i]["container-id"];
-
-        var flyer_dict ={
-          "grid-id": flyer_details[i]["container-id"],
-          "image-url": flyer_details[i]["data"]["image-url"],
-          "image-resizer": flyer_details[i]["data"]["zoom"],
-          "image-rotator": flyer_details[i]["data"]["rotation"],
-          "top": flyer_details[i]["data"]["top"],
-          "left": flyer_details[i]["data"]["left"]
+                    $.ajax({
+                      url: "/save-flyer-in-bucket/",
+                      type: "POST",
+                      headers:{
+                        'X-CSRFToken':getCsrfToken()
+                      },
+                      processData: false,
+                      contentType: false,
+                      data: fd,
+                      success: function(response) {
+                        console.log("Success!", response);
+                      },
+                      error: function(xhr, textstatus, errorthrown) {
+                        console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+                      }
+                    });
+              });
+            }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
         }
-        var html_string = create_unit_flyer_html(flyer_dict);
+      });
 
-        var container = flyer_details[i]["container"];
-
-        var el = $(html_string);
-        global_primary_grid.addWidget(el, container["x"], container["y"], container["width"], container["height"], false);
-
-        secondary_grid = GridStack.init({
-          animate: true,
-          verticalMargin: 6,
-          column: 24,
-          cellHeight: 10,
-          resizable: {
-            handles: 'e, se, s, sw, w, n'
-          },
-          float:true
-        }, '#secondary-grid-stack-'+flyer_details[i]["container-id"]);
-
-
-        var info_container = flyer_details[i]["info-container"];
-        flyer_dict = {
-          "grid-id": info_container["container-id"]
-        }
-        html_string = create_unit_info_container_html(flyer_dict);
-        el = $(html_string);
-        secondary_grid.addWidget(el, info_container["container"]["x"], info_container["container"]["y"], info_container["container"]["width"], info_container["container"]["height"], false);
-
-        $("textarea[text-grid-id="+info_container['container-id']+"]").html(info_container["product-info"]);
-        $("textarea[text-grid-id="+info_container['container-id']+"]").css("color", info_container["font-color"]);
-        $("textarea[text-grid-id="+info_container['container-id']+"]").css("font-size", info_container["font-size"]);
-        $("textarea[text-grid-id="+info_container['container-id']+"]").css("font-family", info_container["font-family"]);
-        $("textarea[text-grid-id="+info_container['container-id']+"]").css("font-weight", info_container["bold"]);
-        $("textarea[text-grid-id="+info_container['container-id']+"]").css("text-decoration", info_container["underlined"]);
-        $("textarea[text-grid-id="+info_container['container-id']+"]").css("font-style", info_container["italic"]);
-        $("textarea[text-grid-id="+info_container['container-id']+"]").css("text-align", info_container["font-alignment"]);
-
-
-        select_primary_cell(flyer_details[i]["container-id"]);
-
-        var tags = flyer_details[i]["tags"];
-        tag_count = 1;
-        for(var j=0;j<tags.length;j++)
-        {
-
-          var flyer_dict = {
-            "image-url": tags[j]["data"]["image-url"],
-            "image-pk": tags[j]["data"]["image-pk"],
-            "rotation": tags[j]["data"]["rotation"],
-            "grid-id": tags[j]["container-id"]
-          };
-          
-          var html_string = "";
-          if(tags[j]["data"]["is-price-tag"]=="true")
-          {
-            var price = tags[j]["data"]["price"];
-
-            flyer_dict["price"] = price["price"];
-            flyer_dict["top"] = price["top"];
-            flyer_dict["left"] = price["left"];
-            flyer_dict["font-size"] = price["font-size"];
-            flyer_dict["font-color"] = price["font-color"];
-            flyer_dict["font-family"] = price["font-family"];
-            flyer_dict["bold"] = price["bold"];
-            flyer_dict["underlined"] = price["underlined"];
-            flyer_dict["italic"] = price["italic"];
-            flyer_dict["font-alignment"] = price["font-alignment"];
-
-            html_string = create_unit_price_tag_html(flyer_dict); 
-          }
-          else
-          {
-            html_string = create_unit_tag_html(flyer_dict);
-          }
-
-          
-          el = $(html_string);
-          secondary_grid.addWidget(el, tags[j]["container"]["x"], tags[j]["container"]["y"], tags[j]["container"]["width"], tags[j]["container"]["height"], false);
-
-          tag_count = tags[j]["container-id"];
-        }
-
-        global_grid_store[flyer_details[i]["container-id"]] = {
-          "grid": secondary_grid,
-          "grid-cnt": tag_count
-        };
-      }
-
-      if(global_background_image_url!="none")
-      {
-        $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
-        $("#flyer-div").css("background-position", "center");
-      }
-
-    }
-
-    // ------------------ Grid Stack Logic END ------------------
-
-
-
-
-
-
-
-
-
-
-
-
-    // ------------------ Editor Trigger Logic START ------------------
-
-    function price_or_info()
-    {
-      if(active_grid_id.substr(-2)=="-1")
-        return "INFO";
-      return "PRICE";
-    }
-
-    $(document).on("change", "#font-size", function(){
-      var font_size = $("#font-size").val();
-      if($("#font-multi-option").prop("checked"))
-      {
-        if(price_or_info()=="INFO")
-        {
-          $("textarea").css("font-size", font_size+"px"); 
-        }
-        else if(price_or_info()=="PRICE")
-        {
-          $(".price-tag-input").css("font-size", font_size+"px");
-          font_size = font_size/1.6;
-        $(".price-tag-small-input").css("font-size", font_size+"px");
-        }
-      }
-      else
-      {
-        $(".font-controller[font-controller-id="+active_grid_id+"]").css("font-size", font_size+"px");
-      }
     });
 
-    $(document).on("change", "#font-family", function(){
-      var font_family = $("#font-family").val();
-      if($("#font-multi-option").prop("checked"))
-      {
-        if(price_or_info()=="INFO")
-        {
-          $("textarea").css("font-family", font_family); 
-        }
-        else if(price_or_info()=="PRICE")
-        {
-          $(".price-tag-input").css("font-family", font_family);
-        }
-      }
-      else
-      {
-        $(".font-controller[font-controller-id="+active_grid_id+"]").css("font-family", font_family);
-      }
-    });
-
-    $(document).on("click", "#format-bold-btn", function(){
-      var val = "";
-      if($(this).attr("bold")=="true")
-      {
-        $(this).attr("bold", "false")
-        val = "normal";
-      }
-      else
-      {
-        $(this).attr("bold", "true")
-        val = "bolder"; 
-      }
-      if($("#font-multi-option").prop("checked"))
-      {
-        if(price_or_info()=="INFO")
-          $("textarea").css("font-weight", val); 
-        else if(price_or_info()=="PRICE")
-          $(".price-tag-input").css("font-weight", val);
-      }
-      else
-      {
-        $(".font-controller[font-controller-id="+active_grid_id+"]").css("font-weight", val);
-      }
-    });
-
-    $(document).on("click", "#format-underlined-btn", function(){
-      var val = "";
-      if($(this).attr("underlined")=="true")
-      {
-        $(this).attr("underlined", "false")
-        val = "none";
-      }
-      else
-      {
-        $(this).attr("underlined", "true")
-        val = "underline"; 
-      }
-      if($("#font-multi-option").prop("checked"))
-      {
-        if(price_or_info()=="INFO")
-          $("textarea").css("text-decoration", val);
-        else if(price_or_info()=="PRICE")
-          $(".price-tag-input").css("text-decoration", val);
-      }
-      else
-      {
-        $(".font-controller[font-controller-id="+active_grid_id+"]").css("text-decoration", val);
-      }
-    });
-
-    $(document).on("click", "#format-italic-btn", function(){
-      var val = "";
-      if($(this).attr("italic")=="true")
-      {
-        $(this).attr("italic", "false")
-        val = "normal";
-      }
-      else
-      {
-        $(this).attr("italic", "true")
-        val = "italic"; 
-      }
-      if($("#font-multi-option").prop("checked"))
-      {
-        if(price_or_info()=="INFO")
-          $("textarea").css("font-style", val);
-        else if(price_or_info()=="PRICE")
-          $(".price-tag-input").css("font-style", val);
-      }
-      else
-      {
-        $(".font-controller[font-controller-id="+active_grid_id+"]").css("font-style", val);
-      }
-    });
-
-    $(document).on("click", ".font-alignment", function(){
-      var font_alignment = $(this).attr("value");
-      if($("#font-multi-option").prop("checked"))
-      {
-        if(price_or_info()=="INFO")
-          $("textarea").css("text-align", font_alignment);
-        else if(price_or_info()=="PRICE")
-          $(".price-tag-input").css("text-align", font_alignment); 
-      }
-      else
-      {
-        $(".font-controller[font-controller-id="+active_grid_id+"]").css("text-align", font_alignment);
-      }
-    });
-
-    $(document).on("change", "#font-color", function(){
-      var color = $("#font-color").val();
-      if($("#font-multi-option").prop("checked"))
-      {
-        if(price_or_info()=="INFO")
-          $("textarea").css("color", color); 
-        else if(price_or_info()=="PRICE")
-          $(".price-tag-input").css("color", color);
-      }
-      else
-      {
-        $(".font-controller[font-controller-id="+active_grid_id+"]").css("color", color);
-      }
+    $(document).on('click', '.productinfobtn', function(){
+        global_selected_product_info_id = this.id.split("-")[1]
     });
 
 
@@ -1219,151 +2076,628 @@
       set_border_style();
     });
 
-    $(document).on("change", "#border-color", function(){
-      if($("#border-option").prop("checked"))
-      {
-        global_border_color = $("#border-color").val();
-      }
-      set_border_style();
+    $("#upload-new-bg-image-btn").click(function(){
+
+      var fd = new FormData();
+      var bg_image = document.getElementById("new-bg-image"); 
+      fd.append('bg_image', bg_image.files[0]);
+      fd.append('flyer_pk', window.location.pathname.split("/")[2])
+
+      $.ajax({
+        url: "/upload-new-flyer-bg-image/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        processData: false,
+        contentType: false,
+        data: fd,
+        success: function(response) {
+          console.log("Success!", response);
+          if(response["status"]==200)
+          {
+            global_background_images_bucket.push({"pk":response["bg_image_pk"], "url":response["bg_image_url"]});
+            update_background_image_bucket();
+            $("#add-new-bg-modal").modal("close");
+          }
+          else if(response["status"]==403)
+          {
+            M.toast({html: "You do not have permission to add background images!"});
+          }
+          else
+          {
+            M.toast({html: "Error adding background images!"}); 
+          }
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+
+    })
+
+
+    $(document).on("change", "#product-title-font-size", function(){
+        $(".product-title-info").css("font-size", this.value+"px");
+        global_product_title_font_size = this.value;
+    });
+
+    $(document).on("change", "#product-price-font-size", function(){
+        $(".product-price-info").css("font-size", this.value+"px");
+        global_price_font_size = this.value;
+    });
+
+    $(document).on("change", "#currency-font-size", function(){
+        $(".product-currency-info").css("font-size", this.value+"px");
+        global_currency_font_size = this.value;
+    });
+
+    $(document).on("change", "#product-strikeprice-font-size", function(){
+        $(".product-strikeprice-info").css("font-size", this.value+"px");
+        global_strikeprice_font_size = this.value;
     });
 
 
+    $(document).on("change", "#product-title-font-weight", function(){
+        $(".product-title-info").css("font-weight", this.value);
+        global_product_title_font_weight = this.value;
+    });
+
+    $(document).on("change", "#product-price-font-weight", function(){
+        $(".product-price-info").css("font-weight", this.value);
+        global_price_font_weight = this.value;
+    });
+
+    $(document).on("change", "#currency-font-weight", function(){
+        $(".product-currency-info").css("font-weight", this.value);
+        global_currency_font_weight = this.value;
+    });
+
+    $(document).on("change", "#product-strikeprice-font-weight", function(){
+        $(".product-strikeprice-info").css("font-weight", this.value);
+        global_strikeprice_font_weight = this.value;
+    });
+
+
+
+    $(document).on("change", "#product-title-font-color", function(){
+        $(".product-title-info").css("color", this.value);
+        global_product_title_font_color = this.value;
+    });
+
+    $(document).on("change", "#product-price-font-color", function(){
+        $(".product-price-info").css("color", this.value);
+        global_price_font_color = this.value;
+    });
+
+    $(document).on("change", "#currency-font-color", function(){
+        $(".product-currency-info").css("color", this.value);
+        global_currency_font_color = this.value;
+    });
+
+    $(document).on("change", "#product-strikeprice-font-color", function(){
+        $(".product-strikeprice-info").css("color", this.value);
+        global_strikeprice_font_color = this.value;
+    });
+
+
+    $(document).on("change", "#product-title-font-family", function(){
+        $(".product-title-info").css("font-family", this.value);
+        global_product_title_font_family = this.value;
+    });
+    $(document).on("change", "#product-price-font-family", function(){
+        $(".product-price-info").css("font-family", this.value);
+        global_price_font_family = this.value;
+    });
+    $(document).on("change", "#currency-font-family", function(){
+        $(".product-currency-info").css("font-family", this.value);
+        global_currency_font_family = this.value;
+    });
+    $(document).on("change", "#product-strikeprice-font-family", function(){
+        $(".product-strikeprice-info").css("font-family", this.value);
+        global_strikeprice_font_family = this.value;
+    });
+
+
+    $(document).on("change", "#header-color", function(){
+        global_header_color = this.value;
+        set_header_style();
+    });
+
+
+    $(document).on("change", "#footer-color", function(){
+        global_footer_color = this.value;
+        set_footer_style();
+    });
+
+    $(document).on("change", "#header-opacity", function(){
+        global_header_opacity = this.value;
+        set_header_style();
+    });
+
+    $(document).on("change", "#footer-opacity", function(){
+        global_footer_opacity = this.value;
+        set_footer_style();
+    });
+
+
+    $(document).on("keyup", "#currency-unit", function(){
+        $(".product-currency-info").val(this.value);
+        global_currency_unit = this.value;
+    });
+
+    $(document).on("change", "#price-box-bg-color", function(){
+      $(".grid-item-footer-right input").css("background", this.value);
+      global_price_box_bg_color = this.value;
+    });
+
+
+    $(document).on("change", "#border-color", function(){
+      global_border_color = this.value;
+      if($("#border-option").prop("checked"))
+      {
+        $(".divgrid").parent().parent().parent().css("border", "2px solid "+this.value);
+      }
+    });
+
+
+    $(document).on("change", "#strikeprice-option", function(){
+      if($("#strikeprice-option").prop("checked"))
+      {
+        $(".footer-top-right").show();
+        global_strikeprice_visible = true;
+      }
+      else
+      {
+        $(".footer-top-right").hide();
+        global_strikeprice_visible = false;
+      }
+    });
+
+
+
+
     $("#image-resizer").change(function() {
-
-      if(grid_active=="SECONDARY")
-        return;
-
       var R = $("#image-resizer").val();
 
-      $("img[gridid="+active_grid_id+"]").css("width", R+"%");
-      $("img[gridid="+active_grid_id+"]").attr("image-resizer", R);
+      $("#gridimg-"+global_selected_grid_id).css("max-width", R+"%");
+      $("#gridimg-"+global_selected_grid_id).attr("resizer", R);
     });
 
     $("#all-image-resizer").change(function() {
       var R = $("#all-image-resizer").val();
 
+      var grid_images = $(".grid-images");
+      for(var i=0;i<grid_images.length;i++)
+      {
+        $(grid_images[i]).css("max-width", R+"%");
+        $(grid_images[i]).attr("resizer", R);
+      }
       $("#image-resizer").val(R);
-
-      $(".primary-grid-stack-item-content-img").css("width", R+"%");
-      $(".primary-grid-stack-item-content-img").attr("image-resizer", R);
-      
+      global_all_image_resizer = R;
     });
 
+
+
+
     $("#image-rotator").change(function() {
-      
       var R = $("#image-rotator").val();
 
-      if(grid_active=="PRIMARY")
-      {
-        $("img[gridid="+active_grid_id+"]").css("transform", "rotate("+R+"deg)");
-      }
-      else
-      {
-        $(".secondary-grid-stack-item-tag-content[gridid="+active_grid_id+"]").css("transform", "rotate("+R+"deg)");
-      }
-      $("img[gridid="+active_grid_id+"]").attr("image-rotator", R);
+      $("#gridimg-"+global_selected_grid_id).css("transform", "rotate("+R+"deg)");
+      $("#gridimg-"+global_selected_grid_id).attr("rotator", R);
     });
 
     $("#all-image-rotator").change(function() {
-
       var R = $("#all-image-rotator").val();
+
+      var grid_images = $(".grid-images");
+      for(var i=0;i<grid_images.length;i++)
+      {
+        $(grid_images[i]).css("transform", "rotate("+R+"deg)");
+        $(grid_images[i]).attr("rotator", R);
+      }
       $("#image-rotator").val(R);
+      global_all_image_rotator = R;
+    });
 
-      $(".primary-grid-stack-item-content-img").css("transform", "rotate("+R+"deg)");
-      $(".primary-grid-stack-item-content-img").attr("image-rotator", R);
+
+
+
+
+    $("#price-resizer").change(function() {
+      var R = $("#price-resizer").val();
+      $(".grid-item-footer-right").css("max-width", R+"px");
+      global_price_resizer = R;
+    });
+
+
+    $("#all-promo-resizer").change(function() {
+      var R = $("#all-promo-resizer").val();
+      global_all_promo_resizer = R;
+      $(".grid-item-sticker img").css("width", R+"px");
+      $("#promo-resizer").val(R);    
+      $(".grid-item-sticker img").attr("resizer", R);
+      // $(".banner-img-left").css("width", R+"px");
+      // $(".banner-img-left").attr("resizer", R);
+    });
+
+    $("#promo-resizer").change(function() {
+      var R = $("#promo-resizer").val();
+      $("#banner-img-"+global_selected_grid_id).css("width", R+"px");
+      $("#banner-img-"+global_selected_grid_id).attr("resizer", R);
+
+      // $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
+      // $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);      
+    });
+
+
+    $("#all-warranty-resizer").change(function() {
+      var R = $("#all-warranty-resizer").val();
+      global_all_warranty_resizer = R;
+      $("#warranty-resizer").val(R);
+      $(".banner-img-left").css("width", R+"px");
+      $(".banner-img-left").attr("resizer", R);
+    });
+
+    $("#warranty-resizer").change(function() {
+      var R = $("#warranty-resizer").val();
+      $("#banner-img-left-"+global_selected_grid_id).css("width", R+"px");
+      $("#banner-img-left-"+global_selected_grid_id).attr("resizer", R);
+    });
+
+
+
+    $("#product-info-save-btn").click(function(){
+
+        var product_name = $("#product-info-name").val();
+        var product_price = $("#product-info-price").val();
+
+        $("#productinfoname-"+global_selected_product_info_id).html(product_name);
+        $("#productinfoprice-"+global_selected_product_info_id).html(product_price);
+    });
+
+
+
+    function create_unit_flyer_html(flyer_dict)
+    {
+      var grid_id = flyer_dict["grid-id"];
+      var product_title = flyer_dict["product-title"];
+      var product_info = flyer_dict["product-info"];
+      var price = flyer_dict["price"];
+      var strikeprice = flyer_dict["strikeprice"];
+      var currency = flyer_dict["currency"];
+      var image_url = flyer_dict["image-url"];
+      var banner_img = flyer_dict["banner-img"];
+      var image_resizer = flyer_dict["image-resizer"];
+      var image_rotator = flyer_dict["image-rotator"];
+      var promo_resizer = flyer_dict["promo-resizer"];
+      var warranty_resizer = flyer_dict["warranty-resizer"];
+      var width = flyer_dict["width"];
+      var height = flyer_dict["height"];
+      var x = flyer_dict["x"];
+      var y = flyer_dict["y"];
+      var warranty_img = flyer_dict["warranty-img"];
+
+      var background_color = "background-color: transparent";
+      if( $("#white-option").prop("checked"))
+      {
+        background_color = "background-color: white";
+      }
+
+      console.log(flyer_dict);
+
+      var html_string = 
+          `<div grid-id="`+grid_id+`" class="grid-stack-item" data-gs-width=`+width+` data-gs-height=`+height+` data-gs-x=`+x+` data-gs-y=`+y+` style="text-align:center;padding:0em !important;">
+            <div class="grid-stack-item-content hoverable" style="border: 2px solid `+global_border_color+`;`+background_color+`">
+              <div class="grid-item-img-container">
+                <a id="gridbox-`+grid_id+`" href="#!" class="flyer-item-box" style="color:black;height:100%;width:100%;">
+                  <div class="divgrid" id="divgrid-`+grid_id+`" style="text-align: center;background-color:transparent;display:flex;justify-content:center;align-item:center;height:auto;width:100%">
+                      <img class="grid-images" resizer="`+image_resizer+`" rotator="`+image_rotator+`" id="gridimg-`+grid_id+`" src="`+image_url+`" style="padding:0em;max-width:`+image_resizer+`%;transform:rotate(`+image_rotator+`deg);height:auto;"/>
+                  </div>
+                </a>
+                <div class="grid-item-sticker">
+                  <img class="banner-img" id="banner-img-`+grid_id+`" src="`+banner_img+`" style="width: `+promo_resizer+`px" resizer="`+promo_resizer+`" />
+                </div>
+                <div style="position: absolute;left:10px;top:10px;">
+                  <img class="banner-img-left" id="banner-img-left-`+grid_id+`" src="`+warranty_img+`" style="width: `+warranty_resizer+`px" resizer="`+warranty_resizer+`" />
+                </div>
+              </div>
+              <div class="grid-item-footer-container" > 
+                <div class="footer-top">
+                  <div class="footer-top-left valign-wrapper">
+                    <p class="grid-item-text brand-text" style="text-align:left;"></p>
+                  </div>
+                  <div class="footer-top-right">
+                    <p id="product-strikeprice-info-`+grid_id+`" class="grid-item-text-4 strikethrough product-strikeprice-info browser-default" type="text" contenteditable="true">`+strikeprice+`</p>
+                  </div>
+                </div>
+                <div class="footer-bottom">
+                  <div class="grid-item-footer-left">
+                      <input id="product-title-info2-`+grid_id+`" class=" font-to-avenir footer-bottom-left-input product-title-info product-title-info-title browser-default" type="text" name="name" placeholder="product name" value="`+product_title+`">
+                      <input id="product-title-info-`+grid_id+`" class="footer-bottom-left-input product-title-info product-title-info-description font-to-avenir browser-default" type="text" name="description" placeholder="description" value="`+product_info+`">
+                  </div>
+                  <div class="grid-item-footer-right">
+                      <input id="product-currency-info-`+grid_id+`" class="grid-item-text footer-bottom-left-input product-currency-info font-to-avenir browser-default" type="text" name="currency" placeholder="currency" value="`+currency+`" >
+                      <input id="product-price-info-`+grid_id+`" class="grid-item-text-3 footer-bottom-left-input product-price-info font-to-avenir browser-default" type="text" name="price" placeholder="price" value="`+price+`">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`
+
+        return html_string;
+    }
+
+
+    function select_cell(grid_id)
+    {
+      global_selected_grid_id = grid_id;
+
+      $("#divgrid-1").parent().parent().css("border", "0.14em dashed");
+
+      $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
+      $("#image-rotator").val($("#gridimg-"+global_selected_grid_id).attr("rotator"));
+      $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
+      $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
+
+      var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
+      if(banner_img=="")
+      {
+        $("#local-none").click();
+      } 
+      else if(banner_img=="/files/combo.png")
+      {
+        $("#local-combo").click();
+      }
+      else if(banner_img=="/files/banner1.png")
+      {
+        $("#local-sale").click();
+      }
+      else if(banner_img=="/files/wow.png")
+      {
+        $("#local-wow").click();
+      }
+      else if(banner_img=="/files/half-price.png")
+      {
+        $("#local-half-price").click();
+      }
+      else if(banner_img=="/files/killer-offer.png")
+      {
+        $("#local-killer-offer").click();
+      }
+
+      var banner_img_url = $("#banner-img-left-"+global_selected_grid_id).attr("src");
+      if(banner_img_url=="")
+      {
+        $("#local-no-warranty").click();
+      }
+      else if(banner_img_url=="/files/geepas-warranty-1.png")
+      {
+        $("#local-geepas-warranty-1").click(); 
+      }
+      else if(banner_img_url=="/files/geepas-warranty-2.png")
+      {
+        $("#local-geepas-warranty-2").click(); 
+      }
+      else if(banner_img_url=="/files/geepas-warranty-3.png")
+      {
+        $("#local-geepas-warranty-3").click(); 
+      }
+      else if(banner_img_url=="/files/geepas-warranty-5.png")
+      {
+        $("#local-geepas-warranty-5").click(); 
+      }
+      else if(banner_img_url=="/files/geepas-warranty-7.png")
+      {
+        $("#local-geepas-warranty-7").click();
+      }
+      else if(banner_img_url=="/files/olsenmark-warranty-2.png")
+      {
+        $("#local-olsenmark-warranty-2").click(); 
+      }
+      else if(banner_img_url=="/files/krypton-warranty-2.png")
+      {
+        $("#local-krypton-warranty-2").click();
+      }
+    }
+
+    var grid_cnt = 0;
+
+    function create_flyer_grid()
+    {
+      var item_data = global_template_data["item-data"];
+
+      grid_cnt = item_data.length+1;
+      var html_string = '';
+      for(var i=0; i< item_data.length; i ++)
+      {
+        var flyer_dict = {}
+        flyer_dict["grid-id"] = i+1;
+        flyer_dict["product-title"] = item_data[i]["data"]["title"];
+        flyer_dict["product-info"] = item_data[i]["data"]["description"];
+        flyer_dict["price"] = item_data[i]["data"]["price"];
+        flyer_dict["strikeprice"] = item_data[i]["data"]["strikeprice"];
+        flyer_dict["image-url"] = item_data[i]["data"]["image-url"];
+        flyer_dict["banner-img"] = item_data[i]["data"]["banner-img"];
+        flyer_dict["image-resizer"] = item_data[i]["data"]["image-resizer"];
+        flyer_dict["image-rotator"] = item_data[i]["data"]["image-rotator"];
+        flyer_dict["promo-resizer"] = item_data[i]["data"]["promo-resizer"];
+        flyer_dict["warranty-resizer"] = item_data[i]["data"]["warranty-resizer"];
+        flyer_dict["width"] = item_data[i]["container"]["width"];
+        flyer_dict["height"] = item_data[i]["container"]["height"];
+        flyer_dict["x"] = item_data[i]["container"]["x"];
+        flyer_dict["y"] = item_data[i]["container"]["y"];
+        flyer_dict["warranty-img"] = item_data[i]["data"]["warranty-img"];
+
+        var temp_html = create_unit_flyer_html(flyer_dict);
+        html_string += temp_html;
+      }
+       
+      $('#grid-stack-div').html(html_string);
+      $('.grid-stack').gridstack({
+        animate: true,
+        removable: true,
+        verticalMargin: 6,
+        column: 24,
+        cellHeight: 30,
+        resizable: {
+          handles: 'e, se, s, sw, w'
+        }
+      });
+
+      $(".brand-text").html(global_brand_name);
+      $(".product-currency-info").val(global_currency_unit)
+
+      select_cell(1);
+    }
+
+
+
+  
+    $("#refresh-template-btn").click(function (){
+
+      global_template_data["item-data"] = [];
+
+      var grid = $('.grid-stack').data('gridstack');
+
+      grid.destroy();
+      var html_string = `<div id="grid-stack-div" class="grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24" style="max-height: 260mm;">`
+      $("#flyer-grid").html(html_string);
+      create_flyer_grid();
+      set_editor_style();
+    });
+
+
+    $("#hide-cursor-btn").click(function() {
+
+      if($("#hide-cursor-btn").attr("cursor-status")=="on") //Make cursor invisible
+      {
+        $("#hide-cursor-btn").attr("cursor-status", "off");
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "none");
+        if($("#border-option").prop("checked"))
+        {
+          //$("#divgrid-"+global_selected_grid_id).css("border-bottom", "2px solid #E9E9E9");
+        }
+        else
+        {
+          $("#divgrid-"+global_selected_grid_id).parent().parent().css("border-bottom", "none");
+        }
+      }
+      else  //Make cursor visible
+      {
+        $("#hide-cursor-btn").attr("cursor-status", "on");
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
+      }
+    });
+
+
+    $("#increase-height-btn").click(function(){
+      var grid_items = $(".grid-stack-item");
+      var grid = $('.grid-stack').data('gridstack');
+      for(var i=0;i<grid_items.length;i++)
+      {
+        var old_height = $(grid_items[i]).attr("data-gs-height");
+        var old_width = $(grid_items[i]).attr("data-gs-width");
+        var new_height = parseInt(old_height)+1;
+
+        el = $(grid_items[i]);
+        console.log(el);
+        grid.resize(el, old_width, new_height);
+      }
+    });
+
+    $("#decrease-height-btn").click(function(){
+      var grid_items = $(".grid-stack-item");
+      var grid = $('.grid-stack').data('gridstack');
+      for(var i=0;i<grid_items.length;i++)
+      {
+        var old_height = $(grid_items[i]).attr("data-gs-height");
+        var old_width = $(grid_items[i]).attr("data-gs-width");
+        var new_height = parseInt(old_height)-1;
+
+        el = $(grid_items[i]);
+        console.log(el);
+        grid.resize(el, old_width, new_height);
+      }
+    });    
+
+
+
+    $("#add-grid-item-btn").click(function(){
+
+      var i = grid_cnt+1;
+      grid_cnt += 1;
+      console.log(i);
+
+      var flyer_dict = {};
+
+      flyer_dict["grid-id"] = (i+1);
+      flyer_dict["product-title"] = "";
+      flyer_dict["product-info"] = "";
+      flyer_dict["price"] = "";
+      flyer_dict["strikeprice"] = "strikeprice";
+      flyer_dict["currency"] = global_currency_unit;
+      flyer_dict["image-url"] = "";
+      flyer_dict["image-resizer"] = global_all_image_resizer;
+      flyer_dict["image-rotator"] = global_all_image_rotator;
+      flyer_dict["promo-resizer"] = global_all_promo_resizer;
+      flyer_dict["warranty-resizer"] = global_all_warranty_resizer;
+      flyer_dict["banner-img"] = "";
+      flyer_dict["width"] = "3";
+      flyer_dict["height"] = "3";
+      flyer_dict["x"] = "7";
+      flyer_dict["y"] = "7";
+      flyer_dict["warranty-img"] = "";
+
+      var html_string = create_unit_flyer_html(flyer_dict);
+
+
+      $("#grid-stack-div").append(html_string);
+
+      var grid = $('.grid-stack').data('gridstack');
+      var el = $('.grid-stack').children()[$('.grid-stack').children().length-1];
+      grid.addWidget(el, 0, 0, 3, 3, true);
+
+      set_editor_style();
+    });
+
+
+    $("#delete-grid-item-btn").click(function(){
+      var el =  $(".grid-stack-item[grid-id="+global_selected_grid_id+"]");
+      var grid = $('.grid-stack').data('gridstack');
+      grid.removeWidget(el);
+    })
+
+
+    function render_fetures()
+    {
+      var html_string = `<br><br>`;
+      var feature_text = $(".feature-text");
+      for(var i=0;i<feature_text.length;i++)
+      {
+        html_string += `<h6>- `+feature_text[i].value+`</h6>`
+
+      }
+      $("#features-preview-div").html(html_string);
+    }
+
+
+    $("#product-name-input").keyup(function(){
+      $("#product-name-preview").html($("#product-name-input").val());
+    });
+
     
-      $(".secondary-grid-stack-item-tag-content").css("transform", "rotate("+R+"deg)");
-      $(".secondary-grid-stack-item-content-img").attr("image-rotator", R);
-    });
 
-    $(document).on('click', '.imgselect', function(){
-        if(grid_active=="SECONDARY")
-          return;
-        var image_pk = this.id.split("_")[1];
-        var image_url = $($(this).children()[0]).attr("high-res-url");
-        $("img[gridid="+active_grid_id+"]").attr("src", image_url);
-        $("textarea[text-grid-id="+active_grid_id+"-1]").html(global_selected_product_name);
-    });
+    function getCsrfToken() {
+      var CSRF_TOKEN = $('input[name="csrfmiddlewaretoken"]').val();
+      return CSRF_TOKEN;
+    }
 
-
-    $(document).on('click', '.bgimgselect', function(){
-        var image_pk = this.id.split("_")[1];
-        var image_url = $(this).children()[0].src
-        global_background_image_url = image_url;
-
-        $("#flyer-div").css("background-image", "url("+image_url+")");
-        $("#flyer-div").css("background-position", "center");
-    });
-
-
-    $(document).on('click', '.tagimgselect', function(){
-
-        var image_url = $(this).children()[0].src;
-        var image_pk = $(this).attr("image-pk");
-
-        if($("#tag-delete-option").prop("checked"))
-        {
-          delete_tag_all(image_pk);
-        }
-        else if($("#tag-multi-option").prop("checked")==false)
-        {
-          add_tag_one(image_url, image_pk);
-        }
-        else
-        {
-          add_tag_all(image_url, image_pk);
-        }
-    });
-
-
-
-    $(document).on('click', '.pricetagimgselect', function(){
-
-        var image_url = $(this).children()[0].src;
-        var image_pk = $(this).attr("image-pk");
-
-        if($("#price-tag-delete-option").prop("checked"))
-        {
-          delete_tag_all(image_pk);
-        }
-        else if($("#price-tag-multi-option").prop("checked")==false)
-        {
-          add_price_tag_one(image_url, image_pk);
-        }
-        else
-        {
-          add_price_tag_all(image_url, image_pk);
-        }
-    });
-
-
-
-    $(document).on('click', '.product-basket-card-btn', function(){
-      
-      $(".product-basket-border-div").css("border", "2px solid #495561")
-      $(this).children()[0].style.border = "2px solid #1ABC9C";
-
-      global_selected_product_pk = this.id.split("_")[1];
-      global_selected_product_name = $("#product-basket-card-name-"+global_selected_product_pk).attr("title");
-
-      update_image_categories("all_images");
-    });
-
-    // ------------------ Editor Trigger Logic END ------------------
-
-
-
-
-
-
-
-
-
-    // ------------------ Editor Update Logic START ------------------
 
     function add_to_product_basket()
     {
       var product_name = $("#autocomplete-input").val();
+
 
       $.ajax({
         url: "/add-product-flyer-bucket/",
@@ -1399,6 +2733,7 @@
 
 
       $("#autocomplete-input").val("");
+
     }
 
     function fetch_product_list_autocomplete()
@@ -1423,8 +2758,7 @@
             autocomplete_data[product_list[i]["product_name_autocomplete"]] = product_list[i]["main_image_url"]; 
           }
 
-          var el = document.getElementById("autocomplete-input");
-          var options = {
+          $('#autocomplete-input').autocomplete({
             data: autocomplete_data,
             minLength: 3,
             limit: 50,
@@ -1432,10 +2766,9 @@
             {
               add_to_product_basket();
             }
-          }
+          });
 
-          var instance = M.Autocomplete.init(el, options);
-          instance.open();
+          $("#autocomplete-input").autocomplete("open");
         },
         error: function(xhr, textstatus, errorthrown) {
           console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
@@ -1447,10 +2780,41 @@
     $("#autocomplete-input").keyup(function() {
       clearTimeout(autocomplete_timer_id);
       autocomplete_timer_id = setTimeout(function(){
+        //console.log("Here!", $("#autocomplete-input").val());
         fetch_product_list_autocomplete();
       }, 500);
     });
 
+    $(document).on('click', '.product-basket-card-btn', function(){
+      //$(".product-basket-card").css('background-color', "transparent");
+      $(".product-basket-border-div").css("border", "2px solid #495561")
+
+      //$($(this).children()[0]).children()[1].style.background = "#1ABC9C";
+      $(this).children()[0].style.border = "2px solid #1ABC9C";
+
+
+      global_selected_product_pk = this.id.split("_")[1];
+      global_selected_product_name = $("#product-basket-card-name-"+global_selected_product_pk).attr("title");
+
+      $("#all-images-option").html("All Images ("+global_product_images_dict[global_selected_product_pk]["all_images"].length+")");
+      $("#main-images-option").html("Main Images ("+global_product_images_dict[global_selected_product_pk]["main_images"].length+")");
+      $("#sub-images-option").html("Sub Images ("+global_product_images_dict[global_selected_product_pk]["sub_images"].length+")");
+      $("#pfl-images-option").html("PFL Images ("+global_product_images_dict[global_selected_product_pk]["pfl_images"].length+")");
+      $("#white-background-images-option").html("White Background Images ("+global_product_images_dict[global_selected_product_pk]["white_background_images"].length+")");
+      $("#lifestyle-images-option").html("Lifestyle Images ("+global_product_images_dict[global_selected_product_pk]["lifestyle_images"].length+")");
+      $("#certificate-images-option").html("Certificate Images ("+global_product_images_dict[global_selected_product_pk]["certificate_images"].length+")");
+      $("#giftbox-images-option").html("Giftbox Images ("+global_product_images_dict[global_selected_product_pk]["giftbox_images"].length+")");
+      $("#diecut-images-option").html("Diecut Images ("+global_product_images_dict[global_selected_product_pk]["diecut_images"].length+")");
+      $("#aplus-content-images-option").html("A+ Content Images ("+global_product_images_dict[global_selected_product_pk]["aplus_content_images"].length+")");
+      $("#ads-images-option").html("Ads Images ("+global_product_images_dict[global_selected_product_pk]["ads_images"].length+")");
+      $("#unedited-images-option").html("Unedited Images ("+global_product_images_dict[global_selected_product_pk]["unedited_images"].length+")");
+      $("#transparent-images-option").html("Transparent Images ("+global_product_images_dict[global_selected_product_pk]["transparent_images"].length+")");
+
+      update_image_categories("all_images");
+      $("#image-categories-thumbnails-select").val("all_images");
+      $("select").formSelect();
+
+    });
 
     function set_product_basket()
     {
@@ -1531,45 +2895,6 @@
       $("#background-image-bucket-thumbnails-div").html(html_string);
     }
 
-    function update_tag_bucket()
-    {
-      var html_string = "";
-
-      var images = global_tag_bucket;
-      for(var i=0;i<images.length;i++)
-      {
-        html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
-          <div style="border:2px solid #495561;text-align:center;padding-top:0.4em;">
-            <a class="tagimgselect" image-pk="`+images[i]["pk"]+`" href="#!">
-              <img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;">
-            </a>
-          </div>
-        </div>`;
-      }
-
-      $("#tag-bucket-thumbnails-div").html(html_string);
-    }
-
-
-    function update_price_tag_bucket()
-    {
-      var html_string = "";
-
-      var images = global_price_tag_bucket;
-      for(var i=0;i<images.length;i++)
-      {
-        html_string += `<div class="col s3" style="padding-top:0.2em;margin-bottom:1.4em;">
-          <div style="border:2px solid #495561;text-align:center;padding-top:0.4em;">
-            <a class="pricetagimgselect" image-pk="`+images[i]["pk"]+`" href="#!">
-              <img src="`+images[i]["url"]+`" style="width:90%;height:3em;object-fit:cover;">
-            </a>
-          </div>
-        </div>`;
-      }
-
-      $("#price-tag-bucket-thumbnails-div").html(html_string);
-    }
-
     function update_external_image_bucket()
     {
       var html_string = "";
@@ -1590,222 +2915,361 @@
     }
 
 
-    // ------------------ Editor Update Logic END ------------------
-
-
-
-
-
-
-
-
-
-
-
-
-    // ------------------ Top Menu Logic START ------------------
-
-
-    $("#refresh-template-btn").click(function (){
-
-      global_primary_grid.destroy();
-      var html_string = `<div id="grid-stack-div" class="grid-stack primary-grid-stack" data-gs-width="24" data-gs-animate="yes" data-gs-column="24">
-
-            </div>`
-      $("#flyer-grid").html(html_string);
-      global_grid_cnt = 0;
-      global_background_image_url = "none";
-      set_background_image();
-      initialize_grid();
-    });
-
-
-    $("#hide-cursor-btn").click(function() {
-
-      if($("#hide-cursor-btn").attr("cursor-status")=="on") //Make cursor invisible
-      {
-        $("#hide-cursor-btn").attr("cursor-status", "off");
-        set_border_style();
-      }
-      else  //Make cursor visible
-      {
-        $("#hide-cursor-btn").attr("cursor-status", "on");
-        set_border_style();
-        if(grid_active=="PRIMARY")
-          $(".primary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted "+global_border_color);
-        else
-          $(".secondary-grid-stack-item-content[gridid="+active_grid_id+"]").css("border", "3px dotted "+global_border_color);
-      }
-    });
-
-
-    $("#increase-height-btn").click(function(){
-      var grid_items = $(".primary-grid-stack-item");
-      for(var i=0;i<grid_items.length;i++)
-      {
-        var old_height = $(grid_items[i]).attr("data-gs-height");
-        var old_width = $(grid_items[i]).attr("data-gs-width");
-        var new_height = parseInt(old_height)+1;
-
-        el = $(grid_items[i]);
-        global_primary_grid.resize(el, old_width, new_height);
-      }
-    });
-
-    $("#decrease-height-btn").click(function(){
-      var grid_items = $(".primary-grid-stack-item");
-      for(var i=0;i<grid_items.length;i++)
-      {
-        var old_height = $(grid_items[i]).attr("data-gs-height");
-        var old_width = $(grid_items[i]).attr("data-gs-width");
-        var new_height = parseInt(old_height)-1;
-
-        el = $(grid_items[i]);
-        global_primary_grid.resize(el, old_width, new_height);
-      }
-    });    
-
-
-
-    $("#add-grid-item-btn").click(function(){
-      add_primary_grid_item();
-    });
-
-
-    $("#delete-grid-item-btn").click(function(){
-      delete_grid_item();
-    })
-
-    // ------------------ Top Menu Logic END ------------------
-
-
-
-
-
-
-
-    // ------------------ Price Tag START ------------------
-
-    function set_split(price, font_size)
+    function set_product_name()
     {
-      if(price=="")
-        return "Price";
-
-      if(price.includes(".")==false)
-        return price;
-      
-      var value = price.split(".");
-      font_size = parseInt(font_size)/1.6;
-      var html_string = value[0]+".<span class='price-tag-small-input' style='font-size:"+font_size+"px'>"+value[1]+"</span>";
-      return html_string;
+      $("#product-name-preview").html(global_product_name);
+      $("#product-name-input").val(global_product_name);
+      M.updateTextFields();
     }
 
-    $(document).on("focusout", ".price-tag-input", function(){
 
-        var price = $(this).text();
-        $(this).attr("price", price);
+    $(document).on('click', '.imgselect', function(){
 
-        var font_size = $(this).css("font-size").replace("px", "")
-        var html_string = set_split(price, font_size);
-        $(this).html(html_string);
+        var image_pk = this.id.split("_")[1];
+        //var image_url = $(this).children()[0].src;
+        var image_url = $($(this).children()[0]).attr("high-res-url");
+        console.log(image_pk, image_url, global_selected_grid_id);
+        $("#gridimg-"+global_selected_grid_id).attr("src", image_url);
+        //if($("#product-title-info2-"+global_selected_grid_id).val()=="")
+        $("#product-title-info2-"+global_selected_grid_id).val(global_selected_product_name);
+        $("#gridimg-"+global_selected_grid_id).show();
+        $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
     });
 
-    $(document).on("keydown", ".price-tag-input", function(e){
-        if(e.keyCode==13)
+
+    $(document).on('click', '.imgselect2', function(){
+
+        var image_pk = this.id.split("_")[1];
+        //var image_url = $(this).children()[0].src;
+        var image_url = $($(this).children()[0]).attr("high-res-url");
+        console.log(image_pk, image_url, global_selected_grid_id);
+        $("#gridimg-"+global_selected_grid_id).attr("src", image_url);
+        $("#gridimg-"+global_selected_grid_id).show();
+        $("#divgrid-"+global_selected_grid_id).css("background-color", "transparent");
+    });
+
+
+    $(document).on('click', '.bgimgselect', function(){
+        var image_pk = this.id.split("_")[1];
+        var image_url = $(this).children()[0].src
+        global_background_image_url = image_url;
+
+        $("#flyer-div").css("background-image", "url("+image_url+")");
+        $("#flyer-div").css("background-position", "center");
+        //$("#flyer-div").css("background-size", "100% 297mm");
+    });
+
+
+
+    $("#image-categories-thumbnails-select").on("change", function(){
+      update_image_categories($("#image-categories-thumbnails-select").val());
+    });
+
+
+    function set_brand_image(url)
+    {
+      $("#brand-image-img").attr("src", url);
+    } 
+
+    function fetch_flyer_details()
+    {
+      $.ajax({
+        url: "/fetch-flyer-details/",
+        type: "POST",
+        headers:{
+          'X-CSRFToken':getCsrfToken()
+        },
+        data: {
+          pk: window.location.pathname.split("/")[2]
+        },
+        success: function(response) {
+          console.log("Success!", response);
+
+          set_canvas_mode(response["mode"]);
+
+          global_product_bucket_list = response["product_bucket_list"];
+          global_product_images_dict = response['images'];
+          global_template_data = response["template_data"];
+          global_background_images_bucket = response["background_images_bucket"];
+          global_external_image_bucket = response["external_images_bucket_list"];
+          global_brand_name = response["brand-name"];
+
+          var common = global_template_data["common"];
+
+
+          global_background_image_url = common["background-image-url"]
+          global_border_visible = common["border-visible"];
+          global_border_color = common["border-color"];
+          global_super_brand_logo = common["super-brand-logo"];
+          global_iso_logo = common["iso-logo"];
+          global_consumer_logo = common["consumer-logo"];
+          global_brand_name_visible = common["brand-name-visible"];
+          global_white_container = common["white-container"];
+          global_price_resizer = common["price-resizer"];
+          global_product_title_font_size = common["product-title-font-size"];
+          global_product_title_font_family = common["product-title-font-family"];
+          global_product_title_font_weight = common["product-title-font-weight"];
+          global_product_title_font_color = common["product-title-font-color"];
+          global_price_font_size = common["price-font-size"];
+          global_price_font_family = common["price-font-family"];
+          global_price_font_weight = common["price-font-weight"];
+          global_price_font_color = common["price-font-color"];
+          global_currency_font_size = common["currency-font-size"];
+          global_currency_font_family = common["currency-font-family"];
+          global_currency_font_weight = common["currency-font-weight"];
+          global_currency_font_color = common["currency-font-color"];
+          global_currency_unit = common["currency-unit"];
+          global_price_box_bg_color = common["price-box-bg-color"];
+          global_strikeprice_font_size = common["strikeprice-font-size"];
+          global_strikeprice_font_family = common["strikeprice-font-family"];
+          global_strikeprice_font_weight = common["strikeprice-font-weight"];
+          global_strikeprice_font_color = common["strikeprice-font-color"];
+          global_strikeprice_visible = common["strikeprice-visible"]   
+          global_header_color = common["header-color"];
+          global_footer_color = common["footer-color"];
+          global_header_opacity = common["header-opacity"];
+          global_footer_opacity = common["footer-opacity"];
+          global_all_promo_resizer = common["all-promo-resizer"];
+          global_all_warranty_resizer = common["all-warranty-resizer"];
+          global_all_image_resizer = common["all-image-resizer"];
+          global_all_image_rotator = common["all-image-rotator"];
+          global_footer_text = common["footer-text"];
+
+          update_editor_settings();
+          create_flyer_grid();
+          set_editor_style();
+
+
+          set_product_basket();
+          update_background_image_bucket();
+          update_external_image_bucket();
+          set_brand_image(response["brand_image_url"]);
+
+          global_flyer_name = response["flyer_name"];
+        },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
+        }
+      });
+    }
+
+
+
+    $(document).on("click", ".flyer-item-box", function(){
+        global_selected_grid_id = this.id.split("-")[1];
+        $(".divgrid").parent().parent().css("border", "none");
+        if($("#border-option").prop("checked"))
         {
-          e.preventDefault();
-          $(this).focusout();
+          //$(".divgrid").css("border-bottom", "2px solid #E9E9E9");
+          //$(".divgrid").css("border-bottom", "none");
+          //$(".divgrid").parent().parent().css("border", "2px solid #E9E9E9");
+        }
+        else
+        {
+          $(".divgrid").parent().parent().css("border-bottom", "none");
+          //$(".divgrid").parent().parent().css("border", "none");
+        }
+
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
+
+        $("#image-resizer").val($("#gridimg-"+global_selected_grid_id).attr("resizer"));
+        $("#image-rotator").val($("#gridimg-"+global_selected_grid_id).attr("rotator"));
+        $("#promo-resizer").val($("#banner-img-"+global_selected_grid_id).attr("resizer"));
+        $("#warranty-resizer").val($("#banner-img-left-"+global_selected_grid_id).attr("resizer"));
+
+        var banner_img = $("#banner-img-"+global_selected_grid_id).attr("src");
+        if(banner_img=="")
+        {
+          $("#local-none").click();
+        } 
+        else if(banner_img=="/files/combo.png")
+        {
+          $("#local-combo").click();
+        }
+        else if(banner_img=="/files/banner1.png")
+        {
+          $("#local-sale").click();
+        }
+        else if(banner_img=="/files/wow.png")
+        {
+          $("#local-wow").click();
+        }
+        else if(banner_img=="/files/half-price.png")
+        {
+          $("#local-half-price").click();
+        }
+        else if(banner_img=="/files/killer-offer.png")
+        {
+          $("#local-killer-offer").click();
+        }
+
+        var banner_img_url = $("#banner-img-left-"+global_selected_grid_id).attr("src");
+        if(banner_img_url=="")
+        {
+          $("#local-no-warranty").click();
+        }
+        else if(banner_img_url=="/files/geepas-warranty-1.png")
+        {
+          $("#local-geepas-warranty-1").click(); 
+        }
+        else if(banner_img_url=="/files/geepas-warranty-2.png")
+        {
+          $("#local-geepas-warranty-2").click(); 
+        }
+        else if(banner_img_url=="/files/geepas-warranty-3.png")
+        {
+          $("#local-geepas-warranty-3").click(); 
+        }
+        else if(banner_img_url=="/files/geepas-warranty-5.png")
+        {
+          $("#local-geepas-warranty-5").click(); 
+        }
+        else if(banner_img_url=="/files/geepas-warranty-7.png")
+        {
+          $("#local-geepas-warranty-7").click();
+        }
+        else if(banner_img_url=="/files/olsenmark-warranty-2.png")
+        {
+          $("#local-olsenmark-warranty-2").click(); 
+        }
+        else if(banner_img_url=="/files/krypton-warranty-2.png")
+        {
+          $("#local-krypton-warranty-2").click();
         }
     });
 
-    
-
-    // ------------------ Price Tag END ------------------
+    fetch_flyer_details();
 
 
+    $("#save-flyer-template-btn").click(function(){
 
+      global_save_signal = true;
+      $("#download-flyer-btn").click();
+      
+      $("#save-flyer-template-btn").attr("disabled", "disabled");
 
+      var grid_stack_items = $(".grid-stack-item");
+      global_template_data = {};
+      var item_data = [];
+      for(var i=0;i<grid_stack_items.length;i++)
+      {
+        var width = $(grid_stack_items[i]).attr("data-gs-width");
+        var height = $(grid_stack_items[i]).attr("data-gs-height");
+        var x = $(grid_stack_items[i]).attr("data-gs-x");
+        var y = $(grid_stack_items[i]).attr("data-gs-y");
 
+        var grid_id = $(grid_stack_items[i]).attr("grid-id");
 
+        var image_url = $("#gridimg-"+grid_id).attr("src");
+        var banner_img = $("#banner-img-"+grid_id).attr("src");
 
+        var warranty_img = $("#banner-img-left-"+grid_id).attr("src");
 
+        var image_resizer = $("#gridimg-"+grid_id).attr("resizer");
+        var image_rotator = $("#gridimg-"+grid_id).attr("rotator");
+        var promo_resizer = $("#banner-img-"+grid_id).attr("resizer");
+        var warranty_resizer = $("#banner-img-left-"+grid_id).attr("resizer");
+        var product_title = $("#product-title-info2-"+grid_id).val();
+        var description = $("#product-title-info-"+grid_id).val();
+        var price = $("#product-price-info-"+grid_id).val();
+        var strikeprice = $("#product-strikeprice-info-"+grid_id).html();
 
-
-    // ------------------ Upload Logic Start ------------------
-
-
-
-    $("#upload-new-bg-image-btn").click(function(){
-
-      var fd = new FormData();
-      var bg_image = document.getElementById("new-bg-image"); 
-      fd.append('bg_image', bg_image.files[0]);
-      fd.append('flyer_pk', window.location.pathname.split("/")[2])
-
-      $.ajax({
-        url: "/upload-new-flyer-bg-image/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        processData: false,
-        contentType: false,
-        data: fd,
-        success: function(response) {
-          console.log("Success!", response);
-          if(response["status"]==200)
-          {
-            global_background_images_bucket.push({"pk":response["bg_image_pk"], "url":response["bg_image_url"]});
-            update_background_image_bucket();
-            $("#add-new-bg-modal").modal("close");
+        var temp_dict = {
+          "container": {
+            "width": width,
+            "height": height,
+            "x": x,
+            "y": y
+          },
+          "data": {
+            "image-url": image_url,
+            "banner-img": banner_img,
+            "warranty-img": warranty_img,
+            "image-resizer": image_resizer,
+            "image-rotator": image_rotator,
+            "promo-resizer": promo_resizer,
+            "warranty-resizer": warranty_resizer,
+            "price": price,
+            "strikeprice": strikeprice,
+            "title": product_title,
+            "description": description,
+            "price": price
           }
-          else if(response["status"]==403)
-          {
-            M.toast({html: "You do not have permission to add background images!"});
-          }
-          else
-          {
-            M.toast({html: "Error adding background images!"}); 
-          }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
         }
-      });
 
-    })
+        console.log(temp_dict);
 
+        item_data.push(temp_dict);
+      }
+      global_footer_text =$("#footer-text").html();
+      global_template_data["item-data"] = item_data;
 
+      var common = {
+        "background-image-url": global_background_image_url,
+        "border-visible": global_border_visible,
+        "border-color": global_border_color,
+        "super-brand-logo": global_super_brand_logo,
+        "iso-logo": global_iso_logo,
+        "consumer-logo": global_consumer_logo,
+        "brand-name-visible": global_brand_name_visible,
+        "white-container": global_white_container,
+        "price-resizer": global_price_resizer,
+        "product-title-font-size": global_product_title_font_size,
+        "product-title-font-family": global_product_title_font_family,
+        "product-title-font-weight": global_product_title_font_weight,
+        "product-title-font-color": global_product_title_font_color,
+        "price-font-size": global_price_font_size,
+        "price-font-family": global_price_font_family,
+        "price-font-weight": global_price_font_weight,
+        "price-font-color": global_price_font_color,
+        "currency-font-size": global_currency_font_size,
+        "currency-font-family": global_currency_font_family,
+        "currency-font-weight": global_currency_font_weight,
+        "currency-font-color": global_currency_font_color,
+        "currency-unit": global_currency_unit,
+        "price-box-bg-color": global_price_box_bg_color,
+        "strikeprice-font-size": global_strikeprice_font_size,
+        "strikeprice-font-family": global_strikeprice_font_family,
+        "strikeprice-font-weight": global_strikeprice_font_weight,
+        "strikeprice-font-color": global_strikeprice_font_color,
+        "strikeprice-visible": global_strikeprice_visible,
+        "header-color": global_header_color,
+        "footer-color": global_footer_color,
+        "header-opacity": global_header_opacity,
+        "footer-opacity": global_footer_opacity,
+        "all-promo-resizer": global_all_promo_resizer,
+        "all-warranty-resizer": global_all_warranty_resizer,
+        "all-image-resizer": global_all_image_resizer,
+        "all-image-rotator": global_all_image_rotator,
+        "footer-text":global_footer_text
+      };
 
-    $("#upload-flyer-tag-btn").click(function(){
-
-      var fd = new FormData();
-      var tag_image = document.getElementById("tag-image");
-      fd.append('tag_image', tag_image.files[0]);
+      global_template_data["common"] = common;
 
       $.ajax({
-        url: "/upload-flyer-tag/",
+        url: "/save-flyer-template/",
         type: "POST",
         headers:{
           'X-CSRFToken':getCsrfToken()
         },
-        processData: false,
-        contentType: false,
-        data: fd,
+        data: {
+          flyer_pk: window.location.pathname.split("/")[2],
+          template_data: JSON.stringify(global_template_data)
+        },
         success: function(response) {
           console.log("Success!", response);
+          $("#save-flyer-template-btn").removeAttr("disabled");
           if(response["status"]==200)
           {
-            global_tag_bucket.push({"pk":response["tag_image_pk"], "url":response["tag_image_url"]});
-            update_tag_bucket();
+            M.toast({html: "Flyer template saved successfully!"});
           }
           else if(response["status"]==403)
           {
-            M.toast({html: "You do not have permission to add tags!"});
+            M.toast({html: "You do not have permission to save flyer!"}); 
           }
           else
           {
-            M.toast({html: "Error adding tags!"}); 
+            M.toast({html: "Error saving flyer!"});
           }
         },
         error: function(xhr, textstatus, errorthrown) {
@@ -1816,52 +3280,247 @@
     });
 
 
-
-
-
-
-    $("#upload-flyer-price-tag-btn").click(function(){
-
-      var fd = new FormData();
-      var price_tag_image = document.getElementById("price-tag-image");
-      fd.append('price_tag_image', price_tag_image.files[0]);
-
-      $.ajax({
-        url: "/upload-flyer-price-tag/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        processData: false,
-        contentType: false,
-        data: fd,
-        success: function(response) {
-          console.log("Success!", response);
-          if(response["status"]==200)
-          {
-            global_price_tag_bucket.push({"pk":response["price_tag_image_pk"], "url":response["price_tag_image_url"]});
-            update_price_tag_bucket();
-          }
-          else if(response["status"]==403)
-          {
-            M.toast({html: "You do not have permission to add price tags!"});
-          }
-          else
-          {
-            M.toast({html: "Error adding price tags!"}); 
-          }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-        }
-      });
-
+    $(document).on(".remove-product-btn", "click", function(){
+      
     })
 
+    $(window).keydown(function(event) {
+      console.log(event.which, event.keyCode, event.ctrlKey);
+      if(event.which == 83 && event.ctrlKey)
+      {
+        event.preventDefault();
+        $("#save-flyer-template-btn").click();
+        return false;
+      }
+    });
 
 
 
 
+
+
+
+
+    function set_background_image()
+    {
+      $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
+      $("#flyer-div").css("background-position", "center");
+      //$("#flyer-div").css("background-size", "100% 297mm");
+    }
+
+    function set_border_style()
+    {
+      if(global_border_visible)
+      {
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
+        $(".divgrid").parent().parent().parent().css("border", "2px solid "+global_border_color);
+      }
+      else
+      {
+        $("#divgrid-"+global_selected_grid_id).parent().parent().css("border", "0.14em dashed");
+        $(".divgrid").parent().parent().parent().css("border", "none");
+      } 
+    }
+
+    function set_header_logos()
+    {
+      if(global_super_brand_logo)
+        $("#super-brand-img").show();
+      else
+        $("#super-brand-img").hide();
+
+
+      if(global_iso_logo)
+        $("#iso-img").show();
+      else
+        $("#iso-img").hide();
+
+      if(global_consumer_logo)
+        $("#consumer-img").show();
+      else
+        $("#consumer-img").hide();
+
+      if(global_brand_name_visible)
+        $(".brand-text").show();
+      else
+        $(".brand-text").hide();
+    }
+
+    function set_product_title_style()
+    {
+      $(".product-title-info").css("font-size", global_product_title_font_size+"px");
+      $(".product-title-info").css("font-family", global_product_title_font_family);
+      $(".product-title-info").css("font-weight", global_product_title_font_weight);
+      $(".product-title-info").css("color", global_product_title_font_color);
+    }
+
+    function set_price_box_style()
+    {
+      //Actual Price
+      $(".product-price-info").css("font-size", global_price_font_size+"px");
+      $(".product-price-info").css("font-family", global_price_font_family);
+      $(".product-price-info").css("font-weight", global_price_font_weight);
+      $(".product-price-info").css("color", global_price_font_color);
+
+      //currency
+      $(".product-currency-info").css("font-size", global_currency_font_size+"px");
+      $(".product-currency-info").css("font-family", global_currency_font_family);
+      $(".product-currency-info").css("font-weight", global_currency_font_weight);
+      $(".product-currency-info").css("color", global_currency_font_color);
+      $(".product-currency-info").html(global_currency_unit);
+
+      $(".grid-item-footer-right input").css("background", global_price_box_bg_color);
+      $(".grid-item-footer-right").css("max-width", global_price_resizer+"px");
+    }
+
+    function set_strike_price_style()
+    {
+      //strikeprice
+      $(".product-strikeprice-info").css("font-size", global_strikeprice_font_size+"px");
+      $(".product-strikeprice-info").css("font-family", global_strikeprice_font_family);
+      $(".product-strikeprice-info").css("font-weight", global_strikeprice_font_weight);
+      $(".product-strikeprice-info").css("color", global_strikeprice_font_color);
+
+      if(global_strikeprice_visible)
+        $(".footer-top-right").show();
+      else
+        $(".footer-top-right").hide();
+    }
+
+
+    function HEXtoRGBA(hex, opacity)
+    {
+      var c;
+      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+          c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
+      }
+      throw new Error('Bad Hex');
+    }
+
+    function set_header_style()
+    {
+      var color = HEXtoRGBA(global_header_color, global_header_opacity);
+      $("#header-div").css("background", color);
+    }
+
+    function set_footer_style()
+    {
+      var color = HEXtoRGBA(global_footer_color, global_footer_opacity);
+      $("#footer-div").css("background", color);
+    }
+
+
+
+    // Updates the editor // One time call
+    function update_editor_settings()
+    {
+
+      //Border Settings
+      $("#border-option").prop("checked", global_border_visible);
+      $("#border-color").val(global_border_color);
+
+
+      //Header Logos
+      $("#super-brand-option").prop("checked", global_super_brand_logo);
+      $("#iso-option").prop("checked", global_iso_logo);
+      $("#consumer-option").prop("checked", global_consumer_logo)
+      $("#small-brand-option").prop("checked", global_brand_name_visible);
+      $("#white-option").prop("checked", global_white_container)
+
+      //Price Resizer
+      $("#price-resizer").val(global_price_resizer);
+
+      //Image Resizer
+      $("#all-image-resizer").val(global_all_image_resizer);
+
+      //Image Rotator
+      $("#all-image-rotator").val(global_all_image_rotator);      
+
+      //Promo Resizer
+      $("#all-promo-resizer").val(global_all_promo_resizer);
+
+      //Warranty Resizer
+      $("#all-warranty-resizer").val(global_all_warranty_resizer);      
+
+
+      // Product Title Settings
+      $("#product-title-font-size").val(global_product_title_font_size);
+      $("#product-title-font-family").val(global_product_title_font_family);
+      $("#product-title-font-weight").val(global_product_title_font_weight);
+      $("#product-title-font-color").val(global_product_title_font_color);
+
+
+
+      //Price Box
+      $("#product-price-font-size").val(global_price_font_size);
+      $("#product-price-font-family").val(global_price_font_family);
+      $("#product-price-font-weight").val(global_price_font_weight);
+      $("#product-price-font-color").val(global_price_font_color);
+
+      $("#currency-font-size").val(global_currency_font_size);
+      $("#currency-font-family").val(global_currency_font_family);
+      $("#currency-font-weight").val(global_currency_font_weight);
+      $("#currency-font-color").val(global_currency_font_color);
+      
+      $("#currency-unit").val(global_currency_unit);
+      $("#price-box-bg-color").val(global_price_box_bg_color);
+      
+
+      //Strikeprice settings
+      $("#product-strikeprice-font-size").val(global_strikeprice_font_size);
+      $("#product-strikeprice-font-family").val(global_strikeprice_font_family);
+      $("#product-strikeprice-font-weight").val(global_strikeprice_font_weight);
+      $("#product-strikeprice-font-color").val(global_strikeprice_font_color);
+      
+      if(global_strikeprice_visible)
+        $("#strikeprice-option").prop("checked", true);
+      else
+        $("#strikeprice-option").prop("checked", false);
+      
+      //Header/Footer settings
+      $("#header-color").val(global_header_color);
+      $("#footer-color").val(global_footer_color);
+
+      $("#header-opacity").val(global_header_opacity);
+      $("#footer-opacity").val(global_footer_opacity);
+
+      if(global_footer_text=="")
+        global_footer_text = "Footer Text"
+      $("#footer-text").text(global_footer_text);
+      
+      $("select").formSelect();
+    }
+
+    // Sets the current global editor styles to all elements
+    function set_editor_style()
+    {
+      //Background Image
+      set_background_image();
+
+      //Border Settings
+      set_border_style();
+
+      //Header Logos
+      set_header_logos();
+
+      //Product Title Settings
+      set_product_title_style();
+
+      //Price Box Settings
+      set_price_box_style()
+
+      //Strike Price Settings
+      set_strike_price_style();
+
+      //Header/Footer Settings
+      set_header_style();
+      set_footer_style();
+    }
 
     $("#upload-image-btn").click(function(){
 
@@ -1919,608 +3578,6 @@
         }
       });
     });
-
-
-
-    // ------------------ Upload Logic END ------------------
-
-
-
-
-
-
-
-    // ------------------ Download Logic START ------------------
-
-    $("#download-flyer-btn").click(function(e)
-    {
-
-      if(global_save_signal==false)
-      {
-        $("#download-flyer-btn").attr("disabled", "disabled");
-        $("#loader-div").show();
-      }
-
-
-      var image_links = [];
-
-      //Primary Grid Images
-      for(var i=0;i<$(".primary-grid-stack-item-content-img").length;i++)
-      {
-        var grid_id = $($(".primary-grid-stack-item-content-img")[i]).attr("gridid");
-        var image_url = $($(".primary-grid-stack-item-content-img")[i]).attr("src");
-        if(image_url!="")
-        {
-          image_links.push({"key": grid_id, "url": image_url});
-        }
-      }
-
-      //Secondary Grid Images
-      for(var i=0;i<$(".secondary-grid-stack-item-content-img").length;i++)
-      {
-        var grid_id = $($(".secondary-grid-stack-item-content-img")[i]).attr("gridid");
-        var image_url = $($(".secondary-grid-stack-item-content-img")[i]).attr("src");
-        if(image_url!="")
-        {
-          image_links.push({"key": grid_id, "url": image_url});
-        }
-      }
-
-      //Background Image
-      if($("#flyer-div").css("background-image")!="none")
-      {
-        var key = "background-image";
-        var url = $("#flyer-div").css("background-image").replace('url("', "").replace('")', "");
-        image_links.push({"key":"background-image", "url": url});
-      }
-
-
-      $.ajax({
-        url: "/download-images-s3/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        data: { 
-          links : JSON.stringify(image_links)
-        },
-        success: function(response) {
-          console.log("Success! ", response);
-
-          if(response["status"]==200)
-          {
-            var local_links = response["local_links"];
-            
-            for(var i=0;i<local_links.length;i++)
-            {
-              var key = local_links[i]["key"];
-              var url = local_links[i]["url"];
-
-              if(key!="background-image")
-              {
-                $("img[gridid="+key+"]").attr("src", url)
-              }
-              else
-              {
-                $("#flyer-div").css("background-image", 'url("'+url+'")')
-              }
-            }
-
-            e.preventDefault();
-
-            var scale = 5;
-            var div = document.getElementById('flyer-div');
-            var canvas = document.createElement('canvas');
-            var h = div.scrollHeight;
-            var ratio = canvas.width/canvas.height;
-            var w = h * ratio;
-            canvas.width = scale*window.devicePixelRatio*div.scrollWidth;
-            canvas.height = scale*window.devicePixelRatio*div.scrollHeight;
-            canvas.style.width = w + 'px';
-            canvas.style.height = h + 'px';
-            var context = canvas.getContext('2d');
-            context.scale(scale, scale);
-
-            function dataURLtoBlob(dataurl) {
-              var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                  bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-              while(n--){
-                  u8arr[n] = bstr.charCodeAt(n);
-              }
-              return new Blob([u8arr], {type:mime});
-            }
-
-            window.scrollTo(0,0);
-            html2canvas(div, {canvas:canvas, scrollX:-1, scrollY:0}).then(function(canvas) {
-              console.log("Downloading Flyer...");
-                  
-              var dataURI = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
-
-              var blob = dataURLtoBlob(dataURI);
-              var objurl = URL.createObjectURL(blob);
-                  
-              if(global_save_signal==false)
-              {
-                $("#download-flyer-btn").removeAttr("disabled");
-                $("#loader-div").hide();
-                var a = document.createElement('a');
-                a.download = 'test1.jpg';
-                a.href = objurl;
-                a.click();
-              }
-              global_save_signal = false;
-
-              //Restore original links
-              for(var i=0;i<image_links.length;i++)
-              {
-                var key = image_links[i]["key"];
-                var url = image_links[i]["url"];
-
-                if(key!="background-image")
-                {
-                  $("img[gridid="+key+"]").attr("src", url)
-                }
-                else
-                {
-                  $("#flyer-div").css("background-image", 'url("'+url+'")')
-                }
-              }
-
-
-
-              //Save as thumbnail
-              var image_data = canvas.toDataURL("image/jpeg", 0.4);
-
-              var fd = new FormData();
-              fd.append('image_data', image_data);
-              fd.append('flyer_pk', window.location.pathname.split("/")[2]);
-
-              $.ajax({
-                url: "/save-flyer-in-bucket/",
-                type: "POST",
-                headers:{
-                  'X-CSRFToken':getCsrfToken()
-                },
-                processData: false,
-                contentType: false,
-                data: fd,
-                success: function(response) {
-                  console.log("Success!", response);
-                },
-                error: function(xhr, textstatus, errorthrown) {
-                  console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-                }
-              });
-            });
-          }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-        }
-      });
-    });
-
-
-    $("#save-flyer-template-btn").click(function(){
-
-      global_save_signal = true;
-      $("#save-flyer-template-btn").attr("disabled", "disabled");
-
-      $("#download-flyer-btn").click();
-
-      var flyer_details = [];
-      for(var i=0;i<$(".primary-grid-stack-item").length;i++)
-      {
-        var grid_id = $($(".primary-grid-stack-item")[i]).attr("grid-id");
-
-        var tag_data = [];
-        for(var j=0;j<$(".secondary-grid-stack-item-tag-content[gridid^="+grid_id+"-]").length;j++)
-        {
-          var base_el = $($(".secondary-grid-stack-item-tag-content[gridid^="+grid_id+"-]")[j]);
-          var container_id = base_el.parent().attr("grid-id");
-
-          var price = {};
-          if(base_el.attr("is-price-tag")=="true")
-          {
-            price_el = $("div[price-id="+container_id+"]")
-            price = {
-              "price": price_el.attr("price"),
-              "top": price_el.attr("top"),
-              "left": price_el.attr("left"),
-              "font-size": price_el.css("font-size"),
-              "font-color": price_el.css("color"),
-              "font-family": price_el.css("font-family"),
-              "bold": price_el.css("font-weight"),
-              "underlined": price_el.css("text-decoration"),
-              "italic": price_el.css("font-style"),
-              "font-alignment": price_el.css("text-align")
-            }
-            console.log("saving price ", price);
-          }
-
-          var temp_dict = {
-            "container-id": container_id,
-            "container": {
-              "x": base_el.parent().attr("data-gs-x"),
-              "y": base_el.parent().attr("data-gs-y"),
-              "height": base_el.parent().attr("data-gs-height"),
-              "width": base_el.parent().attr("data-gs-width")
-            },
-            "data": {
-              "image-url": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("src"),
-              "rotation": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("image-rotator"),
-              "image-pk": $(".secondary-grid-stack-item-content-img[gridid="+container_id+"]").attr("grid-image-pk"),
-              "is-price-tag": base_el.attr("is-price-tag"),
-              "price": price
-            }
-          }
-          tag_data.push(temp_dict);
-        }
-
-        var temp_dict = {
-          "container-id": grid_id,
-          "container": {
-            "x": $($(".primary-grid-stack-item")[i]).attr("data-gs-x"),
-            "y": $($(".primary-grid-stack-item")[i]).attr("data-gs-y"),
-            "height": $($(".primary-grid-stack-item")[i]).attr("data-gs-height"),
-            "width": $($(".primary-grid-stack-item")[i]).attr("data-gs-width")
-          },
-          "data": {
-            "image-url": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("src"),
-            "zoom": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("image-resizer"),
-            "rotation": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("image-rotator"),
-            "top": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("top"),
-            "left": $(".primary-grid-stack-item-content-img[gridid="+grid_id+"]").attr("left"),
-          },
-          "info-container": {
-              "container-id": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").attr("gridid"),
-              "container": {
-                  "x": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").parent().attr("data-gs-x"),
-                  "y": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").parent().attr("data-gs-y"),
-                  "height": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").parent().attr("data-gs-height"),
-                  "width": $(".secondary-grid-stack-item-content[gridid="+grid_id+"-1]").parent().attr("data-gs-width")
-              },
-              "product-info": $("textarea[text-grid-id="+grid_id+"-1]").val(),
-              "font-color": $("textarea[text-grid-id="+grid_id+"-1]").css("color"),
-              "font-size": $("textarea[text-grid-id="+grid_id+"-1]").css("font-size"),
-              "font-family": $("textarea[text-grid-id="+grid_id+"-1]").css("font-family"),
-              "bold": $("textarea[text-grid-id="+grid_id+"-1]").css("font-weight"),
-              "underlined": $("textarea[text-grid-id="+grid_id+"-1]").css("text-decoration"),
-              "italic": $("textarea[text-grid-id="+grid_id+"-1]").css("font-style"),
-              "font-alignment": $("textarea[text-grid-id="+grid_id+"-1]").css("text-align")
-          },
-          "tags": tag_data
-        }
-
-        flyer_details.push(temp_dict);
-      }
-
-      global_template_data = {
-        "flyerDetails": flyer_details,
-        "common": {
-          "background-image-url": global_background_image_url,
-          "border-visible": $("#border-option").prop("checked"),
-          "border-color": $("#border-color").val()
-        }
-      }
-
-      $.ajax({
-        url: "/save-flyer-template/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        data: {
-          flyer_pk: window.location.pathname.split("/")[2],
-          template_data: JSON.stringify(global_template_data)
-        },
-        success: function(response) {
-          console.log("Success!", response);
-          $("#save-flyer-template-btn").removeAttr("disabled");
-          if(response["status"]==200)
-          {
-            M.toast({html: "Flyer template saved successfully!"});
-          }
-          else if(response["status"]==403)
-          {
-            M.toast({html: "You do not have permission to save flyer!"}); 
-          }
-          else
-          {
-            M.toast({html: "Error saving flyer!"});
-          }
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-        }
-      });
-
-    });
-
-    // ------------------ Download Logic END ------------------
-    
-
-    
-
-
-      
-
-
-    
-
-    
-
-    
-
-
-    
-
-
-
-    
-
-    function fetch_flyer_details()
-    {
-      $.ajax({
-        url: "/fetch-flyer-details/",
-        type: "POST",
-        headers:{
-          'X-CSRFToken':getCsrfToken()
-        },
-        data: {
-          pk: window.location.pathname.split("/")[2]
-        },
-        success: function(response) {
-          console.log("Success!", response);
-
-          set_canvas_mode(response["mode"]);
-
-          global_product_bucket_list = response["product_bucket_list"];
-          global_product_images_dict = response['images'];
-          global_template_data = response["template_data"];
-          global_background_images_bucket = response["background_images_bucket"];
-          global_tag_bucket = response["tag_bucket"];
-          global_price_tag_bucket = response["price_tag_bucket"]
-          global_external_image_bucket = response["external_images_bucket_list"];
-
-          global_flyer_name = response["flyer_name"];
-
-          var common = global_template_data["common"];
-
-          global_border_color = common["border-color"];
-          global_border_visible = common["border-visible"];
-          global_background_image_url = common["background-image-url"];
-
-          set_product_basket();
-          update_background_image_bucket();
-          update_tag_bucket();
-          update_price_tag_bucket();
-          update_external_image_bucket();
-
-          create_flyer();
-        },
-        error: function(xhr, textstatus, errorthrown) {
-          console.log("Please report this error: "+errorthrown+xhr.status+xhr.responseText);
-        }
-      });
-    }
-
-    fetch_flyer_details();
-
-
-
-    $(window).keydown(function(event) {
-
-      if(event.keyCode==83 && event.ctrlKey)
-      {
-        $("#save-flyer-template-btn").click();
-        event.preventDefault();
-        return;
-      }
-
-      if(grid_active=="SECONDARY")
-        return;
-
-      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
-        return;
-
-      if(active_grid_id=="")
-        return;
-
-      var top = parseInt($("img[gridid="+active_grid_id+"]").attr("top"));
-      var left = parseInt($("img[gridid="+active_grid_id+"]").attr("left"));
-      var size = parseInt($("img[gridid="+active_grid_id+"]").attr("image-resizer"));
-
-      var inc = 1;
-      if(event.shiftKey)
-        inc = 5;
-      if(event.keyCode==65)
-      {
-        left -= inc;
-      }
-
-      if(event.keyCode==87)
-      {
-        top -= inc;
-      }
-
-      if(event.keyCode==68)
-      {
-        left += inc;
-      }
-
-      if(event.keyCode==83)
-      {
-        top += inc;
-      }
-
-      if(event.keyCode==187)
-      {
-        size++;
-      }
-      if(event.keyCode==189)
-      {
-        size--;
-      }
-
-
-      $("img[gridid="+active_grid_id+"]").css("top", top+"%");
-      $("img[gridid="+active_grid_id+"]").css("left", left+"%");
-      $("img[gridid="+active_grid_id+"]").css("width", size+"%");
-
-      $("img[gridid="+active_grid_id+"]").attr("top", top);
-      $("img[gridid="+active_grid_id+"]").attr("left", left);
-      $("img[gridid="+active_grid_id+"]").attr("image-resizer", size);
-      
-      if(event.keyCode==37)
-      {
-        event.preventDefault();
-        return false;
-      }
-    });
-
-
-    $(window).keydown(function(event) {
-
-      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
-        return;
-
-      if(active_grid_id=="")
-        return;
-      
-      var rotation = parseInt($("img[gridid="+active_grid_id+"]").attr("image-rotator"));
-      if(event.keyCode==69)
-      {
-        rotation += 1;
-      }
-      if(event.keyCode==81)
-      {
-        rotation -= 1;
-      }
-
-      rotation_str = "rotate("+rotation+"deg)";
-
-      if(grid_active=="PRIMARY")
-      {
-        $("img[gridid="+active_grid_id+"]").css("transform", rotation_str);
-      }
-      else
-      {
-        $("img[gridid="+active_grid_id+"]").parent().css("transform", rotation_str);
-      }
-      $("img[gridid="+active_grid_id+"]").attr("image-rotator", rotation);
-    });
-
-
-
-    $(window).keydown(function(event) {
-
-      if(document.activeElement.type=="textarea" || document.activeElement.type=="text")
-        return;
-
-      if(active_grid_id=="")
-        return;
-      
-      if(grid_active=="PRIMARY")
-        return;
-
-      var top = parseInt($("div[price-id="+active_grid_id+"]").attr("top"));
-      var left = parseInt($("div[price-id="+active_grid_id+"]").attr("left"));
-
-      var inc = 1;
-      if(event.shiftKey)
-        inc = 5;
-      if(event.keyCode==65)
-      {
-        left -= inc;
-      }
-
-      if(event.keyCode==87)
-      {
-        top -= inc;
-      }
-
-      if(event.keyCode==68)
-      {
-        left += inc;
-      }
-
-      if(event.keyCode==83)
-      {
-        top += inc;
-      }
-
-      $("div[price-id="+active_grid_id+"]").css("top", top+"%");
-      $("div[price-id="+active_grid_id+"]").css("left", left+"%");
-
-      $("div[price-id="+active_grid_id+"]").attr("top", top);
-      $("div[price-id="+active_grid_id+"]").attr("left", left);
-    });
-
-
-
-    $(window).keydown(function(event) {
-
-      if(event.ctrlKey && event.keyCode==66)
-      {
-        $("#format-bold-btn").click();
-      }
-
-      if(event.ctrlKey && event.keyCode==73)
-      {
-        $("#format-italic-btn").click();
-      }
-
-      if(event.ctrlKey && event.keyCode==85)
-      {
-        $("#format-underlined-btn").click();
-        event.preventDefault();
-      }
-    });
-
-    
-
-    function set_background_image()
-    {
-      if(global_background_image_url=="none")
-      {
-        $("#flyer-div").css("background-image", "none");
-        return;
-      }
-      $("#flyer-div").css("background-image", "url("+global_background_image_url+")");
-      $("#flyer-div").css("background-position", "center");
-    }
-
-    function set_border_style()
-    {
-      $(".secondary-grid-stack-item-content").css("border", "none");
-      if(global_border_visible)
-      {
-        $(".primary-grid-stack-item-content").css("border", "2px solid "+global_border_color);
-      }
-      else
-      {
-        $(".primary-grid-stack-item-content").css("border", "none");
-      } 
-    }
-
-
-    function HEXtoRGBA(hex, opacity)
-    {
-      var c;
-      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
-        c= hex.substring(1).split('');
-        if(c.length== 3){
-          c= [c[0], c[0], c[1], c[1], c[2], c[2]];
-        }
-        c= '0x'+c.join('');
-        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
-      }
-      throw new Error('Bad Hex');
-    }
-
-
-    
 
 
     function set_canvas_mode(mode)
@@ -2602,7 +3659,6 @@
         $("#flyer-div").css("background-size", "100% 148mm");
       }
     }
-
 
   </script>
 
