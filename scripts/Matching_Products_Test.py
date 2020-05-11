@@ -14,7 +14,7 @@ product_list = [941,944,946,949,950]
 
 xml = generate_xml_for_post_product_data_amazon_uk(product_list,seller_id)
 
-# products_api = APIs.Products(access_key, secret_key, seller_id, region='AE')
+# feeds_api = APIs.Feeds(access_key, secret_key, seller_id, region='AE')
 
 # filename = "scripts/final-barcode.xlsx"
 
