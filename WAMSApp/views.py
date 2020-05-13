@@ -1146,7 +1146,6 @@ class FetchProductDetailsAPI(APIView):
                 images["diecut_images"] + images["aplus_content_images"] + \
                 images["ads_images"] + images["unedited_images"] + images["transparent_images"] + create_response_images_main_sub_delete(main_images_list) + create_response_images_main_sub_delete(sub_images_list)
 
-
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
             repr_high_def_url = repr_image_url
             
@@ -1265,7 +1264,6 @@ class FetchDealsHubProductsAPI(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchDealsHubProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
 
             is_available = True
             
@@ -1459,20 +1457,16 @@ class SaveProductAPI(APIView):
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = data["pfl_product_features"]
 
-
             factory_notes = convert_to_ascii(data["factory_notes"])
             factory_code = convert_to_ascii(data["factory_code"])
 
             dynamic_form_attributes = data["dynamic_form_attributes"]
-
 
             min_price = float(data.get("min_price", 0))
             max_price = float(data.get("max_price", 0))
             was_price = float(data.get("was_price", 0))
             now_price = float(data.get("now_price", 0))
             stock = int(data.get("stock", 0))
-
-
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
@@ -1496,7 +1490,6 @@ class SaveProductAPI(APIView):
                     dealshub_product_obj.save()
             except Exception as e:
                 pass
-
 
 
             product_obj.product_id = product_id
@@ -1717,28 +1710,28 @@ class FetchProductListAPI(APIView):
                         
                         channels_of_prod +=1
                         noon_product = json.loads(product_obj.channel_product.noon_product_json)
-                        if noon_product["is_active"] == True:
+                        if noon_product["status"] == "Active":
                             active_channels +=1
 
                     if product_obj.channel_product.is_amazon_uk_product_created == True:
                         
                         channels_of_prod +=1
                         amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
-                        if amazon_uk_product["is_active"] == True:
+                        if amazon_uk_product["status"] == "Active":
                             active_channels +=1
 
                     if product_obj.channel_product.is_amazon_uae_product_created == True:
                         
                         channels_of_prod +=1
                         amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
-                        if amazon_uae_product["is_active"] == True:
+                        if amazon_uae_product["status"] == "Active":
                             active_channels +=1
 
                     if product_obj.channel_product.is_ebay_product_created == True:
                         
                         channels_of_prod +=1
                         ebay_product = json.loads(product_obj.channel_product.ebay_product_json)
-                        if ebay_product["is_active"] == True:
+                        if ebay_product["status"] == "Active":
                             active_channels +=1
 
                     temp_dict2["channels_of_prod"] = channels_of_prod
