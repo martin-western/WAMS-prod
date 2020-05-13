@@ -1569,6 +1569,9 @@ class FetchProductListAPI(APIView):
             data = request.data
             logger.info("FetchProductListAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             filter_parameters = data["filter_parameters"]
             chip_data = data["tags"]
 
@@ -1770,6 +1773,9 @@ class FetchExportListAPI(APIView):
             data = request.data
             logger.info("FetchExportListAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             chip_data = json.loads(data.get('tags', '[]'))
 
             search_list_objs = []
@@ -1787,6 +1793,7 @@ class FetchExportListAPI(APIView):
 
             if len(chip_data) == 0:
                 search_list_objs = export_list_objs
+            
             else:
                 for export_list in export_list_objs:
                     for product in export_list.products.all():
@@ -1827,7 +1834,6 @@ class FetchExportListAPI(APIView):
 
         return Response(data=response)
 
-
 class AddToExportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1844,6 +1850,9 @@ class AddToExportAPI(APIView):
             data = request.data
             logger.info("AddToExportAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             select_all = data.get("select_all", False)
             export_option = data["export_option"]
             export_title_pk = data["export_title_pk"]
@@ -1853,6 +1862,7 @@ class AddToExportAPI(APIView):
             products = data["products"]
 
             if select_all==True:
+                
                 filter_parameters = data["filter_parameters"]
                 chip_data = data["tags"]
 
@@ -1890,6 +1900,7 @@ class AddToExportAPI(APIView):
                             search_list_product_objs|=product_obj
 
                 export_obj = None
+                
                 if export_option == "New":
                     export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
                 else:
@@ -1899,6 +1910,7 @@ class AddToExportAPI(APIView):
                     export_obj.products.add(product_obj)
                     export_obj.channel = channel_obj
                     export_obj.save()
+            
             else:
                 export_obj = None
                 if export_option == "New":
@@ -1934,7 +1946,7 @@ class FetchExportProductListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-                
+
             export_obj = ExportList.objects.get(pk=int(data["export_pk"]))
             channel_name = export_obj.channel.name
             products = export_obj.products.all()
@@ -5562,8 +5574,6 @@ class FetchCompanyCredentialsAPI(APIView):
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
-
-LoginSubmit = LoginSubmitAPI.as_view()
 
 CreateNewProduct = CreateNewProductAPI.as_view()
 
