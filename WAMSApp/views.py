@@ -1932,14 +1932,19 @@ class FetchExportProductListAPI(APIView):
             data = request.data
             logger.info("FetchExportProductListAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+                
             export_obj = ExportList.objects.get(pk=int(data["export_pk"]))
             channel_name = export_obj.channel.name
             products = export_obj.products.all()
 
             product_list = []
             for product in products:
+                
                 temp_dict = {}
                 channel_product = product.channel_product
+                
                 if channel_name == "Amazon UK":
                     amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
                     temp_dict["amazon_uk_product"] = amazon_uk_product
@@ -1947,6 +1952,7 @@ class FetchExportProductListAPI(APIView):
                     temp_dict["seller_sku"] = product.base_product.seller_sku
                     temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
+                    
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
                         main_images_list=main_images_obj.main_images.all()
@@ -1955,12 +1961,14 @@ class FetchExportProductListAPI(APIView):
                     except Exception as e:
                         temp_dict["main_images"] = []
                         pass
+                
                 elif channel_name == "Amazon UAE":
                     amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                     temp_dict["amazon_uae_product"] = amazon_uae_product
                     temp_dict["product_id"] = product.product_id
                     temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
+                    
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
                         main_images_list=main_images_obj.main_images.all()
@@ -1969,12 +1977,14 @@ class FetchExportProductListAPI(APIView):
                     except Exception as e:
                         temp_dict["main_images"] = []
                         pass
+                
                 elif channel_name == "Noon":
                     noon_product = json.loads(channel_product.noon_product_json)
                     temp_dict["noon_product"] = noon_product
                     temp_dict["product_id"] = product.product_id
                     temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
+                    
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
                         main_images_list=main_images_obj.main_images.all()
@@ -1983,12 +1993,14 @@ class FetchExportProductListAPI(APIView):
                     except Exception as e:
                         temp_dict["main_images"] = []
                         pass
+                
                 elif channel_name == "Ebay":
                     ebay_product = json.loads(channel_product.ebay_product_json)
                     temp_dict["ebay_product"] = ebay_product
                     temp_dict["product_id"] = product.product_id
                     temp_dict["product_pk"] = product.pk
                     main_images_list = ImageBucket.objects.none()
+                    
                     try:
                         main_images_obj = MainImages.objects.get(product=product,channel=export_obj.channel)
                         main_images_list=main_images_obj.main_images.all()
@@ -2022,6 +2034,9 @@ class DownloadExportListAPI(APIView):
             data = request.data
             logger.info("DownloadExportListAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             export_format = data["export_format"]
 
             export_obj = ExportList.objects.get(pk=int(data["export_pk"]))
@@ -2032,16 +2047,19 @@ class DownloadExportListAPI(APIView):
                 response["success_products"] = success_products
                 response["total_products"] = products.count()
                 response["file_path"] = "/files/csv/export-list-amazon-uk.xlsx"
+            
             elif export_format == "Amazon UAE":
                 success_products = export_amazon_uae(products)
                 response["success_products"] = success_products
                 response["total_products"] = products.count()
                 response["file_path"] = "/files/csv/export-list-amazon-uae.xlsx"
+            
             elif export_format == "Ebay":
                 success_products = export_ebay(products)
                 response["success_products"] = success_products
                 response["total_products"] = products.count()
                 response["file_path"] = "/files/csv/export-list-ebay.xlsx"
+            
             elif export_format == "Noon":
                 success_products = export_noon(products)
                 response["success_products"] = success_products
@@ -2068,6 +2086,9 @@ class DownloadProductAPI(APIView):
 
             data = request.data
             logger.info("DownloadProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             export_format = data["export_format"]
 
@@ -2111,6 +2132,9 @@ class ImportProductsAPI(APIView):
             data = request.data
             logger.info("ImportProductsAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             import_format = data["import_format"]
             import_rule = data["import_rule"]
             import_file = data["import_file"]
@@ -2136,6 +2160,7 @@ class UploadProductImageAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             if request.user.has_perm("WAMSApp.add_image") == False:
                 logger.warning("UploadProductImageAPI Restricted Access!")
@@ -2144,6 +2169,9 @@ class UploadProductImageAPI(APIView):
 
             data = request.data
             logger.info("UploadProductImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
 
@@ -2229,6 +2257,7 @@ class UploadProductImageAPI(APIView):
                                                                   sub_image_index=sub_image_index)
                     sub_images_obj.sub_images.add(image_bucket_obj)
                     sub_images_obj.save()
+            
             elif data["image_category"] == "pfl_images":
                 for image_obj in image_objs:
                     product_obj.pfl_images.add(image_obj)
@@ -2273,13 +2302,13 @@ class UploadProductImageAPI(APIView):
 
         return Response(data=response)
 
-
 class UpdateMainImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
+        
         try:
             if request.user.has_perm('WAMSApp.change_image') == False:
                 logger.warning("UpdateMainImageAPI Restricted Access!")
@@ -2289,8 +2318,12 @@ class UpdateMainImageAPI(APIView):
             data = request.data
             logger.info("UpdateMainImageAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             channel_obj = None
+            
             if data["channel_name"]!="":
                 channel_obj = Channel.objects.get(name=data["channel_name"])
                 
@@ -2336,10 +2369,15 @@ class UpdateSubImagesAPI(APIView):
             data = request.data
             logger.info("UpdateSubImagesAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             channel_obj = None
+            
             if data["channel_name"]!="":
                 channel_obj = Channel.objects.get(name=data["channel_name"])
+            
             reset_sub_images(product_obj, channel_obj)
 
             sub_images = json.loads(data["sub_images"])
@@ -2382,6 +2420,9 @@ class CreateFlyerAPI(APIView):
 
             data = request.data
             logger.info("CreateFlyerAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             brand_obj = Brand.objects.get(pk=int(data["brand_pk"]))
 
@@ -2474,9 +2515,11 @@ class CreateFlyerAPI(APIView):
                     template_data["item-data"] = item_data
                     flyer_obj.template_data = json.dumps(template_data)
                     flyer_obj.save()
+                
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("CreateFlyerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
             elif create_option=="1":
                 # Read excel file and populate flyer
                 try:
@@ -2617,15 +2660,21 @@ class CreateFlyerAPI(APIView):
 
 
 class FetchFlyerDetailsAPI(APIView):
+    
     permission_classes = (permissions.AllowAny,)
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
             logger.info("FetchFlyerDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             flyer_obj = Flyer.objects.get(pk=int(data["pk"]))
 
@@ -2757,6 +2806,7 @@ class CreatePFLAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             if request.user.has_perm('WAMSApp.add_pfl') == False:
                 logger.warning("CreatePFLAPI Restricted Access!")
@@ -2765,6 +2815,9 @@ class CreatePFLAPI(APIView):
 
             data = request.data
             logger.info("CreatePFLAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             pfl_obj = PFL.objects.create(name=convert_to_ascii(data["name"]))
 
@@ -2779,7 +2832,9 @@ class CreatePFLAPI(APIView):
 
 
 class FetchPFLDetailsAPI(APIView):
+    
     permission_classes = (permissions.AllowAny,)
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2788,6 +2843,9 @@ class FetchPFLDetailsAPI(APIView):
 
             data = request.data
             logger.info("FetchPFLDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             pfl_obj = PFL.objects.get(pk=int(data["pk"]))
 
@@ -2939,6 +2997,9 @@ class FetchProductListFlyerPFLAPI(APIView):
             data = request.data
             logger.info("FetchProductListFlyerPFLAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             #product_objs = custom_permission_filter_products(request.user)
             product_objs = Product.objects.all()
 
@@ -3019,6 +3080,9 @@ class AddProductFlyerBucketAPI(APIView):
 
             data = request.data
             logger.info("AddProductFlyerBucketAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
 
@@ -3122,6 +3186,9 @@ class AddProductPFLBucketAPI(APIView):
             data = request.data
             logger.info("AddProductPFLBucketAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
 
             product_id = data["product_name"].split("|")[1].strip()
@@ -3157,7 +3224,9 @@ class AddProductPFLBucketAPI(APIView):
 
 
 class FetchProductDetailsFlyerPFLAPI(APIView):
+    
     permission_classes = (permissions.AllowAny,)    
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3166,6 +3235,9 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
 
             data = request.data
             logger.info("FetchProductDetailsFlyerPFLAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
@@ -3248,6 +3320,7 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
             response["barcode_image_url"] = barcode_image_url
             response["brand_name"] = brand_name
             response["logo_image_url"] = logo_image_url
+            
             response['status'] = 200
 
         except Exception as e:
@@ -3274,6 +3347,9 @@ class SaveFlyerTemplateAPI(APIView):
 
             data = request.data
             logger.info("SaveFlyerTemplateAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
             flyer_obj.template_data = data["template_data"]
@@ -3346,6 +3422,9 @@ class UploadImageExternalBucketFlyerAPI(APIView):
             data = request.data
             logger.info("UploadImageExternalBucketFlyerAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
             image_obj = Image.objects.create(image=data["image"])
             flyer_obj.external_images_bucket.add(image_obj)
@@ -3373,6 +3452,9 @@ class UploadImageExternalBucketPFLAPI(APIView):
 
             data = request.data
             logger.info("UploadImageExternalBucketPFLAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
             image_obj = Image.objects.create(image=data["image"])
@@ -3402,6 +3484,9 @@ class FetchPFLListAPI(APIView):
 
             data = request.data
             logger.info("FetchPFLListAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             page = int(data["page"])
 
@@ -3491,6 +3576,9 @@ class FetchFlyerListAPI(APIView):
             data = request.data
             logger.info("FetchFlyerListAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             page = int(data["page"])
 
             permissible_brands = custom_permission_filter_brands(request.user)
@@ -3576,6 +3664,9 @@ class UploadNewFlyerBGImageAPI(APIView):
             data = request.data
             logger.info("UploadNewFlyerBGImageAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             image_obj = Image.objects.create(image=data["bg_image"])
             BackgroundImage.objects.create(image=image_obj)
 
@@ -3607,6 +3698,9 @@ class UploadFlyerTagAPI(APIView):
 
             data = request.data
             logger.info("UploadFlyerTagAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             image_obj = Image.objects.create(image=data["tag_image"])
             TagBucket.objects.create(image=image_obj)
@@ -3640,6 +3734,9 @@ class UploadFlyerPriceTagAPI(APIView):
             data = request.data
             logger.info("UploadFlyerPriceTagAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             image_obj = Image.objects.create(image=data["price_tag_image"])
             PriceTagBucket.objects.create(image=image_obj)
 
@@ -3669,6 +3766,9 @@ class DownloadImagesS3API(APIView):
             data = request.data
             logger.info("DownloadImagesS3API: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             links = json.loads(data['links'])
 
             # [{"key": "grind-1", "url": "aws/im1.png"}, {}]
@@ -3678,6 +3778,7 @@ class DownloadImagesS3API(APIView):
                               aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
 
             local_links = []
+            
             for link in links:
                 try:
                     if "url" not in link or link["url"]=="":
@@ -3718,7 +3819,11 @@ class FetchBrandsAPI(APIView):
             data = request.data
             logger.info("FetchBrandsAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             brand_objs = custom_permission_filter_brands(request.user)
+            
             brand_list = []
             for brand_obj in brand_objs:
                 temp_dict = {}
@@ -3746,8 +3851,12 @@ class FetchChannelsAPI(APIView):
             data = request.data
             logger.info("FetchChannelsAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             channel_objs = custom_permission_filter_channels(request.user)
             channel_list = []
+            
             for channel_obj in channel_objs:
                 temp_dict = {}
                 temp_dict["name"] = channel_obj.name
@@ -3755,6 +3864,7 @@ class FetchChannelsAPI(APIView):
                 channel_list.append(temp_dict)
 
             response["channel_list"] = channel_list
+            
             response['status'] = 200
 
         except Exception as e:
@@ -3777,6 +3887,9 @@ class SavePFLInBucketAPI(APIView):
             data = request.data
             logger.info("SavePFLInBucketAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             image_obj = None
 
             if "product_pk" in data:
@@ -3787,6 +3900,7 @@ class SavePFLInBucketAPI(APIView):
                 product_obj.pfl_generated_images.clear()
                 product_obj.pfl_generated_images.add(image_obj)
                 product_obj.save()
+            
             elif "pfl_pk" in data:
                 image_decoded = decode_base64_file(data["image_data"])
                 image_obj = Image.objects.create(image=image_decoded)
@@ -3823,6 +3937,9 @@ class SaveFlyerInBucketAPI(APIView):
             data = request.data
             #logger.info("SavePFLInBucketAPI: %s", str(data))
             logger.info("SavePFLInBucketAPI called")
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
 
