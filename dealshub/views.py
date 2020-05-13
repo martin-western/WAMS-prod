@@ -2274,7 +2274,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 temp_dict["name"] = product_obj.product_name
                 temp_dict["brand"] = str(product_obj.base_product.brand)
                 temp_dict["price"] = "0"
-                temp_dict["prevPrice"] = temp_dict2["price"]
+                temp_dict["prevPrice"] = "0"
                 temp_dict["currency"] = "AED"
                 temp_dict["rating"] = "0"
                 temp_dict["totalRatings"] = "0"
