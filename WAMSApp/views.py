@@ -1,5 +1,3 @@
-from django.http import HttpResponseRedirect
-from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 
 from WAMSApp.models import *
@@ -50,72 +48,7 @@ import urllib.request, urllib.error, urllib.parse
 import pandas as pd
 import xml.dom.minidom
 
-
 logger = logging.getLogger(__name__)
-
-
-# class CsrfExemptSessionAuthentication(SessionAuthentication):
-
-#     def enforce_csrf(self, request):
-#         return
-
-
-def Login(request):
-    return render(request, 'WAMSApp/login.html')
-
-
-@login_required(login_url='/login/')
-def Logout(request):
-    logout(request)
-    return HttpResponseRedirect('/login/')
-
-
-@login_required(login_url='/login/')
-def EditProductPage(request, pk):
-
-    product_obj = Product.objects.get(pk=int(pk))
-    base_product_obj = product_obj.base_product
-    permissible_brands = custom_permission_filter_brands(request.user)
-    if base_product_obj.brand not in permissible_brands:
-        return HttpResponseRedirect('/products/')
-
-    return render(request, 'WAMSApp/edit-product-page.html')
-
-@login_required(login_url='/login/')
-def EcommerceListingPage(request, pk):
-
-    product_obj = Product.objects.get(pk=int(pk))
-    base_product_obj = product_obj.base_product
-    permissible_brands = custom_permission_filter_brands(request.user)
-    if base_product_obj.brand not in permissible_brands:
-        return HttpResponseRedirect('/products/')
-
-    return render(request, 'WAMSApp/ecommerce-listing-page.html')
-
-
-@login_required(login_url='/login/')
-def Products(request):
-    return render(request, 'WAMSApp/products.html')
-
-
-@login_required(login_url='/login/')
-def ExportListPage(request):
-    return render(request, 'WAMSApp/export-list.html')
-
-
-def RedirectHome(request):
-    return HttpResponseRedirect('/products/')
-
-
-# @login_required(login_url='/login/')
-def PFLPage(request, pk):
-    return render(request, 'WAMSApp/pfl.html')
-
-
-@login_required(login_url='/login/')
-def PFLDashboardPage(request):
-    return render(request, 'WAMSApp/pfl-dashboard.html')
-
 
 #@login_required(login_url='/login/')
 def FlyerPage(request, pk):
@@ -131,40 +64,10 @@ def FlyerPage(request, pk):
     #     return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
-@login_required(login_url='/login/')
-def FlyerDashboardPage(request):
-    return render(request, 'WAMSApp/flyer-dashboard.html')
-
-
-@login_required(login_url='/login/')
-def ChannelProductAmazonUKPage(request, pk):
-    return render(request, 'WAMSApp/channel-product-amazon-uk-page.html')
-
-@login_required(login_url='/login/')
-def ChannelProductAmazonUAEPage(request, pk):
-    return render(request, 'WAMSApp/channel-product-amazon-uae-page.html')
-
-@login_required(login_url='/login/')
-def ChannelProductEbayPage(request, pk):
-    return render(request, 'WAMSApp/channel-product-ebay-page.html')
-
-@login_required(login_url='/login/')
-def ChannelProductNoonPage(request, pk):
-    return render(request, 'WAMSApp/channel-product-noon-page.html')
-
-
-@api_view(['GET'])
-def current_user(request):
-    
-    serializer = UserSerializer(request.user)
-    return Response(serializer.data)
-
-
 def generate_report_view(request, brand_name):
 
     generate_report(brand_name)
     return HttpResponseRedirect("/files/csv/images-count-report.xlsx")
-
 
 class UserList(APIView):
 
@@ -176,34 +79,6 @@ class UserList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class LoginSubmitAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("LoginSubmitAPI: %s", str(data))
-
-            username = data['username']
-            password = data['password']
-
-            user = authenticate(username=username, password=password)
-
-            login(request, user)
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("LoginSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
 
 class CreateNewBaseProductAPI(APIView):
 
