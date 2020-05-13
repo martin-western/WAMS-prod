@@ -67,7 +67,9 @@ class CreateNewBaseProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("CreateNewBaseProductAPI Restricted Access!")
                 response['status'] = 403
@@ -90,7 +92,9 @@ class CreateNewBaseProductAPI(APIView):
 
             # Checking brand permission
             brand_obj = None
+            
             try:
+                
                 permissible_brands = custom_permission_filter_brands(
                     request.user)
                 brand_obj = Brand.objects.get(name=brand_name)
@@ -100,12 +104,15 @@ class CreateNewBaseProductAPI(APIView):
                         "CreateNewBaseProductAPI Restricted Access Brand!")
                     response['status'] = 403
                     return Response(data=response)
+            
             except Exception as e:
+                
                 logger.error("CreateNewBaseProductAPI Restricted Access Brand!")
                 response['status'] = 403
                 return Response(data=response)
 
             if BaseProduct.objects.filter(seller_sku=seller_sku).exists():
+                
                 logger.warning("CreateNewBaseProductAPI Duplicate product detected!")
                 response["status"] = 409
                 return Response(data=response)
@@ -131,6 +138,7 @@ class CreateNewBaseProductAPI(APIView):
                                               dimensions=base_dimensions)
 
             dynamic_form_attributes = {}
+            
             try:
                 property_data = json.loads(category_obj.property_data)
                 for prop_data in property_data:
