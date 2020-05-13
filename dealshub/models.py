@@ -114,6 +114,7 @@ class UnitBannerImage(models.Model):
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, blank=True)
 
     def __str__(self):
         return str(self.uuid)

@@ -67,4 +67,8 @@ urlpatterns = [
 
     url(r'^fetch-website-group-brands/$', views.FetchWebsiteGroupBrands),   
     url(r'^generate-stock-price-report/$', views.GenerateStockPriceReport),   
+
+    url(r'^add-product-to-unit-banner/$', views.AddProductToUnitBanner),
+    url(r'^delete-product-from-unit-banner/$', views.DeleteProductFromUnitBanner),
+    url(r'^fetch-unit-banner-products/$', views.FetchUnitBannerProducts),
 ]

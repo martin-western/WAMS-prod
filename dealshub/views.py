@@ -1093,6 +1093,7 @@ class FetchBannerAPI(APIView):
                             temp_dict["url"] = unit_banner_image_obj.image.image.url
                     else:
                         temp_dict["url"] = ""
+
                     banner_images.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1794,7 +1795,32 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict2["url"] = unit_banner_image_obj.image.image.url
                     else:
                         temp_dict2["url"] = ""
+                    
+                    unit_banner_products = unit_banner_image_obj.products.all()
+
+                    temp_products = []
+                    for prod in unit_banner_products:
+                        temp_dict3 = {}
+
+                        main_images_list = ImageBucket.objects.none()
+                        try:
+                            main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
+                            main_images_list |= main_images_obj.main_images.all()
+                            main_images_list = main_images_list.distinct()
+                            images = create_response_images_main(main_images_list)
+                            temp_dict3["thumbnailImageUrl"] = images[0]["midimage_url"]
+                        except Exception as e:
+                            temp_dict3["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
+                        
+                        temp_dict3["name"] = str(prod.product_name)
+                        temp_dict3["displayId"] = str(prod.product_id)
+                        temp_dict3["uuid"] = str(prod.uuid)
+
+                        temp_products.append(temp_dict3)
+                    temp_dict2["products"] = temp_products
+
                     banner_images.append(temp_dict2)
+
                 
                 temp_dict["bannerImages"] = banner_images
                 temp_dict["isPublished"] = banner_obj.is_published
@@ -2150,6 +2176,135 @@ class GenerateStockPriceReportAPI(APIView):
         return Response(data=response)
 
 
+class AddProductToUnitBannerAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddProductToUnitBannerAPI: %s", str(data))
+
+            unit_banner_image_uuid = data["unitBannerImageUuid"]
+            product_uuid = data["productUuid"]
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
+            product_obj = Product.objects.get(uuid=product_uuid)
+
+            temp_dict = {}
+
+            main_images_list = ImageBucket.objects.none()
+            try:
+                main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
+                main_images_list |= main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                images = create_response_images_main(main_images_list)
+                response["thumbnailImageUrl"] = images[0]["midimage_url"]
+            except Exception as e:
+                response["thumbnailImageUrl"] = ""
+
+            
+            response["name"] = str(product_obj.product_name)
+            response["displayId"] = str(product_obj.product_id)
+
+            unit_banner_image_obj.products.add(product_obj)
+            unit_banner_image_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddProductToUnitBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteProductFromUnitBannerAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteProductFromUnitBannerAPI: %s", str(data))
+
+            unit_banner_image_uuid = data["unitBannerImageUuid"]
+            product_uuid = data["productUuid"]
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
+            product_obj = Product.objects.get(uuid=product_uuid)
+
+            unit_banner_image_obj.products.remove(product_obj)
+            unit_banner_image_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteProductFromUnitBannerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchUnitBannerProductsAPI(APIView):
+
+    permission_classes = [AllowAny]
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchUnitBannerProductsAPI: %s", str(data))
+
+            unit_banner_image_uuid = data["unitBannerImageUuid"]
+            
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
+
+            product_objs = unit_banner_image_obj.products.all()
+            product_list = []
+            for product_obj in product_objs:
+                temp_dict = {}
+                temp_dict["name"] = product_obj.product_name
+                temp_dict["brand"] = str(product_obj.base_product.brand)
+                temp_dict["price"] = "0"
+                temp_dict["prevPrice"] = temp_dict2["price"]
+                temp_dict["currency"] = "AED"
+                temp_dict["rating"] = "0"
+                temp_dict["totalRatings"] = "0"
+                temp_dict["uuid"] = str(product_obj.uuid)
+                temp_dict["id"] = str(product_obj.uuid)
+                main_images_list = ImageBucket.objects.none()
+                main_images_objs = MainImages.objects.filter(product=product_obj)
+                for main_images_obj in main_images_objs:
+                    main_images_list |= main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                
+                try:
+                    temp_dict["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
+                except Exception as e:
+                    temp_dict["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
+                
+                product_list.append(temp_dict)
+
+            response["productList"] = product_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchUnitBannerProductsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2235,3 +2390,9 @@ FetchBulkProductInfo = FetchBulkProductInfoAPI.as_view()
 FetchWebsiteGroupBrands = FetchWebsiteGroupBrandsAPI.as_view()
 
 GenerateStockPriceReport = GenerateStockPriceReportAPI.as_view()
+
+AddProductToUnitBanner = AddProductToUnitBannerAPI.as_view()
+
+DeleteProductFromUnitBanner = DeleteProductFromUnitBannerAPI.as_view()
+
+FetchUnitBannerProducts = FetchUnitBannerProductsAPI.as_view()

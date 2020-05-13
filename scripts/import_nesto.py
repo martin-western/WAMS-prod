@@ -955,3 +955,111 @@ for base_product in base_product_objs:
         print(str(e))
         pass
 
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+
+filename = "scripts/Nesto_Prices.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs.loc[:, 'Updated/Not Found'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+for i in range(rows):
+    print(i)
+    try:
+        product_name = str(dfs.iloc[i,0])
+        brand = str(dfs.iloc[i,1])
+        seller_sku = str(dfs.iloc[i,4])
+        price = float(dfs.iloc[i,5])
+
+        base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+        dealshub_product = DealsHubProduct.objects.get(product__base_product=base_product)
+
+        dealshub_product.was_price = price
+        dealshub_product.now_price = price
+        dealshub_product.save()
+
+        dfs.loc[i, 'Updated/Not Found'] = "Updated"
+        cnt+=1
+    except Exception as e:
+        print(str(e))
+        dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+        pass
+
+print("Cnt : ",cnt)
+
+
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+
+filename = "scripts/New_Listings.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Royal ford"]
+dfs.loc[:, 'New/Existing'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+brand = Brand.objects.get(name="RoyalFord")
+product_id_type = ProductIDType.objects.get(name="EAN")
+
+for i in range(rows):
+    print(i)
+    try:
+        category = str(dfs.iloc[i,0])
+        sub_category = str(dfs.iloc[i,1])
+        seller_sku = str(dfs.iloc[i,2])
+        product_name = str(dfs.iloc[i,3])
+        barcode = str(dfs.iloc[i,4])
+        product_id = str(dfs.iloc[i,4])
+
+        try:
+            base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+            dfs.loc[i, 'New/Existing'] = "Existing"
+
+        except Exception as e:
+            
+            if(len(barcode)==13):
+                
+                pid_type = product_id_type
+            
+                category, created = Category.objects.get_or_create(name=category)
+                sub_category, created = SubCategory.objects.get_or_create(name=sub_category,category=category)
+
+                base_product = BaseProduct.objects.create(seller_sku=seller_sku,
+                                                            category=category,
+                                                            sub_category=sub_category,
+                                                            brand=brand,
+                                                            base_product_name=product_name)
+
+                product = Product.objects.create(base_product=base_product,
+                                                product_name=product_name,
+                                                product_id_type=pid_type,
+                                                product_id = product_id,
+                                                barcode_string=barcode)
+
+                dfs.loc[i, 'New/Existing'] = "New"
+                cnt+=1
+    
+    except Exception as e:
+        print(str(e))
+        # dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+        pass
+
+print("Cnt : ",cnt)
+
+
+from WAMSApp.models import *
+oc = OmnyCommUser.objects.get(username="arsal")
+cp, created = CustomPermission.objects.get_or_create(user=oc)
+brand_obj = Brand.objects.get(name="Delcasa")
+cp.brands.add(brand_obj)
+cp.save()
