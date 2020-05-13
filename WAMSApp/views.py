@@ -5,7 +5,6 @@ from WAMSApp.models import *
 from auditlog.models import *
 from dealshub.models import DealsHubProduct
 from WAMSApp.utils import *
-from WAMSApp.serializers import UserSerializer, UserSerializerWithToken
 from WAMSApp.constants import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
@@ -36,7 +35,6 @@ import barcode
 from barcode.writer import ImageWriter
 
 import xmltodict
-
 import requests
 import json
 import os
@@ -46,7 +44,6 @@ import datetime
 import boto3
 import urllib.request, urllib.error, urllib.parse
 import pandas as pd
-import xml.dom.minidom
 
 logger = logging.getLogger(__name__)
 
@@ -63,22 +60,6 @@ def FlyerPage(request, pk):
     # elif flyer_obj.mode=="A5 Landscape":
     #     return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
-
-def generate_report_view(request, brand_name):
-
-    generate_report(brand_name)
-    return HttpResponseRedirect("/files/csv/images-count-report.xlsx")
-
-class UserList(APIView):
-
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request, format=None):
-        serializer = UserSerializerWithToken(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CreateNewBaseProductAPI(APIView):
 
