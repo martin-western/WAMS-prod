@@ -521,6 +521,19 @@ class FetchNoonChannelProductAPI(APIView):
             channel_obj = Channel.objects.get(name=channel_name)
             noon_product_json = channel_product_obj.noon_product_json
 
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning("FetchNoonChannelProductAPI Restricted Access of Noon Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("FetchNoonChannelProductAPI Restricted Access of Noon Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
             images = {}
 
             main_images_list = ImageBucket.objects.none()
@@ -543,7 +556,6 @@ class FetchNoonChannelProductAPI(APIView):
             except Exception as e:
                 images["sub_images"] = []
                 pass
-
 
             images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
                                     + create_response_images_main_sub_delete(sub_images_list)
@@ -568,7 +580,14 @@ class FetchNoonChannelProductAPI(APIView):
             response["noon_product_json"] = json.loads(noon_product_json)
 
             response["product_id"] = product_obj.product_id
+            response["barcode"] = product_obj.barcode_string
+            response["product_id_type"] = ""
             response["material_type"] = ""
+            
+            if product_obj.product_id_type != None:
+                response["product_id_type"] = product_obj.product_id_type.name
+            response['status'] = 200
+
             if product_obj.material_type != None:
                 response["material_type"] = product_obj.material_type.name
             response['status'] = 200
@@ -608,6 +627,19 @@ class FetchAmazonUKChannelProductAPI(APIView):
             channel_name = "Amazon UK"
             channel_obj = Channel.objects.get(name=channel_name)
             amazon_uk_product_json = channel_product_obj.amazon_uk_product_json
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning("FetchAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("FetchAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
+                response['status'] = 403
+                return Response(data=response)
 
             images = {}
 
@@ -656,9 +688,17 @@ class FetchAmazonUKChannelProductAPI(APIView):
             response["amazon_uk_product_json"] = json.loads(amazon_uk_product_json)
 
             response["product_id"] = product_obj.product_id
+            response["barcode"] = product_obj.barcode_string
+            response["product_id_type"] = ""
             response["material_type"] = ""
+            
+            if product_obj.product_id_type != None:
+                response["product_id_type"] = product_obj.product_id_type.name
+            response['status'] = 200
+
             if product_obj.material_type != None:
                 response["material_type"] = product_obj.material_type.name
+            
             response['status'] = 200
 
         except Exception as e:
@@ -696,6 +736,19 @@ class FetchAmazonUAEChannelProductAPI(APIView):
             channel_name = "Amazon UAE"
             channel_obj = Channel.objects.get(name=channel_name)
             amazon_uae_product_json = channel_product_obj.amazon_uae_product_json
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning("FetchAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("FetchAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
+                response['status'] = 403
+                return Response(data=response)
 
             images = {}
 
@@ -744,9 +797,17 @@ class FetchAmazonUAEChannelProductAPI(APIView):
             response["amazon_uae_product_json"] = json.loads(amazon_uae_product_json)
 
             response["product_id"] = product_obj.product_id
+            response["barcode"] = product_obj.barcode_string
+            response["product_id_type"] = ""
             response["material_type"] = ""
+            
+            if product_obj.product_id_type != None:
+                response["product_id_type"] = product_obj.product_id_type.name
+            response['status'] = 200
+
             if product_obj.material_type != None:
                 response["material_type"] = product_obj.material_type.name
+            
             response['status'] = 200
 
         except Exception as e:
@@ -785,6 +846,19 @@ class FetchEbayChannelProductAPI(APIView):
             channel_name = "Ebay"
             channel_obj = Channel.objects.get(name=channel_name)
             ebay_product_json = channel_product_obj.ebay_product_json
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning("FetchEbayChannelProductAPI Restricted Access of Ebay Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("FetchEbayChannelProductAPI Restricted Access of Ebay Channel!")
+                response['status'] = 403
+                return Response(data=response)
 
             images = {}
 
@@ -833,9 +907,17 @@ class FetchEbayChannelProductAPI(APIView):
             response["ebay_product_json"] = json.loads(ebay_product_json)
 
             response["product_id"] = product_obj.product_id
+            response["barcode"] = product_obj.barcode_string
+            response["product_id_type"] = ""
             response["material_type"] = ""
+            
+            if product_obj.product_id_type != None:
+                response["product_id_type"] = product_obj.product_id_type.name
+            response['status'] = 200
+
             if product_obj.material_type != None:
                 response["material_type"] = product_obj.material_type.name
+            
             response['status'] = 200
 
         except Exception as e:
