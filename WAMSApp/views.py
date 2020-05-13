@@ -1185,8 +1185,8 @@ class FetchProductDetailsAPI(APIView):
             response["images"] = images
             response["base_product_pk"] = base_product_obj.pk
 
-            cp = CustomPermission.objects.get(user=request.user)
-            response["verify_product"] = cp.verify_product
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            response["verify_product"] = custom_permission_obj.verify_product
 
             response['status'] = 200
 
@@ -3840,7 +3840,6 @@ class SaveFlyerInBucketAPI(APIView):
 
         return Response(data=response)
 
-
 class VerifyProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3852,8 +3851,11 @@ class VerifyProductAPI(APIView):
             data = request.data
             logger.info("VerifyProductAPI: %s", str(data))
             
-            cp = CustomPermission.objects.get(user=request.user)
-            if cp.verify_product==False:
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            if custom_permission_obj.verify_product==False:
                 logger.warning("VerifyProductAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
@@ -3889,6 +3891,9 @@ class DeleteImageAPI(APIView):
 
             data = request.data
             logger.info("DeleteImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             image_type = data["image_type"]
             image_pk = int(data["image_pk"])
@@ -3927,7 +3932,6 @@ class DeleteImageAPI(APIView):
 
         return Response(data=response)
 
-
 class RemoveProductFromExportListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3944,6 +3948,9 @@ class RemoveProductFromExportListAPI(APIView):
 
             data = request.data
             logger.info("RemoveProductFromExportListAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             product_pk = int(data["product_pk"])
             export_pk = int(data["export_pk"])
@@ -3981,6 +3988,9 @@ class UploadFlyerExternalImagesAPI(APIView):
             data = request.data
             logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
 
             image_count = int(data["image_count"])
@@ -4017,6 +4027,7 @@ class UploadPFLExternalImagesAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             # if request.user.has_perm("WAMSApp.add_image") == False:
             #     logger.warning("UploadPFLExternalImagesAPI Restricted Access!")
@@ -4026,9 +4037,13 @@ class UploadPFLExternalImagesAPI(APIView):
             data = request.data
             logger.info("UploadFlyerExternalImagesAPI: %s", str(data))
 
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
 
             image_count = int(data["image_count"])
+            
             external_images_bucket_list = []
             for i in range(image_count):
                 try:
@@ -4059,6 +4074,7 @@ class SapIntegrationAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -4231,7 +4247,9 @@ class FetchUserProfileAPI(APIView):
             response["first_name"] = content_manager.first_name
             response["last_name"] = content_manager.last_name
             response["email"] = "" if content_manager.email==None else content_manager.email
+            
             permissible_brands = custom_permission_filter_brands(request.user)
+            
             response["permissible_brands"] = []
             for brand in permissible_brands:
                 response["permissible_brands"].append(brand.name)
@@ -4243,6 +4261,7 @@ class FetchUserProfileAPI(APIView):
                 response["img_url"] = content_manager.image.image.url
 
             response['status'] = 200
+        
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUserProfileAPI: %s at %s",
