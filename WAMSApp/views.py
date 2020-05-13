@@ -171,7 +171,9 @@ class CreateNewProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("CreateNewProductAPI Restricted Access!")
                 response['status'] = 403
@@ -184,8 +186,10 @@ class CreateNewProductAPI(APIView):
                 data = json.loads(data)
 
             base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
+            
             # Checking brand permission
             brand_obj = None
+            
             try:
                 permissible_brands = custom_permission_filter_brands(
                     request.user)
@@ -223,7 +227,6 @@ class CreateNewProductAPI(APIView):
                                             base_product=base_product_obj,
                                             dynamic_form_attributes=json.dumps(dynamic_form_attributes))
 
-
             DealsHubProduct.objects.create(product=product_obj)
 
             response["product_pk"] = product_obj.pk
@@ -243,6 +246,7 @@ class SaveNoonChannelProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("SaveNoonChannelProductAPI Restricted Access!")
@@ -268,11 +272,9 @@ class SaveNoonChannelProductAPI(APIView):
                 return Response(data=response)
 
             try:
-                permissible_channels = custom_permission_filter_channels(
-                    request.user)
+                permissible_channels = custom_permission_filter_channels(request.user)
                 channel_obj = Channel.objects.get(name=channel_name)
 
-                
                 if channel_obj not in permissible_channels:
                     logger.warning(
                         "SaveNoonChannelProductAPI Restricted Access of Noon Channel!")
@@ -286,7 +288,6 @@ class SaveNoonChannelProductAPI(APIView):
 
             noon_product_json = json.loads(data["noon_product_json"])
             noon_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
-
 
             channel_product = product_obj.channel_product
             channel_product.noon_product_json = json.dumps(noon_product_json)
@@ -333,14 +334,11 @@ class SaveAmazonUKChannelProductAPI(APIView):
                 return Response(data=response)
 
             try:
-                permissible_channels = custom_permission_filter_channels(
-                    request.user)
+                permissible_channels = custom_permission_filter_channels(request.user)
                 channel_obj = Channel.objects.get(name=channel_name)
 
-                
                 if channel_obj not in permissible_channels:
-                    logger.warning(
-                        "SaveAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
+                    logger.warning("SaveAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
                     response['status'] = 403
                     return Response(data=response)
             
@@ -373,6 +371,7 @@ class SaveAmazonUAEChannelProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access!")
@@ -402,10 +401,8 @@ class SaveAmazonUAEChannelProductAPI(APIView):
                     request.user)
                 channel_obj = Channel.objects.get(name=channel_name)
 
-                
                 if channel_obj not in permissible_channels:
-                    logger.warning(
-                        "SaveAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
+                    logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
                     response['status'] = 403
                     return Response(data=response)
             
@@ -418,6 +415,7 @@ class SaveAmazonUAEChannelProductAPI(APIView):
             amazon_uae_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
+            
             channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product_json)
             channel_product.is_amazon_uae_product_created = True
             channel_product.save()
@@ -436,6 +434,7 @@ class SaveEbayChannelProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             
             if request.user.has_perm('WAMSApp.add_product') == False:
@@ -462,14 +461,11 @@ class SaveEbayChannelProductAPI(APIView):
                 return Response(data=response)
 
             try:
-                permissible_channels = custom_permission_filter_channels(
-                    request.user)
+                permissible_channels = custom_permission_filter_channels(request.user)
                 channel_obj = Channel.objects.get(name=channel_name)
 
-                
                 if channel_obj not in permissible_channels:
-                    logger.warning(
-                        "SaveEbayChannelProductAPI Restricted Access of Ebay Channel!")
+                    logger.warning("SaveEbayChannelProductAPI Restricted Access of Ebay Channel!")
                     response['status'] = 403
                     return Response(data=response)
             
@@ -482,6 +478,7 @@ class SaveEbayChannelProductAPI(APIView):
             ebay_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
+            
             channel_product.ebay_product_json = json.dumps(ebay_product_json)
             channel_product.is_ebay_product_created = True
             channel_product.save()
