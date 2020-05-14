@@ -73,4 +73,9 @@ urlpatterns = [
     url(r'^add-product-to-unit-banner/$', views.AddProductToUnitBanner),
     url(r'^delete-product-from-unit-banner/$', views.DeleteProductFromUnitBanner),
     url(r'^fetch-unit-banner-products/$', views.FetchUnitBannerProducts),
+
+    url(r'^search-category-autocomplete/$', views.SearchCategoryAutocomplete),
+    url(r'^add-category-to-website-group/$', views.AddCategoryToWebsiteGroup),
+    url(r'^remove-category-to-website-group/$', views.RemoveCategoryToWebsiteGroup),
+    url(r'^update-category-image/$', views.UpdateCategoryImage),
 ]
