@@ -1980,6 +1980,7 @@ class FetchDealshubPriceAPI(APIView):
 
             response["price"] = str(price)
             response["wasPrice"] = str(was_price)
+            response["uuid"] = uuid1
             response['status'] = 200
 
         except Exception as e:
