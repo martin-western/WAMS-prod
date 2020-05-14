@@ -993,13 +993,18 @@ class CreateBannerAPI(APIView):
 
             banner_type = data["bannerType"]
             website_group_name = data["websiteGroupName"]
+            name = data.get("name", "")
+
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
             banner_type_obj = BannerType.objects.get(name=banner_type, website_group=website_group_obj)
 
+            if name=="":
+                name = banner_type_obj.display_name
+
             order_index = Banner.objects.filter(website_group=website_group_obj).count()+Section.objects.filter(website_group=website_group_obj).count()+1
 
-            banner_obj = Banner.objects.create(website_group=website_group_obj, order_index=order_index, banner_type=banner_type_obj)
+            banner_obj = Banner.objects.create(name=name, website_group=website_group_obj, order_index=order_index, banner_type=banner_type_obj)
             
             response['uuid'] = banner_obj.uuid
             response["limit"] = banner_type_obj.limit
@@ -1008,6 +1013,32 @@ class CreateBannerAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateBannerNameAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateBannerNameAPI: %s", str(data))
+
+            name = data["name"]
+            uuid = data["uuid"]
+
+            banner_obj = Banner.objects.get(uuid=uuid)
+            banner_obj.name = name
+            banner_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateBannerNameAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -1035,6 +1066,39 @@ class AddBannerImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddBannerImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateBannerImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateBannerImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            banner_image = data["image"]
+            image_type = data.get("imageType", "mobile")
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=banner_image)
+            if image_type=="mobile":
+                unit_banner_image_obj.mobile_image = image_obj
+            else:
+                unit_banner_image_obj.image = image_obj
+
+            unit_banner_image_obj.save()
+
+            response['uuid'] = unit_banner_image_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateBannerImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -1086,13 +1150,20 @@ class FetchBannerAPI(APIView):
                     temp_dict = {}
                     temp_dict["uid"] = unit_banner_image_obj.uuid
                     temp_dict["httpLink"] = unit_banner_image_obj.http_link
+                    temp_dict["url"] = ""
                     if unit_banner_image_obj.image!=None:
                         if resolution=="low":
                             temp_dict["url"] = unit_banner_image_obj.image.thumbnail.url
                         else:
                             temp_dict["url"] = unit_banner_image_obj.image.image.url
-                    else:
-                        temp_dict["url"] = ""
+
+                    temp_dict["mobileUrl"] = ""
+                    if unit_banner_image_obj.mobile_image!=None:
+                        if resolution=="low":
+                            temp_dict["mobileUrl"] = unit_banner_image_obj.mobile_image.thumbnail.url
+                        else:
+                            temp_dict["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                        
 
                     banner_images.append(temp_dict)
                 except Exception as e:
@@ -1102,7 +1173,7 @@ class FetchBannerAPI(APIView):
             response["bannerImages"] = banner_images
             response["limit"] = banner_obj.banner_type.limit
             response["type"] = banner_obj.banner_type.name
-            response["name"] = banner_obj.banner_type.display_name
+            response["name"] = banner_obj.name
             response["is_published"] = banner_obj.is_published
             response["status"] = 200
 
@@ -1781,20 +1852,27 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_dict["orderIndex"] = banner_obj.order_index
                 temp_dict["type"] = "Banner"
                 temp_dict["uuid"] = banner_obj.uuid
-                temp_dict["name"] = banner_obj.banner_type.display_name
+                temp_dict["name"] = banner_obj.name
                 temp_dict["bannerType"] = banner_obj.banner_type.name
                 temp_dict["limit"] = banner_obj.banner_type.limit
                 for unit_banner_image_obj in unit_banner_image_objs:
                     temp_dict2 = {}
                     temp_dict2["uid"] = unit_banner_image_obj.uuid
                     temp_dict2["httpLink"] = unit_banner_image_obj.http_link
+                    temp_dict2["url"] = ""
                     if unit_banner_image_obj.image!=None:
                         if resolution=="low":
                             temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
                         else:
                             temp_dict2["url"] = unit_banner_image_obj.image.image.url
-                    else:
-                        temp_dict2["url"] = ""
+
+                    temp_dict2["mobileUrl"] = ""
+                    if unit_banner_image_obj.mobile_image!=None:
+                        if resolution=="low":
+                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
+                        else:
+                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                        
                     
                     unit_banner_products = unit_banner_image_obj.products.all()
 
@@ -2326,6 +2404,8 @@ FetchBannerTypes = FetchBannerTypesAPI.as_view()
 
 CreateBanner = CreateBannerAPI.as_view()
 
+UpdateBannerName = UpdateBannerNameAPI.as_view()
+
 FetchBanner = FetchBannerAPI.as_view()
 
 DeleteBanner = DeleteBannerAPI.as_view()
@@ -2337,6 +2417,8 @@ UnPublishBanner = UnPublishBannerAPI.as_view()
 UpdateLinkBanner = UpdateLinkBannerAPI.as_view()
 
 AddBannerImage = AddBannerImageAPI.as_view()
+
+UpdateBannerImage = UpdateBannerImageAPI.as_view()
 
 DeleteBannerImage = DeleteBannerImageAPI.as_view()
 
