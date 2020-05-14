@@ -2382,6 +2382,118 @@ class FetchUnitBannerProductsAPI(APIView):
         return Response(data=response)
 
 
+class SearchCategoryAutocompleteAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchCategoryAutocompleteAPI: %s", str(data))
+
+            search_string = data["searchString"]
+
+            category_objs = Category.objects.filter(name__icontains=search_string)[:10]
+
+            category_list = []
+            for category_obj in category_objs:
+                temp_dict = {}
+                temp_dict["name"] = category_obj.name
+                temp_dict["uuid"] = category_obj.uuid
+                category_list.append(temp_dict)
+
+            response["categoryList"] = category_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchCategoryAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class AddCategoryToWebsiteGroupAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddCategoryToWebsiteGroupAPI: %s", str(data))
+
+            category_uuid = data["categoryUuid"]
+            website_group_name = data["websiteGroupName"]
+
+            category_obj = Category.objects.get(uuid=category_uuid)
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            website_group_obj.categories.add(category_obj)
+            website_group_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddCategoryToWebsiteGroupAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class RemoveCategoryToWebsiteGroupAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("RemoveCategoryToWebsiteGroupAPI: %s", str(data))
+
+            category_uuid = data["categoryUuid"]
+            website_group_name = data["websiteGroupName"]
+
+            category_obj = Category.objects.get(uuid=category_uuid)
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            website_group_obj.categories.remove(category_obj)
+            website_group_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveCategoryToWebsiteGroupAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateCategoryImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateCategoryImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            image = data["image"]
+
+            category_obj = Category.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=image)
+            category_obj.image = image
+            category_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateCategoryImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
 
 
 
@@ -2479,3 +2591,11 @@ AddProductToUnitBanner = AddProductToUnitBannerAPI.as_view()
 DeleteProductFromUnitBanner = DeleteProductFromUnitBannerAPI.as_view()
 
 FetchUnitBannerProducts = FetchUnitBannerProductsAPI.as_view()
+
+SearchCategoryAutocomplete = SearchCategoryAutocompleteAPI.as_view()
+
+AddCategoryToWebsiteGroup = AddCategoryToWebsiteGroupAPI.as_view()
+
+RemoveCategoryToWebsiteGroup = RemoveCategoryToWebsiteGroupAPI.as_view()
+
+UpdateCategoryImage = UpdateCategoryImageAPI.as_view()
