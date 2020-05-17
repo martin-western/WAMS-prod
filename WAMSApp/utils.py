@@ -18,6 +18,7 @@ import xlsxwriter
 
 
 def my_jwt_response_handler(token, user=None, request=None):
+    
     return {
         'token': token,
         'user': UserSerializer(user, context={'request': request}).data
@@ -41,6 +42,7 @@ def convert_to_ascii(s):
     
     s = s.replace(u'\u2013', "-").replace(u'\u2019', "'").replace(u'\u2018', "'").replace(u'\u201d','"').replace(u'\u201c','"')
     s = s.encode("ascii", "ignore")
+    
     return s
 
 def has_atleast_one_image(prod_obj):
@@ -62,6 +64,7 @@ def has_atleast_one_image(prod_obj):
     # return images_count
     if(images_count>0):
         check=True
+    
     return check
 
 def get_file_extension(file_name, decoded_file):
@@ -112,9 +115,9 @@ def decode_base64_pdf(data):
 
 
 def fetch_prices(product_id,company_code):
+    
     try:
 
-        # Check if Cached
         product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
 
         url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
@@ -123,45 +126,48 @@ def fetch_prices(product_id,company_code):
         
         warehouse_dict = {}
         body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-        <soapenv:Header />
-        <soapenv:Body>
-        <urn:ZAPP_STOCK_PRICE>
-         <IM_MATNR>
-          <item>
-           <MATNR>""" + product_id + """</MATNR>
-          </item>
-         </IM_MATNR>
-         <IM_VKORG>
-          <item>
-           <VKORG>""" + company_code + """</VKORG>
-          </item>
-         </IM_VKORG>
-         <T_DATA>
-          <item>
-           <MATNR></MATNR>
-           <MAKTX></MAKTX>
-           <LGORT></LGORT>
-           <CHARG></CHARG>
-           <SPART></SPART>
-           <MEINS></MEINS>
-           <ATP_QTY></ATP_QTY>
-           <TOT_QTY></TOT_QTY>
-           <CURRENCY></CURRENCY>
-           <IC_EA></IC_EA>
-           <OD_EA></OD_EA>
-           <EX_EA></EX_EA>
-           <RET_EA></RET_EA>
-           <WERKS></WERKS>
-          </item>
-         </T_DATA>
-        </urn:ZAPP_STOCK_PRICE>
-        </soapenv:Body>
-        </soapenv:Envelope>"""
+                  <soapenv:Header />
+                  <soapenv:Body>
+                  <urn:ZAPP_STOCK_PRICE>
+                   <IM_MATNR>
+                    <item>
+                     <MATNR>""" + product_id + """</MATNR>
+                    </item>
+                   </IM_MATNR>
+                   <IM_VKORG>
+                    <item>
+                     <VKORG>""" + company_code + """</VKORG>
+                    </item>
+                   </IM_VKORG>
+                   <T_DATA>
+                    <item>
+                     <MATNR></MATNR>
+                     <MAKTX></MAKTX>
+                     <LGORT></LGORT>
+                     <CHARG></CHARG>
+                     <SPART></SPART>
+                     <MEINS></MEINS>
+                     <ATP_QTY></ATP_QTY>
+                     <TOT_QTY></TOT_QTY>
+                     <CURRENCY></CURRENCY>
+                     <IC_EA></IC_EA>
+                     <OD_EA></OD_EA>
+                     <EX_EA></EX_EA>
+                     <RET_EA></RET_EA>
+                     <WERKS></WERKS>
+                    </item>
+                   </T_DATA>
+                  </urn:ZAPP_STOCK_PRICE>
+                  </soapenv:Body>
+                  </soapenv:Envelope>"""
+
         response2 = requests.post(url, auth=credentials, data=body, headers=headers)
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
+        
         items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        
         EX_EA = 0.0
         IC_EA = 0.0
         OD_EA = 0.0
@@ -191,6 +197,7 @@ def fetch_prices(product_id,company_code):
             if temp_qty!=None:
                 temp_qty = float(temp_qty)
                 qty = max(temp_qty, qty)
+        
         else:
             for item in items:
                 temp_price = item["EX_EA"]
@@ -222,8 +229,6 @@ def fetch_prices(product_id,company_code):
         
         warehouse_dict["prices"] = prices
         warehouse_dict["qty"] = qty
-            
-        # warehouse_information.append(warehouse_dict)
 
         product_obj.save()
         
@@ -232,11 +237,14 @@ def fetch_prices(product_id,company_code):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Fetch Prices: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return []
 
 
 def fetch_prices_dealshub(uuid1, company_code):
+    
     try:
+        
         product_obj = Product.objects.get(uuid=uuid1)
         product_id = product_obj.base_product.seller_sku
 
@@ -246,44 +254,46 @@ def fetch_prices_dealshub(uuid1, company_code):
         
         warehouse_dict = {}
         body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-        <soapenv:Header />
-        <soapenv:Body>
-        <urn:ZAPP_STOCK_PRICE>
-         <IM_MATNR>
-          <item>
-           <MATNR>""" + product_id + """</MATNR>
-          </item>
-         </IM_MATNR>
-         <IM_VKORG>
-          <item>
-           <VKORG>""" + company_code + """</VKORG>
-          </item>
-         </IM_VKORG>
-         <T_DATA>
-          <item>
-           <MATNR></MATNR>
-           <MAKTX></MAKTX>
-           <LGORT></LGORT>
-           <CHARG></CHARG>
-           <SPART></SPART>
-           <MEINS></MEINS>
-           <ATP_QTY></ATP_QTY>
-           <TOT_QTY></TOT_QTY>
-           <CURRENCY></CURRENCY>
-           <IC_EA></IC_EA>
-           <OD_EA></OD_EA>
-           <EX_EA></EX_EA>
-           <RET_EA></RET_EA>
-           <WERKS></WERKS>
-          </item>
-         </T_DATA>
-        </urn:ZAPP_STOCK_PRICE>
-        </soapenv:Body>
-        </soapenv:Envelope>"""
+                    <soapenv:Header />
+                    <soapenv:Body>
+                    <urn:ZAPP_STOCK_PRICE>
+                     <IM_MATNR>
+                      <item>
+                       <MATNR>""" + product_id + """</MATNR>
+                      </item>
+                     </IM_MATNR>
+                     <IM_VKORG>
+                      <item>
+                       <VKORG>""" + company_code + """</VKORG>
+                      </item>
+                     </IM_VKORG>
+                     <T_DATA>
+                      <item>
+                       <MATNR></MATNR>
+                       <MAKTX></MAKTX>
+                       <LGORT></LGORT>
+                       <CHARG></CHARG>
+                       <SPART></SPART>
+                       <MEINS></MEINS>
+                       <ATP_QTY></ATP_QTY>
+                       <TOT_QTY></TOT_QTY>
+                       <CURRENCY></CURRENCY>
+                       <IC_EA></IC_EA>
+                       <OD_EA></OD_EA>
+                       <EX_EA></EX_EA>
+                       <RET_EA></RET_EA>
+                       <WERKS></WERKS>
+                      </item>
+                     </T_DATA>
+                    </urn:ZAPP_STOCK_PRICE>
+                    </soapenv:Body>
+                    </soapenv:Envelope>"""
+
         response2 = requests.post(url, auth=credentials, data=body, headers=headers)
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
+        
         items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
         EX_EA = 0.0
         
@@ -304,10 +314,12 @@ def fetch_prices_dealshub(uuid1, company_code):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_prices_dealshub: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return "0"
 
 
 def generate_report(brand_name):
+    
     try:
         os.system("rm ./files/csv/images-count-report.xlsx")
     except Exception as e:
@@ -379,9 +391,8 @@ def generate_report(brand_name):
 
     workbook.close()
 
-
-
 def generate_images_report(product_objs):
+    
     try:
         os.system("rm ./files/csv/images-count-report.xlsx")
     except Exception as e:
@@ -953,6 +964,7 @@ def generate_dynamic_row(data_point_list):
 
 
 def get_data_value(product_obj, base_product_obj, channel_product_obj, data_point_variable):
+    
     try:
         if data_point_variable=="product_name":
             return product_obj.product_name
@@ -1688,6 +1700,7 @@ def generate_flyer_report():
     workbook.close()
 
 def generate_stock_price_report(dp_objs):
+    
     try:
         os.system("rm ./files/csv/stock-price-report.xlsx")
     except Exception as e:
