@@ -40,7 +40,6 @@ def custom_permission_filter_products(user):
         logger.error("custom_permission_filter_products: %s at %s", e, str(exc_tb.tb_lineno))
         return []
 
-
 def custom_permission_filter_base_products_and_products(user):
 
     try:
@@ -56,11 +55,9 @@ def custom_permission_filter_base_products_and_products(user):
         logger.error("custom_permission_filter_products: %s at %s", e, str(exc_tb.tb_lineno))
         return ([], [])
 
-
 def custom_permission_filter_brands(user):
 
     try:
-        
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
         return brands
@@ -82,7 +79,6 @@ def custom_permission_mws_functions(user,permission):
         logger.error("custom_permission_mws_functions: %s at %s", e, str(exc_tb.tb_lineno))
         return False
 
-
 def custom_permission_price(user,permission):
 
     try:
@@ -94,7 +90,6 @@ def custom_permission_price(user,permission):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("custom_permission_price: %s at %s", e, str(exc_tb.tb_lineno))
         return False
-
 
 def custom_permission_stock(user,permission):
 
@@ -108,8 +103,6 @@ def custom_permission_stock(user,permission):
         logger.error("custom_permission_stock: %s at %s", e, str(exc_tb.tb_lineno))
         return False
 
-
-
 def custom_permission_filter_channels(user):
 
     try:
@@ -121,7 +114,6 @@ def custom_permission_filter_channels(user):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("custom_permission_filter_channels: %s at %s", e, str(exc_tb.tb_lineno))
         return []
-
 
 def custom_permission_filter_pfls(user):
 
@@ -149,8 +141,8 @@ def create_response_images_flyer_pfl(images):
             temp_dict["high_res_url"] = image.image.url
         temp_dict["pk"] = image.pk
         temp_list.append(temp_dict)
+    
     return temp_list
-
 
 def create_response_images_flyer_pfl_main_sub(images):
 
@@ -165,8 +157,8 @@ def create_response_images_flyer_pfl_main_sub(images):
             temp_dict["high_res_url"] = image.image.image.url
         temp_dict["pk"] = image.image.pk
         temp_list.append(temp_dict)
+    
     return temp_list
-
 
 def create_response_images_list(images):
 
@@ -174,6 +166,7 @@ def create_response_images_list(images):
     for image in images:
         image_url = image.image.url
         temp_list.append(image_url)
+    
     return temp_list
 
 def create_response_images_main_sub_list(images):
@@ -182,8 +175,8 @@ def create_response_images_main_sub_list(images):
     for image in images:
         image_url = image.image.image.url
         temp_list.append(image_url)
+    
     return temp_list
-
 
 def create_response_images(images):
 
@@ -205,8 +198,8 @@ def create_response_images(images):
 
         temp_dict["pk"] = image.pk
         temp_list.append(temp_dict)
+    
     return temp_list
-
 
 def create_response_images_main_sub_delete(images):
 
@@ -217,20 +210,22 @@ def create_response_images_main_sub_delete(images):
 
         try:
             temp_dict["thumbnail_url"] = image.image.thumbnail.url
+        
         except Exception as e:
             logger.warning("No thumbnail for image with pk %s", str(image.image.pk))
             temp_dict["thumbnail_url"] = image.image.image.url
 
         try:
             temp_dict["midimage_url"] = image.image.mid_image.url
+        
         except Exception as e:
             logger.warning("No mid_image for image with pk %s", str(image.image.pk))
             temp_dict["midimage_url"] = image.image.image.url
 
         temp_dict["pk"] = image.image.pk
         temp_list.append(temp_dict)
+    
     return temp_list
-
 
 def create_response_images_main(images):
 
@@ -241,12 +236,14 @@ def create_response_images_main(images):
 
         try:
             temp_dict["thumbnail_url"] = image.image.thumbnail.url
+        
         except Exception as e:
             logger.warning("No thumbnail for main image with pk %s", str(image.pk))
             temp_dict["thumbnail_url"] = image.image.image.url
 
         try:
             temp_dict["midimage_url"] = image.image.mid_image.url
+        
         except Exception as e:
             logger.warning("No mid_image for main image with pk %s", str(image.pk))
             temp_dict["midimage_url"] = image.image.image.url
@@ -254,8 +251,8 @@ def create_response_images_main(images):
         temp_dict["pk"] = image.pk
         temp_dict["is_main_image"] = image.is_main_image
         temp_list.append(temp_dict)
+    
     return temp_list
-
 
 def create_response_images_sub(images):
 
@@ -266,12 +263,14 @@ def create_response_images_sub(images):
 
         try:
             temp_dict["thumbnail_url"] = image.image.thumbnail.url
+        
         except Exception as e:
             logger.warning("No thumbnail for sub image with pk %s", str(image.pk))
             temp_dict["thumbnail_url"] = image.image.image.url
 
         try:
             temp_dict["midimage_url"] = image.image.mid_image.url
+        
         except Exception as e:
             logger.warning("No mid_image for sub image with pk %s", str(image.pk))
             temp_dict["midimage_url"] = image.image.image.url
@@ -280,9 +279,9 @@ def create_response_images_sub(images):
         temp_dict["is_sub_image"] = image.is_sub_image
         temp_dict["sub_image_index"] = image.sub_image_index
         temp_list.append(temp_dict)
+    
     return temp_list
     
-
 def partial_overwrite(old_value, new_value, data_type):
     
     if new_value=="" or new_value==None:
@@ -294,7 +293,6 @@ def partial_overwrite(old_value, new_value, data_type):
         return float(new_value)
     elif data_type=="int":
         return int(new_value)
-
 
 def fill_missing(old_value, new_value, data_type):
 
@@ -310,7 +308,6 @@ def fill_missing(old_value, new_value, data_type):
         return float(new_value)
     elif data_type=="int":
         return int(new_value)
-
 
 def save_subimage(product_obj, image_url, index, channel):
     
@@ -336,6 +333,7 @@ def save_subimage(product_obj, image_url, index, channel):
         logger.error("Error save_subimage: %s at %s", e, str(exc_tb.tb_lineno))
         
 def reset_sub_images(product_obj, channel_obj):
+    
     sub_images_objs = SubImages.objects.filter(product=product_obj, channel=channel_obj)
     
     sub_images_list = []
@@ -349,6 +347,7 @@ def reset_sub_images(product_obj, channel_obj):
         img.save()
 
 def reset_main_images(product_obj, channel_obj):
+    
     main_images_objs = MainImages.objects.filter(product=product_obj, channel=channel_obj)
     
     main_images_list = []
