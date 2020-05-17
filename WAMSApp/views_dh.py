@@ -344,7 +344,12 @@ class DownloadOrdersAPI(APIView):
             }
 
             r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/download-orders/", data=request_data, verify=False)
-            response = json.loads(r.content)
+            content = json.loads(r.content)
+
+            unit_order_list = content["unitOrderList"]
+            path = generate_sap_order_format(unit_order_list)
+            response["path"] = "https://"+SERVER_IP+"/"+path
+            response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
