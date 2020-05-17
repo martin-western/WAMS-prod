@@ -112,8 +112,9 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
         return ""
 
 def generate_xml_for_delete_product_data_amazon_uae(seller_sku_list,seller_id):
+    
     try:
-         # Check if Cached
+
         xml_string = """<?xml version="1.0"?>
                         <AmazonEnvelope xsi:noNamespaceSchemaLocation="amzn-envelope.xsd"
                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -127,16 +128,16 @@ def generate_xml_for_delete_product_data_amazon_uae(seller_sku_list,seller_id):
         for seller_sku in seller_sku_list:
 
             xml_string += """<Message>
-    <MessageID>"""+ seller_sku+ """</MessageID>
-    <OperationType>Delete</OperationType>
-    <Product>
-      <SKU>"""+ seller_sku+ """</SKU>
-    </Product>
-  </Message>"""
+                            <MessageID>"""+ seller_sku+ """</MessageID>
+                            <OperationType>Delete</OperationType>
+                            <Product>
+                              <SKU>"""+ seller_sku+ """</SKU>
+                            </Product>
+                          </Message>"""
 
         xml_string += """</AmazonEnvelope>"""
         xml_string = xml_string.encode('utf-8')
-        # print(xml_string)
+        
         return xml_string
 
     except Exception as e:
@@ -145,3 +146,37 @@ def generate_xml_for_delete_product_data_amazon_uae(seller_sku_list,seller_id):
         logger.error("Generating Delete XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
         return ""
 
+def generate_xml_for_delete_product_data_amazon_uk(seller_sku_list,seller_id):
+    
+    try:
+         
+        xml_string = """<?xml version="1.0"?>
+                        <AmazonEnvelope xsi:noNamespaceSchemaLocation="amzn-envelope.xsd"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Header>
+                                <DocumentVersion>1.01</DocumentVersion>
+                                <MerchantIdentifier>"""+seller_id+"""</MerchantIdentifier>
+                            </Header>
+                            <MessageType>Product</MessageType>
+                            <PurgeAndReplace>false</PurgeAndReplace>"""
+        
+        for seller_sku in seller_sku_list:
+
+            xml_string += """<Message>
+                            <MessageID>"""+ seller_sku+ """</MessageID>
+                            <OperationType>Delete</OperationType>
+                            <Product>
+                              <SKU>"""+ seller_sku+ """</SKU>
+                            </Product>
+                          </Message>"""
+
+        xml_string += """</AmazonEnvelope>"""
+        xml_string = xml_string.encode('utf-8')
+        
+        return xml_string
+
+    except Exception as e:
+        print(str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Generating Delete XML UK: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""
