@@ -1,5 +1,7 @@
+from WAMSApp.models import *
 
 def generate_xml_for_post_product_data_amazon_uk(product_pk_list,seller_id):
+    
     try:
          # Check if Cached
         xml_string = """<?xml version="1.0"?>
