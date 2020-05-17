@@ -347,8 +347,8 @@ class DownloadOrdersAPI(APIView):
             content = json.loads(r.content)
 
             unit_order_list = content["unitOrderList"]
-            path = generate_sap_order_format(unit_order_list)
-            response["path"] = "https://"+SERVER_IP+"/"+path
+            generate_sap_order_format(unit_order_list)
+            response["filepath"] = "https://"+SERVER_IP+"/files/csv/sap-order-format.xlsx"
             response["status"] = 200
 
         except Exception as e:
