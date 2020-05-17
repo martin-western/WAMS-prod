@@ -26,12 +26,14 @@ urlpatterns = [
 
     url(r'^fetch-banner-types/$', views.FetchBannerTypes),
     url(r'^create-banner/$', views.CreateBanner),
+    url(r'^update-banner-name/$', views.UpdateBannerName),
     url(r'^fetch-banner/$', views.FetchBanner),
     url(r'^delete-banner/$', views.DeleteBanner),
     url(r'^publish-banner/$', views.PublishBanner),
     url(r'^unpublish-banner/$', views.UnPublishBanner),
     url(r'^update-link-banner/$', views.UpdateLinkBanner),
     url(r'^add-banner-image/$', views.AddBannerImage),
+    url(r'^update-banner-image/$', views.UpdateBannerImage),
     url(r'^delete-banner-image/$', views.DeleteBannerImage),
 
     url(r'^publish-dealshub-product/$', views.PublishDealsHubProduct),
@@ -67,4 +69,13 @@ urlpatterns = [
 
     url(r'^fetch-website-group-brands/$', views.FetchWebsiteGroupBrands),   
     url(r'^generate-stock-price-report/$', views.GenerateStockPriceReport),   
+
+    url(r'^add-product-to-unit-banner/$', views.AddProductToUnitBanner),
+    url(r'^delete-product-from-unit-banner/$', views.DeleteProductFromUnitBanner),
+    url(r'^fetch-unit-banner-products/$', views.FetchUnitBannerProducts),
+
+    url(r'^search-category-autocomplete/$', views.SearchCategoryAutocomplete),
+    url(r'^add-category-to-website-group/$', views.AddCategoryToWebsiteGroup),
+    url(r'^remove-category-to-website-group/$', views.RemoveCategoryToWebsiteGroup),
+    url(r'^update-category-image/$', views.UpdateCategoryImage),
 ]
