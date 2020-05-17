@@ -849,6 +849,7 @@ columns = len(dfs.iloc[0][:])
 
 dfs = dfs.fillna("")
 
+
 cnt=0
 for i in range(rows): #len(rows):
     print(i)
@@ -1063,3 +1064,53 @@ cp, created = CustomPermission.objects.get_or_create(user=oc)
 brand_obj = Brand.objects.get(name="Delcasa")
 cp.brands.add(brand_obj)
 cp.save()
+
+import pandas as pd
+from WAMSApp.models import *
+from django.utils import timezone
+import datetime
+
+start_date = timezone.now() - datetime.timedelta(days=1)
+
+filename = "scripts/BabyPlus_Products.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs.loc[:, 'Status'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+base_product_objects =BaseProduct.objects.filter(created_date__gte=start_date)
+
+
+for i in range(rows):
+    print(i)
+    try:
+        seller_sku = str(dfs.iloc[i,1])
+        barcode = str(dfs.iloc[i,3])
+        
+        try:
+            base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+
+            if base_product_objects.filter(pk=base_product.pk).exists():
+                dfs.loc[i, 'Status'] = "Created"
+            else:
+                dfs.loc[i, 'Status'] = "Existing Previously"
+
+        except Exception as e:
+            
+            if(len(barcode)==13):
+                dfs.loc[i, 'Status'] = "Not Created"
+            else:
+                dfs.loc[i, 'Status'] = "Invalid EAN"
+    
+    except Exception as e:
+        print(str(e))
+        # dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+        pass
+
+print("Cnt : ",cnt)
+
+dfs.to_excel(filename,index=False)
