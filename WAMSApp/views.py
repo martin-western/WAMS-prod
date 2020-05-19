@@ -24,6 +24,7 @@ from django.db.models import Count
 from django.conf import settings
 
 from WAMSApp.views_sourcing import *
+from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
 from WAMSApp.views_dh import *

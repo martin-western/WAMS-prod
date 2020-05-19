@@ -36,6 +36,8 @@ MWS_ACCESS_KEY = MWS_PARAMS["MWS_ACCESS_KEY"]
 MWS_SECRET_KEY = MWS_PARAMS["MWS_SECRET_KEY"]
 SELLER_ID = MWS_PARAMS["SELLER_ID"]
 
+marketplace_id = mws.Marketplaces["AE"].marketplace_id
+
 class GetMatchingProductsAmazonUAEMWSAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -72,8 +74,6 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
 
             products_api = APIs.Products(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region='AE')
-
-            marketplace_id = mws.Marketplaces["AE"].marketplace_id
 
             barcodes_list = []
             matched_products_list = []
@@ -245,8 +245,6 @@ class GetPricingProductsAmazonUAEMWSAPI(APIView):
             products_api = APIs.Products(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region='AE')
 
-            marketplace_id = mws.Marketplaces["AE"].marketplace_id
-
             barcodes_list = []
             pricing_information = {}
             competitive_pricing_list = []
@@ -371,6 +369,7 @@ class GetPricingProductsAmazonUAEMWSAPI(APIView):
 
         return Response(data=response)
 
+
 class PushProductsAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -414,8 +413,6 @@ class PushProductsAmazonUAEAPI(APIView):
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region='AE')
 
-            marketplace_id = mws.Marketplaces["AE"].marketplace_id
-
             response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_DATA_",marketplaceids=marketplace_id)
 
             feed_submission_id = response_submeet_feed.parsed["FeedSubmissionInfo"]["FeedSubmissionId"]["value"]
@@ -430,6 +427,7 @@ class PushProductsAmazonUAEAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class GetPushProductsResultAmazonUAEAPI(APIView):
 
@@ -515,6 +513,7 @@ class GetPushProductsResultAmazonUAEAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 GetMatchingProductsAmazonUAEMWS = GetMatchingProductsAmazonUAEMWSAPI.as_view()
 

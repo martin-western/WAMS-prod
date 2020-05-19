@@ -22,6 +22,7 @@ noon_product_json = {
     "product_type" : "",
     "product_subtype" : "",
     "parent_sku" : "",
+    "parent_barcode" : "",
     "category" : "",
     "subtitle" : "",
     "sub_category" : "",
@@ -35,7 +36,11 @@ noon_product_json = {
     "status" : "",
     "http_link": "",
     "price":"",
-    "quantity":""
+    "sale_price":"",
+    "sale_start":"",
+    "sale_end":"",
+    "quantity":"",
+    "warranty":""
 }
 
 amazon_uk_product_json = {
