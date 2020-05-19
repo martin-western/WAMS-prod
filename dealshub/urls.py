@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^add-banner-image/$', views.AddBannerImage),
     url(r'^update-banner-image/$', views.UpdateBannerImage),
     url(r'^delete-banner-image/$', views.DeleteBannerImage),
+    url(r'^delete-unit-banner/$', views.DeleteUnitBanner),
 
     url(r'^publish-dealshub-product/$', views.PublishDealsHubProduct),
     url(r'^unpublish-dealshub-product/$', views.UnPublishDealsHubProduct),
