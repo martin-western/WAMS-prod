@@ -1,6 +1,5 @@
 from WAMSApp.models import *
 from WAMSApp.utils import *
-from WAMSApp.xml_generators import *
 
 from MWS import mws,APIs
 
