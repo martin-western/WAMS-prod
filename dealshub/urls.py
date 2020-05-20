@@ -77,6 +77,6 @@ urlpatterns = [
 
     url(r'^search-category-autocomplete/$', views.SearchCategoryAutocomplete),
     url(r'^add-category-to-website-group/$', views.AddCategoryToWebsiteGroup),
-    url(r'^remove-category-to-website-group/$', views.RemoveCategoryToWebsiteGroup),
+    url(r'^remove-category-from-website-group/$', views.RemoveCategoryFromWebsiteGroup),
     url(r'^update-category-image/$', views.UpdateCategoryImage),
 ]
