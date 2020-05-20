@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 noon_product_json = {
     
     "product_name" : "",
-    "product_type" : "",
-    "product_subtype" : "",
+    "noon_sku" : "",
     "parent_sku" : "",
+    "parent_barcode" : "",
     "category" : "",
     "subtitle" : "",
     "sub_category" : "",
@@ -35,7 +35,11 @@ noon_product_json = {
     "status" : "",
     "http_link": "",
     "price":"",
-    "quantity":""
+    "sale_price":"",
+    "sale_start":"",
+    "sale_end":"",
+    "quantity":"",
+    "warranty":""
 }
 
 amazon_uk_product_json = {
@@ -740,7 +744,7 @@ class Report(models.Model):
         verbose_name_plural = "Reports"
 
     def __str__(self):
-        return str(self.title)
+        return str(self.feed_submission_id)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
