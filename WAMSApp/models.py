@@ -744,7 +744,7 @@ class Report(models.Model):
         verbose_name_plural = "Reports"
 
     def __str__(self):
-        return str(self.title)
+        return str(self.feed_submission_id)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
