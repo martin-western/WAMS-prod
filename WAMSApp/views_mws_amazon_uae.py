@@ -408,7 +408,7 @@ class PushProductsAmazonUAEAPI(APIView):
 
             response["feed_submission_id"] = ""
 
-            xml_string = generate_xml_for_post_product_data_amazon_uae(product_pk_list,SELLER_ID)
+            xml_string= generate_xml_for_post_product_data_amazon_uae(product_pk_list,SELLER_ID)
 
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region='AE')
@@ -417,6 +417,17 @@ class PushProductsAmazonUAEAPI(APIView):
 
             feed_submission_id = response_submeet_feed.parsed["FeedSubmissionInfo"]["FeedSubmissionId"]["value"]
 
+            report_obj = Report.objects.create(feed_submission_id=feed_submission_id,
+                                                operation_type="Push",
+                                                channel = channel_obj,
+                                                user=request.user)
+
+            for product_pk in product_pk_list:
+                product = Product.objects.get(pk=int(product_pk))
+                report_obj.products.add(product)
+
+            report_obj.save()
+            
             response["feed_submission_id"] = feed_submission_id
 
             response['status'] = 200

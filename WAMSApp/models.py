@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 noon_product_json = {
     
     "product_name" : "",
-    "product_type" : "",
-    "product_subtype" : "",
+    "noon_sku" : "",
     "parent_sku" : "",
     "parent_barcode" : "",
     "category" : "",
