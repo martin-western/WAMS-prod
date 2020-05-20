@@ -59,7 +59,6 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
 def generate_xml_for_price_data_amazon_uae(product_pk_list,seller_id):
     
     try:
-
         xml_string = """<?xml version="1.0" encoding="UTF-8"?>
                         <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
                           <Header>

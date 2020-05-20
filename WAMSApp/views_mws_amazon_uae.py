@@ -93,7 +93,7 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
                     temp_dict["status"] = "Barcode Not Found"
                     temp_dict["product_pk"] = product_pk
                     temp_dict["matched_ASIN"] = ""
-                    temp_dict["matched_product_feed_submission_id"] = ""
+                    temp_dict["matched_product_title"] = ""
                     matched_products_list.append(temp_dict)
 
             final_barcodes_list = sorted(barcodes_list, key=lambda x: x[0])
@@ -148,10 +148,10 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
                                 parsed_products = products.parsed[j]["Products"]["Product"]
                                 if isinstance(parsed_products,list):
                                     temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
-                                    temp_dict["matched_product_feed_submission_id"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["feed_submission_id"]["value"]
+                                    temp_dict["matched_product_title"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
                                 else:
                                     temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
-                                    temp_dict["matched_product_feed_submission_id"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["feed_submission_id"]["value"]
+                                    temp_dict["matched_product_title"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
                                 amazon_uae_product["ASIN"] = temp_dict["matched_ASIN"]
                                 channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
                                 channel_product.save()
@@ -172,10 +172,10 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
                             parsed_products = products.parsed["Products"]["Product"]
                             if isinstance(parsed_products,list):
                                 temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
-                                temp_dict["matched_product_feed_submission_id"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["feed_submission_id"]["value"]
+                                temp_dict["matched_product_title"] = parsed_products[0]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
                             else:
                                 temp_dict["matched_ASIN"] = products.parsed["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
-                                temp_dict["matched_product_feed_submission_id"] = products.parsed["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["feed_submission_id"]["value"]
+                                temp_dict["matched_product_title"] = products.parsed["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
                             amazon_uae_product["ASIN"] = temp_dict["matched_ASIN"]
                             channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
                             channel_product.save()
@@ -427,7 +427,7 @@ class PushProductsAmazonUAEAPI(APIView):
                 report_obj.products.add(product)
 
             report_obj.save()
-            
+
             response["feed_submission_id"] = feed_submission_id
 
             response['status'] = 200
