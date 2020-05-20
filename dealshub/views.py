@@ -76,7 +76,7 @@ class FetchProductDetailsAPI(APIView):
             url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
             headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
             credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-            company_code = "1070" # GEEPAS
+            company_code = "1000" # GEEPAS
             body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
             <soapenv:Header />
             <soapenv:Body>
@@ -1086,6 +1086,7 @@ class UpdateBannerImageAPI(APIView):
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
             image_obj = Image.objects.create(image=banner_image)
+            
             if image_type=="mobile":
                 unit_banner_image_obj.mobile_image = image_obj
             else:
@@ -1094,6 +1095,7 @@ class UpdateBannerImageAPI(APIView):
             unit_banner_image_obj.save()
 
             response['uuid'] = unit_banner_image_obj.uuid
+            response['url'] = image_obj.mid_image.url
             response['status'] = 200
 
         except Exception as e:
@@ -1114,6 +1116,37 @@ class DeleteBannerImageAPI(APIView):
             logger.info("DeleteBannerImageAPI: %s", str(data))
 
             uuid = data["uuid"]
+            image_type = data["imageType"]
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+
+            if image_type=="mobile":
+                unit_banner_image_obj.mobile_image = None
+            else:
+                unit_banner_image_obj.image = None
+
+            unit_banner_image_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteBannerImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteUnitBannerAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteUnitBannerAPI: %s", str(data))
+
+            uuid = data["uuid"]
 
             UnitBannerImage.objects.get(uuid=uuid).delete()
 
@@ -1121,7 +1154,7 @@ class DeleteBannerImageAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteBannerImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteUnitBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -2533,6 +2566,8 @@ AddBannerImage = AddBannerImageAPI.as_view()
 UpdateBannerImage = UpdateBannerImageAPI.as_view()
 
 DeleteBannerImage = DeleteBannerImageAPI.as_view()
+
+DeleteUnitBanner = DeleteUnitBannerAPI.as_view()
 
 PublishDealsHubProduct = PublishDealsHubProductAPI.as_view()
 

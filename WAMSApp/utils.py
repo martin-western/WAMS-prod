@@ -1748,3 +1748,240 @@ def generate_stock_price_report(dp_objs):
     workbook.close()
 
 
+def fetch_sap_details_for_order_punching(product_obj):
+    sap_details = {
+        "company_code": "NA",
+        "sales_office": "NA",
+        "vendor_code": "NA",
+        "purchase_org": "NA"
+    }
+    try:
+        if str(product_obj.base_product.brand).lower()=="geepas":
+            sap_details["company_code"] = "1100"
+            sap_details["sales_office"] = "1005"
+            sap_details["vendor_code"] = "V1001"
+            sap_details["purchase_org"] = "1200"
+        elif str(product_obj.base_product.brand).lower()=="olsenmark":
+            sap_details["company_code"] = "1100"
+            sap_details["sales_office"] = "1105"
+            sap_details["vendor_code"] = "V1100"
+            sap_details["purchase_org"] = "1200"
+        elif str(product_obj.base_product.brand).lower()=="krypton":
+            sap_details["company_code"] = "2100"
+            sap_details["sales_office"] = "2105"
+            sap_details["vendor_code"] = "V2100"
+            sap_details["purchase_org"] = "1200"
+        elif str(product_obj.base_product.brand).lower()=="royalford":
+            sap_details["company_code"] = "3000"
+            sap_details["sales_office"] = "3005"
+            sap_details["vendor_code"] = "V3001"
+            sap_details["purchase_org"] = "1200"
+        elif str(product_obj.base_product.brand).lower()=="abraj":
+            sap_details["company_code"] = "6000"
+            sap_details["sales_office"] = "6008"
+            sap_details["vendor_code"] = "V6000"
+            sap_details["purchase_org"] = "1200"
+        elif str(product_obj.base_product.brand).lower()=="baby plus":
+            sap_details["company_code"] = "5550"
+            sap_details["sales_office"] = "5558"
+            sap_details["vendor_code"] = "V5550"
+            sap_details["purchase_org"] = "1200"
+        
+        return sap_details
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_sap_details_for_order_punching: %s at %s", e, str(exc_tb.tb_lineno))
+        return "NA"
+
+
+
+def generate_sap_order_format(unit_order_list):
+
+    try:
+        os.system("rm ./files/csv/sap-order-format.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/sap-order-format.xlsx')
+
+    # Step 1
+
+    worksheet1 = workbook.add_worksheet()
+
+    row = ["Company Code",
+           "Distribution Channel",
+           "Division",
+           "Sales Office",
+           "Order Type",
+           "SAP Customer ID",
+           "Order ID",
+           "Article Code",
+           "Qty",
+           "UoM",
+           "Batch"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet1.write(cnt, colnum, k)
+        colnum += 1
+
+    for unit_order in unit_order_list:
+        try:
+            cnt += 1
+
+            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+
+            sap_details = fetch_sap_details_for_order_punching(product_obj)
+
+            common_row = ["" for i in range(11)]
+            common_row[0] = sap_details["company_code"]
+            common_row[1] = "01"
+            common_row[2] = "00"
+            common_row[3] = sap_details["sales_office"]
+            common_row[4] = "ZWIC"
+            common_row[5] = "40000637"
+            common_row[6] = unit_order["orderId"]
+            common_row[7] = product_obj.base_product.seller_sku
+            common_row[8] = unit_order["quantity"]
+            
+            colnum = 0
+            for k in common_row:
+                worksheet1.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("generate_sap_order_format: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+    # Step 2
+
+    worksheet2 = workbook.add_worksheet()
+
+    row = ["PO Order Type",
+           "Company Code",
+           "Purchase Org",
+           "Site",
+           "Storage Location",
+           "Purchase Group",
+           "Pricing Condition (Header) ZPA3",
+           "Invoice Reference",
+           "Vendor Code",
+           "Item Code",
+           "Order Unit",
+           "Order Price UoM",
+           "Purchase Order Qty",
+           "Net Price",
+           "Date"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet2.write(cnt, colnum, k)
+        colnum += 1
+
+    for unit_order in unit_order_list:
+        try:
+            cnt += 1
+
+            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+
+            sap_details = fetch_sap_details_for_order_punching(product_obj)
+
+            common_row = ["" for i in range(15)]
+            common_row[0] = "WIC"
+            common_row[1] = sap_details["company_code"]
+            common_row[2] = sap_details["purchase_org"]
+            common_row[3] = "1202"
+            common_row[4] = "TG01"
+            common_row[5] = "GP2"
+
+            common_row[7] = "Invoice Ref ID"
+            common_row[8] = sap_details["vendor_code"]
+            common_row[9] = product_obj.base_product.seller_sku
+            common_row[10] = "Order Unit"
+            common_row[11] = "Order Price UoM"
+            common_row[12] = unit_order["quantity"]
+            common_row[13] = unit_order["price"]
+            common_row[14] = unit_order["orderPlacedDate"]
+
+            colnum = 0
+            for k in common_row:
+                worksheet2.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("generate_sap_order_format: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+    # Step 3
+
+    worksheet3 = workbook.add_worksheet()
+
+    row = ["Company Code",
+           "Order Type",
+           "SAP Customer ID",
+           "End Customer Name",
+           "Area",
+           "Order ID",
+           "Article Code",
+           "Qty",
+           "UoM",
+           "Batch",
+           "Total Amount",
+           "Promotion Discount Line Item",
+           "Voucher Discount Header",
+           "Courier Charge Header",
+           "COD Charge Header",
+           "Other Charge-Header",
+           "Other Charge-Line Item"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet3.write(cnt, colnum, k)
+        colnum += 1
+
+    for unit_order in unit_order_list:
+        try:
+            cnt += 1
+
+            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+
+            sap_details = fetch_sap_details_for_order_punching(product_obj)
+
+            order_type = "ZJCR"
+            customer_code = ""
+            if unit_order["shippingMethod"]=="WIG Fleet":
+                customer_code = "50000629"
+            elif unit_order["shippingMethod"]=="TFM":
+                customer_code = "50000627"
+
+            common_row = ["" for i in range(17)]
+            common_row[0] = "1200"
+            common_row[1] = order_type
+            common_row[2] = customer_code
+            common_row[3] = unit_order["customerName"]
+            common_row[4] = unit_order["area"]
+            common_row[5] = unit_order["orderId"]
+            common_row[6] = product_obj.base_product.seller_sku
+            common_row[7] = unit_order["quantity"]
+
+            common_row[10] = unit_order["total"]
+
+            colnum = 0
+            for k in common_row:
+                worksheet3.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("generate_sap_order_format: %s at %s", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
