@@ -1065,52 +1065,89 @@ brand_obj = Brand.objects.get(name="Delcasa")
 cp.brands.add(brand_obj)
 cp.save()
 
+
+
+
+
 import pandas as pd
 from WAMSApp.models import *
-from django.utils import timezone
-import datetime
-
-start_date = timezone.now() - datetime.timedelta(days=1)
 
 filename = "scripts/BabyPlus_Products.xlsx"
 
 dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
-dfs.loc[:, 'Status'] = ""
 rows = len(dfs.iloc[:])
 columns = len(dfs.iloc[0][:])
 
 dfs = dfs.fillna("")
 cnt=0
 
-base_product_objects =BaseProduct.objects.filter(created_date__gte=start_date)
-
-
-for i in range(rows):
+brand_obj = Brand.objects.get(name="Baby Plus")
+product_id_type = ProductIDType.objects.get(name="EAN")
+i=22
+while i < rows:
     print(i)
     try:
+        category = str(dfs.iloc[i,0])
         seller_sku = str(dfs.iloc[i,1])
+        product_name = str(dfs.iloc[i,2])
         barcode = str(dfs.iloc[i,3])
+        product_id = str(dfs.iloc[i,3])
+        status = str(dfs.iloc[i,4])
         
-        try:
-            base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+        if status== "Not Created":
+            try:
+                print(seller_sku)
 
-            if base_product_objects.filter(pk=base_product.pk).exists():
-                dfs.loc[i, 'Status'] = "Created"
-            else:
-                dfs.loc[i, 'Status'] = "Existing Previously"
+                category , c = Category.objects.get_or_create(name=category)
+                sub_category , c = SubCategory.objects.get_or_create(name=category.name)
 
-        except Exception as e:
-            
-            if(len(barcode)==13):
-                dfs.loc[i, 'Status'] = "Not Created"
-            else:
-                dfs.loc[i, 'Status'] = "Invalid EAN"
+                base_product = BaseProduct.objects.create(base_product_name=product_name,
+                                                          seller_sku=seller_sku,
+                                                          brand=brand_obj,
+                                                          category=category,
+                                                          sub_category=sub_category)
+                
+                product = Product.objects.create(base_product=base_product,
+                                                product_name=product_name,
+                                                product_id_type=product_id_type,
+                                                product_id = product_id,
+                                                barcode_string=barcode)
+                cnt+=1
+
+            except Exception as e:
+               print(str(e))
+
+        else:
+            break
     
     except Exception as e:
         print(str(e))
         # dfs.loc[i, 'Updated/Not Found'] = "Not Found"
         pass
+    i+= 1
 
 print("Cnt : ",cnt)
 
 dfs.to_excel(filename,index=False)
+
+
+from WAMSApp.models import *
+import json
+cs = ChannelProduct.objects.all()
+cnt=0
+for c in cs:
+    uk = json.loads(c.amazon_uk_product_json)
+    uae = json.loads(c.amazon_uae_product_json)
+    n = json.loads(c.noon_product_json)
+    e = json.loads(c.ebay_product_json)
+    uk["status"] = "Inactive"
+    uae["status"] = "Inactive"
+    n["status"] = "Inactive"
+    e["status"] = "Inactive"
+    c.amazon_uk_product_json = json.dumps(uk)
+    c.amazon_uae_product_json = json.dumps(uae)
+    c.noon_product_json = json.dumps(n)
+    c.ebay_product_json = json.dumps(e)
+    c.save()
+    cnt+=1
+    print("Cnt : ",cnt)
