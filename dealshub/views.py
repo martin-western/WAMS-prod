@@ -2474,7 +2474,7 @@ class AddCategoryToWebsiteGroupAPI(APIView):
         return Response(data=response)
 
 
-class RemoveCategoryToWebsiteGroupAPI(APIView):
+class RemoveCategoryFromWebsiteGroupAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -2483,7 +2483,7 @@ class RemoveCategoryToWebsiteGroupAPI(APIView):
         try:
 
             data = request.data
-            logger.info("RemoveCategoryToWebsiteGroupAPI: %s", str(data))
+            logger.info("RemoveCategoryFromWebsiteGroupAPI: %s", str(data))
 
             category_uuid = data["categoryUuid"]
             website_group_name = data["websiteGroupName"]
@@ -2498,7 +2498,7 @@ class RemoveCategoryToWebsiteGroupAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RemoveCategoryToWebsiteGroupAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("RemoveCategoryFromWebsiteGroupAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -2631,6 +2631,6 @@ SearchCategoryAutocomplete = SearchCategoryAutocompleteAPI.as_view()
 
 AddCategoryToWebsiteGroup = AddCategoryToWebsiteGroupAPI.as_view()
 
-RemoveCategoryToWebsiteGroup = RemoveCategoryToWebsiteGroupAPI.as_view()
+RemoveCategoryFromWebsiteGroup = RemoveCategoryFromWebsiteGroupAPI.as_view()
 
 UpdateCategoryImage = UpdateCategoryImageAPI.as_view()
