@@ -55,6 +55,47 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
         logger.error("Generating XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
         return ""
 
+
+def generate_xml_for_price_data_amazon_uae(product_pk_list,seller_id):
+    
+    try:
+
+        xml_string = """<?xml version="1.0" encoding="UTF-8"?>
+                        <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
+                          <Header>
+                            <DocumentVersion>1.01</DocumentVersion>
+                            <MerchantIdentifier>"""+ seller_id+ """</MerchantIdentifier>
+                          </Header>
+                          <MessageType>Price</MessageType>"""
+        
+        for product_pk in product_pk_list:
+
+            product_obj = Product.objects.get(pk=int(product_pk))
+            message_id = str(product_pk)
+            seller_sku = product_obj.base_product.seller_sku
+            amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
+            price = float(amazon_uae_product["price"])
+            
+            xml_string += """<Message>
+                            <MessageID>"""+ message_id+ """</MessageID>
+                            <Price>
+                                <StandardPrice currency="AED">"""+ price + """</StandardPrice>
+                                <SKU>"""+ seller_sku+ """</SKU>
+                            </Price>
+                          </Message>"""
+
+        xml_string += """</AmazonEnvelope>"""
+        xml_string = xml_string.encode('utf-8')
+        
+        return xml_string
+
+    except Exception as e:
+        print(str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Price Update XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""
+
+
 def generate_xml_for_delete_product_data_amazon_uae(seller_sku_list,seller_id):
     
     try:
