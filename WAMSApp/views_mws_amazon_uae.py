@@ -98,7 +98,10 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
 
             final_barcodes_list = sorted(barcodes_list, key=lambda x: x[0])
 
-            temp = final_barcodes_list[0][0]
+            if len(final_barcodes_list) > 0:
+                temp = final_barcodes_list[0][0]
+            else:
+                temp = "ASIN"
             flag=0
             id_list = []
             pk_list = []
