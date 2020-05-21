@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^fetch-sections-products-limit/$', views.FetchSectionsProductsLimit),
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-categories/$', views.FetchCategories),
+    url(r'^fetch-super-categories/$', views.FetchSuperCategories),
 
     url(r'^search/$', views.Search),
 
