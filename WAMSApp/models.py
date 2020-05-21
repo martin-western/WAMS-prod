@@ -347,7 +347,7 @@ class SuperCategory(models.Model):
 
 class Category(models.Model):
 
-    super_category = models.ForeignKey(SuperCategory, blank=True, default=None, on_delete=models.NULL, null=True)
+    super_category = models.ForeignKey(SuperCategory, blank=True, default=None, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
