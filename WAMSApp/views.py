@@ -1199,6 +1199,7 @@ class FetchProductDetailsAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchDealsHubProductsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1231,15 +1232,21 @@ class FetchDealsHubProductsAPI(APIView):
 
             for product_obj in product_objs_list_subset:
                 try:
+                    dh_product_obj = DealsHubProduct.objects.get(product=product_obj)
                     temp_dict ={}
                     temp_dict["product_pk"] = product_obj.pk
+                    temp_dict["product_uuid"] = product_obj.uuid
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = product_obj.product_name
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
-                    channel_status = DealsHubProduct.objects.get(product=product_obj).is_published
-                    temp_dict["channel_status"] = "active" if channel_status==True else "inactive"
+                    temp_dict["channel_status"] = dh_product_obj.is_published
                     temp_dict["category"] = "" if product_obj.base_product.category==None else str(product_obj.base_product.category)
                     temp_dict["sub_category"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
+                    temp_dict["was_price"] = str(dh_product_obj.was_price)
+                    temp_dict["now_price"] = str(dh_product_obj.now_price)
+                    temp_dict["stock"] = str(dh_product_obj.stock)
+                    temp_dict["min_price"] = str(product_obj.min_price)
+                    temp_dict["max_price"] = str(product_obj.max_price)
 
                     repr_image_url = Config.objects.all()[0].product_404_image.image.url
                     repr_high_def_url = repr_image_url
@@ -1272,6 +1279,10 @@ class FetchDealsHubProductsAPI(APIView):
             if paginator.num_pages == page:
                 is_available = False
 
+            response["variant_price_permission"] = custom_permission_price(request.user, "variant")
+            response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
+            response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
+
             response["is_available"] = is_available
             response["total_products"] = len(product_objs_list)
 
@@ -1280,10 +1291,51 @@ class FetchDealsHubProductsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchDealsHubProductsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("FetchDealsHubProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class UpdateDealshubProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateDealshubProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_uuid = data["product_uuid"]
+            was_price = float(data["was_price"])
+            now_price = float(data["now_price"])
+            stock = float(data["stock"])
+
+            dh_product_obj = DealsHubProduct.objects.get(product__uuid=product_uuid)
+
+            price_permission = custom_permission_price(request.user, "dealshub")
+            stock_permission = custom_permission_stock(request.user, "dealshub")
+
+            if price_permission:
+                dh_product_obj.was_price = was_price
+                dh_product_obj.now_price = now_price
+
+            if stock_permission:
+                dh_product_obj.stock = stock
+
+            dh_product_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateDealshubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class SaveBaseProductAPI(APIView):
 
@@ -5678,6 +5730,8 @@ FetchNoonChannelProduct = FetchNoonChannelProductAPI.as_view()
 SaveBaseProduct = SaveBaseProductAPI.as_view()
 
 FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
+
+UpdateDealshubProduct = UpdateDealshubProductAPI.as_view()
 
 FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 
