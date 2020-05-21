@@ -1831,6 +1831,7 @@ def get_sap_batch_and_uom(company_code, seller_sku):
         "batch": "",
         "uom": ""
     }
+    return response
     try:
         url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
@@ -2083,5 +2084,88 @@ def generate_sap_order_format(unit_order_list):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("generate_sap_order_format: %s at %s", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
+
+
+def generate_regular_order_format(unit_order_list):
+
+    try:
+        os.system("rm ./files/csv/regular-order-format.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/regular-order-format.xlsx')
+
+    worksheet = workbook.add_worksheet()
+
+
+    row = ["Sr. No.",
+           "Datetime",
+           "Order ID",
+           "Order Item ID",
+           "Channel",
+           "Product Name",
+           "Product ID",
+           "Seller SKU",
+           "Currency",
+           "Selling Price",
+           "Delivery Fee",
+           "Strike Price",
+           "Quantity",
+           "Customer Name",
+           "Customer Email ID",
+           "Customer Phone Number",
+           "Billing Address",
+           "Shipping Address",
+           "Payment Status",
+           "Shipping Method",
+           "Order Tracking Status"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    for unit_order in unit_order_list:
+        try:
+            cnt += 1
+
+            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+            dh_product_obj = DealsHubProduct.objects.get(product=product_obj)
+
+            common_row = ["" for i in range(21)]
+            common_row[0] = str(cnt)
+            common_row[1] = unit_order["orderPlacedDate"]
+            common_row[2] = unit_order["bundleId"]
+            common_row[3] = unit_order["orderId"]
+            common_row[4] = "WIGme"
+            common_row[5] = product_obj.product_name
+            common_row[6] = product_obj.product_id
+            common_row[7] = product_obj.base_product.seller_sku
+            common_row[8] = "AED"
+            common_row[9] = unit_order["price"]
+            common_row[10] = unit_order["deliveryFee"]
+            common_row[11] = str(dh_product_obj.was_price)
+            common_row[12] = unit_order["quantity"]
+            common_row[13] = unit_order["customerName"]
+            common_row[14] = unit_order["customerEmail"]
+            common_row[15] = unit_order["customerContactNumber"]
+            common_row[16] = unit_order["shippingAddress"]
+            common_row[17] = unit_order["shippingAddress"]
+            common_row[18] = unit_order["paymentStatus"]
+            common_row[19] = unit_order["shippingMethod"]
+            common_row[20] = unit_order["trackingStatus"]
+            
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("generate_regular_order_format: %s at %s", e, str(exc_tb.tb_lineno))
 
     workbook.close()

@@ -2518,7 +2518,7 @@ class UpdateCategoryImageAPI(APIView):
 
             category_obj = Category.objects.get(uuid=uuid)
             image_obj = Image.objects.create(image=image)
-            category_obj.image = image
+            category_obj.image = image_obj
             category_obj.save()
 
             response['status'] = 200
