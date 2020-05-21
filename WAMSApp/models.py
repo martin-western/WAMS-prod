@@ -32,7 +32,7 @@ noon_product_json = {
     "product_description" : "",
     "product_attribute_list" : [],
     "created_date" : "",
-    "status" : "",
+    "status" : "Inactive",
     "http_link": "",
     "price":"",
     "sale_price":"",
@@ -104,7 +104,7 @@ amazon_uk_product_json = {
         "item_display_height":"",
         "item_display_height_metric":""
     },
-    "status" : "",
+    "status" : "Inactive",
     "http_link": "",
     "price":"",
     "quantity":""
@@ -122,7 +122,7 @@ amazon_uae_product_json = {
     "ASIN" : "",
     "recommended_browse_nodes" : "",
     "update_delete" : "",
-    "status" : "",
+    "status" : "Inactive",
     "http_link": "",
     "price":"",
     "quantity":""
@@ -136,7 +136,7 @@ ebay_product_json = {
     "product_description" : "",
     "product_attribute_list" : [],
     "created_date" : "",
-    "status" : "",
+    "status" : "Inactive",
     "http_link": "",
     "price":"",
     "quantity":""
