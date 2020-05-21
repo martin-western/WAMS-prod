@@ -1310,9 +1310,6 @@ class UpdateDealshubProductAPI(APIView):
                 data = json.loads(data)
 
             product_uuid = data["product_uuid"]
-            was_price = float(data["was_price"])
-            now_price = float(data["now_price"])
-            stock = float(data["stock"])
 
             dh_product_obj = DealsHubProduct.objects.get(product__uuid=product_uuid)
 
@@ -1320,11 +1317,17 @@ class UpdateDealshubProductAPI(APIView):
             stock_permission = custom_permission_stock(request.user, "dealshub")
 
             if price_permission:
-                dh_product_obj.was_price = was_price
-                dh_product_obj.now_price = now_price
+                if "was_price" in data:
+                    was_price = float(data["was_price"])
+                    dh_product_obj.was_price = was_price
+                if "now_price" in data:
+                    now_price = float(data["now_price"])        
+                    dh_product_obj.now_price = now_price
 
             if stock_permission:
-                dh_product_obj.stock = stock
+                if "stock" in data:
+                    stock = float(data["stock"])
+                    dh_product_obj.stock = stock
 
             dh_product_obj.save()
 
