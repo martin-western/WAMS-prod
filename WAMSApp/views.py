@@ -1340,6 +1340,90 @@ class UpdateDealshubProductAPI(APIView):
         return Response(data=response)
 
 
+class BulkUpdateDealshubProductPriceAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateDealshubProductPriceAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            price_permission = custom_permission_price(request.user, "dealshub")
+            if price_permission:
+                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+
+                for i in range(rows):
+                    try:
+                        product_id = str(dfs.iloc[i][0]).strip()
+                        now_price = float(dfs.iloc[i][1])
+                        was_price = float(dfs.iloc[i][2])
+                        
+                        dh_product_obj = DealsHubProduct.objects.get(product__product_id=product_id)
+                        dh_product_obj.now_price = now_price
+                        dh_product_obj.was_price = was_price
+                        dh_product_obj.save()
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class BulkUpdateDealshubProductStockAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateDealshubProductStockAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            stock_permission = custom_permission_stock(request.user, "dealshub")
+            if stock_permission:
+                path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+
+                for i in range(rows):
+                    try:
+                        product_id = str(dfs.iloc[i][0]).strip()
+                        stock = float(dfs.iloc[i][1])
+                        
+                        dh_product_obj = DealsHubProduct.objects.get(product__product_id=product_id)
+                        dh_product_obj.stock = stock
+                        dh_product_obj.save()
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class SaveBaseProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4591,7 +4675,7 @@ class FetchAuditLogsAPI(APIView):
 
             page = data["page"]
 
-            all_log_entry_objs = LogEntry.objects.all()
+            all_log_entry_objs = LogEntry.objects.exclude(actor=None)
 
             paginator = Paginator(all_log_entry_objs, 20)
             log_entry_objs = paginator.page(page)
@@ -5735,6 +5819,10 @@ SaveBaseProduct = SaveBaseProductAPI.as_view()
 FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
 
 UpdateDealshubProduct = UpdateDealshubProductAPI.as_view()
+
+BulkUpdateDealshubProductPrice = BulkUpdateDealshubProductPriceAPI.as_view()
+
+BulkUpdateDealshubProductStock = BulkUpdateDealshubProductStockAPI.as_view()
 
 FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 
