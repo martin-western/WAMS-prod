@@ -619,7 +619,7 @@ class SearchAPI(APIView):
             if super_category_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__category__super_category__name=super_category_name)
 
-            if category_name!="ALL":
+            if category_name!="ALL" and category_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__category__name=category_name)
 
             if subcategory_name!="":
@@ -691,9 +691,16 @@ class SearchAPI(APIView):
 
             is_super_category_available = False
             category_list = []
-            if super_category_name!="":
-                is_super_category_available = True
-                category_objs = Category.objects.filter(super_category__name=super_category_name)
+            try:
+                super_category_obj = None
+                if super_category_name!="":
+                    is_super_category_available = True
+                    super_category_obj = SuperCategory.objects.get(name=super_category_name)
+
+                if category_name!="" and category!="ALL":
+                    super_category_obj = Category.objects.get(name=category_name).super_category
+
+                category_objs = Category.objects.filter(super_category=super_category_obj)
                 for category_obj in category_objs:
                     temp_dict = {}
                     temp_dict["name"] = category_obj.name
@@ -707,6 +714,9 @@ class SearchAPI(APIView):
                         sub_category_list.append(temp_dict2)
                     temp_dict["subCategoryList"] = sub_category_list
                     category_list.append(temp_dict)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["isSuperCategoryAvailable"] = is_super_category_available
             response["categoryList"] = category_list
