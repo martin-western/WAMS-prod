@@ -849,6 +849,7 @@ columns = len(dfs.iloc[0][:])
 
 dfs = dfs.fillna("")
 
+
 cnt=0
 for i in range(rows): #len(rows):
     print(i)
@@ -955,3 +956,350 @@ for base_product in base_product_objs:
         print(str(e))
         pass
 
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+
+filename = "scripts/Nesto_Prices.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs.loc[:, 'Updated/Not Found'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+for i in range(rows):
+    print(i)
+    try:
+        product_name = str(dfs.iloc[i,0])
+        brand = str(dfs.iloc[i,1])
+        seller_sku = str(dfs.iloc[i,4])
+        price = float(dfs.iloc[i,5])
+
+        base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+        dealshub_product = DealsHubProduct.objects.get(product__base_product=base_product)
+
+        dealshub_product.was_price = price
+        dealshub_product.now_price = price
+        dealshub_product.save()
+
+        dfs.loc[i, 'Updated/Not Found'] = "Updated"
+        cnt+=1
+    except Exception as e:
+        print(str(e))
+        dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+        pass
+
+print("Cnt : ",cnt)
+
+
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+
+filename = "scripts/New_Listings.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Royal ford"]
+dfs.loc[:, 'New/Existing'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+brand = Brand.objects.get(name="RoyalFord")
+product_id_type = ProductIDType.objects.get(name="EAN")
+
+for i in range(rows):
+    print(i)
+    try:
+        category = str(dfs.iloc[i,0])
+        sub_category = str(dfs.iloc[i,1])
+        seller_sku = str(dfs.iloc[i,2])
+        product_name = str(dfs.iloc[i,3])
+        barcode = str(dfs.iloc[i,4])
+        product_id = str(dfs.iloc[i,4])
+
+        try:
+            base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+            dfs.loc[i, 'New/Existing'] = "Existing"
+
+        except Exception as e:
+            
+            if(len(barcode)==13):
+                
+                pid_type = product_id_type
+            
+                category, created = Category.objects.get_or_create(name=category)
+                sub_category, created = SubCategory.objects.get_or_create(name=sub_category,category=category)
+
+                base_product = BaseProduct.objects.create(seller_sku=seller_sku,
+                                                            category=category,
+                                                            sub_category=sub_category,
+                                                            brand=brand,
+                                                            base_product_name=product_name)
+
+                product = Product.objects.create(base_product=base_product,
+                                                product_name=product_name,
+                                                product_id_type=pid_type,
+                                                product_id = product_id,
+                                                barcode_string=barcode)
+
+                dfs.loc[i, 'New/Existing'] = "New"
+                cnt+=1
+    
+    except Exception as e:
+        print(str(e))
+        # dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+        pass
+
+print("Cnt : ",cnt)
+
+
+from WAMSApp.models import *
+oc = OmnyCommUser.objects.get(username="arsal")
+cp, created = CustomPermission.objects.get_or_create(user=oc)
+brand_obj = Brand.objects.get(name="Delcasa")
+cp.brands.add(brand_obj)
+cp.save()
+
+
+
+
+
+import pandas as pd
+from WAMSApp.models import *
+
+filename = "scripts/BabyPlus_Products.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+brand_obj = Brand.objects.get(name="Baby Plus")
+product_id_type = ProductIDType.objects.get(name="EAN")
+i=22
+while i < rows:
+    print(i)
+    try:
+        category = str(dfs.iloc[i,0])
+        seller_sku = str(dfs.iloc[i,1])
+        product_name = str(dfs.iloc[i,2])
+        barcode = str(dfs.iloc[i,3])
+        product_id = str(dfs.iloc[i,3])
+        status = str(dfs.iloc[i,4])
+        
+        if status== "Not Created":
+            try:
+                print(seller_sku)
+
+                category , c = Category.objects.get_or_create(name=category)
+                sub_category , c = SubCategory.objects.get_or_create(name=category.name)
+
+                base_product = BaseProduct.objects.create(base_product_name=product_name,
+                                                          seller_sku=seller_sku,
+                                                          brand=brand_obj,
+                                                          category=category,
+                                                          sub_category=sub_category)
+                
+                product = Product.objects.create(base_product=base_product,
+                                                product_name=product_name,
+                                                product_id_type=product_id_type,
+                                                product_id = product_id,
+                                                barcode_string=barcode)
+                cnt+=1
+
+            except Exception as e:
+               print(str(e))
+
+        else:
+            break
+    
+    except Exception as e:
+        print(str(e))
+        # dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+        pass
+    i+= 1
+
+print("Cnt : ",cnt)
+
+dfs.to_excel(filename,index=False)
+
+
+from WAMSApp.models import *
+import json
+cs = ChannelProduct.objects.all()
+cnt=0
+for c in cs:
+    uk = json.loads(c.amazon_uk_product_json)
+    uae = json.loads(c.amazon_uae_product_json)
+    n = json.loads(c.noon_product_json)
+    e = json.loads(c.ebay_product_json)
+    uk["status"] = "Inactive"
+    uae["status"] = "Inactive"
+    n["status"] = "Inactive"
+    e["status"] = "Inactive"
+    c.amazon_uk_product_json = json.dumps(uk)
+    c.amazon_uae_product_json = json.dumps(uae)
+    c.noon_product_json = json.dumps(n)
+    c.ebay_product_json = json.dumps(e)
+    c.save()
+    cnt+=1
+    print("Cnt : ",cnt)
+
+
+
+
+from WAMSApp.models import *
+
+noon_product_json_template = {
+    "product_name" : "",
+    "noon_sku" : "",
+    "parent_sku" : "",
+    "parent_barcode" : "",
+    "category" : "",
+    "subtitle" : "",
+    "sub_category" : "",
+    "model_number" : "",
+    "model_name" : "",
+    "msrp_ae" : "",
+    "msrp_ae_unit" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : "",
+    "status" : "Inactive",
+    "http_link": "",
+    "price":"",
+    "sale_price":"",
+    "sale_start":"",
+    "sale_end":"",
+    "quantity":"",
+    "warranty":""
+}
+amazon_uk_product_json_template = {
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "category" : "",
+    "sub_category" : "",
+    "created_date" : "",
+    "parentage" : "",
+    "parent_sku" : "",
+    "relationship_type" : "",
+    "variation_theme" : "",
+    "feed_product_type" : "",
+    "ASIN" : "",
+    "update_delete" : "",
+    "recommended_browse_nodes" : "",
+    "search_terms" : "",
+    "enclosure_material" : "",
+    "cover_material_type" : "",
+    "special_features" : [],
+    "sale_price" : "",
+    "sale_from" : "",
+    "sale_end" :  "",
+    "wattage" : "",
+    "wattage_metric" : "",
+    "item_count" : "",
+    "item_count_metric" : "",
+    "item_condition_note" : "",
+    "max_order_quantity" : "",
+    "number_of_items" : "",
+    "condition_type" : "",
+    "dimensions": {
+        "package_length":"",
+        "package_length_metric":"",
+        "package_width":"",
+        "package_width_metric":"",
+        "package_height":"",
+        "package_height_metric":"",
+        "package_weight":"",
+        "package_weight_metric":"",
+        "package_quantity":"",
+        "shipping_weight":"",
+        "shipping_weight_metric":"",
+        "item_display_weight":"",
+        "item_display_weight_metric":"",
+        "item_display_volume":"",
+        "item_display_volume_metric":"",
+        "item_display_length":"",
+        "item_display_length_metric":"",
+        "item_weight":"",
+        "item_weight_metric":"",
+        "item_length":"",
+        "item_length_metric":"",
+        "item_width":"",
+        "item_width_metric":"",
+        "item_height":"",
+        "item_height_metric":"",
+        "item_display_width":"",
+        "item_display_width_metric":"",
+        "item_display_height":"",
+        "item_display_height_metric":""
+    },
+    "status" : "Inactive",
+    "http_link": "",
+    "price":"",
+    "quantity":""
+}
+amazon_uae_product_json_template = {
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "category" : "",
+    "sub_category" : "",
+    "created_date" : "",
+    "feed_product_type" : "",
+    "ASIN" : "",
+    "recommended_browse_nodes" : "",
+    "update_delete" : "",
+    "status" : "Inactive",
+    "http_link": "",
+    "price":"",
+    "quantity":""
+}
+ebay_product_json_template = {
+    "category" : "",
+    "sub_category" : "",
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : "",
+    "status" : "Inactive",
+    "http_link": "",
+    "price":"",
+    "quantity":""
+}
+
+
+ch_objs = ChannelProduct.objects.all()
+i=0
+for ch_obj in ch_objs:
+    i+=1
+    print(i)
+    json_attr = json.loads(ch_obj.noon_product_json)
+    for key in noon_product_json_template:
+        if key not in json_attr:
+            json_attr[key] = noon_product_json_template[key]
+    ch_obj.noon_product_json = json.dumps(json_attr)
+    json_attr = json.loads(ch_obj.amazon_uk_product_json)
+    for key in amazon_uk_product_json_template:
+        if key not in json_attr:
+            json_attr[key] = amazon_uk_product_json_template[key]
+    ch_obj.amazon_uk_product_json = json.dumps(json_attr)
+    json_attr = json.loads(ch_obj.amazon_uae_product_json)
+    for key in amazon_uae_product_json_template:
+        if key not in json_attr:
+            json_attr[key] = amazon_uae_product_json_template[key]
+    ch_obj.amazon_uae_product_json = json.dumps(json_attr)
+    json_attr = json.loads(ch_obj.ebay_product_json)
+    for key in ebay_product_json_template:
+        if key not in json_attr:
+            json_attr[key] = ebay_product_json_template[key]
+    ch_obj.ebay_product_json = json.dumps(json_attr)
+    ch_obj.save()    

@@ -82,6 +82,7 @@ class BannerType(models.Model):
 class Banner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=100, default="")
     website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
     is_published = models.BooleanField(default=False)
     created_date = models.DateTimeField()
@@ -112,8 +113,10 @@ class UnitBannerImage(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    mobile_image = models.ForeignKey(Image, related_name="mobile_image", on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, blank=True)
 
     def __str__(self):
         return str(self.uuid)

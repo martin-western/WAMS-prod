@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 noon_product_json = {
     
     "product_name" : "",
-    "product_type" : "",
-    "product_subtype" : "",
+    "noon_sku" : "",
     "parent_sku" : "",
+    "parent_barcode" : "",
     "category" : "",
     "subtitle" : "",
     "sub_category" : "",
@@ -32,10 +32,14 @@ noon_product_json = {
     "product_description" : "",
     "product_attribute_list" : [],
     "created_date" : "",
-    "status" : "",
+    "status" : "Inactive",
     "http_link": "",
     "price":"",
-    "quantity":""
+    "sale_price":"",
+    "sale_start":"",
+    "sale_end":"",
+    "quantity":"",
+    "warranty":""
 }
 
 amazon_uk_product_json = {
@@ -100,7 +104,7 @@ amazon_uk_product_json = {
         "item_display_height":"",
         "item_display_height_metric":""
     },
-    "status" : "",
+    "status" : "Inactive",
     "http_link": "",
     "price":"",
     "quantity":""
@@ -118,7 +122,7 @@ amazon_uae_product_json = {
     "ASIN" : "",
     "recommended_browse_nodes" : "",
     "update_delete" : "",
-    "status" : "",
+    "status" : "Inactive",
     "http_link": "",
     "price":"",
     "quantity":""
@@ -132,7 +136,7 @@ ebay_product_json = {
     "product_description" : "",
     "product_attribute_list" : [],
     "created_date" : "",
-    "status" : "",
+    "status" : "Inactive",
     "http_link": "",
     "price":"",
     "quantity":""
@@ -319,8 +323,31 @@ class Organization(models.Model):
         return str(self.name)
 
 
+class SuperCategory(models.Model):
+
+    name = models.CharField(max_length=256, blank=True, default='')
+    description = models.CharField(max_length=256, blank=True, default='')
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Super Category"
+        verbose_name_plural = "Super Categories"
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(SuperCategory, self).save(*args, **kwargs)
+
+
 class Category(models.Model):
 
+    super_category = models.ForeignKey(SuperCategory, blank=True, default=None, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
@@ -530,8 +557,7 @@ class Product(models.Model):
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
-    minimum_price = models.FloatField(null=True, blank=True)
-    maximum_price = models.FloatField(null=True, blank=True)
+    
     currency = models.CharField(max_length=100, default="")
     quantity = models.IntegerField(null=True, blank=True)
 
@@ -586,15 +612,16 @@ class Product(models.Model):
             channel_product_obj = ChannelProduct.objects.create()
             self.channel_product = channel_product_obj
 
-        if len(self.barcode_string)==10:
-            self.product_id_type = ProductIDType.objects.get(name="ASIN")
-        elif len(self.barcode_string)==12:
-            self.product_id_type = ProductIDType.objects.get(name="UPC")
-        elif len(self.barcode_string)==13:
-            self.product_id_type = ProductIDType.objects.get(name="EAN")
-        else:
-            self.barcode_string=""
-            self.product_id_type = None
+        if self.product_id != None and self.product_id != "":
+            if len(self.product_id)==10:
+                self.product_id_type = ProductIDType.objects.get(name="ASIN")
+            elif len(self.product_id)==12:
+                self.product_id_type = ProductIDType.objects.get(name="UPC")
+            elif len(self.product_id)==13:
+                self.product_id_type = ProductIDType.objects.get(name="EAN")
+            else:
+                self.product_id=""
+                self.product_id_type = None
         
         super(Product, self).save(*args, **kwargs)
 
@@ -741,7 +768,7 @@ class Report(models.Model):
         verbose_name_plural = "Reports"
 
     def __str__(self):
-        return str(self.title)
+        return str(self.feed_submission_id)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
