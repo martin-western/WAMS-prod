@@ -2609,6 +2609,34 @@ class UpdateCategoryImageAPI(APIView):
         return Response(data=response)
 
 
+class UpdateSuperCategoryImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateSuperCategoryImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            image = data["image"]
+
+            super_category_obj = SuperCategory.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=image)
+            super_category_obj.image = image_obj
+            super_category_obj.save()
+
+            response["imageUrl"] = image_obj.mid_image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateSuperCategoryImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2714,3 +2742,5 @@ AddCategoryToWebsiteGroup = AddCategoryToWebsiteGroupAPI.as_view()
 RemoveCategoryFromWebsiteGroup = RemoveCategoryFromWebsiteGroupAPI.as_view()
 
 UpdateCategoryImage = UpdateCategoryImageAPI.as_view()
+
+UpdateSuperCategoryImage = UpdateSuperCategoryImageAPI.as_view()
