@@ -2082,7 +2082,7 @@ class SearchSectionProductsAutocompleteAPI(APIView):
             website_group_name = data["websiteGroupName"]
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
-            dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__in=website_group_obj.brands.all())
+            dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all())
 
             dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))[:10]
 
