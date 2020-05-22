@@ -139,10 +139,8 @@ class FetchProductDetailsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
 
-            temp_product_obj = DealsHubProduct.objects.get(
-                product__uuid=data["uuid"])
+            temp_product_obj = DealsHubProduct.objects.get(product__uuid=data["uuid"])
             product_obj = temp_product_obj.product
             base_product_obj = product_obj.base_product
 
@@ -987,6 +985,8 @@ class SectionBulkUploadAPI(APIView):
                 try:
                     product_id = dfs.iloc[i][0]
                     product_obj = Product.objects.get(product_id=product_id)
+                    if DealsHubProduct.objects.get(product=product_obj).is_published==False:
+                        continue
                     section_obj.products.add(product_obj)
 
                     temp_dict2 = {}
