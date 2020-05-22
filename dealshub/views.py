@@ -689,6 +689,28 @@ class SearchAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
+            is_super_category_available = False
+            category_list = []
+            if super_category_name!="":
+                is_super_category_available = True
+                category_objs = Category.objects.filter(super_category__name=super_category_name)
+                for category_obj in category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    sub_category_list = []
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict2 = {}
+                        temp_dict2["name"] = sub_category_obj.name
+                        temp_dict2["uuid"] = sub_category_obj.uuid
+                        sub_category_list.append(temp_dict2)
+                    temp_dict["subCategoryList"] = sub_category_list
+                    category_list.append(temp_dict)
+
+            response["isSuperCategoryAvailable"] = is_super_category_available
+            response["categoryList"] = category_list
+
             is_available = True
             
             if int(paginator.num_pages) == int(page):
