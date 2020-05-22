@@ -139,10 +139,8 @@ class FetchProductDetailsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
 
-            temp_product_obj = DealsHubProduct.objects.get(
-                product__uuid=data["uuid"])
+            temp_product_obj = DealsHubProduct.objects.get(product__uuid=data["uuid"])
             product_obj = temp_product_obj.product
             base_product_obj = product_obj.base_product
 
@@ -987,6 +985,8 @@ class SectionBulkUploadAPI(APIView):
                 try:
                     product_id = dfs.iloc[i][0]
                     product_obj = Product.objects.get(product_id=product_id)
+                    if DealsHubProduct.objects.get(product=product_obj).is_published==False:
+                        continue
                     section_obj.products.add(product_obj)
 
                     temp_dict2 = {}
@@ -2082,7 +2082,7 @@ class SearchSectionProductsAutocompleteAPI(APIView):
             website_group_name = data["websiteGroupName"]
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
-            dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__in=website_group_obj.brands.all())
+            dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all())
 
             dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))[:10]
 
