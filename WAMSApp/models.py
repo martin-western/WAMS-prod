@@ -589,14 +589,14 @@ class Product(models.Model):
             channel_product_obj = ChannelProduct.objects.create()
             self.channel_product = channel_product_obj
 
-        if len(self.barcode_string)==10:
+        if len(self.product_id)==10:
             self.product_id_type = ProductIDType.objects.get(name="ASIN")
-        elif len(self.barcode_string)==12:
+        elif len(self.product_id)==12:
             self.product_id_type = ProductIDType.objects.get(name="UPC")
-        elif len(self.barcode_string)==13:
+        elif len(self.product_id)==13:
             self.product_id_type = ProductIDType.objects.get(name="EAN")
         else:
-            self.barcode_string=""
+            self.product_id=""
             self.product_id_type = None
         
         super(Product, self).save(*args, **kwargs)
