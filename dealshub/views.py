@@ -697,7 +697,7 @@ class SearchAPI(APIView):
                     is_super_category_available = True
                     super_category_obj = SuperCategory.objects.get(name=super_category_name)
 
-                if category_name!="" and category!="ALL":
+                if category_name!="" and category_name!="ALL":
                     super_category_obj = Category.objects.get(name=category_name).super_category
 
                 category_objs = Category.objects.filter(super_category=super_category_obj)
