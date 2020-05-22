@@ -87,6 +87,7 @@ urlpatterns = [
     url(r'^fetch-user-profile/$',views.FetchUserProfile),
 
     url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
+    url(r'^update-dealshub-product/$',views.UpdateDealshubProduct),
 
     url(r'^fetch-audit-logs-by-user/$',views.FetchAuditLogsByUser), 
     url(r'^fetch-audit-logs/$',views.FetchAuditLogs), 

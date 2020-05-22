@@ -323,8 +323,31 @@ class Organization(models.Model):
         return str(self.name)
 
 
+class SuperCategory(models.Model):
+
+    name = models.CharField(max_length=256, blank=True, default='')
+    description = models.CharField(max_length=256, blank=True, default='')
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Super Category"
+        verbose_name_plural = "Super Categories"
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(SuperCategory, self).save(*args, **kwargs)
+
+
 class Category(models.Model):
 
+    super_category = models.ForeignKey(SuperCategory, blank=True, default=None, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')

@@ -507,6 +507,45 @@ class FetchSectionProductsAPI(APIView):
 FetchSectionProducts = FetchSectionProductsAPI.as_view()
 
 
+
+class FetchSuperCategoriesAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSuperCategoriesAPI: %s", str(data))
+            website_group_name = data["websiteGroupName"]
+
+            super_category_objs = SuperCategory.objects.all()
+
+            super_category_list = []
+            for super_category_obj in super_category_objs:
+                temp_dict = {}
+                temp_dict["name"] = super_category_obj.name
+                temp_dict["uuid"] = super_category_obj.uuid
+                temp_dict["imageUrl"] = ""
+                if super_category_obj.image!=None:
+                    temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
+                super_category_list.append(temp_dict)
+
+            response['superCategoryList'] = super_category_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+FetchSuperCategories = FetchSuperCategoriesAPI.as_view()
+
+
 class FetchCategoriesAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -559,8 +598,10 @@ class SearchAPI(APIView):
             logger.info("SearchAPI: %s", str(data))
             
             product_name = data.get("name", "").strip()
+            super_category_name = data.get("superCategory", "").strip()
             category_name = data.get("category", "").strip()
             subcategory_name = data.get("subcategory", "").strip()
+            brand_name = data.get("brand", "").strip()
 
             filter_list = data.get("filters", "[]")
             filter_list = json.loads(filter_list)
@@ -572,6 +613,12 @@ class SearchAPI(APIView):
             search = {}            
 
             available_dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__in=website_group_obj.brands.all(), is_published=True)
+            if brand_name!="":
+                available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
+
+            if super_category_name!="":
+                available_dealshub_products = available_dealshub_products.filter(product__base_product__category__super_category__name=super_category_name)
+
             if category_name!="ALL":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__category__name=category_name)
 
@@ -2518,9 +2565,10 @@ class UpdateCategoryImageAPI(APIView):
 
             category_obj = Category.objects.get(uuid=uuid)
             image_obj = Image.objects.create(image=image)
-            category_obj.image = image
+            category_obj.image = image_obj
             category_obj.save()
 
+            response["imageUrl"] = image_obj.mid_image.url
             response['status'] = 200
 
         except Exception as e:

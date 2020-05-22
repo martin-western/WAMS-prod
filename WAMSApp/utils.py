@@ -1795,6 +1795,103 @@ def fetch_sap_details_for_order_punching(product_obj):
         return "NA"
 
 
+def get_company_code_from_brand_name(brand_name):
+    brand_name = brand_name.lower()
+    if brand_name=="geepas":
+        return "1000"
+    if brand_name=="abraj":
+        return "6000"
+    if brand_name=="baby plus":
+        return "5550"
+    if brand_name=="bag house":
+        return "5600"
+    if brand_name=="clarkford":
+        return "7000"
+    if brand_name=="crystal promo":
+        return "5110"
+    if brand_name=="crystal":
+        return "5100"
+    if brand_name=="delcasa":
+        return "3050"
+    if brand_name=="epsilon":
+        return "2100"
+    if brand_name=="leather plus":
+        return "5700"
+    if brand_name=="olsenmark":
+        return "1100"
+    if brand_name=="royalford":
+        return "3000"
+    if brand_name=="young life":
+        return "5000"
+    return ""
+
+
+def get_sap_batch_and_uom(company_code, seller_sku):
+    response = {
+        "batch": "",
+        "uom": ""
+    }
+    return response
+    try:
+        url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        <soapenv:Header />
+        <soapenv:Body>
+        <urn:ZAPP_STOCK_PRICE>
+         <IM_MATNR>
+          <item>
+           <MATNR>""" + seller_sku + """</MATNR>
+          </item>
+         </IM_MATNR>
+         <IM_VKORG>
+          <item>
+           <VKORG>""" + company_code + """</VKORG>
+          </item>
+         </IM_VKORG>
+         <T_DATA>
+          <item>
+           <MATNR></MATNR>
+           <MAKTX></MAKTX>
+           <LGORT></LGORT>
+           <CHARG></CHARG>
+           <SPART></SPART>
+           <MEINS></MEINS>
+           <ATP_QTY></ATP_QTY>
+           <TOT_QTY></TOT_QTY>
+           <CURRENCY></CURRENCY>
+           <IC_EA></IC_EA>
+           <OD_EA></OD_EA>
+           <EX_EA></EX_EA>
+           <RET_EA></RET_EA>
+           <WERKS></WERKS>
+          </item>
+         </T_DATA>
+        </urn:ZAPP_STOCK_PRICE>
+        </soapenv:Body>
+        </soapenv:Envelope>"""
+        sap_response = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = sap_response.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            
+        if isinstance(items, dict):
+            if items["MEINS"]!=None:
+                response["uom"] = items["MEINS"]
+            if items["CHARG"]!=None:
+                response["batch"] = items["CHARG"]
+        else:
+            for item in items:
+                if items["MEINS"]!=None and items["CHARG"]!=None:
+                    response["uom"] = items["MEINS"]
+                    response["batch"] = items["CHARG"]
+
+        return response
+    except Exception as e:
+        return response
+
 
 def generate_sap_order_format(unit_order_list):
 
@@ -1894,8 +1991,8 @@ def generate_sap_order_format(unit_order_list):
 
             common_row = ["" for i in range(15)]
             common_row[0] = "WIC"
-            common_row[1] = sap_details["company_code"]
-            common_row[2] = sap_details["purchase_org"]
+            common_row[1] = "1200"
+            common_row[2] = "1200"
             common_row[3] = "1202"
             common_row[4] = "TG01"
             common_row[5] = "GP2"
@@ -1903,8 +2000,8 @@ def generate_sap_order_format(unit_order_list):
             common_row[7] = "Invoice Ref ID"
             common_row[8] = sap_details["vendor_code"]
             common_row[9] = product_obj.base_product.seller_sku
-            common_row[10] = "Order Unit"
-            common_row[11] = "Order Price UoM"
+            common_row[10] = "EA"
+            common_row[11] = "EA"
             common_row[12] = unit_order["quantity"]
             common_row[13] = unit_order["price"]
             common_row[14] = unit_order["orderPlacedDate"]
@@ -1954,14 +2051,17 @@ def generate_sap_order_format(unit_order_list):
 
             product_obj = Product.objects.get(uuid=unit_order["productUuid"])
 
-            sap_details = fetch_sap_details_for_order_punching(product_obj)
-
             order_type = "ZJCR"
             customer_code = ""
             if unit_order["shippingMethod"]=="WIG Fleet":
                 customer_code = "50000629"
             elif unit_order["shippingMethod"]=="TFM":
                 customer_code = "50000627"
+
+            company_code = get_company_code_from_brand_name(product_obj.base_product.brand.name)
+            response = get_sap_batch_and_uom(company_code, product_obj.base_product.seller_sku)
+            batch = response["batch"]
+            uom = response["uom"]
 
             common_row = ["" for i in range(17)]
             common_row[0] = "1200"
@@ -1972,7 +2072,8 @@ def generate_sap_order_format(unit_order_list):
             common_row[5] = unit_order["orderId"]
             common_row[6] = product_obj.base_product.seller_sku
             common_row[7] = unit_order["quantity"]
-
+            common_row[8] = uom
+            common_row[9] = batch
             common_row[10] = unit_order["total"]
 
             colnum = 0
@@ -1983,5 +2084,88 @@ def generate_sap_order_format(unit_order_list):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("generate_sap_order_format: %s at %s", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
+
+
+def generate_regular_order_format(unit_order_list):
+
+    try:
+        os.system("rm ./files/csv/regular-order-format.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/regular-order-format.xlsx')
+
+    worksheet = workbook.add_worksheet()
+
+
+    row = ["Sr. No.",
+           "Datetime",
+           "Order ID",
+           "Order Item ID",
+           "Channel",
+           "Product Name",
+           "Product ID",
+           "Seller SKU",
+           "Currency",
+           "Selling Price",
+           "Delivery Fee",
+           "Strike Price",
+           "Quantity",
+           "Customer Name",
+           "Customer Email ID",
+           "Customer Phone Number",
+           "Billing Address",
+           "Shipping Address",
+           "Payment Status",
+           "Shipping Method",
+           "Order Tracking Status"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    for unit_order in unit_order_list:
+        try:
+            cnt += 1
+
+            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+            dh_product_obj = DealsHubProduct.objects.get(product=product_obj)
+
+            common_row = ["" for i in range(21)]
+            common_row[0] = str(cnt)
+            common_row[1] = unit_order["orderPlacedDate"]
+            common_row[2] = unit_order["bundleId"]
+            common_row[3] = unit_order["orderId"]
+            common_row[4] = "WIGme"
+            common_row[5] = product_obj.product_name
+            common_row[6] = product_obj.product_id
+            common_row[7] = product_obj.base_product.seller_sku
+            common_row[8] = "AED"
+            common_row[9] = unit_order["price"]
+            common_row[10] = unit_order["deliveryFee"]
+            common_row[11] = str(dh_product_obj.was_price)
+            common_row[12] = unit_order["quantity"]
+            common_row[13] = unit_order["customerName"]
+            common_row[14] = unit_order["customerEmail"]
+            common_row[15] = unit_order["customerContactNumber"]
+            common_row[16] = unit_order["shippingAddress"]
+            common_row[17] = unit_order["shippingAddress"]
+            common_row[18] = unit_order["paymentStatus"]
+            common_row[19] = unit_order["shippingMethod"]
+            common_row[20] = unit_order["trackingStatus"]
+            
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("generate_regular_order_format: %s at %s", e, str(exc_tb.tb_lineno))
 
     workbook.close()

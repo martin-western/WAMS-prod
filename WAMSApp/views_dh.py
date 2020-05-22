@@ -329,6 +329,8 @@ class DownloadOrdersAPI(APIView):
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
 
+            report_type = data.get("reportType")
+
             request_data = {
                 "fromDate":from_date,
                 "toDate":to_date,
@@ -347,8 +349,14 @@ class DownloadOrdersAPI(APIView):
             content = json.loads(r.content)
 
             unit_order_list = content["unitOrderList"]
-            generate_sap_order_format(unit_order_list)
-            response["filepath"] = "https://"+SERVER_IP+"/files/csv/sap-order-format.xlsx"
+
+            if report_type=="sap":
+                generate_sap_order_format(unit_order_list)
+                response["filepath"] = "https://"+SERVER_IP+"/files/csv/sap-order-format.xlsx"
+            else:
+                generate_regular_order_format(unit_order_list)
+                response["filepath"] = "https://"+SERVER_IP+"/files/csv/regular-order-format.xlsx"
+            
             response["status"] = 200
 
         except Exception as e:
