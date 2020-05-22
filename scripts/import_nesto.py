@@ -1151,3 +1151,155 @@ for c in cs:
     c.save()
     cnt+=1
     print("Cnt : ",cnt)
+
+
+
+
+from WAMSApp.models import *
+
+noon_product_json_template = {
+    "product_name" : "",
+    "noon_sku" : "",
+    "parent_sku" : "",
+    "parent_barcode" : "",
+    "category" : "",
+    "subtitle" : "",
+    "sub_category" : "",
+    "model_number" : "",
+    "model_name" : "",
+    "msrp_ae" : "",
+    "msrp_ae_unit" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : "",
+    "status" : "Inactive",
+    "http_link": "",
+    "price":"",
+    "sale_price":"",
+    "sale_start":"",
+    "sale_end":"",
+    "quantity":"",
+    "warranty":""
+}
+amazon_uk_product_json_template = {
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "category" : "",
+    "sub_category" : "",
+    "created_date" : "",
+    "parentage" : "",
+    "parent_sku" : "",
+    "relationship_type" : "",
+    "variation_theme" : "",
+    "feed_product_type" : "",
+    "ASIN" : "",
+    "update_delete" : "",
+    "recommended_browse_nodes" : "",
+    "search_terms" : "",
+    "enclosure_material" : "",
+    "cover_material_type" : "",
+    "special_features" : [],
+    "sale_price" : "",
+    "sale_from" : "",
+    "sale_end" :  "",
+    "wattage" : "",
+    "wattage_metric" : "",
+    "item_count" : "",
+    "item_count_metric" : "",
+    "item_condition_note" : "",
+    "max_order_quantity" : "",
+    "number_of_items" : "",
+    "condition_type" : "",
+    "dimensions": {
+        "package_length":"",
+        "package_length_metric":"",
+        "package_width":"",
+        "package_width_metric":"",
+        "package_height":"",
+        "package_height_metric":"",
+        "package_weight":"",
+        "package_weight_metric":"",
+        "package_quantity":"",
+        "shipping_weight":"",
+        "shipping_weight_metric":"",
+        "item_display_weight":"",
+        "item_display_weight_metric":"",
+        "item_display_volume":"",
+        "item_display_volume_metric":"",
+        "item_display_length":"",
+        "item_display_length_metric":"",
+        "item_weight":"",
+        "item_weight_metric":"",
+        "item_length":"",
+        "item_length_metric":"",
+        "item_width":"",
+        "item_width_metric":"",
+        "item_height":"",
+        "item_height_metric":"",
+        "item_display_width":"",
+        "item_display_width_metric":"",
+        "item_display_height":"",
+        "item_display_height_metric":""
+    },
+    "status" : "Inactive",
+    "http_link": "",
+    "price":"",
+    "quantity":""
+}
+amazon_uae_product_json_template = {
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "category" : "",
+    "sub_category" : "",
+    "created_date" : "",
+    "feed_product_type" : "",
+    "ASIN" : "",
+    "recommended_browse_nodes" : "",
+    "update_delete" : "",
+    "status" : "Inactive",
+    "http_link": "",
+    "price":"",
+    "quantity":""
+}
+ebay_product_json_template = {
+    "category" : "",
+    "sub_category" : "",
+    "product_name" : "",
+    "product_description" : "",
+    "product_attribute_list" : [],
+    "created_date" : "",
+    "status" : "Inactive",
+    "http_link": "",
+    "price":"",
+    "quantity":""
+}
+
+
+ch_objs = ChannelProduct.objects.all()
+i=0
+for ch_obj in ch_objs:
+    i+=1
+    print(i)
+    json_attr = json.loads(ch_obj.noon_product_json)
+    for key in noon_product_json_template:
+        if key not in json_attr:
+            json_attr[key] = noon_product_json_template[key]
+    ch_obj.noon_product_json = json.dumps(json_attr)
+    json_attr = json.loads(ch_obj.amazon_uk_product_json)
+    for key in amazon_uk_product_json_template:
+        if key not in json_attr:
+            json_attr[key] = amazon_uk_product_json_template[key]
+    ch_obj.amazon_uk_product_json = json.dumps(json_attr)
+    json_attr = json.loads(ch_obj.amazon_uae_product_json)
+    for key in amazon_uae_product_json_template:
+        if key not in json_attr:
+            json_attr[key] = amazon_uae_product_json_template[key]
+    ch_obj.amazon_uae_product_json = json.dumps(json_attr)
+    json_attr = json.loads(ch_obj.ebay_product_json)
+    for key in ebay_product_json_template:
+        if key not in json_attr:
+            json_attr[key] = ebay_product_json_template[key]
+    ch_obj.ebay_product_json = json.dumps(json_attr)
+    ch_obj.save()    
