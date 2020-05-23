@@ -150,12 +150,16 @@ class FetchProductDetailsAPI(APIView):
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
 
-            if(product_obj.base_product.brand.name=="Geepas"):
-                response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
-            else:
-                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
-                response["price"] = dealshub_product_obj.now_price
-                response["wasPrice"] = dealshub_product_obj.was_price
+            # if(product_obj.base_product.brand.name=="Geepas"):
+            #     response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+            # else:
+            #     dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            #     response["price"] = dealshub_product_obj.now_price
+            #     response["wasPrice"] = dealshub_product_obj.was_price
+
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            response["price"] = dealshub_product_obj.now_price
+            response["wasPrice"] = dealshub_product_obj.was_price
             
             response["currency"] = "AED"
             response["minLimit"] = "1"
