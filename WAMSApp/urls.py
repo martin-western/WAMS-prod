@@ -88,6 +88,8 @@ urlpatterns = [
 
     url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
     url(r'^update-dealshub-product/$',views.UpdateDealshubProduct),
+    url(r'^bulk-update-dealshub-product-price/$',views.BulkUpdateDealshubProductPrice),
+    url(r'^bulk-update-dealshub-product-stock/$',views.BulkUpdateDealshubProductStock),
 
     url(r'^fetch-audit-logs-by-user/$',views.FetchAuditLogsByUser), 
     url(r'^fetch-audit-logs/$',views.FetchAuditLogs), 

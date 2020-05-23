@@ -139,10 +139,8 @@ class FetchProductDetailsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
 
-            temp_product_obj = DealsHubProduct.objects.get(
-                product__uuid=data["uuid"])
+            temp_product_obj = DealsHubProduct.objects.get(product__uuid=data["uuid"])
             product_obj = temp_product_obj.product
             base_product_obj = product_obj.base_product
 
@@ -152,12 +150,16 @@ class FetchProductDetailsAPI(APIView):
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
 
-            if(product_obj.base_product.brand.name=="Geepas"):
-                response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
-            else:
-                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
-                response["price"] = dealshub_product_obj.now_price
-                response["wasPrice"] = dealshub_product_obj.was_price
+            # if(product_obj.base_product.brand.name=="Geepas"):
+            #     response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
+            # else:
+            #     dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            #     response["price"] = dealshub_product_obj.now_price
+            #     response["wasPrice"] = dealshub_product_obj.was_price
+
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            response["price"] = dealshub_product_obj.now_price
+            response["wasPrice"] = dealshub_product_obj.was_price
             
             response["currency"] = "AED"
             response["minLimit"] = "1"
@@ -619,7 +621,7 @@ class SearchAPI(APIView):
             if super_category_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__category__super_category__name=super_category_name)
 
-            if category_name!="ALL":
+            if category_name!="ALL" and category_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__category__name=category_name)
 
             if subcategory_name!="":
@@ -688,6 +690,38 @@ class SearchAPI(APIView):
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_super_category_available = False
+            category_list = []
+            try:
+                super_category_obj = None
+                if super_category_name!="":
+                    is_super_category_available = True
+                    super_category_obj = SuperCategory.objects.get(name=super_category_name)
+
+                if category_name!="" and category_name!="ALL":
+                    super_category_obj = Category.objects.get(name=category_name).super_category
+
+                category_objs = Category.objects.filter(super_category=super_category_obj)
+                for category_obj in category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    sub_category_list = []
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict2 = {}
+                        temp_dict2["name"] = sub_category_obj.name
+                        temp_dict2["uuid"] = sub_category_obj.uuid
+                        sub_category_list.append(temp_dict2)
+                    temp_dict["subCategoryList"] = sub_category_list
+                    category_list.append(temp_dict)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["isSuperCategoryAvailable"] = is_super_category_available
+            response["categoryList"] = category_list
 
             is_available = True
             
@@ -955,6 +989,8 @@ class SectionBulkUploadAPI(APIView):
                 try:
                     product_id = dfs.iloc[i][0]
                     product_obj = Product.objects.get(product_id=product_id)
+                    if DealsHubProduct.objects.get(product=product_obj).is_published==False:
+                        continue
                     section_obj.products.add(product_obj)
 
                     temp_dict2 = {}
@@ -2050,7 +2086,7 @@ class SearchSectionProductsAutocompleteAPI(APIView):
             website_group_name = data["websiteGroupName"]
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
-            dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__in=website_group_obj.brands.all())
+            dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all())
 
             dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))[:10]
 
@@ -2127,12 +2163,14 @@ class FetchDealshubPriceAPI(APIView):
             was_price = 0
             if company_code in ["shopnesto"]:
                 dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
-                if str(dealshub_product_obj.product.base_product.brand).lower()=="geepas":
-                    price = fetch_prices_dealshub(uuid1, "1000")
-                    was_price = price
-                else:
-                    price = dealshub_product_obj.now_price
-                    was_price = dealshub_product_obj.was_price
+                # if str(dealshub_product_obj.product.base_product.brand).lower()=="geepas":
+                #     price = fetch_prices_dealshub(uuid1, "1000")
+                #     was_price = price
+                # else:
+                #     price = dealshub_product_obj.now_price
+                #     was_price = dealshub_product_obj.was_price
+                price = dealshub_product_obj.now_price
+                was_price = dealshub_product_obj.was_price
             elif company_code in ["1000", "1070"]:
                 price = fetch_prices_dealshub(uuid1, company_code)
 
@@ -2577,6 +2615,34 @@ class UpdateCategoryImageAPI(APIView):
         return Response(data=response)
 
 
+class UpdateSuperCategoryImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateSuperCategoryImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            image = data["image"]
+
+            super_category_obj = SuperCategory.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=image)
+            super_category_obj.image = image_obj
+            super_category_obj.save()
+
+            response["imageUrl"] = image_obj.mid_image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateSuperCategoryImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2682,3 +2748,5 @@ AddCategoryToWebsiteGroup = AddCategoryToWebsiteGroupAPI.as_view()
 RemoveCategoryFromWebsiteGroup = RemoveCategoryFromWebsiteGroupAPI.as_view()
 
 UpdateCategoryImage = UpdateCategoryImageAPI.as_view()
+
+UpdateSuperCategoryImage = UpdateSuperCategoryImageAPI.as_view()
