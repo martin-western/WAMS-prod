@@ -2159,12 +2159,14 @@ class FetchDealshubPriceAPI(APIView):
             was_price = 0
             if company_code in ["shopnesto"]:
                 dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
-                if str(dealshub_product_obj.product.base_product.brand).lower()=="geepas":
-                    price = fetch_prices_dealshub(uuid1, "1000")
-                    was_price = price
-                else:
-                    price = dealshub_product_obj.now_price
-                    was_price = dealshub_product_obj.was_price
+                # if str(dealshub_product_obj.product.base_product.brand).lower()=="geepas":
+                #     price = fetch_prices_dealshub(uuid1, "1000")
+                #     was_price = price
+                # else:
+                #     price = dealshub_product_obj.now_price
+                #     was_price = dealshub_product_obj.was_price
+                price = dealshub_product_obj.now_price
+                was_price = dealshub_product_obj.was_price
             elif company_code in ["1000", "1070"]:
                 price = fetch_prices_dealshub(uuid1, company_code)
 
