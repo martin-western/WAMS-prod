@@ -160,6 +160,10 @@ class FetchProductDetailsAPI(APIView):
             dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
             response["price"] = dealshub_product_obj.now_price
             response["wasPrice"] = dealshub_product_obj.was_price
+
+            response["isStockAvailable"] = False
+            if dealshub_product_obj.stock>0:
+                response["isStockAvailable"] = True
             
             response["currency"] = "AED"
             response["minLimit"] = "1"
@@ -2161,6 +2165,7 @@ class FetchDealshubPriceAPI(APIView):
 
             price = 0
             was_price = 0
+            is_stock_available = False
             if company_code in ["shopnesto"]:
                 dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
                 # if str(dealshub_product_obj.product.base_product.brand).lower()=="geepas":
@@ -2171,11 +2176,14 @@ class FetchDealshubPriceAPI(APIView):
                 #     was_price = dealshub_product_obj.was_price
                 price = dealshub_product_obj.now_price
                 was_price = dealshub_product_obj.was_price
+                if dealshub_product_obj.stock>0:
+                    is_stock_available = True
             elif company_code in ["1000", "1070"]:
                 price = fetch_prices_dealshub(uuid1, company_code)
 
             response["price"] = str(price)
             response["wasPrice"] = str(was_price)
+            response["isStockAvailable"] = is_stock_available
             response["uuid"] = uuid1
             response['status'] = 200
 
