@@ -129,5 +129,7 @@ urlpatterns = [
     url(r'^download-orders/$',views.DownloadOrders),
     url(r'^upload-orders/$',views.UploadOrders),
 
+    url(r'^check-section-permissions/$',views.CheckSectionPermissions),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
