@@ -5712,6 +5712,35 @@ class FetchCompanyCredentialsAPI(APIView):
         return Response(data=response)
 
 
+class CheckSectionPermissionsAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("CheckSectionPermissionsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            dealshub = False
+            if OmnyCommUser.objects.get(username=request.user.username).website_group!=None:
+                dealshub = True
+
+            response["dealshub"] = dealshub
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CheckSectionPermissionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5866,3 +5895,5 @@ TransferBulkChannel = TransferBulkChannelAPI.as_view()
 FetchAllCategories = FetchAllCategoriesAPI.as_view()
 
 FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()
+
+CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
