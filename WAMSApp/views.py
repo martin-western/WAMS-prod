@@ -1215,10 +1215,13 @@ class FetchDealsHubProductsAPI(APIView):
 
             dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
 
-            search_list = data.get("search_list", [])
+            search_list = data.get("search_list", "[]")
 
 
-            filter_parameters = data.get("filter_parameters", {})
+            filter_parameters = data.get("filter_parameters", "{}")
+
+            filter_parameters = json.loads(filter_parameters)
+            search_list = json.loads(search_list)
 
             if "has_image" in filter_parameters:
                 if filter_parameters["has_image"] == True:
