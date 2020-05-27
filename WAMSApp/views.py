@@ -28,6 +28,7 @@ from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
 from WAMSApp.views_dh import *
+from WAMSApp.oc_reports import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -46,6 +47,7 @@ import datetime
 import boto3
 import urllib.request, urllib.error, urllib.parse
 import pandas as pd
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -5793,6 +5795,105 @@ class CheckSectionPermissionsAPI(APIView):
         return Response(data=response)
 
 
+class CreateOCReportAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("CreateOCReportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if OCReport.objects.filter(is_processed=False).count()>3:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            report_type = data["report_type"]
+            note = data["note"]
+
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename)
+
+            if report_type=="Mega Bulk":
+                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
+            elif report_type=="Flyer":
+                p1 = threading.Thread(target=create_flyer_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
+            elif report_type=="Image":
+                p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
+            elif report_type=="WIGme":
+                p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
+
+            response["approved"] = True
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOCReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchOCReportListAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchOCReportListAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            oc_report_objs = OCReport.objects.all().order_by('-pk')
+
+            page = int(data.get("page",1))
+            paginator = Paginator(oc_report_objs, 20)
+            oc_report_objs = paginator.page(page)
+
+            oc_report_list = []
+            for oc_report_obj in oc_report_objs:
+                try:
+                    temp_dict = {
+                        "name": oc_report_obj.name,
+                        "created_date": oc_report_obj.created_date.strftime("%d %m, %Y %H:%M"),
+                        "created_by": str(oc_report_obj.created_by),
+                        "is_processed": oc_report_obj.is_processed,
+                        "completion_date": oc_report_obj.completion_date.strftime("%d %m, %Y %H:%M"),
+                        "note": oc_report_obj.note,
+                        "filename": "https://"+SERVER_IP+"/"+oc_report_obj.filename,
+                        "uuid": oc_report_obj.uuid
+                    }
+                    oc_report_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchOCReportListAPI: %s at %s", e, str(exc_tb.tb_lineno))        
+
+            response["oc_report_list"] = oc_report_list
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOCReportListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5949,3 +6050,7 @@ FetchAllCategories = FetchAllCategoriesAPI.as_view()
 FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()
 
 CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
+
+CreateOCReport = CreateOCReportAPI.as_view()
+
+FetchOCReportList = FetchOCReportListAPI.as_view()
