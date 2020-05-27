@@ -1213,9 +1213,7 @@ class FetchDealsHubProductsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_objs_list = []
-
-            (base_product_objs_list, product_objs_list) = custom_permission_filter_base_products_and_products(request.user)
+            dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
 
             search_list = data.get("search_list", [])
 
@@ -1224,43 +1222,43 @@ class FetchDealsHubProductsAPI(APIView):
 
             if "has_image" in filter_parameters:
                 if filter_parameters["has_image"] == True:
-                    product_objs_list = product_objs_list.exclude(no_of_images_for_filter=0)
+                    dealshub_product_objs = dealshub_product_objs.exclude(product__no_of_images_for_filter=0)
                 elif filter_parameters["has_image"] == False:
-                    product_objs_list = product_objs_list.filter(no_of_images_for_filter=0)
+                    dealshub_product_objs = dealshub_product_objs.filter(product__no_of_images_for_filter=0)
 
             if "brand" in filter_parameters and filter_parameters["brand"]!="":
-                product_objs_list = product_objs_list.filter(base_product__brand__name=filter_parameters["brand"])
+                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name=filter_parameters["brand"])
 
 
             if "stock" in filter_parameters:
                 if filter_parameters["stock"] == True:
-                    product_objs_list = product_objs_list.exclude(dealshubproduct__stock=0)
+                    dealshub_product_objs = dealshub_product_objs.exclude(stock=0)
                 elif filter_parameters["stock"] == False:
-                    product_objs_list = product_objs_list.filter(dealshubproduct__stock=0)
+                    dealshub_product_objs = dealshub_product_objs.filter(stock=0)
 
 
             if "active_status" in filter_parameters:
                 if filter_parameters["active_status"] == True:
-                    product_objs_list = product_objs_list.filter(dealshubproduct__is_published=True)
+                    dealshub_product_objs = dealshub_product_objs.filter(is_published=True)
                 elif filter_parameters["active_status"] == False:
-                    product_objs_list = product_objs_list.filter(dealshubproduct__is_published=False)
+                    dealshub_product_objs = dealshub_product_objs.filter(is_published=False)
 
             if "price_sort" in filter_parameters:
                 if filter_parameters["price_sort"] == "low":
-                    product_objs_list = product_objs_list.order_by('dealshubproduct__now_price')
+                    dealshub_product_objs = dealshub_product_objs.order_by('now_price')
                 elif filter_parameters["price_sort"] == "high":
-                    product_objs_list = product_objs_list.order_by('-dealshubproduct__now_price')
+                    dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
 
 
             if len(search_list)>0:
-                temp_product_objs_list = Product.objects.none()
+                temp_product_objs_list = DealsHubProduct.objects.none()
                 for search_key in search_list:
-                    temp_product_objs_list |= product_objs_list.filter(Q(base_product__base_product_name__icontains=search_key) | Q(product_name__icontains=search_key) | Q(product_name_sap__icontains=search_key) | Q(product_id__icontains=search_key) | Q(base_product__seller_sku__icontains=search_key))
-                product_objs_list = temp_product_objs_list.distinct()
+                    temp_product_objs_list |= dealshub_product_objs.filter(Q(product__base_product__base_product_name__icontains=search_key) | Q(product__product_name__icontains=search_key) | Q(product__product_name_sap__icontains=search_key) | Q(product__product_id__icontains=search_key) | Q(product__base_product__seller_sku__icontains=search_key))
+                dealshub_product_objs = temp_product_objs_list.distinct()
                 
             page = int(data.get('page', 1))
-            paginator = Paginator(product_objs_list, 20)
-            product_objs_list_subset = paginator.page(page)
+            paginator = Paginator(dealshub_product_objs, 20)
+            dealshub_product_objs_subset = paginator.page(page)
             products = []
 
 
@@ -1276,23 +1274,23 @@ class FetchDealsHubProductsAPI(APIView):
                         search_list.append(search_key)
                     except Exception as e:
                         pass
-                product_objs_list_subset = product_objs_list.filter(Q(product_id=search_key) | Q(base_product__seller_sku=search_key))
+                dealshub_product_objs_subset = dealshub_product_objs.filter(Q(product_id=search_key) | Q(base_product__seller_sku=search_key))
 
-            for product_obj in product_objs_list_subset:
+            for dealshub_product_obj in dealshub_product_objs_subset:
                 try:
-                    dh_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                    product_obj = dealshub_product_obj.product
                     temp_dict ={}
                     temp_dict["product_pk"] = product_obj.pk
                     temp_dict["product_uuid"] = product_obj.uuid
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = product_obj.product_name
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
-                    temp_dict["channel_status"] = dh_product_obj.is_published
+                    temp_dict["channel_status"] = dealshub_product_obj.is_published
                     temp_dict["category"] = "" if product_obj.base_product.category==None else str(product_obj.base_product.category)
                     temp_dict["sub_category"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
-                    temp_dict["was_price"] = str(dh_product_obj.was_price)
-                    temp_dict["now_price"] = str(dh_product_obj.now_price)
-                    temp_dict["stock"] = str(dh_product_obj.stock)
+                    temp_dict["was_price"] = str(dealshub_product_obj.was_price)
+                    temp_dict["now_price"] = str(dealshub_product_obj.now_price)
+                    temp_dict["stock"] = str(dealshub_product_obj.stock)
                     temp_dict["min_price"] = str(product_obj.min_price)
                     temp_dict["max_price"] = str(product_obj.max_price)
 
