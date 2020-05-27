@@ -1333,7 +1333,7 @@ class FetchDealsHubProductsAPI(APIView):
             response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
 
             response["is_available"] = is_available
-            response["total_products"] = len(product_objs_list)
+            response["total_products"] = len(dealshub_product_objs)
 
             response['products'] = products
             response['status'] = 200
