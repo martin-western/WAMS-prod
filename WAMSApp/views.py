@@ -1277,7 +1277,7 @@ class FetchDealsHubProductsAPI(APIView):
                         search_list.append(search_key)
                     except Exception as e:
                         pass
-                dealshub_product_objs_subset = dealshub_product_objs.filter(Q(product_id=search_key) | Q(base_product__seller_sku=search_key))
+                dealshub_product_objs_subset = dealshub_product_objs.filter(Q(product__product_id__in=search_list) | Q(product__base_product__seller_sku__in=search_list))
 
             for dealshub_product_obj in dealshub_product_objs_subset:
                 try:
