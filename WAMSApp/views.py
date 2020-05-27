@@ -4849,7 +4849,7 @@ class CreateRequestHelpAPI(APIView):
             message = data["message"]
             page = data["page"]
 
-            RequestHelp.objects.create(message=message, page=page)
+            RequestHelp.objects.create(message=message, page=page, user=request.user)
 
             response['status'] = 200
         

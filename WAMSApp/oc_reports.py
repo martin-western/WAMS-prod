@@ -3,8 +3,26 @@ import xlsxwriter
 import json
 import logging
 from django.utils import timezone
+from django.core.mail import EmailMessage
 
 logger = logging.getLogger(__name__)
+
+
+def notify_user_for_report(oc_report_obj):
+
+    if oc_report_obj.created_by.email=="":
+        return
+    
+    email = EmailMessage(
+        subject='Omnycomm Report Generated',
+        body='This is to inform you that your requested report has been generated on Omnycomm',
+        from_email='nisarg@omnycomm.com',
+        to=[oc_report_obj.created_by.email]
+    )
+
+    email.attach_file(oc_report_obj.filename)
+    email.send(fail_silently=True)
+
 
 def create_mega_bulk_oc_report(filename, uuid):
 
@@ -487,6 +505,8 @@ def create_mega_bulk_oc_report(filename, uuid):
     oc_report_obj.completion_date = timezone.now()
     oc_report_obj.save()
 
+    notify_user_for_report(oc_report_obj)
+
 
 def create_flyer_report(filename, uuid):
 
@@ -540,6 +560,8 @@ def create_flyer_report(filename, uuid):
     oc_report_obj.is_processed = True
     oc_report_obj.completion_date = timezone.now()
     oc_report_obj.save()
+
+    notify_user_for_report(oc_report_obj)
 
 
 def create_image_report(filename, uuid):
@@ -615,6 +637,8 @@ def create_image_report(filename, uuid):
     oc_report_obj.completion_date = timezone.now()
     oc_report_obj.save()
 
+    notify_user_for_report(oc_report_obj)
+
 
 def create_wigme_report(filename, uuid):
 
@@ -666,3 +690,5 @@ def create_wigme_report(filename, uuid):
     oc_report_obj.is_processed = True
     oc_report_obj.completion_date = timezone.now()
     oc_report_obj.save()
+
+    notify_user_for_report(oc_report_obj)
