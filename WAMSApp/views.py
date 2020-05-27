@@ -1219,16 +1219,64 @@ class FetchDealsHubProductsAPI(APIView):
 
             search_list = data.get("search_list", [])
 
+
+            filter_parameters = data.get("filter_parameters", {})
+
+            if "has_image" in filter_parameters:
+                if filter_parameters["has_image"] == True:
+                    product_objs_list = product_objs_list.exclude(no_of_images_for_filter=0)
+                elif filter_parameters["has_image"] == False:
+                    product_objs_list = product_objs_list.filter(no_of_images_for_filter=0)
+
+            if "brand" in filter_parameters and filter_parameters["brand"]!="":
+                product_objs_list = product_objs_list.filter(base_product__brand__name=filter_parameters["brand"])
+
+
+            if "stock" in filter_parameters:
+                if filter_parameters["stock"] == True:
+                    product_objs_list = product_objs_list.exclude(dealshubproduct__stock=0)
+                elif filter_parameters["stock"] == False:
+                    product_objs_list = product_objs_list.filter(dealshubproduct__stock=0)
+
+
+            if "active_status" in filter_parameters:
+                if filter_parameters["active_status"] == True:
+                    product_objs_list = product_objs_list.filter(dealshubproduct__is_published=True)
+                elif filter_parameters["active_status"] == False:
+                    product_objs_list = product_objs_list.filter(dealshubproduct__is_published=False)
+
+            if "price_sort" in filter_parameters:
+                if filter_parameters["price_sort"] == "low":
+                    product_objs_list = product_objs_list.order_by('dealshubproduct__now_price')
+                elif filter_parameters["price_sort"] == "high":
+                    product_objs_list = product_objs_list.order_by('-dealshubproduct__now_price')
+
+
             if len(search_list)>0:
                 temp_product_objs_list = Product.objects.none()
                 for search_key in search_list:
                     temp_product_objs_list |= product_objs_list.filter(Q(base_product__base_product_name__icontains=search_key) | Q(product_name__icontains=search_key) | Q(product_name_sap__icontains=search_key) | Q(product_id__icontains=search_key) | Q(base_product__seller_sku__icontains=search_key))
                 product_objs_list = temp_product_objs_list.distinct()
                 
-            page = int(data['page'])
+            page = int(data.get('page', 1))
             paginator = Paginator(product_objs_list, 20)
             product_objs_list_subset = paginator.page(page)
             products = []
+
+
+            if "import_file" in data:
+                path = default_storage.save('tmp/search-dh-file.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+                search_list = []
+                for i in range(rows):
+                    try:
+                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_list.append(search_key)
+                    except Exception as e:
+                        pass
+                product_objs_list_subset = product_objs_list.filter(Q(product_id=search_key) | Q(base_product__seller_sku=search_key))
 
             for product_obj in product_objs_list_subset:
                 try:
@@ -1278,6 +1326,9 @@ class FetchDealsHubProductsAPI(APIView):
             
             if paginator.num_pages == page:
                 is_available = False
+
+            response["active_products"] = DealsHubProduct.objects.filter(is_published=True).count()
+            response["inactive_products"] = DealsHubProduct.objects.filter(is_published=False).count()
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
