@@ -5871,13 +5871,13 @@ class FetchOCReportListAPI(APIView):
                 try:
                     completion_date = ""
                     if oc_report_obj.completion_date!=None:
-                        completion_date = oc_report_obj.completion_date.strftime("%d %m, %Y %H:%M"),
+                        completion_date = oc_report_obj.completion_date.strftime("%d %m, %Y %H:%M")
                     temp_dict = {
                         "name": oc_report_obj.name,
                         "created_date": oc_report_obj.created_date.strftime("%d %m, %Y %H:%M"),
                         "created_by": str(oc_report_obj.created_by),
                         "is_processed": oc_report_obj.is_processed,
-                        "completion_date": completion_date
+                        "completion_date": completion_date,
                         "note": oc_report_obj.note,
                         "filename": "https://"+SERVER_IP+"/"+oc_report_obj.filename,
                         "uuid": oc_report_obj.uuid
