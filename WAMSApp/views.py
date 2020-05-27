@@ -5790,6 +5790,46 @@ class CheckSectionPermissionsAPI(APIView):
         return Response(data=response)
 
 
+class CreateOCReportAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("CreateOCReportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            report_type = data["report_type"]
+            note = data["note"]
+
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename)
+
+            if report_type=="Mega Bulk":
+                create_mega_bulk_oc_report(filename, oc_report_obj.uuid)
+            elif report_type=="Flyer":
+                create_flyer_report(filename, oc_report_obj.uuid)
+            elif report_type=="Image":
+                create_image_report(filename, oc_report_obj.uuid)
+            elif report_type=="WIGme":
+                create_wigme_report(filename, oc_report_obj.uuid)
+
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOCReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5946,3 +5986,7 @@ FetchAllCategories = FetchAllCategoriesAPI.as_view()
 FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()
 
 CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
+
+CreateOCReport = CreateOCReportAPI.as_view()
+
+FetchOCReportList = FetchOCReportListAPI.as_view()
