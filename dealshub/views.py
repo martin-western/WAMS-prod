@@ -71,64 +71,6 @@ class FetchProductDetailsAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,) 
     permission_classes = [AllowAny]
 
-    def fetch_price(self,product_id):
-        try:
-            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-            company_code = "1000" # GEEPAS
-            body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-            <soapenv:Header />
-            <soapenv:Body>
-            <urn:ZAPP_STOCK_PRICE>
-             <IM_MATNR>
-              <item>
-               <MATNR>""" + product_id + """</MATNR>
-              </item>
-             </IM_MATNR>
-             <IM_VKORG>
-              <item>
-               <VKORG>""" + company_code + """</VKORG>
-              </item>
-             </IM_VKORG>
-             <T_DATA>
-              <item>
-               <MATNR></MATNR>
-               <MAKTX></MAKTX>
-               <LGORT></LGORT>
-               <CHARG></CHARG>
-               <SPART></SPART>
-               <MEINS></MEINS>
-               <ATP_QTY></ATP_QTY>
-               <TOT_QTY></TOT_QTY>
-               <CURRENCY></CURRENCY>
-               <IC_EA></IC_EA>
-               <OD_EA></OD_EA>
-               <EX_EA></EX_EA>
-               <RET_EA></RET_EA>
-               <WERKS></WERKS>
-              </item>
-             </T_DATA>
-            </urn:ZAPP_STOCK_PRICE>
-            </soapenv:Body>
-            </soapenv:Envelope>"""
-            response2 = requests.post(url, auth=credentials, data=body, headers=headers)
-            content = response2.content
-            content = xmltodict.parse(content)
-            content = json.loads(json.dumps(content))
-            items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-            price = 0
-            temp_price = 0
-            for item in items:
-                temp_price = item["EX_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    price = max(temp_price, price)
-            return float(price)
-        except Exception as e:
-            return 0
-
-
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -142,7 +84,7 @@ class FetchProductDetailsAPI(APIView):
 
             dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=data["uuid"])
             product_obj = dealshub_product_obj.product
-            base_product_obj = dealshub_product_obj.base_product
+            base_product_obj = product_obj.base_product
 
             response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
             response["subCategory"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
@@ -2561,6 +2503,32 @@ class UpdateSuperCategoryImageAPI(APIView):
         return Response(data=response)
 
 
+class RefreshStockAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("RefreshStockAPI: %s", str(data))
+
+            uuid_list = data["uuidList"]
+            
+            for uuid in uuid_list:
+                pass
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RefreshStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
@@ -2668,3 +2636,5 @@ RemoveCategoryFromWebsiteGroup = RemoveCategoryFromWebsiteGroupAPI.as_view()
 UpdateCategoryImage = UpdateCategoryImageAPI.as_view()
 
 UpdateSuperCategoryImage = UpdateSuperCategoryImageAPI.as_view()
+
+RefreshStock = RefreshStockAPI.as_view()
