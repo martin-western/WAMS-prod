@@ -2520,7 +2520,34 @@ class RefreshStockAPI(APIView):
             uuid_list = data["uuidList"]
             
             for uuid in uuid_list:
-                pass
+                dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid)
+                brand = str(dealshub_product_obj.product.base_product.brand).lower()
+                seller_sku = str(dealshub_product_obj.product.base_product.seller_sku)
+                stock = 0
+                if brand=="geepas":
+                    stock1 = fetch_tg01_stock(seller_sku, "1070")
+                    stock2 = fetch_tg01_stock(seller_sku, "1000")
+                    stock = max(stock1, stock2)
+                elif brand=="baby plus":
+                    stock = fetch_tg01_stock(seller_sku, "5550")
+                elif brand=="royalford":
+                    stock = fetch_tg01_stock(seller_sku, "3000")
+                elif brand=="krypton":
+                    stock = fetch_tg01_stock(seller_sku, "2100")  # Verify this
+                elif brand=="olsenmark":
+                    stock = fetch_tg01_stock(seller_sku, "1100")
+                elif brand=="ken jardene":
+                    stock = fetch_tg01_stock(seller_sku, "5550")
+                elif brand=="young life":
+                    stock = fetch_tg01_stock(seller_sku, "5000")
+
+                if stock > 10:
+                    dealshub_product_obj.stock = 5
+                else:
+                    dealshub_product_obj.stock = 0
+
+                dealshub_product_obj.save()
+
 
             response['status'] = 200
 
