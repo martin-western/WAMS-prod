@@ -138,7 +138,7 @@ class FetchProductDetailsAPI(APIView):
                     pass
 
             sub_images_list = ImageBucket.objects.none()
-            sub_images_obj = SubImages.objects.filter(product=product_obj)
+            sub_images_objs = SubImages.objects.filter(product=product_obj)
             for sub_images_obj in sub_images_objs:
                 sub_images_list |= sub_images_obj.sub_images.all()
             sub_images_list = sub_images_list.distinct()
