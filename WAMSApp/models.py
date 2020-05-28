@@ -589,6 +589,8 @@ class Product(models.Model):
     min_price = models.FloatField(default=0)
     max_price = models.FloatField(default=0)
 
+    warranty = models.CharField(max_length=100, default="One Year")
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"

@@ -140,172 +140,82 @@ class FetchProductDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            temp_product_obj = DealsHubProduct.objects.get(product__uuid=data["uuid"])
-            product_obj = temp_product_obj.product
-            base_product_obj = product_obj.base_product
+            dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=data["uuid"])
+            product_obj = dealshub_product_obj.product
+            base_product_obj = dealshub_product_obj.base_product
 
-            response["category"] = "" if temp_product_obj.product.base_product.category==None else str(temp_product_obj.product.base_product.category)
-            response["subCategory"] = "" if temp_product_obj.product.base_product.sub_category==None else str(temp_product_obj.product.base_product.sub_category)
-            response["id"] = temp_product_obj.product.uuid
+            response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
+            response["subCategory"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
-
-            # if(product_obj.base_product.brand.name=="Geepas"):
-            #     response["price"] = self.fetch_price(product_obj.base_product.seller_sku)
-            # else:
-            #     dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
-            #     response["price"] = dealshub_product_obj.now_price
-            #     response["wasPrice"] = dealshub_product_obj.was_price
-
-            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
             response["price"] = dealshub_product_obj.now_price
             response["wasPrice"] = dealshub_product_obj.was_price
+            response["currency"] = "AED"
+            response["warranty"] = product_obj.warranty
 
             response["isStockAvailable"] = False
             if dealshub_product_obj.stock>0:
                 response["isStockAvailable"] = True
-            
-            response["currency"] = "AED"
-            response["minLimit"] = "1"
-            response["maxLimit"] = "5"
-            response["productImagesUrl"] = []
 
-            try:
-                #product_description = json.loads(product_obj.channel_product.amazon_uk_product_json)["product_description"]
-                product_description = product_obj.product_description
-            except Exception as e:
-                pass
-
+            response["productDispDetails"] = product_obj.product_description 
             try:
                 response["specifications"] = json.loads(product_obj.dynamic_form_attributes)
             except Exception as e:
                 response["specifications"] = {}
 
             try:
-                response["noonHttpLink"] = json.loads(product_obj.channel_product.noon_product_json)["http_link"]
-                response["amazonUKHttpLink"] = json.loads(product_obj.channel_product.amazon_uk_product_json)["http_link"]
-                response["amazonUAEHttpLink"] = json.loads(product_obj.channel_product.amazon_uae_product_json)["http_link"]
-                response["ebayHttpLink"] = json.loads(product_obj.channel_product.ebay_product_json)["http_link"]
+                response["features"] = json.loads(product_obj.pfl_product_features)
             except Exception as e:
-                response["noonHttpLink"] = ""
-                response["amazonUKHttpLink"] = ""
-                response["amazonUAEHttpLink"] = ""
-                response["ebayHttpLink"] = ""
-            
-            response["productDispDetails"] = product_description
-            
-            response["productImagesUrl"] = []
-            images = {}
+                response["features"] = []
+
+
+            image_list = []
+            lifestyle_image_objs = product_obj.lifestyle_images.all()
+            for lifestyle_image_obj in lifestyle_image_objs:
+                try:
+                    temp_image = {}
+                    temp_image["original"] = lifestyle_image_obj.mid_image.url
+                    temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
+                    image_list.append(temp_image)
+                except Exception as e:
+                    pass
 
             main_images_list = ImageBucket.objects.none()
             main_images_objs = MainImages.objects.filter(product=product_obj)
             for main_images_obj in main_images_objs:
                 main_images_list |= main_images_obj.main_images.all()
             main_images_list = main_images_list.distinct()
-            images["main_images"] = create_response_images_main(main_images_list)
+            main_images = create_response_images_main(main_images_list)
+            for main_image in main_images:
+                try:
+                    temp_image = {}
+                    temp_image["original"] = main_image["midimage_url"]
+                    temp_image["thumbnail"] = main_image["thumbnail_url"]
+                    image_list.append(temp_image)
+                except Exception as e:
+                    pass
+
+            sub_images_list = ImageBucket.objects.none()
+            sub_images_obj = SubImages.objects.filter(product=product_obj)
+            for sub_images_obj in sub_images_objs:
+                sub_images_list |= sub_images_obj.sub_images.all()
+            sub_images_list = sub_images_list.distinct()
+            sub_images = create_response_images_sub(sub_images_list)
+            for sub_image in sub_images:
+                try:
+                    temp_image = {}
+                    temp_image["original"] = sub_image["midimage_url"]
+                    temp_image["thumbnail"] = sub_image["thumbnail_url"]
+                    image_list.append(temp_image)
+                except Exception as e:
+                    pass
+
             try:
-                response["heroImageUrl"] = main_images_list.all()[0].image.mid_image.url
+                response["heroImageUrl"] = image_list[0]["original"]
             except Exception as e:
                 response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
-            response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
-            response["seller_sku"] = base_product_obj.seller_sku
-            response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
-            response["manufacturer"] = base_product_obj.manufacturer
-            response["dimensions"] = json.loads(base_product_obj.dimensions)
-
-            response["product_name"] = product_obj.product_name
-            response["product_name_sap"] = product_obj.product_name_sap
-            response["product_id"] = product_obj.product_id
-            response["barcode_string"] = product_obj.barcode_string
-            response["standard_price"] = "" if product_obj.standard_price == None else product_obj.standard_price
-            response["quantity"] = "" if product_obj.quantity == None else product_obj.quantity
-            response["factory_notes"] = product_obj.factory_notes
-            response["verified"] = product_obj.verified
-            response["color_map"] = product_obj.color_map
-            response["color"] = product_obj.color
-            try:
-                response["features"] = json.loads(product_obj.pfl_product_features)
-            except Exception as e:
-                response["features"] = []
-
-            if product_obj.product_id_type != None:
-                response["product_id_type"] = product_obj.product_id_type.name
-            else:
-                response["product_id_type"] = ""
-
-            if product_obj.material_type != None:
-                response["material_type"] = product_obj.material_type.name
-            else:
-                response["material_type"] = ""
-
-            images = {}
-
-            main_images_list = ImageBucket.objects.none()
-            main_images_obj = MainImages.objects.get(
-                product=product_obj, is_sourced=True)
-            try:
-                main_images_obj = MainImages.objects.get(
-                    product=product_obj, is_sourced=True)
-                
-                main_images_list |= main_images_obj.main_images.all()
-            except Exception as e:
-                pass
-            main_images_list = main_images_list.distinct()
-            images["main_images"] = create_response_images_main(
-                main_images_list)
-
-            sub_images_list = ImageBucket.objects.none()
-            try:
-                sub_images_obj = SubImages.objects.get(
-                    product=product_obj, is_sourced=True)
-                sub_images_list |= sub_images_obj.sub_images.all()
-            except Exception as e:
-                pass
-            sub_images_list = sub_images_list.distinct()
-            images["sub_images"] = create_response_images_sub(sub_images_list)
-            
-            response["productImagesUrl"].append({"original":response["heroImageUrl"], "thumbnail":response["heroImageUrl"]})
-            for temp_image in images["sub_images"]:
-                temp_images = {}
-                temp_images["original"] = temp_image["main_url"]
-                temp_images["thumbnail"] = temp_image["thumbnail_url"]
-                response["productImagesUrl"].append(temp_images)
-            
-            
-            response["productProperties"] = json.loads(
-                temp_product_obj.properties)
-
-            repr_image_url = Config.objects.all(
-            )[0].product_404_image.image.url
-            repr_high_def_url = repr_image_url
-
-            main_images_obj = None
-            try:
-                main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
-            except Exception as e:
-                pass
-
-            if main_images_obj != None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                try:
-                    repr_image_url = main_images_obj.main_images.filter(
-                        is_main_image=True)[0].image.mid_image.url
-                except Exception as e:
-                    repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[
-                        0].image.image.url
-
-                repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[
-                    0].image.image.url
-
-            response["repr_image_url"] = repr_image_url
-            response["repr_high_def_url"] = repr_high_def_url
-
-            try:
-                response["barcode_image_url"] = product_obj.barcode.image.url
-            except Exception as e:
-                response["barcode_image_url"] = ""
-
-            response["images"] = images
+            response["productImagesUrl"] = image_list
 
             response['status'] = 200
 
