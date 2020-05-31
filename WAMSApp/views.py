@@ -5893,7 +5893,7 @@ class FetchOCReportListAPI(APIView):
                 is_available = False
 
             response["is_available"] = is_available
-            response["total_reports"] = len(total_reports)
+            response["total_reports"] = total_report
 
             response["oc_report_list"] = oc_report_list
             response['status'] = 200
