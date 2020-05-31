@@ -5864,6 +5864,7 @@ class FetchOCReportListAPI(APIView):
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
+            total_reports = len(oc_report_objs)
             oc_report_objs = paginator.page(page)
 
             oc_report_list = []
@@ -5886,6 +5887,13 @@ class FetchOCReportListAPI(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchOCReportListAPI: %s at %s", e, str(exc_tb.tb_lineno))        
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_reports"] = len(total_reports)
 
             response["oc_report_list"] = oc_report_list
             response['status'] = 200
