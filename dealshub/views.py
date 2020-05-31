@@ -2517,7 +2517,7 @@ class RefreshStockAPI(APIView):
             data = request.data
             logger.info("RefreshStockAPI: %s", str(data))
 
-            uuid_list = data["uuidList"]
+            uuid_list = json.loads(data["uuidList"])
             
             for uuid in uuid_list:
                 dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid)
