@@ -2173,7 +2173,7 @@ def generate_regular_order_format(unit_order_list):
 
 
 
-def fetch_tg01_stock(seller_sku, company_code):
+def fetch_refresh_stock(seller_sku, company_code, location_code):
 
     try:
         url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
@@ -2224,12 +2224,12 @@ def fetch_tg01_stock(seller_sku, company_code):
         items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
         
         if isinstance(items, dict):
-            if items["LGORT"]=="TG01":
+            if items["LGORT"]==location_code:
                 return float(items["ATP_QTY"])
             return 0
         else:
             for item in items:
-                if item["LGORT"]=="TG01":
+                if item["LGORT"]==location_code:
                     return float(item["ATP_QTY"])
             return 0
 

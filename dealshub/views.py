@@ -2524,22 +2524,24 @@ class RefreshStockAPI(APIView):
                 brand = str(dealshub_product_obj.product.base_product.brand).lower()
                 seller_sku = str(dealshub_product_obj.product.base_product.seller_sku)
                 stock = 0
+                if "wigme" in seller_sku.lower():
+                    continue
                 if brand=="geepas":
-                    stock1 = fetch_tg01_stock(seller_sku, "1070")
-                    stock2 = fetch_tg01_stock(seller_sku, "1000")
+                    stock1 = fetch_refresh_stock(seller_sku, "1070", "TG01")
+                    stock2 = fetch_refresh_stock(seller_sku, "1000", "AFS1")
                     stock = max(stock1, stock2)
                 elif brand=="baby plus":
-                    stock = fetch_tg01_stock(seller_sku, "5550")
+                    stock = fetch_refresh_stock(seller_sku, "5550", "AFS1")
                 elif brand=="royalford":
-                    stock = fetch_tg01_stock(seller_sku, "3000")
+                    stock = fetch_refresh_stock(seller_sku, "3000", "AFS1")
                 elif brand=="krypton":
-                    stock = fetch_tg01_stock(seller_sku, "2100")  # Verify this
+                    stock = fetch_refresh_stock(seller_sku, "2100", "TG01")
                 elif brand=="olsenmark":
-                    stock = fetch_tg01_stock(seller_sku, "1100")
+                    stock = fetch_refresh_stock(seller_sku, "1100", "AFS1")
                 elif brand=="ken jardene":
-                    stock = fetch_tg01_stock(seller_sku, "5550")
+                    stock = fetch_refresh_stock(seller_sku, "5550", "AFS1") # 
                 elif brand=="young life":
-                    stock = fetch_tg01_stock(seller_sku, "5000")
+                    stock = fetch_refresh_stock(seller_sku, "5000", "AFS1")
 
                 if stock > 10:
                     dealshub_product_obj.stock = 5
@@ -2547,7 +2549,6 @@ class RefreshStockAPI(APIView):
                     dealshub_product_obj.stock = 0
 
                 dealshub_product_obj.save()
-
 
             response['status'] = 200
 
