@@ -1,4 +1,5 @@
 from WAMSApp.models import *
+from dealshub.models import *
 import xlsxwriter
 import json
 import logging
@@ -24,9 +25,12 @@ def notify_user_for_report(oc_report_obj):
     email.send(fail_silently=True)
 
 
-def create_mega_bulk_oc_report(filename, uuid):
+def create_mega_bulk_oc_report(filename, uuid, brand_list):
 
     product_objs = Product.objects.all()
+
+    if len(brand_list)!=0:
+        product_objs = product_objs.filter(base_product__brand__name__in=brand_list)
 
     workbook = xlsxwriter.Workbook('./'+filename)
 
@@ -508,7 +512,7 @@ def create_mega_bulk_oc_report(filename, uuid):
     notify_user_for_report(oc_report_obj)
 
 
-def create_flyer_report(filename, uuid):
+def create_flyer_report(filename, uuid, brand_list):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
@@ -528,6 +532,10 @@ def create_flyer_report(filename, uuid):
         colnum += 1
 
     flyer_objs = Flyer.objects.all()
+
+    if len(brand_list)!=0:
+        flyer_objs = flyer_objs.filter(brand__name__in=brand_list)
+
     for flyer_obj in flyer_objs:
         try:
             cnt += 1
@@ -564,7 +572,7 @@ def create_flyer_report(filename, uuid):
     notify_user_for_report(oc_report_obj)
 
 
-def create_image_report(filename, uuid):
+def create_image_report(filename, uuid, brand_list):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
@@ -593,6 +601,9 @@ def create_image_report(filename, uuid):
         colnum += 1
 
     product_objs = Product.objects.all()
+
+    if len(brand_list)!=0:
+        product_objs = product_objs.filter(base_product__brand__name__in=brand_list)
 
     for product_obj in product_objs:
         try:
@@ -640,7 +651,7 @@ def create_image_report(filename, uuid):
     notify_user_for_report(oc_report_obj)
 
 
-def create_wigme_report(filename, uuid):
+def create_wigme_report(filename, uuid, brand_list):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
@@ -651,7 +662,8 @@ def create_wigme_report(filename, uuid):
            "Product Name",
            "Active",
            "Was Price",
-           "Now Price"]
+           "Now Price",
+           "Stock"]
 
     cnt = 0
         
@@ -662,11 +674,14 @@ def create_wigme_report(filename, uuid):
 
     dh_product_objs = DealsHubProduct.objects.all()
 
+    if len(brand_list)!=0:
+        dh_product_objs = dh_product_objs.filter(product__base_product__brand__name__in=brand_list)
+
     for dh_product_obj in dh_product_objs:
         try:
             product_obj = dh_product_obj.product
             cnt += 1
-            common_row = ["" for i in range(15)]
+            common_row = ["" for i in range(8)]
             common_row[0] = str(cnt)
             common_row[1] = str(product_obj.product_id)
             common_row[2] = str(product_obj.base_product.seller_sku)
@@ -674,6 +689,7 @@ def create_wigme_report(filename, uuid):
             common_row[4] = str(dh_product_obj.is_published)
             common_row[5] = str(dh_product_obj.was_price)
             common_row[6] = str(dh_product_obj.now_price)
+            common_row[7] = str(dh_product_obj.stock)
             
             colnum = 0
             for k in common_row:

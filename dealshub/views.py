@@ -2540,7 +2540,7 @@ class RefreshStockAPI(APIView):
                     stock = fetch_refresh_stock(seller_sku, "1100", "AFS1")
                 elif brand=="ken jardene":
                     stock = fetch_refresh_stock(seller_sku, "5550", "AFS1") # 
-                elif brand=="young life":
+                elif brand=="younglife":
                     stock = fetch_refresh_stock(seller_sku, "5000", "AFS1")
 
                 if stock > 10:

@@ -1231,8 +1231,8 @@ class FetchDealsHubProductsAPI(APIView):
                 elif filter_parameters["has_image"] == False:
                     dealshub_product_objs = dealshub_product_objs.filter(product__no_of_images_for_filter=0)
 
-            if "brand" in filter_parameters and filter_parameters["brand"]!="":
-                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name=filter_parameters["brand"])
+            if "brand_name" in filter_parameters and filter_parameters["brand_name"]!="":
+                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name=filter_parameters["brand_name"])
 
 
             if "stock" in filter_parameters:
@@ -5810,29 +5810,30 @@ class CreateOCReportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if OCReport.objects.filter(is_processed=False).count()>3:
+            if OCReport.objects.filter(is_processed=False).count()>4:
                 response["approved"] = False
                 response['status'] = 200
                 return Response(data=response)
 
             report_type = data["report_type"]
             note = data["note"]
+            brand_list = data.get("brand_list", [])
 
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename)
 
-            if report_type=="Mega Bulk":
-                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,))
+            if report_type.lower()=="mega":
+                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,))
                 p1.start()
-            elif report_type=="Flyer":
-                p1 = threading.Thread(target=create_flyer_report, args=(filename,oc_report_obj.uuid,))
+            elif report_type.lower()=="flyer":
+                p1 = threading.Thread(target=create_flyer_report, args=(filename,oc_report_obj.uuid,brand_list,))
                 p1.start()
-            elif report_type=="Image":
-                p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,))
+            elif report_type.lower()=="image":
+                p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,brand_list,))
                 p1.start()
-            elif report_type=="WIGme":
-                p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,))
+            elif report_type.lower()=="wigme":
+                p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,))
                 p1.start()
 
             response["approved"] = True
