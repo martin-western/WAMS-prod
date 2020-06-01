@@ -131,5 +131,8 @@ urlpatterns = [
 
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
 
+    url(r'^create-oc-report/$',views.CreateOCReport),
+    url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

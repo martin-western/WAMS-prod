@@ -140,7 +140,7 @@ def export_amazon_uk(products):
 
                 try:
                     image_cnt = 10
-                    sub_images_objs = SubImages.objects.filter(product = product, channel__name="Amazon UK", is_sourced=True)
+                    sub_images_objs = SubImages.objects.filter(product = product, channel__name="Amazon UK")
 
                     for sub_images_obj in sub_images_objs:
                         if sub_images_obj.sub_images.filter(is_sub_image=True).count() > 0:
