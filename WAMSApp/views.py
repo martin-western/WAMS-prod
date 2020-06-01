@@ -1938,6 +1938,9 @@ class FetchProductListAPI(APIView):
                     temp_dict["products"].append(temp_dict2)
 
                 products.append(temp_dict)
+
+            price_type = custom_permission_price(request.user, "price_type")
+
             is_available = True
             
             if paginator.num_pages == page:
@@ -1946,6 +1949,7 @@ class FetchProductListAPI(APIView):
             response["is_available"] = is_available
             response["total_products"] = len(search_list_base_product_objs)
             response["products"] = products
+            response["price_type"] = price_type
 
             response['status'] = 200
 
