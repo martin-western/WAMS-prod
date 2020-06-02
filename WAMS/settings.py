@@ -116,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE =  'Asia/Kolkata'
+TIME_ZONE =  'Asia/Dubai'
 
 USE_I18N = True
 
@@ -239,3 +239,17 @@ MWS_PARAMS = {
 
 }
 
+"""
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'nisarg@omnycomm.com'
+EMAIL_HOST_PASSWORD = 'verjtzgeqareribg'
+"""
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'nisarg@omnycomm.com'
+EMAIL_HOST_PASSWORD = 'verjtzgeqareribg'

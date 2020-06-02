@@ -1,2 +1,2 @@
-SERVER_IP = "13.232.143.29:8028"
-DEALSHUB_IP = "13.232.143.29:8030"
+SERVER_IP = "qa.omnycomm.com:8028"
+DEALSHUB_IP = "dealshubqa.omnycomm.com:8030"
