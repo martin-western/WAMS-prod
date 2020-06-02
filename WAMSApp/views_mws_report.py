@@ -91,8 +91,12 @@ class FetchReportListAPI(APIView):
                     if flag == 1:
                         break
 
+            page = int(data['page'])
+            paginator = Paginator(search_list_objs, 9)
+            search_list_report_objs = paginator.page(page)
+
             report_list = []
-            for report_obj in search_list_objs:
+            for report_obj in search_list_report_objs:
                 temp_dict = {}
                 temp_dict["pk"] = report_obj.pk
                 temp_dict["feed_submission_id"] = report_obj.feed_submission_id
@@ -104,6 +108,12 @@ class FetchReportListAPI(APIView):
                 temp_dict["user"] = str(report_obj.user.username)
                 report_list.append(temp_dict)
 
+            is_available = True
+            
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
             response["report_list"] = report_list
             response['status'] = 200
 
