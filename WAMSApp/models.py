@@ -589,6 +589,8 @@ class Product(models.Model):
     min_price = models.FloatField(default=0)
     max_price = models.FloatField(default=0)
 
+    warranty = models.CharField(max_length=100, default="One Year")
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
@@ -1028,3 +1030,30 @@ class PriceTagBucket(models.Model):
 
     def __str__(self):
         return str(self.image.image.url)
+
+
+class OCReport(models.Model):
+
+    name = models.CharField(max_length=200, default="")
+    created_date = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(OmnyCommUser, blank=True)
+    is_processed = models.BooleanField(default=False)
+    completion_date = models.DateTimeField(null=True, blank=True)
+    note = models.TextField(default="")
+    filename = models.CharField(max_length=200, default="")
+    uuid = models.CharField(max_length=200, default="")
+
+    class Meta:
+        verbose_name = "OC Report"
+        verbose_name_plural = "OC Report"
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.uuid = str(uuid.uuid4())
+        
+        super(OCReport, self).save(*args, **kwargs)

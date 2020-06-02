@@ -88,6 +88,8 @@ urlpatterns = [
 
     url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
     url(r'^update-dealshub-product/$',views.UpdateDealshubProduct),
+    url(r'^bulk-update-dealshub-product-price/$',views.BulkUpdateDealshubProductPrice),
+    url(r'^bulk-update-dealshub-product-stock/$',views.BulkUpdateDealshubProductStock),
 
     url(r'^fetch-audit-logs-by-user/$',views.FetchAuditLogsByUser), 
     url(r'^fetch-audit-logs/$',views.FetchAuditLogs), 
@@ -126,6 +128,11 @@ urlpatterns = [
 
     url(r'^download-orders/$',views.DownloadOrders),
     url(r'^upload-orders/$',views.UploadOrders),
+
+    url(r'^check-section-permissions/$',views.CheckSectionPermissions),
+
+    url(r'^create-oc-report/$',views.CreateOCReport),
+    url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

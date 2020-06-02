@@ -1,5 +1,6 @@
 from django.core.files.base import ContentFile
 from WAMSApp.models import *
+from dealshub.models import *
 
 from PIL import Image as IMAGE
 
@@ -54,6 +55,22 @@ def custom_permission_filter_base_products_and_products(user):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("custom_permission_filter_products: %s at %s", e, str(exc_tb.tb_lineno))
         return ([], [])
+
+
+def custom_permission_filter_dealshub_product(user):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        brands = permission_obj.brands.all()
+        dealshub_product_objs = DealsHubProduct.objects.filter(product__base_product__brand__in=brands).order_by('-pk')
+        logger.info("custom_permission_filter_dealshub_product done")
+        return dealshub_product_objs
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_filter_dealshub_product: %s at %s", e, str(exc_tb.tb_lineno))
+        return []    
+
 
 def custom_permission_filter_brands(user):
 

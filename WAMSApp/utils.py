@@ -1,4 +1,5 @@
 from WAMSApp.models import *
+from dealshub.models import *
 import csv
 import urllib
 import os
@@ -2169,3 +2170,70 @@ def generate_regular_order_format(unit_order_list):
             logger.error("generate_regular_order_format: %s at %s", e, str(exc_tb.tb_lineno))
 
     workbook.close()
+
+
+
+def fetch_refresh_stock(seller_sku, company_code, location_code):
+
+    try:
+        url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soapenv:Header />
+                  <soapenv:Body>
+                  <urn:ZAPP_STOCK_PRICE>
+                   <IM_MATNR>
+                    <item>
+                     <MATNR>""" + seller_sku + """</MATNR>
+                    </item>
+                   </IM_MATNR>
+                   <IM_VKORG>
+                    <item>
+                     <VKORG>""" + company_code + """</VKORG>
+                    </item>
+                   </IM_VKORG>
+                   <T_DATA>
+                    <item>
+                     <MATNR></MATNR>
+                     <MAKTX></MAKTX>
+                     <LGORT></LGORT>
+                     <CHARG></CHARG>
+                     <SPART></SPART>
+                     <MEINS></MEINS>
+                     <ATP_QTY></ATP_QTY>
+                     <TOT_QTY></TOT_QTY>
+                     <CURRENCY></CURRENCY>
+                     <IC_EA></IC_EA>
+                     <OD_EA></OD_EA>
+                     <EX_EA></EX_EA>
+                     <RET_EA></RET_EA>
+                     <WERKS></WERKS>
+                    </item>
+                   </T_DATA>
+                  </urn:ZAPP_STOCK_PRICE>
+                  </soapenv:Body>
+                  </soapenv:Envelope>"""
+
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        
+        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        
+        if isinstance(items, dict):
+            if items["LGORT"]==location_code:
+                return float(items["ATP_QTY"])
+            return 0
+        else:
+            for item in items:
+                if item["LGORT"]==location_code:
+                    return float(item["ATP_QTY"])
+            return 0
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_tg01_stock %s at %s", e, str(exc_tb.tb_lineno))
+        return 0

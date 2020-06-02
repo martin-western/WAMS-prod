@@ -28,6 +28,7 @@ from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
 from WAMSApp.views_dh import *
+from WAMSApp.oc_reports import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -46,6 +47,7 @@ import datetime
 import boto3
 import urllib.request, urllib.error, urllib.parse
 import pandas as pd
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -1213,38 +1215,87 @@ class FetchDealsHubProductsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_objs_list = []
+            dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
 
-            (base_product_objs_list, product_objs_list) = custom_permission_filter_base_products_and_products(request.user)
+            search_list = data.get("search_list", "[]")
 
-            search_list = data.get("search_list", [])
+
+            filter_parameters = data.get("filter_parameters", "{}")
+
+            filter_parameters = json.loads(filter_parameters)
+            search_list = json.loads(search_list)
+
+            if "has_image" in filter_parameters:
+                if filter_parameters["has_image"] == True:
+                    dealshub_product_objs = dealshub_product_objs.exclude(product__no_of_images_for_filter=0)
+                elif filter_parameters["has_image"] == False:
+                    dealshub_product_objs = dealshub_product_objs.filter(product__no_of_images_for_filter=0)
+
+            if "brand_name" in filter_parameters and filter_parameters["brand_name"]!="":
+                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name=filter_parameters["brand_name"])
+
+
+            if "stock" in filter_parameters:
+                if filter_parameters["stock"] == True:
+                    dealshub_product_objs = dealshub_product_objs.exclude(stock=0)
+                elif filter_parameters["stock"] == False:
+                    dealshub_product_objs = dealshub_product_objs.filter(stock=0)
+
+
+            if "active_status" in filter_parameters:
+                if filter_parameters["active_status"] == True:
+                    dealshub_product_objs = dealshub_product_objs.filter(is_published=True)
+                elif filter_parameters["active_status"] == False:
+                    dealshub_product_objs = dealshub_product_objs.filter(is_published=False)
+
+            if "price_sort" in filter_parameters:
+                if filter_parameters["price_sort"] == "low":
+                    dealshub_product_objs = dealshub_product_objs.order_by('now_price')
+                elif filter_parameters["price_sort"] == "high":
+                    dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
+
 
             if len(search_list)>0:
-                temp_product_objs_list = Product.objects.none()
+                temp_product_objs_list = DealsHubProduct.objects.none()
                 for search_key in search_list:
-                    temp_product_objs_list |= product_objs_list.filter(Q(base_product__base_product_name__icontains=search_key) | Q(product_name__icontains=search_key) | Q(product_name_sap__icontains=search_key) | Q(product_id__icontains=search_key) | Q(base_product__seller_sku__icontains=search_key))
-                product_objs_list = temp_product_objs_list.distinct()
+                    temp_product_objs_list |= dealshub_product_objs.filter(Q(product__base_product__base_product_name__icontains=search_key) | Q(product__product_name__icontains=search_key) | Q(product__product_name_sap__icontains=search_key) | Q(product__product_id__icontains=search_key) | Q(product__base_product__seller_sku__icontains=search_key))
+                dealshub_product_objs = temp_product_objs_list.distinct()
                 
-            page = int(data['page'])
-            paginator = Paginator(product_objs_list, 20)
-            product_objs_list_subset = paginator.page(page)
+            page = int(data.get('page', 1))
+            paginator = Paginator(dealshub_product_objs, 20)
+            dealshub_product_objs_subset = paginator.page(page)
             products = []
 
-            for product_obj in product_objs_list_subset:
+
+            if "import_file" in data:
+                path = default_storage.save('tmp/search-dh-file.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+                search_list = []
+                for i in range(rows):
+                    try:
+                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_list.append(search_key)
+                    except Exception as e:
+                        pass
+                dealshub_product_objs_subset = dealshub_product_objs.filter(Q(product__product_id__in=search_list) | Q(product__base_product__seller_sku__in=search_list))
+
+            for dealshub_product_obj in dealshub_product_objs_subset:
                 try:
-                    dh_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                    product_obj = dealshub_product_obj.product
                     temp_dict ={}
                     temp_dict["product_pk"] = product_obj.pk
                     temp_dict["product_uuid"] = product_obj.uuid
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = product_obj.product_name
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
-                    temp_dict["channel_status"] = dh_product_obj.is_published
+                    temp_dict["channel_status"] = dealshub_product_obj.is_published
                     temp_dict["category"] = "" if product_obj.base_product.category==None else str(product_obj.base_product.category)
                     temp_dict["sub_category"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
-                    temp_dict["was_price"] = str(dh_product_obj.was_price)
-                    temp_dict["now_price"] = str(dh_product_obj.now_price)
-                    temp_dict["stock"] = str(dh_product_obj.stock)
+                    temp_dict["was_price"] = str(dealshub_product_obj.was_price)
+                    temp_dict["now_price"] = str(dealshub_product_obj.now_price)
+                    temp_dict["stock"] = str(dealshub_product_obj.stock)
                     temp_dict["min_price"] = str(product_obj.min_price)
                     temp_dict["max_price"] = str(product_obj.max_price)
 
@@ -1279,12 +1330,15 @@ class FetchDealsHubProductsAPI(APIView):
             if paginator.num_pages == page:
                 is_available = False
 
+            response["active_products"] = DealsHubProduct.objects.filter(is_published=True).count()
+            response["inactive_products"] = DealsHubProduct.objects.filter(is_published=False).count()
+
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
             response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
 
             response["is_available"] = is_available
-            response["total_products"] = len(product_objs_list)
+            response["total_products"] = len(dealshub_product_objs)
 
             response['products'] = products
             response['status'] = 200
@@ -1336,6 +1390,90 @@ class UpdateDealshubProductAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateDealshubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class BulkUpdateDealshubProductPriceAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateDealshubProductPriceAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            price_permission = custom_permission_price(request.user, "dealshub")
+            if price_permission:
+                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+
+                for i in range(rows):
+                    try:
+                        product_id = str(dfs.iloc[i][0]).strip()
+                        now_price = float(dfs.iloc[i][1])
+                        was_price = float(dfs.iloc[i][2])
+                        
+                        dh_product_obj = DealsHubProduct.objects.get(product__product_id=product_id)
+                        dh_product_obj.now_price = now_price
+                        dh_product_obj.was_price = was_price
+                        dh_product_obj.save()
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class BulkUpdateDealshubProductStockAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateDealshubProductStockAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            stock_permission = custom_permission_stock(request.user, "dealshub")
+            if stock_permission:
+                path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+
+                for i in range(rows):
+                    try:
+                        product_id = str(dfs.iloc[i][0]).strip()
+                        stock = float(dfs.iloc[i][1])
+                        
+                        dh_product_obj = DealsHubProduct.objects.get(product__product_id=product_id)
+                        dh_product_obj.stock = stock
+                        dh_product_obj.save()
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1800,6 +1938,9 @@ class FetchProductListAPI(APIView):
                     temp_dict["products"].append(temp_dict2)
 
                 products.append(temp_dict)
+
+            price_type = custom_permission_price(request.user, "price_type")
+
             is_available = True
             
             if paginator.num_pages == page:
@@ -1808,6 +1949,7 @@ class FetchProductListAPI(APIView):
             response["is_available"] = is_available
             response["total_products"] = len(search_list_base_product_objs)
             response["products"] = products
+            response["price_type"] = price_type
 
             response['status'] = 200
 
@@ -4591,7 +4733,7 @@ class FetchAuditLogsAPI(APIView):
 
             page = data["page"]
 
-            all_log_entry_objs = LogEntry.objects.all()
+            all_log_entry_objs = LogEntry.objects.exclude(actor=None)
 
             paginator = Paginator(all_log_entry_objs, 20)
             log_entry_objs = paginator.page(page)
@@ -4711,7 +4853,7 @@ class CreateRequestHelpAPI(APIView):
             message = data["message"]
             page = data["page"]
 
-            RequestHelp.objects.create(message=message, page=page)
+            RequestHelp.objects.create(message=message, page=page, user=request.user)
 
             response['status'] = 200
         
@@ -5628,6 +5770,146 @@ class FetchCompanyCredentialsAPI(APIView):
         return Response(data=response)
 
 
+class CheckSectionPermissionsAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("CheckSectionPermissionsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            dealshub = False
+            if OmnyCommUser.objects.get(username=request.user.username).website_group!=None:
+                dealshub = True
+
+            response["dealshub"] = dealshub
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CheckSectionPermissionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateOCReportAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("CreateOCReportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if OCReport.objects.filter(is_processed=False).count()>4:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            report_type = data["report_type"]
+            note = data["note"]
+            brand_list = data.get("brand_list", [])
+
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename)
+
+            if report_type.lower()=="mega":
+                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,))
+                p1.start()
+            elif report_type.lower()=="flyer":
+                p1 = threading.Thread(target=create_flyer_report, args=(filename,oc_report_obj.uuid,brand_list,))
+                p1.start()
+            elif report_type.lower()=="image":
+                p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,brand_list,))
+                p1.start()
+            elif report_type.lower()=="wigme":
+                p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,))
+                p1.start()
+
+            response["approved"] = True
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOCReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchOCReportListAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchOCReportListAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            oc_report_objs = OCReport.objects.all().order_by('-pk')
+
+            page = int(data.get("page",1))
+            paginator = Paginator(oc_report_objs, 20)
+            total_reports = len(oc_report_objs)
+            oc_report_objs = paginator.page(page)
+
+            oc_report_list = []
+            for oc_report_obj in oc_report_objs:
+                try:
+                    completion_date = ""
+                    if oc_report_obj.completion_date!=None:
+                        completion_date = oc_report_obj.completion_date.strftime("%d %m, %Y %H:%M")
+                    temp_dict = {
+                        "name": oc_report_obj.name,
+                        "created_date": oc_report_obj.created_date.strftime("%d %m, %Y %H:%M"),
+                        "created_by": str(oc_report_obj.created_by),
+                        "is_processed": oc_report_obj.is_processed,
+                        "completion_date": completion_date,
+                        "note": oc_report_obj.note,
+                        "filename": "https://"+SERVER_IP+"/"+oc_report_obj.filename,
+                        "uuid": oc_report_obj.uuid
+                    }
+                    oc_report_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchOCReportListAPI: %s at %s", e, str(exc_tb.tb_lineno))        
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_reports"] = total_reports
+
+            response["oc_report_list"] = oc_report_list
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOCReportListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5736,6 +6018,10 @@ FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
 
 UpdateDealshubProduct = UpdateDealshubProductAPI.as_view()
 
+BulkUpdateDealshubProductPrice = BulkUpdateDealshubProductPriceAPI.as_view()
+
+BulkUpdateDealshubProductStock = BulkUpdateDealshubProductStockAPI.as_view()
+
 FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 
 CreateRequestHelp = CreateRequestHelpAPI.as_view()
@@ -5778,3 +6064,9 @@ TransferBulkChannel = TransferBulkChannelAPI.as_view()
 FetchAllCategories = FetchAllCategoriesAPI.as_view()
 
 FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()
+
+CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
+
+CreateOCReport = CreateOCReportAPI.as_view()
+
+FetchOCReportList = FetchOCReportListAPI.as_view()
