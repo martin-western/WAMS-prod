@@ -1303,3 +1303,324 @@ for ch_obj in ch_objs:
             json_attr[key] = ebay_product_json_template[key]
     ch_obj.ebay_product_json = json.dumps(json_attr)
     ch_obj.save()    
+
+
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+
+filename = "scripts/Babyplus_Price_List.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs.loc[:, 'Updated/Not Found'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+for i in range(rows):
+    print(i)
+    try:
+        seller_sku = str(dfs.iloc[i,0])
+        seller_sku1 = str(dfs.iloc[i,1])
+        seller_sku2 = str(dfs.iloc[i,2])
+        was_price = float(dfs.iloc[i,3])
+        now_price = float(dfs.iloc[i,4])
+
+        try:
+            base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+        except Exception as e:
+            try:
+                base_product = BaseProduct.objects.get(seller_sku=seller_sku1)
+            except Exception as e1:
+                base_product = BaseProduct.objects.get(seller_sku=seller_sku2)
+
+
+        product = Product.objects.filter(base_product=base_product)[0]
+        dealshub_product ,c  = DealsHubProduct.objects.get_or_create(product=product)
+
+        dealshub_product.was_price = was_price
+        dealshub_product.now_price = now_price
+        dealshub_product.save()
+
+        dfs.loc[i, 'Updated/Not Found'] = "Updated"
+        cnt+=1
+    except Exception as e:
+        print(str(e))
+        dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+        pass
+
+print("Cnt : ",cnt)
+
+dfs.to_excel(filename,index=False)
+
+
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+
+filenames = ["scripts/Olsenamark_Stock_List.xlsx", "scripts/Geepas_Stock_List.xlsx",
+ "scripts/Royalford_Stock_List.xlsx", "scripts/Krypton_Stock_List.xlsx"]
+
+for filename in filenames :
+    dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+    dfs.loc[:, 'Updated/Not Found'] = ""
+    rows = len(dfs.iloc[:])
+    columns = len(dfs.iloc[0][:])
+    dfs = dfs.fillna("")
+    cnt=0
+    for i in range(rows):
+        # print(i)
+        try:
+            seller_sku = str(dfs.iloc[i,0])
+            was_price = float(dfs.iloc[i,1])
+            now_price = float(dfs.iloc[i,2])
+            stock = float(dfs.iloc[i,4])
+            base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+            product = Product.objects.filter(base_product=base_product)[0]
+            dealshub_product = DealsHubProduct.objects.get(product=product)
+            dealshub_product.was_price = was_price
+            dealshub_product.now_price = now_price
+            dealshub_product.stock = stock
+            dealshub_product.save()
+            dfs.loc[i, 'Updated/Not Found'] = "Updated"
+            cnt+=1
+        except Exception as e:
+            # print(str(e))
+            dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+            pass
+    print()
+    print(filename, "Cnt : ",cnt)
+    print()
+    dfs.to_excel(filename,index=False)
+
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+
+filename = "scripts/Babyplus_Stock_List.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs.loc[:, 'Updated/Not Found'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+for i in range(rows):
+    print(i)
+    try:
+        seller_sku = str(dfs.iloc[i,0])
+        seller_sku1 = str(dfs.iloc[i,1])
+        seller_sku2 = str(dfs.iloc[i,2])
+        was_price = float(dfs.iloc[i,3])
+        now_price = float(dfs.iloc[i,4])
+        stock = float(dfs.iloc[i,5])
+
+        try:
+            base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+        except Exception as e:
+            try:
+                base_product = BaseProduct.objects.get(seller_sku=seller_sku1)
+            except Exception as e1:
+                base_product = BaseProduct.objects.get(seller_sku=seller_sku2)
+
+
+        product = Product.objects.filter(base_product=base_product)[0]
+        dealshub_product = DealsHubProduct.objects.get(product=product)
+
+        dealshub_product.stock = stock
+        dealshub_product.save()
+
+        dfs.loc[i, 'Updated/Not Found'] = "Updated"
+        cnt+=1
+    except Exception as e:
+        print(str(e))
+        dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+        pass
+
+print("Cnt : ",cnt)
+
+dfs.to_excel(filename,index=False)
+
+
+
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+import urllib
+from PIL import Image as IMAGE
+import requests
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
+filename = "scripts/Parajohn_products.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+brand_obj, c = Brand.objects.get_or_create(name="Parajohn")
+
+for i in range(rows):
+    print(i)
+    try:
+        product_name = str(dfs.iloc[i][1])
+        seller_sku = str(dfs.iloc[i][3])
+        super_category = str(dfs.iloc[i][7])
+        category = str(dfs.iloc[i][8])
+        sub_category = str(dfs.iloc[i][9])
+        product_description = str(dfs.iloc[i][10])
+        material = str(dfs.iloc[i][12])
+        main_image_url = str(dfs.iloc[i][24])
+        sub_image_urls = []
+        sub_image_url1 = str(dfs.iloc[i][25])
+        if sub_image_url1 != "":
+            if "https" not in sub_image_url1 and "Https" not in sub_image_url1:
+                sub_image_url1 = "https:/"+sub_image_url1
+            sub_image_urls.append(sub_image_url1)
+        sub_image_url2 = str(dfs.iloc[i][26])
+        if sub_image_url2 != "":
+            if "https" not in sub_image_url2 and "Https" not in sub_image_url2:
+                sub_image_url2 = "https:/"+sub_image_url2
+            sub_image_urls.append(sub_image_url2)
+        sub_image_url3 = str(dfs.iloc[i][27])
+        if sub_image_url3 != "":
+            if "https" not in sub_image_url3 and "Https" not in sub_image_url3:
+                sub_image_url3 = "https:/"+sub_image_url3
+            sub_image_urls.append(sub_image_url3)
+        sub_image_url4 = str(dfs.iloc[i][28])
+        if sub_image_url4 != "":
+            if "https" not in sub_image_url4 and "Https" not in sub_image_url4:
+                sub_image_url4 = "https:/"+sub_image_url4
+            sub_image_urls.append(sub_image_url4)
+        sub_image_url5 = str(dfs.iloc[i][29])
+        if sub_image_url5 != "":
+            if "https" not in sub_image_url5 and "Https" not in sub_image_url5:
+                sub_image_url5 = "https:/"+sub_image_url5
+            sub_image_urls.append(sub_image_url5)
+        sub_image_url6 = str(dfs.iloc[i][30])
+        if sub_image_url6 != "":
+            if "https" not in sub_image_url6 and "Https" not in sub_image_url6:
+                sub_image_url6 = "https:/"+sub_image_url6
+            sub_image_urls.append(sub_image_url6)
+        sub_image_url7 = str(dfs.iloc[i][31])
+        if sub_image_url7 != "":
+            if "https" not in sub_image_url7 and "Https" not in sub_image_url7:
+                sub_image_url7 = "https:/"+sub_image_url7
+            sub_image_urls.append(sub_image_url7)
+        sub_image_url8 = str(dfs.iloc[i][32])
+        if sub_image_url8 != "":
+            if "https" not in sub_image_url8 and "Https" not in sub_image_url8:
+                sub_image_url8 = "https:/"+sub_image_url8
+            sub_image_urls.append(sub_image_url8)
+        sub_image_url9 = str(dfs.iloc[i][33])
+        if sub_image_url9 != "":
+            if "https" not in sub_image_url9 and "Https" not in sub_image_url9:
+                sub_image_url9 = "https:/"+sub_image_url9
+            sub_image_urls.append(sub_image_url9)
+        print(sub_image_urls)
+        base_product , created = BaseProduct.objects.get_or_create(seller_sku=seller_sku)
+        if Product.objects.filter(base_product=base_product).exists():
+            product_obj = Product.objects.filter(base_product=base_product)[0]
+        else:
+            product_obj = Product.objects.create(base_product=base_product)
+        sub_images_objs = []
+        sub_images_obj,c = SubImages.objects.get_or_create(product = product_obj,is_sourced=True)
+        sub_images_obj.sub_images.clear()
+        sub_images_objs.append(sub_images_obj)
+        chan = Channel.objects.get(name="Amazon UK")
+        sub_images_obj,c = SubImages.objects.get_or_create(product = product_obj,channel=chan)
+        sub_images_obj.sub_images.clear()
+        sub_images_objs.append(sub_images_obj)
+        chan = Channel.objects.get(name="Amazon UAE")
+        sub_images_obj,c = SubImages.objects.get_or_create(product = product_obj,channel=chan)
+        sub_images_obj.sub_images.clear()
+        sub_images_objs.append(sub_images_obj)
+        chan = Channel.objects.get(name="Noon")
+        sub_images_obj,c = SubImages.objects.get_or_create(product = product_obj,channel=chan)
+        sub_images_obj.sub_images.clear()
+        sub_images_objs.append(sub_images_obj)
+        chan = Channel.objects.get(name="Ebay")
+        sub_images_obj,c = SubImages.objects.get_or_create(product = product_obj,channel=chan)
+        sub_images_obj.sub_images.clear()
+        sub_images_objs.append(sub_images_obj)
+        for sub_image_url in sub_image_urls:
+            size = 512, 512 
+            response = requests.get(sub_image_url)
+            thumb = IMAGE.open(BytesIO(response.content))
+            thumb.thumbnail(size)
+            infile = str(sub_image_url.split("/")[-1]) 
+            im_type = thumb.format 
+            thumb_io = BytesIO()
+            thumb.save(thumb_io, format=im_type)
+            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
+            image_obj = Image.objects.create(image=thumb_file)
+            image_bucket_obj = ImageBucket.objects.create(image=image_obj)
+            for sub_images_obj in sub_images_objs:
+                sub_images_obj.sub_images.add(image_bucket_obj)
+                sub_images_obj.save()
+    except Exception as e:
+        print(str(e))
+        pass
+
+filename = "Downloads/Wigme_Geepas_Data_Aswin.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+dfs = dfs.fillna("")
+cnt=0
+
+
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+
+filename = "scripts/Delcasa_Price_Stock_List.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs.loc[:, 'Updated/Not Found'] = ""
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+dfs = dfs.fillna("")
+cnt=0
+for i in range(rows):
+    # print(i)
+    try:
+        seller_sku = str(dfs.iloc[i,0])
+        was_price = float(dfs.iloc[i,1])
+        now_price = float(dfs.iloc[i,2])
+        stock = float(dfs.iloc[i,4])
+        base_product = BaseProduct.objects.get(seller_sku=seller_sku)
+        product = Product.objects.filter(base_product=base_product)[0]
+        dealshub_product = DealsHubProduct.objects.get(product=product)
+        dealshub_product.was_price = was_price
+        dealshub_product.now_price = now_price
+        dealshub_product.stock = stock
+        dealshub_product.save()
+        dfs.loc[i, 'Updated/Not Found'] = "Updated"
+        cnt+=1
+    except Exception as e:
+        print(str(e))
+        dfs.loc[i, 'Updated/Not Found'] = "Not Found"
+        pass
+
+
+print(filename, "Cnt : ",cnt)
+
+dfs.to_excel(filename,index=False)
+
+brand = Brand.objects.get(name="Geepas")
+
+for x in ba:
+    if "G" == x.seller_sku[0]:
+        print(x.seller_sku)
+        x.brand = brand
+        x.save() 
