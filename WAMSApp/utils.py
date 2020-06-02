@@ -977,27 +977,27 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return product_obj.product_description
         if data_point_variable=="pfl_product_feature_1":
             pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(product_obj)>=1:
+            if len(pfl_product_features)>=1:
                 return pfl_product_features[0]
             return ""
         if data_point_variable=="pfl_product_feature_2":
             pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(product_obj)>=2:
+            if len(pfl_product_features)>=2:
                 return pfl_product_features[1]
             return ""
         if data_point_variable=="pfl_product_feature_3":
             pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(product_obj)>=3:
+            if len(pfl_product_features)>=3:
                 return pfl_product_features[2]
             return ""
         if data_point_variable=="pfl_product_feature_4":
             pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(product_obj)>=4:
+            if len(pfl_product_features)>=4:
                 return pfl_product_features[3]
             return ""
         if data_point_variable=="pfl_product_feature_5":
             pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(product_obj)>=5:
+            if len(pfl_product_features)>=5:
                 return pfl_product_features[4]
             return ""
 
