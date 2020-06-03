@@ -528,6 +528,75 @@ class GetPushProductsResultAmazonUAEAPI(APIView):
 
         return Response(data=response)
 
+class PushProductsInventoryAmazonUAEAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            if custom_permission_mws_functions(request.user,"push_inventory_on_amazon") == False:
+                logger.warning("PushProductsInventoryAmazonUAEAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("PushProductsInventoryAmazonUAEAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk_list = data["product_pk_list"]
+
+            if(len(product_pk_list)>30):
+                logger.warning("PushProductsInventoryAmazonUAEAPI More then 30 Products!")
+                response['status'] = 429
+                return Response(data=response)
+
+            permissible_channels = custom_permission_filter_channels(request.user)
+            channel_obj = Channel.objects.get(name="Amazon UAE")
+
+            if channel_obj not in permissible_channels:
+                logger.warning(
+                    "PushProductsInventoryAmazonUAEAPI Restricted Access of UAE Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            response["feed_submission_id"] = ""
+
+            xml_string= generate_xml_for_inventory_data_amazon_uae(product_pk_list,SELLER_ID)
+
+            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
+                                        region='AE')
+
+            response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_INVENTORY_AVAILABILITY_DATA_",marketplaceids=marketplace_id)
+
+            feed_submission_id = response_submeet_feed.parsed["FeedSubmissionInfo"]["FeedSubmissionId"]["value"]
+
+            report_obj = Report.objects.create(feed_submission_id=feed_submission_id,
+                                                operation_type="Push",
+                                                channel = channel_obj,
+                                                user=request.user)
+
+            for product_pk in product_pk_list:
+                product = Product.objects.get(pk=int(product_pk))
+                report_obj.products.add(product)
+
+            report_obj.save()
+
+            response["feed_submission_id"] = feed_submission_id
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PushProductsInventoryAmazonUAEAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 GetMatchingProductsAmazonUAEMWS = GetMatchingProductsAmazonUAEMWSAPI.as_view()
 
@@ -536,3 +605,5 @@ GetPricingProductsAmazonUAEMWS = GetPricingProductsAmazonUAEMWSAPI.as_view()
 PushProductsAmazonUAE = PushProductsAmazonUAEAPI.as_view()
 
 GetPushProductsResultAmazonUAE = GetPushProductsResultAmazonUAEAPI.as_view()
+
+PushProductsInventoryAmazonUAE = PushProductsInventoryAmazonUAEAPI.as_view()

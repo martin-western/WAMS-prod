@@ -1583,7 +1583,7 @@ import pandas as pd
 from WAMSApp.models import *
 from dealshub.models import *
 
-filename = "scripts/Delcasa_Price_Stock_List.xlsx"
+filename = "scripts/Olsenamark_Price_Stock_List.xlsx"
 
 dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
 dfs.loc[:, 'Updated/Not Found'] = ""
@@ -1592,7 +1592,7 @@ columns = len(dfs.iloc[0][:])
 dfs = dfs.fillna("")
 cnt=0
 for i in range(rows):
-    # print(i)
+    print(i)
     try:
         seller_sku = str(dfs.iloc[i,0])
         was_price = float(dfs.iloc[i,1])
@@ -1624,3 +1624,55 @@ for x in ba:
         print(x.seller_sku)
         x.brand = brand
         x.save() 
+
+ms = MainImages.objects.all()
+i=0
+for m in ms:
+    print(i)
+    i+=1
+    if m.main_images.all().count()==1:
+        img = m.main_images.all()[0]
+        img.is_main_image=True
+        img.save()
+
+p = Product.objects.annotate(text_len=Length('product_id')).exclude(
+    text_len=13)
+i=0
+for x in p:
+    print(i)
+    i+=1
+    x.save()
+
+brands = ["Geepas","Royalford","Delcasa"]
+
+p = Product.objects.filter(base_product__brand__name__in=brands).filter(product_id_type__name="EAN")
+i=0
+for x in p:
+    print(i)
+    i+=1
+    if x.barcode_string == "":
+        x.barcode=None
+        x.barcode_string=x.product_id
+        x.save()
+
+import pandas as pd
+from WAMSApp.models import *
+from dealshub.models import *
+import xlsxwriter
+import json
+filename = "scripts/All_Listings_Report.xlsx"
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+for i in range(rows):
+    print(i)
+    all_products = Product.objects.filter(base_product__seller_sku=str(dfs.iloc[i][0]))
+    for product_obj in all_products:
+        channel_product = product_obj.channel_product
+        amazon_uae_product_json = channel_product.amazon_uae_product_json
+        amazon_uae_product_json = json.loads(amazon_uae_product_json)
+        amazon_uae_product_json['price'] = str(dfs.iloc[i][4])
+        amazon_uae_product_json['quantity'] = str(dfs.iloc[i][5])
+        amazon_uae_product_json = json.dumps(amazon_uae_product_json)
+        channel_product.amazon_uae_product_json = amazon_uae_product_json
+        channel_product.save()
