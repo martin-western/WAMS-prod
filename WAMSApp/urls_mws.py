@@ -21,6 +21,7 @@ urlpatterns = [
 
     url(r'^get-matching-products-amazon-uae/$',views.GetMatchingProductsAmazonUAEMWS),
     url(r'^get-pricing-of-products-amazon-uae/$',views.GetPricingProductsAmazonUAEMWS),
+    url(r'^get-product-inventory-amazon-uae/$',views.GetProductInventoryAmazonUAE),
 
     url(r'^get-push-products-result-amazon-uk/$',views.GetPushProductsResultAmazonUK),
     url(r'^get-push-products-result-amazon-uae/$',views.GetPushProductsResultAmazonUAE),

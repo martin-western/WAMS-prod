@@ -597,6 +597,59 @@ class PushProductsInventoryAmazonUAEAPI(APIView):
 
         return Response(data=response)
 
+class GetProductInventoryAmazonUAEAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            if custom_permission_mws_functions(request.user,"push_inventory_on_amazon") == False:
+                logger.warning("GetProductInventoryAmazonUAEAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("GetProductInventoryAmazonUAEAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk_list = data["product_pk_list"]
+
+            permissible_channels = custom_permission_filter_channels(request.user)
+            channel_obj = Channel.objects.get(name="Amazon UAE")
+
+            if channel_obj not in permissible_channels:
+                logger.warning("GetProductInventoryAmazonUAEAPI Restricted Access of UAE Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            inventory_list = []
+
+            for product_pk in product_pk_list:
+
+                temp_dict = {}
+                temp_dict["product_pk"] = product_pk
+                product_obj = Product.objects.get(int(product_pk))
+                channel_product = product_obj.channel_product
+                amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
+                temp_dict["price"] = amazon_uae_product["price"]
+                temp_dict["quantity"] = amazon_uae_product["quantity"]
+                inventory_list.append(temp_dict)
+
+            response["inventory_list"] = inventory_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GetProductInventoryAmazonUAEAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 GetMatchingProductsAmazonUAEMWS = GetMatchingProductsAmazonUAEMWSAPI.as_view()
 
@@ -607,3 +660,5 @@ PushProductsAmazonUAE = PushProductsAmazonUAEAPI.as_view()
 GetPushProductsResultAmazonUAE = GetPushProductsResultAmazonUAEAPI.as_view()
 
 PushProductsInventoryAmazonUAE = PushProductsInventoryAmazonUAEAPI.as_view()
+
+GetProductInventoryAmazonUAE = GetProductInventoryAmazonUAEAPI.as_view()

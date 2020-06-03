@@ -1583,7 +1583,7 @@ import pandas as pd
 from WAMSApp.models import *
 from dealshub.models import *
 
-filename = "scripts/Olsenamark_Price_Stock_List.xlsx"
+filename = "scripts/Royalford_Price_Stock_List.xlsx"
 
 dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
 dfs.loc[:, 'Updated/Not Found'] = ""
@@ -1595,9 +1595,9 @@ for i in range(rows):
     print(i)
     try:
         seller_sku = str(dfs.iloc[i,0])
-        was_price = float(dfs.iloc[i,1])
-        now_price = float(dfs.iloc[i,2])
-        stock = float(dfs.iloc[i,4])
+        was_price = float(dfs.iloc[i,2])
+        now_price = float(dfs.iloc[i,1])
+        stock = float(dfs.iloc[i,3])
         base_product = BaseProduct.objects.get(seller_sku=seller_sku)
         product = Product.objects.filter(base_product=base_product)[0]
         dealshub_product = DealsHubProduct.objects.get(product=product)
