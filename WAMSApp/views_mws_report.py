@@ -91,8 +91,12 @@ class FetchReportListAPI(APIView):
                     if flag == 1:
                         break
 
+            page = int(data['page'])
+            paginator = Paginator(search_list_objs, 9)
+            search_list_report_objs = paginator.page(page)
+
             report_list = []
-            for report_obj in search_list_objs:
+            for report_obj in search_list_report_objs:
                 temp_dict = {}
                 temp_dict["pk"] = report_obj.pk
                 temp_dict["feed_submission_id"] = report_obj.feed_submission_id
@@ -104,6 +108,12 @@ class FetchReportListAPI(APIView):
                 temp_dict["user"] = str(report_obj.user.username)
                 report_list.append(temp_dict)
 
+            is_available = True
+            
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
             response["report_list"] = report_list
             response['status'] = 200
 
@@ -126,6 +136,7 @@ class FetchReportDetailsAPI(APIView):
             logger.info("FetchReportDetailsAPI: %s", str(data))
 
             report_obj = Report.objects.get(pk=int(data["report_pk"]))
+
             feed_submission_id = report_obj.feed_submission_id
 
             if(report_obj.channel.name=="Amazon UAE"):
@@ -156,6 +167,9 @@ class FetchReportDetailsAPI(APIView):
                             temp_dict["error_type"] = result[i]["ResultCode"]["value"]
                             temp_dict["error_code"] = result[i]["ResultMessageCode"]["value"]
                             temp_dict["error_message"] = result[i]["ResultDescription"]["value"]
+
+                            temp_dict["product_name"] = Product.objects.get(pk=int(temp_dict["product_pk"])).product_name
+
                             response["errors"].append(temp_dict)
 
                     else:
@@ -164,6 +178,9 @@ class FetchReportDetailsAPI(APIView):
                         temp_dict["error_type"] = result["ResultCode"]["value"]
                         temp_dict["error_code"] = result["ResultMessageCode"]["value"]
                         temp_dict["error_message"] = result["ResultDescription"]["value"]
+
+                        temp_dict["product_name"] = Product.objects.get(pk=int(temp_dict["product_pk"])).product_name
+                        
                         response["errors"].append(temp_dict)
 
                     response["result_status"] = "Done"
@@ -180,6 +197,14 @@ class FetchReportDetailsAPI(APIView):
                          e, str(exc_tb.tb_lineno))
                 response["result_status"] = "In Progress"
 
+            response["report_pk"] = report_obj.pk
+            response["feed_submission_id"] = report_obj.feed_submission_id
+            response["operation_type"] = report_obj.operation_type
+            response["status"] = report_obj.status
+            response["is_read"] = report_obj.is_read
+            response["created_date"] = str(report_obj.created_date.strftime("%d %b, %Y"))
+            response["product_count"] = report_obj.products.all().count()
+            response["user"] = str(report_obj.user.username)
             response['status'] = 200
 
         except Exception as e:
