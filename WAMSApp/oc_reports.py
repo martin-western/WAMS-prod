@@ -481,8 +481,8 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list):
             common_row[193] = str(product.channel_product.is_noon_product_created)
             common_row[194] = noon_product_json["product_name"]
             common_row[195] = noon_product_json["product_description"]
-            common_row[196] = noon_product_json["product_type"]
-            common_row[197] = noon_product_json["product_subtype"]
+            #common_row[196] = noon_product_json["product_type"]
+            #common_row[197] = noon_product_json["product_subtype"]
             common_row[198] = noon_product_json["parent_sku"]
             common_row[199] = noon_product_json["category"]
             #common_row[200] = noon_product_json["subtitle"]
