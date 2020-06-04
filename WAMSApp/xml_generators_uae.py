@@ -73,7 +73,7 @@ def generate_xml_for_price_data_amazon_uae(product_pk_list,seller_id):
             message_id = str(product_pk)
             seller_sku = product_obj.base_product.seller_sku
             amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
-            price = str(amazon_uae_product["price"])
+            price = float(amazon_uae_product["price"])
             
             xml_string += """<Message>
                             <MessageID>"""+ message_id+ """</MessageID>
@@ -111,7 +111,7 @@ def generate_xml_for_inventory_data_amazon_uae(product_pk_list,seller_id):
             message_id = str(product_pk)
             seller_sku = product_obj.base_product.seller_sku
             amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
-            quantity = str(amazon_uae_product["quantity"])
+            quantity = int(amazon_uae_product["quantity"])
             
             xml_string += """<Message>
                             <MessageID>"""+ message_id+ """</MessageID>
