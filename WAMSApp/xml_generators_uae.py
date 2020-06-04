@@ -83,7 +83,7 @@ def generate_xml_for_price_data_amazon_uae(product_pk_list,seller_id):
             xml_string += """<Message>
                             <MessageID>"""+ message_id+ """</MessageID>
                             <Price>
-                                <StandardPrice currency="AED">"""+ price + """</StandardPrice>
+                                <StandardPrice currency="AED">"""+ str(price) + """</StandardPrice>
                                 <SKU>"""+ seller_sku+ """</SKU>
                             </Price>
                           </Message>"""
@@ -128,7 +128,7 @@ def generate_xml_for_inventory_data_amazon_uae(product_pk_list,seller_id):
                             <OperationType>Update</OperationType>
                                 <Inventory>
                                   <SKU>"""+ seller_sku+ """</SKU>
-                                  <Quantity>""" + quantity +"""</Quantity>
+                                  <Quantity>""" + str(quantity) +"""</Quantity>
                                 </Inventory>
                           </Message>"""
 

@@ -1662,6 +1662,7 @@ import xlsxwriter
 import json
 filename = "scripts/All_Listings_Report.xlsx"
 dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs = dfs.fillna("")
 rows = len(dfs.iloc[:])
 columns = len(dfs.iloc[0][:])
 for i in range(rows):
@@ -1671,8 +1672,10 @@ for i in range(rows):
         channel_product = product_obj.channel_product
         amazon_uae_product_json = channel_product.amazon_uae_product_json
         amazon_uae_product_json = json.loads(amazon_uae_product_json)
-        amazon_uae_product_json['price'] = str(dfs.iloc[i][4])
-        amazon_uae_product_json['quantity'] = str(dfs.iloc[i][5])
+        if dfs.iloc[i][4] != "":
+            amazon_uae_product_json['price'] = float(dfs.iloc[i][4])
+        if dfs.iloc[i][5] != "":
+            amazon_uae_product_json['quantity'] = int(dfs.iloc[i][5])
         if str(dfs.iloc[i][5]) == "" or str(dfs.iloc[i][5]) == "0":
             amazon_uae_product_json['status'] = "Listed"
         else:
