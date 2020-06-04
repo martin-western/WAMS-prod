@@ -2228,10 +2228,11 @@ def fetch_refresh_stock(seller_sku, company_code, location_code):
                 return float(items["ATP_QTY"])
             return 0
         else:
+            max_qty = 0
             for item in items:
                 if item["LGORT"]==location_code:
-                    return float(item["ATP_QTY"])
-            return 0
+                    max_qty = max(max_qty, float(item["ATP_QTY"]))
+            return max_qty
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

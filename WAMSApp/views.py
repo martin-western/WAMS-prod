@@ -1055,15 +1055,19 @@ class FetchProductDetailsAPI(APIView):
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price
 
+            response["is_bundle_product"] = product_obj.is_bundle_product
+
             try:
                 dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
                 response["was_price"] = dealshub_product_obj.was_price
                 response["now_price"] = dealshub_product_obj.now_price
                 response["stock"] = dealshub_product_obj.stock
+                response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
             except Exception as e:
                 response["was_price"] = 0
                 response["now_price"] = 0
                 response["stock"] = 0
+                response["is_cod_allowed"] = True
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
@@ -1663,6 +1667,9 @@ class SaveProductAPI(APIView):
             now_price = float(data.get("now_price", 0))
             stock = int(data.get("stock", 0))
 
+            is_cod_allowed = data.get("is_cod_allowed", False)
+            is_bundle_product = data.get("is_bundle_product", False)
+
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
 
@@ -1674,6 +1681,7 @@ class SaveProductAPI(APIView):
 
             try:
                 dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.is_cod_allowed = is_cod_allowed
                 if custom_permission_price(request.user, "dealshub")==True:
                     dealshub_product_obj.was_price = was_price
                     if now_price>=min_price and now_price<=max_price:
@@ -1683,6 +1691,7 @@ class SaveProductAPI(APIView):
                 if custom_permission_stock(request.user, "dealshub")==True and stock>=0:
                     dealshub_product_obj.stock = stock
                     dealshub_product_obj.save()
+                dealshub_product_obj.save()
             except Exception as e:
                 pass
 
@@ -1732,6 +1741,8 @@ class SaveProductAPI(APIView):
             product_obj.pfl_product_features = json.dumps(pfl_product_features)
 
             product_obj.factory_notes = factory_notes
+
+            product_obj.is_bundle_product = is_bundle_product
 
             if str(dynamic_form_attributes)!="{}":
                 product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
