@@ -73,12 +73,17 @@ def generate_xml_for_price_data_amazon_uae(product_pk_list,seller_id):
             message_id = str(product_pk)
             seller_sku = product_obj.base_product.seller_sku
             amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
-            price = float(amazon_uae_product["price"])
+            price = amazon_uae_product["price"]
+            
+            if price != "":
+                price = float(price)
+            else:
+                price = 0
             
             xml_string += """<Message>
                             <MessageID>"""+ message_id+ """</MessageID>
                             <Price>
-                                <StandardPrice currency="AED">"""+ price + """</StandardPrice>
+                                <StandardPrice currency="AED">"""+ str(price) + """</StandardPrice>
                                 <SKU>"""+ seller_sku+ """</SKU>
                             </Price>
                           </Message>"""
@@ -111,14 +116,19 @@ def generate_xml_for_inventory_data_amazon_uae(product_pk_list,seller_id):
             message_id = str(product_pk)
             seller_sku = product_obj.base_product.seller_sku
             amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
-            quantity = float(amazon_uae_product["quantity"])
+            quantity = amazon_uae_product["quantity"]
+
+            if quantity != "":
+                quantity = int(quantity)
+            else:
+                quantity = 0
             
             xml_string += """<Message>
                             <MessageID>"""+ message_id+ """</MessageID>
                             <OperationType>Update</OperationType>
                                 <Inventory>
                                   <SKU>"""+ seller_sku+ """</SKU>
-                                  <Quantity>""" + quantity +"""</Quantity>
+                                  <Quantity>""" + str(quantity) +"""</Quantity>
                                 </Inventory>
                           </Message>"""
 
@@ -128,9 +138,8 @@ def generate_xml_for_inventory_data_amazon_uae(product_pk_list,seller_id):
         return xml_string
 
     except Exception as e:
-        print(str(e))
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("Price Update XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.error("Inventory Update XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
         return ""
 
 def generate_xml_for_delete_product_data_amazon_uae(seller_sku_list,seller_id):
