@@ -1902,39 +1902,39 @@ class FetchProductListAPI(APIView):
                         #     temp_dict["base_main_images"].append(main_images[0])
 
                     channels_of_prod =0
-                    active_channels = 0
+                    inactive_channels = 0
 
                     if product_obj.channel_product.is_noon_product_created == True:
                         
                         channels_of_prod +=1
                         noon_product = json.loads(product_obj.channel_product.noon_product_json)
-                        if noon_product["status"] == "Active":
-                            active_channels +=1
+                        if noon_product["status"] == "Inactive":
+                            inactive_channels +=1
 
                     if product_obj.channel_product.is_amazon_uk_product_created == True:
                         
                         channels_of_prod +=1
                         amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
-                        if amazon_uk_product["status"] == "Active":
-                            active_channels +=1
+                        if amazon_uk_product["status"] == "Inactive":
+                            inactive_channels +=1
 
                     if product_obj.channel_product.is_amazon_uae_product_created == True:
                         
                         channels_of_prod +=1
                         amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
-                        if amazon_uae_product["status"] == "Active":
-                            active_channels +=1
+                        if amazon_uae_product["status"] == "Inactive":
+                            inactive_channels +=1
 
                     if product_obj.channel_product.is_ebay_product_created == True:
                         
                         channels_of_prod +=1
                         ebay_product = json.loads(product_obj.channel_product.ebay_product_json)
-                        if ebay_product["status"] == "Active":
-                            active_channels +=1
+                        if ebay_product["status"] == "Inactive":
+                            inactive_channels +=1
 
                     temp_dict2["channels_of_prod"] = channels_of_prod
-                    temp_dict2["active_channels"] = active_channels
-                    temp_dict2["inactive_channels"] = channels_of_prod - active_channels
+                    temp_dict2["inactive_channels"] = inactive_channels
+                    temp_dict2["active_channels"] = channels_of_prod - inactive_channels
                     temp_dict["products"].append(temp_dict2)
 
                 products.append(temp_dict)
