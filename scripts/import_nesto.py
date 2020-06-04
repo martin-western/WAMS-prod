@@ -1673,6 +1673,10 @@ for i in range(rows):
         amazon_uae_product_json = json.loads(amazon_uae_product_json)
         amazon_uae_product_json['price'] = str(dfs.iloc[i][4])
         amazon_uae_product_json['quantity'] = str(dfs.iloc[i][5])
+        if str(dfs.iloc[i][5]) == "" or str(dfs.iloc[i][5]) == "0":
+            amazon_uae_product_json['status'] = "Listed"
+        else:
+            amazon_uae_product_json['status'] = "Active"
         amazon_uae_product_json = json.dumps(amazon_uae_product_json)
         channel_product.amazon_uae_product_json = amazon_uae_product_json
         channel_product.save()
