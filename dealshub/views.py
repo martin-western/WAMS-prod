@@ -94,6 +94,7 @@ class FetchProductDetailsAPI(APIView):
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = "AED"
             response["warranty"] = product_obj.warranty
+            response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
 
             response["isStockAvailable"] = False
             if dealshub_product_obj.stock>0:
@@ -2531,7 +2532,7 @@ class RefreshStockAPI(APIView):
                     stock2 = fetch_refresh_stock(seller_sku, "1000", "AFS1")
                     stock = max(stock1, stock2)
                 elif brand=="baby plus":
-                    stock = fetch_refresh_stock(seller_sku, "5550", "AFS1")
+                    stock = fetch_refresh_stock(seller_sku, "5550", "TG01")
                 elif brand=="royalford":
                     stock = fetch_refresh_stock(seller_sku, "3000", "AFS1")
                 elif brand=="krypton":
@@ -2542,6 +2543,8 @@ class RefreshStockAPI(APIView):
                     stock = fetch_refresh_stock(seller_sku, "5550", "AFS1") # 
                 elif brand=="younglife":
                     stock = fetch_refresh_stock(seller_sku, "5000", "AFS1")
+                elif brand=="delcasa":
+                    stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
 
                 if stock > 10:
                     dealshub_product_obj.stock = 5
