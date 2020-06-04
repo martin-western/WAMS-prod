@@ -94,6 +94,7 @@ class FetchProductDetailsAPI(APIView):
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = "AED"
             response["warranty"] = product_obj.warranty
+            response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
 
             response["isStockAvailable"] = False
             if dealshub_product_obj.stock>0:
