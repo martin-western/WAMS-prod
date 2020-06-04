@@ -67,7 +67,6 @@ def fetch_refresh_stock(seller_sku, company_code, location_code):
 dealshub_product_objs = DealsHubProduct.objects.filter(stock=0, is_published=True)
 i=0
 for dealshub_product_obj in dealshub_product_objs:
-    print(i)
     i+=1
     brand = str(dealshub_product_obj.product.base_product.brand).lower()
     seller_sku = str(dealshub_product_obj.product.base_product.seller_sku)
@@ -94,5 +93,5 @@ for dealshub_product_obj in dealshub_product_objs:
         dealshub_product_obj.stock = 5
     else:
         dealshub_product_obj.stock = 0
-    print(stock,seller_sku)
-    # dealshub_product_obj.save()
+    print(i,"SKU : ",seller_sku,"Stock : " ,stock,"Updated Stock : " ,dealshub_product_obj.stock)
+    dealshub_product_obj.save()

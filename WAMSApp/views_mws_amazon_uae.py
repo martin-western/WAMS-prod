@@ -638,6 +638,7 @@ class GetProductInventoryAmazonUAEAPI(APIView):
                 amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                 temp_dict["price"] = amazon_uae_product["price"]
                 temp_dict["quantity"] = amazon_uae_product["quantity"]
+                temp_dict["status"] = amazon_uae_product["status"]
                 inventory_list.append(temp_dict)
 
             response["inventory_list"] = inventory_list
@@ -649,7 +650,6 @@ class GetProductInventoryAmazonUAEAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
 
 GetMatchingProductsAmazonUAEMWS = GetMatchingProductsAmazonUAEMWSAPI.as_view()
 
