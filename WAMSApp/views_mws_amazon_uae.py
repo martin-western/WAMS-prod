@@ -576,7 +576,7 @@ class PushProductsInventoryAmazonUAEAPI(APIView):
             feed_submission_id = response_submeet_feed.parsed["FeedSubmissionInfo"]["FeedSubmissionId"]["value"]
 
             report_obj = Report.objects.create(feed_submission_id=feed_submission_id,
-                                                operation_type="Push",
+                                                operation_type="Inventory",
                                                 channel = channel_obj,
                                                 user=request.user)
 

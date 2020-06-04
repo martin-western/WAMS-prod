@@ -184,6 +184,8 @@ class FetchReportDetailsAPI(APIView):
                         response["errors"].append(temp_dict)
 
                     response["result_status"] = "Done"
+                    report_obj.status = "Done"
+                    report_obj.save()
                     
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
