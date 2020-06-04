@@ -1583,7 +1583,7 @@ import pandas as pd
 from WAMSApp.models import *
 from dealshub.models import *
 
-filename = "scripts/Royalford_Price_Stock_List.xlsx"
+filename = "scripts/Babyplus_Price_Stock_List.xlsx"
 
 dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
 dfs.loc[:, 'Updated/Not Found'] = ""
