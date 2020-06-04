@@ -633,7 +633,7 @@ class GetProductInventoryAmazonUAEAPI(APIView):
 
                 temp_dict = {}
                 temp_dict["product_pk"] = product_pk
-                product_obj = Product.objects.get(int(product_pk))
+                product_obj = Product.objects.get(pk=int(product_pk))
                 channel_product = product_obj.channel_product
                 amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                 temp_dict["price"] = amazon_uae_product["price"]
