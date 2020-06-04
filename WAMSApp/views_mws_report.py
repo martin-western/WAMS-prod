@@ -155,6 +155,8 @@ class FetchReportDetailsAPI(APIView):
                 response_feed_submission_result = feeds_api.get_feed_submission_result(feed_submission_id)
 
                 feed_submission_result = response_feed_submission_result.parsed
+                report_obj.status = "Done"
+                report_obj.save()
 
                 try :
                     result = feed_submission_result["ProcessingReport"]["Result"]
@@ -184,8 +186,7 @@ class FetchReportDetailsAPI(APIView):
                         response["errors"].append(temp_dict)
 
                     response["result_status"] = "Done"
-                    report_obj.status = "Done"
-                    report_obj.save()
+
                     
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
