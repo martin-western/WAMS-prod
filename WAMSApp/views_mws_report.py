@@ -66,19 +66,19 @@ class FetchReportListAPI(APIView):
 
             if filter_parameters.get("channel_name", "") != "" :
                 channel_obj = Channel.objects.get(name=filter_parameters["channel_name"])
-                report_objs = Report.objects.filter(channel=channel_obj)
+                report_objs = report_objs.filter(channel=channel_obj)
             
             if filter_parameters.get("operation_type", "") != "" :
-                report_objs = Report.objects.filter(operation_type=filter_parameters["operation_type"])
+                report_objs = report_objs.filter(operation_type=filter_parameters["operation_type"])
 
             if filter_parameters.get("status", "") != "" :
-                report_objs = Report.objects.filter(status=filter_parameters["status"])
+                report_objs = report_objs.filter(status=filter_parameters["status"])
 
             if filter_parameters.get("is_read", "") != "" :
                 if(filter_parameters["is_read"]=="true"):
-                    report_objs = Report.objects.filter(is_read=True)
+                    report_objs = report_objs.filter(is_read=True)
                 else:
-                    report_objs = Report.objects.filter(is_read=False)
+                    report_objs = report_objs.filter(is_read=False)
 
             if len(chip_data) == 0:
                 search_list_objs = report_objs
