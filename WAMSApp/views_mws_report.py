@@ -13,6 +13,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.utils import timezone
 
 import requests
 import json
@@ -57,8 +58,6 @@ class FetchReportListAPI(APIView):
             report_objs = []
 
             if filter_parameters.get("start_date", "") != "" and filter_parameters.get("end_date", "") != "":
-                start_date = datetime.strptime(filter_parameters["start_date"], "%b %d, %Y")
-                end_date = datetime.strptime(filter_parameters["end_date"], "%b %d, %Y")
                 report_objs = Report.objects.filter(
                     created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user).order_by('-pk')
             else:
@@ -105,7 +104,7 @@ class FetchReportListAPI(APIView):
                 temp_dict["pk"] = report_obj.pk
                 temp_dict["feed_submission_id"] = report_obj.feed_submission_id
                 temp_dict["operation_type"] = report_obj.operation_type
-                temp_dict["status"] = report_obj.status
+                temp_dict["report_status"] = report_obj.status
                 temp_dict["is_read"] = report_obj.is_read
                 temp_dict["created_date"] = str(report_obj.created_date.strftime("%d %b, %Y : %H %M %p"))
                 temp_dict["product_count"] = report_obj.products.all().count()
@@ -203,9 +202,9 @@ class FetchReportDetailsAPI(APIView):
             response["report_pk"] = report_obj.pk
             response["feed_submission_id"] = report_obj.feed_submission_id
             response["operation_type"] = report_obj.operation_type
-            response["results_status"] = report_obj.status
+            response["report_status"] = report_obj.status
             response["is_read"] = report_obj.is_read
-            response["created_date"] = str(report_obj.created_date.strftime("%d %b, %Y"))
+            response["created_date"] = str(timezone.localtime(report_obj.created_date).strftime("%d %b, %Y"))
             response["product_count"] = report_obj.products.all().count()
             response["user"] = str(report_obj.user.username)
             response['status'] = 200
@@ -241,10 +240,9 @@ class RefreshReportStatusAPI(APIView):
 
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region=region)
-
-            response["errors"] = []
             
             try :
+
                 response_feed_submission_result = feeds_api.get_feed_submission_result(feed_submission_id)
 
                 feed_submission_result = response_feed_submission_result.parsed
@@ -257,7 +255,7 @@ class RefreshReportStatusAPI(APIView):
                 logger.info("RefreshReportStatusAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
-            response["results_status"] = report_obj.status
+            response["report_status"] = report_obj.status
             response['status'] = 200
 
         except Exception as e:
