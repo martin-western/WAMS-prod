@@ -25,6 +25,7 @@ class DealsHubProduct(models.Model):
     was_price = models.FloatField(default=0)
     now_price = models.FloatField(default=0)
     stock = models.IntegerField(default=0)
+    is_cod_allowed = models.BooleanField(default=True)
     properties = models.TextField(null=True, blank=True, default="{}")
     is_published = models.BooleanField(default=False)
 
