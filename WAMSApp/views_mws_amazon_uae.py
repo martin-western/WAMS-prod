@@ -443,91 +443,6 @@ class PushProductsAmazonUAEAPI(APIView):
         return Response(data=response)
 
 
-class GetPushProductsResultAmazonUAEAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-
-        try:
-
-            if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
-                logger.warning("GetPushProductsResultAmazonUAEAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
-
-            data = request.data
-            logger.info("GetPushProductsResultAmazonUAEAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            feed_submission_id = data["feed_submission_id"]
-
-            permissible_channels = custom_permission_filter_channels(request.user)
-            channel_obj = Channel.objects.get(name="Amazon UAE")
-
-            if channel_obj not in permissible_channels:
-                logger.warning(
-                    "GetPushProductsResultAmazonUAEAPI Restricted Access of UAE Channel!")
-                response['status'] = 403
-                return Response(data=response)
-
-            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
-                                        region='AE')
-
-            response["errors"] = []
-            
-            try :
-                response_feed_submission_result = feeds_api.get_feed_submission_result(feed_submission_id)
-
-                feed_submission_result = response_feed_submission_result.parsed
-
-                try :
-                    result = feed_submission_result["ProcessingReport"]["Result"]
-
-                    if isinstance(result,list):
-
-                        for i in range(len(result)):
-                            temp_dict = {}
-                            temp_dict["product_pk"] = result[i]["MessageID"]["value"]
-                            temp_dict["error_type"] = result[i]["ResultCode"]["value"]
-                            temp_dict["error_code"] = result[i]["ResultMessageCode"]["value"]
-                            temp_dict["error_message"] = result[i]["ResultDescription"]["value"]
-                            response["errors"].append(temp_dict)
-
-                    else:
-                        temp_dict = {}
-                        temp_dict["product_pk"] = result["MessageID"]["value"]
-                        temp_dict["error_type"] = result["ResultCode"]["value"]
-                        temp_dict["error_code"] = result["ResultMessageCode"]["value"]
-                        temp_dict["error_message"] = result["ResultDescription"]["value"]
-                        response["errors"].append(temp_dict)
-
-                    response["result_status"] = "Done"
-                    
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
-                             e, str(exc_tb.tb_lineno))
-                    response["result_status"] = "Done"
-
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-                response["result_status"] = "In Progress"
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GetPushProductsResultAmazonUAEAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
 class PushProductsInventoryAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -597,6 +512,75 @@ class PushProductsInventoryAmazonUAEAPI(APIView):
 
         return Response(data=response)
 
+class PushProductsPriceAmazonUAEAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            if custom_permission_mws_functions(request.user,"push_price_on_amazon") == False:
+                logger.warning("PushProductsPriceAmazonUAEAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("PushProductsPriceAmazonUAEAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk_list = data["product_pk_list"]
+
+            if(len(product_pk_list)>30):
+                logger.warning("PushProductsPriceAmazonUAEAPI More then 30 Products!")
+                response['status'] = 429
+                return Response(data=response)
+
+            permissible_channels = custom_permission_filter_channels(request.user)
+            channel_obj = Channel.objects.get(name="Amazon UAE")
+
+            if channel_obj not in permissible_channels:
+                logger.warning(
+                    "PushProductsPriceAmazonUAEAPI Restricted Access of UAE Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            response["feed_submission_id"] = ""
+
+            xml_string= generate_xml_for_price_data_amazon_uae(product_pk_list,SELLER_ID)
+
+            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
+                                        region='AE')
+
+            response_submeet_feed = feeds_api.submit_feed(xml_string," _POST_PRODUCT_PRICING_DATA_",marketplaceids=marketplace_id)
+
+            feed_submission_id = response_submeet_feed.parsed["FeedSubmissionInfo"]["FeedSubmissionId"]["value"]
+
+            report_obj = Report.objects.create(feed_submission_id=feed_submission_id,
+                                                operation_type="Price",
+                                                channel = channel_obj,
+                                                user=request.user)
+
+            for product_pk in product_pk_list:
+                product = Product.objects.get(pk=int(product_pk))
+                report_obj.products.add(product)
+
+            report_obj.save()
+
+            response["feed_submission_id"] = feed_submission_id
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PushProductsPriceAmazonUAEAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 class GetProductInventoryAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -657,8 +641,8 @@ GetPricingProductsAmazonUAEMWS = GetPricingProductsAmazonUAEMWSAPI.as_view()
 
 PushProductsAmazonUAE = PushProductsAmazonUAEAPI.as_view()
 
-GetPushProductsResultAmazonUAE = GetPushProductsResultAmazonUAEAPI.as_view()
-
 PushProductsInventoryAmazonUAE = PushProductsInventoryAmazonUAEAPI.as_view()
+
+PushProductsPriceAmazonUAE = PushProductsPriceAmazonUAEAPI.as_view()
 
 GetProductInventoryAmazonUAE = GetProductInventoryAmazonUAEAPI.as_view()

@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^push-products-amazon-uk/$',views.PushProductsAmazonUK),
     url(r'^push-products-amazon-uae/$',views.PushProductsAmazonUAE),
     url(r'^push-products-inventory-amazon-uae/$',views.PushProductsInventoryAmazonUAE),
+    url(r'^push-products-price-amazon-uae/$',views.PushProductsPriceAmazonUAE),
     
     url(r'^get-matching-products-amazon-uk/$',views.GetMatchingProductsAmazonUKMWS),
     url(r'^get-pricing-of-products-amazon-uk/$',views.GetPricingProductsAmazonUKMWS),
@@ -24,7 +25,6 @@ urlpatterns = [
     url(r'^get-product-inventory-amazon-uae/$',views.GetProductInventoryAmazonUAE),
 
     url(r'^get-push-products-result-amazon-uk/$',views.GetPushProductsResultAmazonUK),
-    url(r'^get-push-products-result-amazon-uae/$',views.GetPushProductsResultAmazonUAE),
     
     url(r'^fetch-report-list/$',views.FetchReportList),
     url(r'^fetch-report-details/$',views.FetchReportDetails),
