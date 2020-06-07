@@ -48,31 +48,31 @@ class FetchReportListAPI(APIView):
             logger.info("FetchReportListAPI: %s", str(data))
 
             chip_data = json.loads(data.get('tags', '[]'))
-
+            filter_parameters = data["filter_parameters"]
+            
             search_list_objs = []
             report_objs = []
 
-            if data.get("start_date", "") != "" and data.get("end_date", "") != "":
-                start_date = datetime.datetime.strptime(data["start_date"], "%b %d, %Y")
-                end_date = datetime.datetime.strptime(data["end_date"], "%b %d, %Y")
+            if filter_parameters.get("start_date", "") != "" and filter_parameters.get("end_date", "") != "":
+                start_date = datetime.datetime.strptime(filter_parameters["start_date"], "%b %d, %Y")
+                end_date = datetime.datetime.strptime(filter_parameters["end_date"], "%b %d, %Y")
                 report_objs = Report.objects.filter(
                     created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user).order_by('-pk')
             else:
                 report_objs = Report.objects.all().filter(user=request.user).order_by('-pk')
 
-            if data.get("channel_name", "") != "" :
-                channel_obj = Channel.objects.get(name=data["channel_name"])
+            if filter_parameters.get("channel_name", "") != "" :
+                channel_obj = Channel.objects.get(name=filter_parameters["channel_name"])
                 report_objs = Report.objects.filter(channel=channel_obj)
             
-            if data.get("operation_type", "") != "" :
-                logger.error("Hii ")
-                report_objs = Report.objects.filter(operation_type=data["operation_type"])
+            if filter_parameters.get("operation_type", "") != "" :
+                report_objs = Report.objects.filter(operation_type=filter_parameters["operation_type"])
 
-            if data.get("status", "") != "" :
-                report_objs = Report.objects.filter(status=data["status"])
+            if filter_parameters.get("status", "") != "" :
+                report_objs = Report.objects.filter(status=filter_parameters["status"])
 
-            if data.get("is_read", "") != "" :
-                if(data["is_read"]=="true"):
+            if filter_parameters.get("is_read", "") != "" :
+                if(filter_parameters["is_read"]=="true"):
                     report_objs = Report.objects.filter(is_read=True)
                 else:
                     report_objs = Report.objects.filter(is_read=False)
