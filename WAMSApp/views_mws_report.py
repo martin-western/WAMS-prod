@@ -160,6 +160,7 @@ class FetchReportDetailsAPI(APIView):
                 response_feed_submission_result = feeds_api.get_feed_submission_result(feed_submission_id)
 
                 feed_submission_result = response_feed_submission_result.parsed
+                report_obj.is_read = True
                 report_obj.status = "Done"
                 report_obj.save()
 
