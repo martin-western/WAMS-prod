@@ -47,7 +47,10 @@ class FetchReportListAPI(APIView):
             data = request.data
             logger.info("FetchReportListAPI: %s", str(data))
 
-            chip_data = json.loads(data.get('tags', '[]'))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            chip_data = data.get('tags', '[]')
             filter_parameters = data["filter_parameters"]
 
             search_list_objs = []
