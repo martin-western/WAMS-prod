@@ -66,19 +66,19 @@ class FetchReportListAPI(APIView):
 
             if filter_parameters.get("channel_name", "") != "" :
                 channel_obj = Channel.objects.get(name=filter_parameters["channel_name"])
-                report_objs = Report.objects.filter(channel=channel_obj)
+                report_objs = report_objs.filter(channel=channel_obj)
             
             if filter_parameters.get("operation_type", "") != "" :
-                report_objs = Report.objects.filter(operation_type=filter_parameters["operation_type"])
+                report_objs = report_objs.filter(operation_type=filter_parameters["operation_type"])
 
             if filter_parameters.get("status", "") != "" :
-                report_objs = Report.objects.filter(status=filter_parameters["status"])
+                report_objs = report_objs.filter(status=filter_parameters["status"])
 
             if filter_parameters.get("is_read", "") != "" :
                 if(filter_parameters["is_read"]=="true"):
-                    report_objs = Report.objects.filter(is_read=True)
+                    report_objs = report_objs.filter(is_read=True)
                 else:
-                    report_objs = Report.objects.filter(is_read=False)
+                    report_objs = report_objs.filter(is_read=False)
 
             if len(chip_data) == 0:
                 search_list_objs = report_objs
@@ -189,25 +189,21 @@ class FetchReportDetailsAPI(APIView):
                         
                         response["errors"].append(temp_dict)
 
-                    response["result_status"] = "Done"
-
                     
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
                              e, str(exc_tb.tb_lineno))
-                    response["result_status"] = "Done"
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
-                response["result_status"] = "In Progress"
 
             response["report_pk"] = report_obj.pk
             response["feed_submission_id"] = report_obj.feed_submission_id
             response["operation_type"] = report_obj.operation_type
-            response["status"] = report_obj.status
+            response["results_status"] = report_obj.status
             response["is_read"] = report_obj.is_read
             response["created_date"] = str(report_obj.created_date.strftime("%d %b, %Y"))
             response["product_count"] = report_obj.products.all().count()
@@ -221,7 +217,59 @@ class FetchReportDetailsAPI(APIView):
 
         return Response(data=response)
 
+class RefreshReportStatusAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("RefreshReportStatusAPI: %s", str(data))
+
+            report_obj = Report.objects.get(pk=int(data["report_pk"]))
+
+            feed_submission_id = report_obj.feed_submission_id
+
+            if(report_obj.channel.name=="Amazon UAE"):
+                region="AE"
+            else:
+                region="UK"
+
+            products = report_obj.products.all()
+
+            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
+                                        region=region)
+
+            response["errors"] = []
+            
+            try :
+                response_feed_submission_result = feeds_api.get_feed_submission_result(feed_submission_id)
+
+                feed_submission_result = response_feed_submission_result.parsed
+                report_obj.status = "Done"
+                report_obj.save()
+
+                
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.info("RefreshReportStatusAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+            response["results_status"] = report_obj.status
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RefreshReportStatusAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 FetchReportList = FetchReportListAPI.as_view()
 
 FetchReportDetails = FetchReportDetailsAPI.as_view()
+
+RefreshReportStatus = RefreshReportStatusAPI.as_view()
