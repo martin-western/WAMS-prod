@@ -58,6 +58,8 @@ class FetchReportListAPI(APIView):
             report_objs = []
 
             if filter_parameters.get("start_date", "") != "" and filter_parameters.get("end_date", "") != "":
+                start_date = data["start_date"]
+                end_date = data["end_date"]
                 report_objs = Report.objects.filter(
                     created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user).order_by('-pk')
             else:
