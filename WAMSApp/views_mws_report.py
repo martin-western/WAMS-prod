@@ -49,13 +49,13 @@ class FetchReportListAPI(APIView):
 
             chip_data = json.loads(data.get('tags', '[]'))
             filter_parameters = data["filter_parameters"]
-            
+
             search_list_objs = []
             report_objs = []
 
             if filter_parameters.get("start_date", "") != "" and filter_parameters.get("end_date", "") != "":
-                start_date = datetime.datetime.strptime(filter_parameters["start_date"], "%b %d, %Y")
-                end_date = datetime.datetime.strptime(filter_parameters["end_date"], "%b %d, %Y")
+                start_date = datetime.strptime(filter_parameters["start_date"], "%b %d, %Y")
+                end_date = datetime.strptime(filter_parameters["end_date"], "%b %d, %Y")
                 report_objs = Report.objects.filter(
                     created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user).order_by('-pk')
             else:
