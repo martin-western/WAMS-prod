@@ -107,7 +107,7 @@ class FetchReportListAPI(APIView):
                 temp_dict["operation_type"] = report_obj.operation_type
                 temp_dict["status"] = report_obj.status
                 temp_dict["is_read"] = report_obj.is_read
-                temp_dict["created_date"] = str(report_obj.created_date.strftime("%d %b, %Y"))
+                temp_dict["created_date"] = str(report_obj.created_date.strftime("%d %b, %Y : %H %M %p"))
                 temp_dict["product_count"] = report_obj.products.all().count()
                 temp_dict["user"] = str(report_obj.user.username)
                 report_list.append(temp_dict)
