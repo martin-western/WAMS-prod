@@ -65,6 +65,7 @@ class FetchReportListAPI(APIView):
                 report_objs = Report.objects.filter(channel=channel_obj)
             
             if data.get("operation_type", "") != "" :
+                logger.error("Hii ")
                 report_objs = Report.objects.filter(operation_type=data["operation_type"])
 
             if data.get("status", "") != "" :
