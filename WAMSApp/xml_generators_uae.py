@@ -19,6 +19,9 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
             message_id = str(product_pk)
             seller_sku = product_obj.base_product.seller_sku
             
+            brand_name = ""
+            product_id_type = ""
+
             try:
                 brand_name = product_obj.base_product.brand.name
             except Exception as e:
@@ -61,7 +64,7 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
     except Exception as e:
         print(str(e))
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("Generating XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.error("Generating XML for Post Product Data UAE: %s at %s", e, str(exc_tb.tb_lineno))
         return ""
 
 
