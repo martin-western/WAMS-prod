@@ -25,12 +25,12 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
             try:
                 brand_name = product_obj.base_product.brand.name
             except Exception as e:
-                brand_name = "None"
+                brand_name = ""
 
             try:
                 product_id_type = product_obj.product_id_type.name
             except Exception as e:
-                product_id_type = "None"
+                product_id_type = ""
 
             product_id = product_obj.product_id
             amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
