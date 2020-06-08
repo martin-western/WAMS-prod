@@ -155,6 +155,9 @@ class FetchReportDetailsAPI(APIView):
                                         region=region)
 
             response["errors"] = []
+            response["success"] = []
+
+            product_pk_hash_list = {}
             
             try :
                 response_feed_submission_result = feeds_api.get_feed_submission_result(feed_submission_id)
@@ -178,6 +181,7 @@ class FetchReportDetailsAPI(APIView):
 
                             temp_dict["product_name"] = Product.objects.get(pk=int(temp_dict["product_pk"])).product_name
 
+                            product_pk_hash_list[temp_dict["product_pk"]] = "1"
                             response["errors"].append(temp_dict)
 
                     else:
@@ -189,6 +193,7 @@ class FetchReportDetailsAPI(APIView):
 
                         temp_dict["product_name"] = Product.objects.get(pk=int(temp_dict["product_pk"])).product_name
                         
+                        product_pk_hash_list[temp_dict["product_pk"]] = "1"
                         response["errors"].append(temp_dict)
 
                     
@@ -201,6 +206,16 @@ class FetchReportDetailsAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
+
+            for product in products:
+
+                if product.pk not in product_pk_hash_list.keys():
+
+                    temp_dict = {}
+                    temp_dict["product_pk"] = product.pk
+                    temp_dict["product_name"] = product.product_name
+                    
+                    response["success"].append(temp_dict)
 
             response["report_pk"] = report_obj.pk
             response["feed_submission_id"] = report_obj.feed_submission_id
