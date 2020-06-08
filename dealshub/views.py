@@ -2119,6 +2119,7 @@ class FetchDealshubPriceAPI(APIView):
                 if dealshub_product_obj.stock>0:
                     is_stock_available = True
                 
+                is_promotional = False
                 if dealshub_product_obj.promotion is not None:
                     is_promotional = True
                     price = dealshub_product_obj.promotional_price
