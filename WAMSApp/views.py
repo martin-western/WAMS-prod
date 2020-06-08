@@ -1055,15 +1055,19 @@ class FetchProductDetailsAPI(APIView):
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price
 
+            response["is_bundle_product"] = product_obj.is_bundle_product
+
             try:
                 dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
                 response["was_price"] = dealshub_product_obj.was_price
                 response["now_price"] = dealshub_product_obj.now_price
                 response["stock"] = dealshub_product_obj.stock
+                response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
             except Exception as e:
                 response["was_price"] = 0
                 response["now_price"] = 0
                 response["stock"] = 0
+                response["is_cod_allowed"] = True
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
@@ -1663,6 +1667,9 @@ class SaveProductAPI(APIView):
             now_price = float(data.get("now_price", 0))
             stock = int(data.get("stock", 0))
 
+            is_cod_allowed = data.get("is_cod_allowed", False)
+            is_bundle_product = data.get("is_bundle_product", False)
+
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
 
@@ -1674,6 +1681,7 @@ class SaveProductAPI(APIView):
 
             try:
                 dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.is_cod_allowed = is_cod_allowed
                 if custom_permission_price(request.user, "dealshub")==True:
                     dealshub_product_obj.was_price = was_price
                     if now_price>=min_price and now_price<=max_price:
@@ -1683,6 +1691,7 @@ class SaveProductAPI(APIView):
                 if custom_permission_stock(request.user, "dealshub")==True and stock>=0:
                     dealshub_product_obj.stock = stock
                     dealshub_product_obj.save()
+                dealshub_product_obj.save()
             except Exception as e:
                 pass
 
@@ -1732,6 +1741,8 @@ class SaveProductAPI(APIView):
             product_obj.pfl_product_features = json.dumps(pfl_product_features)
 
             product_obj.factory_notes = factory_notes
+
+            product_obj.is_bundle_product = is_bundle_product
 
             if str(dynamic_form_attributes)!="{}":
                 product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
@@ -1902,39 +1913,39 @@ class FetchProductListAPI(APIView):
                         #     temp_dict["base_main_images"].append(main_images[0])
 
                     channels_of_prod =0
-                    active_channels = 0
+                    inactive_channels = 0
 
                     if product_obj.channel_product.is_noon_product_created == True:
                         
                         channels_of_prod +=1
                         noon_product = json.loads(product_obj.channel_product.noon_product_json)
-                        if noon_product["status"] == "Active":
-                            active_channels +=1
+                        if noon_product["status"] == "Inactive":
+                            inactive_channels +=1
 
                     if product_obj.channel_product.is_amazon_uk_product_created == True:
                         
                         channels_of_prod +=1
                         amazon_uk_product = json.loads(product_obj.channel_product.amazon_uk_product_json)
-                        if amazon_uk_product["status"] == "Active":
-                            active_channels +=1
+                        if amazon_uk_product["status"] == "Inactive":
+                            inactive_channels +=1
 
                     if product_obj.channel_product.is_amazon_uae_product_created == True:
                         
                         channels_of_prod +=1
                         amazon_uae_product = json.loads(product_obj.channel_product.amazon_uae_product_json)
-                        if amazon_uae_product["status"] == "Active":
-                            active_channels +=1
+                        if amazon_uae_product["status"] == "Inactive":
+                            inactive_channels +=1
 
                     if product_obj.channel_product.is_ebay_product_created == True:
                         
                         channels_of_prod +=1
                         ebay_product = json.loads(product_obj.channel_product.ebay_product_json)
-                        if ebay_product["status"] == "Active":
-                            active_channels +=1
+                        if ebay_product["status"] == "Inactive":
+                            inactive_channels +=1
 
                     temp_dict2["channels_of_prod"] = channels_of_prod
-                    temp_dict2["active_channels"] = active_channels
-                    temp_dict2["inactive_channels"] = channels_of_prod - active_channels
+                    temp_dict2["inactive_channels"] = inactive_channels
+                    temp_dict2["active_channels"] = channels_of_prod - inactive_channels
                     temp_dict["products"].append(temp_dict2)
 
                 products.append(temp_dict)
@@ -5908,7 +5919,6 @@ class FetchOCReportListAPI(APIView):
             logger.error("FetchOCReportListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
 
 SapIntegration = SapIntegrationAPI.as_view()
 

@@ -543,7 +543,9 @@ class Product(models.Model):
     product_description = models.TextField(blank=True)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
-    
+   
+
+    is_bundle_product = models.BooleanField(default=False) 
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)

@@ -13,6 +13,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.utils import timezone
 
 import requests
 import json
@@ -47,34 +48,38 @@ class FetchReportListAPI(APIView):
             data = request.data
             logger.info("FetchReportListAPI: %s", str(data))
 
-            chip_data = json.loads(data.get('tags', '[]'))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            chip_data = data.get('tags', '[]')
+            filter_parameters = data["filter_parameters"]
 
             search_list_objs = []
             report_objs = []
 
-            if data.get("start_date", "") != "" and data.get("end_date", "") != "":
-                start_date = datetime.datetime.strptime(data["start_date"], "%b %d, %Y")
-                end_date = datetime.datetime.strptime(data["end_date"], "%b %d, %Y")
+            if filter_parameters.get("start_date", "") != "" and filter_parameters.get("end_date", "") != "":
+                start_date = filter_parameters["start_date"]
+                end_date = filter_parameters["end_date"]
                 report_objs = Report.objects.filter(
                     created_date__gte=start_date).filter(created_date__lte=end_date).filter(user=request.user).order_by('-pk')
             else:
                 report_objs = Report.objects.all().filter(user=request.user).order_by('-pk')
 
-            if data.get("channel_name", "") != "" :
-                channel_obj = Channel.objects.get(name=data["channel_name"])
-                report_objs = Report.objects.filter(channel=channel_obj)
+            if filter_parameters.get("channel_name", "") != "" :
+                channel_obj = Channel.objects.get(name=filter_parameters["channel_name"])
+                report_objs = report_objs.filter(channel=channel_obj)
             
-            if data.get("operation_type", "") != "" :
-                report_objs = Report.objects.filter(operation_type=data["operation_type"])
+            if filter_parameters.get("operation_type", "") != "" :
+                report_objs = report_objs.filter(operation_type=filter_parameters["operation_type"])
 
-            if data.get("status", "") != "" :
-                report_objs = Report.objects.filter(status=data["status"])
+            if filter_parameters.get("status", "") != "" :
+                report_objs = report_objs.filter(status=filter_parameters["status"])
 
-            if data.get("is_read", "") != "" :
-                if(data["is_read"]=="true"):
-                    report_objs = Report.objects.filter(is_read=True)
+            if filter_parameters.get("is_read", "") != "" :
+                if(filter_parameters["is_read"]==True):
+                    report_objs = report_objs.filter(is_read=True)
                 else:
-                    report_objs = Report.objects.filter(is_read=False)
+                    report_objs = report_objs.filter(is_read=False)
 
             if len(chip_data) == 0:
                 search_list_objs = report_objs
@@ -101,9 +106,9 @@ class FetchReportListAPI(APIView):
                 temp_dict["pk"] = report_obj.pk
                 temp_dict["feed_submission_id"] = report_obj.feed_submission_id
                 temp_dict["operation_type"] = report_obj.operation_type
-                temp_dict["status"] = report_obj.status
+                temp_dict["report_status"] = report_obj.status
                 temp_dict["is_read"] = report_obj.is_read
-                temp_dict["created_date"] = str(report_obj.created_date.strftime("%d %b, %Y"))
+                temp_dict["created_date"] = str(report_obj.created_date.strftime("%d %b, %Y : %H %M %p"))
                 temp_dict["product_count"] = report_obj.products.all().count()
                 temp_dict["user"] = str(report_obj.user.username)
                 report_list.append(temp_dict)
@@ -150,11 +155,17 @@ class FetchReportDetailsAPI(APIView):
                                         region=region)
 
             response["errors"] = []
+            response["success"] = []
+
+            product_pk_hash_list = {}
             
             try :
                 response_feed_submission_result = feeds_api.get_feed_submission_result(feed_submission_id)
 
                 feed_submission_result = response_feed_submission_result.parsed
+                report_obj.is_read = True
+                report_obj.status = "Done"
+                report_obj.save()
 
                 try :
                     result = feed_submission_result["ProcessingReport"]["Result"]
@@ -170,6 +181,7 @@ class FetchReportDetailsAPI(APIView):
 
                             temp_dict["product_name"] = Product.objects.get(pk=int(temp_dict["product_pk"])).product_name
 
+                            product_pk_hash_list[temp_dict["product_pk"]] = "1"
                             response["errors"].append(temp_dict)
 
                     else:
@@ -181,28 +193,36 @@ class FetchReportDetailsAPI(APIView):
 
                         temp_dict["product_name"] = Product.objects.get(pk=int(temp_dict["product_pk"])).product_name
                         
+                        product_pk_hash_list[temp_dict["product_pk"]] = "1"
                         response["errors"].append(temp_dict)
 
-                    response["result_status"] = "Done"
                     
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
                              e, str(exc_tb.tb_lineno))
-                    response["result_status"] = "Done"
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
-                response["result_status"] = "In Progress"
+
+            for product in products:
+
+                if product.pk not in product_pk_hash_list.keys():
+
+                    temp_dict = {}
+                    temp_dict["product_pk"] = product.pk
+                    temp_dict["product_name"] = product.product_name
+                    
+                    response["success"].append(temp_dict)
 
             response["report_pk"] = report_obj.pk
             response["feed_submission_id"] = report_obj.feed_submission_id
             response["operation_type"] = report_obj.operation_type
-            response["status"] = report_obj.status
+            response["report_status"] = report_obj.status
             response["is_read"] = report_obj.is_read
-            response["created_date"] = str(report_obj.created_date.strftime("%d %b, %Y"))
+            response["created_date"] = str(timezone.localtime(report_obj.created_date).strftime("%d %b, %Y"))
             response["product_count"] = report_obj.products.all().count()
             response["user"] = str(report_obj.user.username)
             response['status'] = 200
@@ -214,7 +234,58 @@ class FetchReportDetailsAPI(APIView):
 
         return Response(data=response)
 
+class RefreshReportStatusAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("RefreshReportStatusAPI: %s", str(data))
+
+            report_obj = Report.objects.get(pk=int(data["report_pk"]))
+
+            feed_submission_id = report_obj.feed_submission_id
+
+            if(report_obj.channel.name=="Amazon UAE"):
+                region="AE"
+            else:
+                region="UK"
+
+            products = report_obj.products.all()
+
+            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
+                                        region=region)
+            
+            try :
+
+                response_feed_submission_result = feeds_api.get_feed_submission_result(feed_submission_id)
+
+                feed_submission_result = response_feed_submission_result.parsed
+                report_obj.status = "Done"
+                report_obj.save()
+
+                
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.info("RefreshReportStatusAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+            response["report_status"] = report_obj.status
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RefreshReportStatusAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 FetchReportList = FetchReportListAPI.as_view()
 
 FetchReportDetails = FetchReportDetailsAPI.as_view()
+
+RefreshReportStatus = RefreshReportStatusAPI.as_view()
