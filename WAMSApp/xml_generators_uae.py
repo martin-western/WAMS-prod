@@ -34,7 +34,7 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
                 product_id_type = ""
 
             try:
-                product_id = product_obj.product_id
+                product_id = str(product_obj.product_id)
             except Exception as e:
                 product_id = ""
 
