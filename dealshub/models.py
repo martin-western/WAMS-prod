@@ -25,6 +25,9 @@ class Promotion(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
 
+    def __str__(self):
+        return str(self.uuid)
+
     def save(self, *args, **kwargs):
 
         if self.uuid == None or self.uuid=="":
