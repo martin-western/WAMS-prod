@@ -2611,7 +2611,7 @@ class UpdateSuperCategoryImageAPI(APIView):
             logger.error("UpdateSuperCategoryImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
-class UpdatePromotionalPrice(APIView):
+class UpdatePromotionalPriceAPI(APIView):
 
     permision_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -2637,7 +2637,25 @@ class UpdatePromotionalPrice(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdatePromotionalPrice: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)   
+        return Response(data=response)
+
+class UpdateUnitBannerAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RefreshStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)    
 
 
 class RefreshStockAPI(APIView):
@@ -2801,5 +2819,9 @@ RemoveCategoryFromWebsiteGroup = RemoveCategoryFromWebsiteGroupAPI.as_view()
 UpdateCategoryImage = UpdateCategoryImageAPI.as_view()
 
 UpdateSuperCategoryImage = UpdateSuperCategoryImageAPI.as_view()
+
+UpdatePromotionalPrice = UpdatePromotionalPriceAPI.as_view()
+
+UpdateUnitBanner = UpdateUnitBannerAPI.as_view()
 
 RefreshStock = RefreshStockAPI.as_view()
