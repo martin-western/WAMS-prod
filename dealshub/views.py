@@ -633,12 +633,12 @@ class CreateAdminCategoryAPI(APIView):
                 start_date = promotion["start_date"]
                 end_date = promotion["end_promotion"]
                 promotional_tag = promotion["promotional_tag"]
-                promotion_obj = Promotion.create(uuid=str(uuid.uuid4),promotion_tag=promotional_tag,start_time=start_date,end_date=end_date)
+                promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_date=end_date)
 
             
             order_index = Banner.objects.filter(website_group=website_group_obj).count()+Section.objects.filter(website_group=website_group_obj).count()+1
 
-            section_obj = Section.objects.create(website_group=website_group_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type, promotion = promotion_obj, order_index=order_index)
+            section_obj = Section.objects.create(website_group=website_group_obj, name=name, listing_type=listing_type, promotion=promotion_obj, order_index=order_index)
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
                 if is_promotional:
@@ -1014,7 +1014,7 @@ class AddBannerImageAPI(APIView):
                 start_date = promotion["start_date"]
                 end_date = promotion["end_promotion"]
                 promotional_tag = promotion["promotional_tag"]
-                promotion_obj = Promotion.create(uuid=str(uuid.uuid4),promotion_tag=promotional_tag,start_time=start_date,end_date=end_date)
+                promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_date=end_date)
 
             banner_obj = Banner.objects.get(uuid=uuid)
             image_obj = Image.objects.create(image=banner_image)
@@ -1084,8 +1084,6 @@ class DeleteBannerImageAPI(APIView):
                 unit_banner_image_obj.mobile_image = None
             else:
                 unit_banner_image_obj.image = None
-
-            unit_banner_image_obj.promotion = None
 
             unit_banner_image_obj.save()
 
