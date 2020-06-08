@@ -85,9 +85,10 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
                 if(product_obj.product_id_type!=None):
                     product_id_type = product_obj.product_id_type
                 barcode_string = product_obj.barcode_string
+                product_id = product_obj.product_id
 
-                if barcode_string!= None and barcode_string!="" and product_id_type!=None:
-                    barcodes_list.append((product_id_type.name,barcode_string,product_pk))
+                if product_id!= None and product_id!="" and product_id_type!=None:
+                    barcodes_list.append((product_id_type.name,product_id,product_pk))
                 else:
                     temp_dict = {}
                     temp_dict["status"] = "Barcode Not Found"
@@ -452,7 +453,7 @@ class PushProductsInventoryAmazonUAEAPI(APIView):
 
         try:
 
-            if custom_permission_mws_functions(request.user,"push_inventory_on_amazon") == False:
+            if custom_permission_mws_functions(request.user,"push_inventory_on_amazon") == False and custom_permission_mws_functions(request.user,"push_price_on_amazon") == False:
                 logger.warning("PushProductsInventoryAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
