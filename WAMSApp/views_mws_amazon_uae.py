@@ -555,7 +555,7 @@ class PushProductsPriceAmazonUAEAPI(APIView):
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region='AE')
 
-            response_submeet_feed = feeds_api.submit_feed(xml_string," _POST_PRODUCT_PRICING_DATA_",marketplaceids=marketplace_id)
+            response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_PRICING_DATA_",marketplaceids=marketplace_id)
 
             feed_submission_id = response_submeet_feed.parsed["FeedSubmissionInfo"]["FeedSubmissionId"]["value"]
 
