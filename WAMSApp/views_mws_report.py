@@ -76,7 +76,7 @@ class FetchReportListAPI(APIView):
                 report_objs = report_objs.filter(status=filter_parameters["status"])
 
             if filter_parameters.get("is_read", "") != "" :
-                if(filter_parameters["is_read"]=="true"):
+                if(filter_parameters["is_read"]==True):
                     report_objs = report_objs.filter(is_read=True)
                 else:
                     report_objs = report_objs.filter(is_read=False)

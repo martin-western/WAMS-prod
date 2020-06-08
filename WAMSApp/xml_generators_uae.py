@@ -83,8 +83,8 @@ def generate_xml_for_price_data_amazon_uae(product_pk_list,seller_id):
             xml_string += """<Message>
                             <MessageID>"""+ message_id+ """</MessageID>
                             <Price>
-                                <StandardPrice currency="AED">"""+ str(price) + """</StandardPrice>
-                                <SKU>"""+ seller_sku+ """</SKU>
+                              <SKU>"""+ seller_sku +  """</SKU> 
+                              <StandardPrice currency="AED">""" + str(price) + """</StandardPrice>
                             </Price>
                           </Message>"""
 
