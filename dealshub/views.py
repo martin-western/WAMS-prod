@@ -2649,8 +2649,37 @@ class UpdateUnitBannerAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
+            logger.info("UpdateUnitBannerAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["uuid"]
+            products = data["products"]
+            is_promotional = data["is_promotional"]
+            
+            promotion_obj = None
+            if is_promotional:
+                promotion = data["promotion"]
+                start_date = promotion["start_date"]
+                end_date = promotion["end_promotion"]
+                promotional_tag = promotion["promotional_tag"]
+                promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_date=end_date)
+            
+            unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
+            unit_banner_obj.promotion = promotion_obj
+            unit_banner_obj.products.clear()
+            for product in products:
+                product_obj = Product.objects.get(uuid=product)
+                if is_promotional:
+                    product_obj.promotion = promotion_obj
+                    product_obj.save()
+                unit_banner_obj.products.add(product_obj)
+
+            unit_banner_obj.save()
+
+            response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
