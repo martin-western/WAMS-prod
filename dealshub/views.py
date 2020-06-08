@@ -2120,9 +2120,11 @@ class FetchDealshubPriceAPI(APIView):
                     is_stock_available = True
                 
                 is_promotional = False
-                if dealshub_product_obj.promotion is not None:
+                promotion = dealshub_product_obj.promotion
+                if promotion is not None:
                     is_promotional = True
-                    price = dealshub_product_obj.promotional_price
+                    if utils.check_valid_promotion(datetime.now(),promotion):
+                        price = dealshub_product_obj.promotional_price
 
             elif company_code in ["1000", "1070"]:
                 price = fetch_prices_dealshub(uuid1, company_code)
