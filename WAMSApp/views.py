@@ -5136,35 +5136,43 @@ class FetchChannelProductListAPI(APIView):
             for product_obj in product_objs:
                 
                 temp_dict = {}
-                amazon_uk_product_json = json.loads(product_obj.channel_product.amazon_uk_product_json)
-                amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
-                ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
-                noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
                 temp_dict["product_pk"] = product_obj.pk
                 
                 if channel_name=="Amazon UK":
+                    amazon_uk_product_json = json.loads(product_obj.channel_product.amazon_uk_product_json)
                     temp_dict["product_name"] = amazon_uk_product_json["product_name"]
                     temp_dict["category"] = amazon_uk_product_json["category"]
                     temp_dict["sub_category"] = amazon_uk_product_json["sub_category"]
                     temp_dict["status"] = amazon_uk_product_json["status"]
+                    temp_dict["price"] = amazon_uk_product_json["price"]
+                    temp_dict["quantity"] = amazon_uk_product_json["quantity"]
                 
                 if channel_name=="Amazon UAE":
+                    amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
                     temp_dict["product_name"] = amazon_uae_product_json["product_name"]
                     temp_dict["category"] = amazon_uae_product_json["category"]
                     temp_dict["sub_category"] = amazon_uae_product_json["sub_category"]
                     temp_dict["status"] = amazon_uae_product_json["status"]
+                    temp_dict["price"] = amazon_uae_product_json["price"]
+                    temp_dict["quantity"] = amazon_uae_product_json["quantity"]
                 
                 if channel_name=="Ebay":
+                    ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
                     temp_dict["product_name"] = ebay_product_json["product_name"]
                     temp_dict["category"] = ebay_product_json["category"]
                     temp_dict["sub_category"] = ebay_product_json["sub_category"]
                     temp_dict["status"] = ebay_product_json["status"]
+                    temp_dict["price"] = ebay_product_json["price"]
+                    temp_dict["quantity"] = ebay_product_json["quantity"]
                 
                 if channel_name=="Noon":
+                    noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
                     temp_dict["product_name"] = noon_product_json["product_name"]
                     temp_dict["category"] = noon_product_json["category"]
                     temp_dict["sub_category"] = noon_product_json["sub_category"]
                     temp_dict["status"] = noon_product_json["status"]
+                    temp_dict["price"] = noon_product_json["price"]
+                    temp_dict["quantity"] = noon_product_json["quantity"]
 
                 temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                 
