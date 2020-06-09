@@ -18,15 +18,33 @@ from WAMSApp.models import Product, Image, WebsiteGroup, Category
 
 logger = logging.getLogger(__name__)
 
+class Promotion(models.Model):
+    
+    uuid = models.CharField(max_length=200, unique=True)
+    promotion_tag = models.CharField(max_length=100, default="")
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(Promotion, self).save(*args, **kwargs)
 
 class DealsHubProduct(models.Model):
     
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
     was_price = models.FloatField(default=0)
     now_price = models.FloatField(default=0)
+    promotional_price = models.FloatField(default=0)
     stock = models.IntegerField(default=0)
     is_cod_allowed = models.BooleanField(default=True)
     properties = models.TextField(null=True, blank=True, default="{}")
+    promotion = models.ForeignKey(Promotion,null=True,blank=True)
     is_published = models.BooleanField(default=False)
 
     class Meta:
@@ -35,7 +53,7 @@ class DealsHubProduct(models.Model):
 
     def __str__(self):
         return str(self.product)
-        
+
 
 class Section(models.Model):
 
@@ -46,7 +64,8 @@ class Section(models.Model):
     listing_type = models.CharField(default="Carousel", max_length=200)
     products = models.ManyToManyField(Product, blank=True)
     created_date = models.DateTimeField()
-    modified_date = models.DateTimeField() 
+    modified_date = models.DateTimeField()
+    promotion = models.ForeignKey(Promotion,null=True,blank=True)
     created_by = models.ForeignKey(User, related_name="created_by", null=True, blank=True, on_delete=models.SET_NULL)
     modified_by = models.ForeignKey(User, related_name="modified_by", null=True, blank=True, on_delete=models.SET_NULL)
     order_index = models.IntegerField(default=4)
@@ -118,12 +137,13 @@ class UnitBannerImage(models.Model):
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, blank=True)
+    promotion = models.ForeignKey(Promotion,null=True,blank=True)
 
     def __str__(self):
         return str(self.uuid)
 
     def save(self, *args, **kwargs):
-        
+
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())
         
