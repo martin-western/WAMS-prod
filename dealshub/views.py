@@ -1969,9 +1969,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict3["displayId"] = str(prod.product_id)
                         temp_dict3["uuid"] = str(prod.uuid)
 
-                        promotion_obj = prod.promotion
+                        dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
+                        promotion_obj = dealshub_product_obj.promotion
                         if promotion_obj is not None:
-                            dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
                             temp_dict3["promotional_price"] = str(dealshub_product_obj.promotional_price)  
                             temp_dict3["now_price"] = str(dealshub_product_obj.now_price)
                             temp_dict3["was_price"] = str(dealshub_product_obj.was_price)
