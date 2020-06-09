@@ -81,6 +81,8 @@ urlpatterns = [
     url(r'^remove-category-from-website-group/$', views.RemoveCategoryFromWebsiteGroup),
     url(r'^update-category-image/$', views.UpdateCategoryImage),
     url(r'^update-super-category-image/$', views.UpdateSuperCategoryImage),
+    url(r'^update-promotional-price/$'.views.UpdatePromotionalPrice),
+    url(r'^update-unit-banner/$',views.UpdateUnitBanner),
 
     url(r'^refresh-stock/$', views.RefreshStock),
 ]
