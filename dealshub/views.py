@@ -68,6 +68,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 
 class FetchProductDetailsAPI(APIView):
+    
     authentication_classes = (CsrfExemptSessionAuthentication,) 
     permission_classes = [AllowAny]
 
