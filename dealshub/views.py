@@ -1881,9 +1881,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2["category"] = "" if prod.base_product.category==None else str(prod.base_product.category)
                         temp_dict2["currency"] = "AED"
 
-                    promotion_obj = prod.promotion
+                    dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
+                    promotion_obj = dealshub_product_obj.promotion
                     if promotion_obj is not None:
-                        dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
                         temp_dict2["promotional_price"] = str(dealshub_product_obj.promotional_price)  
                         temp_dict2["now_price"] = str(dealshub_product_obj.now_price)
                         temp_dict2["was_price"] = str(dealshub_product_obj.was_price)
