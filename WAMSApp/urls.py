@@ -16,6 +16,8 @@ urlpatterns = [
     # url(r'^save-pfl-image/', views.SavePflImage),
 
     url(r'^fetch-product-list/$', views.FetchProductList),
+    url(r'^updated-fetch-product-list/$', views.UpdatedFetchProductList),
+    
     url(r'^fetch-export-list/$', views.FetchExportList),
     url(r'^add-to-export/$', views.AddToExport),
 
@@ -133,6 +135,8 @@ urlpatterns = [
 
     url(r'^create-oc-report/$',views.CreateOCReport),
     url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
+
+    url(r'^fetch-statistics/$',views.FetchStatistics),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
