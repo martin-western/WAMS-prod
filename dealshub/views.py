@@ -740,8 +740,8 @@ class UpdateAdminCategoryAPI(APIView):
             promotion_obj = section_obj.promotion
             if is_promotional:
                 promotion = data["promotion"]
-                start_date = promotion["start_date"]
-                end_date = promotion["end_date"]
+                start_date = convert_to_datetime(promotion["start_date"])
+                end_date = convert_to_datetime(promotion["end_date"])
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_date=end_date)
@@ -883,6 +883,7 @@ class SectionBulkUploadAPI(APIView):
                     product_obj = Product.objects.get(product_id=product_id)
                     if DealsHubProduct.objects.get(product=product_obj).is_published==False:
                         continue
+                    
                     section_obj.products.add(product_obj)
 
                     temp_dict2 = {}
@@ -1884,11 +1885,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
                     promotion_obj = dealshub_product_obj.promotion
-                    if promotion_obj is not None:
-                        temp_dict2["promotional_price"] = str(dealshub_product_obj.promotional_price)  
-                        temp_dict2["now_price"] = str(dealshub_product_obj.now_price)
-                        temp_dict2["was_price"] = str(dealshub_product_obj.was_price)
-                        temp_dict2["stock"] = str(dealshub_product_obj.stock) 
+                    
+                    temp_dict2["promotional_price"] = str(dealshub_product_obj.promotional_price)  
+                    temp_dict2["now_price"] = str(dealshub_product_obj.now_price)
+                    temp_dict2["was_price"] = str(dealshub_product_obj.was_price)
+                    temp_dict2["stock"] = str(dealshub_product_obj.stock) 
 
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
@@ -1972,11 +1973,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                         dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
                         promotion_obj = dealshub_product_obj.promotion
-                        if promotion_obj is not None:
-                            temp_dict3["promotional_price"] = str(dealshub_product_obj.promotional_price)  
-                            temp_dict3["now_price"] = str(dealshub_product_obj.now_price)
-                            temp_dict3["was_price"] = str(dealshub_product_obj.was_price)
-                            temp_dict3["stock"] = str(dealshub_product_obj.stock)
+                        
+                        temp_dict3["promotional_price"] = str(dealshub_product_obj.promotional_price)  
+                        temp_dict3["now_price"] = str(dealshub_product_obj.now_price)
+                        temp_dict3["was_price"] = str(dealshub_product_obj.was_price)
+                        temp_dict3["stock"] = str(dealshub_product_obj.stock)
 
                         temp_products.append(temp_dict3)
                     temp_dict2["products"] = temp_products
@@ -2220,8 +2221,6 @@ class AddProductToSectionAPI(APIView):
 
             dealshub_product_obj.promotion = section_obj.promotion
             dealshub_product_obj.save()
-            
-            temp_dict = {}    
             
             main_images_list = ImageBucket.objects.none()
             try:
@@ -2671,8 +2670,8 @@ class UpdateUnitBannerAPI(APIView):
             promotion_obj = unit_banner_obj.promotion
             if is_promotional:
                 promotion = data["promotion"]
-                start_date = promotion["start_date"]
-                end_date = promotion["end_date"]
+                start_date = convert_to_datetime(promotion["start_date"])
+                end_date = convert_to_datetime(promotion["end_date"])
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_date=end_date)
