@@ -874,6 +874,7 @@ class SectionBulkUploadAPI(APIView):
 
             uuid = data["uuid"]
             section_obj = Section.objects.get(uuid=uuid)
+            product_objs = section_obj.products.all()
 
             products = []
             unsuccessful_count = 0
@@ -883,7 +884,9 @@ class SectionBulkUploadAPI(APIView):
                     product_obj = Product.objects.get(product_id=product_id)
                     if DealsHubProduct.objects.get(product=product_obj).is_published==False:
                         continue
-                    section_obj.products.add(product_obj)
+                    
+                    if product_objs.filter(uuid=product_obj.uuid).exists() == False:
+                        section_obj.products.add(product_obj)
 
                     temp_dict2 = {}
 
@@ -1889,6 +1892,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2["now_price"] = str(dealshub_product_obj.now_price)
                         temp_dict2["was_price"] = str(dealshub_product_obj.was_price)
                         temp_dict2["stock"] = str(dealshub_product_obj.stock) 
+                    else:
+                        temp_dict2["promotional_price"] = str(0)  
+                        temp_dict2["now_price"] = str(0)
+                        temp_dict2["was_price"] = str(0)
+                        temp_dict2["stock"] = str(0) 
 
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
@@ -1977,6 +1985,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3["now_price"] = str(dealshub_product_obj.now_price)
                             temp_dict3["was_price"] = str(dealshub_product_obj.was_price)
                             temp_dict3["stock"] = str(dealshub_product_obj.stock)
+                        else:
+                            temp_dict3["promotional_price"] = str(0)  
+                            temp_dict3["now_price"] = str(0)
+                            temp_dict3["was_price"] = str(0)
+                            temp_dict3["stock"] = str(0)   
 
                         temp_products.append(temp_dict3)
                     temp_dict2["products"] = temp_products
@@ -2221,26 +2234,30 @@ class AddProductToSectionAPI(APIView):
             dealshub_product_obj.promotion = section_obj.promotion
             dealshub_product_obj.save()
             
-            temp_dict = {}    
-            
-            main_images_list = ImageBucket.objects.none()
-            try:
-                main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
-                main_images_list |= main_images_obj.main_images.all()
-                main_images_list = main_images_list.distinct()
-                images = create_response_images_main(main_images_list)
-                response["thumbnailImageUrl"] = images[0]["midimage_url"]
-            except Exception as e:
-                response["thumbnailImageUrl"] = ""
+            temp_dict = {}
+            product_objs = section_obj.products.all()
 
-            
-            response["name"] = str(product_obj.product_name)
-            response["displayId"] = str(product_obj.product_id)
+            if product_objs.filter(uuid=product_uuid).exists():
+                response['status'] = 409    
+            else:
+                main_images_list = ImageBucket.objects.none()
+                try:
+                    main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
+                    main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = main_images_list.distinct()
+                    images = create_response_images_main(main_images_list)
+                    response["thumbnailImageUrl"] = images[0]["midimage_url"]
+                except Exception as e:
+                    response["thumbnailImageUrl"] = ""
 
-            section_obj.products.add(product_obj)
-            section_obj.save()
-            
-            response['status'] = 200
+                
+                response["name"] = str(product_obj.product_name)
+                response["displayId"] = str(product_obj.product_id)
+
+                section_obj.products.add(product_obj)
+                section_obj.save()
+                
+                response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
