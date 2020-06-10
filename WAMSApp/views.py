@@ -6004,6 +6004,167 @@ class UpdateChannelProductStockandPriceAPI(APIView):
 
         return Response(data=response)
 
+class BulkUpdateChannelProductPriceAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateChannelProductPriceAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = data["channel_name"]
+
+            channel_obj = Channel.objects.get(name=channel_name)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning("BulkUpdateChannelProductPriceAPI Restricted Access of " + channel_name+" !")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("BulkUpdateChannelProductPriceAPI Restricted Access of "+channel_name+" Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            price_permission = custom_permission_price(request.user, "channel_name")
+            
+            if price_permission:
+                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+
+                for i in range(rows):
+                    try:
+                        product_id = str(dfs.iloc[i][0]).strip()
+                        price = float(dfs.iloc[i][1])
+                        
+                        product_obj = Product.objects.get(product_id=product_id)
+                        channel_product = product_obj.channel_product
+
+                        if channel_name == "Amazon UAE":
+                            channel_product_dict = json.loads(channel_product.amazon_uae_product_json)
+                        if channel_name == "Amazon UK":
+                            channel_product_dict = json.loads(channel_product.amazon_uk_product_json)
+                        if channel_name == "Ebay":
+                            channel_product_dict = json.loads(channel_product.ebay_product_json)
+                        if channel_name == "Noon":
+                            channel_product_dict = json.loads(channel_product.noon_product_json)
+                        
+                        channel_product_dict["price"] = price
+
+                        if channel_name == "Amazon UAE":
+                            channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
+                        if channel_name == "Amazon UK":
+                            channel_product.amazon_uk_product_json = json.dumps(channel_product_dict)
+                        if channel_name == "Ebay":
+                            channel_product.ebay_product_json = json.dumps(channel_product_dict)
+                        if channel_name == "Noon":
+                            channel_product.noon_product_json = json.dumps(channel_product_dict)
+                            
+                        channel_product.save()
+
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("BulkUpdateChannelProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateChannelProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class BulkUpdateChannelProductStockAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateChannelProductStockAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = data["channel_name"]
+
+            channel_obj = Channel.objects.get(name=channel_name)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning("BulkUpdateChannelProductStockAPI Restricted Access of " + channel_name+" !")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("BulkUpdateChannelProductStockAPI Restricted Access of "+channel_name+" Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            price_permission = custom_permission_price(request.user, "channel_name")
+            
+            if price_permission:
+                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+
+                for i in range(rows):
+                    try:
+                        product_id = str(dfs.iloc[i][0]).strip()
+                        stock = int(dfs.iloc[i][1])
+                        
+                        product_obj = Product.objects.get(product_id=product_id)
+                        channel_product = product_obj.channel_product
+
+                        if channel_name == "Amazon UAE":
+                            channel_product_dict = json.loads(channel_product.amazon_uae_product_json)
+                        if channel_name == "Amazon UK":
+                            channel_product_dict = json.loads(channel_product.amazon_uk_product_json)
+                        if channel_name == "Ebay":
+                            channel_product_dict = json.loads(channel_product.ebay_product_json)
+                        if channel_name == "Noon":
+                            channel_product_dict = json.loads(channel_product.noon_product_json)
+                        
+                        channel_product_dict["quantity"] = stock
+
+                        if channel_name == "Amazon UAE":
+                            channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
+                        if channel_name == "Amazon UK":
+                            channel_product.amazon_uk_product_json = json.dumps(channel_product_dict)
+                        if channel_name == "Ebay":
+                            channel_product.ebay_product_json = json.dumps(channel_product_dict)
+                        if channel_name == "Noon":
+                            channel_product.noon_product_json = json.dumps(channel_product_dict)
+                            
+                        channel_product.save()
+
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -6166,3 +6327,7 @@ CreateOCReport = CreateOCReportAPI.as_view()
 FetchOCReportList = FetchOCReportListAPI.as_view()
 
 UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view()
+
+BulkUpdateChannelProductPrice = BulkUpdateChannelProductPriceAPI.as_view()
+
+BulkUpdateChannelProductStock = BulkUpdateChannelProductStockAPI.as_view()
