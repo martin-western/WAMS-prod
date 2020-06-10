@@ -740,8 +740,8 @@ class UpdateAdminCategoryAPI(APIView):
             promotion_obj = section_obj.promotion
             if is_promotional:
                 promotion = data["promotion"]
-                start_date = promotion["start_date"]
-                end_date = promotion["end_date"]
+                start_date = convert_to_datetime(promotion["start_date"])
+                end_date = convert_to_datetime(promotion["end_date"])
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_date=end_date)
@@ -2671,8 +2671,8 @@ class UpdateUnitBannerAPI(APIView):
             promotion_obj = unit_banner_obj.promotion
             if is_promotional:
                 promotion = data["promotion"]
-                start_date = promotion["start_date"]
-                end_date = promotion["end_date"]
+                start_date = convert_to_datetime(promotion["start_date"])
+                end_date = convert_to_datetime(promotion["end_date"])
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_date=end_date)
