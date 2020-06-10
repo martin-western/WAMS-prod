@@ -5931,6 +5931,79 @@ class FetchOCReportListAPI(APIView):
 
         return Response(data=response)
 
+class UpdateChannelProductStockandPriceAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateChannelProductStockandPriceAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk = data["product_pk"]
+            channel_name = data["channel_name"]
+
+            channel_obj = Channel.objects.get(name=channel_name)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning("UpdateChannelProductStockandPriceAPI Restricted Access of " + channel_name+" !")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("UpdateChannelProductStockandPriceAPI Restricted Access of "+channel_name+" Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            product_obj = Product.objects.get(product_pk=product_pk)
+            channel_product = product_obj.channel_product
+
+            if channel_name == "Amazon UAE":
+                channel_product_dict = json.loads(channel_product.amazon_uae_product_json)
+            if channel_name == "Amazon UK":
+                channel_product_dict = json.loads(channel_product.amazon_uk_product_json)
+            if channel_name == "Ebay":
+                channel_product_dict = json.loads(channel_product.ebay_product_json)
+            if channel_name == "Noon":
+                channel_product_dict = json.loads(channel_product.noon_product_json)
+
+            price_permission = custom_permission_price(request.user, channel_name)
+            stock_permission = custom_permission_stock(request.user, channel_name)
+
+            if price_permission:
+                if "price" in data:
+                    channel_product_dict["price"] = float(data["price"])
+            
+            if stock_permission:
+                if "stock" in data:
+                    channel_product_dict["quantity"] = int(data["quantity"])
+                    
+            if channel_name == "Amazon UAE":
+                channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
+            if channel_name == "Amazon UK":
+                channel_product.amazon_uk_product_json = json.dumps(channel_product_dict)
+            if channel_name == "Ebay":
+                channel_product.ebay_product_json = json.dumps(channel_product_dict)
+            if channel_name == "Noon":
+                channel_product.noon_product_json = json.dumps(channel_product_dict)
+                
+            channel_product.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateChannelProductStockandPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -6091,3 +6164,5 @@ CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
 CreateOCReport = CreateOCReportAPI.as_view()
 
 FetchOCReportList = FetchOCReportListAPI.as_view()
+
+UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view()
