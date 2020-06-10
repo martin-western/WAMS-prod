@@ -134,5 +134,7 @@ urlpatterns = [
     url(r'^create-oc-report/$',views.CreateOCReport),
     url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
 
+    url(r'^update-channel-product-stock-and-price/$',views.UpdateChannelProductStockandPrice),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
