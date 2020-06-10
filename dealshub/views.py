@@ -1846,9 +1846,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 promotion_obj = section_obj.promotion
                 if promotion_obj is None:
                     temp_dict["is_promotional"] = False
-                    temp_dict["start_time"] = ""
-                    temp_dict["end_time"] = ""
-                    temp_dict["promotion_tag"] = ""
+                    temp_dict["start_time"] = None
+                    temp_dict["end_time"] = None
+                    temp_dict["promotion_tag"] = None
                 else:
                     temp_dict["is_promotional"] = True
                     temp_dict["start_time"] = str(promotion_obj.start_time)
@@ -1947,9 +1947,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     promotion_obj = unit_banner_image_obj.promotion
                     if promotion_obj is None:
                         temp_dict2["is_promotional"] = False
-                        temp_dict2["start_time"] = ""
-                        temp_dict2["end_time"] = ""
-                        temp_dict2["promotion_tag"] = ""
+                        temp_dict2["start_time"] = None
+                        temp_dict2["end_time"] = None
+                        temp_dict2["promotion_tag"] = None
                     else:
                         temp_dict2["is_promotional"] = True
                         temp_dict2["start_time"] = str(promotion_obj.start_time)

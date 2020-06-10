@@ -135,6 +135,8 @@ urlpatterns = [
     url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
 
     url(r'^update-channel-product-stock-and-price/$',views.UpdateChannelProductStockandPrice),
+    url(r'^bulk-update-channel-product-price/$',views.BulkUpdateChannelProductPrice),
+    url(r'^bulk-update-channel-product-stock/$',views.BulkUpdateChannelProductStock),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
