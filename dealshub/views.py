@@ -1877,7 +1877,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     
                     temp_dict2["name"] = str(prod.product_name)
-                    temp_dict2["sellerSku"] = str(prod.seller_sku)
+                    temp_dict2["sellerSku"] = str(prod.base_product.seller_sku)
                     temp_dict2["displayId"] = str(prod.product_id)
                     temp_dict2["uuid"] = str(prod.uuid)
 
@@ -1974,7 +1974,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         
                         temp_dict3["name"] = str(prod.product_name)
                         temp_dict3["displayId"] = str(prod.product_id)
-                        temp_dict3["sellerSku"] = str(prod.seller_sku)
+                        temp_dict3["sellerSku"] = str(prod.base_product.seller_sku)
                         temp_dict3["uuid"] = str(prod.uuid)
 
                         dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
