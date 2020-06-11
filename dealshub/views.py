@@ -691,7 +691,7 @@ class FetchAdminCategoriesAPI(APIView):
                         images = create_response_images_main(main_images_list)
                         temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
                     except Exception as e:
-                        temp_dict2["thumbnailImageUrl"] = ""
+                        temp_dict2["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
                     
                     temp_dict2["name"] = str(prod.product_name)
@@ -895,7 +895,7 @@ class SectionBulkUploadAPI(APIView):
                         images = create_response_images_main(main_images_list)
                         temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
                     except Exception as e:
-                        temp_dict2["thumbnailImageUrl"] = ""
+                        temp_dict2["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
                     temp_dict2["name"] = str(product_obj.product_name)
                     temp_dict2["displayId"] = str(product_obj.product_id)
@@ -1877,6 +1877,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     
                     temp_dict2["name"] = str(prod.product_name)
+                    temp_dict2["sellerSku"] = str(prod.seller_sku)
                     temp_dict2["displayId"] = str(prod.product_id)
                     temp_dict2["uuid"] = str(prod.uuid)
 
@@ -1973,6 +1974,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         
                         temp_dict3["name"] = str(prod.product_name)
                         temp_dict3["displayId"] = str(prod.product_id)
+                        temp_dict3["sellerSku"] = str(prod.seller_sku)
                         temp_dict3["uuid"] = str(prod.uuid)
 
                         dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
@@ -2057,13 +2059,22 @@ class SearchSectionProductsAutocompleteAPI(APIView):
             search_string = data["searchString"]
             website_group_name = data["websiteGroupName"]
             section_uuid = data["sectionUuid"]
-            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            type = data["type"]
 
-            section_obj = Section.objects.get(uuid=section_uuid)
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
             dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all())
 
-            dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string)).exclude(product__in=section_obj.products.all())[:10]
+            dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))
+
+            if type=="ProductListing":
+                section_obj = Section.objects.get(uuid=section_uuid)
+                dealshub_products = dealshub_products.exclude(product__in=section_obj.products.all())[:10]
+            elif type=="Banner":
+                unit_banner_image_obj = UnitBannerImage.objects.get(uuid=section_uuid)
+                dealshub_products = dealshub_products.exclude(product__in=unit_banner_image_obj.products.all())[:10]
+            else:
+                dealshub_products = dealshub_products[:10]
 
 
             dealshub_products_list = []
@@ -2238,7 +2249,7 @@ class AddProductToSectionAPI(APIView):
                 images = create_response_images_main(main_images_list)
                 response["thumbnailImageUrl"] = images[0]["midimage_url"]
             except Exception as e:
-                response["thumbnailImageUrl"] = ""
+                response["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
             
             response["name"] = str(product_obj.product_name)
@@ -2389,7 +2400,7 @@ class AddProductToUnitBannerAPI(APIView):
                 images = create_response_images_main(main_images_list)
                 response["thumbnailImageUrl"] = images[0]["midimage_url"]
             except Exception as e:
-                response["thumbnailImageUrl"] = ""
+                response["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
             
             response["name"] = str(product_obj.product_name)
@@ -2679,7 +2690,6 @@ class UpdateUnitBannerAPI(APIView):
                 data = json.loads(data)
 
             uuid = data["uuid"]
-            products = data["products"]
             is_promotional = data["is_promotional"]
             
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
@@ -2702,13 +2712,11 @@ class UpdateUnitBannerAPI(APIView):
             
             
             unit_banner_obj.promotion = promotion_obj
-            unit_banner_obj.products.clear()
-            for product in products:
-                product_obj = Product.objects.get(uuid=product)
+            product_objs = unit_banner_obj.products.all()
+            for product_obj in product_objs:
                 dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
                 dealshub_product_obj.promotion = promotion_obj
                 dealshub_product_obj.save()
-                unit_banner_obj.products.add(product_obj)
 
             unit_banner_obj.save()
 
@@ -2716,7 +2724,7 @@ class UpdateUnitBannerAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RefreshStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateUnitBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)    
 
 
