@@ -136,7 +136,13 @@ urlpatterns = [
     url(r'^create-oc-report/$',views.CreateOCReport),
     url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
 
+<<<<<<< HEAD
     url(r'^fetch-statistics/$',views.FetchStatistics),
+=======
+    url(r'^update-channel-product-stock-and-price/$',views.UpdateChannelProductStockandPrice),
+    url(r'^bulk-update-channel-product-price/$',views.BulkUpdateChannelProductPrice),
+    url(r'^bulk-update-channel-product-stock/$',views.BulkUpdateChannelProductStock),
+>>>>>>> 603039353224da7efb13a86a3ec0f138ad3276a8
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
