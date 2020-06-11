@@ -712,9 +712,6 @@ class FetchAdminCategoriesAPI(APIView):
 
 class UpdateAdminCategoryAPI(APIView):
 
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -750,7 +747,8 @@ class UpdateAdminCategoryAPI(APIView):
                     promotion_obj.start_date = start_date
                     promotion_obj.end_date = end_date
                     promotion_obj.save()
-
+            else:
+                promotion_obj = None
 
             section_obj.name = name
             section_obj.listing_type = listing_type
@@ -763,7 +761,7 @@ class UpdateAdminCategoryAPI(APIView):
                 dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
                 dealshub_product_obj.promotion = promotion_obj
                 dealshub_product_obj.save()
-                
+
                 section_obj.products.add(product_obj)
 
             section_obj.save()
