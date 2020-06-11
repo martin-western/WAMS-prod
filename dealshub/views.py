@@ -760,10 +760,10 @@ class UpdateAdminCategoryAPI(APIView):
             section_obj.products.clear()
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
-                if is_promotional:
-                    dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
-                    dealshub_product_obj.promotion = promotion_obj
-                    dealshub_product_obj.save()
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.promotion = promotion_obj
+                dealshub_product_obj.save()
+                
                 section_obj.products.add(product_obj)
 
             section_obj.save()
@@ -2058,11 +2058,15 @@ class SearchSectionProductsAutocompleteAPI(APIView):
 
             search_string = data["searchString"]
             website_group_name = data["websiteGroupName"]
+            section_uuid = data["sectionUuid"]
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            section_obj = Section.objects.get(uuid=section_uuid)
 
             dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all())
 
-            dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))[:10]
+            dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string)).exclude(product__in=section_obj.products.all())[:10]
+
 
             dealshub_products_list = []
             for dealshub_product in dealshub_products:
@@ -2240,7 +2244,9 @@ class AddProductToSectionAPI(APIView):
 
             
             response["name"] = str(product_obj.product_name)
-            response["displayId"] = str(product_obj.product_id)
+            response["now_price"] = str(dealshub_product_obj.now_price)
+            response["was_price"] = str(dealshub_product_obj.was_price)
+            response["promotional_price"] = str(dealshub_product_obj.promotional_price)
 
             section_obj.products.add(product_obj)
             section_obj.save()
@@ -2388,6 +2394,10 @@ class AddProductToUnitBannerAPI(APIView):
             
             response["name"] = str(product_obj.product_name)
             response["displayId"] = str(product_obj.product_id)
+            response["now_price"] = str(dealshub_product_obj.now_price)
+            response["was_price"] = str(dealshub_product_obj.was_price)
+            response["promotional_price"] = str(dealshub_product_obj.promotional_price)
+            response["stock"] = str(dealshub_product_obj.stock)
 
             unit_banner_image_obj.products.add(product_obj)
             unit_banner_image_obj.save()
@@ -2415,7 +2425,7 @@ class DeleteProductFromUnitBannerAPI(APIView):
             product_uuid = data["productUuid"]
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
-            product_obj = Product.objects.get(uuid=product__uuid)
+            product_obj = Product.objects.get(uuid=product_uuid)
             dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
             dealshub_product_obj.promotion = None
             dealshub_product_obj.save()
