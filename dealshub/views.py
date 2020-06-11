@@ -475,7 +475,7 @@ class SearchAPI(APIView):
             page = data.get("page", 1)
             search = {}            
 
-            available_dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__in=website_group_obj.brands.all(), is_published=True)
+            available_dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0)
             if brand_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
 
@@ -2242,6 +2242,8 @@ class AddProductToSectionAPI(APIView):
 
             
             response["name"] = str(product_obj.product_name)
+            response["displayId"] = str(product_obj.product_id)
+            response["sellerSku"] = str(product_obj.base_product.seller_sku)
             response["now_price"] = str(dealshub_product_obj.now_price)
             response["was_price"] = str(dealshub_product_obj.was_price)
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
@@ -2392,6 +2394,7 @@ class AddProductToUnitBannerAPI(APIView):
             
             response["name"] = str(product_obj.product_name)
             response["displayId"] = str(product_obj.product_id)
+            response["sellerSku"] = str(product_obj.base_product.seller_sku)
             response["now_price"] = str(dealshub_product_obj.now_price)
             response["was_price"] = str(dealshub_product_obj.was_price)
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
