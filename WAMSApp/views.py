@@ -6106,7 +6106,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            product_obj = Product.objects.get(product_pk=product_pk)
+            product_obj = Product.objects.get(pk=int(product_pk))
             channel_product = product_obj.channel_product
 
             if channel_name == "Amazon UAE":
