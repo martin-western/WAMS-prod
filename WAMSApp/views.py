@@ -4597,10 +4597,154 @@ class FetchUserProfileAPI(APIView):
                 response["permissible_brands"].append(brand.name)
             
             response["img_url"] = ""
-            response["permissions"] = json.loads(content_manager.permission_list)
-            
             if content_manager.image!=None:
                 response["img_url"] = content_manager.image.image.url
+
+            user = request.user
+            permissions = user.user_permissions.all()
+
+            permissions_dict = {}
+
+            custom_permission_obj = CustomPermission.objects.get(user=user)
+
+            if(custom_permission_obj.brands.all().count()):
+                permissions_dict["Brand"] = {}
+                permissions_dict["Brand"]["Items"] = []
+
+            for brand in custom_permission_obj.brands.all():            
+                permissions_dict["Brand"]["Items"].append(brand.name)
+
+            if(custom_permission_obj.channels.all().count()):
+                permissions_dict["Channel"] = {}
+                permissions_dict["Channel"]["Items"] = []
+
+            for channel in custom_permission_obj.channels.all():         
+                permissions_dict["Channel"]["Items"].append(channel.name)
+
+            price = json.loads(custom_permission_obj.price)
+            stock = json.loads(custom_permission_obj.stock)
+            mws_functions = json.loads(custom_permission_obj.mws_functions)
+            verify_product = custom_permission_obj.verify_product
+
+            OmnyCommUser_obj = content_manager
+
+            if(OmnyCommUser_obj.website_group != None):
+                permissions_dict["Ecommerce"] = {}
+                permissions_dict["Ecommerce"]["Items"] = []
+                permissions_dict["Ecommerce"]["Items"].append("Can manage Ecommerce")
+
+            for key in price.keys():
+                if(price[key]==True):
+                    if(key=="variant"):
+                        permissions_dict["Product"] = {}
+                        permissions_dict["Product"]["Items"] = []
+                        permissions_dict["Product"]["Items"].append("Can update min/max Price")
+                    elif(key=="dealshub"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Price")
+                    elif(key=="Amazon UAE"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Amazon UAE")
+                    elif(key=="Amazon UK"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Amazon UK")
+                    elif(key=="Ebay"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Ebay")
+                    elif(key=="Noon"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Noon")                        
+
+            for key in stock.keys():
+                if(stock[key]==True):
+                    if(key=="dealshub"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock")
+                    elif(key=="Amazon UAE"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Amazon UAE")
+                    elif(key=="Amazon UK"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Amazon UK")
+                    elif(key=="Ebay"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Ebay")
+                    elif(key=="Noon"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Noon")
+
+            if(verify_product):
+                if("Product" not in permissions_dict):
+                    permissions_dict["Product"] = {}
+                    permissions_dict["Product"]["Items"] = []
+                permissions_dict["Product"]["Items"].append("Can Verify Product")
+
+            flag = 0
+            for key in mws_functions.keys():
+                if(mws_functions[key]==True):
+                    flag = 1
+            
+            if(flag == 1):
+                permissions_dict["MWS"] = {}
+                permissions_dict["MWS"]["Items"] = []
+
+                for key in mws_functions.keys():
+                    if(mws_functions[key]==True):
+                        if(key=="push_product_on_amazon"):
+                            permissions_dict["MWS"]["Items"].append("Can Push Products on Amazon")
+                        if(key=="pull_product_from_amazon"):
+                            permissions_dict["MWS"]["Items"].append("Can Pull Products on Amazon")
+                        if(key=="push_inventory_on_amazon"):
+                            permissions_dict["MWS"]["Items"].append("Can Push Inventory on Amazon")
+                        if(key=="push_price_on_amazon"):
+                            permissions_dict["MWS"]["Items"].append("Can Push Price on Amazon")
+
+            for permission in permissions:
+
+                permission_string = str(permission).split("|")
+
+                permission_string[1] = permission_string[1].strip()
+
+                if(permission_string[1] != "Flyer" and permission_string[1] != "Image" and permission_string[1] != "Product"):
+                    continue
+
+                if(permission_string[1] == "Image"):
+                    permission_string[1] = "Product"
+
+                if(permission_string[1] not in permissions_dict):
+                    permissions_dict[permission_string[1]] = {}
+                    permissions_dict[permission_string[1]]["Items"] = []
+
+                permissions_dict[permission_string[1]]["Items"].append(permission_string[2].strip())
+
+            response["permissions"] = []
+
+            for metric in permissions_dict.keys():
+
+                temp_dict = {}
+                temp_dict["title"] = metric
+                temp_dict["Items"] = permissions_dict[metric]["Items"]
+                response["permissions"].append(temp_dict)
 
             response['status'] = 200
         
