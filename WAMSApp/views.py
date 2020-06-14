@@ -6127,7 +6127,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             
             if stock_permission:
                 if "stock" in data:
-                    channel_product_dict["quantity"] = int(data["quantity"])
+                    channel_product_dict["quantity"] = int(data["stock"])
                     
             if channel_name == "Amazon UAE":
                 channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
