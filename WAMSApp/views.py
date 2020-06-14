@@ -5304,8 +5304,9 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = amazon_uk_product_json["category"]
                     temp_dict["sub_category"] = amazon_uk_product_json["sub_category"]
                     temp_dict["status"] = amazon_uk_product_json["status"]
-                    temp_dict["price"] = amazon_uk_product_json["price"]
-                    temp_dict["quantity"] = amazon_uk_product_json["quantity"]
+                    temp_dict["now_price"] = amazon_uk_product_json["now_price"]
+                    temp_dict["was_price"] = amazon_uk_product_json["was_price"]
+                    temp_dict["stock"] = amazon_uk_product_json["stock"]
                 
                 if channel_name=="Amazon UAE":
                     amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
@@ -5313,8 +5314,9 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = amazon_uae_product_json["category"]
                     temp_dict["sub_category"] = amazon_uae_product_json["sub_category"]
                     temp_dict["status"] = amazon_uae_product_json["status"]
-                    temp_dict["price"] = amazon_uae_product_json["price"]
-                    temp_dict["quantity"] = amazon_uae_product_json["quantity"]
+                    temp_dict["now_price"] = amazon_uae_product_json["now_price"]
+                    temp_dict["was_price"] = amazon_uae_product_json["was_price"]
+                    temp_dict["stock"] = amazon_uae_product_json["stock"]
                 
                 if channel_name=="Ebay":
                     ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
@@ -5322,8 +5324,9 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = ebay_product_json["category"]
                     temp_dict["sub_category"] = ebay_product_json["sub_category"]
                     temp_dict["status"] = ebay_product_json["status"]
-                    temp_dict["price"] = ebay_product_json["price"]
-                    temp_dict["quantity"] = ebay_product_json["quantity"]
+                    temp_dict["now_price"] = ebay_product_json["now_price"]
+                    temp_dict["was_price"] = ebay_product_json["was_price"]
+                    temp_dict["stock"] = ebay_product_json["stock"]
                 
                 if channel_name=="Noon":
                     noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
@@ -5331,8 +5334,9 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = noon_product_json["category"]
                     temp_dict["sub_category"] = noon_product_json["sub_category"]
                     temp_dict["status"] = noon_product_json["status"]
-                    temp_dict["price"] = noon_product_json["price"]
-                    temp_dict["quantity"] = noon_product_json["quantity"]
+                    temp_dict["now_price"] = noon_product_json["now_price"]
+                    temp_dict["was_price"] = noon_product_json["was_price"]
+                    temp_dict["stock"] = noon_product_json["stock"]
 
                 temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                 
@@ -6135,12 +6139,14 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             stock_permission = custom_permission_stock(request.user, channel_name)
 
             if price_permission:
-                if "price" in data:
-                    channel_product_dict["price"] = float(data["price"])
+                if "now_price" in data:
+                    channel_product_dict["now_price"] = float(data["now_price"])
+                if "was_price" in data:
+                    channel_product_dict["was_price"] = float(data["was_price"])    
             
             if stock_permission:
                 if "stock" in data:
-                    channel_product_dict["quantity"] = int(data["stock"])
+                    channel_product_dict["stock"] = int(data["stock"])
                     
             if channel_name == "Amazon UAE":
                 channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
@@ -6216,7 +6222,8 @@ class BulkUpdateChannelProductPriceAPI(APIView):
                         if channel_name == "Noon":
                             channel_product_dict = json.loads(channel_product.noon_product_json)
                         
-                        channel_product_dict["price"] = price
+                        channel_product_dict["was_price"] = price
+                        channel_product_dict["now_price"] = price
 
                         if channel_name == "Amazon UAE":
                             channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
@@ -6296,7 +6303,7 @@ class BulkUpdateChannelProductStockAPI(APIView):
                         if channel_name == "Noon":
                             channel_product_dict = json.loads(channel_product.noon_product_json)
                         
-                        channel_product_dict["quantity"] = stock
+                        channel_product_dict["stock"] = stock
 
                         if channel_name == "Amazon UAE":
                             channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
