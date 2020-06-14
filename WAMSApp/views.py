@@ -1270,7 +1270,6 @@ class FetchDealsHubProductsAPI(APIView):
             dealshub_product_objs_subset = paginator.page(page)
             products = []
 
-
             if "import_file" in data:
                 path = default_storage.save('tmp/search-dh-file.xlsx', data["import_file"])
                 path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
@@ -5279,6 +5278,20 @@ class FetchChannelProductListAPI(APIView):
 
             paginator = Paginator(search_list_product_objs, 20)
             product_objs = paginator.page(page)
+
+            if "import_file" in data:
+                path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+                search_list = []
+                for i in range(rows):
+                    try:
+                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_list.append(search_key)
+                    except Exception as e:
+                        pass
+                product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
 
             for product_obj in product_objs:
                 
