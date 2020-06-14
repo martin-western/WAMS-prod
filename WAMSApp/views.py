@@ -291,7 +291,8 @@ class SaveNoonChannelProductAPI(APIView):
                 return Response(data=response)
 
             noon_product_json = json.loads(data["noon_product_json"])
-            noon_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+            if(noon_product_json["created_date"]==""):
+                noon_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
             channel_product.noon_product_json = json.dumps(noon_product_json)
@@ -352,7 +353,8 @@ class SaveAmazonUKChannelProductAPI(APIView):
                 return Response(data=response)
 
             amazon_uk_product_json = json.loads(data["amazon_uk_product_json"])
-            amazon_uk_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+            if(amazon_uk_product_json["created_date"]==""):
+                amazon_uk_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
 
@@ -416,7 +418,8 @@ class SaveAmazonUAEChannelProductAPI(APIView):
                 return Response(data=response)
 
             amazon_uae_product_json = json.loads(data["amazon_uae_product_json"])
-            amazon_uae_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+            if(amazon_uae_product_json["created_date"]==""):
+                amazon_uae_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
             
@@ -479,7 +482,8 @@ class SaveEbayChannelProductAPI(APIView):
                 return Response(data=response)
 
             ebay_product_json = json.loads(data["ebay_product_json"])
-            ebay_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+            if(ebay_product_json["created_date"]==""):
+                ebay_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
             
