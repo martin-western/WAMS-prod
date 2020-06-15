@@ -5269,9 +5269,6 @@ class FetchChannelProductListAPI(APIView):
                 elif filter_parameters["has_image"] == False:
                     product_objs_list = product_objs_list.filter(no_of_images_for_filter=0)
 
-            if "brand_name" in filter_parameters and filter_parameters["brand_name"]!="":
-                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name=filter_parameters["brand_name"])
-
             search_list_product_objs = product_objs_list
             
             if len(chip_data) > 0:
