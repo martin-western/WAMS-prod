@@ -34,11 +34,12 @@ noon_product_json = {
     "created_date" : "",
     "status" : "Inactive",
     "http_link": "",
-    "price":"",
+    "now_price":0.0,
+    "was_price":0.0,
     "sale_price":"",
     "sale_start":"",
     "sale_end":"",
-    "quantity":"",
+    "stock":0,
     "warranty":""
 }
 
@@ -106,8 +107,9 @@ amazon_uk_product_json = {
     },
     "status" : "Inactive",
     "http_link": "",
-    "price":"",
-    "quantity":""
+    "now_price":0.0,
+    "was_price":0.0,
+    "stock":0
 }
 
 amazon_uae_product_json = {
@@ -124,8 +126,9 @@ amazon_uae_product_json = {
     "update_delete" : "",
     "status" : "Inactive",
     "http_link": "",
-    "price":"",
-    "quantity":""
+    "now_price":0.0,
+    "was_price":0.0,
+    "stock":0
 }
 
 ebay_product_json = {
@@ -138,8 +141,9 @@ ebay_product_json = {
     "created_date" : "",
     "status" : "Inactive",
     "http_link": "",
-    "price":"",
-    "quantity":""
+    "now_price":0.0,
+    "was_price":0.0,
+    "stock":0
 }
 
 base_dimensions_json = {
@@ -802,6 +806,7 @@ class CustomPermission(models.Model):
     brands = models.ManyToManyField(Brand, blank=True)
     channels = models.ManyToManyField(Channel, blank=True)
     mws_functions = models.TextField(default="{}")
+    noon_functions = models.TextField(default="{}")
     price = models.TextField(default="{}")
     stock = models.TextField(default="{}")
     verify_product = models.BooleanField(default=False)

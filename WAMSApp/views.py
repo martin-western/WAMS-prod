@@ -27,6 +27,7 @@ from WAMSApp.views_sourcing import *
 from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
+from WAMSApp.views_noon_integration import *
 from WAMSApp.views_dh import *
 from WAMSApp.oc_reports import *
 
@@ -4302,6 +4303,7 @@ class FetchUserProfileAPI(APIView):
             price = json.loads(custom_permission_obj.price)
             stock = json.loads(custom_permission_obj.stock)
             mws_functions = json.loads(custom_permission_obj.mws_functions)
+            noon_functions = json.loads(custom_permission_obj.noon_functions)
             verify_product = custom_permission_obj.verify_product
 
             OmnyCommUser_obj = content_manager
@@ -4396,6 +4398,22 @@ class FetchUserProfileAPI(APIView):
                             permissions_dict["MWS"]["Items"].append("Can Push Inventory on Amazon")
                         if(key=="push_price_on_amazon"):
                             permissions_dict["MWS"]["Items"].append("Can Push Price on Amazon")
+
+            flag = 0
+            for key in noon_functions.keys():
+                if(noon_functions[key]==True):
+                    flag = 1
+            
+            if(flag == 1):
+                permissions_dict["Noon_Integration"] = {}
+                permissions_dict["Noon_Integration"]["Items"] = []
+
+                for key in noon_functions.keys():
+                    if(noon_functions[key]==True):
+                        if(key=="push_inventory_on_noon"):
+                            permissions_dict["Noon_Integration"]["Items"].append("Can Push Inventory on Noon")
+                        if(key=="push_price_on_noon"):
+                            permissions_dict["Noon_Integration"]["Items"].append("Can Push Price on Noon")
 
             for permission in permissions:
 
@@ -4912,18 +4930,22 @@ class FetchChannelProductListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            filter_parameters = data["filter_parameters"]
-            channel_name = data["channel_name"]
-            chip_data = data["tags"]
+            chip_data = data.get("tags", "[]")
+            filter_parameters = data.get("filter_parameters", "{}")
 
-            page = int(data['page'])
+            filter_parameters = json.loads(filter_parameters)
+            chip_data = json.loads(chip_data)
+
+            channel_name = data["channel_name"]
+
+            page = int(data.get('page', 1))
 
             search_list_product_objs = []
         
             permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             brands = permission_obj.brands.all()
 
-            if filter_parameters["brand_name"] != "":
+            if "brand_name" in filter_parameters and filter_parameters["brand_name"]!="":
                 brands = brands.filter(name__icontains=filter_parameters["brand_name"])              
 
             product_objs_list = Product.objects.filter(base_product__brand__in=brands).order_by('-pk')
@@ -4936,6 +4958,12 @@ class FetchChannelProductListAPI(APIView):
                 product_objs_list = product_objs_list.filter(channel_product__is_ebay_product_created=True)
             elif channel_name=="Noon":
                 product_objs_list = product_objs_list.filter(channel_product__is_noon_product_created=True)
+
+            if "has_image" in filter_parameters:
+                if filter_parameters["has_image"] == True:
+                    product_objs_list = product_objs_list.exclude(no_of_images_for_filter=0)
+                elif filter_parameters["has_image"] == False:
+                    product_objs_list = product_objs_list.filter(no_of_images_for_filter=0)
 
             search_list_product_objs = product_objs_list
             
@@ -4983,8 +5011,9 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = amazon_uk_product_json["category"]
                     temp_dict["sub_category"] = amazon_uk_product_json["sub_category"]
                     temp_dict["status"] = amazon_uk_product_json["status"]
-                    temp_dict["price"] = amazon_uk_product_json["price"]
-                    temp_dict["quantity"] = amazon_uk_product_json["quantity"]
+                    temp_dict["now_price"] = amazon_uk_product_json["now_price"]
+                    temp_dict["was_price"] = amazon_uk_product_json["was_price"]
+                    temp_dict["stock"] = amazon_uk_product_json["stock"]
                 
                 if channel_name=="Amazon UAE":
                     amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
@@ -4992,8 +5021,9 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = amazon_uae_product_json["category"]
                     temp_dict["sub_category"] = amazon_uae_product_json["sub_category"]
                     temp_dict["status"] = amazon_uae_product_json["status"]
-                    temp_dict["price"] = amazon_uae_product_json["price"]
-                    temp_dict["quantity"] = amazon_uae_product_json["quantity"]
+                    temp_dict["now_price"] = amazon_uae_product_json["now_price"]
+                    temp_dict["was_price"] = amazon_uae_product_json["was_price"]
+                    temp_dict["stock"] = amazon_uae_product_json["stock"]
                 
                 if channel_name=="Ebay":
                     ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
@@ -5001,8 +5031,9 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = ebay_product_json["category"]
                     temp_dict["sub_category"] = ebay_product_json["sub_category"]
                     temp_dict["status"] = ebay_product_json["status"]
-                    temp_dict["price"] = ebay_product_json["price"]
-                    temp_dict["quantity"] = ebay_product_json["quantity"]
+                    temp_dict["now_price"] = ebay_product_json["now_price"]
+                    temp_dict["was_price"] = ebay_product_json["was_price"]
+                    temp_dict["stock"] = ebay_product_json["stock"]
                 
                 if channel_name=="Noon":
                     noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
@@ -5010,8 +5041,9 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = noon_product_json["category"]
                     temp_dict["sub_category"] = noon_product_json["sub_category"]
                     temp_dict["status"] = noon_product_json["status"]
-                    temp_dict["price"] = noon_product_json["price"]
-                    temp_dict["quantity"] = noon_product_json["quantity"]
+                    temp_dict["now_price"] = noon_product_json["now_price"]
+                    temp_dict["was_price"] = noon_product_json["was_price"]
+                    temp_dict["stock"] = noon_product_json["stock"]
 
                 temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                 
@@ -5799,15 +5831,17 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             stock_permission = custom_permission_stock(request.user, channel_name)
 
             if price_permission:
-                if "price" in data:
-                    channel_product_dict["price"] = float(data["price"])
+                if "now_price" in data:
+                    channel_product_dict["now_price"] = float(data["now_price"])
+                if "was_price" in data:
+                    channel_product_dict["was_price"] = float(data["was_price"])    
             
             if stock_permission:
                 if "stock" in data:
-                    channel_product_dict["quantity"] = int(data["stock"])
+                    channel_product_dict["stock"] = int(data["stock"])
 
             channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
-                
+
             channel_product.save()
 
             response['status'] = 200
@@ -5840,7 +5874,7 @@ class BulkUpdateChannelProductPriceAPI(APIView):
                 logger.warning("BulkUpdateChannelProductPriceAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
 
-            price_permission = custom_permission_price(request.user, "channel_name")
+            price_permission = custom_permission_price(request.user, channel_name)
             
             if price_permission:
                 path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
@@ -5858,7 +5892,8 @@ class BulkUpdateChannelProductPriceAPI(APIView):
 
                         channel_product_dict = get_channel_product_dict(channel_name,channel_product)
                         
-                        channel_product_dict["price"] = price
+                        channel_product_dict["was_price"] = price
+                        channel_product_dict["now_price"] = price
 
                         channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
                             
@@ -5898,7 +5933,7 @@ class BulkUpdateChannelProductStockAPI(APIView):
                 logger.warning("BulkUpdateChannelProductStockAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
 
-            price_permission = custom_permission_price(request.user, "channel_name")
+            price_permission = custom_permission_price(request.user, channel_name)
             
             if price_permission:
                 path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
@@ -5916,7 +5951,7 @@ class BulkUpdateChannelProductStockAPI(APIView):
 
                         channel_product_dict = get_channel_product_dict(channel_name,channel_product)
                         
-                        channel_product_dict["quantity"] = stock
+                        channel_product_dict["stock"] = stock
 
                         channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
                             

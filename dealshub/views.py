@@ -744,8 +744,8 @@ class UpdateAdminCategoryAPI(APIView):
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
                 else:
                     promotion_obj.promotion_tag = promotional_tag
-                    promotion_obj.start_date = start_date
-                    promotion_obj.end_date = end_date
+                    promotion_obj.start_time = start_date
+                    promotion_obj.end_time = end_date
                     promotion_obj.save()
             else:
                 promotion_obj = None
@@ -1849,8 +1849,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["promotion_tag"] = None
                 else:
                     temp_dict["is_promotional"] = True
-                    temp_dict["start_time"] = str(promotion_obj.start_time)
-                    temp_dict["end_time"] = str(promotion_obj.end_time)
+                    temp_dict["start_time"] = str(promotion_obj.start_time)[:19]
+                    temp_dict["end_time"] = str(promotion_obj.end_time)[:19]
                     temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
 
                 temp_products = []
@@ -1951,8 +1951,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2["promotion_tag"] = None
                     else:
                         temp_dict2["is_promotional"] = True
-                        temp_dict2["start_time"] = str(promotion_obj.start_time)
-                        temp_dict2["end_time"] = str(promotion_obj.end_time)
+                        temp_dict2["start_time"] = str(promotion_obj.start_time)[:19]
+                        temp_dict2["end_time"] = str(promotion_obj.end_time)[:19]
                         temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
 
 
@@ -2150,21 +2150,22 @@ class FetchDealshubPriceAPI(APIView):
             was_price = 0
             is_stock_available = False
             is_promotional = False
-            if company_code in ["shopnesto"]:
-                dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
-                price = get_actual_price(dealshub_product_obj)
-                is_promotional = dealshub_product_obj.promotion!=None
-                was_price = dealshub_product_obj.was_price
-                if dealshub_product_obj.stock>0:
-                    is_stock_available = True
-
-            elif company_code in ["1000", "1070"]:
-                price = fetch_prices_dealshub(uuid1, company_code)
+            promotional_tag = None
+            
+            dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
+            price = get_actual_price(dealshub_product_obj)
+            is_promotional = dealshub_product_obj.promotion!=None
+            was_price = dealshub_product_obj.was_price
+            if dealshub_product_obj.stock>0:
+                is_stock_available = True
+            if is_promotional:
+                promotional_tag = dealshub_product_obj.promotion.promotion_tag
 
             response["price"] = str(price)
             response["wasPrice"] = str(was_price)
             response["is_promotional"] = is_promotional
             response["isStockAvailable"] = is_stock_available
+            response["promotional_tag"] = promotional_tag
             response["uuid"] = uuid1
             response['status'] = 200
 
@@ -2704,8 +2705,8 @@ class UpdateUnitBannerAPI(APIView):
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
                 else:
                     promotion_obj.promotion_tag = promotional_tag
-                    promotion_obj.start_date = start_date
-                    promotion_obj.end_date = end_date
+                    promotion_obj.start_time = start_date
+                    promotion_obj.end_time = end_date
                     promotion_obj.save()
             else:
                 promotion_obj = None
