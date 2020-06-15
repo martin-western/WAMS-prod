@@ -2128,25 +2128,7 @@ class UploadProductImageAPI(APIView):
                             except Exception as e:
                                 pass
 
-                        channel_obj = Channel.objects.get(name="Amazon UK")
-                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                        main_images_obj.main_images.add(image_bucket_obj)
-                        main_images_obj.save()
-
-                        channel_obj = Channel.objects.get(name="Amazon UAE")
-                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                        main_images_obj.main_images.add(image_bucket_obj)
-                        main_images_obj.save()
-
-                        channel_obj = Channel.objects.get(name="Ebay")
-                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                        main_images_obj.main_images.add(image_bucket_obj)
-                        main_images_obj.save()
-
-                        channel_obj = Channel.objects.get(name="Noon")
-                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                        main_images_obj.main_images.add(image_bucket_obj)
-                        main_images_obj.save()
+                        add_imagebucket_to_channel_main_images(image_bucket_obj,product_obj)
 
                     else:
                         channel_obj = Channel.objects.get(name=data["channel_name"])

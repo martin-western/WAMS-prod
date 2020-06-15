@@ -2238,3 +2238,29 @@ def fetch_refresh_stock(seller_sku, company_code, location_code):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_tg01_stock %s at %s", e, str(exc_tb.tb_lineno))
         return 0
+
+def add_imagebucket_to_channel_main_images(image_bucket_obj,product_obj):
+
+    try:
+        channel_obj = Channel.objects.get(name="Amazon UK")
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+        main_images_obj.main_images.add(image_bucket_obj)
+        main_images_obj.save()
+
+        channel_obj = Channel.objects.get(name="Amazon UAE")
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+        main_images_obj.main_images.add(image_bucket_obj)
+        main_images_obj.save()
+
+        channel_obj = Channel.objects.get(name="Ebay")
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+        main_images_obj.main_images.add(image_bucket_obj)
+        main_images_obj.save()
+
+        channel_obj = Channel.objects.get(name="Noon")
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+        main_images_obj.main_images.add(image_bucket_obj)
+        main_images_obj.save()
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("add_imagebucket_to_channel_main_images %s at %s", e, str(exc_tb.tb_lineno))
