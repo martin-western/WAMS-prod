@@ -4624,6 +4624,7 @@ class FetchUserProfileAPI(APIView):
             price = json.loads(custom_permission_obj.price)
             stock = json.loads(custom_permission_obj.stock)
             mws_functions = json.loads(custom_permission_obj.mws_functions)
+            noon_functions = json.loads(custom_permission_obj.noon_functions)
             verify_product = custom_permission_obj.verify_product
 
             OmnyCommUser_obj = content_manager
@@ -4718,6 +4719,22 @@ class FetchUserProfileAPI(APIView):
                             permissions_dict["MWS"]["Items"].append("Can Push Inventory on Amazon")
                         if(key=="push_price_on_amazon"):
                             permissions_dict["MWS"]["Items"].append("Can Push Price on Amazon")
+
+            flag = 0
+            for key in noon_functions.keys():
+                if(noon_functions[key]==True):
+                    flag = 1
+            
+            if(flag == 1):
+                permissions_dict["Noon_Integration"] = {}
+                permissions_dict["Noon_Integration"]["Items"] = []
+
+                for key in noon_functions.keys():
+                    if(noon_functions[key]==True):
+                        if(key=="push_inventory_on_noon"):
+                            permissions_dict["Noon_Integration"]["Items"].append("Can Push Inventory on Noon")
+                        if(key=="push_price_on_noon"):
+                            permissions_dict["Noon_Integration"]["Items"].append("Can Push Price on Noon")
 
             for permission in permissions:
 
