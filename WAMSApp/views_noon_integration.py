@@ -50,7 +50,7 @@ class PushPriceAPI(APIView):
                 data = json.loads(data)
 
             product_pk_list = data["product_pk_list"]
-            
+
             headers = {
             			"x-partner": "11109", 
             			"x-api-token": "AIzaSyCxOIBdBpXFeo_4YctGCimGaVkusHDu4ZQ",
@@ -60,10 +60,20 @@ class PushPriceAPI(APIView):
             with open('/tmp/noon_price_update.tsv', 'wt') as out_file:
                 tsv_writer = csv.writer(out_file, delimiter='\t')
                 tsv_writer.writerow(['country_code', 'id_partner','partner_sku','price','sale_end','sale_price','sale_start'])
-                tsv_writer.writerow([country_code, partner_id , "TEST_1",str(float(25)),"","",""])
-                tsv_writer.writerow([country_code, partner_id , "TEST_2",str(float(24)),"","",""])
-                tsv_writer.writerow([country_code, partner_id , "TEST_3",str(float(23)),"","",""])
+                
+                for product_pk in product_pk_list:
+                	
+                	product_obj = Product.objects.get(pk=int(product_pk))
+                	channel_product = product_obj.channel_product
+                	noon_product = json.loads(channel_product.noon_product_json)
 
+                	seller_sku = product_obj.base_product.seller_sku
+                	was_price = noon_product["was_price"]
+                	now_price = noon_product["now_price"]
+                	stock = noon_product["stock"]
+
+                	tsv_writer.writerow([country_code, partner_id ,seller_sku,str(float(now_price)),"",str(float(was_price)),""])
+                
             urls = requests.post('https://integration.noon.partners/public/signed-url/noon_price_update.tsv',
             						 headers=headers).json()
 
