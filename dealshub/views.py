@@ -1849,8 +1849,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["promotion_tag"] = None
                 else:
                     temp_dict["is_promotional"] = True
-                    temp_dict["start_time"] = str(promotion_obj.start_time)
-                    temp_dict["end_time"] = str(promotion_obj.end_time)
+                    temp_dict["start_time"] = str(promotion_obj.start_time)[:19]+"Z"
+                    temp_dict["end_time"] = str(promotion_obj.end_time)[:19]+"Z"
                     temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
 
                 temp_products = []
@@ -1951,8 +1951,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2["promotion_tag"] = None
                     else:
                         temp_dict2["is_promotional"] = True
-                        temp_dict2["start_time"] = str(promotion_obj.start_time)
-                        temp_dict2["end_time"] = str(promotion_obj.end_time)
+                        temp_dict2["start_time"] = str(promotion_obj.start_time)[:19]+"Z"
+                        temp_dict2["end_time"] = str(promotion_obj.end_time)[:19]+"Z"
                         temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
 
 
