@@ -5233,11 +5233,15 @@ class FetchChannelProductListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            filter_parameters = data["filter_parameters"]
-            channel_name = data["channel_name"]
-            chip_data = data["tags"]
+            chip_data = data.get("tags", "[]")
+            filter_parameters = data.get("filter_parameters", "{}")
 
-            page = int(data['page'])
+            filter_parameters = json.loads(filter_parameters)
+            chip_data = json.loads(chip_data)
+
+            channel_name = data["channel_name"]
+
+            page = int(data.get('page', 1))
 
             search_list_product_objs = []
         
