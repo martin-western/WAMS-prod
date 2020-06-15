@@ -2264,3 +2264,39 @@ def add_imagebucket_to_channel_main_images(image_bucket_obj,product_obj):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("add_imagebucket_to_channel_main_images %s at %s", e, str(exc_tb.tb_lineno))
+
+def get_channel_product_dict(channel_name,channel_product):
+
+    channel_product_dict = {}
+
+    try:
+        if channel_name == "Amazon UAE":
+            channel_product_dict = json.loads(channel_product.amazon_uae_product_json)
+        if channel_name == "Amazon UK":
+            channel_product_dict = json.loads(channel_product.amazon_uk_product_json)
+        if channel_name == "Ebay":
+            channel_product_dict = json.loads(channel_product.ebay_product_json)
+        if channel_name == "Noon":
+            channel_product_dict = json.loads(channel_product.noon_product_json)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_channel_product_dict %s at %s", e, str(exc_tb.tb_lineno))
+
+    return channel_product_dict
+
+def assign_channel_product_json(channel_name,channel_product,channel_product_dict):
+
+    try:
+        if channel_name == "Amazon UAE":
+            channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
+        if channel_name == "Amazon UK":
+            channel_product.amazon_uk_product_json = json.dumps(channel_product_dict)
+        if channel_name == "Ebay":
+            channel_product.ebay_product_json = json.dumps(channel_product_dict)
+        if channel_name == "Noon":
+            channel_product.noon_product_json = json.dumps(channel_product_dict)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_channel_product_dict %s at %s", e, str(exc_tb.tb_lineno))
+
+    return channel_product

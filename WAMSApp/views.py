@@ -5801,14 +5801,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             product_obj = Product.objects.get(pk=int(product_pk))
             channel_product = product_obj.channel_product
 
-            if channel_name == "Amazon UAE":
-                channel_product_dict = json.loads(channel_product.amazon_uae_product_json)
-            if channel_name == "Amazon UK":
-                channel_product_dict = json.loads(channel_product.amazon_uk_product_json)
-            if channel_name == "Ebay":
-                channel_product_dict = json.loads(channel_product.ebay_product_json)
-            if channel_name == "Noon":
-                channel_product_dict = json.loads(channel_product.noon_product_json)
+            channel_product_dict = get_channel_product_dict(channel_name,channel_product)
 
             price_permission = custom_permission_price(request.user, channel_name)
             stock_permission = custom_permission_stock(request.user, channel_name)
@@ -5820,15 +5813,8 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             if stock_permission:
                 if "stock" in data:
                     channel_product_dict["quantity"] = int(data["stock"])
-                    
-            if channel_name == "Amazon UAE":
-                channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
-            if channel_name == "Amazon UK":
-                channel_product.amazon_uk_product_json = json.dumps(channel_product_dict)
-            if channel_name == "Ebay":
-                channel_product.ebay_product_json = json.dumps(channel_product_dict)
-            if channel_name == "Noon":
-                channel_product.noon_product_json = json.dumps(channel_product_dict)
+
+            channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
                 
             channel_product.save()
 
@@ -5886,25 +5872,11 @@ class BulkUpdateChannelProductPriceAPI(APIView):
                         product_obj = Product.objects.get(product_id=product_id)
                         channel_product = product_obj.channel_product
 
-                        if channel_name == "Amazon UAE":
-                            channel_product_dict = json.loads(channel_product.amazon_uae_product_json)
-                        if channel_name == "Amazon UK":
-                            channel_product_dict = json.loads(channel_product.amazon_uk_product_json)
-                        if channel_name == "Ebay":
-                            channel_product_dict = json.loads(channel_product.ebay_product_json)
-                        if channel_name == "Noon":
-                            channel_product_dict = json.loads(channel_product.noon_product_json)
+                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
                         
                         channel_product_dict["price"] = price
 
-                        if channel_name == "Amazon UAE":
-                            channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
-                        if channel_name == "Amazon UK":
-                            channel_product.amazon_uk_product_json = json.dumps(channel_product_dict)
-                        if channel_name == "Ebay":
-                            channel_product.ebay_product_json = json.dumps(channel_product_dict)
-                        if channel_name == "Noon":
-                            channel_product.noon_product_json = json.dumps(channel_product_dict)
+                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
                             
                         channel_product.save()
 
@@ -5966,25 +5938,11 @@ class BulkUpdateChannelProductStockAPI(APIView):
                         product_obj = Product.objects.get(product_id=product_id)
                         channel_product = product_obj.channel_product
 
-                        if channel_name == "Amazon UAE":
-                            channel_product_dict = json.loads(channel_product.amazon_uae_product_json)
-                        if channel_name == "Amazon UK":
-                            channel_product_dict = json.loads(channel_product.amazon_uk_product_json)
-                        if channel_name == "Ebay":
-                            channel_product_dict = json.loads(channel_product.ebay_product_json)
-                        if channel_name == "Noon":
-                            channel_product_dict = json.loads(channel_product.noon_product_json)
+                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
                         
                         channel_product_dict["quantity"] = stock
 
-                        if channel_name == "Amazon UAE":
-                            channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
-                        if channel_name == "Amazon UK":
-                            channel_product.amazon_uk_product_json = json.dumps(channel_product_dict)
-                        if channel_name == "Ebay":
-                            channel_product.ebay_product_json = json.dumps(channel_product_dict)
-                        if channel_name == "Noon":
-                            channel_product.noon_product_json = json.dumps(channel_product_dict)
+                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
                             
                         channel_product.save()
 
