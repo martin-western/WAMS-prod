@@ -6289,7 +6289,7 @@ class BulkUpdateChannelProductStockAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            price_permission = custom_permission_price(request.user, "channel_name")
+            price_permission = custom_permission_price(request.user, channel_name)
             
             if price_permission:
                 path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
