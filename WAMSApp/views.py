@@ -5249,7 +5249,7 @@ class FetchChannelProductListAPI(APIView):
             permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             brands = permission_obj.brands.all()
 
-            if filter_parameters["brand_name"] != "":
+            if "brand_name" in filter_parameters and filter_parameters["brand_name"]!="":
                 brands = brands.filter(name__icontains=filter_parameters["brand_name"])              
 
             product_objs_list = Product.objects.filter(base_product__brand__in=brands).order_by('-pk')
@@ -5262,6 +5262,15 @@ class FetchChannelProductListAPI(APIView):
                 product_objs_list = product_objs_list.filter(channel_product__is_ebay_product_created=True)
             elif channel_name=="Noon":
                 product_objs_list = product_objs_list.filter(channel_product__is_noon_product_created=True)
+
+            if "has_image" in filter_parameters:
+                if filter_parameters["has_image"] == True:
+                    product_objs_list = product_objs_list.exclude(no_of_images_for_filter=0)
+                elif filter_parameters["has_image"] == False:
+                    product_objs_list = product_objs_list.filter(no_of_images_for_filter=0)
+
+            if "brand_name" in filter_parameters and filter_parameters["brand_name"]!="":
+                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name=filter_parameters["brand_name"])
 
             search_list_product_objs = product_objs_list
             

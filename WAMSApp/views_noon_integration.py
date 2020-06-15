@@ -49,6 +49,8 @@ class PushPriceAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            product_pk_list = data["product_pk_list"]
+            
             headers = {
             			"x-partner": "11109", 
             			"x-api-token": "AIzaSyCxOIBdBpXFeo_4YctGCimGaVkusHDu4ZQ",
