@@ -530,17 +530,7 @@ class FetchChannelProductAPI(APIView):
                 return Response(data=response)
 
             channel_obj = Channel.objects.get(name=channel_name)
-            if(channel_name=="Noon"):
-                channel_product_json = channel_product_obj.amazon_uae_product_json
-            elif(channel_name=="Amazon UK"):
-                channel_product_json = channel_product_obj.amazon_uk_product_json
-            elif(channel_name=="Amazon UAE"):
-                channel_product_json = channel_product_obj.amazon_uae_product_json
-            elif(channel_name=="Ebay"):
-                channel_product_json = channel_product_obj.ebay_product_json
-            else:
-                logger.error("Invalid Channel Name! "+channel_name+" ")
-                return Response(data=response)
+            channel_product_dict = get_channel_product_dict(channel_name,channel_product_obj)
 
             try:
                 permissible_channels = custom_permission_filter_channels(request.user)
@@ -599,14 +589,7 @@ class FetchChannelProductAPI(APIView):
 
             response["images"] = images
 
-            if(channel_name=="Noon"):
-                response["noon_product_json"] = json.loads(channel_product_json)
-            elif(channel_name=="Amazon UK"):
-                response["amazon_uk_product_json"] = json.loads(channel_product_json)
-            elif(channel_name=="Amazon UAE"):
-                response["amazon_uae_product_json"] = json.loads(channel_product_json)
-            elif(channel_name=="Ebay"):
-                response["ebay_product_json"] = json.loads(channel_product_json)
+            response["channel_product_json"] = channel_product_dict
 
             response["product_id"] = product_obj.product_id
             response["barcode"] = product_obj.barcode_string
@@ -5817,7 +5800,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
 
             channel_obj = Channel.objects.get(name=channel_name)
 
-            if(permission_channel_boolean_response(channel_obj,request.user)==False):
+            if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
                 logger.warning("UpdateChannelProductStockandPriceAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
@@ -5869,7 +5852,7 @@ class BulkUpdateChannelProductPriceAPI(APIView):
 
             channel_obj = Channel.objects.get(name=channel_name)
 
-            if(permission_channel_boolean_response(channel_obj,request.user)==False):
+            if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
                 logger.warning("BulkUpdateChannelProductPriceAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
@@ -5928,7 +5911,7 @@ class BulkUpdateChannelProductStockAPI(APIView):
 
             channel_obj = Channel.objects.get(name=channel_name)
 
-            if(permission_channel_boolean_response(channel_obj,request.user)==False):
+            if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
                 logger.warning("BulkUpdateChannelProductStockAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)

@@ -2301,7 +2301,7 @@ def assign_channel_product_json(channel_name,channel_product,channel_product_dic
 
     return channel_product
 
-def permission_channel_boolean_response(channel_obj,user):
+def permission_channel_boolean_response(user,channel_obj):
     
     try:
         permissible_channels = custom_permission_filter_channels(user)
