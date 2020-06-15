@@ -5785,17 +5785,9 @@ class UpdateChannelProductStockandPriceAPI(APIView):
 
             channel_obj = Channel.objects.get(name=channel_name)
 
-            try:
-                permissible_channels = custom_permission_filter_channels(request.user)
-                
-                if channel_obj not in permissible_channels:
-                    logger.warning("UpdateChannelProductStockandPriceAPI Restricted Access of " + channel_name+" !")
-                    response['status'] = 403
-                    return Response(data=response)
-            
-            except Exception as e:
-                logger.error("UpdateChannelProductStockandPriceAPI Restricted Access of "+channel_name+" Channel!")
+            if(permission_channel_boolean_response(channel_obj,request.user)==False):
                 response['status'] = 403
+                logger.warning("UpdateChannelProductStockandPriceAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(product_pk))
@@ -5843,17 +5835,9 @@ class BulkUpdateChannelProductPriceAPI(APIView):
 
             channel_obj = Channel.objects.get(name=channel_name)
 
-            try:
-                permissible_channels = custom_permission_filter_channels(request.user)
-                
-                if channel_obj not in permissible_channels:
-                    logger.warning("BulkUpdateChannelProductPriceAPI Restricted Access of " + channel_name+" !")
-                    response['status'] = 403
-                    return Response(data=response)
-            
-            except Exception as e:
-                logger.error("BulkUpdateChannelProductPriceAPI Restricted Access of "+channel_name+" Channel!")
+            if(permission_channel_boolean_response(channel_obj,request.user)==False):
                 response['status'] = 403
+                logger.warning("BulkUpdateChannelProductPriceAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
 
             price_permission = custom_permission_price(request.user, "channel_name")
@@ -5909,17 +5893,9 @@ class BulkUpdateChannelProductStockAPI(APIView):
 
             channel_obj = Channel.objects.get(name=channel_name)
 
-            try:
-                permissible_channels = custom_permission_filter_channels(request.user)
-                
-                if channel_obj not in permissible_channels:
-                    logger.warning("BulkUpdateChannelProductStockAPI Restricted Access of " + channel_name+" !")
-                    response['status'] = 403
-                    return Response(data=response)
-            
-            except Exception as e:
-                logger.error("BulkUpdateChannelProductStockAPI Restricted Access of "+channel_name+" Channel!")
+            if(permission_channel_boolean_response(channel_obj,request.user)==False):
                 response['status'] = 403
+                logger.warning("BulkUpdateChannelProductStockAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
 
             price_permission = custom_permission_price(request.user, "channel_name")

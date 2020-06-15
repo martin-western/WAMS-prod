@@ -2300,3 +2300,17 @@ def assign_channel_product_json(channel_name,channel_product,channel_product_dic
         logger.error("get_channel_product_dict %s at %s", e, str(exc_tb.tb_lineno))
 
     return channel_product
+
+def permission_channel_boolean_response(channel_obj,user):
+    
+    try:
+        permissible_channels = custom_permission_filter_channels(user)
+        
+        if channel_obj not in permissible_channels:
+            logger.warning("permission_channel_response Restricted Access of " + channel_name+" !")
+            response['status'] = 403
+            return False
+        return True
+    except Exception as e:
+        logger.error("permission_channel_response Restricted Access of "+channel_name+" Channel!")
+        return False
