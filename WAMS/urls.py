@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'', include('WAMSApp.urls')),
     url(r'^sourcing/', include('WAMSApp.urls_sourcing')),
     url(r'^mws/', include('WAMSApp.urls_mws')),
+    url(r'^noon-integration/', include('WAMSApp.urls_noon_integration')),
     url(r'^dealshub/', include('dealshub.urls')),
     url(r'^token-auth/', obtain_jwt_token)
 ]
