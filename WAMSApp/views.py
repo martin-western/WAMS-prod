@@ -516,6 +516,8 @@ class FetchChannelProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            logger.info("FetchChannelProductAPI: %s", str(data))
+
             channel_name = data["channel_name"]
 
             product_obj = Product.objects.get(pk=data["product_pk"])
