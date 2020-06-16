@@ -43,7 +43,7 @@ class PushPriceAPI(APIView):
 
         try:
 
-            if custom_permission_mws_functions(request.user,"push_price_on_noon") == False:
+            if custom_permission_noon_functions(request.user,"push_price_on_noon") == False:
                 logger.warning("Noon Integration PushPriceAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
@@ -111,7 +111,7 @@ class PushStockAPI(APIView):
         
         try:
 
-            if custom_permission_mws_functions(request.user,"push_stock_on_noon") == False:
+            if custom_permission_noon_functions(request.user,"push_stock_on_noon") == False:
                 logger.warning("Noon Integration PushStockAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
