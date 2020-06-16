@@ -81,7 +81,7 @@ class PushPriceAPI(APIView):
             urls = requests.post('https://integration.noon.partners/public/signed-url/noon_price_update.tsv',
                                      headers=headers).json()
 
-            response = requests.put(urls['upload_url'], data=open('/tmp/noon_price_update.tsv','rb')).raise_for_status()
+            response_noon_excel = requests.put(urls['upload_url'], data=open('/tmp/noon_price_update.tsv','rb')).raise_for_status()
 
             payload = {
                         "filename": "noon_price_update.tsv", 
@@ -90,7 +90,7 @@ class PushPriceAPI(APIView):
                         "partner_import_ref": ""
                     }
 
-            response = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
+            response_noon_api = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
                 data=json.dumps(payload),
                 headers=headers)
 
@@ -122,6 +122,8 @@ class PushStockAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            product_pk_list = data["product_pk_list"]
+
             with open('/tmp/noon_stock_update.tsv', 'wt') as out_file:
                 tsv_writer = csv.writer(out_file, delimiter='\t')
                 tsv_writer.writerow(['id_partner','partner_sku','partner_warehouse_code','stock_gross','stock_updated_at'])
@@ -141,7 +143,7 @@ class PushStockAPI(APIView):
             urls = requests.post('https://integration.noon.partners/public/signed-url/noon_stock_update.tsv',
                                      headers=headers).json()
 
-            response = requests.put(urls['upload_url'], data=open('/tmp/noon_stock_update.tsv','rb')).raise_for_status()
+            response_noon_excel = requests.put(urls['upload_url'], data=open('/tmp/noon_stock_update.tsv','rb')).raise_for_status()
 
             payload = {
                         "filename": "noon_stock_update.tsv", 
@@ -150,7 +152,7 @@ class PushStockAPI(APIView):
                         "partner_import_ref": ""
                     }
 
-            response = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
+            response_noon_api = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
                             data=json.dumps(payload),
                             headers=headers)
 
