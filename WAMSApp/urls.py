@@ -65,6 +65,7 @@ urlpatterns = [
     url(r'^save-flyer-in-bucket/$', views.SaveFlyerInBucket),
 
     url(r'^verify-product/$', views.VerifyProduct),
+    url(r'^lock-product/$', views.LockProduct),
     url(r'^delete-image/$', views.DeleteImage),
     url(r'^remove-product-from-export-list/$',views.RemoveProductFromExportList),
     url(r'^download-product/$', views.DownloadProduct),

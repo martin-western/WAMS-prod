@@ -1051,6 +1051,8 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["factory_code"] = ""
             response["verified"] = product_obj.verified
+            response["locked"] = product_obj.locked
+            response["partially_verified"] = product_obj.partially_verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
 
@@ -1621,6 +1623,11 @@ class SaveProductAPI(APIView):
             product_id = data["product_id"]
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
+
+            if product_obj.locked:
+                logger.warning("SaveProductAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
 
             product_obj.verified = False
             
@@ -2400,6 +2407,11 @@ class UploadProductImageAPI(APIView):
                 data = json.loads(data)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
+
+            if product_obj.locked:
+                logger.warning("UploadProductImageAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
 
             image_objs = []
 
@@ -4206,6 +4218,8 @@ class VerifyProductAPI(APIView):
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             verify = data["verify"]
             product_obj.verified = verify
+            if verify:
+                product_obj.partially_verified = verify
 
             product_obj.save()
 
@@ -4214,6 +4228,42 @@ class VerifyProductAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("VerifyProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class LockProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("LockProductAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            if custom_permission_obj.verify_product==False:
+                logger.warning("LockProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+            locked = data["locked"]
+            product_obj.locked = locked
+
+            product_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LockProductAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -4242,6 +4292,12 @@ class DeleteImageAPI(APIView):
             image_pk = int(data["image_pk"])
             channel_name = data["channel_name"]
             product_pk = data["product_pk"]
+
+            product_obj = Product.objects.get(pk=product_pk)
+            if product_obj.locked:
+                logger.warning("DeleteImageAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
 
             if image_type == "other":
                 Image.objects.get(pk=int(image_pk)).delete()
@@ -6433,6 +6489,8 @@ SavePFLInBucket = SavePFLInBucketAPI.as_view()
 SaveFlyerInBucket = SaveFlyerInBucketAPI.as_view()
 
 VerifyProduct = VerifyProductAPI.as_view()
+
+LockProduct = LockProductAPI.as_view()
 
 DeleteImage = DeleteImageAPI.as_view()
 
