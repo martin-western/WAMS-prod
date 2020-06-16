@@ -552,6 +552,8 @@ class Product(models.Model):
     is_bundle_product = models.BooleanField(default=False) 
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
+    partially_verified = models.BooleanField(default=False)
+    locked = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
 
     #PFL
