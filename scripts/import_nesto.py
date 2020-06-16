@@ -1673,12 +1673,19 @@ for i in range(rows):
         channel_product = product_obj.channel_product
         amazon_uae_product_json = channel_product.amazon_uae_product_json
         amazon_uae_product_json = json.loads(amazon_uae_product_json)
-        if str(dfs.iloc[i][6]) == "Active":
-            amazon_uae_product_json['status'] = "Active"
-        elif str(dfs.iloc[i][6]) == "Inactive":
-            amazon_uae_product_json['status'] = "Listed"
-            cnt+=1
-            print("Cnt : ",cnt)
+        if dfs.iloc[i][4] != "":
+            amazon_uae_product_json['price'] = float(dfs.iloc[i][4])
+            amazon_uae_product_json['was_price'] = float(dfs.iloc[i][4])
+            amazon_uae_product_json['now_price'] = float(dfs.iloc[i][4])
+        if dfs.iloc[i][5] != "":
+            amazon_uae_product_json['stock'] = int(dfs.iloc[i][5])
+            amazon_uae_product_json['quantity'] = int(dfs.iloc[i][5])
+        # if str(dfs.iloc[i][6]) == "Active":
+        #     amazon_uae_product_json['status'] = "Active"
+        # elif str(dfs.iloc[i][6]) == "Inactive":
+        #     amazon_uae_product_json['status'] = "Listed"
+        #     cnt+=1
+        #     print("Cnt : ",cnt)
         amazon_uae_product_json = json.dumps(amazon_uae_product_json)
         channel_product.amazon_uae_product_json = amazon_uae_product_json
         channel_product.save()
