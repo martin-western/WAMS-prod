@@ -385,7 +385,9 @@ class FetchSuperCategoriesAPI(APIView):
             logger.info("FetchSuperCategoriesAPI: %s", str(data))
             website_group_name = data["websiteGroupName"]
 
-            super_category_objs = SuperCategory.objects.all()
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            super_category_objs = website_group_obj.super_categories.all()
 
             super_category_list = []
             for super_category_obj in super_category_objs:

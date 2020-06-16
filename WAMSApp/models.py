@@ -428,6 +428,7 @@ class WebsiteGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
     brands = models.ManyToManyField(Brand, blank=True)
     categories = models.ManyToManyField(Category, blank=True)
+    super_categories = models.ManyToManyField(SuperCategory, blank=True)
 
     contact_info = models.CharField(max_length=100,blank=True, default='')
     address = models.TextField(blank=True, default='')
