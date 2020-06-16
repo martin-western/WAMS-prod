@@ -124,6 +124,12 @@ class PushStockAPI(APIView):
 
             product_pk_list = data["product_pk_list"]
 
+            headers = {
+                        "x-partner": "11109", 
+                        "x-api-token": "AIzaSyCxOIBdBpXFeo_4YctGCimGaVkusHDu4ZQ",
+                        "content-type" : "application/json"
+                    }
+
             with open('/tmp/noon_stock_update.tsv', 'wt') as out_file:
                 tsv_writer = csv.writer(out_file, delimiter='\t')
                 tsv_writer.writerow(['id_partner','partner_sku','partner_warehouse_code','stock_gross','stock_updated_at'])
