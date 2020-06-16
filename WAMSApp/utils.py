@@ -2238,3 +2238,79 @@ def fetch_refresh_stock(seller_sku, company_code, location_code):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_tg01_stock %s at %s", e, str(exc_tb.tb_lineno))
         return 0
+
+def add_imagebucket_to_channel_main_images(image_bucket_obj,product_obj):
+
+    try:
+        channel_obj = Channel.objects.get(name="Amazon UK")
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+        main_images_obj.main_images.add(image_bucket_obj)
+        main_images_obj.save()
+
+        channel_obj = Channel.objects.get(name="Amazon UAE")
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+        main_images_obj.main_images.add(image_bucket_obj)
+        main_images_obj.save()
+
+        channel_obj = Channel.objects.get(name="Ebay")
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+        main_images_obj.main_images.add(image_bucket_obj)
+        main_images_obj.save()
+
+        channel_obj = Channel.objects.get(name="Noon")
+        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+        main_images_obj.main_images.add(image_bucket_obj)
+        main_images_obj.save()
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("add_imagebucket_to_channel_main_images %s at %s", e, str(exc_tb.tb_lineno))
+
+def get_channel_product_dict(channel_name,channel_product):
+
+    channel_product_dict = {}
+
+    try:
+        if channel_name == "Amazon UAE":
+            channel_product_dict = json.loads(channel_product.amazon_uae_product_json)
+        if channel_name == "Amazon UK":
+            channel_product_dict = json.loads(channel_product.amazon_uk_product_json)
+        if channel_name == "Ebay":
+            channel_product_dict = json.loads(channel_product.ebay_product_json)
+        if channel_name == "Noon":
+            channel_product_dict = json.loads(channel_product.noon_product_json)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_channel_product_dict %s at %s", e, str(exc_tb.tb_lineno))
+
+    return channel_product_dict
+
+def assign_channel_product_json(channel_name,channel_product,channel_product_dict):
+
+    try:
+        if channel_name == "Amazon UAE":
+            channel_product.amazon_uae_product_json = json.dumps(channel_product_dict)
+        if channel_name == "Amazon UK":
+            channel_product.amazon_uk_product_json = json.dumps(channel_product_dict)
+        if channel_name == "Ebay":
+            channel_product.ebay_product_json = json.dumps(channel_product_dict)
+        if channel_name == "Noon":
+            channel_product.noon_product_json = json.dumps(channel_product_dict)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_channel_product_dict %s at %s", e, str(exc_tb.tb_lineno))
+
+    return channel_product
+
+def permission_channel_boolean_response(user,channel_obj):
+    
+    try:
+        permissible_channels = custom_permission_filter_channels(user)
+        
+        if channel_obj not in permissible_channels:
+            logger.warning("permission_channel_response Restricted Access of " + channel_name+" !")
+            response['status'] = 403
+            return False
+        return True
+    except Exception as e:
+        logger.error("permission_channel_response Restricted Access of "+channel_name+" Channel!")
+        return False
