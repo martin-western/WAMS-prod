@@ -808,6 +808,7 @@ class CustomPermission(models.Model):
     brands = models.ManyToManyField(Brand, blank=True)
     channels = models.ManyToManyField(Channel, blank=True)
     mws_functions = models.TextField(default="{}")
+    noon_functions = models.TextField(default="{}")
     price = models.TextField(default="{}")
     stock = models.TextField(default="{}")
     verify_product = models.BooleanField(default=False)

@@ -27,7 +27,9 @@ from WAMSApp.views_sourcing import *
 from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
+from WAMSApp.views_noon_integration import *
 from WAMSApp.views_dh import *
+from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
 
 from PIL import Image as IMage
@@ -4679,6 +4681,7 @@ class FetchUserProfileAPI(APIView):
             price = json.loads(custom_permission_obj.price)
             stock = json.loads(custom_permission_obj.stock)
             mws_functions = json.loads(custom_permission_obj.mws_functions)
+            noon_functions = json.loads(custom_permission_obj.noon_functions)
             verify_product = custom_permission_obj.verify_product
 
             OmnyCommUser_obj = content_manager
@@ -4773,6 +4776,22 @@ class FetchUserProfileAPI(APIView):
                             permissions_dict["MWS"]["Items"].append("Can Push Inventory on Amazon")
                         if(key=="push_price_on_amazon"):
                             permissions_dict["MWS"]["Items"].append("Can Push Price on Amazon")
+
+            flag = 0
+            for key in noon_functions.keys():
+                if(noon_functions[key]==True):
+                    flag = 1
+            
+            if(flag == 1):
+                permissions_dict["Noon_Integration"] = {}
+                permissions_dict["Noon_Integration"]["Items"] = []
+
+                for key in noon_functions.keys():
+                    if(noon_functions[key]==True):
+                        if(key=="push_inventory_on_noon"):
+                            permissions_dict["Noon_Integration"]["Items"].append("Can Push Inventory on Noon")
+                        if(key=="push_price_on_noon"):
+                            permissions_dict["Noon_Integration"]["Items"].append("Can Push Price on Noon")
 
             for permission in permissions:
 
@@ -5304,7 +5323,7 @@ class FetchChannelProductListAPI(APIView):
             permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             brands = permission_obj.brands.all()
 
-            if filter_parameters["brand_name"] != "":
+            if "brand_name" in filter_parameters and filter_parameters["brand_name"]!="":
                 brands = brands.filter(name__icontains=filter_parameters["brand_name"])              
 
             product_objs_list = Product.objects.filter(base_product__brand__in=brands).order_by('-pk')
@@ -5317,6 +5336,12 @@ class FetchChannelProductListAPI(APIView):
                 product_objs_list = product_objs_list.filter(channel_product__is_ebay_product_created=True)
             elif channel_name=="Noon":
                 product_objs_list = product_objs_list.filter(channel_product__is_noon_product_created=True)
+
+            if "has_image" in filter_parameters:
+                if filter_parameters["has_image"] == True:
+                    product_objs_list = product_objs_list.exclude(no_of_images_for_filter=0)
+                elif filter_parameters["has_image"] == False:
+                    product_objs_list = product_objs_list.filter(no_of_images_for_filter=0)
 
             search_list_product_objs = product_objs_list
             
@@ -6257,7 +6282,7 @@ class BulkUpdateChannelProductPriceAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            price_permission = custom_permission_price(request.user, "channel_name")
+            price_permission = custom_permission_price(request.user, channel_name)
             
             if price_permission:
                 path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
@@ -6338,7 +6363,7 @@ class BulkUpdateChannelProductStockAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            price_permission = custom_permission_price(request.user, "channel_name")
+            price_permission = custom_permission_price(request.user, channel_name)
             
             if price_permission:
                 path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])

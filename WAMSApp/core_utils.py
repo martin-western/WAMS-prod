@@ -96,6 +96,18 @@ def custom_permission_mws_functions(user,permission):
         logger.error("custom_permission_mws_functions: %s at %s", e, str(exc_tb.tb_lineno))
         return False
 
+def custom_permission_noon_functions(user,permission):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        noon_functions = json.loads(permission_obj.noon_functions)
+        return noon_functions[permission]
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("custom_permission_noon_functions: %s at %s", e, str(exc_tb.tb_lineno))
+        return False
+
 def custom_permission_price(user,permission):
 
     try:
