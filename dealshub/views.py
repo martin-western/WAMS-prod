@@ -13,6 +13,7 @@ from WAMSApp.models import *
 from WAMSApp.utils import *
 from WAMSApp.constants import *
 from dealshub.models import *
+from dealshub.utils import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -68,6 +69,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 
 class FetchProductDetailsAPI(APIView):
+    
     authentication_classes = (CsrfExemptSessionAuthentication,) 
     permission_classes = [AllowAny]
 
@@ -86,11 +88,13 @@ class FetchProductDetailsAPI(APIView):
             product_obj = dealshub_product_obj.product
             base_product_obj = product_obj.base_product
 
+            actual_price = get_actual_price(dealshub_product_obj)
+
             response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
             response["subCategory"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
             response["uuid"] = data["uuid"]
             response["name"] = product_obj.product_name
-            response["price"] = dealshub_product_obj.now_price
+            response["price"] = actual_price
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = "AED"
             response["warranty"] = product_obj.warranty
@@ -124,7 +128,7 @@ class FetchProductDetailsAPI(APIView):
                     pass
 
             main_images_list = ImageBucket.objects.none()
-            main_images_objs = MainImages.objects.filter(product=product_obj)
+            main_images_objs = MainImages.objects.filter(product=product_obj, is_sourced=True)
             for main_images_obj in main_images_objs:
                 main_images_list |= main_images_obj.main_images.all()
             main_images_list = main_images_list.distinct()
@@ -139,7 +143,7 @@ class FetchProductDetailsAPI(APIView):
                     pass
 
             sub_images_list = ImageBucket.objects.none()
-            sub_images_objs = SubImages.objects.filter(product=product_obj)
+            sub_images_objs = SubImages.objects.filter(product=product_obj, is_sourced=True)
             for sub_images_obj in sub_images_objs:
                 sub_images_list |= sub_images_obj.sub_images.all()
             sub_images_list = sub_images_list.distinct()
@@ -381,7 +385,9 @@ class FetchSuperCategoriesAPI(APIView):
             logger.info("FetchSuperCategoriesAPI: %s", str(data))
             website_group_name = data["websiteGroupName"]
 
-            super_category_objs = SuperCategory.objects.all()
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            super_category_objs = website_group_obj.super_categories.all()
 
             super_category_list = []
             for super_category_obj in super_category_objs:
@@ -471,7 +477,7 @@ class SearchAPI(APIView):
             page = data.get("page", 1)
             search = {}            
 
-            available_dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__in=website_group_obj.brands.all(), is_published=True)
+            available_dealshub_products = DealsHubProduct.objects.filter(product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0)
             if brand_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
 
@@ -629,7 +635,7 @@ class CreateAdminCategoryAPI(APIView):
             
             order_index = Banner.objects.filter(website_group=website_group_obj).count()+Section.objects.filter(website_group=website_group_obj).count()+1
 
-            section_obj = Section.objects.create(website_group=website_group_obj, uuid=str(uuid.uuid4()), name=name, listing_type=listing_type, order_index=order_index)
+            section_obj = Section.objects.create(website_group=website_group_obj, name=name, listing_type=listing_type, order_index=order_index)
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
                 section_obj.products.add(product_obj)
@@ -687,7 +693,7 @@ class FetchAdminCategoriesAPI(APIView):
                         images = create_response_images_main(main_images_list)
                         temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
                     except Exception as e:
-                        temp_dict2["thumbnailImageUrl"] = ""
+                        temp_dict2["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
                     
                     temp_dict2["name"] = str(prod.product_name)
@@ -708,9 +714,6 @@ class FetchAdminCategoriesAPI(APIView):
 
 class UpdateAdminCategoryAPI(APIView):
 
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -728,15 +731,39 @@ class UpdateAdminCategoryAPI(APIView):
             listing_type = data["listingType"]
             is_published = data["isPublished"]
             products = data["products"]
+            is_promotional = data["is_promotional"]
+            
             
             section_obj = Section.objects.get(uuid=uuid)
+
+            promotion_obj = section_obj.promotion
+            if is_promotional:
+                promotion = data["promotion"]
+                start_date = convert_to_datetime(promotion["start_date"])
+                end_date = convert_to_datetime(promotion["end_date"])
+                promotional_tag = promotion["promotional_tag"]
+                if promotion_obj==None:
+                    promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
+                else:
+                    promotion_obj.promotion_tag = promotional_tag
+                    promotion_obj.start_time = start_date
+                    promotion_obj.end_time = end_date
+                    promotion_obj.save()
+            else:
+                promotion_obj = None
+
             section_obj.name = name
             section_obj.listing_type = listing_type
             section_obj.is_published = is_published
             section_obj.modified_by = None
+            section_obj.promotion = promotion_obj
             section_obj.products.clear()
             for product in products:
                 product_obj = Product.objects.get(uuid=product)
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.promotion = promotion_obj
+                dealshub_product_obj.save()
+
                 section_obj.products.add(product_obj)
 
             section_obj.save()
@@ -762,7 +789,15 @@ class DeleteAdminCategoryAPI(APIView):
 
             uuid = data["uuid"]
             
-            Section.objects.get(uuid=uuid).delete()
+            section_obj = Section.objects.get(uuid=uuid)
+            product_objs = section_obj.products.all()
+
+            for product_obj in product_objs:
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.promotion = None
+                dealshub_product_obj.save()
+                
+            section_obj.delete()
             
             response['status'] = 200
         except Exception as e:
@@ -848,6 +883,7 @@ class SectionBulkUploadAPI(APIView):
                     product_obj = Product.objects.get(product_id=product_id)
                     if DealsHubProduct.objects.get(product=product_obj).is_published==False:
                         continue
+                    
                     section_obj.products.add(product_obj)
 
                     temp_dict2 = {}
@@ -861,7 +897,7 @@ class SectionBulkUploadAPI(APIView):
                         images = create_response_images_main(main_images_list)
                         temp_dict2["thumbnailImageUrl"] = images[0]["thumbnail_url"]
                     except Exception as e:
-                        temp_dict2["thumbnailImageUrl"] = ""
+                        temp_dict2["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
                     temp_dict2["name"] = str(product_obj.product_name)
                     temp_dict2["displayId"] = str(product_obj.product_id)
@@ -1088,8 +1124,15 @@ class DeleteUnitBannerAPI(APIView):
 
             uuid = data["uuid"]
 
-            UnitBannerImage.objects.get(uuid=uuid).delete()
+            unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
+            product_objs = unit_banner_obj.products.all()
 
+            for product_obj in product_objs:
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.promotion = None
+                dealshub_product_obj.save()
+
+            unit_banner_obj.delete()
             response['status'] = 200
 
         except Exception as e:
@@ -1169,7 +1212,18 @@ class DeleteBannerAPI(APIView):
             logger.info("DeleteBannerAPI: %s", str(data))
 
             uuid = data["uuid"]
-            Banner.objects.get(uuid=uuid).delete()
+            banner_obj = Banner.objects.get(uuid=uuid)
+
+            unit_banner_objs = UnitBannerImage.objects.filter(banner=banner_obj)
+
+            for unit_banner_obj in unit_banner_objs:
+                product_objs = unit_banner_obj.products.all()
+                for product_obj in product_objs:
+                    dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                    dealshub_product_obj.promotion = None
+                    dealshub_product_obj.save()
+
+            banner_obj.delete()
             
             response['status'] = 200
 
@@ -1289,6 +1343,10 @@ class DeleteProductFromSectionAPI(APIView):
 
             section_obj = Section.objects.get(uuid=section_uuid)
             product_obj = Product.objects.get(uuid=product_uuid)
+
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            dealshub_product_obj.promotion = None
+            dealshub_product_obj.save()
             section_obj.products.remove(product_obj)
             section_obj.save()
             
@@ -1760,8 +1818,17 @@ class FetchDealshubAdminSectionsAPI(APIView):
             section_objs = Section.objects.filter(website_group__name=website_group_name).order_by('order_index')
 
             if is_dealshub==True:
-                section_objs = section_objs.filter(is_published=True)                
-            
+                section_objs = section_objs.filter(is_published=True)
+                valid_section_objs = Section.objects.none()
+                for section_obj in section_objs:
+                    promotion_obj = section_obj.promotion
+                    if promotion_obj is not None:
+                        if check_valid_promotion(promotion_obj):
+                            valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
+                    else:
+                        valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
+                section_objs = valid_section_objs
+                                
             dealshub_admin_sections = []
             for section_obj in section_objs:
                 temp_dict = {}
@@ -1775,7 +1842,19 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_dict["createdBy"] = str(section_obj.created_by)
                 temp_dict["modifiedBy"] = str(section_obj.modified_by)
                 temp_dict["isPublished"] = section_obj.is_published
-                
+
+                promotion_obj = section_obj.promotion
+                if promotion_obj is None:
+                    temp_dict["is_promotional"] = False
+                    temp_dict["start_time"] = None
+                    temp_dict["end_time"] = None
+                    temp_dict["promotion_tag"] = None
+                else:
+                    temp_dict["is_promotional"] = True
+                    temp_dict["start_time"] = str(promotion_obj.start_time)[:19]
+                    temp_dict["end_time"] = str(promotion_obj.end_time)[:19]
+                    temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
+
                 temp_products = []
 
                 section_products = section_obj.products.all()
@@ -1800,12 +1879,21 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     
                     temp_dict2["name"] = str(prod.product_name)
+                    temp_dict2["sellerSku"] = str(prod.base_product.seller_sku)
                     temp_dict2["displayId"] = str(prod.product_id)
                     temp_dict2["uuid"] = str(prod.uuid)
 
                     if is_dealshub==True:
                         temp_dict2["category"] = "" if prod.base_product.category==None else str(prod.base_product.category)
                         temp_dict2["currency"] = "AED"
+
+                    dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
+                    promotion_obj = dealshub_product_obj.promotion
+                    
+                    temp_dict2["promotional_price"] = str(dealshub_product_obj.promotional_price)  
+                    temp_dict2["now_price"] = str(dealshub_product_obj.now_price)
+                    temp_dict2["was_price"] = str(dealshub_product_obj.was_price)
+                    temp_dict2["stock"] = str(dealshub_product_obj.stock) 
 
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
@@ -1819,6 +1907,17 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
             for banner_obj in banner_objs:
                 unit_banner_image_objs = UnitBannerImage.objects.filter(banner=banner_obj)
+
+                if is_dealshub:
+                    valid_unit_banner_image_objs = UnitBannerImage.objects.none()
+                    for unit_banner_image_obj in unit_banner_image_objs:
+                        promotion_obj = unit_banner_image_obj.promotion
+                        if promotion_obj is not None:
+                            if check_valid_promotion(promotion_obj):
+                                valid_unit_banner_image_objs |= UnitBannerImage.objects.filter(pk=unit_banner_image_obj.pk)
+                        else:
+                            valid_unit_banner_image_objs |= UnitBannerImage.objects.filter(pk=unit_banner_image_obj.pk)
+                    unit_banner_image_objs = valid_unit_banner_image_objs
 
                 banner_images = []
                 temp_dict = {}
@@ -1845,8 +1944,20 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
                         else:
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
-                        
-                    
+
+                    promotion_obj = unit_banner_image_obj.promotion
+                    if promotion_obj is None:
+                        temp_dict2["is_promotional"] = False
+                        temp_dict2["start_time"] = None
+                        temp_dict2["end_time"] = None
+                        temp_dict2["promotion_tag"] = None
+                    else:
+                        temp_dict2["is_promotional"] = True
+                        temp_dict2["start_time"] = str(promotion_obj.start_time)[:19]
+                        temp_dict2["end_time"] = str(promotion_obj.end_time)[:19]
+                        temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
+
+
                     unit_banner_products = unit_banner_image_obj.products.all()
 
                     temp_products = []
@@ -1865,20 +1976,28 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         
                         temp_dict3["name"] = str(prod.product_name)
                         temp_dict3["displayId"] = str(prod.product_id)
+                        temp_dict3["sellerSku"] = str(prod.base_product.seller_sku)
                         temp_dict3["uuid"] = str(prod.uuid)
+
+                        dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
+                        promotion_obj = dealshub_product_obj.promotion
+                        
+                        temp_dict3["promotional_price"] = str(dealshub_product_obj.promotional_price)  
+                        temp_dict3["now_price"] = str(dealshub_product_obj.now_price)
+                        temp_dict3["was_price"] = str(dealshub_product_obj.was_price)
+                        temp_dict3["stock"] = str(dealshub_product_obj.stock)
 
                         temp_products.append(temp_dict3)
                     temp_dict2["products"] = temp_products
 
                     banner_images.append(temp_dict2)
 
-                
                 temp_dict["bannerImages"] = banner_images
                 temp_dict["isPublished"] = banner_obj.is_published
 
                 dealshub_admin_sections.append(temp_dict)
 
-            dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"]) 
+            dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
 
             response["sections_list"] = dealshub_admin_sections
             response['status'] = 200
@@ -1941,11 +2060,24 @@ class SearchSectionProductsAutocompleteAPI(APIView):
 
             search_string = data["searchString"]
             website_group_name = data["websiteGroupName"]
+            section_uuid = data["sectionUuid"]
+            type = data["type"]
+
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
             dealshub_products = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all())
 
-            dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))[:10]
+            dealshub_products = dealshub_products.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))
+
+            if type=="ProductListing":
+                section_obj = Section.objects.get(uuid=section_uuid)
+                dealshub_products = dealshub_products.exclude(product__in=section_obj.products.all())[:10]
+            elif type=="Banner":
+                unit_banner_image_obj = UnitBannerImage.objects.get(uuid=section_uuid)
+                dealshub_products = dealshub_products.exclude(product__in=unit_banner_image_obj.products.all())[:10]
+            else:
+                dealshub_products = dealshub_products[:10]
+
 
             dealshub_products_list = []
             for dealshub_product in dealshub_products:
@@ -2019,24 +2151,23 @@ class FetchDealshubPriceAPI(APIView):
             price = 0
             was_price = 0
             is_stock_available = False
-            if company_code in ["shopnesto"]:
-                dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
-                # if str(dealshub_product_obj.product.base_product.brand).lower()=="geepas":
-                #     price = fetch_prices_dealshub(uuid1, "1000")
-                #     was_price = price
-                # else:
-                #     price = dealshub_product_obj.now_price
-                #     was_price = dealshub_product_obj.was_price
-                price = dealshub_product_obj.now_price
-                was_price = dealshub_product_obj.was_price
-                if dealshub_product_obj.stock>0:
-                    is_stock_available = True
-            elif company_code in ["1000", "1070"]:
-                price = fetch_prices_dealshub(uuid1, company_code)
+            is_promotional = False
+            promotional_tag = None
+            
+            dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid1)
+            price = get_actual_price(dealshub_product_obj)
+            is_promotional = dealshub_product_obj.promotion!=None
+            was_price = dealshub_product_obj.was_price
+            if dealshub_product_obj.stock>0:
+                is_stock_available = True
+            if is_promotional:
+                promotional_tag = dealshub_product_obj.promotion.promotion_tag
 
             response["price"] = str(price)
             response["wasPrice"] = str(was_price)
+            response["is_promotional"] = is_promotional
             response["isStockAvailable"] = is_stock_available
+            response["promotional_tag"] = promotional_tag
             response["uuid"] = uuid1
             response['status'] = 200
 
@@ -2108,9 +2239,11 @@ class AddProductToSectionAPI(APIView):
 
             section_obj = Section.objects.get(uuid=section_uuid)
             product_obj = Product.objects.get(uuid=product_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
 
-            temp_dict = {}
-
+            dealshub_product_obj.promotion = section_obj.promotion
+            dealshub_product_obj.save()
+            
             main_images_list = ImageBucket.objects.none()
             try:
                 main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
@@ -2119,11 +2252,16 @@ class AddProductToSectionAPI(APIView):
                 images = create_response_images_main(main_images_list)
                 response["thumbnailImageUrl"] = images[0]["midimage_url"]
             except Exception as e:
-                response["thumbnailImageUrl"] = ""
+                response["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
             
             response["name"] = str(product_obj.product_name)
             response["displayId"] = str(product_obj.product_id)
+            response["sellerSku"] = str(product_obj.base_product.seller_sku)
+            response["now_price"] = str(dealshub_product_obj.now_price)
+            response["was_price"] = str(dealshub_product_obj.was_price)
+            response["promotional_price"] = str(dealshub_product_obj.promotional_price)
+            response["stock"] = str(dealshub_product_obj.stock)
 
             section_obj.products.add(product_obj)
             section_obj.save()
@@ -2251,6 +2389,10 @@ class AddProductToUnitBannerAPI(APIView):
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
             product_obj = Product.objects.get(uuid=product_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+
+            dealshub_product_obj.promotion = unit_banner_image_obj.promotion
+            dealshub_product_obj.save()
 
             temp_dict = {}
 
@@ -2262,11 +2404,16 @@ class AddProductToUnitBannerAPI(APIView):
                 images = create_response_images_main(main_images_list)
                 response["thumbnailImageUrl"] = images[0]["midimage_url"]
             except Exception as e:
-                response["thumbnailImageUrl"] = ""
+                response["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
             
             response["name"] = str(product_obj.product_name)
             response["displayId"] = str(product_obj.product_id)
+            response["sellerSku"] = str(product_obj.base_product.seller_sku)
+            response["now_price"] = str(dealshub_product_obj.now_price)
+            response["was_price"] = str(dealshub_product_obj.was_price)
+            response["promotional_price"] = str(dealshub_product_obj.promotional_price)
+            response["stock"] = str(dealshub_product_obj.stock)
 
             unit_banner_image_obj.products.add(product_obj)
             unit_banner_image_obj.save()
@@ -2295,6 +2442,9 @@ class DeleteProductFromUnitBannerAPI(APIView):
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
             product_obj = Product.objects.get(uuid=product_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            dealshub_product_obj.promotion = None
+            dealshub_product_obj.save()
 
             unit_banner_image_obj.products.remove(product_obj)
             unit_banner_image_obj.save()
@@ -2504,6 +2654,84 @@ class UpdateSuperCategoryImageAPI(APIView):
         return Response(data=response)
 
 
+class UpdatePromotionalPriceAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdatePromotionalPrice: %s", str(data))
+
+            uuid = data["uuid"]
+            price = data["price"]
+
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
+            dealshub_product_obj.promotional_price = float(price)
+            dealshub_product_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdatePromotionalPrice: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateUnitBannerAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateUnitBannerAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["uuid"]
+            is_promotional = data["is_promotional"]
+            
+            unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
+
+            promotion_obj = unit_banner_obj.promotion
+            if is_promotional:
+                promotion = data["promotion"]
+                start_date = convert_to_datetime(promotion["start_date"])
+                end_date = convert_to_datetime(promotion["end_date"])
+                promotional_tag = promotion["promotional_tag"]
+                if promotion_obj==None:
+                    promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
+                else:
+                    promotion_obj.promotion_tag = promotional_tag
+                    promotion_obj.start_time = start_date
+                    promotion_obj.end_time = end_date
+                    promotion_obj.save()
+            else:
+                promotion_obj = None
+            
+            
+            unit_banner_obj.promotion = promotion_obj
+            product_objs = unit_banner_obj.products.all()
+            for product_obj in product_objs:
+                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
+                dealshub_product_obj.promotion = promotion_obj
+                dealshub_product_obj.save()
+
+            unit_banner_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateUnitBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)    
+
+
 class RefreshStockAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -2667,5 +2895,9 @@ RemoveCategoryFromWebsiteGroup = RemoveCategoryFromWebsiteGroupAPI.as_view()
 UpdateCategoryImage = UpdateCategoryImageAPI.as_view()
 
 UpdateSuperCategoryImage = UpdateSuperCategoryImageAPI.as_view()
+
+UpdatePromotionalPrice = UpdatePromotionalPriceAPI.as_view()
+
+UpdateUnitBanner = UpdateUnitBannerAPI.as_view()
 
 RefreshStock = RefreshStockAPI.as_view()

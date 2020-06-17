@@ -1665,6 +1665,7 @@ dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
 dfs = dfs.fillna("")
 rows = len(dfs.iloc[:])
 columns = len(dfs.iloc[0][:])
+cnt=0
 for i in range(rows):
     print(i)
     all_products = Product.objects.filter(base_product__seller_sku=str(dfs.iloc[i][0]))
@@ -1674,12 +1675,115 @@ for i in range(rows):
         amazon_uae_product_json = json.loads(amazon_uae_product_json)
         if dfs.iloc[i][4] != "":
             amazon_uae_product_json['price'] = float(dfs.iloc[i][4])
+            amazon_uae_product_json['was_price'] = float(dfs.iloc[i][4])
+            amazon_uae_product_json['now_price'] = float(dfs.iloc[i][4])
         if dfs.iloc[i][5] != "":
+            amazon_uae_product_json['stock'] = int(dfs.iloc[i][5])
             amazon_uae_product_json['quantity'] = int(dfs.iloc[i][5])
-        if str(dfs.iloc[i][5]) == "" or str(dfs.iloc[i][5]) == "0":
-            amazon_uae_product_json['status'] = "Listed"
-        else:
-            amazon_uae_product_json['status'] = "Active"
+        # if str(dfs.iloc[i][6]) == "Active":
+        #     amazon_uae_product_json['status'] = "Active"
+        # elif str(dfs.iloc[i][6]) == "Inactive":
+        #     amazon_uae_product_json['status'] = "Listed"
+        #     cnt+=1
+        #     print("Cnt : ",cnt)
         amazon_uae_product_json = json.dumps(amazon_uae_product_json)
         channel_product.amazon_uae_product_json = amazon_uae_product_json
         channel_product.save()
+
+
+from WAMSApp.models import *
+import math
+c = ChannelProduct.objects.all()
+i=0
+cnt =0
+for x in c:
+    try:
+        if i%50==0:
+            print(i)
+        i+=1
+        uk = json.loads(x.noon_product_json)
+
+        if "stock" not in uk.keys():
+            print("Hii")
+            uk["stock"] = 0
+            uk["price"] = 0.0
+            if type(uk["price"]) != int and uk["quantity"] != ""  and uk["quantity"] !="nan":
+                uk["stock"] = int(float(str(uk["quantity"]).strip()))
+            elif type(uk["quantity"]) == str:
+                uk["quantity"] = 0
+            if type(uk["price"]) != float and uk["price"] != ""  and uk["price"] !="nan":
+                uk["was_price"] = float(str(uk["price"]).strip())
+                uk["now_price"] = float(str(uk["price"]).strip())
+            elif type(uk["price"]) == str:
+                uk["was_price"] = 0.0
+                uk["now_price"] = 0.0
+            x.noon_product_json = json.dumps(uk)        
+            uk = json.loads(x.amazon_uk_product_json)
+            uk["stock"] = 0
+            uk["price"] = 0.0
+            if type(uk["price"]) != int and uk["quantity"] != ""  and uk["quantity"] !="nan":
+                uk["stock"] = int(float(str(uk["quantity"]).strip()))
+            elif type(uk["quantity"]) == str:
+                uk["quantity"] = 0
+            if type(uk["price"]) != float and uk["price"] != ""  and uk["price"] !="nan":
+                uk["was_price"] = float(str(uk["price"]).strip())
+                uk["now_price"] = float(str(uk["price"]).strip())
+            elif type(uk["price"]) == str:
+                uk["was_price"] = 0.0
+                uk["now_price"] = 0.0
+            x.amazon_uk_product_json = json.dumps(uk)
+            uk = json.loads(x.amazon_uae_product_json)
+            uk["stock"] = 0
+            uk["price"] = 0.0
+            if type(uk["price"]) != int and uk["quantity"] != ""  and uk["quantity"] !="nan":
+                uk["stock"] = int(float(str(uk["quantity"]).strip()))
+            elif type(uk["quantity"]) == str:
+                uk["quantity"] = 0
+            if type(uk["price"]) != float and uk["price"] != ""  and uk["price"] !="nan":
+                uk["was_price"] = float(str(uk["price"]).strip())
+                uk["now_price"] = float(str(uk["price"]).strip())
+            elif type(uk["price"]) == str:
+                uk["was_price"] = 0.0
+                uk["now_price"] = 0.0
+            x.amazon_uae_product_json = json.dumps(uk)
+            if uk["status"] =="Listed":
+                cnt+=1
+                print("Cnt : " , cnt)
+            uk = json.loads(x.ebay_product_json)
+            uk["stock"] = 0
+            uk["price"] = 0.0
+            if type(uk["price"]) != int and uk["quantity"] != ""  and uk["quantity"] !="nan":
+                uk["stock"] = int(float(str(uk["quantity"]).strip()))
+            elif type(uk["quantity"]) == str:
+                uk["quantity"] = 0
+            if type(uk["price"]) != float and uk["price"] != ""  and uk["price"] !="nan":
+                uk["was_price"] = float(str(uk["price"]).strip())
+                uk["now_price"] = float(str(uk["price"]).strip())
+            elif type(uk["price"]) == str:
+                uk["was_price"] = 0.0
+                uk["now_price"] = 0.0
+            x.ebay_product_json = json.dumps(uk)
+            uk = json.loads(x.noon_product_json)
+            uk["stock"] = 0
+            uk["price"] = 0.0
+            if type(uk["price"]) != int and uk["quantity"] != ""  and uk["quantity"] !="nan":
+                uk["stock"] = int(float(str(uk["quantity"]).strip()))
+            elif type(uk["quantity"]) == str:
+                uk["quantity"] = 0
+            if type(uk["price"]) != float and uk["price"] != ""  and uk["price"] !="nan":
+                uk["was_price"] = float(str(uk["price"]).strip())
+                uk["now_price"] = float(str(uk["price"]).strip())
+            elif type(uk["price"]) == str:
+                uk["was_price"] = 0.0
+                uk["now_price"] = 0.0
+            x.noon_product_json = json.dumps(uk)
+            x.save()
+    except Exception as e:
+        import sys
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print(str(e) , str(exc_tb.tb_lineno))
+        print(x.pk , "   " , type(uk["quantity"]) , "  " , uk["quantity"])
+
+
+
+

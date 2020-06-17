@@ -27,7 +27,9 @@ from WAMSApp.views_sourcing import *
 from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
+from WAMSApp.views_noon_integration import *
 from WAMSApp.views_dh import *
+from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
 
 from PIL import Image as IMage
@@ -291,7 +293,8 @@ class SaveNoonChannelProductAPI(APIView):
                 return Response(data=response)
 
             noon_product_json = json.loads(data["noon_product_json"])
-            noon_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+            if(noon_product_json["created_date"]==""):
+                noon_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
             channel_product.noon_product_json = json.dumps(noon_product_json)
@@ -352,7 +355,8 @@ class SaveAmazonUKChannelProductAPI(APIView):
                 return Response(data=response)
 
             amazon_uk_product_json = json.loads(data["amazon_uk_product_json"])
-            amazon_uk_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+            if(amazon_uk_product_json["created_date"]==""):
+                amazon_uk_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
 
@@ -416,7 +420,8 @@ class SaveAmazonUAEChannelProductAPI(APIView):
                 return Response(data=response)
 
             amazon_uae_product_json = json.loads(data["amazon_uae_product_json"])
-            amazon_uae_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+            if(amazon_uae_product_json["created_date"]==""):
+                amazon_uae_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
             
@@ -479,7 +484,8 @@ class SaveEbayChannelProductAPI(APIView):
                 return Response(data=response)
 
             ebay_product_json = json.loads(data["ebay_product_json"])
-            ebay_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+            if(ebay_product_json["created_date"]==""):
+                ebay_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
 
             channel_product = product_obj.channel_product
             
@@ -496,18 +502,23 @@ class SaveEbayChannelProductAPI(APIView):
 
         return Response(data=response)
 
-class FetchNoonChannelProductAPI(APIView):
+class FetchChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
         response = {}
-        response['status'] = 500
+        response["status"] = 500
+
         try:
+
             data = request.data
-            logger.info("FetchNoonChannelProductAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            logger.info("FetchChannelProductAPI: %s", str(data))
+
+            channel_name = data["channel_name"]
 
             product_obj = Product.objects.get(pk=data["product_pk"])
             channel_product_obj = product_obj.channel_product
@@ -517,131 +528,23 @@ class FetchNoonChannelProductAPI(APIView):
             permissible_brands = custom_permission_filter_brands(request.user)
 
             if brand_obj not in permissible_brands:
-                logger.warning("FetchNoonChannelProductAPI Restricted Access!")
+                logger.warning("FetchChannelProductAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
-            channel_name = "Noon"
             channel_obj = Channel.objects.get(name=channel_name)
-            noon_product_json = channel_product_obj.noon_product_json
+            channel_product_dict = get_channel_product_dict(channel_name,channel_product_obj)
 
             try:
                 permissible_channels = custom_permission_filter_channels(request.user)
                 
                 if channel_obj not in permissible_channels:
-                    logger.warning("FetchNoonChannelProductAPI Restricted Access of Noon Channel!")
+                    logger.warning("Fetch"+channel_name.replace(" ","")+"ChannelProductAPI Restricted Access of "+channel_name+" Channel!")
                     response['status'] = 403
                     return Response(data=response)
             
             except Exception as e:
-                logger.error("FetchNoonChannelProductAPI Restricted Access of Noon Channel!")
-                response['status'] = 403
-                return Response(data=response)
-
-            images = {}
-
-            main_images_list = ImageBucket.objects.none()
-            try:
-                main_images_obj = MainImages.objects.get(product=product_obj,channel=channel_obj)
-                main_images_list=main_images_obj.main_images.all()
-                main_images_list = main_images_list.distinct()
-                images["main_images"] = create_response_images_main(main_images_list)
-            except Exception as e:
-                images["main_images"] = []
-                pass
-
-
-            sub_images_list = ImageBucket.objects.none()
-            try:
-                sub_images_obj = SubImages.objects.get(product=product_obj,channel=channel_obj)
-                sub_images_list = sub_images_obj.sub_images.all()
-                sub_images_list = sub_images_list.distinct()
-                images["sub_images"] = create_response_images_sub(sub_images_list)
-            except Exception as e:
-                images["sub_images"] = []
-                pass
-
-            images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
-                                    + create_response_images_main_sub_delete(sub_images_list)
-
-            repr_image_url = Config.objects.all()[0].product_404_image.image.url
-            repr_high_def_url = repr_image_url
-            
-            if main_images_list.filter(is_main_image=True).count() > 0:
-                try:
-                    repr_image_url = main_images_list.filter(
-                        is_main_image=True)[0].image.mid_image.url
-                except Exception as e:
-                    repr_image_url = main_images_list.filter(is_main_image=True)[0].image.image.url
-
-                repr_high_def_url = main_images_list.filter(is_main_image=True)[0].image.image.url
-
-            response["repr_image_url"] = repr_image_url
-            response["repr_high_def_url"] = repr_high_def_url
-
-            response["images"] = images
-
-            response["noon_product_json"] = json.loads(noon_product_json)
-
-            response["product_id"] = product_obj.product_id
-            response["barcode"] = product_obj.barcode_string
-            response["product_id_type"] = ""
-            response["material_type"] = ""
-            
-            if product_obj.product_id_type != None:
-                response["product_id_type"] = product_obj.product_id_type.name
-            response['status'] = 200
-
-            if product_obj.material_type != None:
-                response["material_type"] = product_obj.material_type.name
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchNoonChannelProductAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-class FetchAmazonUKChannelProductAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("FetchAmazonUKChannelProductAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            product_obj = Product.objects.get(pk=data["product_pk"])
-            channel_product_obj = product_obj.channel_product
-            base_product_obj = product_obj.base_product
-            brand_obj = base_product_obj.brand
-
-            permissible_brands = custom_permission_filter_brands(request.user)
-
-            if brand_obj not in permissible_brands:
-                logger.warning("FetchAmazonUKChannelProductAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
-
-            channel_name = "Amazon UK"
-            channel_obj = Channel.objects.get(name=channel_name)
-            amazon_uk_product_json = channel_product_obj.amazon_uk_product_json
-
-            try:
-                permissible_channels = custom_permission_filter_channels(request.user)
-                
-                if channel_obj not in permissible_channels:
-                    logger.warning("FetchAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
-                    response['status'] = 403
-                    return Response(data=response)
-            
-            except Exception as e:
-                logger.error("FetchAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
+                logger.warning("Fetch"+channel_name.replace(" ","")+"ChannelProductAPI Restricted Access of "+channel_name+" Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -689,7 +592,7 @@ class FetchAmazonUKChannelProductAPI(APIView):
 
             response["images"] = images
 
-            response["amazon_uk_product_json"] = json.loads(amazon_uk_product_json)
+            response["channel_product_json"] = channel_product_dict
 
             response["product_id"] = product_obj.product_id
             response["barcode"] = product_obj.barcode_string
@@ -707,227 +610,8 @@ class FetchAmazonUKChannelProductAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchAmazonUKChannelProductAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-class FetchAmazonUAEChannelProductAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("FetchAmazonUAEChannelProductAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            product_obj = Product.objects.get(pk=data["product_pk"])
-            channel_product_obj = product_obj.channel_product
-            base_product_obj = product_obj.base_product
-            brand_obj = base_product_obj.brand
-
-            permissible_brands = custom_permission_filter_brands(request.user)
-
-            if brand_obj not in permissible_brands:
-                logger.warning("FetchAmazonUAEChannelProductAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
-
-            channel_name = "Amazon UAE"
-            channel_obj = Channel.objects.get(name=channel_name)
-            amazon_uae_product_json = channel_product_obj.amazon_uae_product_json
-
-            try:
-                permissible_channels = custom_permission_filter_channels(request.user)
-                
-                if channel_obj not in permissible_channels:
-                    logger.warning("FetchAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
-                    response['status'] = 403
-                    return Response(data=response)
-            
-            except Exception as e:
-                logger.error("FetchAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
-                response['status'] = 403
-                return Response(data=response)
-
-            images = {}
-
-            main_images_list = ImageBucket.objects.none()
-            try:
-                main_images_obj = MainImages.objects.get(product=product_obj,channel=channel_obj)
-                main_images_list=main_images_obj.main_images.all()
-                main_images_list = main_images_list.distinct()
-                images["main_images"] = create_response_images_main(main_images_list)
-            except Exception as e:
-                images["main_images"] = []
-                pass
-
-
-            sub_images_list = ImageBucket.objects.none()
-            try:
-                sub_images_obj = SubImages.objects.get(product=product_obj,channel=channel_obj)
-                sub_images_list = sub_images_obj.sub_images.all()
-                sub_images_list = sub_images_list.distinct()
-                images["sub_images"] = create_response_images_sub(sub_images_list)
-            except Exception as e:
-                images["sub_images"] = []
-                pass
-
-
-            images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
-                                    + create_response_images_main_sub_delete(sub_images_list)
-
-            repr_image_url = Config.objects.all()[0].product_404_image.image.url
-            repr_high_def_url = repr_image_url
-            
-            if main_images_list.filter(is_main_image=True).count() > 0:
-                try:
-                    repr_image_url = main_images_list.filter(
-                        is_main_image=True)[0].image.mid_image.url
-                except Exception as e:
-                    repr_image_url = main_images_list.filter(is_main_image=True)[0].image.image.url
-
-                repr_high_def_url = main_images_list.filter(is_main_image=True)[0].image.image.url
-
-            response["repr_image_url"] = repr_image_url
-            response["repr_high_def_url"] = repr_high_def_url
-
-            response["images"] = images
-
-            response["amazon_uae_product_json"] = json.loads(amazon_uae_product_json)
-
-            response["product_id"] = product_obj.product_id
-            response["barcode"] = product_obj.barcode_string
-            response["product_id_type"] = ""
-            response["material_type"] = ""
-            
-            if product_obj.product_id_type != None:
-                response["product_id_type"] = product_obj.product_id_type.name
-            response['status'] = 200
-
-            if product_obj.material_type != None:
-                response["material_type"] = product_obj.material_type.name
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchAmazonUAEChannelProductAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-    
-
-class FetchEbayChannelProductAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("FetchEbayChannelProductAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            product_obj = Product.objects.get(pk=data["product_pk"])
-            channel_product_obj = product_obj.channel_product
-            base_product_obj = product_obj.base_product
-            brand_obj = base_product_obj.brand
-
-            permissible_brands = custom_permission_filter_brands(request.user)
-
-            if brand_obj not in permissible_brands:
-                logger.warning("FetchEbayChannelProductAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
-
-            channel_name = "Ebay"
-            channel_obj = Channel.objects.get(name=channel_name)
-            ebay_product_json = channel_product_obj.ebay_product_json
-
-            try:
-                permissible_channels = custom_permission_filter_channels(request.user)
-                
-                if channel_obj not in permissible_channels:
-                    logger.warning("FetchEbayChannelProductAPI Restricted Access of Ebay Channel!")
-                    response['status'] = 403
-                    return Response(data=response)
-            
-            except Exception as e:
-                logger.error("FetchEbayChannelProductAPI Restricted Access of Ebay Channel!")
-                response['status'] = 403
-                return Response(data=response)
-
-            images = {}
-
-            main_images_list = ImageBucket.objects.none()
-            try:
-                main_images_obj = MainImages.objects.get(product=product_obj,channel=channel_obj)
-                main_images_list=main_images_obj.main_images.all()
-                main_images_list = main_images_list.distinct()
-                images["main_images"] = create_response_images_main(main_images_list)
-            except Exception as e:
-                images["main_images"] = []
-                pass
-
-
-            sub_images_list = ImageBucket.objects.none()
-            try:
-                sub_images_obj = SubImages.objects.get(product=product_obj,channel=channel_obj)
-                sub_images_list = sub_images_obj.sub_images.all()
-                sub_images_list = sub_images_list.distinct()
-                images["sub_images"] = create_response_images_sub(sub_images_list)
-            except Exception as e:
-                images["sub_images"] = []
-                pass
-
-
-            images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
-                                    + create_response_images_main_sub_delete(sub_images_list)
-
-            repr_image_url = Config.objects.all()[0].product_404_image.image.url
-            repr_high_def_url = repr_image_url
-            
-            if main_images_list.filter(is_main_image=True).count() > 0:
-                try:
-                    repr_image_url = main_images_list.filter(
-                        is_main_image=True)[0].image.mid_image.url
-                except Exception as e:
-                    repr_image_url = main_images_list.filter(is_main_image=True)[0].image.image.url
-
-                repr_high_def_url = main_images_list.filter(is_main_image=True)[0].image.image.url
-
-            response["repr_image_url"] = repr_image_url
-            response["repr_high_def_url"] = repr_high_def_url
-
-            response["images"] = images
-
-            response["ebay_product_json"] = json.loads(ebay_product_json)
-
-            response["product_id"] = product_obj.product_id
-            response["barcode"] = product_obj.barcode_string
-            response["product_id_type"] = ""
-            response["material_type"] = ""
-            
-            if product_obj.product_id_type != None:
-                response["product_id_type"] = product_obj.product_id_type.name
-            response['status'] = 200
-
-            if product_obj.material_type != None:
-                response["material_type"] = product_obj.material_type.name
-            
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchEbayChannelProductAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("FetchChannelProductAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1049,6 +733,8 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["factory_code"] = ""
             response["verified"] = product_obj.verified
+            response["locked"] = product_obj.locked
+            response["partially_verified"] = product_obj.partially_verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
 
@@ -1270,7 +956,6 @@ class FetchDealsHubProductsAPI(APIView):
             dealshub_product_objs_subset = paginator.page(page)
             products = []
 
-
             if "import_file" in data:
                 path = default_storage.save('tmp/search-dh-file.xlsx', data["import_file"])
                 path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
@@ -1381,6 +1066,9 @@ class UpdateDealshubProductAPI(APIView):
                 if "now_price" in data:
                     now_price = float(data["now_price"])        
                     dh_product_obj.now_price = now_price
+                if "promotional_price" in data:
+                    promotional_price = float(data["promotional_price"])        
+                    dh_product_obj.promotional_price = promotional_price
 
             if stock_permission:
                 if "stock" in data:
@@ -1617,6 +1305,11 @@ class SaveProductAPI(APIView):
             product_id = data["product_id"]
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
+
+            if product_obj.locked:
+                logger.warning("SaveProductAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
 
             product_obj.verified = False
             
@@ -2397,6 +2090,11 @@ class UploadProductImageAPI(APIView):
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
 
+            if product_obj.locked:
+                logger.warning("UploadProductImageAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
+
             image_objs = []
 
             image_count = int(data["image_count"])
@@ -2429,25 +2127,7 @@ class UploadProductImageAPI(APIView):
                             except Exception as e:
                                 pass
 
-                        channel_obj = Channel.objects.get(name="Amazon UK")
-                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                        main_images_obj.main_images.add(image_bucket_obj)
-                        main_images_obj.save()
-
-                        channel_obj = Channel.objects.get(name="Amazon UAE")
-                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                        main_images_obj.main_images.add(image_bucket_obj)
-                        main_images_obj.save()
-
-                        channel_obj = Channel.objects.get(name="Ebay")
-                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                        main_images_obj.main_images.add(image_bucket_obj)
-                        main_images_obj.save()
-
-                        channel_obj = Channel.objects.get(name="Noon")
-                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                        main_images_obj.main_images.add(image_bucket_obj)
-                        main_images_obj.save()
+                        add_imagebucket_to_channel_main_images(image_bucket_obj,product_obj)
 
                     else:
                         channel_obj = Channel.objects.get(name=data["channel_name"])
@@ -4202,6 +3882,8 @@ class VerifyProductAPI(APIView):
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             verify = data["verify"]
             product_obj.verified = verify
+            if verify:
+                product_obj.partially_verified = verify
 
             product_obj.save()
 
@@ -4210,6 +3892,42 @@ class VerifyProductAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("VerifyProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class LockProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("LockProductAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            if custom_permission_obj.verify_product==False:
+                logger.warning("LockProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+            locked = data["locked"]
+            product_obj.locked = locked
+
+            product_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LockProductAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -4238,6 +3956,12 @@ class DeleteImageAPI(APIView):
             image_pk = int(data["image_pk"])
             channel_name = data["channel_name"]
             product_pk = data["product_pk"]
+
+            product_obj = Product.objects.get(pk=product_pk)
+            if product_obj.locked:
+                logger.warning("DeleteImageAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
 
             if image_type == "other":
                 Image.objects.get(pk=int(image_pk)).delete()
@@ -4594,10 +4318,171 @@ class FetchUserProfileAPI(APIView):
                 response["permissible_brands"].append(brand.name)
             
             response["img_url"] = ""
-            response["permissions"] = json.loads(content_manager.permission_list)
-            
             if content_manager.image!=None:
                 response["img_url"] = content_manager.image.image.url
+
+            user = request.user
+            permissions = user.user_permissions.all()
+
+            permissions_dict = {}
+
+            custom_permission_obj = CustomPermission.objects.get(user=user)
+
+            if(custom_permission_obj.brands.all().count()):
+                permissions_dict["Brand"] = {}
+                permissions_dict["Brand"]["Items"] = []
+
+            for brand in custom_permission_obj.brands.all():            
+                permissions_dict["Brand"]["Items"].append(brand.name)
+
+            if(custom_permission_obj.channels.all().count()):
+                permissions_dict["Channel"] = {}
+                permissions_dict["Channel"]["Items"] = []
+
+            for channel in custom_permission_obj.channels.all():         
+                permissions_dict["Channel"]["Items"].append(channel.name)
+
+            price = json.loads(custom_permission_obj.price)
+            stock = json.loads(custom_permission_obj.stock)
+            mws_functions = json.loads(custom_permission_obj.mws_functions)
+            noon_functions = json.loads(custom_permission_obj.noon_functions)
+            verify_product = custom_permission_obj.verify_product
+
+            OmnyCommUser_obj = content_manager
+
+            if(OmnyCommUser_obj.website_group != None):
+                permissions_dict["Ecommerce"] = {}
+                permissions_dict["Ecommerce"]["Items"] = []
+                permissions_dict["Ecommerce"]["Items"].append("Can Manage Ecommerce")
+
+            for key in price.keys():
+                if(price[key]==True):
+                    if(key=="variant"):
+                        permissions_dict["Product"] = {}
+                        permissions_dict["Product"]["Items"] = []
+                        permissions_dict["Product"]["Items"].append("Can Update Min/Max Price")
+                    elif(key=="dealshub"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price")
+                    elif(key=="Amazon UAE"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Amazon UAE")
+                    elif(key=="Amazon UK"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Amazon UK")
+                    elif(key=="Ebay"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Ebay")
+                    elif(key=="Noon"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Noon")                        
+
+            for key in stock.keys():
+                if(stock[key]==True):
+                    if(key=="dealshub"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock")
+                    elif(key=="Amazon UAE"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Amazon UAE")
+                    elif(key=="Amazon UK"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Amazon UK")
+                    elif(key=="Ebay"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Ebay")
+                    elif(key=="Noon"):
+                        if("Ecommerce" not in permissions_dict):
+                            permissions_dict["Ecommerce"] = {}
+                            permissions_dict["Ecommerce"]["Items"] = []
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Noon")
+
+            if(verify_product):
+                if("Product" not in permissions_dict):
+                    permissions_dict["Product"] = {}
+                    permissions_dict["Product"]["Items"] = []
+                permissions_dict["Product"]["Items"].append("Can Verify Product")
+
+            flag = 0
+            for key in mws_functions.keys():
+                if(mws_functions[key]==True):
+                    flag = 1
+            
+            if(flag == 1):
+                permissions_dict["MWS"] = {}
+                permissions_dict["MWS"]["Items"] = []
+
+                for key in mws_functions.keys():
+                    if(mws_functions[key]==True):
+                        if(key=="push_product_on_amazon"):
+                            permissions_dict["MWS"]["Items"].append("Can Push Products on Amazon")
+                        if(key=="pull_product_from_amazon"):
+                            permissions_dict["MWS"]["Items"].append("Can Pull Products on Amazon")
+                        if(key=="push_inventory_on_amazon"):
+                            permissions_dict["MWS"]["Items"].append("Can Push Inventory on Amazon")
+                        if(key=="push_price_on_amazon"):
+                            permissions_dict["MWS"]["Items"].append("Can Push Price on Amazon")
+
+            flag = 0
+            for key in noon_functions.keys():
+                if(noon_functions[key]==True):
+                    flag = 1
+            
+            if(flag == 1):
+                permissions_dict["Noon_Integration"] = {}
+                permissions_dict["Noon_Integration"]["Items"] = []
+
+                for key in noon_functions.keys():
+                    if(noon_functions[key]==True):
+                        if(key=="push_inventory_on_noon"):
+                            permissions_dict["Noon_Integration"]["Items"].append("Can Push Inventory on Noon")
+                        if(key=="push_price_on_noon"):
+                            permissions_dict["Noon_Integration"]["Items"].append("Can Push Price on Noon")
+
+            for permission in permissions:
+
+                permission_string = str(permission).split("|")
+
+                permission_string[1] = permission_string[1].strip()
+
+                if(permission_string[1] != "Flyer" and permission_string[1] != "Image" and permission_string[1] != "Product"):
+                    continue
+
+                if(permission_string[1] == "Image"):
+                    permission_string[1] = "Product"
+
+                if(permission_string[1] not in permissions_dict):
+                    permissions_dict[permission_string[1]] = {}
+                    permissions_dict[permission_string[1]]["Items"] = []
+
+                permissions_dict[permission_string[1]]["Items"].append(permission_string[2].strip().title())
+
+            response["permissions"] = []
+
+            for metric in permissions_dict.keys():
+
+                temp_dict = {}
+                temp_dict["title"] = metric
+                temp_dict["Items"] = permissions_dict[metric]["Items"]
+                response["permissions"].append(temp_dict)
 
             response['status'] = 200
         
@@ -5087,18 +4972,22 @@ class FetchChannelProductListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            filter_parameters = data["filter_parameters"]
-            channel_name = data["channel_name"]
-            chip_data = data["tags"]
+            chip_data = data.get("tags", "[]")
+            filter_parameters = data.get("filter_parameters", "{}")
 
-            page = int(data['page'])
+            filter_parameters = json.loads(filter_parameters)
+            chip_data = json.loads(chip_data)
+
+            channel_name = data["channel_name"]
+
+            page = int(data.get('page', 1))
 
             search_list_product_objs = []
         
             permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             brands = permission_obj.brands.all()
 
-            if filter_parameters["brand_name"] != "":
+            if "brand_name" in filter_parameters and filter_parameters["brand_name"]!="":
                 brands = brands.filter(name__icontains=filter_parameters["brand_name"])              
 
             product_objs_list = Product.objects.filter(base_product__brand__in=brands).order_by('-pk')
@@ -5111,6 +5000,12 @@ class FetchChannelProductListAPI(APIView):
                 product_objs_list = product_objs_list.filter(channel_product__is_ebay_product_created=True)
             elif channel_name=="Noon":
                 product_objs_list = product_objs_list.filter(channel_product__is_noon_product_created=True)
+
+            if "has_image" in filter_parameters:
+                if filter_parameters["has_image"] == True:
+                    product_objs_list = product_objs_list.exclude(no_of_images_for_filter=0)
+                elif filter_parameters["has_image"] == False:
+                    product_objs_list = product_objs_list.filter(no_of_images_for_filter=0)
 
             search_list_product_objs = product_objs_list
             
@@ -5133,38 +5028,64 @@ class FetchChannelProductListAPI(APIView):
             paginator = Paginator(search_list_product_objs, 20)
             product_objs = paginator.page(page)
 
+            if "import_file" in data:
+                path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+                search_list = []
+                for i in range(rows):
+                    try:
+                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_list.append(search_key)
+                    except Exception as e:
+                        pass
+                product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
+
             for product_obj in product_objs:
                 
                 temp_dict = {}
-                amazon_uk_product_json = json.loads(product_obj.channel_product.amazon_uk_product_json)
-                amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
-                ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
-                noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
                 temp_dict["product_pk"] = product_obj.pk
                 
                 if channel_name=="Amazon UK":
+                    amazon_uk_product_json = json.loads(product_obj.channel_product.amazon_uk_product_json)
                     temp_dict["product_name"] = amazon_uk_product_json["product_name"]
                     temp_dict["category"] = amazon_uk_product_json["category"]
                     temp_dict["sub_category"] = amazon_uk_product_json["sub_category"]
                     temp_dict["status"] = amazon_uk_product_json["status"]
+                    temp_dict["now_price"] = amazon_uk_product_json["now_price"]
+                    temp_dict["was_price"] = amazon_uk_product_json["was_price"]
+                    temp_dict["stock"] = amazon_uk_product_json["stock"]
                 
                 if channel_name=="Amazon UAE":
+                    amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
                     temp_dict["product_name"] = amazon_uae_product_json["product_name"]
                     temp_dict["category"] = amazon_uae_product_json["category"]
                     temp_dict["sub_category"] = amazon_uae_product_json["sub_category"]
                     temp_dict["status"] = amazon_uae_product_json["status"]
+                    temp_dict["now_price"] = amazon_uae_product_json["now_price"]
+                    temp_dict["was_price"] = amazon_uae_product_json["was_price"]
+                    temp_dict["stock"] = amazon_uae_product_json["stock"]
                 
                 if channel_name=="Ebay":
+                    ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
                     temp_dict["product_name"] = ebay_product_json["product_name"]
                     temp_dict["category"] = ebay_product_json["category"]
                     temp_dict["sub_category"] = ebay_product_json["sub_category"]
                     temp_dict["status"] = ebay_product_json["status"]
+                    temp_dict["now_price"] = ebay_product_json["now_price"]
+                    temp_dict["was_price"] = ebay_product_json["was_price"]
+                    temp_dict["stock"] = ebay_product_json["stock"]
                 
                 if channel_name=="Noon":
+                    noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
                     temp_dict["product_name"] = noon_product_json["product_name"]
                     temp_dict["category"] = noon_product_json["category"]
                     temp_dict["sub_category"] = noon_product_json["sub_category"]
                     temp_dict["status"] = noon_product_json["status"]
+                    temp_dict["now_price"] = noon_product_json["now_price"]
+                    temp_dict["was_price"] = noon_product_json["was_price"]
+                    temp_dict["stock"] = noon_product_json["stock"]
 
                 temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                 
@@ -5920,6 +5841,177 @@ class FetchOCReportListAPI(APIView):
 
         return Response(data=response)
 
+class UpdateChannelProductStockandPriceAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateChannelProductStockandPriceAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk = data["product_pk"]
+            channel_name = data["channel_name"]
+
+            channel_obj = Channel.objects.get(name=channel_name)
+
+            if(permission_channel_boolean_response(request.user,channel_obj)==False):
+                response['status'] = 403
+                logger.warning("UpdateChannelProductStockandPriceAPI Restricted Access of "+channel_name+" Channel!")
+                return Response(data=response)
+
+            product_obj = Product.objects.get(pk=int(product_pk))
+            channel_product = product_obj.channel_product
+
+            channel_product_dict = get_channel_product_dict(channel_name,channel_product)
+
+            price_permission = custom_permission_price(request.user, channel_name)
+            stock_permission = custom_permission_stock(request.user, channel_name)
+
+            if price_permission:
+                if "now_price" in data:
+                    channel_product_dict["now_price"] = float(data["now_price"])
+                if "was_price" in data:
+                    channel_product_dict["was_price"] = float(data["was_price"])    
+            
+            if stock_permission:
+                if "stock" in data:
+                    channel_product_dict["stock"] = int(data["stock"])
+
+            channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
+
+            channel_product.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateChannelProductStockandPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class BulkUpdateChannelProductPriceAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateChannelProductPriceAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = data["channel_name"]
+
+            channel_obj = Channel.objects.get(name=channel_name)
+
+            if(permission_channel_boolean_response(request.user,channel_obj)==False):
+                response['status'] = 403
+                logger.warning("BulkUpdateChannelProductPriceAPI Restricted Access of "+channel_name+" Channel!")
+                return Response(data=response)
+
+            price_permission = custom_permission_price(request.user, channel_name)
+            
+            if price_permission:
+                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+
+                for i in range(rows):
+                    try:
+                        product_id = str(dfs.iloc[i][0]).strip()
+                        price = float(dfs.iloc[i][1])
+                        
+                        product_obj = Product.objects.get(product_id=product_id)
+                        channel_product = product_obj.channel_product
+
+                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
+                        
+                        channel_product_dict["was_price"] = price
+                        channel_product_dict["now_price"] = price
+
+                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
+                            
+                        channel_product.save()
+
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("BulkUpdateChannelProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateChannelProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class BulkUpdateChannelProductStockAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateChannelProductStockAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = data["channel_name"]
+
+            channel_obj = Channel.objects.get(name=channel_name)
+
+            if(permission_channel_boolean_response(request.user,channel_obj)==False):
+                response['status'] = 403
+                logger.warning("BulkUpdateChannelProductStockAPI Restricted Access of "+channel_name+" Channel!")
+                return Response(data=response)
+
+            price_permission = custom_permission_price(request.user, channel_name)
+            
+            if price_permission:
+                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+
+                for i in range(rows):
+                    try:
+                        product_id = str(dfs.iloc[i][0]).strip()
+                        stock = int(dfs.iloc[i][1])
+                        
+                        product_obj = Product.objects.get(product_id=product_id)
+                        channel_product = product_obj.channel_product
+
+                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
+                        
+                        channel_product_dict["stock"] = stock
+
+                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
+                            
+                        channel_product.save()
+
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
@@ -5996,6 +6088,8 @@ SaveFlyerInBucket = SaveFlyerInBucketAPI.as_view()
 
 VerifyProduct = VerifyProductAPI.as_view()
 
+LockProduct = LockProductAPI.as_view()
+
 DeleteImage = DeleteImageAPI.as_view()
 
 RemoveProductFromExportList = RemoveProductFromExportListAPI.as_view()
@@ -6014,13 +6108,7 @@ SaveEbayChannelProduct = SaveEbayChannelProductAPI.as_view()
 
 SaveNoonChannelProduct = SaveNoonChannelProductAPI.as_view()
 
-FetchAmazonUKChannelProduct = FetchAmazonUKChannelProductAPI.as_view()
-
-FetchAmazonUAEChannelProduct = FetchAmazonUAEChannelProductAPI.as_view()
-
-FetchEbayChannelProduct = FetchEbayChannelProductAPI.as_view()
-
-FetchNoonChannelProduct = FetchNoonChannelProductAPI.as_view()
+FetchChannelProduct = FetchChannelProductAPI.as_view()
 
 SaveBaseProduct = SaveBaseProductAPI.as_view()
 
@@ -6080,3 +6168,9 @@ CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
 CreateOCReport = CreateOCReportAPI.as_view()
 
 FetchOCReportList = FetchOCReportListAPI.as_view()
+
+UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view()
+
+BulkUpdateChannelProductPrice = BulkUpdateChannelProductPriceAPI.as_view()
+
+BulkUpdateChannelProductStock = BulkUpdateChannelProductStockAPI.as_view()

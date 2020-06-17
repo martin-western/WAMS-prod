@@ -52,8 +52,9 @@ for i in range(rows):
         else:
             amazon_uae_product["status"] = "incomplete"
 
-        amazon_uae_product["price"] = price
-        amazon_uae_product["quantity"] = quantity
+        amazon_uae_product["was_price"] = price
+        amazon_uae_product["now_price"] = price
+        amazon_uae_product["stock"] = quantity
         amazon_uae_product["ASIN"] = product_asin
         channel_prod.amazon_uae_product_json = json.dumps(amazon_uae_product)
         channel_prod.save()

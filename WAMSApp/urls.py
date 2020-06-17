@@ -16,6 +16,8 @@ urlpatterns = [
     # url(r'^save-pfl-image/', views.SavePflImage),
 
     url(r'^fetch-product-list/$', views.FetchProductList),
+    url(r'^updated-fetch-product-list/$', views.UpdatedFetchProductList),
+    
     url(r'^fetch-export-list/$', views.FetchExportList),
     url(r'^add-to-export/$', views.AddToExport),
 
@@ -63,6 +65,7 @@ urlpatterns = [
     url(r'^save-flyer-in-bucket/$', views.SaveFlyerInBucket),
 
     url(r'^verify-product/$', views.VerifyProduct),
+    url(r'^lock-product/$', views.LockProduct),
     url(r'^delete-image/$', views.DeleteImage),
     url(r'^remove-product-from-export-list/$',views.RemoveProductFromExportList),
     url(r'^download-product/$', views.DownloadProduct),
@@ -76,10 +79,7 @@ urlpatterns = [
     url(r'^save-channel-product-ebay/$',views.SaveEbayChannelProduct),
     url(r'^save-channel-product-noon/$',views.SaveNoonChannelProduct),
 
-    url(r'^fetch-channel-product-amazon-uk/$',views.FetchAmazonUKChannelProduct),
-    url(r'^fetch-channel-product-amazon-uae/$',views.FetchAmazonUAEChannelProduct),
-    url(r'^fetch-channel-product-ebay/$',views.FetchEbayChannelProduct),
-    url(r'^fetch-channel-product-noon/$',views.FetchNoonChannelProduct),
+    url(r'^fetch-channel-product/$',views.FetchChannelProduct),
 
     url(r'save-base-product/$', views.SaveBaseProduct),
     
@@ -133,6 +133,12 @@ urlpatterns = [
 
     url(r'^create-oc-report/$',views.CreateOCReport),
     url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
+
+    url(r'^fetch-statistics/$',views.FetchStatistics),
+    url(r'^update-channel-product-stock-and-price/$',views.UpdateChannelProductStockandPrice),
+    url(r'^bulk-update-channel-product-price/$',views.BulkUpdateChannelProductPrice),
+    url(r'^bulk-update-channel-product-stock/$',views.BulkUpdateChannelProductStock),
+
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
