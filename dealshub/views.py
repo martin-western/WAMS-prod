@@ -2261,6 +2261,7 @@ class AddProductToSectionAPI(APIView):
             response["now_price"] = str(dealshub_product_obj.now_price)
             response["was_price"] = str(dealshub_product_obj.was_price)
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
+            response["stock"] = str(dealshub_product_obj.stock)
 
             section_obj.products.add(product_obj)
             section_obj.save()
