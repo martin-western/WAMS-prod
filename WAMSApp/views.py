@@ -4353,39 +4353,39 @@ class FetchUserProfileAPI(APIView):
             if(OmnyCommUser_obj.website_group != None):
                 permissions_dict["Ecommerce"] = {}
                 permissions_dict["Ecommerce"]["Items"] = []
-                permissions_dict["Ecommerce"]["Items"].append("Can manage Ecommerce")
+                permissions_dict["Ecommerce"]["Items"].append("Can Manage Ecommerce")
 
             for key in price.keys():
                 if(price[key]==True):
                     if(key=="variant"):
                         permissions_dict["Product"] = {}
                         permissions_dict["Product"]["Items"] = []
-                        permissions_dict["Product"]["Items"].append("Can update min/max Price")
+                        permissions_dict["Product"]["Items"].append("Can Update Min/Max Price")
                     elif(key=="dealshub"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price")
                     elif(key=="Amazon UAE"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Amazon UAE")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Amazon UAE")
                     elif(key=="Amazon UK"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Amazon UK")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Amazon UK")
                     elif(key=="Ebay"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Ebay")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Ebay")
                     elif(key=="Noon"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Noon")                        
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Noon")                        
 
             for key in stock.keys():
                 if(stock[key]==True):
@@ -4393,27 +4393,27 @@ class FetchUserProfileAPI(APIView):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock")
                     elif(key=="Amazon UAE"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Amazon UAE")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Amazon UAE")
                     elif(key=="Amazon UK"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Amazon UK")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Amazon UK")
                     elif(key=="Ebay"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Ebay")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Ebay")
                     elif(key=="Noon"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Noon")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Noon")
 
             if(verify_product):
                 if("Product" not in permissions_dict):
@@ -4473,7 +4473,7 @@ class FetchUserProfileAPI(APIView):
                     permissions_dict[permission_string[1]] = {}
                     permissions_dict[permission_string[1]]["Items"] = []
 
-                permissions_dict[permission_string[1]]["Items"].append(permission_string[2].strip())
+                permissions_dict[permission_string[1]]["Items"].append(permission_string[2].strip().title())
 
             response["permissions"] = []
 
