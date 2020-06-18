@@ -5828,7 +5828,7 @@ class FetchOCReportListAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             oc_reports = json.loads(custom_permission_obj.oc_reports)
 
-            oc_report_objs = OCReport.objects.filter(report_type__in=oc_reports).order_by('-pk')
+            oc_report_objs = OCReport.objects.filter(name__in=oc_reports).order_by('-pk')
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
