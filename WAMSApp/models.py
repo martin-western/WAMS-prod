@@ -812,6 +812,7 @@ class CustomPermission(models.Model):
     noon_functions = models.TextField(default="{}")
     price = models.TextField(default="{}")
     stock = models.TextField(default="{}")
+    oc_reports = models.TextField(default="[]")
     verify_product = models.BooleanField(default=False)
 
     class Meta:

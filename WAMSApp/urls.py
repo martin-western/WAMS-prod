@@ -132,6 +132,7 @@ urlpatterns = [
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
 
     url(r'^create-oc-report/$',views.CreateOCReport),
+    url(r'^fetch-oc-report-permissions/$',views.FetchOCReportPermissions),
     url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
 
     url(r'^fetch-statistics/$',views.FetchStatistics),
