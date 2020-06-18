@@ -8,7 +8,7 @@ def convert_to_datetime(date_str):
     #return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
 
 def check_valid_promotion(promotion_obj):
-    return timezone.now() >= promotion_obj.start_time and timezone.now() <= promotion_obj.end_time
+    return timezone.now() >= timezone.localtime(promotion_obj.start_time) and timezone.now() <= timezone.localtime(promotion_obj.end_time)
 
 
 def get_promotional_price(product_obj):

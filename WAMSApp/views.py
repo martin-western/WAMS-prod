@@ -30,6 +30,7 @@ from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
 from WAMSApp.views_noon_integration import *
 from WAMSApp.views_dh import *
+from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
 
 from PIL import Image as IMage
@@ -516,6 +517,8 @@ class FetchChannelProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            logger.info("FetchChannelProductAPI: %s", str(data))
+
             channel_name = data["channel_name"]
 
             product_obj = Product.objects.get(pk=data["product_pk"])
@@ -731,6 +734,8 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["factory_code"] = ""
             response["verified"] = product_obj.verified
+            response["locked"] = product_obj.locked
+            response["partially_verified"] = product_obj.partially_verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
 
@@ -1301,6 +1306,11 @@ class SaveProductAPI(APIView):
             product_id = data["product_id"]
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
+
+            if product_obj.locked:
+                logger.warning("SaveProductAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
 
             product_obj.verified = False
             
@@ -2080,6 +2090,11 @@ class UploadProductImageAPI(APIView):
                 data = json.loads(data)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
+
+            if product_obj.locked:
+                logger.warning("UploadProductImageAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
 
             image_objs = []
 
@@ -3868,6 +3883,8 @@ class VerifyProductAPI(APIView):
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             verify = data["verify"]
             product_obj.verified = verify
+            if verify:
+                product_obj.partially_verified = verify
 
             product_obj.save()
 
@@ -3876,6 +3893,42 @@ class VerifyProductAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("VerifyProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class LockProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("LockProductAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            if custom_permission_obj.verify_product==False:
+                logger.warning("LockProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+            locked = data["locked"]
+            product_obj.locked = locked
+
+            product_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LockProductAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -3904,6 +3957,12 @@ class DeleteImageAPI(APIView):
             image_pk = int(data["image_pk"])
             channel_name = data["channel_name"]
             product_pk = data["product_pk"]
+
+            product_obj = Product.objects.get(pk=product_pk)
+            if product_obj.locked:
+                logger.warning("DeleteImageAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
 
             if image_type == "other":
                 Image.objects.get(pk=int(image_pk)).delete()
@@ -4295,39 +4354,39 @@ class FetchUserProfileAPI(APIView):
             if(OmnyCommUser_obj.website_group != None):
                 permissions_dict["Ecommerce"] = {}
                 permissions_dict["Ecommerce"]["Items"] = []
-                permissions_dict["Ecommerce"]["Items"].append("Can manage Ecommerce")
+                permissions_dict["Ecommerce"]["Items"].append("Can Manage Ecommerce")
 
             for key in price.keys():
                 if(price[key]==True):
                     if(key=="variant"):
                         permissions_dict["Product"] = {}
                         permissions_dict["Product"]["Items"] = []
-                        permissions_dict["Product"]["Items"].append("Can update min/max Price")
+                        permissions_dict["Product"]["Items"].append("Can Update Min/Max Price")
                     elif(key=="dealshub"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price")
                     elif(key=="Amazon UAE"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Amazon UAE")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Amazon UAE")
                     elif(key=="Amazon UK"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Amazon UK")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Amazon UK")
                     elif(key=="Ebay"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Ebay")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Ebay")
                     elif(key=="Noon"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Noon")                        
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Noon")                        
 
             for key in stock.keys():
                 if(stock[key]==True):
@@ -4335,27 +4394,27 @@ class FetchUserProfileAPI(APIView):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock")
                     elif(key=="Amazon UAE"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Amazon UAE")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Amazon UAE")
                     elif(key=="Amazon UK"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Amazon UK")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Amazon UK")
                     elif(key=="Ebay"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Ebay")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Ebay")
                     elif(key=="Noon"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Noon")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Noon")
 
             if(verify_product):
                 if("Product" not in permissions_dict):
@@ -4415,7 +4474,7 @@ class FetchUserProfileAPI(APIView):
                     permissions_dict[permission_string[1]] = {}
                     permissions_dict[permission_string[1]]["Items"] = []
 
-                permissions_dict[permission_string[1]]["Items"].append(permission_string[2].strip())
+                permissions_dict[permission_string[1]]["Items"].append(permission_string[2].strip().title())
 
             response["permissions"] = []
 
@@ -5724,6 +5783,34 @@ class CreateOCReportAPI(APIView):
         return Response(data=response)
 
 
+class FetchOCReportPermissionsAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchOCReportPermissionsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            oc_reports = json.loads(custom_permission_obj.oc_reports)
+
+            response["oc_report_permission_list"] = oc_reports
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOCReportPermissionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchOCReportListAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -5739,7 +5826,10 @@ class FetchOCReportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            oc_report_objs = OCReport.objects.all().order_by('-pk')
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            oc_reports = json.loads(custom_permission_obj.oc_reports)
+
+            oc_report_objs = OCReport.objects.filter(name__in=oc_reports).order_by('-pk')
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
@@ -6030,6 +6120,8 @@ SaveFlyerInBucket = SaveFlyerInBucketAPI.as_view()
 
 VerifyProduct = VerifyProductAPI.as_view()
 
+LockProduct = LockProductAPI.as_view()
+
 DeleteImage = DeleteImageAPI.as_view()
 
 RemoveProductFromExportList = RemoveProductFromExportListAPI.as_view()
@@ -6106,6 +6198,8 @@ FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()
 CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
 
 CreateOCReport = CreateOCReportAPI.as_view()
+
+FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 
 FetchOCReportList = FetchOCReportListAPI.as_view()
 

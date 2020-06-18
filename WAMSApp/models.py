@@ -428,6 +428,7 @@ class WebsiteGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
     brands = models.ManyToManyField(Brand, blank=True)
     categories = models.ManyToManyField(Category, blank=True)
+    super_categories = models.ManyToManyField(SuperCategory, blank=True)
 
     contact_info = models.CharField(max_length=100,blank=True, default='')
     address = models.TextField(blank=True, default='')
@@ -552,6 +553,8 @@ class Product(models.Model):
     is_bundle_product = models.BooleanField(default=False) 
     status = models.CharField(default="Pending", max_length=100)
     verified = models.BooleanField(default=False)
+    partially_verified = models.BooleanField(default=False)
+    locked = models.BooleanField(default=False)
     uuid = models.CharField(null=True,max_length=200)
 
     #PFL
@@ -809,6 +812,7 @@ class CustomPermission(models.Model):
     noon_functions = models.TextField(default="{}")
     price = models.TextField(default="{}")
     stock = models.TextField(default="{}")
+    oc_reports = models.TextField(default="[]")
     verify_product = models.BooleanField(default=False)
 
     class Meta:

@@ -43,7 +43,7 @@ class PushPriceAPI(APIView):
 
         try:
 
-            if custom_permission_mws_functions(request.user,"push_price_on_noon") == False:
+            if custom_permission_noon_functions(request.user,"push_price_on_noon") == False:
                 logger.warning("Noon Integration PushPriceAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
@@ -76,12 +76,12 @@ class PushPriceAPI(APIView):
                     was_price = noon_product["was_price"]
                     now_price = noon_product["now_price"]
 
-                    tsv_writer.writerow([country_code, partner_id ,seller_sku,str(float(now_price)),"",str(float(was_price)),""])
+                    tsv_writer.writerow([country_code, partner_id ,seller_sku,str(float(was_price)),"",str(float(now_price)),""])
                 
             urls = requests.post('https://integration.noon.partners/public/signed-url/noon_price_update.tsv',
                                      headers=headers).json()
 
-            response = requests.put(urls['upload_url'], data=open('/tmp/noon_price_update.tsv','rb')).raise_for_status()
+            response_noon_excel = requests.put(urls['upload_url'], data=open('/tmp/noon_price_update.tsv','rb')).raise_for_status()
 
             payload = {
                         "filename": "noon_price_update.tsv", 
@@ -90,7 +90,7 @@ class PushPriceAPI(APIView):
                         "partner_import_ref": ""
                     }
 
-            response = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
+            response_noon_api = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
                 data=json.dumps(payload),
                 headers=headers)
 
@@ -111,7 +111,7 @@ class PushStockAPI(APIView):
         
         try:
 
-            if custom_permission_mws_functions(request.user,"push_stock_on_noon") == False:
+            if custom_permission_noon_functions(request.user,"push_stock_on_noon") == False:
                 logger.warning("Noon Integration PushStockAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
@@ -121,6 +121,14 @@ class PushStockAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            product_pk_list = data["product_pk_list"]
+
+            headers = {
+                        "x-partner": "11109", 
+                        "x-api-token": "AIzaSyCxOIBdBpXFeo_4YctGCimGaVkusHDu4ZQ",
+                        "content-type" : "application/json"
+                    }
 
             with open('/tmp/noon_stock_update.tsv', 'wt') as out_file:
                 tsv_writer = csv.writer(out_file, delimiter='\t')
@@ -141,7 +149,7 @@ class PushStockAPI(APIView):
             urls = requests.post('https://integration.noon.partners/public/signed-url/noon_stock_update.tsv',
                                      headers=headers).json()
 
-            response = requests.put(urls['upload_url'], data=open('/tmp/noon_stock_update.tsv','rb')).raise_for_status()
+            response_noon_excel = requests.put(urls['upload_url'], data=open('/tmp/noon_stock_update.tsv','rb')).raise_for_status()
 
             payload = {
                         "filename": "noon_stock_update.tsv", 
@@ -150,7 +158,7 @@ class PushStockAPI(APIView):
                         "partner_import_ref": ""
                     }
 
-            response = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
+            response_noon_api = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
                             data=json.dumps(payload),
                             headers=headers)
 

@@ -75,6 +75,7 @@ class FetchOrdersForAccountManagerAPI(APIView):
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
             search_list = data.get("searchList", [])
+            website_group_name = data.get("website_group_name", "").lower()
 
             page = data.get("page", 1)
 
@@ -90,6 +91,7 @@ class FetchOrdersForAccountManagerAPI(APIView):
                 "shippingMethodList":json.dumps(shipping_method_list),
                 "trackingStatusList":json.dumps(tracking_status_list),
                 "searchList":json.dumps(search_list),
+                "website_group_name": website_group_name,
                 "page":page, 
                 "api_access":api_access
             }
@@ -131,6 +133,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
             search_list = data.get("searchList", [])
+            website_group_name = data.get("website_group_name", "").lower()
 
             page = data.get("page", 1)
 
@@ -146,6 +149,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 "shippingMethodList":json.dumps(shipping_method_list),
                 "trackingStatusList":json.dumps(tracking_status_list),
                 "searchList":json.dumps(search_list),
+                "website_group_name": website_group_name,
                 "page":page, 
                 "api_access":api_access
             }
@@ -328,6 +332,7 @@ class DownloadOrdersAPI(APIView):
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
+            website_group_name = data.get("website_group_name", "").lower()
 
             report_type = data.get("reportType")
 
@@ -342,6 +347,7 @@ class DownloadOrdersAPI(APIView):
                 "currencyList":json.dumps(currency_list),
                 "shippingMethodList":json.dumps(shipping_method_list),
                 "trackingStatusList":json.dumps(tracking_status_list),
+                "website_group_name": website_group_name,
                 "api_access":api_access
             }
 
@@ -385,6 +391,7 @@ class UploadOrdersAPI(APIView):
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
+            website_group_name = data.get("website_group_name", "").lower()
 
             order_list = []
             for i in range(rows):
@@ -407,6 +414,7 @@ class UploadOrdersAPI(APIView):
 
             request_data = {
                 "orderList": json.dumps(order_list),
+                "website_group_name": website_group_name,
                 "api_access":api_access
             }
 

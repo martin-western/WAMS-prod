@@ -160,6 +160,10 @@ class FetchProductDetailsAPI(APIView):
             try:
                 response["heroImageUrl"] = image_list[0]["original"]
             except Exception as e:
+                temp_image = {}
+                temp_image["original"] = Config.objects.all()[0].product_404_image.image.url
+                temp_image["thumbnail"] = Config.objects.all()[0].product_404_image.image.url
+                image_list.append(temp_image)
                 response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
             response["productImagesUrl"] = image_list
@@ -385,7 +389,9 @@ class FetchSuperCategoriesAPI(APIView):
             logger.info("FetchSuperCategoriesAPI: %s", str(data))
             website_group_name = data["websiteGroupName"]
 
-            super_category_objs = SuperCategory.objects.all()
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            super_category_objs = website_group_obj.super_categories.all()
 
             super_category_list = []
             for super_category_obj in super_category_objs:
@@ -2259,6 +2265,7 @@ class AddProductToSectionAPI(APIView):
             response["now_price"] = str(dealshub_product_obj.now_price)
             response["was_price"] = str(dealshub_product_obj.was_price)
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
+            response["stock"] = str(dealshub_product_obj.stock)
 
             section_obj.products.add(product_obj)
             section_obj.save()
@@ -2312,6 +2319,55 @@ class FetchBulkProductInfoAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchBulkProductInfoAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchBulkProductPriceAPI(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchBulkProductPriceAPI: %s", str(data))
+
+            uuidList = json.loads(data["uuidList"])
+
+            productPrice = {}
+            for uuid in uuidList:
+                price = 0
+                was_price = 0
+                is_stock_available = False
+                is_promotional = False
+                promotional_tag = None
+
+                dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid)
+                price = get_actual_price(dealshub_product_obj)
+                is_promotional = dealshub_product_obj.promotion!=None
+                was_price = dealshub_product_obj.was_price
+                if dealshub_product_obj.stock>0:
+                    is_stock_available = True
+                if is_promotional:
+                    promotional_tag = dealshub_product_obj.promotion.promotion_tag
+
+                temp_dict = {
+                    "price": str(price),
+                    "wasPrice": str(was_price),
+                    "is_promotional": is_promotional,
+                    "isStockAvailable": is_stock_available,
+                    "promotional_tag": promotional_tag,
+                }
+
+                productPrice[uuid] = temp_dict
+
+            response["productPrice"] = productPrice
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBulkProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -2872,6 +2928,8 @@ FetchCompanyProfileDealshub = FetchCompanyProfileDealshubAPI.as_view()
 AddProductToSection = AddProductToSectionAPI.as_view()
 
 FetchBulkProductInfo = FetchBulkProductInfoAPI.as_view()
+
+FetchBulkProductPrice = FetchBulkProductPriceAPI.as_view()
 
 FetchWebsiteGroupBrands = FetchWebsiteGroupBrandsAPI.as_view()
 
