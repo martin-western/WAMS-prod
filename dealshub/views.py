@@ -160,6 +160,10 @@ class FetchProductDetailsAPI(APIView):
             try:
                 response["heroImageUrl"] = image_list[0]["original"]
             except Exception as e:
+                temp_image = {}
+                temp_image["original"] = Config.objects.all()[0].product_404_image.image.url
+                temp_image["thumbnail"] = Config.objects.all()[0].product_404_image.image.url
+                image_list.append(temp_image)
                 response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
             response["productImagesUrl"] = image_list
