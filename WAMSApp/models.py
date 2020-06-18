@@ -1064,3 +1064,64 @@ class OCReport(models.Model):
             self.uuid = str(uuid.uuid4())
         
         super(OCReport, self).save(*args, **kwargs)
+
+item_price_json = {
+
+    "Principal" : "",
+    "Shipping" : "",
+    "Tax" : "",
+    "ShippingTax" : "",
+    "CODFee" : "",
+}
+
+item_price_json = json.dumps(item_price_json)
+
+class AmazonOrder(models.Model):
+
+    amazon_order_id = models.CharField(max_length=200)
+    order_date = models.DateTimeField(blank=True)
+        
+    payment_method = models.CharField(max_length=200, default="")
+    order_status = models.CharField(max_length=200, default="")
+    amount = models.FloatField(blank=True,null=True)
+    currency = models.CharField(max_length=200, default="")
+
+    shipment_service = models.CharField(max_length=200, default="")
+    latest_ship_date = models.DateTimeField(blank=True,null=True)
+    earliest_ship_date = models.DateTimeField(blank=True,null=True)
+    earliest_delivery_date = models.DateTimeField(blank=True,null=True)
+    shipped_items = models.IntegerField(blank=True,null=True)
+    unshipped_items = models.IntegerField(blank=True,null=True)
+    total_items = models.IntegerField(blank=True,null=True)
+
+    buyer_name = models.CharField(max_length=200, default="")
+    address = models.TextField(default="")
+    city = models.CharField(max_length=200, default="")
+    country_code = models.CharField(max_length=200,blank=True)
+
+    channel = models.ForeignKey(Channel, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Amazon Order"
+        verbose_name_plural = "Amazon Orders"
+
+    def __str__(self):
+        return str(self.amazon_order_id)
+
+
+class AmazonItem(models.Model):
+
+    amazon_order = models.ForeignKey(AmazonOrder, on_delete=models.CASCADE)
+    amazon_order_item_code = models.CharField(max_length=200, default="")
+    sku = models.CharField(max_length=200, default="")
+    name = models.TextField(default="")
+    quantity = models.IntegerField(blank=True)
+    item_price_json = models.TextField(default=item_price_json)
+    amount = models.FloatField(blank=True,null=True)
+    
+    class Meta:
+        verbose_name = "Amazon Item"
+        verbose_name_plural = "Amazon Items"
+
+    def __str__(self):
+        return str(self.amazon_order_item_code)
