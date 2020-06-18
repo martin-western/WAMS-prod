@@ -5782,6 +5782,34 @@ class CreateOCReportAPI(APIView):
         return Response(data=response)
 
 
+class FetchOCReportPermissionsAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchOCReportPermissionsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            oc_reports = json.loads(custom_permission_obj.oc_reports)
+
+            response["oc_report_permission_list"] = oc_reports
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOCReportPermissionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchOCReportListAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -5797,7 +5825,10 @@ class FetchOCReportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            oc_report_objs = OCReport.objects.all().order_by('-pk')
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            oc_reports = json.loads(custom_permission_obj.oc_reports)
+
+            oc_report_objs = OCReport.objects.filter(report_type__in=oc_reports).order_by('-pk')
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
@@ -6166,6 +6197,8 @@ FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()
 CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
 
 CreateOCReport = CreateOCReportAPI.as_view()
+
+FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 
 FetchOCReportList = FetchOCReportListAPI.as_view()
 
