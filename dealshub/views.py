@@ -2331,7 +2331,7 @@ class FetchBulkProductPriceAPI(APIView):
 
             uuidList = json.loads(data["uuidList"])
 
-            productInfo = {}
+            productPrice = {}
             for uuid in uuidList:
                 price = 0
                 was_price = 0
@@ -2356,12 +2356,9 @@ class FetchBulkProductPriceAPI(APIView):
                     "promotional_tag": promotional_tag,
                 }
 
-                productInfo[uuid] = temp_dict
+                productPrice[uuid] = temp_dict
 
-            response["productInfo"] = productInfo
-            response['status'] = 200
-
-            response["productInfo"] = productInfo
+            response["productInfo"] = productPrice
             response['status'] = 200
 
         except Exception as e:
