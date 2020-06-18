@@ -2318,6 +2318,55 @@ class FetchBulkProductInfoAPI(APIView):
         return Response(data=response)
 
 
+class FetchBulkProductPriceAPI(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchBulkProductPriceAPI: %s", str(data))
+
+            uuidList = json.loads(data["uuidList"])
+
+            productPrice = {}
+            for uuid in uuidList:
+                price = 0
+                was_price = 0
+                is_stock_available = False
+                is_promotional = False
+                promotional_tag = None
+
+                dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid)
+                price = get_actual_price(dealshub_product_obj)
+                is_promotional = dealshub_product_obj.promotion!=None
+                was_price = dealshub_product_obj.was_price
+                if dealshub_product_obj.stock>0:
+                    is_stock_available = True
+                if is_promotional:
+                    promotional_tag = dealshub_product_obj.promotion.promotion_tag
+
+                temp_dict = {
+                    "price": str(price),
+                    "wasPrice": str(was_price),
+                    "is_promotional": is_promotional,
+                    "isStockAvailable": is_stock_available,
+                    "promotional_tag": promotional_tag,
+                }
+
+                productPrice[uuid] = temp_dict
+
+            response["productPrice"] = productPrice
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBulkProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 class FetchWebsiteGroupBrandsAPI(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
@@ -2875,6 +2924,8 @@ FetchCompanyProfileDealshub = FetchCompanyProfileDealshubAPI.as_view()
 AddProductToSection = AddProductToSectionAPI.as_view()
 
 FetchBulkProductInfo = FetchBulkProductInfoAPI.as_view()
+
+FetchBulkProductPrice = FetchBulkProductPriceAPI.as_view()
 
 FetchWebsiteGroupBrands = FetchWebsiteGroupBrandsAPI.as_view()
 
