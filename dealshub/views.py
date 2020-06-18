@@ -2358,7 +2358,7 @@ class FetchBulkProductPriceAPI(APIView):
 
                 productPrice[uuid] = temp_dict
 
-            response["productInfo"] = productPrice
+            response["productPrice"] = productPrice
             response['status'] = 200
 
         except Exception as e:
