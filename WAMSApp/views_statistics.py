@@ -486,232 +486,262 @@ class FetchStatisticsAPI(APIView):
 
             page = int(data["page"])
            
-            brand_list = Brand.objects.annotate(num_products=Count('baseproduct')).order_by('-num_products').values_list("pk",flat=True)
-
-            p = Paginator(brand_list, 20)
-
-            response["brand"] = []
-
-            try:
-
-                for brand_pk in p.page(page).object_list:
-                    
-                    brand_obj = Brand.objects.get(pk=brand_pk)
-
-                    product_objs_list = Product.objects.filter(base_product__brand=brand_obj)
-
-                    baseproduct_objs_list = BaseProduct.objects.filter(brand=brand_obj)
-
-                    total_products = len(product_objs_list)
-
-                    total_baseproducts =  len(baseproduct_objs_list)
-
-                    # Metric 1 - Product Description
-
-                    product_description_yes = product_objs_list.exclude(product_description=None).exclude(product_description="").count()
-
-                    product_description_no = total_products - product_description_yes
-
-                    # Metric 2 - Product ID
-
-                    product_id_yes = product_objs_list.exclude(product_id=None).exclude(product_id="").count()
-
-                    product_id_no = total_products - product_id_yes
-
-                    # Metric 3 Verified
-
-                    product_verified_yes = product_objs_list.filter(verified=True).count()
-
-                    product_verified_no = total_products - product_verified_yes
-
-                    # Metric 4 Active Amazon UAE 
-
-                    active_amazon_uae_product_yes = product_objs_list.filter(channel_product__is_amazon_uae_product_created=True).count()
-
-                    active_amazon_uae_product_no = total_products - active_amazon_uae_product_yes
-
-                    # Metric 5 Active Amazon UK
-
-                    active_amazon_uk_product_yes = product_objs_list.filter(channel_product__is_amazon_uk_product_created=True).count()
-
-                    active_amazon_uk_product_no = total_products - active_amazon_uk_product_yes
-                        
-                    # Metric 6 Active Noon
-
-                    active_noon_product_yes = product_objs_list.filter(channel_product__is_noon_product_created=True).count()
-
-                    active_noon_product_no = total_products - active_noon_product_yes
-
-                    # Metric 7 Ebay
-
-                    active_ebay_product_yes = product_objs_list.filter(channel_product__is_ebay_product_created=True).count()
-
-                    active_ebay_product_no = total_products - active_ebay_product_yes
-
-                    #Metric 8 Main Images
-
-                    product_main_images_yes = MainImages.objects.annotate(num_main_images=Count('main_images')).filter(product__in=product_objs_list,is_sourced=True,num_main_images__gt=0).count()
-
-                    product_main_images_no = total_products - product_main_images_yes
-
-                    #Metric 9 Sub Images
-
-                    product_sub_images_yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images__gt=0).count()
-
-                    product_sub_images_no = total_products - product_sub_images_yes
-
-                    # Metric 10 PFL product features
-
-                    pfl_product_features_yes = product_objs_list.exclude(pfl_product_features="[]").exclude(pfl_product_features="").count()
-
-                    pfl_product_features_no = total_products - pfl_product_features_yes
-
-                    # Metric 11 White Background Images
-
-                    product_white_background_images_yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images__gt=0).count()
-                   
-                    product_white_background_images_no = total_products - product_white_background_images_yes
-
-                    # Metric 12 LifeStyle Images
-
-                    product_lifestyle_images_yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images__gt=0).count()
-                   
-                    product_lifestyle_images_no = total_products - product_lifestyle_images_yes
-
-                    # Metric 13 GiftBox Images
-
-                    product_giftbox_images_yes = product_objs_list.annotate(num_giftbox_images=Count('giftbox_images')).filter(num_giftbox_images__gt=0).count()
-                   
-                    product_giftbox_images_no = total_products - product_giftbox_images_yes
-
-                    # Metric 14 Transparent Images
-
-                    product_transparent_images_yes = product_objs_list.annotate(num_transparent_images=Count('transparent_images')).filter(num_transparent_images__gt=0).count()
-                   
-                    product_transparent_images_no = total_products - product_transparent_images_yes
-
-                    # Metric 15 Product Dimensions + Metric 16 GiftBox Dimensions
-
-                    product_dimension_yes = product_dimension_no = giftbox_dimension_yes = giftbox_dimension_no = 0
-                     
-                    for baseproduct_obj in baseproduct_objs_list:
-
-                        dimensions_json = json.loads(baseproduct_obj.dimensions)
-
-                        if(dimensions_json["product_dimension_l"]!="" and dimensions_json["product_dimension_b"]!="" and dimensions_json["product_dimension_h"]!=""):
-                            product_dimension_yes += 1
-                        else:
-                            product_dimension_no += 1
-
-                        if(dimensions_json["giftbox_l"]!="" and dimensions_json["giftbox_b"]!="" and dimensions_json["giftbox_h"]!=""):
-                            giftbox_dimension_yes += 1
-                        else:
-                            giftbox_dimension_no += 1 
-
-                    # Metric 17 Product Name
-
-                    product_name_yes = product_objs_list.exclude(product_name=None).exclude(product_name="").count()
-
-                    product_name_no = total_products - product_name_yes
-
-                    # Metric 18 Sub Image 1 Available
-
-                    product_sub_image_1_yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images=1).count()
-
-                    product_sub_image_1_no = total_products - product_sub_image_1_yes
-
-                    # Metric 19 Sub Image 2 Available
-
-                    product_sub_image_2_yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images=2).count()
-
-                    product_sub_image_2_no = total_products - product_sub_image_2_yes
-
-                    # Metric 20 Sub Image 3 Available
-
-                    product_sub_image_3_yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images=3).count()
-
-                    product_sub_image_3_no = total_products - product_sub_image_3_yes
-
-                    # Metric 21 White Background Image 1 Availabe
-
-                    product_white_background_image_1_yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images=1).count()
-
-                    product_white_background_image_1_no = total_products - product_white_background_image_1_yes 
-
-                    # Metric 22 White Background Image 2 Availabe
-
-                    product_white_background_image_2_yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images=2).count()
-
-                    product_white_background_image_2_no = total_products - product_white_background_image_2_yes 
-
-                    # Metric 23 LifeStyle Image 1 Availabe
-
-                    product_lifestyle_image_1_yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images=1).count()
-                   
-                    product_lifestyle_image_1_no = total_products - product_lifestyle_image_1_yes
-
-                    # Metric 24 LifeStyle Image 2 Availabe
-
-                    product_lifestyle_image_2_yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images=2).count()
-                   
-                    product_lifestyle_image_2_no = total_products - product_lifestyle_image_2_yes
-
-                    response_brand = {}
-
-                    response_brand["brand_name"] = brand_obj.name
-                    response_brand["product_description_yes"] = product_description_yes
-                    response_brand["product_description_no"] = product_description_no
-                    response_brand["product_id_yes"] = product_id_yes
-                    response_brand["product_id_no"] = product_id_no
-                    response_brand["product_verified_yes"] = product_verified_yes
-                    response_brand["product_verified_no"] = product_verified_no
-                    response_brand["active_amazon_uae_product_yes"] = active_amazon_uae_product_yes
-                    response_brand["active_amazon_uae_product_no"] = active_amazon_uae_product_no
-                    response_brand["active_amazon_uk_product_yes"] = active_amazon_uk_product_yes
-                    response_brand["active_amazon_uk_product_no"] = active_amazon_uk_product_no
-                    response_brand["active_noon_product_yes"] = active_noon_product_yes
-                    response_brand["active_noon_product_no"] = active_noon_product_no
-                    response_brand["active_ebay_product_yes"] = active_ebay_product_yes
-                    response_brand["active_ebay_product_no"] = active_ebay_product_no
-                    response_brand["product_main_images_yes"] = product_main_images_yes
-                    response_brand["product_main_images_no"] = product_main_images_no
-                    response_brand["product_sub_images_yes"] = product_sub_images_yes
-                    response_brand["product_sub_images_no"] = product_sub_images_no
-                    response_brand["pfl_product_features_yes"] = pfl_product_features_yes
-                    response_brand["pfl_product_features_no"] = pfl_product_features_no
-                    response_brand["product_white_background_images_yes"] = product_white_background_images_yes
-                    response_brand["product_white_background_images_no"] = product_white_background_images_no
-                    response_brand["product_lifestyle_images_yes"] = product_lifestyle_images_yes
-                    response_brand["product_lifestyle_images_no"] = product_lifestyle_images_no
-                    response_brand["product_giftbox_images_yes"] = product_giftbox_images_yes
-                    response_brand["product_giftbox_images_no"] = product_giftbox_images_no
-                    response_brand["product_transparent_images_yes"] = product_transparent_images_yes
-                    response_brand["product_transparent_images_no"] = product_transparent_images_no
-                    response_brand["product_dimension_yes"] = product_dimension_yes
-                    response_brand["product_dimension_no"] = product_dimension_no
-                    response_brand["product_name_yes"] = product_name_yes
-                    response_brand["product_name_no"] = product_name_no
-                    response_brand["product_sub_image_1_yes"] = product_sub_image_1_yes
-                    response_brand["product_sub_image_1_no"] = product_sub_image_1_no
-                    response_brand["product_sub_image_2_yes"] = product_sub_image_2_yes
-                    response_brand["product_sub_image_2_no"] = product_sub_image_2_no
-                    response_brand["product_sub_image_3_yes"] = product_sub_image_3_yes
-                    response_brand["product_sub_image_3_no"] = product_sub_image_3_no
-                    response_brand["product_white_background_image_1_yes"] = product_white_background_image_1_yes
-                    response_brand["product_white_background_image_1_no"] = product_white_background_image_1_no
-                    response_brand["product_white_background_image_2_yes"] = product_white_background_image_2_yes
-                    response_brand["product_white_background_image_2_no"] = product_white_background_image_2_no
-                    response_brand["product_lifestyle_image_1_yes"] = product_lifestyle_image_1_yes
-                    response_brand["product_lifestyle_image_1_no"] = product_lifestyle_image_1_no
-                    response_brand["product_lifestyle_image_2_yes"] = product_lifestyle_image_2_yes
-                    response_brand["product_lifestyle_image_2_no"] = product_lifestyle_image_2_no
-
-                    response["brand"].append(response_brand)
-
-            except Exception as e:
-                print(e)
-
-
+            permissible_brands = custom_permission_filter_brands(request.user)
+            permissible_brands = permissible_brands.annotate(num_products=Count('baseproduct')).order_by('-num_products')
+
+            paginator = Paginator(permissible_brands, 20)
+            brand_objs = paginator.page(page)
+
+            brand_list = []
+            for brand_obj in brand_objs:
+
+                product_objs_list = Product.objects.filter(base_product__brand=brand_obj)
+                baseproduct_objs_list = BaseProduct.objects.filter(brand=brand_obj)
+                total_products = product_objs_list.count()
+                total_baseproducts = baseproduct_objs_list.count()
+
+                attribute_list = []
+                result_dict = {}
+
+
+                yes = product_objs_list.exclude(product_description=None).exclude(product_description="").count()
+                no = total_products - yes
+                key = "Product Description"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.exclude(product_id=None).exclude(product_id="").count()
+                no = total_products - yes
+                key = "Product ID"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.filter(verified=True).count()
+                no = total_products - yes
+                key = "Product Verified"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.filter(channel_product__is_amazon_uae_product_created=True).count()
+                no = total_products - yes
+                key = "Amazon UAE Product"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.filter(channel_product__is_amazon_uk_product_created=True).count()
+                no = total_products - yes
+                key = "Amazon UK Product"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.filter(channel_product__is_noon_product_created=True).count()
+                no = total_products - yes
+                key = "Noon Product"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.filter(channel_product__is_ebay_product_created=True).count()
+                no = total_products - yes
+                key = "Ebay Product"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = MainImages.objects.annotate(num_main_images=Count('main_images')).filter(product__in=product_objs_list,is_sourced=True,num_main_images__gt=0).count()
+                no = total_products - yes
+                key = "Main Images"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images__gt=0).count()
+                no = total_products - yes
+                key = "Sub Images > 0"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.exclude(pfl_product_features="[]").exclude(pfl_product_features="").count()
+                no = total_products - yes
+                key = "Product Features"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images__gt=0).count()
+                no = total_products - yes
+                key = "White Backgound Images > 0"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": product_id_yes,
+                    "no": product_id_no
+                }
+
+                yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images__gt=0).count()                   
+                no = total_products - yes
+                key = "Lifestyle Images > 0"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.annotate(num_giftbox_images=Count('giftbox_images')).filter(num_giftbox_images__gt=0).count()
+                no = total_products - yes
+                key = "Giftbox Images > 0"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.annotate(num_transparent_images=Count('transparent_images')).filter(num_transparent_images__gt=0).count()                   
+                no = total_products - yes
+                key = "Transparent Images > 0"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+
+                # product_dimension_yes = 0
+
+                # for baseproduct_obj in baseproduct_objs_list:
+                #     dimensions_json = json.loads(baseproduct_obj.dimensions)
+                #     if(dimensions_json["product_dimension_l"]!="" and dimensions_json["product_dimension_b"]!="" and dimensions_json["product_dimension_h"]!=""):
+                #         product_dimension_yes += 1
+                #     else:
+                #         product_dimension_no += 1
+                #     if(dimensions_json["giftbox_l"]!="" and dimensions_json["giftbox_b"]!="" and dimensions_json["giftbox_h"]!=""):
+                #         giftbox_dimension_yes += 1
+                #     else:
+                #         giftbox_dimension_no += 1 
+
+
+                yes = product_objs_list.exclude(product_name=None).exclude(product_name="").count()
+                no = total_products - yes
+                key = "Product Name"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images=1).count()
+                no = total_products - yes
+                key = "SubImages 1"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images=2).count()
+                no = total_products - yes
+                key = "SubImages 2"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images=3).count()
+                no = total_products - yes
+                key = "SubImages 3"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images=1).count()
+                no = total_products - yes
+                key = "White Background Images 1"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images=2).count()
+                no = total_products - yes
+                key = "White Background Images 2"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images=3).count()
+                no = total_products - yes
+                key = "White Background Images 3"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images=1).count()
+                no = total_products - yes
+                key = "Lifestyle Images 1"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images=2).count()
+                no = total_products - yes
+                key = "Lifestyle Images 2"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images=3).count()
+                no = total_products - yes
+                key = "Lifestyle Images 3"
+                attribute_list.append(key)
+                result_dict[key] = {
+                    "yes": yes,
+                    "no": no
+                }
+
+                temp_dict = {}
+                temp_dict["brand_name"] = brand_obj.name
+                temp_dict["keys"] = attribute_list
+                temp_dict["values"] = result_dict
+                brand_list.append(temp_dict)
+
+            response["brand_list"] = brand_list
             response['status'] = 200
 
         except Exception as e:
