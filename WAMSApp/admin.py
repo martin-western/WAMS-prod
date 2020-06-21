@@ -55,3 +55,6 @@ admin.site.register(FactoryProduct)
 # admin.site.register(SourcingProduct)
 admin.site.register(ProformaInvoice)
 admin.site.register(ProformaInvoiceBundle)
+
+admin.site.register(AmazonOrder)
+admin.site.register(AmazonItem)

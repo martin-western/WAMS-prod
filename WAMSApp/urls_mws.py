@@ -28,6 +28,8 @@ urlpatterns = [
     
     url(r'^fetch-report-list/$',views.FetchReportList),
     url(r'^fetch-report-details/$',views.FetchReportDetails),
-    url(r'^refresh-report-status/$',views.RefreshReportStatus)
+    url(r'^refresh-report-status/$',views.RefreshReportStatus),
+
+    url(r'^fetch-orders-periodically/$',views.FetchOrdersPeriodically),    
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
