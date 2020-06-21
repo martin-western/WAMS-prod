@@ -599,8 +599,8 @@ class FetchStatisticsAPI(APIView):
                 key = "White Backgound Images > 0"
                 attribute_list.append(key)
                 result_dict[key] = {
-                    "yes": product_id_yes,
-                    "no": product_id_no
+                    "yes": yes,
+                    "no": no
                 }
 
                 yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images__gt=0).count()                   
