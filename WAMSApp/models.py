@@ -814,6 +814,7 @@ class CustomPermission(models.Model):
     stock = models.TextField(default="{}")
     oc_reports = models.TextField(default="[]")
     verify_product = models.BooleanField(default=False)
+    page_list = models.TextField(default="[]")
 
     class Meta:
         verbose_name = "CustomPermission"

@@ -130,6 +130,8 @@ urlpatterns = [
     url(r'^upload-orders/$',views.UploadOrders),
 
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
+    url(r'^fetch-page-permissions/$',views.FetchPagePermissions),
+
 
     url(r'^create-oc-report/$',views.CreateOCReport),
     url(r'^fetch-oc-report-permissions/$',views.FetchOCReportPermissions),
@@ -139,6 +141,8 @@ urlpatterns = [
     url(r'^update-channel-product-stock-and-price/$',views.UpdateChannelProductStockandPrice),
     url(r'^bulk-update-channel-product-price/$',views.BulkUpdateChannelProductPrice),
     url(r'^bulk-update-channel-product-stock/$',views.BulkUpdateChannelProductStock),
+
+
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

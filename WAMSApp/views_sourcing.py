@@ -949,8 +949,6 @@ class FetchFactoryListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            # Add Permisson here
-
             factory_objs = Factory.objects.all()
 
             factory_list = []
@@ -1202,6 +1200,52 @@ class CheckFactoryUserAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CheckFactoryUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class SearchFactoryProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("SearchFactoryProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            search_string = data["search_string"]
+
+            product_objs = Product.objects.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
+
+            product_list = []
+            for product_obj in product_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = product_obj.product_name
+                    temp_dict["product_id"] = product_obj.product_id
+                    temp_dict["product_pk"] = product_obj.pk
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["uuid"] = product_obj.uuid
+                    try:
+                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.mid_image.url
+                    except Exception as e:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    product_list.append(temp_dict)
+                except Exception as e:
+                    pass
+
+            response["product_list"] = product_list
+            
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
