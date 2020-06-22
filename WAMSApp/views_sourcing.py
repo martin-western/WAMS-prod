@@ -751,37 +751,30 @@ class CreateFactoryProductAPI(APIView):
             sub_category_uuid = data['sub_category_uuid']
             material_type_name = data["material_type"]
 
-            brand_obj = Brand.objects.none()
+            brand_obj = None
             try:
                 brand_obj = Brand.objects.get(name=brand_name)
             except Exception as e:
-                response["status"] = 404
                 logger.error("CreateFactoryProductAPI: Brand does not exist")
-                return Response(data=response)
 
-            category_obj = Category.objects.none()
+            category_obj = None
             try:
                 category_obj = Category.objects.get(uuid=category_uuid)
             except Exception as e:
-                response["status"] = 404
                 logger.error("CreateFactoryProductAPI: Category does not exist")
-                return Response(data=response)
 
-            sub_category_obj = SubCategory.objects.none()
+            sub_category_obj = None
             try:
                 sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
             except Exception as e:
-                response["status"] = 404
                 logger.error("CreateFactoryProductAPI: SubCategory does not exist")
-                return Response(data=response)
 
-            material_type_obj = MaterialType.objects.none()
+
+            material_type_obj = None
             try:
                 material_type_obj = MaterialType.objects.get(name=material_type_name)
             except Exception as e:
-                response["status"] = 404
                 logger.error("CreateFactoryProductAPI: MaterialType does not exist")
-                return Response(data=response)
 
             product_name = data["product_name"]
             product_description = data["product_description"]
@@ -795,7 +788,6 @@ class CreateFactoryProductAPI(APIView):
             dimensions = json.dumps(data["dimensions"])
 
             factory_product_obj = FactoryProduct.objects.create(
-
                 product_name=product_name,
                 product_description=product_description,
                 factory=factory_obj,
@@ -1167,52 +1159,31 @@ class SaveFactoryProductAPI(APIView):
                 logger.error("SaveFactoryProductAPI: Factory Product does not exist")
                 return Response(data=response)
 
-            factory_obj = Factory.objects.none() 
-            try:
-                factory_user = FactoryUser.objects.get(username=request.user.username)
-                factory_obj = factory_user.factory
+            factory_obj = FactoryUser.objects.get(username=request.user.username).factory
 
-                if(factory_product_obj.factory != factory_obj):
-                    response["status"] = 403
-                    logger.error("SaveFactoryProductAPI: Not authorised to update")
-                    return Response(data=response)
-
-            except:
-                response["status"] = 403
-                logger.error("SaveFactoryProductAPI: Not a Factory User")
-                return Response(data=response)
-
-            brand_obj = Brand.objects.none()
+            brand_obj = None
             try:
                 brand_obj = Brand.objects.get(name=brand_name)
             except Exception as e:
-                response["status"] = 404
                 logger.error("SaveFactoryProductAPI: Brand does not exist")
-                return Response(data=response)
 
-            category_obj = Category.objects.none()
+            category_obj = None
             try:
                 category_obj = Category.objects.get(uuid=category_uuid)
             except Exception as e:
-                response["status"] = 404
                 logger.error("SaveFactoryProductAPI: Category does not exist")
-                return Response(data=response)
 
-            sub_category_obj = SubCategory.objects.none()
+            sub_category_obj = None
             try:
                 sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
             except Exception as e:
-                response["status"] = 404
                 logger.error("SaveFactoryProductAPI: SubCategory does not exist")
-                return Response(data=response)
 
-            material_type_obj = MaterialType.objects.none()
+            material_type_obj = None
             try:
                 material_type_obj = MaterialType.objects.get(name=material_type_name)
             except Exception as e:
-                response["status"] = 404
                 logger.error("SaveFactoryProductAPI: MaterialType does not exists")
-                return Response(data=response)
 
             product_name = data["product_name"]
             product_description = data["product_description"]
