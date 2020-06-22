@@ -845,11 +845,11 @@ class FetchFactoryProductListAPI(APIView):
 
             factory_obj = None
             if OmnyCommUser.objects.filter(username=request.user.username).exists():
-            	factory_uuid = data.get("factory_uuid", None)
-            	if factory_uuid!=None:
-            		factory_obj = Factory.objects.get(uuid=factory_uuid)
+                factory_uuid = data.get("factory_uuid", None)
+                if factory_uuid!=None:
+                    factory_obj = Factory.objects.get(uuid=factory_uuid)
             elif FactoryUser.objects.filter(username=request.user.username).exists():
-            	factory_obj = FactoryUser.objects.get(username=username).factory
+                factory_obj = FactoryUser.objects.get(username=username).factory
             else:
                 response["status"] = 403
                 logger.error("FetchFactoryProductListAPI Restricted Access")
@@ -858,7 +858,7 @@ class FetchFactoryProductListAPI(APIView):
             factory_product_objs = FactoryProduct.objects.all()
 
             if factory_obj!=None:
-            	factory_product_objs = factory_product_objs.filter(factory=factory_obj)
+                factory_product_objs = factory_product_objs.filter(factory=factory_obj)
 
             page = int(data.get('page', 1))
             paginator = Paginator(factory_product_objs, 20)
@@ -871,9 +871,9 @@ class FetchFactoryProductListAPI(APIView):
                 temp_dict["product_name"] = factory_product_obj.product_name
                 temp_dict["manufacturer_part_number"] = factory_product_obj.manufacturer_part_number
                 if factory_product_obj.brand==None:
-                	temp_dict["brand"] = ""
+                    temp_dict["brand"] = ""
                 else:
-                	temp_dict["brand"] = str(factory_product_obj.brand)
+                    temp_dict["brand"] = str(factory_product_obj.brand)
                 temp_dict["uuid"] = str(factory_product_obj.uuid)
                 try:
                     temp_dict["image"] = factory_product_obj.image.all()[0].image.url
@@ -886,6 +886,11 @@ class FetchFactoryProductListAPI(APIView):
             
             if paginator.num_pages == page:
                 is_available = False
+
+            if factory_obj!=None:
+                response["factory_name"] = factory_obj.name
+            else:
+                response["factory_name"] = "ALL"
 
             response["is_available"] = is_available
             response["total_products"] = total_products
@@ -928,28 +933,28 @@ class FetchFactoryProductAPI(APIView):
             response["product_description"] = factory_product_obj.product_description
             response["factory"] = factory_product_obj.factory.name
             if factory_product_obj.brand==None:
-            	response["brand"] = ""
+                response["brand"] = ""
             else:
-            	response["brand"] = str(factory_product_obj.brand)
+                response["brand"] = str(factory_product_obj.brand)
 
             response["manufacturer"] = factory_product_obj.manufacturer
             if factory_product_obj.category==None:
-            	response["category"] = ""
+                response["category"] = ""
             else:
-            	response["category"] = str(factory_product_obj.category)
+                response["category"] = str(factory_product_obj.category)
 
             if factory_product_obj.category==None:
-            	response["sub_category"] = ""
+                response["sub_category"] = ""
             else:
-            	response["sub_category"] = str(factory_product_obj.sub_category)
+                response["sub_category"] = str(factory_product_obj.sub_category)
 
             response["color_map"] = factory_product_obj.color_map
             response["color"] = factory_product_obj.color
 
             if factory_product_obj.material_type==None:
-            	response["material_type"] = ""
+                response["material_type"] = ""
             else:
-            	response["material_type"] = str(factory_product_obj.material_type)
+                response["material_type"] = str(factory_product_obj.material_type)
 
             response["moq"] = str(factory_product_obj.moq)
             response["factory_notes"] = factory_product_obj.factory_notes
@@ -1231,7 +1236,7 @@ class CheckFactoryUserAPI(APIView):
 
             response["factory_user"] = factory_user.exists()
             if(factory_user.exists()==True):
-            	response["factory_uuid"] = factory_user[0].factory.uuid
+                response["factory_uuid"] = factory_user[0].factory.uuid
 
             response["status"] = 200
 
