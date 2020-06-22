@@ -849,7 +849,7 @@ class FetchFactoryProductListAPI(APIView):
                 if factory_uuid!=None:
                     factory_obj = Factory.objects.get(uuid=factory_uuid)
             elif FactoryUser.objects.filter(username=request.user.username).exists():
-                factory_obj = FactoryUser.objects.get(username=username).factory
+                factory_obj = FactoryUser.objects.get(username=request.user.username).factory
             else:
                 response["status"] = 403
                 logger.error("FetchFactoryProductListAPI Restricted Access")
