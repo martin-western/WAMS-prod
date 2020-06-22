@@ -261,38 +261,38 @@ class OmnyCommUser(User):
         verbose_name = "OmnyCommUser"
         verbose_name_plural = "OmnyCommUser"
 
-class Factory(models.Model): 
+# class Factory(models.Model): 
 
-    factory_code = models.CharField(max_length=300)
-    name = models.CharField(max_length=300)
-    images = models.ManyToManyField(Image, blank=True)
-    other_info = models.TextField(null=True, blank=True)
-    background_poster = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="background_poster")
-    business_card = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="business_card")
-    phone_numbers = models.TextField(default="[]", blank=True)
-    factory_emailid = models.CharField(max_length=300, null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
-    operating_hours = models.TextField(default="[]", blank=True)
-    bank_details = models.ForeignKey(Bank, null=True, blank=True, on_delete=models.SET_NULL, related_name="related_factory")
-    average_delivery_days = models.IntegerField(null=True, blank=True)
-    average_turn_around_time = models.IntegerField(null=True, blank=True)
-    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL,related_name="logo")
-    contact_person_name = models.CharField(max_length=300, null=True, blank=True)
-    contact_person_emailid = models.CharField(max_length=300, null=True, blank=True)
-    contact_person_mobile_no = models.CharField(max_length=300, null=True, blank=True)
-    social_media_tag = models.CharField(max_length=300, null=True, blank=True)
-    social_media_tag_information = models.CharField(max_length=300, null=True, blank=True)
-    loading_port = models.CharField(max_length=300, null=True, blank=True)
-    location = models.CharField(max_length=300, null=True, blank=True)
-    created_date = models.DateTimeField(null=True, blank=True)
-    created_by = models.ForeignKey(OmnyCommUser,blank=True)
+#     factory_code = models.CharField(max_length=300)
+#     name = models.CharField(max_length=300)
+#     images = models.ManyToManyField(Image, blank=True)
+#     other_info = models.TextField(null=True, blank=True)
+#     background_poster = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="background_poster")
+#     business_card = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="business_card")
+#     phone_numbers = models.TextField(default="[]", blank=True)
+#     factory_emailid = models.CharField(max_length=300, null=True, blank=True)
+#     address = models.TextField(null=True, blank=True)
+#     operating_hours = models.TextField(default="[]", blank=True)
+#     bank_details = models.ForeignKey(Bank, null=True, blank=True, on_delete=models.SET_NULL, related_name="related_factory")
+#     average_delivery_days = models.IntegerField(null=True, blank=True)
+#     average_turn_around_time = models.IntegerField(null=True, blank=True)
+#     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL,related_name="logo")
+#     contact_person_name = models.CharField(max_length=300, null=True, blank=True)
+#     contact_person_emailid = models.CharField(max_length=300, null=True, blank=True)
+#     contact_person_mobile_no = models.CharField(max_length=300, null=True, blank=True)
+#     social_media_tag = models.CharField(max_length=300, null=True, blank=True)
+#     social_media_tag_information = models.CharField(max_length=300, null=True, blank=True)
+#     loading_port = models.CharField(max_length=300, null=True, blank=True)
+#     location = models.CharField(max_length=300, null=True, blank=True)
+#     created_date = models.DateTimeField(null=True, blank=True)
+#     created_by = models.ForeignKey(OmnyCommUser,blank=True)
 
-    class Meta:
-        verbose_name = "BaseFactory"
-        verbose_name_plural = "BaseFactories"
+#     class Meta:
+#         verbose_name = "BaseFactory"
+#         verbose_name_plural = "BaseFactories"
 
-    def __str__(self):
-        return str(self.name)
+#     def __str__(self):
+#         return str(self.name)
         
 
 class ImageBucket(models.Model):
@@ -592,7 +592,7 @@ class Product(models.Model):
     history = AuditlogHistoryField()
 
     no_of_images_for_filter = models.IntegerField(default=0)
-    factory = models.ForeignKey(Factory, null=True, blank=True)
+    # factory = models.ForeignKey(Factory, null=True, blank=True)
     dynamic_form_attributes = models.TextField(default="{}")
 
     min_price = models.FloatField(default=0)
@@ -910,41 +910,41 @@ def update_stock(sender, instance, **kwargs):
 ##############################################################################################
 
 
-class SourcingProduct(models.Model):
+# class SourcingProduct(models.Model):
     
-    price = models.FloatField(default=0, null=True, blank=True)
-    currency = models.CharField(max_length=300, null=True, blank=True)
-    other_info = models.TextField(null=True, blank=True)
-    minimum_order_qty = models.IntegerField(null=True, blank=True)
-    order_qty = models.IntegerField(null=True, blank=True)
-    qty_metric = models.CharField(max_length=300, null=True, blank=True)
-    inner_box_qty = models.IntegerField(null=True, blank=True)
-    is_pr_ready = models.BooleanField(default=False)
-    go_live = models.BooleanField(default=False)
-    size = models.CharField(max_length=300, null=True, blank=True)
-    weight = models.CharField(max_length=300, null=True, blank=True)
-    weight_metric = models.CharField(max_length=300, null=True, blank=True)
-    design = models.CharField(max_length=300, null=True, blank=True)
-    pkg_inner = models.CharField(max_length=300, null=True, blank=True)
-    pkg_m_ctn = models.CharField(max_length=300, null=True, blank=True)
-    p_ctn_cbm = models.CharField(max_length=300, null=True, blank=True)
-    ttl_ctn = models.CharField(max_length=300, null=True, blank=True)
-    ttl_cbm = models.CharField(max_length=300, null=True, blank=True)
-    ship_lot_number = models.CharField(max_length=300, null=True, blank=True)
-    giftbox_die_cut = models.CharField(max_length=300, null=True, blank=True)
-    spare_part_name = models.CharField(max_length=300, null=True, blank=True)
-    spare_part_qty = models.IntegerField(null=True)
-    delivery_days = models.IntegerField(default=0, null=True)
-    created_by = models.ForeignKey(OmnyCommUser,blank=True)
+#     price = models.FloatField(default=0, null=True, blank=True)
+#     currency = models.CharField(max_length=300, null=True, blank=True)
+#     other_info = models.TextField(null=True, blank=True)
+#     minimum_order_qty = models.IntegerField(null=True, blank=True)
+#     order_qty = models.IntegerField(null=True, blank=True)
+#     qty_metric = models.CharField(max_length=300, null=True, blank=True)
+#     inner_box_qty = models.IntegerField(null=True, blank=True)
+#     is_pr_ready = models.BooleanField(default=False)
+#     go_live = models.BooleanField(default=False)
+#     size = models.CharField(max_length=300, null=True, blank=True)
+#     weight = models.CharField(max_length=300, null=True, blank=True)
+#     weight_metric = models.CharField(max_length=300, null=True, blank=True)
+#     design = models.CharField(max_length=300, null=True, blank=True)
+#     pkg_inner = models.CharField(max_length=300, null=True, blank=True)
+#     pkg_m_ctn = models.CharField(max_length=300, null=True, blank=True)
+#     p_ctn_cbm = models.CharField(max_length=300, null=True, blank=True)
+#     ttl_ctn = models.CharField(max_length=300, null=True, blank=True)
+#     ttl_cbm = models.CharField(max_length=300, null=True, blank=True)
+#     ship_lot_number = models.CharField(max_length=300, null=True, blank=True)
+#     giftbox_die_cut = models.CharField(max_length=300, null=True, blank=True)
+#     spare_part_name = models.CharField(max_length=300, null=True, blank=True)
+#     spare_part_qty = models.IntegerField(null=True)
+#     delivery_days = models.IntegerField(default=0, null=True)
+#     created_by = models.ForeignKey(OmnyCommUser,blank=True)
     
-    product = models.ForeignKey(Product,blank=True,null=True, on_delete=models.SET_NULL)
+#     product = models.ForeignKey(Product,blank=True,null=True, on_delete=models.SET_NULL)
     
-    class Meta:
-        verbose_name = "SourcingProduct"
-        verbose_name_plural = "SourcingProducts"
+#     class Meta:
+#         verbose_name = "SourcingProduct"
+#         verbose_name_plural = "SourcingProducts"
 
-    def __str__(self):
-        return str(self.product)
+#     def __str__(self):
+#         return str(self.product)
 
 
 class ProformaInvoiceBundle(models.Model):
@@ -975,7 +975,7 @@ class ProformaInvoice(models.Model):
     inco_terms = models.CharField(max_length=250, default="", blank=True)
     ttl_cntrs = models.CharField(max_length=250, default="", blank=True)
     delivery_terms = models.CharField(max_length=250, default="", blank=True)
-    factory = models.ForeignKey(Factory, null=True, blank=True, on_delete=models.SET_NULL)
+    # factory = models.ForeignKey(Factory, null=True, blank=True, on_delete=models.SET_NULL)
     proforma_invoice_bundle = models.ForeignKey(ProformaInvoiceBundle, default=None, blank=True, on_delete=models.CASCADE)
     invoice_number = models.CharField(max_length=250, default="", blank=True)
     invoice_date = models.DateTimeField(null=True, blank=True)
@@ -1129,3 +1129,74 @@ class AmazonItem(models.Model):
 
     def __str__(self):
         return str(self.amazon_order_item_code)
+
+class Factory(models.Model):
+
+    name = models.CharField(max_length=200, default="")
+    code = models.CharField(max_length=200, default="")
+    uuid = models.CharField(max_length=200, default="",blank=True)
+    address = models.TextField(default="")
+    image = models.ForeignKey(Image,on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Factory"
+        verbose_name_plural = "Factories"
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(Factory, self).save(*args, **kwargs)
+
+class FactoryUser(User):
+
+    image = models.ForeignKey(Image,on_delete=models.SET_NULL, null=True, blank=True)
+    contact_number = models.CharField(max_length=200, default="")
+    designation = models.CharField(max_length=200, default="", null=True, blank=True)
+    permission_list = models.TextField(default="[]")
+    factory = models.ForeignKey(Factory,on_delete=models.SET_NULL,null=True)
+
+    class Meta:
+        verbose_name = "Factory User"
+        verbose_name_plural = "Factory Users"
+
+    def __str__(self):
+        return str(self.username)
+
+class FactoryProduct(models.Model):
+
+    uuid = models.CharField(max_length=200, default="",blank=True)
+    product_name = models.CharField(max_length=200, default="")
+    product_description = models.TextField(default="", blank=True,null=True)
+    factory = models.ForeignKey(Factory,on_delete=models.SET_NULL,null=True)
+    manufacturer_part_number = models.CharField(max_length=200, default="")
+    brand = models.ForeignKey(Brand,on_delete=models.SET_NULL,null=True)
+    manufacturer = models.CharField(max_length=200, default="")
+    category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True)
+    sub_category = models.ForeignKey(SubCategory,on_delete=models.SET_NULL,null=True,blank=True)
+    images = models.ManyToManyField(Image,blank=True)
+    color_map = models.CharField(max_length=100, default="")
+    color = models.CharField(max_length=100, default="")
+    material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
+    moq = models.CharField(max_length=200, default="")
+    factory_notes = models.TextField(null=True,blank=True,default="")
+    features = models.TextField(default="[]")
+    dimensions = models.TextField(default=base_dimensions_json,blank=True)
+
+    class Meta:
+        verbose_name = "Factory Product"
+        verbose_name_plural = "Factory Products"
+
+    def __str__(self):
+        return str(self.product_name)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(FactoryProduct, self).save(*args, **kwargs)
