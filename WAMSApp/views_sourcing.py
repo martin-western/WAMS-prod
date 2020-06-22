@@ -813,6 +813,7 @@ class CreateFactoryProductAPI(APIView):
 
             factory_product_obj.save()
 
+            response["uuid"] = factory_product_obj.uuid
             response["status"] = 200
 
         except Exception as e:
