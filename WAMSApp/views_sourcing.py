@@ -829,6 +829,7 @@ class CreateFactoryProductAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchFactoryProductListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -842,33 +843,52 @@ class FetchFactoryProductListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            factory_uuid = data["factory_uuid"]
-
-            factory_obj = Factory.objects.none()
-            try:
-                factory_obj = Factory.objects.get(uuid=factory_uuid)
-            except Exception as e:
-                response["status"] = 404
-                logger.error("FetchFactoryProductListAPI: Factory does not exist")
+            factory_obj = None
+            if OmnyCommUser.objects.filter(username=request.user.username).exists():
+            	factory_uuid = data.get("factory_uuid", None)
+            	if factory_uuid!=None:
+            		factory_obj = Factory.objects.get(uuid=factory_uuid)
+            elif FactoryUser.objects.filter(username=request.user.username).exists():
+            	factory_obj = FactoryUser.objects.get(username=username).factory
+            else:
+                response["status"] = 403
+                logger.error("FetchFactoryProductListAPI Restricted Access")
                 return Response(data=response)
 
-            factory_product_objs = FactoryProduct.objects.filter(factory=factory_obj)
+            factory_product_objs = FactoryProduct.objects.all()
+
+            if factory_obj!=None:
+            	factory_product_objs = factory_product_objs.filter(factory=factory_obj)
+
+            page = int(data.get('page', 1))
+            paginator = Paginator(factory_product_objs, 20)
+            total_products = factory_product_objs.count()
+            factory_product_objs = paginator.page(page)
 
             factory_product_list = []
-
             for factory_product_obj in factory_product_objs:
-
                 temp_dict = {}
                 temp_dict["product_name"] = factory_product_obj.product_name
                 temp_dict["manufacturer_part_number"] = factory_product_obj.manufacturer_part_number
-                temp_dict["brand"] = factory_product_obj.brand.name
-
+                if factory_product_obj.brand==None:
+                	temp_dict["brand"] = ""
+                else:
+                	temp_dict["brand"] = str(factory_product_obj.brand)
+                temp_dict["uuid"] = str(factory_product_obj.uuid)
                 try:
                     temp_dict["image"] = factory_product_obj.image.all()[0].image.url
                 except:
                     temp_dict["image"] = Config.objects.all()[0].product_404_image.image.url
 
                 factory_product_list.append(temp_dict)
+
+            is_available = True
+            
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["total_products"] = total_products
 
             response["factory_product_list"]  = factory_product_list
             response["status"] = 200
@@ -907,25 +927,40 @@ class FetchFactoryProductAPI(APIView):
             response["manufacturer_part_number"] = factory_product_obj.manufacturer_part_number
             response["product_description"] = factory_product_obj.product_description
             response["factory"] = factory_product_obj.factory.name
-            response["brand"] = factory_product_obj.brand.name
+            if factory_product_obj.brand==None:
+            	response["brand"] = ""
+            else:
+            	response["brand"] = str(factory_product_obj.brand)
+
             response["manufacturer"] = factory_product_obj.manufacturer
-            response["category"] = factory_product_obj.category.name
-            response["sub_category"] = factory_product_obj.sub_category.name
+            if factory_product_obj.category==None:
+            	response["category"] = ""
+            else:
+            	response["category"] = str(factory_product_obj.category)
+
+            if factory_product_obj.category==None:
+            	response["sub_category"] = ""
+            else:
+            	response["sub_category"] = str(factory_product_obj.sub_category)
+
             response["color_map"] = factory_product_obj.color_map
             response["color"] = factory_product_obj.color
-            response["material_type"] = factory_product_obj.material_type.name
-            response["moq"] = factory_product_obj.moq
+
+            if factory_product_obj.material_type==None:
+            	response["material_type"] = ""
+            else:
+            	response["material_type"] = str(factory_product_obj.material_type)
+
+            response["moq"] = str(factory_product_obj.moq)
             response["factory_notes"] = factory_product_obj.factory_notes
             response["dimensions"] = json.loads(factory_product_obj.dimensions)
 
-            response["images"] = []
-
+            images = []
             image_objs = factory_product_obj.images.all()
-
             for image_obj in image_objs:
-                response["images"].append(image_obj.image.url)
+                images.append(image_obj.image.url)
 
-            response["images_count"] = len(response["images"])
+            response["images"] = images
             response["status"] = 200
 
         except Exception as e:
@@ -933,7 +968,6 @@ class FetchFactoryProductAPI(APIView):
             logger.error("FetchFactoryProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
 
 
 class FetchFactoryListAPI(APIView):
@@ -961,11 +995,11 @@ class FetchFactoryListAPI(APIView):
                 temp_dict["name"] = factory_obj.name
                 temp_dict["code"] = factory_obj.code
                 temp_dict["address"] = factory_obj.address
-
+                temp_dict["uuid"] = factory_obj.uuid
                 try:
-                    temp_dict["image"] = factory_obj.image.image.url
+                    temp_dict["image"] = factory_obj.image.mid_image.url
                 except:
-                    pass
+                    temp_dict["image"] = Config.objects.all()[0].product_404_image.image.url
 
                 factory_list.append(temp_dict)
 
@@ -1065,6 +1099,7 @@ class DeleteFactoryProductImageAPI(APIView):
             logger.error("DeleteFactoryProductImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class SaveFactoryProductAPI(APIView):
 
@@ -1177,6 +1212,7 @@ class SaveFactoryProductAPI(APIView):
             logger.error("SaveFactoryProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class CheckFactoryUserAPI(APIView):
 
