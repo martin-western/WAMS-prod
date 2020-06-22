@@ -1351,7 +1351,6 @@ class SaveProductAPI(APIView):
             pfl_product_features = data["pfl_product_features"]
 
             factory_notes = convert_to_ascii(data["factory_notes"])
-            factory_code = convert_to_ascii(data["factory_code"])
 
             dynamic_form_attributes = data["dynamic_form_attributes"]
 
@@ -1440,12 +1439,6 @@ class SaveProductAPI(APIView):
 
             if str(dynamic_form_attributes)!="{}":
                 product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
-
-            try:
-                factory_obj = Factory.objects.get(factory_code=factory_code)
-                product_obj.factory = factory_obj
-            except Exception as e:
-                pass
             
             product_obj.save()
 
