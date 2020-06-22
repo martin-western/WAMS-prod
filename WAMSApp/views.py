@@ -1669,26 +1669,21 @@ class FetchProductListAPI(APIView):
                     temp_dict2["main_images"] = []
                     temp_dict["base_main_images"] = []
 
-                    if without_images == 0:
 
-                        main_images_list = ImageBucket.objects.none()
-                        main_images_objs = MainImages.objects.filter(product=product_obj)
-                        for main_images_obj in main_images_objs:
-                            main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = ImageBucket.objects.none()
+                    main_images_objs = MainImages.objects.filter(product=product_obj)
+                    for main_images_obj in main_images_objs:
+                        main_images_list |= main_images_obj.main_images.all()
 
-                        main_images_list = main_images_list.distinct()
+                    main_images_list = main_images_list.distinct()
 
-                        try:
-                            main_images = create_response_images_main(main_images_list)
-                            temp_dict2["main_images"] = main_images
-                            for main_image in main_images:
-                                temp_dict["base_main_images"].append(main_image)
-                        except Exception as e:
-                            pass
-                        # elif without_images==0:
-                        #     main_images = create_response_images_main(main_images_list)
-                        #     temp_dict2["main_images"].append(main_images[0])
-                        #     temp_dict["base_main_images"].append(main_images[0])
+                    try:
+                        main_images = create_response_images_main(main_images_list)
+                        temp_dict2["main_images"] = main_images
+                        for main_image in main_images:
+                            temp_dict["base_main_images"].append(main_image)
+                    except Exception as e:
+                        pass
 
                     channels_of_prod =0
                     inactive_channels = 0
