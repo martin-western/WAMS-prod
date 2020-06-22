@@ -867,7 +867,7 @@ class FetchFactoryProductListAPI(APIView):
             if(filter_brand!=None):
                 factory_product_objs = factory_product_objs.filter(brand__name=filter_brand)
 
-            chip_data = data["tags"]
+            chip_data = data.get("tags", [])
 
             if len(chip_data) != 0:
                 search_list_product_lookup = FactoryProduct.objects.none()
@@ -894,7 +894,7 @@ class FetchFactoryProductListAPI(APIView):
                     temp_dict["brand"] = str(factory_product_obj.brand)
                 temp_dict["uuid"] = str(factory_product_obj.uuid)
                 try:
-                    temp_dict["image"] = factory_product_obj.image.all()[0].mid_image.url
+                    temp_dict["image"] = factory_product_obj.images.all()[0].mid_image.url
                 except:
                     temp_dict["image"] = Config.objects.all()[0].product_404_image.image.url
 
