@@ -977,14 +977,19 @@ class FetchFactoryProductAPI(APIView):
             response["moq"] = str(factory_product_obj.moq)
             response["factory_notes"] = factory_product_obj.factory_notes
             response["dimensions"] = json.loads(factory_product_obj.dimensions)
+            response["features"] = json.loads(factory_product_obj.features)
 
             images = []
             image_objs = factory_product_obj.images.all()
             for image_obj in image_objs:
                 try:
-                    images.append(image_obj.mid_image.url)
+                	temp_dict = {
+                		"url": image_obj.mid_image.url,
+                		"pk": image_obj.pk
+                	}
+                    images.append(temp_dict)
                 except:
-                    images.append(Config.objects.all()[0].product_404_image.image.url)
+                    pass
 
             response["images"] = images
             response["status"] = 200
@@ -1112,17 +1117,13 @@ class DeleteFactoryProductImageAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            factory_product_uuid = data["factory_product_uuid"]
             image_pk = int(data["image_pk"])
 
-            image_obj = Image.objects.none()
-            try:
-                image_obj = Image.objects.get(pk=image_pk)
-            except Exception as e:
-                response["status"] = 404
-                logger.error("UploadFactoryProductImageAPI Image does not exist")
-                return Response(data=response)
+            factory_product_obj = FactoryProduct.objects.get(uuid=factory_product_uuid)
+            if factory_product_obj.images.filter(image__pk=image_pk).exists():
+				Image.objects.get(pk=image_pk).delete()
 
-            image_obj.delete()
             response["status"] = 200
 
         except Exception as e:
