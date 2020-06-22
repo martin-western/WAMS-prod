@@ -1514,7 +1514,7 @@ class FetchProductListAPI(APIView):
                 search_list_product_objs = search_list_product_objs.filter(channel_product__is_noon_product_created=False)
 
             if filter_parameters.get("Ebay Product", None) == True:
-                search_list_product_objs = search_list_product_objs.True(channel_product__is_ebay_product_created=True)
+                search_list_product_objs = search_list_product_objs.filter(channel_product__is_ebay_product_created=True)
             elif filter_parameters.get("Ebay Product", None) == False:
                 search_list_product_objs = search_list_product_objs.filter(channel_product__is_ebay_product_created=False)
 
