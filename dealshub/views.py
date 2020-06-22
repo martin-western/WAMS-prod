@@ -2501,7 +2501,7 @@ class DeleteProductFromUnitBannerAPI(APIView):
 
             unit_banner_image_obj.products.remove(product_obj)
             unit_banner_image_obj.save()
-            
+
             response['status'] = 200
 
         except Exception as e:
@@ -2561,6 +2561,119 @@ class FetchUnitBannerProductsAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUnitBannerProductsAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class AddUnitBannerHoveringImageAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddUnitBannerHoveringImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            hovering_banner_image = data["image"]
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=hovering_banner_image)
+            unit_banner_image_obj.hovering_banner_image = image_obj
+            unit_banner_image_obj.save()
+
+            response['uuid'] = unit_banner_image_obj.uuid
+            response['status'] = 200
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteUnitBannerHoveringImageAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteUnitBannerHoveringImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+            unit_banner_image_obj.hovering_banner_image = None
+
+            unit_banner_image_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateUnitBannerHoveringImageAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateUnitBannerHoveringImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            banner_image = data["image"]
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=banner_image)
+
+            unit_banner_image_obj.hovering_banner_image = image_obj
+
+            unit_banner_image_obj.save()
+
+            response['uuid'] = unit_banner_image_obj.uuid
+            response['url'] = image_obj.mid_image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchUnitBannerHoveringImageAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchUnitBannerHoveringImageAPI: %s", str(data))
+            uuid = data["uuid"]
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+
+            response["url"] = unit_banner_image_obj.image.image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -2891,7 +3004,6 @@ UnPublishDealsHubProducts = UnPublishDealsHubProductsAPI.as_view()
 
 DeleteProductFromSection = DeleteProductFromSectionAPI.as_view()
 
-
 FetchHeadingData = FetchHeadingDataAPI.as_view()
 
 FetchHeadingDataAdmin = FetchHeadingDataAdminAPI.as_view()
@@ -2909,7 +3021,6 @@ UploadImageHeading = UploadImageHeadingAPI.as_view()
 UpdateImageHeadingLink = UpdateImageHeadingLinkAPI.as_view()
 
 DeleteImageHeading = DeleteImageHeadingAPI.as_view()
-
 
 FetchUserWebsiteGroup = FetchUserWebsiteGroupAPI.as_view()
 
@@ -2940,6 +3051,14 @@ AddProductToUnitBanner = AddProductToUnitBannerAPI.as_view()
 DeleteProductFromUnitBanner = DeleteProductFromUnitBannerAPI.as_view()
 
 FetchUnitBannerProducts = FetchUnitBannerProductsAPI.as_view()
+
+AddUnitBannerHoveringImage = AddUnitBannerHoveringImageAPI.as_view()
+
+DeleteUnitBannerHoveringImage = DeleteUnitBannerHoveringImageAPI.as_view()
+
+UpdateUnitBannerHoveringImage = UpdateUnitBannerHoveringImageAPI.as_view()
+
+FetchUnitBannerHoveringImage = FetchUnitBannerHoveringImageAPI.as_view()
 
 SearchCategoryAutocomplete = SearchCategoryAutocompleteAPI.as_view()
 

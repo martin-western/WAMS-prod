@@ -77,6 +77,11 @@ urlpatterns = [
     url(r'^delete-product-from-unit-banner/$', views.DeleteProductFromUnitBanner),
     url(r'^fetch-unit-banner-products/$', views.FetchUnitBannerProducts),
 
+    url(r'^add-unit-banner-hovering-image/$', views.AddUnitBannerHoveringImage),
+    url(r'^delete-unit-banner-hovering-image/$', views.DeleteUnitBannerHoveringImage),
+    url(r'^update-unit-banner-hovering-image/$', views.UpdateUnitBannerHoveringImage),
+    url(r'^fetch-unit-banner-hovering-image/$', views.FetchUnitBannerHoveringImage),
+
     url(r'^search-category-autocomplete/$', views.SearchCategoryAutocomplete),
     url(r'^add-category-to-website-group/$', views.AddCategoryToWebsiteGroup),
     url(r'^remove-category-from-website-group/$', views.RemoveCategoryFromWebsiteGroup),
