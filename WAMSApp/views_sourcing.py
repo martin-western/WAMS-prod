@@ -983,10 +983,10 @@ class FetchFactoryProductAPI(APIView):
             image_objs = factory_product_obj.images.all()
             for image_obj in image_objs:
                 try:
-                	temp_dict = {
-                		"url": image_obj.mid_image.url,
-                		"pk": image_obj.pk
-                	}
+                    temp_dict = {
+                        "url": image_obj.mid_image.url,
+                        "pk": image_obj.pk
+                    }
                     images.append(temp_dict)
                 except:
                     pass
@@ -1122,7 +1122,7 @@ class DeleteFactoryProductImageAPI(APIView):
 
             factory_product_obj = FactoryProduct.objects.get(uuid=factory_product_uuid)
             if factory_product_obj.images.filter(image__pk=image_pk).exists():
-				Image.objects.get(pk=image_pk).delete()
+                Image.objects.get(pk=image_pk).delete()
 
             response["status"] = 200
 
