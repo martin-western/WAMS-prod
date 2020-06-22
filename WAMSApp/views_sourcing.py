@@ -1051,7 +1051,7 @@ class FetchFactoryListAPI(APIView):
         return Response(data=response)
 
 
-class UploadFactoryProductImageAPI(APIView):
+class UploadFactoryProductImagesAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -1059,13 +1059,13 @@ class UploadFactoryProductImageAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("UploadFactoryProductImageAPI: %s", str(data))
+            logger.info("UploadFactoryProductImagesAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             if request.user.has_perm('WAMSApp.add_image') == False:
-                logger.warning("UploadFactoryProductImageAPI Restricted Access!")
+                logger.warning("UploadFactoryProductImagesAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -1076,13 +1076,13 @@ class UploadFactoryProductImageAPI(APIView):
                 factory_product_obj = FactoryProduct.objects.get(uuid=factory_product_uuid)
             except Exception as e:
                 response["status"] = 404
-                logger.error("UploadFactoryProductImageAPI: Factory Product does not exist")
+                logger.error("UploadFactoryProductImagesAPI: Factory Product does not exist")
                 return Response(data=response)
 
             user = FactoryUser.objects.get(username=request.user.username)
             if(factory_product_obj.factory != user.factory):
                 response["status"] = 403
-                logger.warning("UploadFactoryProductImageAPI: Restricted Access!")
+                logger.warning("UploadFactoryProductImagesAPI: Restricted Access!")
                 return Response(data=response)
 
             images_count = int(data["images_count"])
@@ -1096,7 +1096,7 @@ class UploadFactoryProductImageAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UploadFactoryProductImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UploadFactoryProductImagesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1285,7 +1285,7 @@ CreateFactoryProduct = CreateFactoryProductAPI.as_view()
 
 SaveFactoryProduct = SaveFactoryProductAPI.as_view()
 
-UploadFactoryProductImage = UploadFactoryProductImageAPI.as_view()
+UploadFactoryProductImages = UploadFactoryProductImagesAPI.as_view()
 
 DeleteFactoryProductImage = DeleteFactoryProductImageAPI.as_view()
 
