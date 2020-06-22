@@ -140,5 +140,7 @@ urlpatterns = [
     url(r'^bulk-update-channel-product-price/$',views.BulkUpdateChannelProductPrice),
     url(r'^bulk-update-channel-product-stock/$',views.BulkUpdateChannelProductStock),
 
+
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

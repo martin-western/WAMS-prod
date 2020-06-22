@@ -2314,3 +2314,15 @@ def permission_channel_boolean_response(user,channel_obj):
     except Exception as e:
         logger.error("permission_channel_response Restricted Access of "+channel_name+" Channel!")
         return False
+
+def get_custom_permission_page_list(user):
+
+    try:
+        page_list = CustomPermission.objects.get(user=user).page_list
+    except:
+        page_list = "[]"
+        logger.info("get_custom_permission_page_list: CustomPermission Object does not exist")
+
+    page_list = json.loads(page_list)
+
+    return page_list
