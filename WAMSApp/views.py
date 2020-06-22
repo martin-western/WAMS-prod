@@ -5807,8 +5807,11 @@ class CheckSectionPermissionsAPI(APIView):
                 dealshub = True
 
             response["dealshub"] = dealshub
+
+            response["page_list"] = get_custom_permission_page_list(request.user)
+
             response['status'] = 200
-        
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CheckSectionPermissionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
