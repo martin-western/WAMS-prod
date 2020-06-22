@@ -755,26 +755,26 @@ class CreateFactoryProductAPI(APIView):
             try:
                 brand_obj = Brand.objects.get(name=brand_name)
             except Exception as e:
-                logger.error("CreateFactoryProductAPI: Brand does not exist")
+                logger.warning("CreateFactoryProductAPI: Brand does not exist")
 
             category_obj = None
             try:
                 category_obj = Category.objects.get(uuid=category_uuid)
             except Exception as e:
-                logger.error("CreateFactoryProductAPI: Category does not exist")
+                logger.warning("CreateFactoryProductAPI: Category does not exist")
 
             sub_category_obj = None
             try:
                 sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
             except Exception as e:
-                logger.error("CreateFactoryProductAPI: SubCategory does not exist")
+                logger.warning("CreateFactoryProductAPI: SubCategory does not exist")
 
 
             material_type_obj = None
             try:
                 material_type_obj = MaterialType.objects.get(name=material_type_name)
             except Exception as e:
-                logger.error("CreateFactoryProductAPI: MaterialType does not exist")
+                logger.warning("CreateFactoryProductAPI: MaterialType does not exist")
 
             product_name = data["product_name"]
             product_description = data["product_description"]
