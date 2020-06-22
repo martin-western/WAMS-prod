@@ -845,6 +845,14 @@ class FetchFactoryProductListAPI(APIView):
 
             factory_obj = None
             if OmnyCommUser.objects.filter(username=request.user.username).exists():
+
+                page_list = get_custom_permission_page_list(request.user)
+
+                if("Factory" not in page_list):
+                    response["status"] = 403
+                    logger.warning("FetchFactoryProductListAPI: Restricted Access!")
+                    Response(data=response)
+
                 factory_uuid = data.get("factory_uuid", None)
                 if factory_uuid!=None:
                     factory_obj = Factory.objects.get(uuid=factory_uuid)
@@ -859,6 +867,23 @@ class FetchFactoryProductListAPI(APIView):
 
             if factory_obj!=None:
                 factory_product_objs = factory_product_objs.filter(factory=factory_obj)
+
+            filter_parameters = data.get("filter_parameters",{})
+            filter_brand = filter_parameters.get("brand",None)
+
+            if(filter_brand!=None):
+                factory_product_objs = factory_product_objs.filter(brand__name=filter_brand)
+
+            chip_data = data["tags"]
+
+            if len(chip_data) != 0:
+                search_list_product_lookup = FactoryProduct.objects.none()
+                for tag in chip_data:
+                    search_list_product_lookup = factory_product_objs.filter(
+                        Q(manufacturer_part_number__icontains=tag) |
+                        Q(product_name__icontains=tag)
+                    )
+                factory_product_objs = search_list_product_lookup.distinct()
 
             page = int(data.get('page', 1))
             paginator = Paginator(factory_product_objs, 20)
@@ -876,7 +901,7 @@ class FetchFactoryProductListAPI(APIView):
                     temp_dict["brand"] = str(factory_product_obj.brand)
                 temp_dict["uuid"] = str(factory_product_obj.uuid)
                 try:
-                    temp_dict["image"] = factory_product_obj.image.all()[0].image.url
+                    temp_dict["image"] = factory_product_obj.image.all()[0].mid_image.url
                 except:
                     temp_dict["image"] = Config.objects.all()[0].product_404_image.image.url
 
@@ -963,7 +988,10 @@ class FetchFactoryProductAPI(APIView):
             images = []
             image_objs = factory_product_obj.images.all()
             for image_obj in image_objs:
-                images.append(image_obj.image.url)
+                try:
+                    images.append(image_obj.mid_image.url)
+                except:
+                    images.append(Config.objects.all()[0].product_404_image.image.url)
 
             response["images"] = images
             response["status"] = 200
@@ -987,6 +1015,13 @@ class FetchFactoryListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            page_list = get_custom_permission_page_list(request.user)
+
+            if("Factory" not in page_list):
+                response["status"] = 403
+                logger.warning("FetchFactoryListAPI: Restricted Access!")
+                Response(data=response)
 
             factory_objs = Factory.objects.all()
 
@@ -1241,52 +1276,6 @@ class CheckFactoryUserAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CheckFactoryUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-class SearchFactoryProductAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        
-        try:
-            data = request.data
-
-            logger.info("SearchFactoryProductAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            search_string = data["search_string"]
-
-            product_objs = Product.objects.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
-
-            product_list = []
-            for product_obj in product_objs:
-                try:
-                    temp_dict = {}
-                    temp_dict["name"] = product_obj.product_name
-                    temp_dict["product_id"] = product_obj.product_id
-                    temp_dict["product_pk"] = product_obj.pk
-                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
-                    temp_dict["uuid"] = product_obj.uuid
-                    try:
-                        temp_dict["image_url"] = MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.mid_image.url
-                    except Exception as e:
-                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
-                    product_list.append(temp_dict)
-                except Exception as e:
-                    pass
-
-            response["product_list"] = product_list
-            
-            response['status'] = 200
-        
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SearchBulkExportAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 

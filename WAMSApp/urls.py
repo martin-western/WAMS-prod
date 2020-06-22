@@ -130,8 +130,6 @@ urlpatterns = [
     url(r'^upload-orders/$',views.UploadOrders),
 
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
-    url(r'^fetch-page-permissions/$',views.FetchPagePermissions),
-
 
     url(r'^create-oc-report/$',views.CreateOCReport),
     url(r'^fetch-oc-report-permissions/$',views.FetchOCReportPermissions),
