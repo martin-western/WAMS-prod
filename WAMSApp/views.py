@@ -1593,14 +1593,14 @@ class FetchProductListAPI(APIView):
             elif filter_parameters["Sub Images > 0"] == False:  
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images=0))
 
-            if filter_parameters["Sub Images > 1"] == True:  
+            if filter_parameters.get("Sub Images > 1", None) == True:  
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=1))
-            elif filter_parameters["Sub Images > 1"] == False:  
+            elif filter_parameters.get("Sub Images > 1", None) == False:  
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=2))
 
-            if filter_parameters["Sub Images > 2"] == True:  
+            if filter_parameters.get("Sub Images > 2", None) == True:  
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
-            elif filter_parameters["Sub Images > 2"] == False:  
+            elif filter_parameters.get("Sub Images > 2", None) == False:  
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=3))
 
                     
