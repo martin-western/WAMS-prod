@@ -25,6 +25,7 @@ from django.conf import settings
 
 from WAMSApp.views_sourcing import *
 from WAMSApp.views_mws_report import *
+from WAMSApp.views_mws_orders import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
 from WAMSApp.views_noon_integration import *
@@ -1350,7 +1351,6 @@ class SaveProductAPI(APIView):
             pfl_product_features = data["pfl_product_features"]
 
             factory_notes = convert_to_ascii(data["factory_notes"])
-            factory_code = convert_to_ascii(data["factory_code"])
 
             dynamic_form_attributes = data["dynamic_form_attributes"]
 
@@ -1439,12 +1439,6 @@ class SaveProductAPI(APIView):
 
             if str(dynamic_form_attributes)!="{}":
                 product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
-
-            try:
-                factory_obj = Factory.objects.get(factory_code=factory_code)
-                product_obj.factory = factory_obj
-            except Exception as e:
-                pass
             
             product_obj.save()
 
@@ -4353,39 +4347,39 @@ class FetchUserProfileAPI(APIView):
             if(OmnyCommUser_obj.website_group != None):
                 permissions_dict["Ecommerce"] = {}
                 permissions_dict["Ecommerce"]["Items"] = []
-                permissions_dict["Ecommerce"]["Items"].append("Can manage Ecommerce")
+                permissions_dict["Ecommerce"]["Items"].append("Can Manage Ecommerce")
 
             for key in price.keys():
                 if(price[key]==True):
                     if(key=="variant"):
                         permissions_dict["Product"] = {}
                         permissions_dict["Product"]["Items"] = []
-                        permissions_dict["Product"]["Items"].append("Can update min/max Price")
+                        permissions_dict["Product"]["Items"].append("Can Update Min/Max Price")
                     elif(key=="dealshub"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price")
                     elif(key=="Amazon UAE"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Amazon UAE")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Amazon UAE")
                     elif(key=="Amazon UK"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Amazon UK")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Amazon UK")
                     elif(key=="Ebay"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Ebay")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Ebay")
                     elif(key=="Noon"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Price on Noon")                        
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Price on Noon")                        
 
             for key in stock.keys():
                 if(stock[key]==True):
@@ -4393,27 +4387,27 @@ class FetchUserProfileAPI(APIView):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock")
                     elif(key=="Amazon UAE"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Amazon UAE")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Amazon UAE")
                     elif(key=="Amazon UK"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Amazon UK")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Amazon UK")
                     elif(key=="Ebay"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Ebay")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Ebay")
                     elif(key=="Noon"):
                         if("Ecommerce" not in permissions_dict):
                             permissions_dict["Ecommerce"] = {}
                             permissions_dict["Ecommerce"]["Items"] = []
-                        permissions_dict["Ecommerce"]["Items"].append("Can update Stock on Noon")
+                        permissions_dict["Ecommerce"]["Items"].append("Can Update Stock on Noon")
 
             if(verify_product):
                 if("Product" not in permissions_dict):
@@ -4473,7 +4467,7 @@ class FetchUserProfileAPI(APIView):
                     permissions_dict[permission_string[1]] = {}
                     permissions_dict[permission_string[1]]["Items"] = []
 
-                permissions_dict[permission_string[1]]["Items"].append(permission_string[2].strip())
+                permissions_dict[permission_string[1]]["Items"].append(permission_string[2].strip().title())
 
             response["permissions"] = []
 
@@ -5782,6 +5776,34 @@ class CreateOCReportAPI(APIView):
         return Response(data=response)
 
 
+class FetchOCReportPermissionsAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+
+            logger.info("FetchOCReportPermissionsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            oc_reports = json.loads(custom_permission_obj.oc_reports)
+
+            response["oc_report_permission_list"] = oc_reports
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOCReportPermissionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchOCReportListAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -5797,7 +5819,10 @@ class FetchOCReportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            oc_report_objs = OCReport.objects.all().order_by('-pk')
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            oc_reports = json.loads(custom_permission_obj.oc_reports)
+
+            oc_report_objs = OCReport.objects.filter(name__in=oc_reports).order_by('-pk')
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
@@ -6166,6 +6191,8 @@ FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()
 CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
 
 CreateOCReport = CreateOCReportAPI.as_view()
+
+FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 
 FetchOCReportList = FetchOCReportListAPI.as_view()
 
