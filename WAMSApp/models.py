@@ -1153,40 +1153,47 @@ class Factory(models.Model):
         
         super(Factory, self).save(*args, **kwargs)
 
+
 class FactoryUser(User):
 
     image = models.ForeignKey(Image,on_delete=models.SET_NULL, null=True, blank=True)
     contact_number = models.CharField(max_length=200, default="")
     designation = models.CharField(max_length=200, default="", null=True, blank=True)
     permission_list = models.TextField(default="[]")
-    factory = models.ForeignKey(Factory,on_delete=models.SET_NULL,null=True)
+    factory = models.ForeignKey(Factory, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         verbose_name = "Factory User"
         verbose_name_plural = "Factory Users"
 
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.set_password(self.password)
+        super(FactoryUser, self).save(*args, **kwargs)
+
     def __str__(self):
         return str(self.username)
 
+
 class FactoryProduct(models.Model):
 
-    uuid = models.CharField(max_length=200, default="",blank=True)
+    uuid = models.CharField(max_length=200, default="", blank=True)
     product_name = models.CharField(max_length=200, default="")
-    product_description = models.TextField(default="", blank=True,null=True)
-    factory = models.ForeignKey(Factory,on_delete=models.SET_NULL,null=True)
+    product_description = models.TextField(default="", blank=True, null=True)
+    factory = models.ForeignKey(Factory, on_delete=models.SET_NULL, null=True, blank=True)
     manufacturer_part_number = models.CharField(max_length=200, default="")
-    brand = models.ForeignKey(Brand,on_delete=models.SET_NULL,null=True)
+    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True)
     manufacturer = models.CharField(max_length=200, default="")
-    category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True)
-    sub_category = models.ForeignKey(SubCategory,on_delete=models.SET_NULL,null=True,blank=True)
-    images = models.ManyToManyField(Image,blank=True)
+    category = models.ForeignKey(Category,on_delete=models.SET_NULL, null=True, blank=True)
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, null=True, blank=True)
+    images = models.ManyToManyField(Image, blank=True)
     color_map = models.CharField(max_length=100, default="")
     color = models.CharField(max_length=100, default="")
-    material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
+    material_type = models.ForeignKey(MaterialType, null=True, blank=True, on_delete=models.SET_NULL)
     moq = models.CharField(max_length=200, default="")
-    factory_notes = models.TextField(null=True,blank=True,default="")
+    factory_notes = models.TextField(null=True, blank=True, default="")
     features = models.TextField(default="[]")
-    dimensions = models.TextField(default=base_dimensions_json,blank=True)
+    dimensions = models.TextField(default=base_dimensions_json, blank=True)
 
     class Meta:
         verbose_name = "Factory Product"
