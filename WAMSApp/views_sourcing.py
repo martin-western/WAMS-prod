@@ -805,11 +805,11 @@ class CreateFactoryProductAPI(APIView):
                 dimensions=dimensions
             )
 
-            images_count = int(data["images_count"])
+            # images_count = int(data["images_count"])
 
-            for i in range(images_count):
-                image_obj = Image.objects.create(image=data["image_"+str(i)])
-                factory_product_obj.images.add(image_obj)
+            # for i in range(images_count):
+            #     image_obj = Image.objects.create(image=data["image_"+str(i)])
+            #     factory_product_obj.images.add(image_obj)
 
             factory_product_obj.save()
 
