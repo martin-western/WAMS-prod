@@ -1191,7 +1191,7 @@ class CheckFactoryUserAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            factory_user = FactoryUser.objects.filter(username="factuser1")
+            factory_user = FactoryUser.objects.filter(username=request.user.username)
 
             response["factory_user"] = factory_user.exists()
             if(factory_user.exists()==True):
