@@ -16,7 +16,6 @@ urlpatterns = [
     # url(r'^save-pfl-image/', views.SavePflImage),
 
     url(r'^fetch-product-list/$', views.FetchProductList),
-    url(r'^updated-fetch-product-list/$', views.UpdatedFetchProductList),
     
     url(r'^fetch-export-list/$', views.FetchExportList),
     url(r'^add-to-export/$', views.AddToExport),
@@ -99,6 +98,7 @@ urlpatterns = [
 
     url(r'^save-company-profile/$',views.SaveCompanyProfile),
     url(r'^upload-company-logo/$',views.UploadCompanyLogo),
+    url(r'^upload-company-footer-logo/$',views.UploadCompanyFooterLogo),
     url(r'^fetch-company-profile/$',views.FetchCompanyProfile),
 
     url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),

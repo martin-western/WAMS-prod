@@ -755,26 +755,26 @@ class CreateFactoryProductAPI(APIView):
             try:
                 brand_obj = Brand.objects.get(name=brand_name)
             except Exception as e:
-                logger.error("CreateFactoryProductAPI: Brand does not exist")
+                logger.warning("CreateFactoryProductAPI: Brand does not exist")
 
             category_obj = None
             try:
                 category_obj = Category.objects.get(uuid=category_uuid)
             except Exception as e:
-                logger.error("CreateFactoryProductAPI: Category does not exist")
+                logger.warning("CreateFactoryProductAPI: Category does not exist")
 
             sub_category_obj = None
             try:
                 sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
             except Exception as e:
-                logger.error("CreateFactoryProductAPI: SubCategory does not exist")
+                logger.warning("CreateFactoryProductAPI: SubCategory does not exist")
 
 
             material_type_obj = None
             try:
                 material_type_obj = MaterialType.objects.get(name=material_type_name)
             except Exception as e:
-                logger.error("CreateFactoryProductAPI: MaterialType does not exist")
+                logger.warning("CreateFactoryProductAPI: MaterialType does not exist")
 
             product_name = data["product_name"]
             product_description = data["product_description"]
@@ -805,14 +805,15 @@ class CreateFactoryProductAPI(APIView):
                 dimensions=dimensions
             )
 
-            images_count = int(data["images_count"])
+            # images_count = int(data["images_count"])
 
-            for i in range(images_count):
-                image_obj = Image.objects.create(image=data["image_"+str(i)])
-                factory_product_obj.images.add(image_obj)
+            # for i in range(images_count):
+            #     image_obj = Image.objects.create(image=data["image_"+str(i)])
+            #     factory_product_obj.images.add(image_obj)
 
             factory_product_obj.save()
 
+            response["uuid"] = factory_product_obj.uuid
             response["status"] = 200
 
         except Exception as e:
@@ -849,7 +850,7 @@ class FetchFactoryProductListAPI(APIView):
                 if factory_uuid!=None:
                     factory_obj = Factory.objects.get(uuid=factory_uuid)
             elif FactoryUser.objects.filter(username=request.user.username).exists():
-                factory_obj = FactoryUser.objects.get(username=username).factory
+                factory_obj = FactoryUser.objects.get(username=request.user.username).factory
             else:
                 response["status"] = 403
                 logger.error("FetchFactoryProductListAPI Restricted Access")
@@ -866,7 +867,7 @@ class FetchFactoryProductListAPI(APIView):
             if(filter_brand!=None):
                 factory_product_objs = factory_product_objs.filter(brand__name=filter_brand)
 
-            chip_data = data["tags"]
+            chip_data = data.get("tags", [])
 
             if len(chip_data) != 0:
                 search_list_product_lookup = FactoryProduct.objects.none()
@@ -893,7 +894,7 @@ class FetchFactoryProductListAPI(APIView):
                     temp_dict["brand"] = str(factory_product_obj.brand)
                 temp_dict["uuid"] = str(factory_product_obj.uuid)
                 try:
-                    temp_dict["image"] = factory_product_obj.image.all()[0].mid_image.url
+                    temp_dict["image"] = factory_product_obj.images.all()[0].mid_image.url
                 except:
                     temp_dict["image"] = Config.objects.all()[0].product_404_image.image.url
 
@@ -957,13 +958,17 @@ class FetchFactoryProductAPI(APIView):
             response["manufacturer"] = factory_product_obj.manufacturer
             if factory_product_obj.category==None:
                 response["category"] = ""
+                response["category_uuid"] = ""
             else:
                 response["category"] = str(factory_product_obj.category)
+                response["category_uuid"] = str(factory_product_obj.category.uuid)
 
             if factory_product_obj.category==None:
                 response["sub_category"] = ""
+                response["sub_category_uuid"] = ""
             else:
                 response["sub_category"] = str(factory_product_obj.sub_category)
+                response["sub_category_uuid"] = str(factory_product_obj.sub_category.uuid)
 
             response["color_map"] = factory_product_obj.color_map
             response["color"] = factory_product_obj.color
@@ -976,14 +981,19 @@ class FetchFactoryProductAPI(APIView):
             response["moq"] = str(factory_product_obj.moq)
             response["factory_notes"] = factory_product_obj.factory_notes
             response["dimensions"] = json.loads(factory_product_obj.dimensions)
+            response["features"] = json.loads(factory_product_obj.features)
 
             images = []
             image_objs = factory_product_obj.images.all()
             for image_obj in image_objs:
                 try:
-                    images.append(image_obj.mid_image.url)
+                    temp_dict = {
+                        "url": image_obj.mid_image.url,
+                        "pk": image_obj.pk
+                    }
+                    images.append(temp_dict)
                 except:
-                    images.append(Config.objects.all()[0].product_404_image.image.url)
+                    pass
 
             response["images"] = images
             response["status"] = 200
@@ -1111,17 +1121,13 @@ class DeleteFactoryProductImageAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            factory_product_uuid = data["factory_product_uuid"]
             image_pk = int(data["image_pk"])
 
-            image_obj = Image.objects.none()
-            try:
-                image_obj = Image.objects.get(pk=image_pk)
-            except Exception as e:
-                response["status"] = 404
-                logger.error("UploadFactoryProductImageAPI Image does not exist")
-                return Response(data=response)
+            factory_product_obj = FactoryProduct.objects.get(uuid=factory_product_uuid)
+            if factory_product_obj.images.filter(pk=image_pk).exists():
+                Image.objects.get(pk=image_pk).delete()
 
-            image_obj.delete()
             response["status"] = 200
 
         except Exception as e:
