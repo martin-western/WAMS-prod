@@ -207,23 +207,21 @@ class FetchReportDetailsAPI(APIView):
                 logger.info("GetPushProductsResultAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
-            for product in products:
+            for product_obj in products:
 
-                if product.pk not in product_pk_hash_list.keys():
+                if product_obj.pk not in product_pk_hash_list.keys():
 
                     temp_dict = {}
-                    temp_dict["product_pk"] = product.pk
-                    temp_dict["product_name"] = product.product_name
+                    temp_dict["product_pk"] = product_obj.pk
+                    temp_dict["product_name"] = product_obj.product_name
 
                     if report_obj.operation_type == "Price":
-                        product_obj = Product.objects.get(pk=pk_list[0])
                         channel_product = product_obj.channel_product
                         amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                         temp_dict["now_price"] = amazon_uae_product["now_price"]
                         temp_dict["was_price"] = amazon_uae_product["was_price"]
 
                     if report_obj.operation_type == "Inventory":
-                        product_obj = Product.objects.get(pk=pk_list[0])
                         channel_product = product_obj.channel_product
                         amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                         temp_dict["stock"] = amazon_uae_product["stock"]
