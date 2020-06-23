@@ -100,6 +100,18 @@ class FetchProductDetailsAPI(APIView):
             response["warranty"] = product_obj.warranty
             response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
 
+            promotion_obj = dealshub_product_obj.promotion
+            if promotion_obj is None:
+                response["is_promotional"] = False
+                response["start_time"] = None
+                response["end_time"] = None
+                response["promotion_tag"] = None
+            else:
+                response["is_promotional"] = True
+                response["start_time"] = str(promotion_obj.start_time)[:19]
+                response["end_time"] = str(promotion_obj.end_time)[:19]
+                response["promotion_tag"] = str(promotion_obj.promotion_tag)
+
             response["isStockAvailable"] = False
             if dealshub_product_obj.stock>0:
                 response["isStockAvailable"] = True
