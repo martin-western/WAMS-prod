@@ -958,13 +958,17 @@ class FetchFactoryProductAPI(APIView):
             response["manufacturer"] = factory_product_obj.manufacturer
             if factory_product_obj.category==None:
                 response["category"] = ""
+                response["category_uuid"] = ""
             else:
                 response["category"] = str(factory_product_obj.category)
+                response["category_uuid"] = str(factory_product_obj.category.uuid)
 
             if factory_product_obj.category==None:
                 response["sub_category"] = ""
+                response["sub_category_uuid"] = ""
             else:
                 response["sub_category"] = str(factory_product_obj.sub_category)
+                response["sub_category_uuid"] = str(factory_product_obj.sub_category.uuid)
 
             response["color_map"] = factory_product_obj.color_map
             response["color"] = factory_product_obj.color
