@@ -97,7 +97,7 @@ class CreateFactoryProductAPI(APIView):
 
             material_type_obj = None
             try:
-                material_type_obj = MaterialType.objects.get(name=material_type_name)
+                material_type_obj, created = MaterialType.objects.get_or_create(name=material_type_name)
             except Exception as e:
                 logger.warning("CreateFactoryProductAPI: MaterialType does not exist")
 
