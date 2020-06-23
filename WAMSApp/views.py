@@ -3804,7 +3804,11 @@ class FetchBrandsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_objs = custom_permission_filter_brands(request.user)
+            brand_objs = None
+            if FactoryUser.objects.filter(username=request.user.username).exists():
+                brand_objs = Brand.objects.all()
+            else:
+                brand_objs = custom_permission_filter_brands(request.user)
             
             brand_list = []
             for brand_obj in brand_objs:
