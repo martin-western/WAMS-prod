@@ -16,7 +16,6 @@ urlpatterns = [
     # url(r'^save-pfl-image/', views.SavePflImage),
 
     url(r'^fetch-product-list/$', views.FetchProductList),
-    url(r'^updated-fetch-product-list/$', views.UpdatedFetchProductList),
     
     url(r'^fetch-export-list/$', views.FetchExportList),
     url(r'^add-to-export/$', views.AddToExport),
