@@ -185,6 +185,9 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
                             channel_product.save()
                         else :
                             temp_dict["status"] = "New Product"
+                            product_obj = Product.objects.get(pk=pk_list[0])
+                            channel_product = product_obj.channel_product
+                            amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                             amazon_uae_product["status"] = "New"
                             channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
                             channel_product.save()
