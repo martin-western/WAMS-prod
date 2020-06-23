@@ -4947,7 +4947,7 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["logo"]["url"] = website_group_obj.logo.image.url
 
             company_data["footer_logo"] = []
-            if website_group_obj.logo != None:
+            if website_group_obj.footer_logo != None:
                 company_data["footer_logo"] = {
                     "uid" : "123",
                     "url" : ""
