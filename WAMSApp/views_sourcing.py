@@ -197,7 +197,7 @@ class FetchFactoryProductListAPI(APIView):
             if len(chip_data) != 0:
                 search_list_product_lookup = FactoryProduct.objects.none()
                 for tag in chip_data:
-                    search_list_product_lookup = factory_product_objs.filter(
+                    search_list_product_lookup |= factory_product_objs.filter(
                         Q(manufacturer_part_number__icontains=tag) |
                         Q(product_name__icontains=tag)
                     )
