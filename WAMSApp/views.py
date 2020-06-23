@@ -4926,22 +4926,33 @@ class FetchCompanyProfileAPI(APIView):
             company_data = {}
             company_data["name"] = website_group_obj.name
             company_data["contact_info"] = website_group_obj.contact_info
+            company_data["email_info"] = website_group_obj.email_info
             company_data["address"] = website_group_obj.address
             company_data["primary_color"] = website_group_obj.primary_color
             company_data["secondary_color"] = website_group_obj.secondary_color
+            company_data["navbar_text_color"] = website_group_obj.navbar_text_color
             company_data["facebook_link"] = website_group_obj.facebook_link
             company_data["twitter_link"] = website_group_obj.twitter_link
             company_data["instagram_link"] = website_group_obj.instagram_link
             company_data["youtube_link"] = website_group_obj.youtube_link
+            company_data["linkedin_link"] = website_group_obj.linkedin_link
+            company_data["crunchbase_link"] = website_group_obj.crunchbase_link
             
             company_data["logo"] = []
-
             if website_group_obj.logo != None:
                 company_data["logo"] = {
                     "uid" : "123",
                     "url" : ""
                 }
                 company_data["logo"]["url"] = website_group_obj.logo.image.url
+
+            company_data["footer_logo"] = []
+            if website_group_obj.logo != None:
+                company_data["footer_logo"] = {
+                    "uid" : "123",
+                    "url" : ""
+                }
+                company_data["footer_logo"]["url"] = website_group_obj.footer_logo.image.url
 
 
             response["company_data"] = company_data
@@ -4974,23 +4985,31 @@ class SaveCompanyProfileAPI(APIView):
             
             #name = company_data["name"]
             contact_info = company_data["contact_info"]
+            email_info = company_data["email_info"]
             address = company_data["address"]
             primary_color = company_data["primary_color"]
             secondary_color = company_data["secondary_color"]
+            navbar_text_color = company_data["navbar_text_color"]
             facebook_link = company_data["facebook_link"]
             twitter_link = company_data["twitter_link"]
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
+            linkedin_link = company_data["linkedin_link"]
+            crunchbase_link = company_data["crunchbase_link"]
         
             #organization.name=name
             website_group_obj.contact_info=contact_info
+            website_group_obj.email_info=email_info
             website_group_obj.address=address
             website_group_obj.primary_color=primary_color
             website_group_obj.secondary_color=secondary_color
+            website_group_obj.navbar_text_color=navbar_text_color
             website_group_obj.facebook_link=facebook_link
             website_group_obj.twitter_link=twitter_link
             website_group_obj.instagram_link=instagram_link
             website_group_obj.youtube_link=youtube_link
+            website_group_obj.linkedin_link=linkedin_link
+            website_group_obj.crunchbase_link=crunchbase_link
             
             website_group_obj.save()
 
@@ -5032,6 +5051,41 @@ class UploadCompanyLogoAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UploadCompanyLogoAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadCompanyFooterLogoAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            if request.user.has_perm("WAMSApp.add_image") == False:
+                logger.warning("UploadCompanyFooterLogoAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("UploadCompanyFooterLogoAPI: %s", str(data))
+
+            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
+           
+            logo_image_url = data["logo_image_url"]
+
+            if logo_image_url != "":
+                image_obj = Image.objects.create(image=logo_image_url)
+                website_group_obj.footer_logo = image_obj
+                website_group_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadCompanyFooterLogoAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -6245,6 +6299,8 @@ FetchAuditLogs = FetchAuditLogsAPI.as_view()
 SaveCompanyProfile = SaveCompanyProfileAPI.as_view()
 
 UploadCompanyLogo = UploadCompanyLogoAPI.as_view()
+
+UploadCompanyFooterLogo = UploadCompanyFooterLogoAPI.as_view()
 
 FetchCompanyProfile = FetchCompanyProfileAPI.as_view()
 

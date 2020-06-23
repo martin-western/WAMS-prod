@@ -98,6 +98,7 @@ urlpatterns = [
 
     url(r'^save-company-profile/$',views.SaveCompanyProfile),
     url(r'^upload-company-logo/$',views.UploadCompanyLogo),
+    url(r'^upload-company-footer-logo/$',views.UploadCompanyFooterLogo),
     url(r'^fetch-company-profile/$',views.FetchCompanyProfile),
 
     url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),
