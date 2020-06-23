@@ -1125,7 +1125,7 @@ class DeleteFactoryProductImageAPI(APIView):
             image_pk = int(data["image_pk"])
 
             factory_product_obj = FactoryProduct.objects.get(uuid=factory_product_uuid)
-            if factory_product_obj.images.filter(image__pk=image_pk).exists():
+            if factory_product_obj.images.filter(pk=image_pk).exists():
                 Image.objects.get(pk=image_pk).delete()
 
             response["status"] = 200
