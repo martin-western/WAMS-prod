@@ -4944,19 +4944,19 @@ class FetchCompanyProfileAPI(APIView):
             
             company_data["logo"] = []
             if website_group_obj.logo != None:
-                company_data["logo"] = {
+                company_data["logo"] = [{
                     "uid" : "123",
                     "url" : ""
-                }
-                company_data["logo"]["url"] = website_group_obj.logo.image.url
+                }]
+                company_data["logo"][0]["url"] = website_group_obj.logo.image.url
 
             company_data["footer_logo"] = []
             if website_group_obj.footer_logo != None:
-                company_data["footer_logo"] = {
+                company_data["footer_logo"] = [{
                     "uid" : "123",
                     "url" : ""
-                }
-                company_data["footer_logo"]["url"] = website_group_obj.footer_logo.image.url
+                }]
+                company_data["footer_logo"][0]["url"] = website_group_obj.footer_logo.image.url
 
 
             response["company_data"] = company_data
