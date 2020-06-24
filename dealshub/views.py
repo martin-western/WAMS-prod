@@ -1886,7 +1886,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
-                        temp_dict2["thumbnailImageUrl"] = main_images_obj.main_images.all()[0]["midimage_url"]
+                        temp_dict2["thumbnailImageUrl"] = main_images_obj.main_images.all()[0].image.mid_image.url
                     except Exception as e:
                         temp_dict2["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
@@ -1981,7 +1981,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             main_images_list = ImageBucket.objects.none()
                             try:
                                 main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
-                                temp_dict3["thumbnailImageUrl"] = main_images_obj.main_images.all()[0]["midimage_url"]
+                                temp_dict3["thumbnailImageUrl"] = main_images_obj.main_images.all()[0].image.mid_image.url
                             except Exception as e:
                                 temp_dict3["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
                             
