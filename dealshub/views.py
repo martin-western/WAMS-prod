@@ -2219,7 +2219,7 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data["address"] = website_group_obj.address
             company_data["primary_color"] = website_group_obj.primary_color
             company_data["secondary_color"] = website_group_obj.secondary_color
-            company_code["navbar_text_color"] = website_group_obj.navbar_text_color
+            company_data["navbar_text_color"] = website_group_obj.navbar_text_color
             company_data["facebook_link"] = website_group_obj.facebook_link
             company_data["twitter_link"] = website_group_obj.twitter_link
             company_data["instagram_link"] = website_group_obj.instagram_link
