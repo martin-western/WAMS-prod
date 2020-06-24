@@ -2002,7 +2002,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2["products"] = temp_products
                     banner_images.append(temp_dict2)
 
-                    temp_dict["bannerImages"] = banner_images
+                temp_dict["bannerImages"] = banner_images
                 temp_dict["isPublished"] = banner_obj.is_published
 
                 dealshub_admin_sections.append(temp_dict)
