@@ -5049,6 +5049,7 @@ class UploadCompanyLogoAPI(APIView):
                 image_obj = Image.objects.create(image=logo_image_url)
                 website_group_obj.logo = image_obj
                 website_group_obj.save()
+                response["image_url"] = image_obj.mid_image.url
 
             response['status'] = 200
 
@@ -5084,6 +5085,7 @@ class UploadCompanyFooterLogoAPI(APIView):
                 image_obj = Image.objects.create(image=logo_image_url)
                 website_group_obj.footer_logo = image_obj
                 website_group_obj.save()
+                response["image_url"] = image_obj.mid_image.url
 
             response['status'] = 200
 
