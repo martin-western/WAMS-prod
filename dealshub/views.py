@@ -1961,7 +1961,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     unit_banner_products = unit_banner_image_obj.products.all()
 
-                    if(is_dealshub==False):
+                    if is_dealshub==False :
                         temp_products = []
                         for prod in unit_banner_products:
                             temp_dict3 = {}
@@ -1988,8 +1988,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                             temp_products.append(temp_dict3)    # No need to Send all
                         temp_dict2["products"] = temp_products
-                        banner_images.append(temp_dict2)
-                        
+                    banner_images.append(temp_dict2)
+
                     temp_dict["bannerImages"] = banner_images
                 temp_dict["isPublished"] = banner_obj.is_published
 
