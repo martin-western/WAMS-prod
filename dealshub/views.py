@@ -1874,10 +1874,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
-                        main_images_list |= main_images_obj.main_images.all()
-                        main_images_list = main_images_list.distinct()
-                        images = create_response_images_main(main_images_list)
-                        temp_dict2["thumbnailImageUrl"] = images[0]["midimage_url"]
+                        temp_dict2["thumbnailImageUrl"] = main_images_obj.main_images.all()[0]["midimage_url"]
                     except Exception as e:
                         temp_dict2["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
@@ -1964,39 +1961,36 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     unit_banner_products = unit_banner_image_obj.products.all()
 
-                    temp_products = []
-                    for prod in unit_banner_products:
-                        temp_dict3 = {}
+                    if(is_dealshub==False):
+                        temp_products = []
+                        for prod in unit_banner_products:
+                            temp_dict3 = {}
 
-                        main_images_list = ImageBucket.objects.none()
-                        try:
-                            main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
-                            main_images_list |= main_images_obj.main_images.all()
-                            main_images_list = main_images_list.distinct()
-                            images = create_response_images_main(main_images_list)
-                            temp_dict3["thumbnailImageUrl"] = images[0]["midimage_url"]
-                        except Exception as e:
-                            temp_dict3["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
+                            main_images_list = ImageBucket.objects.none()
+                            try:
+                                main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
+                                temp_dict3["thumbnailImageUrl"] = main_images_obj.main_images.all()[0]["midimage_url"]
+                            except Exception as e:
+                                temp_dict3["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
+                            
+                            temp_dict3["name"] = str(prod.product_name)
+                            temp_dict3["displayId"] = str(prod.product_id)
+                            temp_dict3["sellerSku"] = str(prod.base_product.seller_sku)
+                            temp_dict3["uuid"] = str(prod.uuid)
+
+                            dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
+                            promotion_obj = dealshub_product_obj.promotion
+                            
+                            temp_dict3["promotional_price"] = str(dealshub_product_obj.promotional_price)  
+                            temp_dict3["now_price"] = str(dealshub_product_obj.now_price)
+                            temp_dict3["was_price"] = str(dealshub_product_obj.was_price)
+                            temp_dict3["stock"] = str(dealshub_product_obj.stock)
+
+                            temp_products.append(temp_dict3)    # No need to Send all
+                        temp_dict2["products"] = temp_products
+                        banner_images.append(temp_dict2)
                         
-                        temp_dict3["name"] = str(prod.product_name)
-                        temp_dict3["displayId"] = str(prod.product_id)
-                        temp_dict3["sellerSku"] = str(prod.base_product.seller_sku)
-                        temp_dict3["uuid"] = str(prod.uuid)
-
-                        dealshub_product_obj = DealsHubProduct.objects.get(product=prod)
-                        promotion_obj = dealshub_product_obj.promotion
-                        
-                        temp_dict3["promotional_price"] = str(dealshub_product_obj.promotional_price)  
-                        temp_dict3["now_price"] = str(dealshub_product_obj.now_price)
-                        temp_dict3["was_price"] = str(dealshub_product_obj.was_price)
-                        temp_dict3["stock"] = str(dealshub_product_obj.stock)
-
-                        temp_products.append(temp_dict3)
-                    temp_dict2["products"] = temp_products
-
-                    banner_images.append(temp_dict2)
-
-                temp_dict["bannerImages"] = banner_images
+                    temp_dict["bannerImages"] = banner_images
                 temp_dict["isPublished"] = banner_obj.is_published
 
                 dealshub_admin_sections.append(temp_dict)
