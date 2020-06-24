@@ -4672,6 +4672,8 @@ class FetchAuditLogsByUserAPI(APIView):
                     changes = changes.title()
                     changes = json.loads(changes)
 
+                    changes = logentry_dict_to_attributes(changes)
+                    
                     temp_dict["changes"] = changes
 
                     log_entry_list.append(temp_dict)
@@ -4792,6 +4794,9 @@ class FetchAuditLogsAPI(APIView):
                     changes = log_entry_obj.changes.replace("_", " ")
                     changes = changes.title()
                     changes = json.loads(changes)
+
+                    changes = logentry_dict_to_attributes(changes)
+
                     temp_dict["changes"] = changes
                     log_entry_list.append(temp_dict)
                 
