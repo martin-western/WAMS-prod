@@ -2215,18 +2215,26 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data = {}
             company_data["name"] = website_group_obj.name
             company_data["contact_info"] = website_group_obj.contact_info
+            company_data["email_info"] = website_group_obj.email_info
             company_data["address"] = website_group_obj.address
             company_data["primary_color"] = website_group_obj.primary_color
             company_data["secondary_color"] = website_group_obj.secondary_color
+            company_code["navbar_text_color"] = website_group_obj.navbar_text_color
             company_data["facebook_link"] = website_group_obj.facebook_link
             company_data["twitter_link"] = website_group_obj.twitter_link
             company_data["instagram_link"] = website_group_obj.instagram_link
             company_data["youtube_link"] = website_group_obj.youtube_link
+            company_data["linkedin_link"] = website_group_obj.linkedin_link
+            company_data["crunchbase_link"] = website_group_obj.crunchbase_link
+
 
             company_data["logo_url"] = ""
             if website_group_obj.logo != None:
                 company_data["logo_url"] = website_group_obj.logo.image.url
 
+            company_data["footer_logo_url"] = ""
+            if website_group_obj.footer_logo != None:
+                company_data["footer_logo_url"] = website_group_obj.footer_logo.image.url
 
             response["company_data"] = company_data
             response['status'] = 200
