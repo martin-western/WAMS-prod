@@ -50,6 +50,11 @@ admin.site.register(DataPoint)
 
 admin.site.register(Bank)
 admin.site.register(Factory)
-admin.site.register(SourcingProduct)
+admin.site.register(FactoryUser)
+admin.site.register(FactoryProduct)
+# admin.site.register(SourcingProduct)
 admin.site.register(ProformaInvoice)
 admin.site.register(ProformaInvoiceBundle)
+
+admin.site.register(AmazonOrder)
+admin.site.register(AmazonItem)
