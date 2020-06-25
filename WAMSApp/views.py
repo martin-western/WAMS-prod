@@ -70,6 +70,8 @@ def FlyerPage(request, pk):
 
 class GithubWebhook(APIView):
 
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -78,7 +80,7 @@ class GithubWebhook(APIView):
         try:
             data = request.data
             logger.info("GithubWebhook: %s", str(data))
-            
+
             ref = str(data["ref"])
             branch = ref.split("/")[2:]
             branch = ''.join(branch)
