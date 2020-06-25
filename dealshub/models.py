@@ -137,7 +137,7 @@ class UnitBannerImage(models.Model):
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, blank=True)
-    hovering_banner_image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
+    hovering_banner_image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True,blank=True)
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
 
     def __str__(self):
