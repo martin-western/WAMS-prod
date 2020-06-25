@@ -1949,6 +1949,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         else:
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
 
+                    if resolution=="low":
+                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
+                    else:
+                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
+
                     promotion_obj = unit_banner_image_obj.promotion
                     if promotion_obj is None:
                         temp_dict2["is_promotional"] = False
@@ -2609,7 +2614,8 @@ class DeleteUnitBannerHoveringImageAPI(APIView):
             uuid = data["uuid"]
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
-            Image.objects.get(image=unit_banner_image_obj.hovering_banner_image).delete()
+            image=unit_banner_image_obj.hovering_banner_image
+            image.delete()
             unit_banner_image_obj.hovering_banner_image = None
 
             unit_banner_image_obj.save()
@@ -2668,7 +2674,7 @@ class FetchUnitBannerHoveringImageAPI(APIView):
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
 
-            response["url"] = unit_banner_image_obj.image.image.url
+            response["url"] = unit_banner_image_obj.hovering_banner_image.image.url
             response['status'] = 200
 
         except Exception as e:
