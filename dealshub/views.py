@@ -2585,8 +2585,7 @@ class AddUnitBannerHoveringImageAPI(APIView):
             unit_banner_image_obj.save()
 
             response['uuid'] = unit_banner_image_obj.uuid
-            response['status'] = 200
-
+            response['url'] = image_obj.image.url
             response['status'] = 200
 
         except Exception as e:
@@ -2610,6 +2609,7 @@ class DeleteUnitBannerHoveringImageAPI(APIView):
             uuid = data["uuid"]
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+            Image.objects.get(image=unit_banner_image_obj.hovering_banner_image).delete()
             unit_banner_image_obj.hovering_banner_image = None
 
             unit_banner_image_obj.save()
@@ -2644,7 +2644,7 @@ class UpdateUnitBannerHoveringImageAPI(APIView):
             unit_banner_image_obj.save()
 
             response['uuid'] = unit_banner_image_obj.uuid
-            response['url'] = image_obj.mid_image.url
+            response['url'] = image_obj.image.url
             response['status'] = 200
 
         except Exception as e:
