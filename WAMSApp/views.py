@@ -68,6 +68,35 @@ def FlyerPage(request, pk):
     #     return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
+class GithubWebhook(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("GithubWebhook: %s", str(data))
+
+            ref = str(data["ref"])
+            branch = ref.split("/")[2:]
+            branch = ''.join(branch)
+            if(branch == "uat"):
+                os.system("git pull origin uat")
+                os.system("sudo systemctl restart gunicorn-5")
+                os.system("sudo systemctl restart gunicorn-6")
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GithubWebhook: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class CreateNewBaseProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
