@@ -68,7 +68,7 @@ def FlyerPage(request, pk):
     #     return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
-class GithubWebhook(APIView):
+class GithubWebhookAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
 
@@ -79,7 +79,7 @@ class GithubWebhook(APIView):
         
         try:
             data = request.data
-            logger.info("GithubWebhook: %s", str(data))
+            logger.info("GithubWebhookAPI: %s", str(data))
 
             ref = str(data["ref"])
             branch = ref.split("/")[2:]
@@ -92,7 +92,7 @@ class GithubWebhook(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GithubWebhook: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("GithubWebhookAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1489,7 +1489,7 @@ class FetchProductListAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchProductListAPI: %s", str(data))
+            logger.info("FetchProductListAPI test1: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -6219,6 +6219,8 @@ class BulkUpdateChannelProductStockAPI(APIView):
 
         return Response(data=response)
 
+
+GithubWebhook = GithubWebhookAPI.as_view()
 
 SapIntegration = SapIntegrationAPI.as_view()
 
