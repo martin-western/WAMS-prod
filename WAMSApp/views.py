@@ -1489,7 +1489,7 @@ class FetchProductListAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchProductListAPI: %s", str(data))
+            logger.info("FetchProductListAPI test1: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
