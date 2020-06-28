@@ -5,6 +5,8 @@ from django.conf.urls.static import static
 from django.http import HttpResponseRedirect
 
 urlpatterns = [
+    
+    url(r'^github-webhook/$', views.GithubWebhook),
 
     url(r'^create-new-base-product/$', views.CreateNewBaseProduct),
     url(r'^create-new-product/$', views.CreateNewProduct),

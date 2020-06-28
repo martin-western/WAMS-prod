@@ -2326,3 +2326,71 @@ def get_custom_permission_page_list(user):
     page_list = json.loads(page_list)
 
     return page_list
+
+
+def individual_logs_from_dict(json1,json2,new_changes,location_str):
+
+    if type(json1)!=dict and type(json2)!=dict :
+
+        if json1!=json2 :
+            new_changes[location_str] = [json1,json2]
+
+        return new_changes
+
+    for key in json1.keys():
+
+        other_key_val = None
+
+        try:
+            other_key_val = json2[key]
+        except:
+            other_key_val = None 
+
+        location_str_temp = location_str + " > " + key.replace("_", " ").title()
+
+        new_changes = individual_logs_from_dict(json1[key],other_key_val,new_changes,location_str_temp)
+
+    for key in json2.keys():
+
+        other_key_val = None
+        
+        try:
+            other_key_val = json1[key]
+        except:
+            other_key_val = None 
+
+        location_str_temp = location_str + " > " + key.replace("_", " ").title()
+
+        new_changes = individual_logs_from_dict(other_key_val,json2[key],new_changes,location_str_temp)
+
+    return new_changes
+
+
+def logentry_dict_to_attributes(changes):
+
+    new_changes = {}
+
+    for key in changes:
+
+        changes[key][0] = str(changes[key][0]).replace("\\U2018", "").replace("\\U2019", "")
+        changes[key][1] = str(changes[key][1]).replace("\\U2018", "").replace("\\U2019", "")
+
+        json1 = changes[key][0]
+        json2 = changes[key][1]
+
+        try:    
+            json1 = json.loads(changes[key][0])
+            json1 = json.loads(json1)
+        except Exception as e:
+            pass
+        try:
+            json2 = json.loads(changes[key][1])
+            json2 = json.loads(json2)
+        except Exception as e:
+            pass
+
+        print(type(json1),type(json2))
+
+        new_changes = individual_logs_from_dict(json1,json2,new_changes,key)
+
+    return new_changes

@@ -45,6 +45,11 @@ class FetchReportListAPI(APIView):
         response['status'] = 500
         try:
 
+            if custom_permission_mws_functions(request.user,"get_reports_from_amazon") == False:
+                logger.warning("FetchReportListAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
             data = request.data
             logger.info("FetchReportListAPI: %s", str(data))
 

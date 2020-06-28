@@ -68,6 +68,35 @@ def FlyerPage(request, pk):
     #     return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
+class GithubWebhookAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("GithubWebhookAPI: %s", str(data))
+
+            ref = str(data["ref"])
+            branch = ref.split("/")[2:]
+            branch = ''.join(branch)
+            if(branch == "uat"):
+                os.system("git pull origin uat")
+                os.system("sudo systemctl restart gunicorn-5")
+                os.system("sudo systemctl restart gunicorn-6")
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GithubWebhookAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class CreateNewBaseProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1479,14 +1508,14 @@ class FetchProductListAPI(APIView):
                 search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
 
             if filter_parameters.get("Product Description", None) == True:
-                search_list_product_objs = search_list_product_objs.exclude(product_description="")
+                search_list_product_objs = search_list_product_objs.exclude(Q(product_description=None) | Q(product_description=""))
             elif filter_parameters.get("Product Description", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(product_description="")
+                search_list_product_objs = search_list_product_objs.filter(Q(product_description=None) | Q(product_description=""))
 
             if filter_parameters.get("Product Name", None) == True:
-                search_list_product_objs = search_list_product_objs.exclude(product_name="")
+                search_list_product_objs = search_list_product_objs.exclude(Q(product_name=None) | Q(product_name=""))
             elif filter_parameters.get("Product Name", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(product_name="")
+                search_list_product_objs = search_list_product_objs.filter(Q(product_name=None) | Q(product_name=""))
 
             if filter_parameters.get("Product ID", None) == True:
                 search_list_product_objs = search_list_product_objs.exclude(Q(product_id=None) | Q(product_id=""))
@@ -1519,9 +1548,9 @@ class FetchProductListAPI(APIView):
                 search_list_product_objs = search_list_product_objs.filter(channel_product__is_ebay_product_created=False)
 
             if filter_parameters.get("Product Features", None) == True:
-                search_list_product_objs = search_list_product_objs.exclude(pfl_product_features="[]")
+                search_list_product_objs = search_list_product_objs.exclude(Q(pfl_product_features="") | Q(pfl_product_features="[]"))
             elif filter_parameters.get("Product Features", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(pfl_product_features="[]")
+                search_list_product_objs = search_list_product_objs.filter(Q(pfl_product_features="") | Q(pfl_product_features="[]"))
 
             if filter_parameters.get("White Background Images > 0", None) == True:
                 search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=0)
@@ -1586,24 +1615,31 @@ class FetchProductListAPI(APIView):
             if filter_parameters.get("Main Images", None) == True:  
                 search_list_product_objs = search_list_product_objs.filter(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images__gt=0))
             elif filter_parameters.get("Main Images", None) == False:  
+                search_list_product_obj_copy = search_list_product_objs 
                 search_list_product_objs = search_list_product_objs.filter(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images=0))
+                search_list_product_objs |= search_list_product_obj_copy.exclude(mainimages__product__in=search_list_product_obj_copy)
 
             if filter_parameters.get("Sub Images > 0", None) == True:  
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=0))
             elif filter_parameters.get("Sub Images > 0", None) == False:  
+                search_list_product_obj_copy = search_list_product_objs 
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images=0))
+                search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
 
             if filter_parameters.get("Sub Images > 1", None) == True:  
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=1))
-            elif filter_parameters.get("Sub Images > 1", None) == False:  
+            elif filter_parameters.get("Sub Images > 1", None) == False:
+                search_list_product_obj_copy = search_list_product_objs
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=2))
+                search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
 
             if filter_parameters.get("Sub Images > 2", None) == True:  
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
             elif filter_parameters.get("Sub Images > 2", None) == False:  
+                search_list_product_obj_copy = search_list_product_objs
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=3))
-
-                    
+                search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
+              
             if len(chip_data) != 0:
                 search_list_product_lookup = Product.objects.none()
                 for tag in chip_data:
@@ -4672,6 +4708,8 @@ class FetchAuditLogsByUserAPI(APIView):
                     changes = changes.title()
                     changes = json.loads(changes)
 
+                    changes = logentry_dict_to_attributes(changes)
+                    
                     temp_dict["changes"] = changes
 
                     log_entry_list.append(temp_dict)
@@ -4792,6 +4830,9 @@ class FetchAuditLogsAPI(APIView):
                     changes = log_entry_obj.changes.replace("_", " ")
                     changes = changes.title()
                     changes = json.loads(changes)
+
+                    changes = logentry_dict_to_attributes(changes)
+
                     temp_dict["changes"] = changes
                     log_entry_list.append(temp_dict)
                 
@@ -4944,19 +4985,19 @@ class FetchCompanyProfileAPI(APIView):
             
             company_data["logo"] = []
             if website_group_obj.logo != None:
-                company_data["logo"] = {
+                company_data["logo"] = [{
                     "uid" : "123",
                     "url" : ""
-                }
-                company_data["logo"]["url"] = website_group_obj.logo.image.url
+                }]
+                company_data["logo"][0]["url"] = website_group_obj.logo.image.url
 
             company_data["footer_logo"] = []
             if website_group_obj.footer_logo != None:
-                company_data["footer_logo"] = {
+                company_data["footer_logo"] = [{
                     "uid" : "123",
                     "url" : ""
-                }
-                company_data["footer_logo"]["url"] = website_group_obj.footer_logo.image.url
+                }]
+                company_data["footer_logo"][0]["url"] = website_group_obj.footer_logo.image.url
 
 
             response["company_data"] = company_data
@@ -5049,6 +5090,7 @@ class UploadCompanyLogoAPI(APIView):
                 image_obj = Image.objects.create(image=logo_image_url)
                 website_group_obj.logo = image_obj
                 website_group_obj.save()
+                response["image_url"] = image_obj.mid_image.url
 
             response['status'] = 200
 
@@ -5084,6 +5126,7 @@ class UploadCompanyFooterLogoAPI(APIView):
                 image_obj = Image.objects.create(image=logo_image_url)
                 website_group_obj.footer_logo = image_obj
                 website_group_obj.save()
+                response["image_url"] = image_obj.mid_image.url
 
             response['status'] = 200
 
@@ -5513,7 +5556,7 @@ class GenerateReportsAPI(APIView):
 
             filter_parameters = data["filter_parameters"]  
 
-            search_list_product_objs = Product.objects.none()
+            search_list_product_objs = Product.objects.filter(base_product__brand__organization=request.user.organization)
 
             search_list_product_objs = custom_permission_filter_products(request.user)
 
@@ -5898,7 +5941,10 @@ class CreateOCReportAPI(APIView):
 
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename)
+            
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
 
             if report_type.lower()=="mega":
                 p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,))
@@ -5969,7 +6015,8 @@ class FetchOCReportListAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             oc_reports = json.loads(custom_permission_obj.oc_reports)
 
-            oc_report_objs = OCReport.objects.filter(name__in=oc_reports).order_by('-pk')
+            oc_report_objs = OCReport.objects.filter(name__in=oc_reports,
+                                organization=custom_permission_obj.organization).order_by('-pk')
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
@@ -6183,6 +6230,8 @@ class BulkUpdateChannelProductStockAPI(APIView):
 
         return Response(data=response)
 
+
+GithubWebhook = GithubWebhookAPI.as_view()
 
 SapIntegration = SapIntegrationAPI.as_view()
 
