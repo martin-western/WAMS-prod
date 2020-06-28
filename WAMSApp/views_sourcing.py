@@ -362,7 +362,15 @@ class FetchFactoryListAPI(APIView):
                 logger.warning("FetchFactoryListAPI: Restricted Access!")
                 Response(data=response)
 
+
             factory_objs = Factory.objects.all()
+
+            chip_data = data.get('tags', [])
+            if len(chip_data)>0:
+                factory_objs = Factory.objects.none()
+                for chip in chip_data:
+                    factory_objs |= Factory.objects.filter(Q(name__icontains=chip) | Q(code__icontains=code))
+                factory_objs = factory_objs.distinct()
 
             factory_list = []
 
