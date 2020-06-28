@@ -208,6 +208,10 @@ class FetchSectionsProductsAPI(APIView):
 
             section_objs = Section.objects.filter(website_group__name=website_group_name, is_published=True)
 
+            page = int(data.get("page",1))
+            paginator = Paginator(section_objs, 20)
+            section_objs = paginator.page(page)
+
             section_list =  []
 
             for section_obj in section_objs:
@@ -245,6 +249,12 @@ class FetchSectionsProductsAPI(APIView):
 
                     temp_dict["productsArray"].append(temp_dict2)
                 section_list.append(temp_dict)
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
 
             response['section_list'] = section_list
             response['status'] = 200
@@ -347,6 +357,11 @@ class FetchSectionProductsAPI(APIView):
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
             temp_dict["productsArray"] = []
+
+            page = int(data.get("page",1))
+            paginator = Paginator(product_objs, 20)
+            product_objs = paginator.page(page)
+
             for product_obj in product_objs:
                 temp_dict2 = {}
                 temp_dict2["name"] = product_obj.product_name
@@ -374,6 +389,13 @@ class FetchSectionProductsAPI(APIView):
 
 
                 temp_dict["productsArray"].append(temp_dict2)
+
+            is_available = True
+            
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
 
             response['sectionData'] = temp_dict
             response['status'] = 200
@@ -2547,6 +2569,11 @@ class FetchUnitBannerProductsAPI(APIView):
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
 
             product_objs = unit_banner_image_obj.products.all()
+
+            page = int(data.get('page', 1))
+            paginator = Paginator(product_objs, 20)
+            product_objs = paginator.page(page)
+
             product_list = []
             for product_obj in product_objs:
                 temp_dict = {}
@@ -2572,6 +2599,11 @@ class FetchUnitBannerProductsAPI(APIView):
                 
                 product_list.append(temp_dict)
 
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
             response["productList"] = product_list
             response['status'] = 200
 
