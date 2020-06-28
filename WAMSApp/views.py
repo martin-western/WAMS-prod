@@ -5549,7 +5549,7 @@ class GenerateReportsAPI(APIView):
 
             filter_parameters = data["filter_parameters"]  
 
-            search_list_product_objs = Product.objects.none()
+            search_list_product_objs = Product.objects.filter(base_product__brand__organization=request.user.organization)
 
             search_list_product_objs = custom_permission_filter_products(request.user)
 
@@ -6005,7 +6005,8 @@ class FetchOCReportListAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             oc_reports = json.loads(custom_permission_obj.oc_reports)
 
-            oc_report_objs = OCReport.objects.filter(name__in=oc_reports).order_by('-pk')
+            oc_report_objs = OCReport.objects.filter(name__in=oc_reports,
+                                organization=request.user.organization).order_by('-pk')
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
