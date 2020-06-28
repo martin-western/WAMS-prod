@@ -1639,7 +1639,7 @@ class FetchProductListAPI(APIView):
                 search_list_product_obj_copy = search_list_product_objs
                 search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=3))
                 search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
-                    
+              
             if len(chip_data) != 0:
                 search_list_product_lookup = Product.objects.none()
                 for tag in chip_data:

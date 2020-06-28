@@ -7,9 +7,10 @@ import requests
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-filename = "scripts/Royalford_Data_Aswin"
 
-dfs = pd.read_excel(filename, sheet_name=None)["Sheet3"]
+filename = "scripts/royal ford content upload 25th june.xlsx"
+
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet2"]
 
 rows = len(dfs.iloc[:])
 columns = len(dfs.iloc[0][:])
@@ -20,16 +21,16 @@ brand_obj = Brand.objects.get(name="Royalford")
 for i in range(rows):
 
     try:
-        seller_sku = str(dfs.iloc[i,1])
-        product_name = str(dfs.iloc[i,2])
-        product_description = str(dfs.iloc[i,3])
-        
+        seller_sku = str(dfs.iloc[i,2])
+        product_name = str(dfs.iloc[i,8])
+        product_description = str(dfs.iloc[i,9])
+
         featurs_list = []
 
         for x in range(8):
-            feature = str(dfs.iloc[i,4+x])
+            feature = str(dfs.iloc[i,10+x])
             if feature != "":
-                featurs_list.append(feature)
+                featurs_list.append(feature.replace("–","-"))
 
         base_product , c = BaseProduct.objects.get_or_create(seller_sku=seller_sku)
         base_product.brand=brand_obj
@@ -41,7 +42,6 @@ for i in range(rows):
         noon = json.loads(channel_product.noon_product_json)
         dh , c = DealsHubProduct.objects.get_or_create(product=product)
 
-        print(product_name)
         if product_name != "":
             base_product.base_product_name = product_name
             product.product_name = product_name
