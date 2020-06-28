@@ -357,6 +357,11 @@ class FetchSectionProductsAPI(APIView):
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
             temp_dict["productsArray"] = []
+
+            page = int(data.get("page",1))
+            paginator = Paginator(product_objs, 20)
+            product_objs = paginator.page(page)
+
             for product_obj in product_objs:
                 temp_dict2 = {}
                 temp_dict2["name"] = product_obj.product_name
@@ -384,6 +389,13 @@ class FetchSectionProductsAPI(APIView):
 
 
                 temp_dict["productsArray"].append(temp_dict2)
+
+            is_available = True
+            
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
 
             response['sectionData'] = temp_dict
             response['status'] = 200
