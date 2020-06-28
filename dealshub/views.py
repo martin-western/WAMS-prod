@@ -208,6 +208,10 @@ class FetchSectionsProductsAPI(APIView):
 
             section_objs = Section.objects.filter(website_group__name=website_group_name, is_published=True)
 
+            page = int(data.get("page",1))
+            paginator = Paginator(section_objs, 20)
+            section_objs = paginator.page(page)
+
             section_list =  []
 
             for section_obj in section_objs:
@@ -245,6 +249,12 @@ class FetchSectionsProductsAPI(APIView):
 
                     temp_dict["productsArray"].append(temp_dict2)
                 section_list.append(temp_dict)
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
 
             response['section_list'] = section_list
             response['status'] = 200
@@ -2577,6 +2587,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 
                 product_list.append(temp_dict)
 
+            is_available = True
             if paginator.num_pages == page:
                 is_available = False
 

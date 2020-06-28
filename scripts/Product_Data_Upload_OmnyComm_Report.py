@@ -7,6 +7,7 @@ import requests
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
+
 filename = "scripts/royal ford content upload 25th june.xlsx"
 
 dfs = pd.read_excel(filename, sheet_name=None)["Sheet2"]
