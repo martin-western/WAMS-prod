@@ -91,7 +91,7 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
                     barcodes_list.append((product_id_type.name,product_id,product_pk))
                 else:
                     temp_dict = {}
-                    temp_dict["status"] = "Barcode Not Found"
+                    temp_dict["status"] = "Product ID Not Found"
                     temp_dict["product_pk"] = product_pk
                     temp_dict["matched_ASIN"] = ""
                     temp_dict["matched_product_title"] = ""
