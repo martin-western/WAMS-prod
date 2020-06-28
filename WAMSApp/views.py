@@ -6013,7 +6013,7 @@ class FetchOCReportListAPI(APIView):
             oc_reports = json.loads(custom_permission_obj.oc_reports)
 
             oc_report_objs = OCReport.objects.filter(name__in=oc_reports,
-                                organization=request.user.organization).order_by('-pk')
+                                organization=custom_permission_obj.organization).order_by('-pk')
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
