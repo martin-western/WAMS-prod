@@ -91,7 +91,7 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
                     barcodes_list.append((product_id_type.name,product_id,product_pk))
                 else:
                     temp_dict = {}
-                    temp_dict["status"] = "Barcode Not Found"
+                    temp_dict["status"] = "Product ID Not Found"
                     temp_dict["product_pk"] = product_pk
                     temp_dict["matched_ASIN"] = ""
                     temp_dict["matched_product_title"] = ""
@@ -161,6 +161,12 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
                                 channel_product.save()
                             else :
                                 temp_dict["status"] = "New Product"
+                                product_obj = Product.objects.get(pk=pk_list[j])
+                                channel_product = product_obj.channel_product
+                                amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
+                                amazon_uae_product["status"] = "New"
+                                channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
+                                channel_product.save()
 
                             matched_products_list.append(temp_dict)
 
