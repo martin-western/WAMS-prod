@@ -822,6 +822,7 @@ class CustomPermission(models.Model):
     oc_reports = models.TextField(default="[]")
     verify_product = models.BooleanField(default=False)
     page_list = models.TextField(default="[]")
+    organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "CustomPermission"
@@ -1061,6 +1062,7 @@ class OCReport(models.Model):
     note = models.TextField(default="")
     filename = models.CharField(max_length=200, default="")
     uuid = models.CharField(max_length=200, default="")
+    organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "OC Report"
