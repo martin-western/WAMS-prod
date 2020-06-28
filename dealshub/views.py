@@ -100,6 +100,18 @@ class FetchProductDetailsAPI(APIView):
             response["warranty"] = product_obj.warranty
             response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
 
+            promotion_obj = dealshub_product_obj.promotion
+            if promotion_obj is None:
+                response["is_promotional"] = False
+                response["start_time"] = None
+                response["end_time"] = None
+                response["promotion_tag"] = None
+            else:
+                response["is_promotional"] = True
+                response["start_time"] = str(promotion_obj.start_time)[:19]
+                response["end_time"] = str(promotion_obj.end_time)[:19]
+                response["promotion_tag"] = str(promotion_obj.promotion_tag)
+
             response["isStockAvailable"] = False
             if dealshub_product_obj.stock>0:
                 response["isStockAvailable"] = True
@@ -196,6 +208,10 @@ class FetchSectionsProductsAPI(APIView):
 
             section_objs = Section.objects.filter(website_group__name=website_group_name, is_published=True)
 
+            page = int(data.get("page",1))
+            paginator = Paginator(section_objs, 20)
+            section_objs = paginator.page(page)
+
             section_list =  []
 
             for section_obj in section_objs:
@@ -233,6 +249,12 @@ class FetchSectionsProductsAPI(APIView):
 
                     temp_dict["productsArray"].append(temp_dict2)
                 section_list.append(temp_dict)
+
+            is_available = True
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
 
             response['section_list'] = section_list
             response['status'] = 200
@@ -1874,7 +1896,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     main_images_list = ImageBucket.objects.none()
                     try:
                         main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
-                        temp_dict2["thumbnailImageUrl"] = main_images_obj.main_images.all()[0]["midimage_url"]
+                        temp_dict2["thumbnailImageUrl"] = main_images_obj.main_images.all()[0].image.mid_image.url
                     except Exception as e:
                         temp_dict2["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
@@ -1969,7 +1991,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             main_images_list = ImageBucket.objects.none()
                             try:
                                 main_images_obj = MainImages.objects.get(product=prod, is_sourced=True)
-                                temp_dict3["thumbnailImageUrl"] = main_images_obj.main_images.all()[0]["midimage_url"]
+                                temp_dict3["thumbnailImageUrl"] = main_images_obj.main_images.all()[0].image.mid_image.url
                             except Exception as e:
                                 temp_dict3["thumbnailImageUrl"] = Config.objects.all()[0].product_404_image.image.url
                             
@@ -1988,9 +2010,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                             temp_products.append(temp_dict3)    # No need to Send all
                         temp_dict2["products"] = temp_products
+                    
+                    temp_dict2["has_products"] = unit_banner_products.count()>0
                     banner_images.append(temp_dict2)
 
-                    temp_dict["bannerImages"] = banner_images
+                temp_dict["bannerImages"] = banner_images
                 temp_dict["isPublished"] = banner_obj.is_published
 
                 dealshub_admin_sections.append(temp_dict)
@@ -2197,18 +2221,26 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data = {}
             company_data["name"] = website_group_obj.name
             company_data["contact_info"] = website_group_obj.contact_info
+            company_data["email_info"] = website_group_obj.email_info
             company_data["address"] = website_group_obj.address
             company_data["primary_color"] = website_group_obj.primary_color
             company_data["secondary_color"] = website_group_obj.secondary_color
+            company_data["navbar_text_color"] = website_group_obj.navbar_text_color
             company_data["facebook_link"] = website_group_obj.facebook_link
             company_data["twitter_link"] = website_group_obj.twitter_link
             company_data["instagram_link"] = website_group_obj.instagram_link
             company_data["youtube_link"] = website_group_obj.youtube_link
+            company_data["linkedin_link"] = website_group_obj.linkedin_link
+            company_data["crunchbase_link"] = website_group_obj.crunchbase_link
+
 
             company_data["logo_url"] = ""
             if website_group_obj.logo != None:
                 company_data["logo_url"] = website_group_obj.logo.image.url
 
+            company_data["footer_logo_url"] = ""
+            if website_group_obj.footer_logo != None:
+                company_data["footer_logo_url"] = website_group_obj.footer_logo.image.url
 
             response["company_data"] = company_data
             response['status'] = 200
@@ -2302,7 +2334,9 @@ class FetchBulkProductInfoAPI(APIView):
                     "productName": product_obj.product_name,
                     "productImageUrl": main_image_url,
                     "sellerSku": product_obj.base_product.seller_sku,
-                    "productId": product_obj.product_id
+                    "productId": product_obj.product_id,
+                    "brandName": str(product_obj.base_product.brand),
+                    "category": str(product_obj.base_product.category),
                 }
 
                 productInfo[uuid] = temp_dict
@@ -2553,6 +2587,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 
                 product_list.append(temp_dict)
 
+            is_available = True
             if paginator.num_pages == page:
                 is_available = False
 

@@ -22,7 +22,7 @@ urlpatterns = [
 
     url(r'^fetch-factory-product/$', views.FetchFactoryProduct),
     url(r'^create-factory-product/$', views.CreateFactoryProduct),
-    url(r'^upload-factory-product-image-/$', views.UploadFactoryProductImage),
+    url(r'^upload-factory-product-images/$', views.UploadFactoryProductImages),
     url(r'^save-factory-product/$', views.SaveFactoryProduct),
     url(r'^delete-factory-product-image/$', views.DeleteFactoryProductImage),
     url(r'^fetch-factory-list/$', views.FetchFactoryList),

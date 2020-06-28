@@ -185,7 +185,17 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
                             channel_product.save()
                         else :
                             temp_dict["status"] = "New Product"
+                            product_obj = Product.objects.get(pk=pk_list[0])
+                            channel_product = product_obj.channel_product
+                            amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
+                            amazon_uae_product["status"] = "New"
+                            channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
+                            channel_product.save()
 
+                        temp_dict["amazon_url"] = ""
+                        if temp_dict["matched_ASIN"] != "":
+                            temp_dict["amazon_url"] = "https://www.amazon.ae/dp/"+str(temp_dict["matched_ASIN"])
+                        
                         matched_products_list.append(temp_dict)
                         
                     id_list = []

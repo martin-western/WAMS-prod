@@ -432,13 +432,20 @@ class WebsiteGroup(models.Model):
 
     contact_info = models.CharField(max_length=100,blank=True, default='')
     address = models.TextField(blank=True, default='')
+    email_info = models.CharField(max_length=100,blank=True, default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    footer_logo = models.ForeignKey(Image, related_name="footer_logo", null=True, blank=True, on_delete=models.SET_NULL)
     primary_color = models.CharField(max_length=100,default = "#000000")
     secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
+    navbar_text_color = models.CharField(max_length=100,default = "#FFFFFF")
+
     facebook_link = models.CharField(max_length=100,blank=True, default='')
     twitter_link = models.CharField(max_length=100,blank=True, default='')
     instagram_link = models.CharField(max_length=100,blank=True, default='')
     youtube_link = models.CharField(max_length=100,blank=True, default='')
+    linkedin_link = models.CharField(max_length=100,blank=True, default='')
+    crunchbase_link = models.CharField(max_length=100,blank=True, default='')
+
     payment_credentials = models.TextField(default="{}")
 
     class Meta:
