@@ -5941,7 +5941,10 @@ class CreateOCReportAPI(APIView):
 
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename)
+            
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
 
             if report_type.lower()=="mega":
                 p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,))
