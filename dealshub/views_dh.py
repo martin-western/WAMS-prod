@@ -12,7 +12,7 @@ from dealshub.models import *
 from dealshub.constants import *
 from dealshub.utils import *
 from dealshub.serializers import UserSerializer, UserSerializerWithToken
-from dealshub.views_oc import * ////
+from dealshub.views_oc import * 
 
 from django.core.paginator import Paginator
 from django.db.models import Q

@@ -14,6 +14,7 @@ from WAMSApp.utils import *
 from WAMSApp.constants import *
 from dealshub.models import *
 from dealshub.utils import *
+from dealshub.serializers import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -286,6 +287,7 @@ class SignUpAPI(APIView):
                     "username": email_id,
                     "password": password
                 }
+                ## DOUBT
                 r = requests.post(url=DEALSHUB_IP+"/token-auth/", data=credentials, verify=False)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
@@ -844,14 +846,15 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["price"] = unit_cart_obj.price
                 temp_dict["currency"] = unit_cart_obj.currency
                 temp_dict["dateCreated"] = str(timezone.localtime(unit_cart_obj.date_created).strftime("%d %b, %Y"))
-                r = requests.post(OMNYCOMM_IP+"/dealshub/fetch-product-details/", data={"uuid": unit_cart_obj.product_code}, verify=False)
-                temp_dict["productName"] = json.loads(r.content)["name"]
+                product_obj = unit_cart_obj.product.product
+                temp_dict["productName"] = product_obj.product_name
                 try:
-                    temp_dict["productImageUrl"] = json.loads(r.content)["productImagesUrl"][0]["thumbnail"]
+                    lifestyle_image_obj = product_obj.lifestyle_images.all()[0]
+                    temp_dict["productImageUrl"] = lifestyle_image_obj.thumbnail.url
                 except Exception as e:
                     temp_dict["productImageUrl"] = ""
                 temp_dict["productUuid"] = unit_cart_obj.product_code
-                temp_dict["isStockAvailable"] = json.loads(r.content)["isStockAvailable"]
+                temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 total_amount += float(unit_cart_obj.price)*float(unit_cart_obj.quantity)
 
                 unit_cart_list.append(temp_dict)
@@ -988,10 +991,11 @@ class FetchWishlistDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["dateCreated"] = str(timezone.localtime(unit_cart_obj.date_created).strftime("%d %b, %Y"))
-                r = requests.post(OMNYCOMM_IP+"/dealshub/fetch-product-details/", data={"uuid": unit_cart_obj.product_code}, verify=False)
-                temp_dict["productName"] = json.loads(r.content)["name"]
+                product_obj = unit_cart_obj.product.product
+                temp_dict["productName"] = product_obj.product_name
                 try:
-                    temp_dict["productImageUrl"] = json.loads(r.content)["productImagesUrl"][0]["thumbnail"]
+                    lifestyle_image_obj = product_obj.lifestyle_images.all()[0]
+                    temp_dict["productImageUrl"] = lifestyle_image_obj.thumbnail.url
                 except Exception as e:
                     temp_dict["productImageUrl"] = ""
 
@@ -1156,15 +1160,15 @@ class FetchActiveOrderDetailsAPI(APIView):
                 temp_dict["price"] = unit_cart_obj.price
                 temp_dict["currency"] = unit_cart_obj.currency
                 temp_dict["dateCreated"] = str(timezone.localtime(unit_cart_obj.date_created).strftime("%d %b, %Y"))
-                r = requests.post(OMNYCOMM_IP+"/dealshub/fetch-product-details/", data={"uuid": unit_cart_obj.product_code}, verify=False)
-                temp_dict["productName"] = json.loads(r.content)["name"]
+                product_obj = unit_cart_obj.product.product
+                temp_dict["productName"] = product_obj.product_name
                 try:
-                    temp_dict["productImageUrl"] = json.loads(r.content)["productImagesUrl"][0]["thumbnail"]
+                    lifestyle_image_obj = product_obj.lifestyle_images.all()[0]
+                    temp_dict["productImageUrl"] = lifestyle_image_obj.thumbnail.url
                 except Exception as e:
                     temp_dict["productImageUrl"] = ""
                 total_amount += float(unit_cart_obj.price)*float(unit_cart_obj.quantity)
-                if json.loads(r.content)["is_cod_allowed"]==False:
-                    is_cod_allowed = False
+                is_cod_allowed = unit_cart_obj.product.is_cod_allowed
                 unit_cart_list.append(temp_dict)
 
             delivery_fee = 0
@@ -1213,8 +1217,8 @@ class PlaceOrderAPI(APIView):
 
             # Check if COD is allowed
             for unit_cart_obj in unit_cart_objs:
-                r = requests.post(OMNYCOMM_IP+"/dealshub/fetch-product-details/", data={"uuid": unit_cart_obj.product_code}, verify=False)
-                if json.loads(r.content)["is_cod_allowed"]==False:
+                is_cod_allowed = unit_cart_obj.product.is_cod_allowed
+                if is_cod_allowed==False:
                     response["status"] = 403
                     logger.error("PlaceOrderAPI: COD not allowed!")
                     return Response(data=response)
@@ -1302,8 +1306,7 @@ class FetchOrderListAPI(APIView):
             for unit_order_obj in unit_order_objs:
                 uuid_list.append(unit_order_obj.product_code)
 
-            r = requests.post(OMNYCOMM_IP+"/dealshub/fetch-bulk-product-info/", data={"uuidList": json.dumps(uuid_list)}, verify=False)
-            productInfo = json.loads(r.content)["productInfo"]
+            productInfo = fetch_bulk_product_info(json.dumps(uuid_list))
 
             order_list = []
             order_objs = Order.objects.filter(owner=dealshub_user, order_type="placedorder").order_by('-pk')
@@ -1380,8 +1383,7 @@ class FetchOrderListAdminAPI(APIView):
             for unit_order_obj in unit_order_objs:
                 uuid_list.append(unit_order_obj.product_code)
 
-            r = requests.post(OMNYCOMM_IP+"/dealshub/fetch-bulk-product-info/", data={"uuidList": json.dumps(uuid_list)}, verify=False)
-            productInfo = json.loads(r.content)["productInfo"]
+            productInfo = fetch_bulk_product_info(json.dumps(uuid_list))
 
             order_list = []
             order_objs = Order.objects.filter(order_type="placedorder").order_by('-pk')
@@ -1487,8 +1489,8 @@ class FetchOrderDetailsAPI(APIView):
             for unit_order_obj in unit_order_objs:
                 uuid_list.append(unit_order_obj.product_code)
 
-            r = requests.post(OMNYCOMM_IP+"/dealshub/fetch-bulk-product-info/", data={"uuidList": json.dumps(uuid_list)}, verify=False)
-            productInfo = json.loads(r.content)["productInfo"]
+            productInfo = fetch_bulk_product_info(json.dumps(uuid_list))
+
 
             subtotal = 0
             unit_order_list = []
