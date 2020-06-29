@@ -5946,6 +5946,11 @@ class CreateOCReportAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
 
+            if len(brand_list)==0:
+                brand_objs = custom_permission_filter_brands(request.user)
+                for brand_obj in brand_objs:
+                    brand_list.append(brand_obj.name)
+
             if report_type.lower()=="mega":
                 p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,))
                 p1.start()
