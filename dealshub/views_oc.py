@@ -155,7 +155,7 @@ class FetchOrdersForAccountManagerAPI(APIView):
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                     uuid_list.append(unit_order_obj.product_code)
 
-            productInfo = fetch_bulk_product_info(json.dumps(uuid_list))
+            productInfo = fetch_bulk_product_info(uuid_list)
 
             order_list = []
             for order_obj in order_objs:
@@ -353,7 +353,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                     uuid_list.append(unit_order_obj.product_code)
 
-            productInfo = fetch_bulk_product_info(json.dumps(uuid_list))
+            productInfo = fetch_bulk_product_info(uuid_list)
 
             order_list = []
             for order_obj in order_objs:
