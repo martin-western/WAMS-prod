@@ -67,7 +67,7 @@ urlpatterns = [
 
     url(r'^fetch-company-profile-dealshub/$', views.FetchCompanyProfileDealshub),
 
-    url(r'^fetch-bulk-product-info/$', views.FetchBulkProductInfo),
+    url(r'^fetch-bulk-product-info/$', views.FetchBulkProductInfo), # Converted into Function
     url(r'^fetch-bulk-product-price/$', views.FetchBulkProductPrice),
 
     url(r'^fetch-website-group-brands/$', views.FetchWebsiteGroupBrands),   
@@ -85,5 +85,89 @@ urlpatterns = [
     url(r'^update-promotional-price/$', views.UpdatePromotionalPrice),
     url(r'^update-unit-banner/$', views.UpdateUnitBanner),
 
-    url(r'^refresh-stock/$', views.RefreshStock),
+    url(r'^refresh-stock/$', views.RefreshStock), # Added into Function
+]
+
+##################################################### 
+
+# DealsHub project
+
+#####################################################
+
+urlpatterns += [
+    url(r'^api/dealshub/v1.0/address/fetch-shipping-address-list/$', views.FetchShippingAddressList),
+    url(r'^api/dealshub/v1.0/address/edit-shipping-address/$', views.EditShippingAddress),
+    url(r'^api/dealshub/v1.0/address/create-shipping-address/$', views.CreateShippingAddress),
+    url(r'^api/dealshub/v1.0/address/delete-shipping-address/$', views.DeleteShippingAddress),
+
+    url(r'^api/dealshub/v1.0/product/fetch-product-details/$', views.FetchProductFromOC),
+    url(r'^api/dealshub/v1.0/product/fetch-categories/$', views.FetchCategories),
+    url(r'^api/dealshub/v1.0/product/search/$', views.Search),
+
+    url(r'^api/dealshub/v1.0/cart/add-to-cart/$', views.AddToCart),
+    url(r'^api/dealshub/v1.0/cart/fetch-cart-details/$', views.FetchCartDetails),
+    url(r'^api/dealshub/v1.0/cart/update-cart-details/$', views.UpdateCartDetails),
+    url(r'^api/dealshub/v1.0/cart/remove-from-cart/$', views.RemoveFromCart),
+
+    url(r'^api/dealshub/v1.0/cart/add-to-wishlist/$', views.AddToWishlist),
+    url(r'^api/dealshub/v1.0/cart/fetch-wishlist-details/$', views.FetchWishlistDetails),
+    url(r'^api/dealshub/v1.0/cart/remove-from-wishlist/$', views.RemoveFromWishlist),
+
+    url(r'^api/dealshub/v1.0/checkout/select-address/$', views.SelectAddress),
+    url(r'^api/dealshub/v1.0/checkout/select-payment-mode/$', views.SelectPaymentMode),
+    url(r'^api/dealshub/v1.0/checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
+    url(r'^api/dealshub/v1.0/checkout/place-order/$', views.PlaceOrder),
+    url(r'^api/dealshub/v1.0/checkout/cancel-order/$', views.CancelOrder),
+    url(r'^api/dealshub/v1.0/order/fetch-order-list/$', views.FetchOrderList),
+    url(r'^api/dealshub/v1.0/order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
+    url(r'^api/dealshub/v1.0/order/fetch-order-details/$', views.FetchOrderDetails),
+
+    url(r'^api/dealshub/v1.0/payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
+    url(r'^api/dealshub/v1.0/payment/make-purchase-request/$', views.MakePurchaseRequest),
+    url(r'^api/dealshub/v1.0/payment/fetch-installment-plans/$', views.FetchInstallmentPlans),
+    url(r'^api/dealshub/v1.0/payment/make-purchase-request-installment/$', views.MakePurchaseRequestInstallment),
+
+    url(r'^api/dealshub/v1.0/payment/calculate-signature/$', views.CalculateSignature),
+
+    url(r'^api/dealshub/v1.0/user/fetch-user-profile/$', views.FetchUserProfile),
+    url(r'^api/dealshub/v1.0/user/update-user-profile/$', views.UpdateUserProfile),
+
+    url(r'^api/dealshub/v1.0/fetch-customer-list/$', views.FetchCustomerList),
+    url(r'^api/dealshub/v1.0/fetch-customer-details/$', views.FetchCustomerDetails),
+    url(r'^api/dealshub/v1.0/fetch-customer-orders/$', views.FetchCustomerOrders),
+
+    url(r'^payfort/payment-transaction/$',views.PaymentTransaction),
+    url(r'^payfort/payment-notification/$',views.PaymentNotification),
+
+    
+    url(r'^api/dealshub/v1.0/fetch-orders-for-account-manager/$', views.FetchOrdersForAccountManager),
+    url(r'^api/dealshub/v1.0/fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
+    url(r'^api/dealshub/v1.0/set-shipping-method/$', views.SetShippingMethod),
+    url(r'^api/dealshub/v1.0/set-orders-status/$', views.SetOrdersStatus),
+    url(r'^api/dealshub/v1.0/cancel-orders/$', views.CancelOrders),
+
+    url(r'^api/dealshub/v1.0/download-orders/$', views.DownloadOrders),
+    url(r'^api/dealshub/v1.0/upload-orders/$', views.UploadOrders),
+
+
+    url(r'^api/dealshub/v1.0/contact-us-send-email/$', views.ContactUsSendEmail),
+
+    url(r'^api/dealshub/v1.0/send-otp-sms/$', views.SendOTPSMS),
+    url(r'^api/dealshub/v1.0/verify-otp-sms/$', views.VerifyOTPSMS),
+
+    url(r'^api/dealshub/v1.0/send-otp-sms-login/$', views.SendOTPSMSLogin),
+    url(r'^api/dealshub/v1.0/verify-otp-sms-login/$', views.VerifyOTPSMSLogin),
+
+    url(r'^api/dealshub/v1.0/update-user-email/$', views.UpdateUserEmail),
+
+    url(r'^api/dealshub/v1.0/add-review/$', views.AddReview),
+    url(r'^api/dealshub/v1.0/add-rating/$', views.AddRating),
+    url(r'^api/dealshub/v1.0/update-rating/$', views.UpdateRating),
+    url(r'^api/dealshub/v1.0/add-admin-comment/$', views.AddAdminComment),
+    url(r'^api/dealshub/v1.0/update-admin-comment/$', views.UpdateAdminComment),
+    url(r'^api/dealshub/v1.0/add-upvote/$', views.AddUpvote),
+    url(r'^api/dealshub/v1.0/delete-upvote/$', views.DeleteUpvote),
+    url(r'^api/dealshub/v1.0/fetch-review/$', views.FetchReview),
+    url(r'^api/dealshub/v1.0/fetch-product-reviews/$', views.FetchProductReviews),
+    url(r'^api/dealshub/v1.0/delete-user-review/$', views.DeleteUserReview)
 ]
