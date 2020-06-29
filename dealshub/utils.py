@@ -220,7 +220,7 @@ def send_order_confirmation_mail(order_obj):
         full_name = order_obj.owner.first_name + " " + order_obj.owner.last_name
 
         html_message = loader.render_to_string(
-            os.getcwd()+'/dealshubplayApp/templates/order-confirmation.html',
+            os.getcwd()+'/dealshub/templates/order-confirmation.html',
             {
                 "customer_name": customer_name,
                 "custom_unit_order_list":  custom_unit_order_list,
@@ -281,7 +281,7 @@ def send_order_dispatch_mail(unit_order_obj):
         full_name = unit_order_obj.order.owner.first_name + " " + unit_order_obj.order.owner.last_name
 
         html_message = loader.render_to_string(
-            os.getcwd()+'/dealshubplayApp/templates/order-dispatch.html',
+            os.getcwd()+'/dealshub/templates/order-dispatch.html',
             {
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
@@ -342,7 +342,7 @@ def send_order_delivered_mail(unit_order_obj):
         full_name = unit_order_obj.order.owner.first_name + " " + unit_order_obj.order.owner.last_name
 
         html_message = loader.render_to_string(
-            os.getcwd()+'/dealshubplayApp/templates/order-delivered.html',
+            os.getcwd()+'/dealshub/templates/order-delivered.html',
             {
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
@@ -404,7 +404,7 @@ def send_order_delivery_failed_mail(unit_order_obj):
         full_name = unit_order_obj.order.owner.first_name + " " + unit_order_obj.order.owner.last_name
 
         html_message = loader.render_to_string(
-            os.getcwd()+'/dealshubplayApp/templates/order-delivery-failed.html',
+            os.getcwd()+'/dealshub/templates/order-delivery-failed.html',
             {
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
@@ -465,7 +465,7 @@ def send_order_cancelled_mail(unit_order_obj):
         full_name = unit_order_obj.order.owner.first_name + " " + unit_order_obj.order.owner.last_name
 
         html_message = loader.render_to_string(
-            os.getcwd()+'/dealshubplayApp/templates/order-cancelled.html',
+            os.getcwd()+'/dealshub/templates/order-cancelled.html',
             {
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
