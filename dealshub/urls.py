@@ -100,7 +100,7 @@ urlpatterns += [
     url(r'^api/dealshub/v1.0/address/create-shipping-address/$', views.CreateShippingAddress),
     url(r'^api/dealshub/v1.0/address/delete-shipping-address/$', views.DeleteShippingAddress),
 
-    url(r'^api/dealshub/v1.0/product/fetch-product-details/$', views.FetchProductFromOC),
+    url(r'^api/dealshub/v1.0/product/fetch-product-details/$', views.FetchProductDetails),
     url(r'^api/dealshub/v1.0/product/fetch-categories/$', views.FetchCategories),
     url(r'^api/dealshub/v1.0/product/search/$', views.Search),
 

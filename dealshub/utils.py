@@ -3,6 +3,20 @@ from dealshub.models import *
 import datetime
 from django.utils import timezone
 
+from dealshub.serializers import UserSerializer
+import hashlib
+import sys
+import logging
+import os
+import json
+import requests
+from dealshub.constants import *
+from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template import loader
+import threading
+from WAMSApp.utils import fetch_refresh_stock
+
 def convert_to_datetime(date_str):
     date_str = date_str[:-1] + "+0400"
     return date_str
@@ -27,22 +41,6 @@ def get_actual_price(dealshub_product_obj):
 # DealsHub project
 
 #####################################################
-
-from dealshub.serializers import UserSerializer
-import hashlib
-import sys
-import logging
-import os
-import json
-import requests
-from dealshub.models import *
-from dealshub.constants import *
-from django.core.mail import send_mail
-from django.core.mail import EmailMultiAlternatives
-from django.template import loader
-import threading
-from WAMSApp.utils import fetch_refresh_stock
-from WAMSApp.models import *
 
 logger = logging.getLogger(__name__)
 
