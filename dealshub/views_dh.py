@@ -150,11 +150,11 @@ class FetchCustomerDetailsAPI(APIView):
             
             uuid_list = []
             for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj):
-                uuid_list.append(unit_cart_obj.product_code)
+                uuid_list.append(unit_cart_obj.product.uuid)
 
             review_objs = Review.objects.filter(dealshub_user=dealshub_user_obj)
             for review_obj in review_objs:
-                uuid_list.append(review_obj.product_code)          
+                uuid_list.append(review_obj.product.uuid)          
 
             productInfo = fetch_bulk_product_info(uuid_list)
 
@@ -165,8 +165,8 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict2["quantity"] = unit_cart_obj.quantity
                 temp_dict2["price"] = unit_cart_obj.price
                 temp_dict2["currency"] = unit_cart_obj.currency        
-                temp_dict2["productName"] = productInfo[unit_cart_obj.product_code]["productName"]
-                temp_dict2["productImageUrl"] = productInfo[unit_cart_obj.product_code]["productImageUrl"]
+                temp_dict2["productName"] = productInfo[unit_cart_obj.product.uuid]["productName"]
+                temp_dict2["productImageUrl"] = productInfo[unit_cart_obj.product.uuid]["productImageUrl"]
                 unit_cart_list.append(temp_dict2)
 
             review_list = []
@@ -174,8 +174,8 @@ class FetchCustomerDetailsAPI(APIView):
                 try:
                     temp_dict2 = {}
                     temp_dict2["uuid"] = review_obj.uuid
-                    temp_dict2["sellerSku"] = productInfo[review_obj.product_code]["sellerSku"]
-                    temp_dict2["productImageUrl"] = productInfo[review_obj.product_code]["productImageUrl"]
+                    temp_dict2["sellerSku"] = productInfo[review_obj.product.uuid]["sellerSku"]
+                    temp_dict2["productImageUrl"] = productInfo[review_obj.product.uuid]["productImageUrl"]
                     temp_dict2["rating"] = review_obj.rating
                     temp_dict2["isReview"] = False
                     if review_obj.content!=None:
@@ -233,7 +233,7 @@ class FetchCustomerOrdersAPI(APIView):
             uuid_list = []
             for order_obj in order_objs:
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                    uuid_list.append(unit_order_obj.product_code)
+                    uuid_list.append(unit_order_obj.product.uuid)
 
             productInfo = fetch_bulk_product_info(uuid_list)
 
@@ -256,8 +256,8 @@ class FetchCustomerOrdersAPI(APIView):
                     temp_dict2["quantity"] = unit_order_obj.quantity
                     temp_dict2["price"] = unit_order_obj.price
                     temp_dict2["currency"] = unit_order_obj.currency
-                    temp_dict2["productName"] = productInfo[unit_order_obj.product_code]["productName"]
-                    temp_dict2["productImageUrl"] = productInfo[unit_order_obj.product_code]["productImageUrl"]
+                    temp_dict2["productName"] = productInfo[unit_order_obj.product.uuid]["productName"]
+                    temp_dict2["productImageUrl"] = productInfo[unit_order_obj.product.uuid]["productImageUrl"]
                     unit_order_list.append(temp_dict2)
                     total_billing += float(unit_order_obj.quantity)*unit_order_obj.price
                 temp_dict["totalBilling"] = str(total_billing) + " AED"
@@ -492,7 +492,7 @@ class PaymentTransactionAPI(APIView):
                 unit_cart_objs = UnitCart.objects.filter(cart_type="active", cart__owner=dealshub_user)
                 for unit_cart_obj in unit_cart_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj, 
-                                                              product_code=unit_cart_obj.product_code, 
+                                                              product=unit_cart_obj.product, 
                                                               quantity=unit_cart_obj.quantity, 
                                                               price=unit_cart_obj.price, 
                                                               currency=unit_cart_obj.currency)
@@ -998,8 +998,8 @@ class AddReviewAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
-            if UnitOrder.objects.filter(product_code=product_code,order__owner=dealshub_user_obj).exists():
-                review_obj, created = Review.objects.get_or_create(dealshub_user = dealshub_user_obj, product_code = product_code)
+            if UnitOrder.objects.filter(product__uuid=product_code,order__owner=dealshub_user_obj).exists():
+                review_obj, created = Review.objects.get_or_create(dealshub_user = dealshub_user_obj, product__uuid = product_code)
                 review_obj.rating = rating
                 review_content_obj = review_obj.content
                 if review_content_obj is None:
@@ -1037,8 +1037,8 @@ class AddRatingAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
-            if UnitOrder.objects.filter(product_code=product_code,order__owner=dealshub_user_obj).exists():
-                review_obj = Review.objects.create(dealshub_user = dealshub_user_obj, product_code = product_code, rating = rating)
+            if UnitOrder.objects.filter(product__uuid=product_code,order__owner=dealshub_user_obj).exists():
+                review_obj = Review.objects.create(dealshub_user = dealshub_user_obj, product__uuid = product_code, rating = rating)
                 response["uuid"] = review_obj.uuid
                 response["status"] = 200
             else:
@@ -1217,7 +1217,7 @@ class FetchReviewAPI(APIView):
 
             review_obj = Review.objects.get(uuid=uuid)
             response["username"] = str(review_obj.dealshub_user.username)
-            response["product_code"] = str(review_obj.product_code)
+            response["product_code"] = str(review_obj.product.uuid)
             response["rating"] = str(review_obj.rating)
 
             review_content_obj = review_obj.content
@@ -1264,7 +1264,7 @@ class FetchProductReviewsAPI(APIView):
             product_code = str(data["product_code"])
 
             product_reviews = []
-            review_objs = Review.objects.filter(product_code=product_code)
+            review_objs = Review.objects.filter(product__uuid=product_code)
             total_reviews = review_objs.count()
 
             total_rating = 0
@@ -1312,12 +1312,12 @@ class FetchProductReviewsAPI(APIView):
             is_product_purchased = False
             if request.user!=None:
 
-                if UnitOrder.objects.filter(product_code=product_code, order__owner__username=request.user.username).exists():
+                if UnitOrder.objects.filter(product__uuid=product_code, order__owner__username=request.user.username).exists():
                     is_product_purchased = True
 
-                if Review.objects.filter(product_code=product_code, dealshub_user__username=request.user.username).exists():
+                if Review.objects.filter(product__uuid=product_code, dealshub_user__username=request.user.username).exists():
                     is_user_reviewed = True
-                    review_obj = Review.objects.get(product_code=product_code, dealshub_user__username=request.user.username)
+                    review_obj = Review.objects.get(product__uuid=product_code, dealshub_user__username=request.user.username)
                     review_content = None
                     review_content_obj = review_obj.content
                     if review_content_obj is not None:
