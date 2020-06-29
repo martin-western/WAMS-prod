@@ -288,7 +288,7 @@ class SignUpAPI(APIView):
                     "password": password
                 }
                 ## DOUBT
-                r = requests.post(url=DEALSHUB_IP+"/token-auth/", data=credentials, verify=False)
+                r = requests.post(url=OMNYCOMM_IP+"/token-auth/", data=credentials, verify=False)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
             else:
