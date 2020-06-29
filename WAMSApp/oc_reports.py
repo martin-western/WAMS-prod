@@ -27,10 +27,7 @@ def notify_user_for_report(oc_report_obj):
 
 def create_mega_bulk_oc_report(filename, uuid, brand_list):
 
-    product_objs = Product.objects.none()
-
-    if len(brand_list)!=0:
-        product_objs = product_objs.filter(base_product__brand__name__in=brand_list)
+    product_objs = Product.objects.filter(base_product__brand__name__in=brand_list)
 
     workbook = xlsxwriter.Workbook('./'+filename)
 
