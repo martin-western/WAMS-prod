@@ -1958,12 +1958,12 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         else:
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
 
-                    hovering_banner_img = banner_obj.hovering_banner_image
+                    hovering_banner_img = unit_banner_image_obj.hovering_banner_image
                     if hovering_banner_img is not None:
                         if resolution=="low":
-                            temp_dict2["hoveringBannerUrl"] = banner_obj.hovering_banner_image.mid_image.url
+                            temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
                         else:
-                            temp_dict2["hoveringBannerUrl"] = banner_obj.hovering_banner_image.image.url
+                            temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
                     else:
                         temp_dict2["hoveringBannerUrl"] = ""
 
@@ -2612,37 +2612,6 @@ class AddUnitBannerHoveringImageAPI(APIView):
         return Response(data=response)
 
 
-class UpdateUnitBannerHoveringImageAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("UpdateUnitBannerHoveringImageAPI: %s", str(data))
-
-            uuid = data["uuid"]
-            banner_image = data["image"]
-
-            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
-            image_obj = Image.objects.create(image=banner_image)
-
-            unit_banner_image_obj.hovering_banner_image = image_obj
-
-            unit_banner_image_obj.save()
-
-            response['uuid'] = unit_banner_image_obj.uuid
-            response['url'] = image_obj.image.url
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
 class FetchUnitBannerHoveringImageAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -2658,7 +2627,11 @@ class FetchUnitBannerHoveringImageAPI(APIView):
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
 
-            response["url"] = unit_banner_image_obj.hovering_banner_image.image.url
+            if unit_banner_image_obj.hovering_banner_image is not None:
+                response["url"] = unit_banner_image_obj.hovering_banner_image.image.url
+            else:
+                response["url"] = ""
+
             response['status'] = 200
 
         except Exception as e:
@@ -2697,37 +2670,6 @@ class AddSectionHoveringImageAPI(APIView):
         return Response(data=response)
 
 
-class UpdateSectionHoveringImageAPI(APIView):
-    
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("UpdateSectionHoveringImageAPI: %s", str(data))
-
-            uuid = data["uuid"]
-            banner_image = data["image"]
-
-            section_obj = Section.objects.get(uuid=uuid)
-            image_obj = Image.objects.create(image=banner_image)
-
-            section_obj.hovering_banner_image = image_obj
-
-            section_obj.save()
-
-            response['uuid'] = section_obj.uuid
-            response['url'] = image_obj.image.url
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateSectionHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
 class FetchSectionHoveringImageAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -2743,7 +2685,11 @@ class FetchSectionHoveringImageAPI(APIView):
 
             section_obj = Section.objects.get(uuid=uuid)
 
-            response["url"] = section_obj.hovering_banner_image.image.url
+            if section_obj.hovering_banner_image is not None:
+                response["url"] = section_obj.hovering_banner_image.image.url
+            else:
+                response["url"] = ""
+
             response['status'] = 200
 
         except Exception as e:
@@ -3153,13 +3099,9 @@ FetchUnitBannerProducts = FetchUnitBannerProductsAPI.as_view()
 
 AddUnitBannerHoveringImage = AddUnitBannerHoveringImageAPI.as_view()
 
-UpdateUnitBannerHoveringImage = UpdateUnitBannerHoveringImageAPI.as_view()
-
 FetchUnitBannerHoveringImage = FetchUnitBannerHoveringImageAPI.as_view()
 
 AddSectionHoveringImage = AddSectionHoveringImageAPI.as_view()
-
-UpdateSectionHoveringImage = UpdateSectionHoveringImageAPI.as_view()
 
 FetchSectionHoveringImage = FetchSectionHoveringImageAPI.as_view()
 

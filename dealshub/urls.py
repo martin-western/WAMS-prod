@@ -78,11 +78,9 @@ urlpatterns = [
     url(r'^fetch-unit-banner-products/$', views.FetchUnitBannerProducts),
 
     url(r'^add-unit-banner-hovering-image/$', views.AddUnitBannerHoveringImage),
-    url(r'^update-unit-banner-hovering-image/$', views.UpdateUnitBannerHoveringImage),
     url(r'^fetch-unit-banner-hovering-image/$', views.FetchUnitBannerHoveringImage),
 
     url(r'^add-section-hovering-image/$', views.AddSectionHoveringImage),
-    url(r'^update-section-hovering-image/$', views.UpdateSectionHoveringImage),
     url(r'^fetch-section-hovering-image/$', views.FetchSectionHoveringImage),
 
     url(r'^delete-hovering-image/$',views.DeleteHoveringImage),
