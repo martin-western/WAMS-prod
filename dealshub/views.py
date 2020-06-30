@@ -1859,6 +1859,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["end_time"] = str(promotion_obj.end_time)[:19]
                     temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
 
+                if resolution=="low":
+                    temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.mid_image.url
+                else:
+                    temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.image.url
+
                 temp_products = []
 
                 section_products = section_obj.products.all()
@@ -2599,37 +2604,8 @@ class AddUnitBannerHoveringImageAPI(APIView):
         return Response(data=response)
 
 
-class DeleteUnitBannerHoveringImageAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("DeleteUnitBannerHoveringImageAPI: %s", str(data))
-
-            uuid = data["uuid"]
-
-            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
-            image=unit_banner_image_obj.hovering_banner_image
-            image.delete()
-            unit_banner_image_obj.hovering_banner_image = None
-
-            unit_banner_image_obj.save()
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
 class UpdateUnitBannerHoveringImageAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2680,6 +2656,115 @@ class FetchUnitBannerHoveringImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class AddSectionHoveringImageAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddSectionHoveringImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            hovering_banner_image = data["image"]
+
+            section_obj = Section.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=hovering_banner_image)
+            unit_banner_image_obj.hovering_banner_image = image_obj
+            section_obj.save()
+
+            response['uuid'] = section_obj.uuid
+            response['url'] = image_obj.image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddSectionHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateSectionHoveringImageAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateSectionHoveringImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            banner_image = data["image"]
+
+            section_obj = Section.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=banner_image)
+
+            section_obj.hovering_banner_image = image_obj
+
+            section_obj.save()
+
+            response['uuid'] = section_obj.uuid
+            response['url'] = image_obj.image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateSectionHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchSectionHoveringImageAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchSectionHoveringImageAPI: %s", str(data))
+            uuid = data["uuid"]
+
+            section_obj = Section.objects.get(uuid=uuid)
+
+            response["url"] = section_obj.hovering_banner_image.image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSectionHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteHoveringImageAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteHoveringImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+
+            Image.objects.get(uuid=uuid).delete()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -3060,11 +3145,17 @@ FetchUnitBannerProducts = FetchUnitBannerProductsAPI.as_view()
 
 AddUnitBannerHoveringImage = AddUnitBannerHoveringImageAPI.as_view()
 
-DeleteUnitBannerHoveringImage = DeleteUnitBannerHoveringImageAPI.as_view()
-
 UpdateUnitBannerHoveringImage = UpdateUnitBannerHoveringImageAPI.as_view()
 
 FetchUnitBannerHoveringImage = FetchUnitBannerHoveringImageAPI.as_view()
+
+AddSectionHoveringImage = AddSectionHoveringImageAPI.as_view()
+
+UpdateSectionHoveringImage = UpdateSectionHoveringImageAPI.as_view()
+
+FetchSectionHoveringImage = FetchSectionHoveringImageAPI.as_view()
+
+DeleteHoveringImage = DeleteHoveringImageAPI.as_view()
 
 SearchCategoryAutocomplete = SearchCategoryAutocompleteAPI.as_view()
 

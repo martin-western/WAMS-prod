@@ -63,6 +63,7 @@ class Section(models.Model):
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
     products = models.ManyToManyField(Product, blank=True)
+    hovering_banner_image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True,blank=True)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
