@@ -2583,8 +2583,7 @@ class FetchUnitBannerProductsAPI(APIView):
 
 
 class AddUnitBannerHoveringImageAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2641,8 +2640,7 @@ class FetchUnitBannerHoveringImageAPI(APIView):
 
 
 class AddSectionHoveringImageAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2699,8 +2697,7 @@ class FetchSectionHoveringImageAPI(APIView):
 
 
 class DeleteHoveringImageAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
