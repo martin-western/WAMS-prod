@@ -227,10 +227,10 @@ class FetchSectionsProductsAPI(APIView):
                     temp_dict2["productSubCategory"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
                     temp_dict2["brand"] = str(product_obj.base_product.brand)
                     
-                    if(product.base_product.brand.name=="Geepas"):
+                    if(product_obj.base_product.brand.name=="Geepas"):
                         temp_dict2["price"] = "0"
                     else:
-                        temp_dict2["price"] = product.standard_price
+                        temp_dict2["price"] = product_obj.standard_price
 
                     temp_dict2["prevPrice"] = temp_dict2["price"]
                     temp_dict2["currency"] = "AED"
