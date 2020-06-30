@@ -375,12 +375,12 @@ class AddToCartAPI(APIView):
             dealshub_user = DealsHubUser.objects.get(username=request.user.username)
             cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user)
             unit_cart_obj = None
-            if UnitCart.objects.filter(cart=cart_obj, product_code=product_uuid, cart_type="active").exists()==True:
-                unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product_code=product_uuid, cart_type="active")
+            if UnitCart.objects.filter(cart=cart_obj, product__product__uuid=product_uuid, cart_type="active").exists()==True:
+                unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__product__uuid=product_uuid, cart_type="active")
                 unit_cart_obj.quantity += quantity
                 unit_cart_obj.save()
             else:
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product_code=product_uuid, cart_type="active", quantity=quantity, price=price)
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product__product__uuid=product_uuid, cart_type="active", quantity=quantity, price=price)
 
             update_cart_bill(cart_obj)
 
@@ -423,7 +423,7 @@ class FetchCartDetailsAPI(APIView):
                     temp_dict["productImageUrl"] = lifestyle_image_obj.thumbnail.url
                 except Exception as e:
                     temp_dict["productImageUrl"] = ""
-                temp_dict["productUuid"] = unit_cart_obj.product_code
+                temp_dict["productUuid"] = unit_cart_obj.product.product.uuid
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 total_amount += float(unit_cart_obj.price)*float(unit_cart_obj.quantity)
 
@@ -529,8 +529,9 @@ class AddToWishlistAPI(APIView):
 
             dealshub_user = DealsHubUser.objects.get(username=request.user.username)
             cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user)
-            if UnitCart.objects.filter(cart=cart_obj, product_code=product_uuid, cart_type="wishlist").exists()==False:
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product_code=product_uuid, cart_type="wishlist", quantity=quantity, price=price)
+            dealshub_prod_obj = DealsHubProduct.objects.get(product__uuid=product_uuid)
+            if UnitCart.objects.filter(cart=cart_obj, product__product__uuid=product_uuid, cart_type="wishlist").exists()==False:
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_prod_obj, cart_type="wishlist", quantity=quantity, price=price)
 
             response["status"] = 200
         except Exception as e:
@@ -569,7 +570,7 @@ class FetchWishlistDetailsAPI(APIView):
                 except Exception as e:
                     temp_dict["productImageUrl"] = ""
 
-                temp_dict["productUuid"] = unit_cart_obj.product_code
+                temp_dict["productUuid"] = unit_cart_obj.product.product.uuid
                 unit_cart_list.append(temp_dict)
 
             response["unitCartList"] = unit_cart_list
@@ -800,7 +801,7 @@ class PlaceOrderAPI(APIView):
             # Unit Cart gets converted to Unit Order
             for unit_cart_obj in unit_cart_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj, 
-                                                          product_code=unit_cart_obj.product_code,
+                                                          product=unit_cart_obj.product,
                                                           quantity=unit_cart_obj.quantity,
                                                           price=unit_cart_obj.price, 
                                                           currency=unit_cart_obj.currency)
@@ -874,7 +875,7 @@ class FetchOrderListAPI(APIView):
 
             uuid_list = []
             for unit_order_obj in unit_order_objs:
-                uuid_list.append(unit_order_obj.product_code)
+                uuid_list.append(unit_order_obj.product.product.uuid)
 
             productInfo = fetch_bulk_product_info(uuid_list)
 
@@ -908,9 +909,9 @@ class FetchOrderListAPI(APIView):
                     temp_dict2["currentStatus"] = unit_order_obj.current_status
                     temp_dict2["quantity"] = unit_order_obj.quantity
                     temp_dict2["price"] = unit_order_obj.price
-                    temp_dict2["currency"] = unit_order_obj.currency           
-                    temp_dict2["productName"] = productInfo[unit_order_obj.product_code]["productName"]
-                    temp_dict2["productImageUrl"] = productInfo[unit_order_obj.product_code]["productImageUrl"]
+                    temp_dict2["currency"] = unit_order_obj.currency
+                    temp_dict2["productName"] = productInfo[unit_order_obj.product.product.uuid]["productName"]
+                    temp_dict2["productImageUrl"] = productInfo[unit_order_obj.product.product.uuid]["productImageUrl"]
                     unit_order_list.append(temp_dict2)
                 temp_dict["unitOrderList"] = unit_order_list
                 order_list.append(temp_dict)
@@ -951,7 +952,7 @@ class FetchOrderListAdminAPI(APIView):
 
             uuid_list = []
             for unit_order_obj in unit_order_objs:
-                uuid_list.append(unit_order_obj.product_code)
+                uuid_list.append(unit_order_obj.product.product.uuid)
 
             productInfo = fetch_bulk_product_info(uuid_list)
 
@@ -981,8 +982,8 @@ class FetchOrderListAdminAPI(APIView):
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
                         temp_dict2["currency"] = unit_order_obj.currency
-                        temp_dict2["productName"] = productInfo[unit_order_obj.product_code]["productName"]
-                        temp_dict2["productImageUrl"] = productInfo[unit_order_obj.product_code]["productImageUrl"]
+                        temp_dict2["productName"] = productInfo[unit_order_obj.product.product.uuid]["productName"]
+                        temp_dict2["productImageUrl"] = productInfo[unit_order_obj.product.product.uuid]["productImageUrl"]
                         unit_order_list.append(temp_dict2)
                     temp_dict["unit_order_list"] = unit_order_list
                     order_list.append(temp_dict)
@@ -1074,10 +1075,10 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["price"] = unit_order_obj.price
                 temp_dict["currency"] = unit_order_obj.currency
                 
-                temp_dict["productName"] = productInfo[unit_order_obj.product_code]["productName"]
-                temp_dict["productImageUrl"] = productInfo[unit_order_obj.product_code]["productImageUrl"]
-                temp_dict["sellerSku"] = productInfo[unit_order_obj.product_code]["sellerSku"]
-                temp_dict["productId"] = productInfo[unit_order_obj.product_code]["productId"]
+                temp_dict["productName"] = productInfo[unit_order_obj.product.product.uuid]["productName"]
+                temp_dict["productImageUrl"] = productInfo[unit_order_obj.product.product.uuid]["productImageUrl"]
+                temp_dict["sellerSku"] = productInfo[unit_order_obj.product.product.uuid]["sellerSku"]
+                temp_dict["productId"] = productInfo[unit_order_obj.product.product.uuid]["productId"]
 
                 unit_order_status_list = []
                 unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
