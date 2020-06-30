@@ -14,6 +14,7 @@ from WAMSApp.utils import *
 from WAMSApp.constants import *
 from dealshub.models import *
 from dealshub.utils import *
+from dealshub.views_dh import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
