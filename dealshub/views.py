@@ -2651,7 +2651,7 @@ class AddUnitBannerHoveringImageAPI(APIView):
             unit_banner_image_obj.hovering_banner_image = image_obj
             unit_banner_image_obj.save()
 
-            response['uuid'] = unit_banner_image_obj.uuid
+            response['uuid'] = image_obj.uuid
             response['url'] = image_obj.image.url
             response['status'] = 200
 
@@ -2708,7 +2708,7 @@ class AddSectionHoveringImageAPI(APIView):
             section_obj.hovering_banner_image = image_obj
             section_obj.save()
 
-            response['uuid'] = section_obj.uuid
+            response['uuid'] = image_obj.uuid
             response['url'] = image_obj.image.url
             response['status'] = 200
 
