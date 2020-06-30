@@ -1859,10 +1859,14 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["end_time"] = str(promotion_obj.end_time)[:19]
                     temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
 
-                if resolution=="low":
-                    temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.mid_image.url
+                hovering_banner_img = section_obj.hovering_banner_image
+                if hovering_banner_img is not None:
+                    if resolution=="low":
+                        temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.mid_image.url
+                    else:
+                        temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.image.url
                 else:
-                    temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.image.url
+                    temp_dict["hoveringBannerUrl"] = ""
 
                 temp_products = []
 
@@ -1954,10 +1958,14 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         else:
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
 
-                    if resolution=="low":
-                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
+                    hovering_banner_img = banner_obj.hovering_banner_image
+                    if hovering_banner_img is not None:
+                        if resolution=="low":
+                            temp_dict2["hoveringBannerUrl"] = banner_obj.hovering_banner_image.mid_image.url
+                        else:
+                            temp_dict2["hoveringBannerUrl"] = banner_obj.hovering_banner_image.image.url
                     else:
-                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
+                        temp_dict2["hoveringBannerUrl"] = ""
 
                     promotion_obj = unit_banner_image_obj.promotion
                     if promotion_obj is None:
@@ -2676,7 +2684,7 @@ class AddSectionHoveringImageAPI(APIView):
 
             section_obj = Section.objects.get(uuid=uuid)
             image_obj = Image.objects.create(image=hovering_banner_image)
-            unit_banner_image_obj.hovering_banner_image = image_obj
+            section_obj.hovering_banner_image = image_obj
             section_obj.save()
 
             response['uuid'] = section_obj.uuid
