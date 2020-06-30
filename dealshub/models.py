@@ -63,7 +63,7 @@ class Section(models.Model):
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
     products = models.ManyToManyField(Product, blank=True)
-    hovering_banner_image = models.ForeignKey(Image, related_name="hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
+    hovering_banner_image = models.ForeignKey(Image, related_name="section_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
@@ -138,7 +138,7 @@ class UnitBannerImage(models.Model):
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, blank=True)
-    hovering_banner_image = models.ForeignKey(Image, related_name="hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
+    hovering_banner_image = models.ForeignKey(Image, related_name="unit_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
 
     def __str__(self):
