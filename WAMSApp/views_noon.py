@@ -67,92 +67,93 @@ class BulkUpdateNoonProductPriceAPI(APIView):
 
             price_permission = custom_permission_price(request.user, channel_name)
             
-            if price_permission:
-                path = default_storage.save('tmp/bulk-upload-noon-price.xlsx', data["import_file"])
-                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
-
-                try :
-                    dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-                except Exception as e:
-                    response['status'] = 406
-                    logger.warning("BulkUpdateNoonProductPriceAPI Sheet 1 not found!")
-                    return Response(data=response)
-
-                rows = len(dfs.iloc[:])
-
-                response["excel_errors"] = []
-
-                for i in range(rows):
-                    try:
-                        if data["option"] == "Product ID" and str(dfs.iloc[0][0]).strip() == "Product ID":
-                            search_key = str(dfs.iloc[i][0]).strip()
-                            
-                            try :
-                                product_obj = Product.objects.get(product_id=search_key)
-                            except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key)
-                                pass
-
-                        elif data["option"] == "Seller SKU" and str(dfs.iloc[0][0]).strip() == "Seller SKU":
-                            search_key = str(dfs.iloc[i][0]).strip()
-                            
-                            try :
-                                product_obj = Product.objects.get(base_product__seller_sku=search_key)
-                            except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key)
-                                pass
-
-                        elif data["option"] == "Noon SKU" and str(dfs.iloc[0][0]).strip() == "Noon SKU":
-                            search_key = str(dfs.iloc[i][0]).strip()
-                            
-                            try :
-                                product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
-                            except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key)
-                                pass
-
-                        elif data["option"] == "Partner SKU" and str(dfs.iloc[0][0]).strip() == "Partner SKU":
-                            search_key = str(dfs.iloc[i][0]).strip()
-
-                            try :
-                                product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
-                            except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key)
-                                pass
-
-                        else:
-                            response['status'] = 405
-                            logger.warning("BulkUpdateNoonProductPriceAPI Wrong Template Uploaded for " + data["option"])
-                            return Response(data=response)
-
-                        try :
-                            was_price = float(dfs.iloc[i][1])
-                            sale_price = float(dfs.iloc[i][2])
-                        except Exception as e:
-                            response["excel_errors"].append("Wrong Price Value for " + search_key)
-                            pass
-                        
-                        channel_product = product_obj.channel_product
-
-                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
-                        
-                        channel_product_dict["was_price"] = was_price
-                        channel_product_dict["sale_price"] = sale_price
-
-                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
-                            
-                        channel_product.save()
-
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("BulkUpdateNoonProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-                response['status'] = 200
-
-            else :
+            if not price_permission:
                 response['status'] = 403
                 logger.warning("BulkUpdateNoonProductPriceAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
                 return Response(data=response)
+
+            path = default_storage.save('tmp/bulk-upload-noon-price.xlsx', data["import_file"])
+            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+
+            try :
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            except Exception as e:
+                response['status'] = 406
+                logger.warning("BulkUpdateNoonProductPriceAPI Sheet 1 not found!")
+                return Response(data=response)
+
+            rows = len(dfs.iloc[:])
+            excel_header = str(dfs.iloc[0][0]).strip()
+
+            if data["option"] != excel_header:
+                response['status'] = 405
+                logger.warning("BulkUpdateNoonProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                return Response(data=response)
+
+            excel_errors = []
+
+            for i in range(rows):
+                try:
+                    if data["option"] == "Product ID":
+                        search_key = str(dfs.iloc[i][0]).strip()
+                        
+                        try :
+                            product_obj = Product.objects.get(product_id=search_key)
+                        except Exception as e:
+                            excel_errors.append("More than one product found for " + search_key)
+                            pass
+
+                    elif data["option"] == "Seller SKU":
+                        search_key = str(dfs.iloc[i][0]).strip()
+                        
+                        try :
+                            product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                        except Exception as e:
+                            excel_errors.append("More than one product found for " + search_key)
+                            pass
+
+                    elif data["option"] == "Noon SKU":
+                        search_key = str(dfs.iloc[i][0]).strip()
+                        
+                        try :
+                            product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                        except Exception as e:
+                            excel_errors.append("More than one product found for " + search_key)
+                            pass
+
+                    elif data["option"] == "Partner SKU":
+                        search_key = str(dfs.iloc[i][0]).strip()
+
+                        try :
+                            product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                        except Exception as e:
+                            excel_errors.append("More than one product found for " + search_key)
+                            pass
+
+                    try :
+                        was_price = float(dfs.iloc[i][1])
+                        sale_price = float(dfs.iloc[i][2])
+                    except Exception as e:
+                        excel_errors.append("Wrong Price Value for " + search_key)
+                        continue
+                    
+                    channel_product = product_obj.channel_product
+
+                    channel_product_dict = get_channel_product_dict(channel_name,channel_product)
+                    
+                    channel_product_dict["was_price"] = was_price
+                    channel_product_dict["sale_price"] = sale_price
+
+                    channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
+                        
+                    channel_product.save()
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("BulkUpdateNoonProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["excel_errors"] = excel_errors
+            response['status'] = 200               
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
