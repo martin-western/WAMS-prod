@@ -24,11 +24,11 @@ from django.db.models import Count
 from django.conf import settings
 
 from WAMSApp.views_sourcing import *
-from WAMSApp.views_noon import *
 from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_orders import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
+from WAMSApp.views_noon import *
 from WAMSApp.views_noon_integration import *
 from WAMSApp.views_dh import *
 from WAMSApp.views_statistics import *
@@ -5262,10 +5262,11 @@ class FetchChannelProductListAPI(APIView):
                 if channel_name=="Noon":
                     noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
                     temp_dict["product_name"] = noon_product_json["product_name"]
+                    temp_dict["noon_sku"] = noon_product_json["noon_sku"]
                     temp_dict["category"] = noon_product_json["category"]
                     temp_dict["sub_category"] = noon_product_json["sub_category"]
                     temp_dict["status"] = noon_product_json["status"]
-                    temp_dict["now_price"] = noon_product_json["now_price"]
+                    temp_dict["now_price"] = noon_product_json["sale_price"]
                     temp_dict["was_price"] = noon_product_json["was_price"]
                     temp_dict["stock"] = noon_product_json["stock"]
 

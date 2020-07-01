@@ -23,16 +23,6 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
-from WAMSApp.views_sourcing import *
-from WAMSApp.views_mws_report import *
-from WAMSApp.views_mws_orders import *
-from WAMSApp.views_mws_amazon_uk import *
-from WAMSApp.views_mws_amazon_uae import *
-from WAMSApp.views_noon_integration import *
-from WAMSApp.views_dh import *
-from WAMSApp.views_statistics import *
-from WAMSApp.oc_reports import *
-
 from PIL import Image as IMage
 from io import BytesIO as StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -94,35 +84,34 @@ class BulkUpdateNoonProductPriceAPI(APIView):
 
                 for i in range(rows):
                     try:
-
-                        if data["option"] = "Product ID" and str(dfs.iloc[0][0]).strip() == "Product ID":
+                        if data["option"] == "Product ID" and str(dfs.iloc[0][0]).strip() == "Product ID":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(product_id=search_key)
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key +)
+                                response["excel_errors"].append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] = "Seller SKU" and str(dfs.iloc[0][0]).strip() == "Seller SKU":
+                        elif data["option"] == "Seller SKU" and str(dfs.iloc[0][0]).strip() == "Seller SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(base_product__seller_sku=search_key)
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key +)
+                                response["excel_errors"].append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] = "Noon SKU" and str(dfs.iloc[0][0]).strip() == "Noon SKU":
+                        elif data["option"] == "Noon SKU" and str(dfs.iloc[0][0]).strip() == "Noon SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key +)
+                                response["excel_errors"].append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] = "Partner SKU" and str(dfs.iloc[0][0]).strip() == "Partner SKU":
+                        elif data["option"] == "Partner SKU" and str(dfs.iloc[0][0]).strip() == "Partner SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
 
                             try :
@@ -212,34 +201,34 @@ class BulkUpdateNoonProductStockAPI(APIView):
                 for i in range(rows):
                     try:
 
-                        if data["option"] = "Product ID" and str(dfs.iloc[0][0]).strip() == "Product ID":
+                        if data["option"] == "Product ID" and str(dfs.iloc[0][0]).strip() == "Product ID":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(product_id=search_key)
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key +)
+                                response["excel_errors"].append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] = "Seller SKU" and str(dfs.iloc[0][0]).strip() == "Seller SKU":
+                        elif data["option"] == "Seller SKU" and str(dfs.iloc[0][0]).strip() == "Seller SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(base_product__seller_sku=search_key)
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key +)
+                                response["excel_errors"].append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] = "Noon SKU" and str(dfs.iloc[0][0]).strip() == "Noon SKU":
+                        elif data["option"] == "Noon SKU" and str(dfs.iloc[0][0]).strip() == "Noon SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key +)
+                                response["excel_errors"].append("More then one product found for " + search_key )
                                 pass
 
-                        elif data["option"] = "Partner SKU" and str(dfs.iloc[0][0]).strip() == "Partner SKU":
+                        elif data["option"] == "Partner SKU" and str(dfs.iloc[0][0]).strip() == "Partner SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
 
                             try :
@@ -328,34 +317,34 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                 for i in range(rows):
                     try:
 
-                        if data["option"] = "Product ID" and str(dfs.iloc[0][0]).strip() == "Product ID":
+                        if data["option"] == "Product ID" and str(dfs.iloc[0][0]).strip() == "Product ID":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(product_id=search_key)
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key +)
+                                response["excel_errors"].append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] = "Seller SKU" and str(dfs.iloc[0][0]).strip() == "Seller SKU":
+                        elif data["option"] == "Seller SKU" and str(dfs.iloc[0][0]).strip() == "Seller SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(base_product__seller_sku=search_key)
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key +)
+                                response["excel_errors"].append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] = "Noon SKU" and str(dfs.iloc[0][0]).strip() == "Noon SKU":
+                        elif data["option"] == "Noon SKU" and str(dfs.iloc[0][0]).strip() == "Noon SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key +)
+                                response["excel_errors"].append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] = "Partner SKU" and str(dfs.iloc[0][0]).strip() == "Partner SKU":
+                        elif data["option"] == "Partner SKU" and str(dfs.iloc[0][0]).strip() == "Partner SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
 
                             try :
