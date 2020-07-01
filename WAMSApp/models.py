@@ -17,11 +17,12 @@ import uuid
 logger = logging.getLogger(__name__)
 
 noon_product_json = {
-    
+
     "product_name" : "",
     "noon_sku" : "",
-    "parent_sku" : "",
-    "parent_barcode" : "",
+    "partner_sku" : "",
+    "partner_barcode" : "",
+    "psku_code":"",
     "category" : "",
     "subtitle" : "",
     "sub_category" : "",

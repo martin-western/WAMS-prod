@@ -6235,6 +6235,64 @@ class BulkUpdateChannelProductStockAPI(APIView):
 
         return Response(data=response)
 
+class BulkUpdateChannelProductPriceAndStockAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateChannelProductStockAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = data["channel_name"]
+
+            channel_obj = Channel.objects.get(name=channel_name)
+
+            if(permission_channel_boolean_response(request.user,channel_obj)==False):
+                response['status'] = 403
+                logger.warning("BulkUpdateChannelProductStockAPI Restricted Access of "+channel_name+" Channel!")
+                return Response(data=response)
+
+            price_permission = custom_permission_price(request.user, channel_name)
+            
+            if price_permission:
+                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
+                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                rows = len(dfs.iloc[:])
+
+                for i in range(rows):
+                    try:
+                        product_id = str(dfs.iloc[i][0]).strip()
+                        stock = int(dfs.iloc[i][1])
+                        
+                        product_obj = Product.objects.get(product_id=product_id)
+                        channel_product = product_obj.channel_product
+
+                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
+                        
+                        channel_product_dict["stock"] = stock
+
+                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
+                            
+                        channel_product.save()
+
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 GithubWebhook = GithubWebhookAPI.as_view()
 
@@ -6404,3 +6462,5 @@ UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view
 BulkUpdateChannelProductPrice = BulkUpdateChannelProductPriceAPI.as_view()
 
 BulkUpdateChannelProductStock = BulkUpdateChannelProductStockAPI.as_view()
+
+BulkUpdateChannelProductPriceAndStockAPI = BulkUpdateChannelProductPriceAndStockAPI.as_view()
