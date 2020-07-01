@@ -1,20 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils import timezone
 
-from django.db.models.signals import pre_delete
-
-from PIL import Image as IMAGE
 import logging
-import sys
 import json
 import uuid
 
-
-from WAMSApp.models import Product, Image, WebsiteGroup, Category
+from WAMSApp.models import *
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +28,7 @@ class Promotion(models.Model):
             self.uuid = str(uuid.uuid4())
 
         super(Promotion, self).save(*args, **kwargs)
+
 
 class DealsHubProduct(models.Model):
     
@@ -152,39 +145,6 @@ class UnitBannerImage(models.Model):
         super(UnitBannerImage, self).save(*args, **kwargs)
 
 
-class ImageLink(models.Model):
-
-    uuid = models.CharField(max_length=200, unique=True)
-    image = models.ForeignKey(Image, on_delete=models.CASCADE, null=True)
-    http_link = models.TextField(default="")
-
-    def save(self, *args, **kwargs):
-        
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-        
-        super(ImageLink, self).save(*args, **kwargs)
-
-
-class DealsHubHeading(models.Model):
-
-    uuid = models.CharField(max_length=200, unique=True)
-    website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
-    name = models.CharField(max_length=200, default="")
-    categories = models.ManyToManyField(Category, blank=True)
-    image_links = models.ManyToManyField(ImageLink, blank=True)
-
-    def __str__(self):
-        return str(self.name)
-
-    def save(self, *args, **kwargs):
-        
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-        
-        super(DealsHubHeading, self).save(*args, **kwargs)
-
-
 class Address(models.Model):
 
     MR, MISS, MRS, MS, DR = ('Mr', 'Miss', 'Mrs', 'Ms', 'Dr')
@@ -205,7 +165,7 @@ class Address(models.Model):
     state = models.CharField(default="", max_length=255, blank=True)
     postcode = models.CharField(default="", max_length=64, blank=True)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
 
     contact_number = models.CharField(max_length=100, default="", blank=True)
 
@@ -225,15 +185,6 @@ class Address(models.Model):
 
     uuid = models.CharField(max_length=200, default="")
 
-    def get_address(self):
-        address_str = self.title
-        address_str += self.first_name + ' ' + self.last_name + ' '
-        for line in json.loads(self.address):
-            address_str += line + " "
-        address_str += self.state + ' ' + self.postcode
-        address_str += str(self.contact_number)
-        return address_str
-
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
@@ -244,12 +195,10 @@ class Address(models.Model):
         verbose_name = "Address"
         verbose_name_plural = "Addresses"
 
-
 class Cart(models.Model):
 
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
     uuid = models.CharField(max_length=200, default="")
-    order = models.ForeignKey('Order', null=True, blank=True, on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -269,19 +218,10 @@ class UnitCart(models.Model):
     quantity = models.IntegerField(default=1)
 
     price = models.FloatField(default=None, null=True, blank=True)
-    currency = models.CharField(max_length=100, default='AED')
     
     date_created = models.DateTimeField(auto_now_add=True)
 
     uuid = models.CharField(max_length=200, default="")
-
-    ACTIVE, WISHLIST = ('active', 'wishlist')
-    CART_TYPE = (
-        (ACTIVE, "active"),
-        (WISHLIST, "wishlist")
-    )
-
-    cart_type = models.CharField(max_length=100, choices=CART_TYPE, default="active")
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -297,9 +237,9 @@ class UnitCart(models.Model):
 class Voucher(models.Model):
 
     uuid = models.CharField(max_length=200,default="",unique=True)
-    voucher_code = models.CharField(max_length=20,unique=True)
-    start_time = models.DateTimeField(null=False)
-    end_time = models.DateTimeField(null=False)
+    voucher_code = models.CharField(max_length=50,unique=True)
+    start_time = models.DateTimeField(null=True)
+    end_time = models.DateTimeField(null=True)
 
     VOUCHERS_TYPE = (
         ("PD","PERCENTAGE_DISCOUNT"),
@@ -307,7 +247,7 @@ class Voucher(models.Model):
         ("SD","SHIPPING_DISCOUNT"),
     )
 
-    voucher_type = models.CharField(max_length=2,choices=VOUCHERS_TYPE,default="PD")
+    voucher_type = models.CharField(max_length=50, choices=VOUCHERS_TYPE, default="PD")
     percent_discount = models.IntegerField(default=0)
     fixed_discount = models.IntegerField(default=0)
     maximum_discount = models.IntegerField(default=0)
@@ -327,6 +267,7 @@ class Voucher(models.Model):
 
 
 class Order(models.Model):
+
     bundleid = models.CharField(max_length=100, default="")
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
     uuid = models.CharField(max_length=200, default="")
@@ -336,23 +277,15 @@ class Order(models.Model):
     to_pay = models.FloatField(default=0)
     order_placed_date = models.DateTimeField(null=True, default=timezone.now)
 
-    PENDING, PAID, FAILED = ('pending', 'paid', 'failed')
+    PENDING, PAID, FAILED = ('pending', 'paid')
     PAYMENT_STATUS = (
         (PENDING, "pending"),
-        (PAID, "paid"),
-        (FAILED, "failed")
+        (PAID, "paid")
     )
     payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="pending")
     payment_info = models.TextField(default="{}")
     merchant_reference = models.CharField(max_length=200, default="")
 
-
-    NOT_PLACED_ORDER, PLACED_ORDER = ('notplacedorder', 'placedorder')
-    ORDER_TYPE = (
-        (NOT_PLACED_ORDER, "notplacedorder"),
-        (PLACED_ORDER, "placedorder")
-    )
-    order_type = models.CharField(max_length=100, choices=ORDER_TYPE, default="notplacedorder")
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
@@ -364,6 +297,7 @@ class Order(models.Model):
 
 
 class UnitOrder(models.Model):
+
     orderid = models.CharField(max_length=100, default="")
     CURRENT_STATUS = (
         ("ordered", "ordered"),
@@ -411,6 +345,7 @@ class UnitOrder(models.Model):
 
 
 class UnitOrderStatus(models.Model):
+
     unit_order = models.ForeignKey(UnitOrder, on_delete=models.CASCADE)
     STATUS = (
         ("ordered", "ordered"),
@@ -449,7 +384,7 @@ class DealsHubUser(User):
     email_verified = models.BooleanField(default=False)
     contact_verified = models.BooleanField(default=False)
     verification_code = models.CharField(default="", max_length=50)
-    website_group = models.CharField(default="", max_length=100)
+    website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
     
     class Meta:
         verbose_name = "DealsHubUser"
@@ -466,9 +401,8 @@ class DealsHubUser(User):
 class AdminReviewComment(models.Model):
 
     uuid = models.CharField(max_length=200,  unique=True)
-    username = models.CharField(max_length=200)
-    display_name = models.CharField(max_length=200)
-    comment =  models.TextField(max_length=500)
+    user = models.ForeignKey(OmnyCommUser, on_delete=models.CASCADE)
+    comment =  models.TextField(default="")
     created_date = models.DateTimeField(null=True, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
 
@@ -510,8 +444,8 @@ class ReviewContent(models.Model):
 
 class Review(models.Model):
 
-    uuid = models.CharField(max_length=200,  unique=True)
-    dealshub_user = models.ForeignKey(DealsHubUser,on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, unique=True)
+    dealshub_user = models.ForeignKey(DealsHubUser, on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
     content = models.ForeignKey(ReviewContent, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
