@@ -38,25 +38,6 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
         return
 
 
-@api_view(['GET'])
-def current_user(request):
-
-    serializer = UserSerializer(request.user)
-    return Response(serializer.data)
-
-## NO LONGER USED
-class UserList(APIView):
-
-    permission_classes = (AllowAny,)
-
-    def post(self, request, format=None):
-        serializer = UserSerializerWithToken(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class FetchShippingAddressListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -218,145 +199,6 @@ class DeleteShippingAddressAPI(APIView):
         return Response(data=response)
 
 
-class SignUpAPI(APIView):
-
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("SignUpAPI: %s", str(data))
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            email_id = data["emailId"]
-            password = data["password"]
-            confirm_password = data["confirmPassword"]
-            first_name = data["firstName"]
-            last_name = data["lastName"]
-            contact_number = data["contactNumber"]
-
-            if confirm_password==password and DealsHubUser.objects.filter(email=email_id).exists()==False:
-                dealshub_user = DealsHubUser.objects.create(username=email_id, email=email_id, first_name=first_name, last_name=last_name, contact_number=contact_number)
-                dealshub_user.set_password(password)
-                dealshub_user.save()
-                response['status'] = 200
-
-                credentials = {
-                    "username": email_id,
-                    "password": password
-                }
-                ## DOUBT
-                r = requests.post(url=OMNYCOMM_IP+"/token-auth/", data=credentials, verify=False)
-                token = json.loads(r.content)["token"]
-                response["token"] = token
-            else:
-                response['status'] = 409
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SignUpAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-class FetchUserRatingsAPI(APIView):
-
-    permission_classes = [AllowAny]
-
-    def get(self, request, *args, **kwargs):
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("FetchUserRatingsAPI: %s", str(data))
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            response = {
-                "status": 200,
-                "total": "278",
-                "final": "4.5",
-                "overall": [
-                  {
-                    "id": "1",
-                    "rating": "23"
-                  },
-                  {
-                    "id": "2",
-                    "rating": "56"
-                  },
-                  {
-                    "id": "3",
-                    "rating": "83"
-                  },
-                  {
-                    "id": "4",
-                    "rating": "49"
-                  },
-                  {
-                    "id": "5",
-                    "rating": "67"
-                  }
-                ]
-            }
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchUserRatingsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class FetchUserReviewsAPI(APIView):
-
-    permission_classes = [AllowAny]
-
-    def get(self, request, *args, **kwargs):
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("FetchUserReviewsAPI: %s", str(data))
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            response = {
-                "status": 200,
-                "reviews": [
-                    {
-                        "id": "1",
-                        "name": "John Doe",
-                        "review": "Fusce vitae nibh mi. Integer posuere, libero et ullamcorper facilisis, enim eros tincidunt orci, eget vestibulum sapien nisi ut leo. Cras finibus vel est ut mollis. Donec luctus condimentum ante et euismod.",
-                        "date": "June 18, 2019",
-                        "rating": "3"
-                    },
-                    {
-                        "id": "2",
-                        "name": "Anna Kowalsky",
-                        "review": "Fusce vitae nibh mi. Integer posuere, libero et ullamcorper facilisis, enim eros tincidunt orci, eget vestibulum sapien nisi ut leo. Cras finibus vel est ut mollis. Donec luctus condimentum ante et euismod.",
-                        "date": "August 3, 2018",
-                        "rating": "2"
-                    },
-                    {
-                        "id": "3",
-                        "name": "Peter Wargner",
-                        "review": "Fusce vitae nibh mi. Integer posuere, libero et ullamcorper facilisis, enim eros tincidunt orci, eget vestibulum sapien nisi ut leo. Cras finibus vel est ut mollis. Donec luctus condimentum ante et euismod.",
-                        "date": "July 3, 2018",
-                        "rating": "5"
-                    }]
-            }
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchUserReviewsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
 class AddToCartAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -370,7 +212,10 @@ class AddToCartAPI(APIView):
 
             product_uuid = data["productUuid"]
             quantity = int(data["quantity"])
-            price = float(data["price"])
+
+            dealshub_obj = DealsHubProduct.objects.get(product__uuid=product_uuid)
+
+            price = get_actual_price(dealshub_obj)
 
             dealshub_user = DealsHubUser.objects.get(username=request.user.username)
             cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user)
@@ -380,7 +225,7 @@ class AddToCartAPI(APIView):
                 unit_cart_obj.quantity += quantity
                 unit_cart_obj.save()
             else:
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product__product__uuid=product_uuid, cart_type="active", quantity=quantity, price=price)
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_obj, cart_type="active", quantity=quantity, price=price)
 
             update_cart_bill(cart_obj)
 
@@ -507,105 +352,6 @@ class RemoveFromCartAPI(APIView):
             logger.error("RemoveFromCartAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
         return Response(data=response)
-
-
-
-class AddToWishlistAPI(APIView):
-
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("AddToWishlistAPI: %s", str(data))
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            product_uuid = data["productUuid"]
-            quantity = 0
-            price = None
-
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user)
-            dealshub_prod_obj = DealsHubProduct.objects.get(product__uuid=product_uuid)
-            if UnitCart.objects.filter(cart=cart_obj, product__product__uuid=product_uuid, cart_type="wishlist").exists()==False:
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_prod_obj, cart_type="wishlist", quantity=quantity, price=price)
-
-            response["status"] = 200
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddToWishlistAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class FetchWishlistDetailsAPI(APIView):
-
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("FetchWishlistDetailsAPI: %s", str(data))
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user)
-            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj, cart_type="wishlist")
-            unit_cart_list = []
-            for unit_cart_obj in unit_cart_objs:
-                temp_dict = {}
-                temp_dict["uuid"] = unit_cart_obj.uuid
-                temp_dict["dateCreated"] = str(timezone.localtime(unit_cart_obj.date_created).strftime("%d %b, %Y"))
-                product_obj = unit_cart_obj.product.product
-                temp_dict["productName"] = product_obj.product_name
-                try:
-                    lifestyle_image_obj = product_obj.lifestyle_images.all()[0]
-                    temp_dict["productImageUrl"] = lifestyle_image_obj.thumbnail.url
-                except Exception as e:
-                    temp_dict["productImageUrl"] = ""
-
-                temp_dict["productUuid"] = unit_cart_obj.product.product.uuid
-                unit_cart_list.append(temp_dict)
-
-            response["unitCartList"] = unit_cart_list
-            response["status"] = 200
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchWishlistDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class RemoveFromWishlistAPI(APIView):
-
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("RemoveFromWishlistAPI: %s", str(data))
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            unit_cart_uuid = data["unitCartUuid"]
-
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user)
-            UnitCart.objects.get(cart=cart_obj, uuid=unit_cart_uuid).delete()
-
-            response["status"] = 200
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RemoveFromWishlistAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
 
 
 class SelectAddressAPI(APIView):
@@ -836,10 +582,7 @@ class PlaceOrderAPI(APIView):
         return Response(data=response)
 
 
-
 class CancelOrderAPI(APIView):
-
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -929,10 +672,7 @@ class FetchOrderListAPI(APIView):
         return Response(data=response)
 
 
-
 class FetchOrderListAdminAPI(APIView):
-
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -1007,7 +747,6 @@ class FetchOrderListAdminAPI(APIView):
         return Response(data=response)
 
 
-
 class FetchOrderDetailsAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -1058,7 +797,7 @@ class FetchOrderDetailsAPI(APIView):
 
             uuid_list = []
             for unit_order_obj in unit_order_objs:
-                uuid_list.append(unit_order_obj.product_code)
+                uuid_list.append(unit_order_obj.product.product.code)
 
             productInfo = fetch_bulk_product_info(uuid_list)
 
@@ -1184,8 +923,6 @@ class UpdateUserProfileAPI(APIView):
 
 
 class FetchCustomerListAPI(APIView):
-
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -1922,81 +1659,6 @@ class ContactUsSendEmailAPI(APIView):
         return Response(data=response)
 
 
-class SendOTPSMSAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("SendOTPSMSAPI: %s", str(data))
-            if not isinstance(data, dict):
-                data = json.loads(data)
-            
-            contact_number = data["contactNumber"]
-
-            digits = "0123456789"
-            OTP = "" 
-            for i in range(6) : 
-                OTP += digits[int(math.floor(random.random()*10))]
-
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            dealshub_user_obj.verification_code = OTP
-
-            if dealshub_user_obj.contact_number!=contact_number:
-                dealshub_user_obj.contact_number = contact_number
-                dealshub_user_obj.contact_verified = False
-
-            dealshub_user_obj.save()
-
-            message = "OTP is " + OTP
-
-            # Trigger SMS
-            url = "http://mshastra.com/sendurlcomma.aspx?user=20087732&pwd=Western@13468&senderid=WIGME&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
-            #url = "http://mshastra.com/sendurlcomma.aspx?user=20076835&pwd=nesto@online&senderid=NESTO&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
-            r = requests.get(url)
-
-            response["status"] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendOTPSMSAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-class VerifyOTPSMSAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("VerifyOTPSMSAPI: %s", str(data))
-            if not isinstance(data, dict):
-                data = json.loads(data)
-            
-            otp = data["otp"]
-
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            verified = False
-            if dealshub_user_obj.verification_code==otp:
-                verified = True
-                dealshub_user_obj.contact_verified = True
-                dealshub_user_obj.save()
-
-            response["verified"] = verified
-            response["status"] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("VerifyOTPSMSAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
 class SendOTPSMSLoginAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -2222,7 +1884,7 @@ class UpdateRatingAPI(APIView):
 
 
 class AddAdminCommentAPI(APIView):
-    permission_classes = [AllowAny]
+    
     def post(self, request, *arg, **kwargs):
         response = {}
         response['status'] = 500
@@ -2263,7 +1925,7 @@ class AddAdminCommentAPI(APIView):
 
 
 class UpdateAdminCommentAPI(APIView):
-    permission_classes = [AllowAny]
+    
     def post(self, request, *arg, **kwargs):
         response = {}
         response['status'] = 500
@@ -2515,12 +2177,6 @@ CreateShippingAddress = CreateShippingAddressAPI.as_view()
 
 DeleteShippingAddress = DeleteShippingAddressAPI.as_view()
 
-SignUp = SignUpAPI.as_view()
-
-FetchUserRatings = FetchUserRatingsAPI.as_view()
-
-FetchUserReviews = FetchUserReviewsAPI.as_view()
-
 AddToCart = AddToCartAPI.as_view()
 
 FetchCartDetails = FetchCartDetailsAPI.as_view()
@@ -2528,12 +2184,6 @@ FetchCartDetails = FetchCartDetailsAPI.as_view()
 UpdateCartDetails = UpdateCartDetailsAPI.as_view()
 
 RemoveFromCart = RemoveFromCartAPI.as_view()
-
-AddToWishlist = AddToWishlistAPI.as_view()
-
-FetchWishlistDetails = FetchWishlistDetailsAPI.as_view()
-
-RemoveFromWishlist = RemoveFromWishlistAPI.as_view()
 
 SelectAddress = SelectAddressAPI.as_view()
 
@@ -2576,10 +2226,6 @@ MakePurchaseRequestInstallment = MakePurchaseRequestInstallmentAPI.as_view()
 CalculateSignature = CalculateSignatureAPI.as_view()
 
 ContactUsSendEmail = ContactUsSendEmailAPI.as_view()
-
-SendOTPSMS = SendOTPSMSAPI.as_view()
-
-VerifyOTPSMS = VerifyOTPSMSAPI.as_view()
 
 SendOTPSMSLogin = SendOTPSMSLoginAPI.as_view()
 
