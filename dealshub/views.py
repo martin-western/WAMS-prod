@@ -1895,12 +1895,14 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                 hovering_banner_img = section_obj.hovering_banner_image
                 if hovering_banner_img is not None:
+                    temp_dict["hoveringBannerUuid"] = section_obj.hovering_banner_image.pk
                     if resolution=="low":
                         temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.mid_image.url
                     else:
                         temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.image.url
                 else:
                     temp_dict["hoveringBannerUrl"] = ""
+                    temp_dict["hoveringBannerUuid"] = ""
 
                 temp_products = []
 
@@ -1991,12 +1993,14 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     hovering_banner_img = unit_banner_image_obj.hovering_banner_image
                     if hovering_banner_img is not None:
+                        temp_dict2["hoveringBannerUuid"] = unit_banner_image_obj.hovering_banner_image.pk
                         if resolution=="low":
                             temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
                         else:
                             temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
                     else:
                         temp_dict2["hoveringBannerUrl"] = ""
+                        temp_dict2["hoveringBannerUuid"] = ""
 
                     promotion_obj = unit_banner_image_obj.promotion
                     if promotion_obj is None:
@@ -2651,7 +2655,7 @@ class AddUnitBannerHoveringImageAPI(APIView):
             unit_banner_image_obj.hovering_banner_image = image_obj
             unit_banner_image_obj.save()
 
-            response['uuid'] = image_obj.uuid
+            response['uuid'] = image_obj.pk
             response['url'] = image_obj.image.url
             response['status'] = 200
 
@@ -2708,7 +2712,7 @@ class AddSectionHoveringImageAPI(APIView):
             section_obj.hovering_banner_image = image_obj
             section_obj.save()
 
-            response['uuid'] = image_obj.uuid
+            response['uuid'] = image_obj.pk
             response['url'] = image_obj.image.url
             response['status'] = 200
 
@@ -2759,7 +2763,7 @@ class DeleteHoveringImageAPI(APIView):
 
             uuid = data["uuid"]
 
-            Image.objects.get(uuid=uuid).delete()
+            Image.objects.get(pk=uuid).delete()
 
             response['status'] = 200
 
