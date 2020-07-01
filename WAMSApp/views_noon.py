@@ -196,52 +196,53 @@ class BulkUpdateNoonProductStockAPI(APIView):
                     return Response(data=response)
 
                 rows = len(dfs.iloc[:])
+                excel_header = str(dfs.iloc[0][0]).strip()
 
-                response["excel_errors"] = []
+                if data["option"] != excel_header:
+                    response['status'] = 405
+                    logger.warning("BulkUpdateNoonProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                    return Response(data=response)
+
+                excel_errors = []
 
                 for i in range(rows):
                     try:
 
-                        if data["option"] == "Product ID" and str(dfs.iloc[0][0]).strip() == "Product ID":
+                        if data["option"] == "Product ID":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(product_id=search_key)
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key)
+                                excel_errors.append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] == "Seller SKU" and str(dfs.iloc[0][0]).strip() == "Seller SKU":
+                        elif data["option"] == "Seller SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(base_product__seller_sku=search_key)
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key)
+                                excel_errors.append("More then one product found for " + search_key)
                                 pass
 
-                        elif data["option"] == "Noon SKU" and str(dfs.iloc[0][0]).strip() == "Noon SKU":
+                        elif data["option"] == "Noon SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
                             
                             try :
                                 product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key )
+                                excel_errors.append("More then one product found for " + search_key )
                                 pass
 
-                        elif data["option"] == "Partner SKU" and str(dfs.iloc[0][0]).strip() == "Partner SKU":
+                        elif data["option"] == "Partner SKU":
                             search_key = str(dfs.iloc[i][0]).strip()
 
                             try :
                                 product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
                             except Exception as e:
-                                response["excel_errors"].append("More then one product found for " + search_key)
+                                excel_errors.append("More then one product found for " + search_key)
                                 pass
-
-                        else:
-                            response['status'] = 405
-                            logger.warning("BulkUpdateNoonProductStockAPI Wrong Template Uploaded for " + data["option"])
-                            return Response(data=response)
 
                         try :
                             stock = int(dfs.iloc[i][1])
@@ -263,6 +264,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         logger.error("BulkUpdateNoonProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
+                response["excel_errors"] = excel_errors
                 response['status'] = 200
 
             else :
