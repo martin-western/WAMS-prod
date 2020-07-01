@@ -24,6 +24,7 @@ from django.db.models import Count
 from django.conf import settings
 
 from WAMSApp.views_sourcing import *
+from WAMSApp.views_noon import *
 from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_orders import *
 from WAMSApp.views_mws_amazon_uk import *
@@ -6097,7 +6098,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             stock_permission = custom_permission_stock(request.user, channel_name)
 
             if price_permission:
-                
+
                 if "now_price" in data:
                     if channel_name == "Noon":
                         channel_product_dict["sale_price"] = float(data["now_price"])

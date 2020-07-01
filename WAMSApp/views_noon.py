@@ -192,9 +192,9 @@ class BulkUpdateNoonProductStockAPI(APIView):
                 logger.warning("BulkUpdateNoonProductStockAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
 
-            price_permission = custom_permission_price(request.user, channel_name)
+            stock_permission = custom_permission_stock(request.user, channel_name)
             
-            if price_permission:
+            if stock_permission:
                 path = default_storage.save('tmp/bulk-upload-noon-stock.xlsx', data["import_file"])
                 path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
@@ -277,7 +277,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
 
             else :
                 response['status'] = 403
-                logger.warning("BulkUpdateNoonProductStockAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
+                logger.warning("BulkUpdateNoonProductStockAPI Restricted Access for Stock Updation on "+channel_name+" Channel!")
                 return Response(data=response)
 
         except Exception as e:
@@ -308,8 +308,9 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                 return Response(data=response)
 
             price_permission = custom_permission_price(request.user, channel_name)
-            
-            if price_permission:
+            stock_permission = custom_permission_stock(request.user, channel_name)
+
+            if price_permission and stock_permission:
                 path = default_storage.save('tmp/bulk-upload-noon-price-and-stock.xlsx', data["import_file"])
                 path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
@@ -401,7 +402,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
 
             else :
                 response['status'] = 403
-                logger.warning("BulkUpdateNoonProductPriceAndStockAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
+                logger.warning("BulkUpdateNoonProductPriceAndStockAPI Restricted Access for Price and Stock Updation on "+channel_name+" Channel!")
                 return Response(data=response)
 
         except Exception as e:
