@@ -605,12 +605,16 @@ class SearchAPI(APIView):
 
                 category_objs = Category.objects.filter(super_category=super_category_obj)
                 for category_obj in category_objs:
+                    if DealsHubProduct.objects.filter(is_published=True, product__base_product__category=category_obj).exclude(now_price=0).exists()==False:
+                        continue
                     temp_dict = {}
                     temp_dict["name"] = category_obj.name
                     temp_dict["uuid"] = category_obj.uuid
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
+                        if DealsHubProduct.objects.filter(is_published=True, product__base_product__sub_category=sub_category_obj).exclude(now_price=0).exists()==False:
+                            continue
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.name
                         temp_dict2["uuid"] = sub_category_obj.uuid
