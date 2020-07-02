@@ -139,10 +139,10 @@ urlpatterns = [
 
     url(r'^fetch-statistics/$',views.FetchStatistics),
     url(r'^update-channel-product-stock-and-price/$',views.UpdateChannelProductStockandPrice),
-    url(r'^bulk-update-channel-product-price/$',views.BulkUpdateChannelProductPrice),
-    url(r'^bulk-update-channel-product-stock/$',views.BulkUpdateChannelProductStock),
 
-
+    url(r'^bulk-update-noon-product-price/$',views.BulkUpdateNoonProductPrice),
+    url(r'^bulk-update-noon-product-stock/$',views.BulkUpdateNoonProductStock),
+    url(r'^bulk-update-noon-product-price-and-stock/$',views.BulkUpdateNoonProductStock),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
