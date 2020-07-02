@@ -7,6 +7,7 @@ import json
 import uuid
 
 from WAMSApp.models import *
+from dealshub.core_utils import *
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,8 @@ class DealsHubProduct(models.Model):
     properties = models.TextField(null=True, blank=True, default="{}")
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
     is_published = models.BooleanField(default=False)
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    uuid = models.CharField(max_length=200, default="", unique=True)
 
     class Meta:
         verbose_name = "DealsHub Product"
@@ -49,15 +52,67 @@ class DealsHubProduct(models.Model):
     def __str__(self):
         return str(self.product)
 
+    def get_currency(self):
+        return str(self.location_group.location.currency)
+
+    def get_category(self):
+        if self.base_product_obj.category!=None:
+            return str(self.product.base_product_obj.category)
+        return ""
+
+    def get_sub_category(self):
+        if self.base_product_obj.sub_category!=None:
+            return str(self.product.base_product_obj.sub_category)
+        return ""
+
+    def get_name(self):
+        return str(self.product.product_name)
+
+    def get_product_id(self):
+        return str(self.product.product_id)
+
+    def get_brand(self):
+        return str(self.product.base_product.brand)
+
+    def get_seller_sku(self):
+        return str(self.product.base_product.seller_sku)
+
+    def get_warranty(self):
+        return str(self.product.warranty)
+
+    def get_actual_price(self):
+        if self.promotion==None:
+            return self.now_price
+        if check_valid_promotion(self.promotion)!=None:
+            return self.promotional_price
+        return self.now_price
+
+    def get_main_image_url(self):
+        main_images_list = ImageBucket.objects.none()
+        main_images_objs = MainImages.objects.filter(product=self.product)
+        for main_images_obj in main_images_objs:
+            main_images_list |= main_images_obj.main_images.all()
+        main_images_list = main_images_list.distinct()
+        if main_images_list.all().count()>0:
+            return main_images_list.all()[0].image.mid_image.url
+        return Config.objects.all()[0].product_404_image.image.url
+
+    def save(self, *args, **kwargs):
+        
+        if self.uuid == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(DealsHubProduct, self).save(*args, **kwargs)
+
 
 class Section(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=300, default="")
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
-    products = models.ManyToManyField(Product, blank=True)
+    products = models.ManyToManyField(DealsHubProduct, blank=True)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
@@ -98,7 +153,7 @@ class Banner(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
     name = models.CharField(max_length=100, default="")
-    website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     is_published = models.BooleanField(default=False)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
@@ -131,7 +186,7 @@ class UnitBannerImage(models.Model):
     mobile_image = models.ForeignKey(Image, related_name="mobile_image", on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
-    products = models.ManyToManyField(Product, blank=True)
+    products = models.ManyToManyField(DealsHubProduct, blank=True)
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
 
     def __str__(self):
@@ -195,10 +250,54 @@ class Address(models.Model):
         verbose_name = "Address"
         verbose_name_plural = "Addresses"
 
+
+class Location(models.Model):
+
+    name = models.CharField(max_length=200, default="")
+    uuid = models.CharField(max_length=200, default="")
+    currency = models.CharField(max_length=20, default="AED")
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(Location, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Location"
+        verbose_name_plural = "Location"
+
+
+class LocationGroup(models.Model):
+
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    website_group = models.ForeignKey(WebsiteGroup, on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+
+    def __str__(self):
+        return str(self.location)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(LocationGroup, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "LocationGroup"
+        verbose_name_plural = "LocationGroup"
+
+
 class Cart(models.Model):
 
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
     uuid = models.CharField(max_length=200, default="")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -254,6 +353,7 @@ class Voucher(models.Model):
     customer_usage_limit = models.IntegerField(default=0)
     maximum_usage_limit = models.IntegerField(default=0)
     minimum_purchase_amount = models.IntegerField(default=0)
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return str(self.uuid)
@@ -287,6 +387,7 @@ class Order(models.Model):
     merchant_reference = models.CharField(max_length=200, default="")
 
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
         if self.pk == None:

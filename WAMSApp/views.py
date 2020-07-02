@@ -201,6 +201,7 @@ class CreateNewBaseProductAPI(APIView):
 
         return Response(data=response)
 
+
 class CreateNewProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -340,6 +341,7 @@ class SaveNoonChannelProductAPI(APIView):
 
         return Response(data=response)
 
+
 class SaveAmazonUKChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -402,6 +404,7 @@ class SaveAmazonUKChannelProductAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class SaveAmazonUAEChannelProductAPI(APIView):
 
@@ -467,6 +470,7 @@ class SaveAmazonUAEChannelProductAPI(APIView):
 
         return Response(data=response)
 
+
 class SaveEbayChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -531,6 +535,7 @@ class SaveEbayChannelProductAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class FetchChannelProductAPI(APIView):
 
@@ -644,6 +649,7 @@ class FetchChannelProductAPI(APIView):
                              e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class FetchBaseProductDetailsAPI(APIView):
 
