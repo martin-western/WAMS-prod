@@ -95,25 +95,21 @@ urlpatterns = [
 #####################################################
 
 urlpatterns += [
-    url(r'^api/dealshub/v1.0/address/fetch-shipping-address-list/$', views.FetchShippingAddressList),
-    url(r'^api/dealshub/v1.0/address/edit-shipping-address/$', views.EditShippingAddress),
-    url(r'^api/dealshub/v1.0/address/create-shipping-address/$', views.CreateShippingAddress),
-    url(r'^api/dealshub/v1.0/address/delete-shipping-address/$', views.DeleteShippingAddress),
+    url(r'^api/dealshub/v1.0/address/fetch-shipping-address-list/$', views.FetchShippingAddressList), # Tested
+    url(r'^api/dealshub/v1.0/address/edit-shipping-address/$', views.EditShippingAddress), # Tested
+    url(r'^api/dealshub/v1.0/address/create-shipping-address/$', views.CreateShippingAddress), # Tested
+    url(r'^api/dealshub/v1.0/address/delete-shipping-address/$', views.DeleteShippingAddress), # Tested
 
-    url(r'^api/dealshub/v1.0/product/fetch-product-details/$', views.FetchProductDetails),
-    url(r'^api/dealshub/v1.0/product/fetch-categories/$', views.FetchCategories),
-    url(r'^api/dealshub/v1.0/product/search/$', views.Search),
+    url(r'^api/dealshub/v1.0/product/fetch-product-details/$', views.FetchProductDetails), # Already exists
+    url(r'^api/dealshub/v1.0/product/fetch-categories/$', views.FetchCategories), # Already exists
+    url(r'^api/dealshub/v1.0/product/search/$', views.Search),  # Already exists
 
-    url(r'^api/dealshub/v1.0/cart/add-to-cart/$', views.AddToCart),
-    url(r'^api/dealshub/v1.0/cart/fetch-cart-details/$', views.FetchCartDetails),
-    url(r'^api/dealshub/v1.0/cart/update-cart-details/$', views.UpdateCartDetails),
-    url(r'^api/dealshub/v1.0/cart/remove-from-cart/$', views.RemoveFromCart),
+    url(r'^api/dealshub/v1.0/cart/add-to-cart/$', views.AddToCart), # Tested
+    url(r'^api/dealshub/v1.0/cart/fetch-cart-details/$', views.FetchCartDetails), # Tested
+    url(r'^api/dealshub/v1.0/cart/update-cart-details/$', views.UpdateCartDetails), # Tested
+    url(r'^api/dealshub/v1.0/cart/remove-from-cart/$', views.RemoveFromCart),   # Tested
 
-    url(r'^api/dealshub/v1.0/cart/add-to-wishlist/$', views.AddToWishlist),
-    url(r'^api/dealshub/v1.0/cart/fetch-wishlist-details/$', views.FetchWishlistDetails),
-    url(r'^api/dealshub/v1.0/cart/remove-from-wishlist/$', views.RemoveFromWishlist),
-
-    url(r'^api/dealshub/v1.0/checkout/select-address/$', views.SelectAddress),
+    url(r'^api/dealshub/v1.0/checkout/select-address/$', views.SelectAddress), # Tested
     url(r'^api/dealshub/v1.0/checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^api/dealshub/v1.0/checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
     url(r'^api/dealshub/v1.0/checkout/place-order/$', views.PlaceOrder),
@@ -151,9 +147,6 @@ urlpatterns += [
 
 
     url(r'^api/dealshub/v1.0/contact-us-send-email/$', views.ContactUsSendEmail),
-
-    url(r'^api/dealshub/v1.0/send-otp-sms/$', views.SendOTPSMS),
-    url(r'^api/dealshub/v1.0/verify-otp-sms/$', views.VerifyOTPSMS),
 
     url(r'^api/dealshub/v1.0/send-otp-sms-login/$', views.SendOTPSMSLogin),
     url(r'^api/dealshub/v1.0/verify-otp-sms-login/$', views.VerifyOTPSMSLogin),
