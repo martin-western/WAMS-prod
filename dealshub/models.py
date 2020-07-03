@@ -294,38 +294,6 @@ class UnitCart(models.Model):
         verbose_name_plural = "Unit Carts"
 
 
-class Voucher(models.Model):
-
-    uuid = models.CharField(max_length=200,default="",unique=True)
-    voucher_code = models.CharField(max_length=20,unique=True)
-    start_time = models.DateTimeField(null=False)
-    end_time = models.DateTimeField(null=False)
-
-    VOUCHERS_TYPE = (
-        ("PD","PERCENTAGE_DISCOUNT"),
-        ("FD","FIXED_DISCOUNT"),
-        ("SD","SHIPPING_DISCOUNT"),
-    )
-
-    voucher_type = models.CharField(max_length=2,choices=VOUCHERS_TYPE,default="PD")
-    percent_discount = models.IntegerField(default=0)
-    fixed_discount = models.IntegerField(default=0)
-    maximum_discount = models.IntegerField(default=0)
-    customer_usage_limit = models.IntegerField(default=0)
-    maximum_usage_limit = models.IntegerField(default=0)
-    minimum_purchase_amount = models.IntegerField(default=0)
-
-    def __str__(self):
-        return str(self.uuid)
-
-    def save(self, *args, **kwargs):
-
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-
-        super(Voucher, self).save(*args, **kwargs)
-
-
 class Order(models.Model):
     bundleid = models.CharField(max_length=100, default="")
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
@@ -353,7 +321,6 @@ class Order(models.Model):
         (PLACED_ORDER, "placedorder")
     )
     order_type = models.CharField(max_length=100, choices=ORDER_TYPE, default="notplacedorder")
-    voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
