@@ -358,12 +358,16 @@ class SearchAPI(APIView):
 
                 category_objs = Category.objects.filter(super_category=super_category_obj)
                 for category_obj in category_objs:
+                    if DealsHubProduct.objects.filter(is_published=True, product__base_product__category=category_obj).exclude(now_price=0).exists()==False:
+                        continue
                     temp_dict = {}
                     temp_dict["name"] = category_obj.name
                     temp_dict["uuid"] = category_obj.uuid
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
+                        if DealsHubProduct.objects.filter(is_published=True, product__base_product__sub_category=sub_category_obj).exclude(now_price=0).exists()==False:
+                            continue
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.name
                         temp_dict2["uuid"] = sub_category_obj.uuid
@@ -1096,6 +1100,17 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["end_time"] = str(promotion_obj.end_time)[:19]
                     temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
 
+                hovering_banner_img = section_obj.hovering_banner_image
+                if hovering_banner_img is not None:
+                    temp_dict["hoveringBannerUuid"] = section_obj.hovering_banner_image.pk
+                    if resolution=="low":
+                        temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.mid_image.url
+                    else:
+                        temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.image.url
+                else:
+                    temp_dict["hoveringBannerUrl"] = ""
+                    temp_dict["hoveringBannerUuid"] = ""
+
                 temp_products = []
 
                 section_products = section_obj.products.all()
@@ -1174,6 +1189,17 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
                         else:
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+
+                    hovering_banner_img = unit_banner_image_obj.hovering_banner_image
+                    if hovering_banner_img is not None:
+                        temp_dict2["hoveringBannerUuid"] = unit_banner_image_obj.hovering_banner_image.pk
+                        if resolution=="low":
+                            temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
+                        else:
+                            temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
+                    else:
+                        temp_dict2["hoveringBannerUrl"] = ""
+                        temp_dict2["hoveringBannerUuid"] = ""
 
                     promotion_obj = unit_banner_image_obj.promotion
                     if promotion_obj is None:
@@ -1590,7 +1616,7 @@ class DeleteProductFromUnitBannerAPI(APIView):
 
             unit_banner_image_obj.products.remove(dealshub_product_obj)
             unit_banner_image_obj.save()
-            
+
             response['status'] = 200
 
         except Exception as e:
@@ -1647,6 +1673,260 @@ class FetchUnitBannerProductsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUnitBannerProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class AddUnitBannerHoveringImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddUnitBannerHoveringImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            hovering_banner_image = data["image"]
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=hovering_banner_image)
+            unit_banner_image_obj.hovering_banner_image = image_obj
+            unit_banner_image_obj.save()
+
+            response['uuid'] = image_obj.pk
+            response['url'] = image_obj.image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchUnitBannerHoveringImageAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchUnitBannerHoveringImageAPI: %s", str(data))
+            uuid = data["uuid"]
+
+            unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
+
+            if unit_banner_image_obj.hovering_banner_image is not None:
+                response["url"] = unit_banner_image_obj.hovering_banner_image.image.url
+            else:
+                response["url"] = ""
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class AddSectionHoveringImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddSectionHoveringImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            hovering_banner_image = data["image"]
+
+            section_obj = Section.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=hovering_banner_image)
+            section_obj.hovering_banner_image = image_obj
+            section_obj.save()
+
+            response['uuid'] = image_obj.pk
+            response['url'] = image_obj.image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddSectionHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class FetchSectionHoveringImageAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchSectionHoveringImageAPI: %s", str(data))
+            uuid = data["uuid"]
+
+            section_obj = Section.objects.get(uuid=uuid)
+
+            if section_obj.hovering_banner_image is not None:
+                response["url"] = section_obj.hovering_banner_image.image.url
+            else:
+                response["url"] = ""
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSectionHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class DeleteHoveringImageAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteHoveringImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+
+            Image.objects.get(pk=uuid).delete()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class SearchCategoryAutocompleteAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchCategoryAutocompleteAPI: %s", str(data))
+
+            search_string = data["searchString"]
+
+            category_objs = Category.objects.filter(name__icontains=search_string)[:10]
+
+            category_list = []
+            for category_obj in category_objs:
+                temp_dict = {}
+                temp_dict["name"] = category_obj.name
+                temp_dict["uuid"] = category_obj.uuid
+                category_list.append(temp_dict)
+
+            response["categoryList"] = category_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchCategoryAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class AddCategoryToWebsiteGroupAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddCategoryToWebsiteGroupAPI: %s", str(data))
+
+            category_uuid = data["categoryUuid"]
+            website_group_name = data["websiteGroupName"]
+
+            category_obj = Category.objects.get(uuid=category_uuid)
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            website_group_obj.categories.add(category_obj)
+            website_group_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddCategoryToWebsiteGroupAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class RemoveCategoryFromWebsiteGroupAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("RemoveCategoryFromWebsiteGroupAPI: %s", str(data))
+
+            category_uuid = data["categoryUuid"]
+            website_group_name = data["websiteGroupName"]
+
+            category_obj = Category.objects.get(uuid=category_uuid)
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            website_group_obj.categories.remove(category_obj)
+            website_group_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveCategoryFromWebsiteGroupAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
+class UpdateCategoryImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateCategoryImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            image = data["image"]
+
+            category_obj = Category.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=image)
+            category_obj.image = image_obj
+            category_obj.save()
+
+            response["imageUrl"] = image_obj.mid_image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateCategoryImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 

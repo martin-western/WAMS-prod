@@ -32,7 +32,7 @@ class Promotion(models.Model):
 
 
 class DealsHubProduct(models.Model):
-    
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
     was_price = models.FloatField(default=0)
     now_price = models.FloatField(default=0)
@@ -112,7 +112,10 @@ class Section(models.Model):
     name = models.CharField(max_length=300, default="")
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
+
     products = models.ManyToManyField(DealsHubProduct, blank=True)
+    hovering_banner_image = models.ForeignKey(Image, related_name="section_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
+
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
@@ -186,7 +189,10 @@ class UnitBannerImage(models.Model):
     mobile_image = models.ForeignKey(Image, related_name="mobile_image", on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
+
     products = models.ManyToManyField(DealsHubProduct, blank=True)
+    hovering_banner_image = models.ForeignKey(Image, related_name="unit_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
+
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
 
     def __str__(self):
