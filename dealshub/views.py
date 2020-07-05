@@ -25,20 +25,13 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db.models import Count
-from django.conf import settings
 
-from io import BytesIO as StringIO
-from django.core.files.uploadedfile import InMemoryUploadedFile
-
-import barcode
 import xmltodict
 import requests
 import json
 import os
 import xlrd
-import csv
 import datetime
-import boto3
 import uuid
 import pandas as pd
 
@@ -259,6 +252,7 @@ class FetchSuperCategoriesAPI(APIView):
 
 
 class SearchAPI(APIView):
+    
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
