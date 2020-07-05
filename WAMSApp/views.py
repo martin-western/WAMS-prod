@@ -29,7 +29,6 @@ from WAMSApp.views_mws_orders import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
 from WAMSApp.views_noon_integration import *
-from WAMSApp.views_dh import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
 
