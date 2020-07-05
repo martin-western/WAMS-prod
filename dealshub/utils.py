@@ -5,7 +5,6 @@ from dealshub.core_utils import *
 import datetime
 from django.utils import timezone
 
-from dealshub.serializers import UserSerializer
 import hashlib
 import sys
 import logging
@@ -42,12 +41,6 @@ def get_actual_price(dealshub_product_obj):
 #####################################################
 
 logger = logging.getLogger(__name__)
-
-def my_jwt_response_handler(token, user=None, request=None):
-    return {
-        'token': token,
-        'user': UserSerializer(user, context={'request': request}).data
-    }
 
 
 def calc_response_signature(PASS, data):
@@ -504,7 +497,7 @@ def send_order_cancelled_mail(unit_order_obj):
 
 
 
-def contact_us_send_email(your_email, message):
+def contact_us_send_email(your_email, message, to_email, password):
     try:
 
         body = """
@@ -514,22 +507,12 @@ def contact_us_send_email(your_email, message):
         send_mail(
             subject='Contact Enquiry',
             message=body,
-            from_email='support@wigme.com',
-            auth_user='support@wigme.com',
-            auth_password='western@123',
-            recipient_list=["support@wigme.com"],
+            from_email=to_email,
+            auth_user=to_email,
+            auth_password=password,
+            recipient_list=[to_email],
             fail_silently=False
         )
-
-        # email = EmailMultiAlternatives(
-        #             auth_user='support@wigme.com',
-        #             auth_password='western@123',
-        #             subject='Contact Enquiry', 
-        #             body=body, 
-        #             from_email='support@wigme.com',
-        #             to=['support@wigme.com']
-        #         )
-        # email.send(fail_silently=False)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -714,3 +697,45 @@ def fetch_company_credentials(website_group_name):
     credentials = json.loads(website_group_obj.payment_credentials)
 
     return credentials
+
+
+def refresh_dealshub_stock(dealshub_product_obj):
+    
+    brand = str(dealshub_product_obj.product.base_product.brand).lower()
+    seller_sku = str(dealshub_product_obj.product.base_product.seller_sku)
+    stock = 0
+    if "wigme" in seller_sku.lower():
+        return
+    if brand=="geepas":
+        stock1 = fetch_refresh_stock(seller_sku, "1070", "TG01")
+        stock2 = fetch_refresh_stock(seller_sku, "1000", "AFS1")
+        stock = max(stock1, stock2)
+    elif brand=="baby plus":
+        stock = fetch_refresh_stock(seller_sku, "5550", "TG01")
+    elif brand=="royalford":
+        stock = fetch_refresh_stock(seller_sku, "3000", "AFS1")
+    elif brand=="krypton":
+        stock = fetch_refresh_stock(seller_sku, "2100", "TG01")
+    elif brand=="olsenmark":
+        stock = fetch_refresh_stock(seller_sku, "1100", "AFS1")
+    elif brand=="ken jardene":
+        stock = fetch_refresh_stock(seller_sku, "5550", "AFS1") # 
+    elif brand=="younglife":
+        stock = fetch_refresh_stock(seller_sku, "5000", "AFS1")
+    elif brand=="delcasa":
+        stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
+
+    if stock > 10:
+        dealshub_product_obj.stock = 5
+    else:
+        dealshub_product_obj.stock = 0
+
+    dealshub_product_obj.save()
+
+
+def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
+    if voucher_obj.customer_usage_limit==0:
+        return False
+    if Order.objects.filter(owner=dealshub_user_obj, voucher=voucher_obj).count()<voucher_obj.customer_usage_limit:
+        return False
+    return True

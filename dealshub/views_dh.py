@@ -11,7 +11,6 @@ from rest_framework.permissions import AllowAny
 from dealshub.models import *
 from dealshub.constants import *
 from dealshub.utils import *
-from dealshub.serializers import UserSerializer, UserSerializerWithToken
 from dealshub.views_oc import *
 
 from django.core.paginator import Paginator
@@ -41,6 +40,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 class FetchShippingAddressListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -50,7 +50,10 @@ class FetchShippingAddressListAPI(APIView):
                 data = json.loads(data)
 
             user = request.user
-            address_objs = Address.objects.filter(is_shipping=True, is_deleted=False, user=user)
+
+            location_group_uuid = data["locationGroupUuid"]
+
+            address_objs = Address.objects.filter(is_shipping=True, is_deleted=False, user=user, location_group__uuid=location_group_uuid)
 
             address_list = []
             for address_obj in address_objs:
@@ -62,6 +65,7 @@ class FetchShippingAddressListAPI(APIView):
                 temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
                 temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
                 temp_dict['state'] = address_obj.state
+                temp_dict['country'] = address_obj.get_country()
                 temp_dict['postcode'] = address_obj.postcode
                 temp_dict['contactNumber'] = str(address_obj.contact_number)
                 temp_dict['tag'] = str(address_obj.tag)
@@ -74,14 +78,15 @@ class FetchShippingAddressListAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchShippingAddressListAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("FetchShippingAddressListAPI: %s at %s",e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class EditShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -137,6 +142,9 @@ class CreateShippingAddressAPI(APIView):
 
             user_obj = User.objects.get(username=request.user.username)
 
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
             first_name = data["firstName"]
             last_name = data["lastName"]
             line1 = data["line1"]
@@ -158,15 +166,14 @@ class CreateShippingAddressAPI(APIView):
                 user_obj.last_name = last_name
                 user_obj.save()
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=user_obj, tag=tag)
+            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=user_obj, tag=tag, location_group=location_group_obj)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateShippingAddressAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -174,6 +181,7 @@ class CreateShippingAddressAPI(APIView):
 class DeleteShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -193,8 +201,7 @@ class DeleteShippingAddressAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteShippingAddressAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -202,6 +209,7 @@ class DeleteShippingAddressAPI(APIView):
 class AddToCartAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -213,19 +221,27 @@ class AddToCartAPI(APIView):
             product_uuid = data["productUuid"]
             quantity = int(data["quantity"])
 
-            dealshub_obj = DealsHubProduct.objects.get(product__uuid=product_uuid)
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            price = get_actual_price(dealshub_obj)
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
 
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user)
+            if dealshub_product_obj.location_group!=location_group_obj:
+                response["status"] = 403
+                logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
+                return Response(data=response)
+
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
-            if UnitCart.objects.filter(cart=cart_obj, product__product__uuid=product_uuid, cart_type="active").exists()==True:
-                unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__product__uuid=product_uuid, cart_type="active")
+            if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists()==True:
+                unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__uuid=product_uuid)
                 unit_cart_obj.quantity += quantity
                 unit_cart_obj.save()
             else:
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_obj, cart_type="active", quantity=quantity, price=price)
+                price = dealshub_user_obj.get_actual_price()
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity, price=price)
 
             update_cart_bill(cart_obj)
 
@@ -233,14 +249,15 @@ class AddToCartAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddToCartAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("AddToCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class FetchCartDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -249,39 +266,29 @@ class FetchCartDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user)
-            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj, cart_type="active")
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=location_group_obj)
+            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             unit_cart_list = []
-            total_amount = 0
             for unit_cart_obj in unit_cart_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.price
-                temp_dict["currency"] = unit_cart_obj.currency
-                temp_dict["dateCreated"] = str(timezone.localtime(unit_cart_obj.date_created).strftime("%d %b, %Y"))
-                product_obj = unit_cart_obj.product.product
-                temp_dict["productName"] = product_obj.product_name
-                try:
-                    lifestyle_image_obj = product_obj.lifestyle_images.all()[0]
-                    temp_dict["productImageUrl"] = lifestyle_image_obj.thumbnail.url
-                except Exception as e:
-                    temp_dict["productImageUrl"] = ""
-                temp_dict["productUuid"] = unit_cart_obj.product.product.uuid
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["currency"] = unit_cart_obj.product.get_currency()
+                temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
+                temp_dict["productName"] = unit_cart_obj.product.get_name()
+                temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
+                temp_dict["productUuid"] = unit_cart_obj.product.uuid
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
-                total_amount += float(unit_cart_obj.price)*float(unit_cart_obj.quantity)
-
                 unit_cart_list.append(temp_dict)
 
-            delivery_fee = 0
-            if total_amount<100 and total_amount>0:
-                delivery_fee = 15
-
-            total_amount += delivery_fee
-            total_amount = round(total_amount, 2)
-
-            vat = round((total_amount - total_amount/1.05), 2)
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
 
             response["deliveryFee"] = delivery_fee
             response["vat"] = vat
@@ -290,14 +297,15 @@ class FetchCartDetailsAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCartDetailsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class UpdateCartDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -309,27 +317,22 @@ class UpdateCartDetailsAPI(APIView):
             unit_cart_uuid = data["unitCartUuid"]
             quantity = int(data["quantity"])
 
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user)
-            unit_cart_obj = UnitCart.objects.get(cart=cart_obj, uuid=unit_cart_uuid)
+            unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
             unit_cart_obj.quantity = quantity
             unit_cart_obj.save()
-
-            update_cart_bill(cart_obj)
 
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateCartDetailsAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("UpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class RemoveFromCartAPI(APIView):
 
-    permission_classes = [AllowAny]
-
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -340,25 +343,20 @@ class RemoveFromCartAPI(APIView):
 
             unit_cart_uuid = data["unitCartUuid"]
             
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user)
-            UnitCart.objects.get(cart=cart_obj, uuid=unit_cart_uuid).delete()
-
-            update_cart_bill(cart_obj)
+            UnitCart.objects.get(uuid=unit_cart_uuid).delete()
 
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RemoveFromCartAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("RemoveFromCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class SelectAddressAPI(APIView):
 
-    permission_classes = [AllowAny]
-
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -368,25 +366,28 @@ class SelectAddressAPI(APIView):
                 data = json.loads(data)
 
             address_uuid = data["addressUuid"]
-            order_uuid = data["orderUuid"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group)
             address_obj = Address.objects.get(uuid=address_uuid)
-            order_obj = Order.objects.get(uuid=order_uuid)
-            order_obj.shipping_address = address_obj
-            order_obj.save()
+            
+            cart_obj.shipping_address = address_obj
+            cart_obj.save()
 
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SelectAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class SelectPaymentModeAPI(APIView):
 
-    permission_classes = [AllowAny]
-
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -395,12 +396,15 @@ class SelectPaymentModeAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             payment_mode = data["paymentMode"]
-            order_uuid = data["orderUuid"]
 
-            order_obj = Order.objects.get(uuid=order_uuid)
-            order_obj.payment_mode = payment_mode
-            order_obj.save()
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+            cart_obj.payment_mode = payment_mode
+            cart_obj.save()
 
             response["status"] = 200
         except Exception as e:
@@ -411,9 +415,8 @@ class SelectPaymentModeAPI(APIView):
 
 class FetchActiveOrderDetailsAPI(APIView):
 
-    permission_classes = [AllowAny]
-
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -422,28 +425,23 @@ class FetchActiveOrderDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user)
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            order_obj = cart_obj.order
-            if order_obj == None:
-                order_obj = Order.objects.create(owner=dealshub_user)
-                cart_obj.order = order_obj
-                cart_obj.save()
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             
-            if order_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user).count()>0:
-                order_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user)[0]
-                order_obj.save()
+            if cart_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj).count()>0:
+                cart_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj)[0]
+                cart_obj.save()
 
-
-            address_obj = order_obj.shipping_address
-            payment_mode = order_obj.payment_mode
-            voucher_obj = order_obj.voucher
+            address_obj = cart_obj.shipping_address
+            payment_mode = cart_obj.payment_mode
+            voucher_obj = cart_obj.voucher
             is_voucher_applied = voucher_obj is not None
 
-            response["uuid"] = order_obj.uuid
-            response["dateCreated"] = str(timezone.localtime(order_obj.date_created).strftime("%d %b, %Y"))
-            response["paymentMode"] = str(payment_mode)
+            response["uuid"] = cart_obj.uuid
+            response["paymentMode"] = payment_mode
             response["isVoucherApplied"] = is_voucher_applied
             if is_voucher_applied:
                 response["voucherCode"] = voucher_obj.voucher_code
@@ -459,6 +457,7 @@ class FetchActiveOrderDetailsAPI(APIView):
                     "line3": json.loads(address_obj.address_lines)[2],
                     "line4": json.loads(address_obj.address_lines)[3],
                     "state": address_obj.state,
+                    "country": address_obj.get_country(),
                     "postcode": address_obj.postcode,
                     "contactNumber": str(address_obj.contact_number),
                     "tag": str(address_obj.tag),
@@ -466,36 +465,25 @@ class FetchActiveOrderDetailsAPI(APIView):
                 }
 
             unit_cart_list = []
-            unit_cart_objs = UnitCart.objects.filter(cart_type="active", cart__owner=dealshub_user)
+            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
-            total_amount = 0
-            is_cod_allowed = True
             for unit_cart_obj in unit_cart_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.price
-                temp_dict["currency"] = unit_cart_obj.currency
-                temp_dict["dateCreated"] = str(timezone.localtime(unit_cart_obj.date_created).strftime("%d %b, %Y"))
-                product_obj = unit_cart_obj.product.product
-                temp_dict["productName"] = product_obj.product_name
-                try:
-                    lifestyle_image_obj = product_obj.lifestyle_images.all()[0]
-                    temp_dict["productImageUrl"] = lifestyle_image_obj.thumbnail.url
-                except Exception as e:
-                    temp_dict["productImageUrl"] = ""
-                total_amount += float(unit_cart_obj.price)*float(unit_cart_obj.quantity)
-                is_cod_allowed = unit_cart_obj.product.is_cod_allowed
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["currency"] = unit_cart_obj.product.get_currency()
+                temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
+                temp_dict["productName"] = unit_cart_obj.product.get_name()
+                temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
+                temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
-            delivery_fee = 0
-            if total_amount<100 and total_amount>0:
-                delivery_fee = 15
-
-            total_amount += delivery_fee
-            total_amount = round(total_amount, 2)
-
-            vat = round((total_amount - total_amount/1.05), 2)
+            is_cod_allowed = cart_obj.is_cod_allowed()
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
 
             response["deliveryFee"] = delivery_fee
             response["vat"] = vat
@@ -503,9 +491,9 @@ class FetchActiveOrderDetailsAPI(APIView):
 
             response["unitCartList"] = unit_cart_list
 
-            response["contactVerified"] = dealshub_user.contact_verified
-            response["contactNumber"] = dealshub_user.contact_number
-            response["emailId"] = dealshub_user.email
+            response["contactVerified"] = dealshub_user_obj.contact_verified
+            response["contactNumber"] = dealshub_user_obj.contact_number
+            response["emailId"] = dealshub_user_obj.email
 
             response["isCodAllowed"] = is_cod_allowed
 
@@ -513,12 +501,14 @@ class FetchActiveOrderDetailsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchActiveOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class PlaceOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -527,30 +517,37 @@ class PlaceOrderAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user)
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            unit_cart_objs = UnitCart.objects.filter(cart_type="active", cart__owner=dealshub_user)
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            cart_obj = Cart.objects.get(owner=dealshub_user, location_group=location_group_obj)
+
+            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
             # Check if COD is allowed
-            for unit_cart_obj in unit_cart_objs:
-                is_cod_allowed = unit_cart_obj.product.is_cod_allowed
-                if is_cod_allowed==False:
-                    response["status"] = 403
-                    logger.error("PlaceOrderAPI: COD not allowed!")
-                    return Response(data=response)
+            is_cod_allowed = cart_obj.is_cod_allowed()
+            if is_cod_allowed==False:
+                response["status"] = 403
+                logger.error("PlaceOrderAPI: COD not allowed!")
+                return Response(data=response)
 
+            cart_obj.to_pay += cart_obj.location_group.cod_charge
+            cart_obj.save()
 
-            order_obj = cart_obj.order
-            order_obj.to_pay += 5 # Extra for COD
+            order_obj = Order.objects.create(owner=cart_obj.owner, 
+                                             shipping_address=cart_obj.shipping_address,
+                                             to_pay=cart_obj.to_pay,
+                                             order_placed_date=timezone.now(),
+                                             voucher=cart_obj.voucher,
+                                             location_group=cart_obj.location_group)
 
-            # Unit Cart gets converted to Unit Order
             for unit_cart_obj in unit_cart_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                           product=unit_cart_obj.product,
                                                           quantity=unit_cart_obj.quantity,
-                                                          price=unit_cart_obj.price, 
-                                                          currency=unit_cart_obj.currency)
+                                                          price=unit_cart_obj.product.get_actual_price(), 
+                                                          currency=unit_cart_obj.product.get_currency())
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
             # Cart gets empty
@@ -558,11 +555,12 @@ class PlaceOrderAPI(APIView):
                 unit_cart_obj.delete()
 
             # cart_obj points to None
-            cart_obj.order = None
+            cart_obj.shipping_address = None
+            cart_obj.voucher = None
+            cart_obj.to_pay = 0
+            cart_obj.merchant_reference = ""
+            cart_obj.payment_info = "{}"
             cart_obj.save()
-            order_obj.order_type = "placedorder"
-            order_obj.order_placed_date = timezone.now()
-            order_obj.save()
 
             # Trigger Email
             try:
@@ -579,12 +577,14 @@ class PlaceOrderAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class CancelOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -603,6 +603,7 @@ class CancelOrderAPI(APIView):
 class FetchOrderListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -611,24 +612,15 @@ class FetchOrderListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
-
-            unit_order_objs = UnitOrder.objects.filter(order__owner=dealshub_user, order__order_type="placedorder").order_by('-pk')
-            unit_order_list = []
-
-            uuid_list = []
-            for unit_order_obj in unit_order_objs:
-                uuid_list.append(unit_order_obj.product.product.uuid)
-
-            productInfo = fetch_bulk_product_info(uuid_list)
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             order_list = []
-            order_objs = Order.objects.filter(owner=dealshub_user, order_type="placedorder").order_by('-pk')
+            order_objs = Order.objects.filter(owner=dealshub_user_obj, order_type="placedorder").order_by('-pk')
             for order_obj in order_objs:
                 voucher_obj = order_obj.voucher
                 is_voucher_applied = voucher_obj is not None
                 temp_dict = {}
-                temp_dict["dateCreated"] = str(timezone.localtime(order_obj.date_created).strftime("%d %b, %Y"))
+                temp_dict["dateCreated"] = order_obj.get_date_created()
                 temp_dict["paymentMode"] = order_obj.payment_mode
                 temp_dict["paymentStatus"] = order_obj.payment_status
                 temp_dict["customerName"] = order_obj.owner.first_name+" "+order_obj.owner.last_name
@@ -637,11 +629,7 @@ class FetchOrderListAPI(APIView):
                 temp_dict["isVoucherApplied"] = is_voucher_applied
                 if is_voucher_applied:
                     temp_dict["voucherCode"] = voucher_obj.voucher_code
-
-                address_obj = order_obj.shipping_address
-
-                shipping_address = address_obj.first_name + " " + address_obj.last_name + "\n" + json.loads(address_obj.address_lines)[0] + "\n"+json.loads(address_obj.address_lines)[1] + "\n"+json.loads(address_obj.address_lines)[2] + "\n"+json.loads(address_obj.address_lines)[3] + "\n"+address_obj.state
-                temp_dict["shippingAddress"] = shipping_address
+                temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address()
 
                 unit_order_objs = UnitOrder.objects.filter(order=order_obj)
                 unit_order_list = []
@@ -652,9 +640,9 @@ class FetchOrderListAPI(APIView):
                     temp_dict2["currentStatus"] = unit_order_obj.current_status
                     temp_dict2["quantity"] = unit_order_obj.quantity
                     temp_dict2["price"] = unit_order_obj.price
-                    temp_dict2["currency"] = unit_order_obj.currency
-                    temp_dict2["productName"] = productInfo[unit_order_obj.product.product.uuid]["productName"]
-                    temp_dict2["productImageUrl"] = productInfo[unit_order_obj.product.product.uuid]["productImageUrl"]
+                    temp_dict2["currency"] = unit_order_obj.product.get_currency()
+                    temp_dict2["productName"] = unit_order_obj.product.get_name()
+                    temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                     unit_order_list.append(temp_dict2)
                 temp_dict["unitOrderList"] = unit_order_list
                 order_list.append(temp_dict)
@@ -669,12 +657,14 @@ class FetchOrderListAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class FetchOrderListAdminAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -684,26 +674,23 @@ class FetchOrderListAdminAPI(APIView):
                 data = json.loads(data)
 
             page = data.get("page", 1)
+            location_group_uuid = data["locationGroupUuid"]
 
-            unit_order_objs = UnitOrder.objects.filter(order__order_type="placedorder").order_by('-pk')
-            response["total_orders"] = unit_order_objs.count()
-            paginator = Paginator(unit_order_objs, 20)
-            unit_order_objs = paginator.page(page)
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            uuid_list = []
-            for unit_order_obj in unit_order_objs:
-                uuid_list.append(unit_order_obj.product.product.uuid)
-
-            productInfo = fetch_bulk_product_info(uuid_list)
+            order_objs = Order.objects.filter(location_group=location_group_obj).order_by('-pk')
+            paginator = Paginator(order_objs, 20)
+            total_orders = order_objs.count()
+            order_objs = paginator.page(page)
 
             order_list = []
-            order_objs = Order.objects.filter(order_type="placedorder").order_by('-pk')
+            
             for order_obj in order_objs:
                 try:
                     voucher_obj = order_obj.voucher
                     is_voucher_applied = voucher_obj is not None
                     temp_dict = {}
-                    temp_dict["dateCreated"] = str(timezone.localtime(order_obj.date_created).strftime("%d %b, %Y"))
+                    temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["customerName"] = order_obj.owner.first_name+" "+order_obj.owner.last_name
@@ -712,6 +699,8 @@ class FetchOrderListAdminAPI(APIView):
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
+                    temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address()
+
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj)
                     unit_order_list = []
                     for unit_order_obj in unit_order_objs:
@@ -721,11 +710,11 @@ class FetchOrderListAdminAPI(APIView):
                         temp_dict2["currentStatus"] = unit_order_obj.current_status
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
-                        temp_dict2["currency"] = unit_order_obj.currency
-                        temp_dict2["productName"] = productInfo[unit_order_obj.product.product.uuid]["productName"]
-                        temp_dict2["productImageUrl"] = productInfo[unit_order_obj.product.product.uuid]["productImageUrl"]
+                        temp_dict2["currency"] = unit_order_obj.product.get_currency()
+                        temp_dict2["productName"] = unit_order_obj.product.get_name()
+                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                         unit_order_list.append(temp_dict2)
-                    temp_dict["unit_order_list"] = unit_order_list
+                    temp_dict["unitOrderList"] = unit_order_list
                     order_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -739,19 +728,19 @@ class FetchOrderListAdminAPI(APIView):
                 is_available = False
 
             response["is_available"] = is_available
-
+            response["total_orders"] = unit_order_objs.count()
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchOrderListAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class FetchOrderDetailsAPI(APIView):
 
-    permission_classes = [AllowAny]
-
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -769,7 +758,7 @@ class FetchOrderDetailsAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order=order_obj)
 
             response["bundleId"] = order_obj.bundleid 
-            response["dateCreated"] = str(timezone.localtime(order_obj.date_created).strftime("%d %b, %Y"))
+            response["dateCreated"] = order_obj.get_date_created()
             response["paymentMode"] = order_obj.payment_mode
             response["paymentStatus"] = order_obj.payment_status
             response["customerName"] = order_obj.owner.first_name + " " + order_obj.owner.last_name
@@ -789,23 +778,15 @@ class FetchOrderDetailsAPI(APIView):
                     "line3": json.loads(address_obj.address_lines)[2],
                     "line4": json.loads(address_obj.address_lines)[3],
                     "state": address_obj.state,
+                    "country": address_obj.get_country(),
                     "postcode": address_obj.postcode,
                     "contactNumber": str(address_obj.contact_number),
                     "tag": str(address_obj.tag),
                     "uuid": str(address_obj.uuid)
                 }
 
-            uuid_list = []
-            for unit_order_obj in unit_order_objs:
-                uuid_list.append(unit_order_obj.product.product.code)
-
-            productInfo = fetch_bulk_product_info(uuid_list)
-
-
-            subtotal = 0
             unit_order_list = []
             for unit_order_obj in unit_order_objs:
-
                 temp_dict = {}
                 temp_dict["orderId"] = unit_order_obj.orderid
                 temp_dict["uuid"] = unit_order_obj.uuid
@@ -813,11 +794,10 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["quantity"] = unit_order_obj.quantity
                 temp_dict["price"] = unit_order_obj.price
                 temp_dict["currency"] = unit_order_obj.currency
-                
-                temp_dict["productName"] = productInfo[unit_order_obj.product.product.uuid]["productName"]
-                temp_dict["productImageUrl"] = productInfo[unit_order_obj.product.product.uuid]["productImageUrl"]
-                temp_dict["sellerSku"] = productInfo[unit_order_obj.product.product.uuid]["sellerSku"]
-                temp_dict["productId"] = productInfo[unit_order_obj.product.product.uuid]["productId"]
+                temp_dict["productName"] = unit_order_obj.product.get_name()
+                temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url()
+                temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
+                temp_dict["productId"] = unit_order_obj.product.get_product_id()
 
                 unit_order_status_list = []
                 unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
@@ -825,28 +805,19 @@ class FetchOrderDetailsAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["customerStatus"] = unit_order_status_obj.status
                     temp_dict2["adminStatus"] = unit_order_status_obj.status_admin
-                    temp_dict2["date"] = str(timezone.localtime(unit_order_status_obj.date_created).strftime("%d %b, %Y"))
-                    temp_dict2["time"] = str(timezone.localtime(unit_order_status_obj.date_created).strftime("%I:%M %p"))
+                    temp_dict2["date"] = unit_order_status_obj.get_date_created()
+                    temp_dict2["time"] = unit_order_status_obj.get_time_created()
                     temp_dict2["uuid"] = unit_order_status_obj.uuid
                     unit_order_status_list.append(temp_dict2)
 
                 temp_dict["UnitOrderStatusList"] = unit_order_status_list
-
-                subtotal += float(unit_order_obj.price)*float(unit_order_obj.quantity)
                 unit_order_list.append(temp_dict)
 
-            subtotal = round(subtotal, 2)
-            delivery_fee = 0
-            if subtotal<100 and subtotal>0:
-                delivery_fee = 15
-
-            cod_fee = 0
-            if order_obj.payment_mode=="COD":
-                cod_fee = 5
-            
-            to_pay = subtotal + delivery_fee + cod_fee
-
-            vat = round((to_pay - to_pay/1.05), 2)
+            subtotal = order_obj.get_subtotal()
+            delivery_fee = order_obj.get_delivery_fee()
+            cod_fee = order_obj.get_cod_charge()
+            to_pay = order_obj.to_pay
+            vat = order_obj.get_vat()
 
             response["subtotal"] = str(subtotal)
             response["deliveryFee"] = str(delivery_fee)
@@ -860,12 +831,14 @@ class FetchOrderDetailsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class FetchUserProfileAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -885,18 +858,17 @@ class FetchUserProfileAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class UpdateUserProfileAPI(APIView):
 
-    permission_classes = [AllowAny]
-
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("UpdateUserProfileAPI: %s", str(data))
             if not isinstance(data, dict):
@@ -925,10 +897,10 @@ class UpdateUserProfileAPI(APIView):
 class FetchCustomerListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("FetchCustomerListAPI: %s", str(data))
             if not isinstance(data, dict):
@@ -939,7 +911,7 @@ class FetchCustomerListAPI(APIView):
             dealshub_user_objs = DealsHubUser.objects.none()
             if len(search_list)>0:
                 for search_key in search_list:
-                    dealshub_user_objs |= DealsHubUser.objects.filter(Q(first_name__icontains=search_key) | Q(last_name__icontains=search_key))
+                    dealshub_user_objs |= DealsHubUser.objects.filter(Q(first_name__icontains=search_key) | Q(last_name__icontains=search_key) | Q(contact_number__icontains=search_key))
                 dealshub_user_objs = dealshub_user_objs.distinct().order_by('-pk')
             else:
                 dealshub_user_objs = DealsHubUser.objects.all().order_by('-pk')
@@ -960,7 +932,7 @@ class FetchCustomerListAPI(APIView):
                     dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs)
 
             page = data.get("page", 1)
-            response["total_customers"] = dealshub_user_objs.count()
+            total_customers = dealshub_user_objs.count()
             paginator = Paginator(dealshub_user_objs, 20)
             dealshub_user_objs = paginator.page(page)
 
@@ -987,6 +959,7 @@ class FetchCustomerListAPI(APIView):
             response["is_available"] = is_available
 
             response["customerList"] = customer_list
+            response["total_customers"] = total_customers
             response['status'] = 200
 
         except Exception as e:
@@ -998,13 +971,11 @@ class FetchCustomerListAPI(APIView):
 
 class FetchCustomerDetailsAPI(APIView):
 
-    permission_classes = [AllowAny]
-
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("FetchCustomerDetailsAPI: %s", str(data))
             if not isinstance(data, dict):
@@ -1025,26 +996,17 @@ class FetchCustomerDetailsAPI(APIView):
                 address_list.append(", ".join(json.loads(address_obj.address_lines)))
             temp_dict["addressList"] = address_list
 
-            
-            uuid_list = []
-            for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj):
-                uuid_list.append(unit_cart_obj.product.product.uuid)
-
             review_objs = Review.objects.filter(dealshub_user=dealshub_user_obj)
-            for review_obj in review_objs:
-                uuid_list.append(review_obj.product.product.uuid)          
-
-            productInfo = fetch_bulk_product_info(uuid_list)
-
+            
             unit_cart_list = []
             for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
                 temp_dict2["quantity"] = unit_cart_obj.quantity
-                temp_dict2["price"] = unit_cart_obj.price
-                temp_dict2["currency"] = unit_cart_obj.currency        
-                temp_dict2["productName"] = productInfo[unit_cart_obj.product.product.uuid]["productName"]
-                temp_dict2["productImageUrl"] = productInfo[unit_cart_obj.product.product.uuid]["productImageUrl"]
+                temp_dict2["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict2["currency"] = unit_cart_obj.product.get_currency()
+                temp_dict2["productName"] = unit_cart_obj.product.get_name()
+                temp_dict2["productImageUrl"] = unit_cart_obj.product.get_main_image_url()
                 unit_cart_list.append(temp_dict2)
 
             review_list = []
@@ -1052,8 +1014,8 @@ class FetchCustomerDetailsAPI(APIView):
                 try:
                     temp_dict2 = {}
                     temp_dict2["uuid"] = review_obj.uuid
-                    temp_dict2["sellerSku"] = productInfo[review_obj.product.product.uuid]["sellerSku"]
-                    temp_dict2["productImageUrl"] = productInfo[review_obj.product.product.uuid]["productImageUrl"]
+                    temp_dict2["sellerSku"] = review_obj.product.get_seller_sku()
+                    temp_dict2["productImageUrl"] = review_obj.product.get_main_image_url()
                     temp_dict2["rating"] = review_obj.rating
                     temp_dict2["isReview"] = False
                     if review_obj.content!=None:
@@ -1063,8 +1025,8 @@ class FetchCustomerDetailsAPI(APIView):
                         temp_dict2["isReply"] = False
                         if review_obj.content.admin_comment!=None:
                             temp_dict2["isReply"] = True
-                            temp_dict2["username"] = review_obj.content.admin_comment.username
-                            temp_dict2["displayName"] = review_obj.content.admin_comment.display_name
+                            temp_dict2["username"] = review_obj.content.admin_comment.user.username
+                            temp_dict2["displayName"] = review_obj.content.admin_comment.first_name + " " + review_obj.content.admin_comment.last_name
                             temp_dict2["comment"] = review_obj.content.admin_comment.comment
                     review_list.append(temp_dict2)
                 except Exception as e:
@@ -1085,13 +1047,11 @@ class FetchCustomerDetailsAPI(APIView):
 
 class FetchCustomerOrdersAPI(APIView):
 
-    permission_classes = [AllowAny]
-
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("FetchCustomerOrdersAPI: %s", str(data))
             if not isinstance(data, dict):
@@ -1102,25 +1062,18 @@ class FetchCustomerOrdersAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
 
-            order_objs = Order.objects.filter(owner=dealshub_user_obj, order_type="placedorder").order_by('-pk')
+            order_objs = Order.objects.filter(owner=dealshub_user_obj).order_by('-pk')
             
             total_orders = order_objs.count()
             paginator = Paginator(order_objs, 10)
             order_objs = paginator.page(page)
 
-            uuid_list = []
-            for order_obj in order_objs:
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                    uuid_list.append(unit_order_obj.product.product.uuid)
-
-            productInfo = fetch_bulk_product_info(uuid_list)
-
             order_list = []
             for order_obj in order_objs:
                 total_billing = 0
                 temp_dict = {}
-                temp_dict["datePlaced"] = str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y"))
-                temp_dict["timePlaced"] = str(timezone.localtime(order_obj.order_placed_date).strftime("%I:%M %p"))
+                temp_dict["datePlaced"] = order_obj.get_date_created()
+                temp_dict["timePlaced"] = order_obj.get_time_created()
                 temp_dict["bundleId"] = str(order_obj.bundleid)
                 temp_dict["paymentMode"] = order_obj.payment_mode
                 temp_dict["uuid"] = order_obj.uuid
@@ -1133,17 +1086,15 @@ class FetchCustomerOrdersAPI(APIView):
                     temp_dict2["currentStatus"] = unit_order_obj.current_status
                     temp_dict2["quantity"] = unit_order_obj.quantity
                     temp_dict2["price"] = unit_order_obj.price
-                    temp_dict2["currency"] = unit_order_obj.currency
-                    temp_dict2["productName"] = productInfo[unit_order_obj.product.product.uuid]["productName"]
-                    temp_dict2["productImageUrl"] = productInfo[unit_order_obj.product.product.uuid]["productImageUrl"]
+                    temp_dict2["currency"] = unit_order_obj.product.get_currency()
+                    temp_dict2["productName"] = unit_order_obj.product.get_name()
+                    temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
                     unit_order_list.append(temp_dict2)
-                    total_billing += float(unit_order_obj.quantity)*unit_order_obj.price
-                temp_dict["totalBilling"] = str(total_billing) + " AED"
+                temp_dict["totalBilling"] = str(order_obj.to_pay) + " " + str(order_obj.location_group.currency)
                 temp_dict["unitOrderList"] = unit_order_list
                 order_list.append(temp_dict)
 
             is_available = True
-            
             if int(paginator.num_pages) == int(page):
                 is_available = False
 
@@ -1169,17 +1120,18 @@ class FetchTokenRequestParametersAPI(APIView):
         
         try:
             data = request.data
-
             logger.info("FetchTokenRequestParametersAPI: %s", str(data))
-
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            website_group_name = data["websiteGroupName"]
             return_url = data["returnUrl"]
-            order_uuid = data["orderUuid"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            
+            website_group_obj = location_group_obj.website_group
+            payment_credentials = json.loads(website_group_obj.payment_credentials)
 
-            payment_credentials = fetch_company_credentials(website_group_name)
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             service_command = "TOKENIZATION"
             access_code = payment_credentials["access_code"]
@@ -1188,9 +1140,9 @@ class FetchTokenRequestParametersAPI(APIView):
             language = "en"
             PASS = payment_credentials["PASS"]
 
-            order_obj = Order.objects.get(uuid=order_uuid)
-            order_obj.merchant_reference = merchant_reference
-            order_obj.save()
+            cart_obj = Cart.objects.get(dealshub_user=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj.merchant_reference = merchant_reference
+            cart_obj.save()
 
             request_data = {
                 "service_command": service_command,
@@ -1232,19 +1184,22 @@ class MakePurchaseRequestAPI(APIView):
         
         try:
             data = request.data
-
             logger.info("MakePurchaseRequestAPI: %s", str(data))
-
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            website_group_name = data["websiteGroupName"]
             return_url = data["returnUrl"]
             merchant_reference = data["merchant_reference"]
             token_name = data["token_name"]
-            #amount = data["amount"]
-            #currency = data["currency"]
-            currency = "AED"
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            
+            website_group_obj = location_group_obj.website_group
+            payment_credentials = json.loads(website_group_obj.payment_credentials)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+
+            currency = location_group.location.currency
 
             customer_ip = ""
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -1253,8 +1208,6 @@ class MakePurchaseRequestAPI(APIView):
             else:
                 customer_ip = request.META.get('REMOTE_ADDR')
 
-            payment_credentials = fetch_company_credentials(website_group_name)
-
             access_code = payment_credentials["access_code"]
             merchant_identifier = payment_credentials["merchant_identifier"]
             language = "en"
@@ -1262,17 +1215,12 @@ class MakePurchaseRequestAPI(APIView):
 
             command = "PURCHASE"
 
-            order_obj = Order.objects.get(merchant_reference=merchant_reference)
-
-            amount = order_obj.to_pay
             
-            dealshub_user_obj = order_obj.owner
 
             customer_email = dealshub_user_obj.email
-
-            amount = str(int(float(amount)*100))
-
-            #amount = "100"
+            amount = cart_obj.to_pay
+            payfort_multiplier = int(cart_obj.location_group.location.payfort_multiplier)
+            amount = str(int(float(amount)*payfort_multiplier))
 
             request_data = {
                 "command":command,
@@ -1303,9 +1251,8 @@ class MakePurchaseRequestAPI(APIView):
             payment_response = json.loads(r.content)
             logger.info("payment_response %s", str(payment_response))
 
-            order_obj.payment_info = json.dumps(payment_response)
-            order_obj.save()
-
+            cart_obj.payment_info = json.dumps(payment_response)
+            cart_obj.save()
 
             response["paymentResponse"] = payment_response
             response['status'] = 200
@@ -1317,17 +1264,16 @@ class MakePurchaseRequestAPI(APIView):
 
 
 class PaymentTransactionAPI(APIView):
+    
     permission_classes = (AllowAny,)
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
-        
         try:
             data = request.data
-
             logger.info("PaymentTransactionAPI: %s", str(data))
-
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -1335,45 +1281,34 @@ class PaymentTransactionAPI(APIView):
             status = data["status"]
 
             PASS = "$2y$10$vdNwwmCDM"
-            #PASS = "$2y$10$tGrWU3XZ0"
-            # try:
-            #     api_access = "5a72db78-b0f2-41ff-b09e-6af02c5b4c77"
-            #     organization_name = data["organizationName"]
-            #     r = requests.post(url=OMNYCOMM_IP+"/fetch-organization-credentials/", data={"organization_name":organization_name, "api_access":api_access}, verify=False)
-            #     payment_credentials = json.loads(r.content)["credentials"]
-            #     PASS = payment_credentials["PASS"]
-            # except Exception as e:
-            #     exc_type, exc_obj, exc_tb = sys.exc_info()
-            #     logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
 
             calc_signature = calc_response_signature(PASS, data)
             if calc_signature!=data["signature"]:
                 logger.error("PaymentTransactionAPI: SIGNATURE DOES NOT MATCH!")
                 return Response(data=response)
 
-            order_obj = Order.objects.get(merchant_reference=merchant_reference)
+
 
             if status=="14":
-                order_obj.payment_status = "paid"
-                order_obj.payment_info = json.dumps(data)
-                order_obj.payment_mode = data.get("payment_option", "NA")
-                order_obj.order_placed_date = timezone.now()
-                order_obj.save()
+                cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
 
-                # Place Order
+                order_obj = Order.objects.create(owner=cart_obj.owner, 
+                                                 shipping_address=cart_obj.shipping_address,
+                                                 to_pay=cart_obj.to_pay,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=cart_obj.voucher,
+                                                 location_group=cart_obj.location_group,
+                                                 payment_status="paid",
+                                                 payment_info=json.dumps(data),
+                                                 payment_mode=data.get("payment_option", "NA"))
 
-                dealshub_user = order_obj.owner
-                cart_obj = Cart.objects.get(owner=dealshub_user)
-
-                # Unit Cart gets converted to Unit Order
-                unit_cart_objs = UnitCart.objects.filter(cart_type="active", cart__owner=dealshub_user)
+                unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
                 for unit_cart_obj in unit_cart_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj, 
-                                                              product=unit_cart_obj.product, 
-                                                              quantity=unit_cart_obj.quantity, 
-                                                              price=unit_cart_obj.price, 
-                                                              currency=unit_cart_obj.currency)
+                                                              product=unit_cart_obj.product,
+                                                              quantity=unit_cart_obj.quantity,
+                                                              price=unit_cart_obj.product.get_actual_price(), 
+                                                              currency=unit_cart_obj.product.get_currency())
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # Cart gets empty
@@ -1389,17 +1324,15 @@ class PaymentTransactionAPI(APIView):
                     logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
                 # cart_obj points to None
-                cart_obj.order = None
+                cart_obj.shipping_address = None
+                cart_obj.voucher = None
+                cart_obj.to_pay = 0
+                cart_obj.merchant_reference = ""
+                cart_obj.payment_info = "{}"
                 cart_obj.save()
-                order_obj.order_type = "placedorder"
-                order_obj.save()
 
                 # Refresh Stock
                 refresh_stock(order_obj)
-            else:
-                order_obj.payment_status = "failed"
-                order_obj.payment_info = json.dumps(data)
-                order_obj.save()
             
             response['status'] = 200
         except Exception as e:
@@ -1410,7 +1343,9 @@ class PaymentTransactionAPI(APIView):
 
 
 class PaymentNotificationAPI(APIView):
+    
     permission_classes = (AllowAny,)
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1433,166 +1368,166 @@ class PaymentNotificationAPI(APIView):
         return Response(data=response)
 
 
-class FetchInstallmentPlansAPI(APIView):
+# class FetchInstallmentPlansAPI(APIView):
 
-    def post(self, request, *args, **kwargs):
+#     def post(self, request, *args, **kwargs):
 
-        response = {}
-        response['status'] = 500
+#         response = {}
+#         response['status'] = 500
         
-        try:
-            data = request.data
+#         try:
+#             data = request.data
 
-            logger.info("FetchInstallmentPlansAPI: %s", str(data))
+#             logger.info("FetchInstallmentPlansAPI: %s", str(data))
 
-            if not isinstance(data, dict):
-                data = json.loads(data)
+#             if not isinstance(data, dict):
+#                 data = json.loads(data)
 
-            website_group_name = data["websiteGroupName"]
-            currency = "AED"
+#             website_group_name = data["websiteGroupName"]
+#             currency = "AED"
 
-            payment_credentials = fetch_company_credentials(website_group_name)
+#             payment_credentials = fetch_company_credentials(website_group_name)
 
-            access_code = payment_credentials["access_code"]
-            merchant_identifier = payment_credentials["merchant_identifier"]
-            language = "en"
-            PASS = payment_credentials["PASS"]
+#             access_code = payment_credentials["access_code"]
+#             merchant_identifier = payment_credentials["merchant_identifier"]
+#             language = "en"
+#             PASS = payment_credentials["PASS"]
 
-            query_command = "GET_INSTALLMENTS_PLANS"
+#             query_command = "GET_INSTALLMENTS_PLANS"
 
-            order_obj = Cart.objects.get(owner__username=request.user.username).order
+#             order_obj = Cart.objects.get(owner__username=request.user.username).order
 
-            amount = order_obj.to_pay
+#             amount = order_obj.to_pay
             
-            amount = str(int(float(amount)*100))
+#             amount = str(int(float(amount)*100))
 
-            request_data = {
-                "query_command":query_command,
-                "access_code":access_code,
-                "merchant_identifier":merchant_identifier,
-                "amount":amount,
-                "currency":currency,
-                "language":language
-            }
+#             request_data = {
+#                 "query_command":query_command,
+#                 "access_code":access_code,
+#                 "merchant_identifier":merchant_identifier,
+#                 "amount":amount,
+#                 "currency":currency,
+#                 "language":language
+#             }
 
-            keys = list(request_data.keys())
-            keys.sort()
-            signature_string = [PASS]
-            for key in keys:
-                signature_string.append(key+"="+request_data[key])
-            signature_string.append(PASS)
-            signature_string = "".join(signature_string)
-            signature = hashlib.sha256(signature_string.encode('utf-8')).hexdigest()
+#             keys = list(request_data.keys())
+#             keys.sort()
+#             signature_string = [PASS]
+#             for key in keys:
+#                 signature_string.append(key+"="+request_data[key])
+#             signature_string.append(PASS)
+#             signature_string = "".join(signature_string)
+#             signature = hashlib.sha256(signature_string.encode('utf-8')).hexdigest()
 
-            request_data["signature"] = signature
+#             request_data["signature"] = signature
 
-            r = requests.post(url="https://sbpaymentservices.payfort.com/FortAPI/paymentApi", json=request_data)
-            installment_plans = json.loads(r.content)
+#             r = requests.post(url="https://sbpaymentservices.payfort.com/FortAPI/paymentApi", json=request_data)
+#             installment_plans = json.loads(r.content)
 
-            response["installmentPlans"] = installment_plans
-            response['status'] = 200
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchInstallmentPlansAPI: %s at %s", e, str(exc_tb.tb_lineno))
+#             response["installmentPlans"] = installment_plans
+#             response['status'] = 200
+#         except Exception as e:
+#             exc_type, exc_obj, exc_tb = sys.exc_info()
+#             logger.error("FetchInstallmentPlansAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-        return Response(data=response)
+#         return Response(data=response)
 
 
-class MakePurchaseRequestInstallmentAPI(APIView):
+# class MakePurchaseRequestInstallmentAPI(APIView):
 
-    def post(self, request, *args, **kwargs):
+#     def post(self, request, *args, **kwargs):
 
-        response = {}
-        response['status'] = 500
+#         response = {}
+#         response['status'] = 500
         
-        try:
-            data = request.data
+#         try:
+#             data = request.data
 
-            logger.info("MakePurchaseRequestInstallmentAPI: %s", str(data))
+#             logger.info("MakePurchaseRequestInstallmentAPI: %s", str(data))
 
-            if not isinstance(data, dict):
-                data = json.loads(data)
+#             if not isinstance(data, dict):
+#                 data = json.loads(data)
 
-            website_group_name = data["websiteGroupName"]
-            return_url = data["returnUrl"]
-            merchant_reference = data["merchant_reference"]
-            token_name = data["token_name"]
-            issuer_code = data["issuer_code"]
-            plan_code = data["plan_code"]
-            #amount = data["amount"]
-            #currency = data["currency"]
-            currency = "AED"
-            installments = "HOSTED"
+#             website_group_name = data["websiteGroupName"]
+#             return_url = data["returnUrl"]
+#             merchant_reference = data["merchant_reference"]
+#             token_name = data["token_name"]
+#             issuer_code = data["issuer_code"]
+#             plan_code = data["plan_code"]
+#             #amount = data["amount"]
+#             #currency = data["currency"]
+#             currency = "AED"
+#             installments = "HOSTED"
 
-            customer_ip = ""
-            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-            if x_forwarded_for:
-                customer_ip = x_forwarded_for.split(',')[0]
-            else:
-                customer_ip = request.META.get('REMOTE_ADDR')
+#             customer_ip = ""
+#             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+#             if x_forwarded_for:
+#                 customer_ip = x_forwarded_for.split(',')[0]
+#             else:
+#                 customer_ip = request.META.get('REMOTE_ADDR')
 
-            payment_credentials = fetch_company_credentials(website_group_name)
+#             payment_credentials = fetch_company_credentials(website_group_name)
 
-            access_code = payment_credentials["access_code"]
-            merchant_identifier = payment_credentials["merchant_identifier"]
-            language = "en"
-            PASS = payment_credentials["PASS"]
+#             access_code = payment_credentials["access_code"]
+#             merchant_identifier = payment_credentials["merchant_identifier"]
+#             language = "en"
+#             PASS = payment_credentials["PASS"]
 
-            command = "PURCHASE"
+#             command = "PURCHASE"
 
-            order_obj = Order.objects.get(merchant_reference=merchant_reference)
+#             order_obj = Order.objects.get(merchant_reference=merchant_reference)
 
-            amount = order_obj.to_pay
+#             amount = order_obj.to_pay
             
-            dealshub_user_obj = order_obj.owner
+#             dealshub_user_obj = order_obj.owner
 
-            customer_email = dealshub_user_obj.email
+#             customer_email = dealshub_user_obj.email
 
-            amount = str(int(float(amount)*100))
+#             amount = str(int(float(amount)*100))
 
-            request_data = {
-                "command":command,
-                "access_code":access_code,
-                "merchant_identifier":merchant_identifier,
-                "merchant_reference":merchant_reference,
-                "amount":amount,
-                "currency":currency,
-                "language":language,
-                "customer_email":customer_email,
-                "customer_ip":customer_ip,
-                "issuer_code":issuer_code,
-                "plan_code":plan_code,
-                "installments":installments,
-                "token_name":token_name,
-                "return_url":return_url
-            }
+#             request_data = {
+#                 "command":command,
+#                 "access_code":access_code,
+#                 "merchant_identifier":merchant_identifier,
+#                 "merchant_reference":merchant_reference,
+#                 "amount":amount,
+#                 "currency":currency,
+#                 "language":language,
+#                 "customer_email":customer_email,
+#                 "customer_ip":customer_ip,
+#                 "issuer_code":issuer_code,
+#                 "plan_code":plan_code,
+#                 "installments":installments,
+#                 "token_name":token_name,
+#                 "return_url":return_url
+#             }
 
-            keys = list(request_data.keys())
-            keys.sort()
-            signature_string = [PASS]
-            for key in keys:
-                signature_string.append(key+"="+request_data[key])
-            signature_string.append(PASS)
-            signature_string = "".join(signature_string)
-            signature = hashlib.sha256(signature_string.encode('utf-8')).hexdigest()
+#             keys = list(request_data.keys())
+#             keys.sort()
+#             signature_string = [PASS]
+#             for key in keys:
+#                 signature_string.append(key+"="+request_data[key])
+#             signature_string.append(PASS)
+#             signature_string = "".join(signature_string)
+#             signature = hashlib.sha256(signature_string.encode('utf-8')).hexdigest()
 
-            request_data["signature"] = signature
+#             request_data["signature"] = signature
 
-            r = requests.post(url="https://sbpaymentservices.payfort.com/FortAPI/paymentApi", json=request_data)
-            payment_response = json.loads(r.content)
-            logger.info("payment_response %s", str(payment_response))
+#             r = requests.post(url="https://sbpaymentservices.payfort.com/FortAPI/paymentApi", json=request_data)
+#             payment_response = json.loads(r.content)
+#             logger.info("payment_response %s", str(payment_response))
 
-            order_obj.payment_info = json.dumps(payment_response)
-            order_obj.save()
+#             order_obj.payment_info = json.dumps(payment_response)
+#             order_obj.save()
 
 
-            response["paymentResponse"] = payment_response
-            response['status'] = 200
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("MakePurchaseRequestInstallmentAPI: %s at %s", e, str(exc_tb.tb_lineno))
+#             response["paymentResponse"] = payment_response
+#             response['status'] = 200
+#         except Exception as e:
+#             exc_type, exc_obj, exc_tb = sys.exc_info()
+#             logger.error("MakePurchaseRequestInstallmentAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-        return Response(data=response)
+#         return Response(data=response)
 
 
 class CalculateSignatureAPI(APIView):
@@ -1630,6 +1565,7 @@ class ContactUsSendEmailAPI(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -1641,10 +1577,16 @@ class ContactUsSendEmailAPI(APIView):
             
             your_email = data["yourEmail"]
             message = data["message"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            email_info = json.loads(location_group_obj.email_info)
+            to_email = email_info["email_id"]
+            password = email_info["password"]
 
             # Trigger Email
             try:
-                p1 = threading.Thread(target=contact_us_send_email, args=(your_email,message,))
+                p1 = threading.Thread(target=contact_us_send_email, args=(your_email,message,to_email,password))
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()

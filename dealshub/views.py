@@ -1703,12 +1703,15 @@ class AddUnitBannerHoveringImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class FetchUnitBannerHoveringImageAPI(APIView):
+
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1731,6 +1734,7 @@ class FetchUnitBannerHoveringImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
@@ -1760,12 +1764,15 @@ class AddSectionHoveringImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddSectionHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
 class FetchSectionHoveringImageAPI(APIView):
+
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1788,6 +1795,7 @@ class FetchSectionHoveringImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchSectionHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
@@ -1811,122 +1819,7 @@ class DeleteHoveringImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class SearchCategoryAutocompleteAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("SearchCategoryAutocompleteAPI: %s", str(data))
-
-            search_string = data["searchString"]
-
-            category_objs = Category.objects.filter(name__icontains=search_string)[:10]
-
-            category_list = []
-            for category_obj in category_objs:
-                temp_dict = {}
-                temp_dict["name"] = category_obj.name
-                temp_dict["uuid"] = category_obj.uuid
-                category_list.append(temp_dict)
-
-            response["categoryList"] = category_list
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SearchCategoryAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class AddCategoryToWebsiteGroupAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("AddCategoryToWebsiteGroupAPI: %s", str(data))
-
-            category_uuid = data["categoryUuid"]
-            website_group_name = data["websiteGroupName"]
-
-            category_obj = Category.objects.get(uuid=category_uuid)
-            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
-
-            website_group_obj.categories.add(category_obj)
-            website_group_obj.save()
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddCategoryToWebsiteGroupAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class RemoveCategoryFromWebsiteGroupAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("RemoveCategoryFromWebsiteGroupAPI: %s", str(data))
-
-            category_uuid = data["categoryUuid"]
-            website_group_name = data["websiteGroupName"]
-
-            category_obj = Category.objects.get(uuid=category_uuid)
-            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
-
-            website_group_obj.categories.remove(category_obj)
-            website_group_obj.save()
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RemoveCategoryFromWebsiteGroupAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)
-
-
-class UpdateCategoryImageAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-
-            data = request.data
-            logger.info("UpdateCategoryImageAPI: %s", str(data))
-
-            uuid = data["uuid"]
-            image = data["image"]
-
-            category_obj = Category.objects.get(uuid=uuid)
-            image_obj = Image.objects.create(image=image)
-            category_obj.image = image_obj
-            category_obj.save()
-
-            response["imageUrl"] = image_obj.mid_image.url
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateCategoryImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
+        
         return Response(data=response)
 
 
@@ -1955,6 +1848,7 @@ class UpdateSuperCategoryImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateSuperCategoryImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
@@ -2006,62 +1900,7 @@ class UpdateUnitBannerAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateUnitBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        return Response(data=response)    
-
-
-class RefreshStockAPI(APIView):
-
-    permission_classes = [AllowAny]
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("RefreshStockAPI: %s", str(data))
-
-            uuid_list = json.loads(data["uuidList"])
-            
-            for uuid in uuid_list:
-                dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid)
-                brand = str(dealshub_product_obj.product.base_product.brand).lower()
-                seller_sku = str(dealshub_product_obj.product.base_product.seller_sku)
-                stock = 0
-                if "wigme" in seller_sku.lower():
-                    continue
-                if brand=="geepas":
-                    stock1 = fetch_refresh_stock(seller_sku, "1070", "TG01")
-                    stock2 = fetch_refresh_stock(seller_sku, "1000", "AFS1")
-                    stock = max(stock1, stock2)
-                elif brand=="baby plus":
-                    stock = fetch_refresh_stock(seller_sku, "5550", "TG01")
-                elif brand=="royalford":
-                    stock = fetch_refresh_stock(seller_sku, "3000", "AFS1")
-                elif brand=="krypton":
-                    stock = fetch_refresh_stock(seller_sku, "2100", "TG01")
-                elif brand=="olsenmark":
-                    stock = fetch_refresh_stock(seller_sku, "1100", "AFS1")
-                elif brand=="ken jardene":
-                    stock = fetch_refresh_stock(seller_sku, "5550", "AFS1") # 
-                elif brand=="younglife":
-                    stock = fetch_refresh_stock(seller_sku, "5000", "AFS1")
-                elif brand=="delcasa":
-                    stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
-
-                if stock > 10:
-                    dealshub_product_obj.stock = 5
-                else:
-                    dealshub_product_obj.stock = 0
-
-                dealshub_product_obj.save()
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RefreshStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
@@ -2140,5 +1979,3 @@ FetchUnitBannerProducts = FetchUnitBannerProductsAPI.as_view()
 UpdateSuperCategoryImage = UpdateSuperCategoryImageAPI.as_view()
 
 UpdateUnitBanner = UpdateUnitBannerAPI.as_view()
-
-RefreshStock = RefreshStockAPI.as_view()

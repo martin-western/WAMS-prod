@@ -97,6 +97,12 @@ class DealsHubProduct(models.Model):
             return main_images_list.all()[0].image.mid_image.url
         return Config.objects.all()[0].product_404_image.image.url
 
+    def get_display_image_url(self):
+        lifestyle_image_objs = self.product.lifestyle_images.all()
+        if lifestyle_image_objs.exists():
+            return lifestyle_image_objs[0].mid_image.url
+        return self.get_main_image_url()
+
     def save(self, *args, **kwargs):
         
         if self.uuid == None or self.uuid == "":
@@ -244,6 +250,8 @@ class Address(models.Model):
     )
     tag = models.CharField(max_length=64, choices=TAGS, default="home")
 
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+
     uuid = models.CharField(max_length=200, default="")
 
     def save(self, *args, **kwargs):
@@ -251,6 +259,12 @@ class Address(models.Model):
             self.uuid = str(uuid.uuid4())
 
         super(Address, self).save(*args, **kwargs)
+
+    def get_country(self):
+        return str(self.location_group.location.country)
+
+    def get_shipping_address(self):
+        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state
 
     class Meta:
         verbose_name = "Address"
@@ -260,8 +274,10 @@ class Address(models.Model):
 class Location(models.Model):
 
     name = models.CharField(max_length=200, default="")
+    country = models.CharField(max_length=200, default="UAE")
     uuid = models.CharField(max_length=200, default="")
     currency = models.CharField(max_length=20, default="AED")
+    payfort_multiplier = models.IntegerField(default=1)
 
     def __str__(self):
         return str(self.name)
@@ -282,6 +298,10 @@ class LocationGroup(models.Model):
 
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     website_group = models.ForeignKey(WebsiteGroup, on_delete=models.CASCADE)
+    delivery_fee = models.FloatField(default=0)
+    free_delivery_threshold = models.FloatField(default=100)
+    cod_charge = models.FloatField(default=5)
+    email_info = models.TextField(default="{}")
     uuid = models.CharField(max_length=200, default="")
 
     def __str__(self):
@@ -304,12 +324,53 @@ class Cart(models.Model):
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
     uuid = models.CharField(max_length=200, default="")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    payment_mode = models.CharField(default="COD", max_length=100)
+    to_pay = models.FloatField(default=0)
+    merchant_reference = models.CharField(max_length=200, default="")
+    payment_info = models.TextField(default="{}")
 
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
 
         super(Cart, self).save(*args, **kwargs)
+
+    def get_subtotal(self):
+        unit_cart_objs = UnitCart.objects.filter(cart=self)
+        subtotal = 0
+        for unit_cart_obj in unit_cart_objs:
+            subtotal += float(unit_cart_obj.product.get_actual_price())*float(unit_cart_obj.quantity)
+        return subtotal
+
+    def get_delivery_fee(self):
+        subtotal = self.get_subtotal()
+        if self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            if self.voucher_type=="SD":
+                return 0
+            subtotal = self.voucher.get_discounted_price(subtotal)
+
+        if subtotal < self.location_group.free_delivery_threshold:
+            return self.location_group.delivery_fee
+        return 0
+
+    def get_total_amount(self):
+        subtotal = self.get_subtotal()
+        subtotal = self.voucher.get_discounted_price(subtotal)
+        delivery_fee = self.get_delivery_fee()
+        return subtotal+delivery_fee
+
+    def get_vat(self):
+        total = self.get_total_amount()
+        return round((total_amount - total_amount/1.05), 2)
+
+    def is_cod_allowed(self):
+        unit_cart_objs = UnitCart.objects.filter(cart=self)
+        for unit_cart_obj in unit_cart_objs:
+            if unit_cart_obj.product.is_cod_allowed==False:
+                return False
+        return True
 
     class Meta:
         verbose_name = "Cart"
@@ -321,11 +382,8 @@ class UnitCart(models.Model):
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
-
-    price = models.FloatField(default=None, null=True, blank=True)
     
     date_created = models.DateTimeField(auto_now_add=True)
-
     uuid = models.CharField(max_length=200, default="")
 
     def save(self, *args, **kwargs):
@@ -333,6 +391,9 @@ class UnitCart(models.Model):
             self.uuid = str(uuid.uuid4())
 
         super(UnitCart, self).save(*args, **kwargs)
+
+    def get_date_created(self):
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
 
     class Meta:
         verbose_name = "Unit Cart"
@@ -353,16 +414,34 @@ class Voucher(models.Model):
     )
 
     voucher_type = models.CharField(max_length=50, choices=VOUCHERS_TYPE, default="PD")
-    percent_discount = models.IntegerField(default=0)
-    fixed_discount = models.IntegerField(default=0)
-    maximum_discount = models.IntegerField(default=0)
+    percent_discount = models.FloatField(default=0)
+    fixed_discount = models.FloatField(default=0)
+    maximum_discount = models.FloatField(default=0)
     customer_usage_limit = models.IntegerField(default=0)
     maximum_usage_limit = models.IntegerField(default=0)
     minimum_purchase_amount = models.IntegerField(default=0)
+    total_usage = models.IntegerField(default=0)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return str(self.uuid)
+
+    def is_expired(self):
+        if timezone.now() >= self.start_time and timezone.now() <= self.end_time:
+            if maximum_usage_limit==0:
+                return False
+            if total_usage>=maximum_usage_limit:
+                return True
+            return False
+        return True
+
+    def get_discounted_price(self, total):
+        if self.voucher_type=="SD":
+            return total
+        if self.voucher_type=="FD" and total>=self.minimum_purchase_amount:
+            return (total-self.fixed_discount)
+        if self.voucher_type=="PD" and total>=self.minimum_purchase_amount:
+            return round((total-(total*self.percent_discount/100)), 2)
 
     def save(self, *args, **kwargs):
 
@@ -402,6 +481,43 @@ class Order(models.Model):
 
         super(Order, self).save(*args, **kwargs)
 
+    def get_date_created(self):
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+
+    def get_subtotal(self):
+        unit_order_objs = UnitOrder.objects.filter(order=self)
+        subtotal = 0
+        for unit_order_obj in unit_order_objs:
+            subtotal += float(unit_order_obj.price)*float(unit_order_obj.quantity)
+        return subtotal
+
+    def get_delivery_fee(self):
+        subtotal = self.get_subtotal()
+        if self.voucher!=None:
+            if self.voucher_type=="SD":
+                return 0
+            subtotal = self.voucher.get_discounted_price(subtotal)
+
+        if subtotal < self.location_group.free_delivery_threshold:
+            return self.location_group.delivery_fee
+        return 0
+
+    def get_cod_charge(self):
+        if self.payment_mode=="COD":
+            return order_obj.location_group.cod_charge
+        return 0
+
+    def get_total_amount(self):
+        subtotal = self.get_subtotal()
+        subtotal = self.voucher.get_discounted_price(subtotal)
+        delivery_fee = self.get_delivery_fee()
+        cod_charge = self.get_cod_charge()
+        return subtotal+delivery_fee+cod_charge
+
+    def get_vat(self):
+        total = self.get_total_amount()
+        return round((total_amount - total_amount/1.05), 2)
+
 
 class UnitOrder(models.Model):
 
@@ -440,7 +556,6 @@ class UnitOrder(models.Model):
     quantity = models.IntegerField(default=1)
 
     price = models.FloatField(default=None, null=True, blank=True)
-    currency = models.CharField(max_length=100, default='AED')
     uuid = models.CharField(max_length=200, default="")
 
     def save(self, *args, **kwargs):
@@ -483,6 +598,12 @@ class UnitOrderStatus(models.Model):
 
         super(UnitOrderStatus, self).save(*args, **kwargs)
 
+    def get_date_created():
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+
+    def get_time_created():
+        return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
+
 
 class DealsHubUser(User):
 
@@ -507,7 +628,7 @@ class DealsHubUser(User):
 
 class AdminReviewComment(models.Model):
 
-    uuid = models.CharField(max_length=200,  unique=True)
+    uuid = models.CharField(max_length=200, unique=True)
     user = models.ForeignKey(OmnyCommUser, on_delete=models.CASCADE)
     comment =  models.TextField(default="")
     created_date = models.DateTimeField(null=True, blank=True)
