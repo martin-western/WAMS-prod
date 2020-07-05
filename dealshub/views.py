@@ -169,6 +169,7 @@ class FetchSectionProductsAPI(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -252,11 +253,12 @@ class FetchSuperCategoriesAPI(APIView):
 
 
 class SearchAPI(APIView):
-    
+
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -398,6 +400,7 @@ class SearchAPI(APIView):
 class CreateAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -436,6 +439,7 @@ class CreateAdminCategoryAPI(APIView):
 class UpdateAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -496,6 +500,7 @@ class UpdateAdminCategoryAPI(APIView):
 class DeleteAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -523,6 +528,7 @@ class DeleteAdminCategoryAPI(APIView):
 class PublishAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -545,6 +551,7 @@ class PublishAdminCategoryAPI(APIView):
 class UnPublishAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -907,6 +914,7 @@ class UnPublishBannerAPI(APIView):
 class PublishDealsHubProductAPI(APIView):
     
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -929,6 +937,7 @@ class PublishDealsHubProductAPI(APIView):
 class UnPublishDealsHubProductAPI(APIView):
     
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -982,6 +991,7 @@ class DeleteProductFromSectionAPI(APIView):
 class PublishDealsHubProductsAPI(APIView):
     
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -1005,6 +1015,7 @@ class PublishDealsHubProductsAPI(APIView):
 class UnPublishDealsHubProductsAPI(APIView):
     
     def post(self, request, *args, **kwargs):
+        
         response = {}
         response['status'] = 500
         try:
