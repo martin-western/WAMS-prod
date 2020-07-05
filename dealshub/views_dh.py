@@ -1569,7 +1569,6 @@ class ContactUsSendEmailAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("ContactUsSendEmailAPI: %s", str(data))
             if not isinstance(data, dict):
@@ -1606,25 +1605,30 @@ class SendOTPSMSLoginAPI(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("SendOTPSMSLoginAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
             
             contact_number = data["contactNumber"]
-            website_group_name = data["websiteGroupName"].lower()
+            location_group_uuid = data["locationGroupUuid"].lower()
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+
+            mshastra_info = json.loads(location_group_obj.mshastra_info)
 
             digits = "0123456789"
             OTP = "" 
-            for i in range(6) : 
+            for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
-                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_name)
+                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
@@ -1634,13 +1638,16 @@ class SendOTPSMSLoginAPI(APIView):
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
 
-
             message = "Login OTP is " + OTP
 
             # Trigger SMS
-            contact_number = "971"+contact_number
-            url = "http://mshastra.com/sendurlcomma.aspx?user=20087732&pwd=Western@13468&senderid=WIGME&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
-            #url = "http://mshastra.com/sendurlcomma.aspx?user=20076835&pwd=nesto@online&senderid=NESTO&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
+            prefix_code = mshastra_info["prefix_code"]
+            sender_id = mshastra_info["sender_id"]
+            user = mshastra_info["user"]
+            pwd = mshastra_info["pwd"]
+
+            contact_number = prefix_code+contact_number
+            url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
             r = requests.get(url)
 
             response["status"] = 200
@@ -1657,10 +1664,10 @@ class VerifyOTPSMSLoginAPI(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("VerifyOTPSMSLoginAPI: %s", str(data))
             if not isinstance(data, dict):
@@ -1668,7 +1675,10 @@ class VerifyOTPSMSLoginAPI(APIView):
             
             contact_number = data["contactNumber"]
             otp = data["otp"]
-            website_group_name = data["websiteGroupName"].lower()
+            location_group_uuid = data["locationGroupUuid"].lower()
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
 
             dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
             
@@ -1699,10 +1709,10 @@ class VerifyOTPSMSLoginAPI(APIView):
 class UpdateUserEmailAPI(APIView):
 
     def post(self, request, *args, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("UpdateUserEmailAPI: %s", str(data))
             if not isinstance(data, dict):
@@ -1728,10 +1738,10 @@ class UpdateUserEmailAPI(APIView):
 class AddReviewAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("AddReviewAPI: %s", str(data))
             product_code = str(data["product_code"])
@@ -1743,12 +1753,14 @@ class AddReviewAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
-            if UnitOrder.objects.filter(product__product__uuid=product_code,order__owner=dealshub_user_obj).exists():
-                review_obj, created = Review.objects.get_or_create(dealshub_user = dealshub_user_obj, product__product__uuid = product_code)
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
+
+            if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
+                review_obj, created = Review.objects.get_or_create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj)
                 review_obj.rating = rating
                 review_content_obj = review_obj.content
                 if review_content_obj is None:
-                    review_content_obj = ReviewContent.objects.create(subject= subject, content = content)
+                    review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
                 else:
                     review_content_obj.subject = subject
                     review_content_obj.content = content
@@ -1771,10 +1783,10 @@ class AddReviewAPI(APIView):
 class AddRatingAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("AddRatingAPI: %s", str(data))
             product_code = str(data["product_code"])
@@ -1782,8 +1794,12 @@ class AddRatingAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
-            if UnitOrder.objects.filter(product__product__uuid=product_code,order__owner=dealshub_user_obj).exists():
-                review_obj = Review.objects.create(dealshub_user = dealshub_user_obj, product__product__uuid = product_code, rating = rating)
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
+
+            
+
+            if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
+                review_obj = Review.objects.create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj, rating=rating)
                 response["uuid"] = review_obj.uuid
                 response["status"] = 200
             else:
@@ -1799,20 +1815,20 @@ class AddRatingAPI(APIView):
 class UpdateRatingAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("UpdateRatingAPI: %s", str(data))
             uuid = str(data["uuid"])
-            new_rating = int(data["rating"])
+            rating = int(data["rating"])
 
             review_obj = Review.objects.get(uuid=uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             if review_obj.dealshub_user == dealshub_user_obj:
-                review_obj.rating = new_rating
+                review_obj.rating = rating
                 review_obj.save()
                 response["status"] = 200
             else:
@@ -1828,18 +1844,21 @@ class UpdateRatingAPI(APIView):
 class AddAdminCommentAPI(APIView):
     
     def post(self, request, *arg, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("AddAdminCommentAPI: %s", str(data))
+
             uuid = str(data["uuid"])
             username = str(data["username"])
             display_name = str(data["displayName"])
             comment = str(data["comment"])
 
             review_obj = Review.objects.get(uuid=uuid)
+
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user)
 
             if review_obj.content==None:
                 response["status"] = 403
@@ -1851,7 +1870,7 @@ class AddAdminCommentAPI(APIView):
                 admin_comment_obj.comment = comment
                 admin_comment_obj.save()
             else:
-                admin_comment_obj = AdminReviewComment.objects.create(username = username,display_name = display_name,comment = comment)
+                admin_comment_obj = AdminReviewComment.objects.create(user=omnycomm_user_obj, comment=comment)
                 review_content_obj = review_obj.content
                 review_content_obj.admin_comment = admin_comment_obj
                 review_content_obj.save()
@@ -1869,10 +1888,10 @@ class AddAdminCommentAPI(APIView):
 class UpdateAdminCommentAPI(APIView):
     
     def post(self, request, *arg, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("UpdateAdminCommentAPI: %s", str(data))
             uuid = str(data["admin_comment_uuid"])
@@ -1894,10 +1913,10 @@ class UpdateAdminCommentAPI(APIView):
 class AddUpvoteAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("AddUpvoteAPI: %s", str(data))
             uuid = str(data["review_content_uuid"])
@@ -1923,10 +1942,10 @@ class AddUpvoteAPI(APIView):
 class DeleteUpvoteAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("DeleteUpvoteAPI: %s", str(data))
             uuid = str(data["review_content_uuid"])
@@ -1952,10 +1971,10 @@ class DeleteUpvoteAPI(APIView):
 class FetchReviewAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
-
             data = request.data
             logger.info("FetchReviewAPI: %s", str(data))
             uuid = str(data["uuid"])
@@ -1970,7 +1989,7 @@ class FetchReviewAPI(APIView):
 
             admin_comment = {
                 "username" : str(admin_comment_obj.username),
-                "display_name" : str(admin_comment_obj.display_name),
+                "display_name" : str(admin_comment_obj.user.first_name+" "+ admin_comment_obj.user.last_name),
                 "comment" : str(admin_comment_obj.comment),
                 "created_date" : str(admin_comment_obj.created_date),
                 "modified_date" : str(admin_comment_obj.modified_date)
@@ -2000,6 +2019,7 @@ class FetchProductReviewsAPI(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request, *arg, **kwargs):
+
         response = {}
         response['status'] = 500
         try:
@@ -2009,7 +2029,7 @@ class FetchProductReviewsAPI(APIView):
             product_code = str(data["product_code"])
 
             product_reviews = []
-            review_objs = Review.objects.filter(product__product__uuid=product_code)
+            review_objs = Review.objects.filter(product__uuid=product_code)
             total_reviews = review_objs.count()
 
             total_rating = 0
@@ -2028,7 +2048,7 @@ class FetchProductReviewsAPI(APIView):
                 if admin_comment_obj is not None:
                     admin_comment = {
                         "username" : str(admin_comment_obj.username),
-                        "display_name" : str(admin_comment_obj.display_name),
+                        "display_name" : str(admin_comment_obj.user.first_name+" "+admin_comment_obj.user.last_name),
                         "comment" : str(admin_comment_obj.comment),
                         "created_date" : str(timezone.localtime(admin_comment_obj.created_date).strftime("%d %b, %Y")),
                         "modified_date" : str(timezone.localtime(admin_comment_obj.modified_date).strftime("%d %b, %Y"))
@@ -2057,12 +2077,12 @@ class FetchProductReviewsAPI(APIView):
             is_product_purchased = False
             if request.user!=None:
 
-                if UnitOrder.objects.filter(product__product__uuid=product_code, order__owner__username=request.user.username).exists():
+                if UnitOrder.objects.filter(product__uuid=product_code, order__owner__username=request.user.username).exists():
                     is_product_purchased = True
 
-                if Review.objects.filter(product__product__uuid=product_code, dealshub_user__username=request.user.username).exists():
+                if Review.objects.filter(product__uuid=product_code, dealshub_user__username=request.user.username).exists():
                     is_user_reviewed = True
-                    review_obj = Review.objects.get(product__product__uuid=product_code, dealshub_user__username=request.user.username)
+                    review_obj = Review.objects.get(product__uuid=product_code, dealshub_user__username=request.user.username)
                     review_content = None
                     review_content_obj = review_obj.content
                     if review_content_obj is not None:
@@ -2091,6 +2111,7 @@ class FetchProductReviewsAPI(APIView):
 class DeleteUserReviewAPI(APIView):
     
     def post(self, request, *arg, **kwargs):
+        
         response = {}
         response['status'] = 500
         try:

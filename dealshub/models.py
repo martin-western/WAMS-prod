@@ -302,7 +302,9 @@ class LocationGroup(models.Model):
     free_delivery_threshold = models.FloatField(default=100)
     cod_charge = models.FloatField(default=5)
     email_info = models.TextField(default="{}")
+    mshastra_info = models.TextField(default="{}")
     uuid = models.CharField(max_length=200, default="")
+
 
     def __str__(self):
         return str(self.location)
