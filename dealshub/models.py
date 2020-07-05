@@ -486,6 +486,9 @@ class Order(models.Model):
     def get_date_created(self):
         return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
 
+    def get_time_created(self):
+        return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
+
     def get_subtotal(self):
         unit_order_objs = UnitOrder.objects.filter(order=self)
         subtotal = 0
@@ -600,10 +603,10 @@ class UnitOrderStatus(models.Model):
 
         super(UnitOrderStatus, self).save(*args, **kwargs)
 
-    def get_date_created():
+    def get_date_created(self):
         return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
 
-    def get_time_created():
+    def get_time_created(self):
         return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
 
 
