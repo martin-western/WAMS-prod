@@ -86,8 +86,8 @@ urlpatterns = [
 
     url(r'^api/dealshub/v1.0/payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
     url(r'^api/dealshub/v1.0/payment/make-purchase-request/$', views.MakePurchaseRequest),
-    url(r'^api/dealshub/v1.0/payment/fetch-installment-plans/$', views.FetchInstallmentPlans),
-    url(r'^api/dealshub/v1.0/payment/make-purchase-request-installment/$', views.MakePurchaseRequestInstallment),
+    # url(r'^api/dealshub/v1.0/payment/fetch-installment-plans/$', views.FetchInstallmentPlans),
+    # url(r'^api/dealshub/v1.0/payment/make-purchase-request-installment/$', views.MakePurchaseRequestInstallment),
 
     url(r'^api/dealshub/v1.0/payment/calculate-signature/$', views.CalculateSignature),
 

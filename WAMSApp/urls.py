@@ -108,9 +108,6 @@ urlpatterns = [
     url(r'^fetch-product-details-sales-integration/$',views.FetchProductDetailsSalesIntegration),
     url(r'^fetch-bulk-product-details-sales-integration/$',views.FetchBulkProductDetailsSalesIntegration),
 
-    url(r'^move-to-main-images/$',views.MoveToMainImages),
-    url(r'^move-to-sub-images/$',views.MoveToSubImages),
-
     url(r'^generate-reports/$',views.GenerateReports),
 
     url(r'^upload-bulk-export/$',views.UploadBulkExport),
@@ -141,8 +138,6 @@ urlpatterns = [
     url(r'^update-channel-product-stock-and-price/$',views.UpdateChannelProductStockandPrice),
     url(r'^bulk-update-channel-product-price/$',views.BulkUpdateChannelProductPrice),
     url(r'^bulk-update-channel-product-stock/$',views.BulkUpdateChannelProductStock),
-
-
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
