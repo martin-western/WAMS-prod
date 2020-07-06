@@ -3,7 +3,7 @@ from django.db.models import Count
 from WAMSApp.models import *
 
 from auditlog.models import *
-from dealshub.models import DealsHubProduct
+from dealshub.models import *
 from WAMSApp.utils import *
 from WAMSApp.constants import *
 
@@ -188,7 +188,10 @@ class CreateNewBaseProductAPI(APIView):
 
             product_obj = Product.objects.create(product_name=product_name, base_product=base_product_obj, dynamic_form_attributes=json.dumps(dynamic_form_attributes))
 
-            DealsHubProduct.objects.create(product=product_obj)
+
+            location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
+            for location_group_obj in location_group_objs:
+                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -263,7 +266,9 @@ class CreateNewProductAPI(APIView):
                                             base_product=base_product_obj,
                                             dynamic_form_attributes=json.dumps(dynamic_form_attributes))
 
-            DealsHubProduct.objects.create(product=product_obj)
+            location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
+            for location_group_obj in location_group_objs:
+                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -778,22 +783,7 @@ class FetchProductDetailsAPI(APIView):
 
             response["is_bundle_product"] = product_obj.is_bundle_product
 
-            try:
-                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
-                response["was_price"] = dealshub_product_obj.was_price
-                response["now_price"] = dealshub_product_obj.now_price
-                response["stock"] = dealshub_product_obj.stock
-                response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
-            except Exception as e:
-                response["was_price"] = 0
-                response["now_price"] = 0
-                response["stock"] = 0
-                response["is_cod_allowed"] = True
-
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
-            response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
-
-            response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
 
 
             response["product_description_amazon_uk"] = product_obj.product_description
@@ -940,7 +930,11 @@ class FetchDealsHubProductsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
             dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
+            dealshub_product_objs = dealshub_product_objs.filter(location_group=location_group_obj)
 
             search_list = data.get("search_list", "[]")
 
@@ -1010,7 +1004,7 @@ class FetchDealsHubProductsAPI(APIView):
                     product_obj = dealshub_product_obj.product
                     temp_dict ={}
                     temp_dict["product_pk"] = product_obj.pk
-                    temp_dict["product_uuid"] = product_obj.uuid
+                    temp_dict["product_uuid"] = dealshub_product_obj.uuid
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = product_obj.product_name
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
@@ -1089,7 +1083,7 @@ class UpdateDealshubProductAPI(APIView):
 
             product_uuid = data["product_uuid"]
 
-            dh_product_obj = DealsHubProduct.objects.get(product__uuid=product_uuid)
+            dh_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
 
             price_permission = custom_permission_price(request.user, "dealshub")
             stock_permission = custom_permission_stock(request.user, "dealshub")
@@ -1390,9 +1384,6 @@ class SaveProductAPI(APIView):
 
             min_price = float(data.get("min_price", 0))
             max_price = float(data.get("max_price", 0))
-            was_price = float(data.get("was_price", 0))
-            now_price = float(data.get("now_price", 0))
-            stock = int(data.get("stock", 0))
 
             is_cod_allowed = data.get("is_cod_allowed", False)
             is_bundle_product = data.get("is_bundle_product", False)
@@ -1405,22 +1396,6 @@ class SaveProductAPI(APIView):
             if custom_permission_price(request.user, "variant")==True:
                 product_obj.min_price = min_price
                 product_obj.max_price = max_price
-
-            try:
-                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
-                dealshub_product_obj.is_cod_allowed = is_cod_allowed
-                if custom_permission_price(request.user, "dealshub")==True:
-                    dealshub_product_obj.was_price = was_price
-                    if now_price>=min_price and now_price<=max_price:
-                        dealshub_product_obj.now_price = now_price
-                    dealshub_product_obj.save()
-
-                if custom_permission_stock(request.user, "dealshub")==True and stock>=0:
-                    dealshub_product_obj.stock = stock
-                    dealshub_product_obj.save()
-                dealshub_product_obj.save()
-            except Exception as e:
-                pass
 
 
             product_obj.product_id = product_id
@@ -5774,13 +5749,16 @@ class CheckSectionPermissionsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub = False
-            if OmnyCommUser.objects.get(username=request.user.username).website_group!=None:
-                dealshub = True
-
-            response["dealshub"] = dealshub
+            ecommerce_pages = []
+            location_group_objs = CustomPermission.objects.get(username=request.user.username).location_groups.all()
+            for location_group_obj in location_group_objs:
+                temp_dict = {}
+                temp_dict["name"] = location_group_obj.name
+                temp_dict["uuid"] = location_group_obj.uuid
+                ecommerce_pages.append(temp_dict)
 
             response["page_list"] = get_custom_permission_page_list(request.user)
+            response["ecommerce_pages"] = ecommerce_pages
 
             response['status'] = 200
 

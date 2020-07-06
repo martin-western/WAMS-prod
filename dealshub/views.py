@@ -1473,6 +1473,15 @@ class FetchCompanyProfileDealshubAPI(APIView):
 
             website_group_obj = WebsiteGroup.objects.get(name=data["websiteGroupName"])
 
+            location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+            location_info = []
+            for location_group_obj in location_group_objs:
+                temp_dict = {}
+                temp_dict["name"] = location_group_obj.location.name
+                temp_dict["uuid"] = location_group_obj.uuid
+                location_info.append(temp_dict)
+
+
             company_data = {}
             company_data["name"] = website_group_obj.name
             company_data["contact_info"] = website_group_obj.contact_info
@@ -1498,6 +1507,7 @@ class FetchCompanyProfileDealshubAPI(APIView):
                 company_data["footer_logo_url"] = website_group_obj.footer_logo.image.url
 
             response["company_data"] = company_data
+            response["location_info"] = location_info
             response['status'] = 200
 
         except Exception as e:

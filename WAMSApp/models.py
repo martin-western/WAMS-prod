@@ -179,6 +179,57 @@ amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
 
+
+class Location(models.Model):
+
+    name = models.CharField(max_length=200, default="")
+    country = models.CharField(max_length=200, default="UAE")
+    uuid = models.CharField(max_length=200, default="")
+    currency = models.CharField(max_length=20, default="AED")
+    payfort_multiplier = models.IntegerField(default=1)
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(Location, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Location"
+        verbose_name_plural = "Location"
+
+
+class LocationGroup(models.Model):
+
+    name = models.CharField(max_length=100, default="")
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    website_group = models.ForeignKey('WebsiteGroup', on_delete=models.CASCADE)
+    delivery_fee = models.FloatField(default=0)
+    free_delivery_threshold = models.FloatField(default=100)
+    cod_charge = models.FloatField(default=5)
+    email_info = models.TextField(default="{}")
+    mshastra_info = models.TextField(default="{}")
+    uuid = models.CharField(max_length=200, default="")
+
+    def __str__(self):
+        return str(self.location)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(LocationGroup, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "LocationGroup"
+        verbose_name_plural = "LocationGroup"
+
+
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -822,6 +873,7 @@ class CustomPermission(models.Model):
     oc_reports = models.TextField(default="[]")
     verify_product = models.BooleanField(default=False)
     page_list = models.TextField(default="[]")
+    location_groups = models.ManyToManyField(LocationGroup, blank=True)
     organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)
 
     class Meta:
