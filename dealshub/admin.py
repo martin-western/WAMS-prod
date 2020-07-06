@@ -20,8 +20,6 @@ class SectionAdmin(admin.ModelAdmin):
 
 admin.site.register(DealsHubProduct, DealsHubProductAdmin)
 admin.site.register(Section, SectionAdmin)
-admin.site.register(DealsHubHeading)
-admin.site.register(ImageLink)
 admin.site.register(BannerType)
 admin.site.register(Banner)
 admin.site.register(UnitBannerImage)

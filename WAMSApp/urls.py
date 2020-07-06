@@ -108,8 +108,6 @@ urlpatterns = [
     url(r'^fetch-product-details-sales-integration/$',views.FetchProductDetailsSalesIntegration),
     url(r'^fetch-bulk-product-details-sales-integration/$',views.FetchBulkProductDetailsSalesIntegration),
 
-    url(r'^generate-reports/$',views.GenerateReports),
-
     url(r'^upload-bulk-export/$',views.UploadBulkExport),
     url(r'^search-bulk-export/$',views.SearchBulkExport),
     url(r'^fetch-data-points/$',views.FetchDataPoints),
@@ -117,16 +115,6 @@ urlpatterns = [
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
     url(r'^fetch-company-credentials/$',views.FetchCompanyCredentials),
-
-    url(r'^fetch-orders-for-account-manager/$',views.FetchOrdersForAccountManager),
-    url(r'^fetch-orders-for-warehouse-manager/$',views.FetchOrdersForWarehouseManager),
-    url(r'^fetch-shipping-method/$',views.FetchShippingMethod),
-    url(r'^set-shipping-method/$',views.SetShippingMethod),
-    url(r'^set-orders-status/$',views.SetOrdersStatus),
-    url(r'^cancel-orders/$',views.CancelOrders),
-
-    url(r'^download-orders/$',views.DownloadOrders),
-    url(r'^upload-orders/$',views.UploadOrders),
 
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
 

@@ -2004,6 +2004,16 @@ DeleteProductFromUnitBanner = DeleteProductFromUnitBannerAPI.as_view()
 
 FetchUnitBannerProducts = FetchUnitBannerProductsAPI.as_view()
 
+AddUnitBannerHoveringImage = AddUnitBannerHoveringImageAPI.as_view()
+
+FetchUnitBannerHoveringImage = FetchUnitBannerHoveringImageAPI.as_view()
+
+AddSectionHoveringImage = AddSectionHoveringImageAPI.as_view()
+
+FetchSectionHoveringImage = FetchSectionHoveringImageAPI.as_view()
+
+DeleteHoveringImage = DeleteHoveringImageAPI.as_view()
+
 UpdateSuperCategoryImage = UpdateSuperCategoryImageAPI.as_view()
 
 UpdateUnitBanner = UpdateUnitBannerAPI.as_view()

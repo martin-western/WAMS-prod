@@ -2687,9 +2687,9 @@ PaymentTransaction = PaymentTransactionAPI.as_view()
 
 PaymentNotification = PaymentNotificationAPI.as_view()
 
-FetchInstallmentPlans = FetchInstallmentPlansAPI.as_view()
+# FetchInstallmentPlans = FetchInstallmentPlansAPI.as_view()
 
-MakePurchaseRequestInstallment = MakePurchaseRequestInstallmentAPI.as_view()
+# MakePurchaseRequestInstallment = MakePurchaseRequestInstallmentAPI.as_view()
 
 CalculateSignature = CalculateSignatureAPI.as_view()
 

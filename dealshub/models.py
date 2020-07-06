@@ -13,6 +13,55 @@ logger = logging.getLogger(__name__)
 
 address_lines = ["", "", "", ""]
 
+class Location(models.Model):
+
+    name = models.CharField(max_length=200, default="")
+    country = models.CharField(max_length=200, default="UAE")
+    uuid = models.CharField(max_length=200, default="")
+    currency = models.CharField(max_length=20, default="AED")
+    payfort_multiplier = models.IntegerField(default=1)
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(Location, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Location"
+        verbose_name_plural = "Location"
+
+
+class LocationGroup(models.Model):
+
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    website_group = models.ForeignKey(WebsiteGroup, on_delete=models.CASCADE)
+    delivery_fee = models.FloatField(default=0)
+    free_delivery_threshold = models.FloatField(default=100)
+    cod_charge = models.FloatField(default=5)
+    email_info = models.TextField(default="{}")
+    mshastra_info = models.TextField(default="{}")
+    uuid = models.CharField(max_length=200, default="")
+
+
+    def __str__(self):
+        return str(self.location)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(LocationGroup, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "LocationGroup"
+        verbose_name_plural = "LocationGroup"
+
 class Promotion(models.Model):
     
     uuid = models.CharField(max_length=200, unique=True)
@@ -29,6 +78,57 @@ class Promotion(models.Model):
             self.uuid = str(uuid.uuid4())
 
         super(Promotion, self).save(*args, **kwargs)
+
+
+class Voucher(models.Model):
+
+    uuid = models.CharField(max_length=200,default="",unique=True)
+    voucher_code = models.CharField(max_length=50,unique=True)
+    start_time = models.DateTimeField(null=True)
+    end_time = models.DateTimeField(null=True)
+
+    VOUCHERS_TYPE = (
+        ("PD","PERCENTAGE_DISCOUNT"),
+        ("FD","FIXED_DISCOUNT"),
+        ("SD","SHIPPING_DISCOUNT"),
+    )
+
+    voucher_type = models.CharField(max_length=50, choices=VOUCHERS_TYPE, default="PD")
+    percent_discount = models.FloatField(default=0)
+    fixed_discount = models.FloatField(default=0)
+    maximum_discount = models.FloatField(default=0)
+    customer_usage_limit = models.IntegerField(default=0)
+    maximum_usage_limit = models.IntegerField(default=0)
+    minimum_purchase_amount = models.IntegerField(default=0)
+    total_usage = models.IntegerField(default=0)
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def is_expired(self):
+        if timezone.now() >= self.start_time and timezone.now() <= self.end_time:
+            if maximum_usage_limit==0:
+                return False
+            if total_usage>=maximum_usage_limit:
+                return True
+            return False
+        return True
+
+    def get_discounted_price(self, total):
+        if self.voucher_type=="SD":
+            return total
+        if self.voucher_type=="FD" and total>=self.minimum_purchase_amount:
+            return (total-self.fixed_discount)
+        if self.voucher_type=="PD" and total>=self.minimum_purchase_amount:
+            return round((total-(total*self.percent_discount/100)), 2)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(Voucher, self).save(*args, **kwargs)
 
 
 class DealsHubProduct(models.Model):
@@ -271,56 +371,6 @@ class Address(models.Model):
         verbose_name_plural = "Addresses"
 
 
-class Location(models.Model):
-
-    name = models.CharField(max_length=200, default="")
-    country = models.CharField(max_length=200, default="UAE")
-    uuid = models.CharField(max_length=200, default="")
-    currency = models.CharField(max_length=20, default="AED")
-    payfort_multiplier = models.IntegerField(default=1)
-
-    def __str__(self):
-        return str(self.name)
-
-    def save(self, *args, **kwargs):
-
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-
-        super(Location, self).save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = "Location"
-        verbose_name_plural = "Location"
-
-
-class LocationGroup(models.Model):
-
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    website_group = models.ForeignKey(WebsiteGroup, on_delete=models.CASCADE)
-    delivery_fee = models.FloatField(default=0)
-    free_delivery_threshold = models.FloatField(default=100)
-    cod_charge = models.FloatField(default=5)
-    email_info = models.TextField(default="{}")
-    mshastra_info = models.TextField(default="{}")
-    uuid = models.CharField(max_length=200, default="")
-
-
-    def __str__(self):
-        return str(self.location)
-
-    def save(self, *args, **kwargs):
-
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-
-        super(LocationGroup, self).save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = "LocationGroup"
-        verbose_name_plural = "LocationGroup"
-
-
 class Cart(models.Model):
 
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
@@ -402,57 +452,6 @@ class UnitCart(models.Model):
         verbose_name_plural = "Unit Carts"
 
 
-class Voucher(models.Model):
-
-    uuid = models.CharField(max_length=200,default="",unique=True)
-    voucher_code = models.CharField(max_length=50,unique=True)
-    start_time = models.DateTimeField(null=True)
-    end_time = models.DateTimeField(null=True)
-
-    VOUCHERS_TYPE = (
-        ("PD","PERCENTAGE_DISCOUNT"),
-        ("FD","FIXED_DISCOUNT"),
-        ("SD","SHIPPING_DISCOUNT"),
-    )
-
-    voucher_type = models.CharField(max_length=50, choices=VOUCHERS_TYPE, default="PD")
-    percent_discount = models.FloatField(default=0)
-    fixed_discount = models.FloatField(default=0)
-    maximum_discount = models.FloatField(default=0)
-    customer_usage_limit = models.IntegerField(default=0)
-    maximum_usage_limit = models.IntegerField(default=0)
-    minimum_purchase_amount = models.IntegerField(default=0)
-    total_usage = models.IntegerField(default=0)
-    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
-
-    def __str__(self):
-        return str(self.uuid)
-
-    def is_expired(self):
-        if timezone.now() >= self.start_time and timezone.now() <= self.end_time:
-            if maximum_usage_limit==0:
-                return False
-            if total_usage>=maximum_usage_limit:
-                return True
-            return False
-        return True
-
-    def get_discounted_price(self, total):
-        if self.voucher_type=="SD":
-            return total
-        if self.voucher_type=="FD" and total>=self.minimum_purchase_amount:
-            return (total-self.fixed_discount)
-        if self.voucher_type=="PD" and total>=self.minimum_purchase_amount:
-            return round((total-(total*self.percent_discount/100)), 2)
-
-    def save(self, *args, **kwargs):
-
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-
-        super(Voucher, self).save(*args, **kwargs)
-
-
 class Order(models.Model):
 
     bundleid = models.CharField(max_length=100, default="")
@@ -464,7 +463,7 @@ class Order(models.Model):
     to_pay = models.FloatField(default=0)
     order_placed_date = models.DateTimeField(null=True, default=timezone.now)
 
-    PENDING, PAID, FAILED = ('pending', 'paid')
+    PENDING, PAID = ('pending', 'paid')
     PAYMENT_STATUS = (
         (PENDING, "pending"),
         (PAID, "paid")

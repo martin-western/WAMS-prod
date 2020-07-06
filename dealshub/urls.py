@@ -62,7 +62,6 @@ urlpatterns = [
     url(r'^delete-hovering-image/$',views.DeleteHoveringImage),
 
     url(r'^update-super-category-image/$', views.UpdateSuperCategoryImage),
-    url(r'^update-promotional-price/$', views.UpdatePromotionalPrice),
     url(r'^update-unit-banner/$', views.UpdateUnitBanner),
 
     url(r'^api/dealshub/v1.0/address/fetch-shipping-address-list/$', views.FetchShippingAddressList),
