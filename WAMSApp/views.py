@@ -1,9 +1,6 @@
-from django.db.models import Count
-
-from WAMSApp.models import *
-
 from auditlog.models import *
 from dealshub.models import *
+from WAMSApp.models import *
 from WAMSApp.utils import *
 from WAMSApp.constants import *
 
@@ -4448,12 +4445,11 @@ class FetchUserProfileAPI(APIView):
             noon_functions = json.loads(custom_permission_obj.noon_functions)
             verify_product = custom_permission_obj.verify_product
 
-            OmnyCommUser_obj = content_manager
-
-            if(OmnyCommUser_obj.website_group != None):
+            if(custom_permission_obj.location_groups.count()>0):
                 permissions_dict["Ecommerce"] = {}
                 permissions_dict["Ecommerce"]["Items"] = []
-                permissions_dict["Ecommerce"]["Items"].append("Can Manage Ecommerce")
+                for location_group_obj in custom_permission_obj.location_groups.all():
+                    permissions_dict["Ecommerce"]["Items"].append(location_group_obj.name)
 
             for key in price.keys():
                 if(price[key]==True):
