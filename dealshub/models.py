@@ -361,7 +361,8 @@ class Cart(models.Model):
 
     def get_total_amount(self):
         subtotal = self.get_subtotal()
-        subtotal = self.voucher.get_discounted_price(subtotal)
+        if self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee()
         return subtotal+delivery_fee
 
@@ -465,7 +466,8 @@ class Order(models.Model):
 
     def get_total_amount(self):
         subtotal = self.get_subtotal()
-        subtotal = self.voucher.get_discounted_price(subtotal)
+        if self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee()
         cod_charge = self.get_cod_charge()
         return subtotal+delivery_fee+cod_charge
@@ -473,6 +475,15 @@ class Order(models.Model):
     def get_vat(self):
         total = self.get_total_amount()
         return round((total_amount - total_amount/1.05), 2)
+
+    def get_website_link(self):
+        return self.location_group.website_group.link
+
+    def get_customer_full_name(self):
+        return self.shipping_address.first_name + " " + self.shipping_address.last_name
+
+    def get_customer_first_name(self):
+        return self.shipping_address.first_name
 
 
 class UnitOrder(models.Model):

@@ -225,6 +225,27 @@ class LocationGroup(models.Model):
 
         super(LocationGroup, self).save(*args, **kwargs)
 
+    def get_support_email_id(self):
+        return json.loads(self.email_info)["support"]["email_id"]
+
+    def get_support_email_password(self):
+        return json.loads(self.email_info)["support"]["password"]
+
+    def get_order_from_email_id(self):
+        return json.loads(self.email_info)["order"]["email_id"]
+
+    def get_order_from_email_password(self):
+        return json.loads(self.email_info)["order"]["password"]
+
+    def get_order_to_email_list(self):
+        return json.loads(self.email_info)["order_to_list"]
+
+    def get_order_cc_email_list(self):
+        return json.loads(self.email_info)["order_cc_list"]
+
+    def get_order_bcc_email_list(self):
+        return json.loads(self.email_info)["order_bcc_list"]
+
     class Meta:
         verbose_name = "LocationGroup"
         verbose_name_plural = "LocationGroup"
@@ -476,6 +497,7 @@ class Brand(models.Model):
 
 class WebsiteGroup(models.Model):
 
+    link = models.CharField(max_length=100, default="")
     name = models.CharField(max_length=100, unique=True)
     brands = models.ManyToManyField(Brand, blank=True)
     categories = models.ManyToManyField(Category, blank=True)

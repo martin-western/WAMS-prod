@@ -18,6 +18,9 @@ from django.template import loader
 import threading
 from WAMSApp.utils import fetch_refresh_stock
 
+logger = logging.getLogger(__name__)
+
+
 def convert_to_datetime(date_str):
     date_str = date_str[:-1] + "+0400"
     return date_str
@@ -33,15 +36,6 @@ def get_actual_price(dealshub_product_obj):
     if check_valid_promotion(dealshub_product_obj.promotion):
         return dealshub_product_obj.promotional_price
     return dealshub_product_obj.now_price
-
-##################################################### 
-
-# DealsHub project
-
-#####################################################
-
-logger = logging.getLogger(__name__)
-
 
 def calc_response_signature(PASS, data):
     try:
@@ -143,26 +137,8 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
 
 def update_cart_bill(cart_obj):
   
-    unit_cart_objs = UnitCart.objects.filter(cart=cart_obj, cart_type="active")
-    total_amount = 0
-    for t_unit_cart_obj in unit_cart_objs:
-        total_amount += float(t_unit_cart_obj.price)*float(t_unit_cart_obj.quantity)
-
-    delivery_fee = 0
-    if total_amount<100 and total_amount>0:
-        delivery_fee = 15
-
-    total_amount += delivery_fee
-    total_amount = round(total_amount, 2)
-    
-
-    order_obj = cart_obj.order
-    if order_obj == None:
-        order_obj = Order.objects.create(owner=cart_obj.owner)
-        cart_obj.order = order_obj
-        cart_obj.save()
-    order_obj.to_pay = total_amount
-    order_obj.save()
+    cart_obj.to_pay = cart_obj.get_total_amount()
+    cart_obj.save()
 
 
 def send_order_confirmation_mail(order_obj):
@@ -172,75 +148,43 @@ def send_order_confirmation_mail(order_obj):
             return
 
         unit_order_objs = UnitOrder.objects.filter(order=order_obj)
-        uuid_list = []
-        for unit_order_obj in unit_order_objs:
-            uuid_list.append(unit_order_obj.product_code)
-        productInfo = fetch_bulk_product_info(uuid_list)
 
         custom_unit_order_list = []
-        subtotal = 0
         for unit_order_obj in unit_order_objs:
             temp_dict = {
                 "order_id": unit_order_obj.orderid,
-                "product_name": productInfo[unit_order_obj.product_code]["productName"],
-                "productImageUrl": productInfo[unit_order_obj.product_code]["productImageUrl"],
+                "product_name": unit_order_obj.product.get_name(),
+                "productImageUrl": unit_order_obj.get_display_image_url(),
                 "quantity": unit_order_obj.quantity,
                 "price": unit_order_obj.price,
-                "currency": unit_order_obj.currency
+                "currency": unit_order_obj.product.get_currency()
             }
-            subtotal += float(unit_order_obj.price)*float(unit_order_obj.quantity)
             custom_unit_order_list.append(temp_dict)
 
-        delivery_fee = 0
-        if subtotal<100:
-            delivery_fee = 15
-        cod_fee = 0
-        if order_obj.payment_mode=="COD":
-            cod_fee = 5
-
-        subtotal = round(subtotal, 2)
-        grand_total = round(subtotal + delivery_fee + cod_fee, 2)
-        
-
-        order_placed_date = str(timezone.localtime(order_obj.order_placed_date).strftime("%A, %B %d, %Y | %I:%M %p"))
-
-        customer_name = str(order_obj.owner.first_name)
-
+        order_placed_date = order_obj.get_date_created()
+        customer_name = order_obj.get_customer_first_name()
         address_lines = json.loads(order_obj.shipping_address.address_lines)
-        full_name = order_obj.owner.first_name + " " + order_obj.owner.last_name
+        full_name = order_obj.get_customer_full_name()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-confirmation.html',
             {
                 "customer_name": customer_name,
                 "custom_unit_order_list":  custom_unit_order_list,
-                "subtotal": str(subtotal) + " AED",
-                "delivery_fee": str(delivery_fee) + " AED",
-                "cod_fee": str(cod_fee) + " AED",
-                "grand_total": str(grand_total) + " AED",
                 "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": WEBSITE_LINK+"/orders/"+order_obj.uuid
+                "website_order_link": order_obj.get_website_link()+"/orders/"+order_obj.uuid
             }
         )
-
-        # send_mail(
-        #     'Order Confirmation',
-        #     'Order Confirmation',
-        #     'nisarg@omnycomm.com',
-        #     [order_obj.owner.email],
-        #     fail_silently=False,
-        #     html_message=html_message
-        # )
 
         email = EmailMultiAlternatives(
                     subject='Order Confirmation', 
                     body='Order Confirmation', 
-                    from_email='orders@wigme.com',
+                    from_email=[order_obj.get_order_from_email_id()],
                     to=[order_obj.owner.email],
-                    cc=['orders@wigme.com'],
-                    bcc=['hari.pk@westernint.com', 'siddhansh@omnycomm.com']
+                    cc=order_obj.get_order_cc_email_list(),
+                    bcc=order_obj.get_order_bcc_email_list(),
                 )
         email.attach_alternative(html_message, "text/html")
         email.send(fail_silently=False)
@@ -253,52 +197,34 @@ def send_order_confirmation_mail(order_obj):
 
 def send_order_dispatch_mail(unit_order_obj):
     try:
-
         if unit_order_obj.order.owner.email_verified==False:
             return
 
-        uuid_list = [unit_order_obj.product_code]
-        productInfo = fetch_bulk_product_info(uuid_list)
-
-
         order_dispatched_date = UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status="shipped")[0].date_created
-
         order_dispatched_date = str(timezone.localtime(order_dispatched_date).strftime("%A, %B %d, %Y | %I:%M %p"))
 
-        customer_name = str(unit_order_obj.order.owner.first_name)
-
+        customer_name = unit_order_obj.order.get_customer_first_name()
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
-        full_name = unit_order_obj.order.owner.first_name + " " + unit_order_obj.order.owner.last_name
+        full_name = unit_order_obj.order.get_customer_full_name()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-dispatch.html',
             {
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
-                "product_name": productInfo[unit_order_obj.product_code]["productName"],
-                "productImageUrl": productInfo[unit_order_obj.product_code]["productImageUrl"],
+                "product_name": unit_order_obj.product.get_name(),
+                "productImageUrl": unit_order_obj.product.get_display_image_url(),
                 "quantity": unit_order_obj.quantity,
-                "price": unit_order_obj.price,
-                "currency": unit_order_obj.currency,
                 "order_dispatched_date": order_dispatched_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": WEBSITE_LINK+"/orders/"+unit_order_obj.order.uuid
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
             }
         )
 
-        # send_mail(
-        #     'Order Dispatch',
-        #     'Order Dispatch',
-        #     'nisarg@omnycomm.com',
-        #     [unit_order_obj.order.owner.email],
-        #     fail_silently=False,
-        #     html_message=html_message
-        # )
-
         email = EmailMultiAlternatives(
-                    subject='Order Dispatch', 
-                    body='Order Dispatch', 
+                    subject='Order Dispatch',
+                    body='Order Dispatch',
                     from_email='orders@wigme.com',
                     to=[unit_order_obj.order.owner.email],
                     cc=['orders@wigme.com'],
@@ -318,44 +244,27 @@ def send_order_delivered_mail(unit_order_obj):
         if unit_order_obj.order.owner.email_verified==False:
             return
 
-        uuid_list = [unit_order_obj.product_code]
-        productInfo = fetch_bulk_product_info(uuid_list)
-
-
         order_delivered_date = UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status="delivered")[0].date_created
-
         order_delivered_date = str(timezone.localtime(order_delivered_date).strftime("%A, %B %d, %Y | %I:%M %p"))
-
-        customer_name = str(unit_order_obj.order.owner.first_name)
+        customer_name = unit_order_obj.order.get_customer_first_name()
 
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
-        full_name = unit_order_obj.order.owner.first_name + " " + unit_order_obj.order.owner.last_name
+        full_name = unit_order_obj.order.get_customer_full_name()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivered.html',
             {
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
-                "product_name": productInfo[unit_order_obj.product_code]["productName"],
-                "productImageUrl": productInfo[unit_order_obj.product_code]["productImageUrl"],
+                "product_name": unit_order_obj.product.get_name(),
+                "productImageUrl": unit_order_obj.product.get_display_image_url(),
                 "quantity": unit_order_obj.quantity,
-                "price": unit_order_obj.price,
-                "currency": unit_order_obj.currency,
                 "order_delivered_date": order_delivered_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": WEBSITE_LINK+"/orders/"+unit_order_obj.order.uuid
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
             }
         )
-
-        # send_mail(
-        #     'Order Delivered',
-        #     'Order Delivered',
-        #     'nisarg@omnycomm.com',
-        #     [unit_order_obj.order.owner.email],
-        #     fail_silently=False,
-        #     html_message=html_message
-        # )
 
         email = EmailMultiAlternatives(
                     subject='Order Delivered', 
@@ -373,51 +282,32 @@ def send_order_delivered_mail(unit_order_obj):
         logger.error("send_order_delivered_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
-
 def send_order_delivery_failed_mail(unit_order_obj):
     try:
-
         if unit_order_obj.order.owner.email_verified==False:
             return
 
-        uuid_list = [unit_order_obj.product_code]
-        productInfo = fetch_bulk_product_info(uuid_list)
-
-
         order_delivery_failed = UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status_admin="delivery failed")[0].date_created
-
         order_delivery_failed = str(timezone.localtime(order_delivery_failed).strftime("%A, %B %d, %Y | %I:%M %p"))
-
-        customer_name = str(unit_order_obj.order.owner.first_name)
+        customer_name = unit_order_obj.order.get_customer_first_name()
 
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
-        full_name = unit_order_obj.order.owner.first_name + " " + unit_order_obj.order.owner.last_name
+        full_name = unit_order_obj.order.get_customer_full_name()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivery-failed.html',
             {
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
-                "product_name": productInfo[unit_order_obj.product_code]["productName"],
-                "productImageUrl": productInfo[unit_order_obj.product_code]["productImageUrl"],
+                "product_name": unit_order_obj.product.get_name(),
+                "productImageUrl": unit_order_obj.product.get_display_image_url(),
                 "quantity": unit_order_obj.quantity,
-                "price": unit_order_obj.price,
-                "currency": unit_order_obj.currency,
                 "order_delivery_failed": order_delivery_failed,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": WEBSITE_LINK+"/orders/"+unit_order_obj.order.uuid
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
             }
         )
-
-        # send_mail(
-        #     'Order Delivery Failed',
-        #     'Order Delivered Failed',
-        #     'nisarg@omnycomm.com',
-        #     [unit_order_obj.order.owner.email],
-        #     fail_silently=False,
-        #     html_message=html_message
-        # )
 
         email = EmailMultiAlternatives(
                     subject='Order Delivery Failed', 
@@ -435,24 +325,17 @@ def send_order_delivery_failed_mail(unit_order_obj):
         logger.error("send_order_delivery_failed_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
-
 def send_order_cancelled_mail(unit_order_obj):
     try:
-
         if unit_order_obj.order.owner.email_verified==False:
             return
 
-        uuid_list = [unit_order_obj.product_code]
-        productInfo = fetch_bulk_product_info(uuid_list)
-
         order_cancelled_date = UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status="cancelled")[0].date_created
-
         order_cancelled_date = str(timezone.localtime(order_cancelled_date).strftime("%A, %B %d, %Y | %I:%M %p"))
-
-        customer_name = str(unit_order_obj.order.owner.first_name)
+        customer_name = unit_order_obj.order.get_customer_first_name()
 
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
-        full_name = unit_order_obj.order.owner.first_name + " " + unit_order_obj.order.owner.last_name
+        full_name = unit_order_obj.order.get_customer_full_name()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-cancelled.html',
@@ -462,23 +345,12 @@ def send_order_cancelled_mail(unit_order_obj):
                 "product_name": productInfo[unit_order_obj.product_code]["productName"],
                 "productImageUrl": productInfo[unit_order_obj.product_code]["productImageUrl"],
                 "quantity": unit_order_obj.quantity,
-                "price": unit_order_obj.price,
-                "currency": unit_order_obj.currency,
                 "order_cancelled_date": order_cancelled_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": WEBSITE_LINK+"/orders/"+unit_order_obj.order.uuid
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
             }
         )
-
-        # send_mail(
-        #     'Order Cancelled',
-        #     'Order Cancelled',
-        #     'nisarg@omnycomm.com',
-        #     [unit_order_obj.order.owner.email],
-        #     fail_silently=False,
-        #     html_message=html_message
-        # )
 
         email = EmailMultiAlternatives(
                     subject='Order Cancelled', 
@@ -496,10 +368,8 @@ def send_order_cancelled_mail(unit_order_obj):
         logger.error("send_order_cancelled_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
-
 def contact_us_send_email(your_email, message, to_email, password):
     try:
-
         body = """
         Customer Email: """+your_email+"""
         Message: """+message+"""
@@ -519,56 +389,15 @@ def contact_us_send_email(your_email, message, to_email, password):
         logger.error("contact_us_send_email: %s at %s", e, str(exc_tb.tb_lineno))
 
 
-def fetch_total_bill_from_cart(cart_obj, online_payment):
-    
-    unit_cart_objs = UnitCart.objects.filter(cart=cart_obj, cart_type="active")
-    
-    subtotal_amount = 0
-    for unit_cart_obj in unit_cart_objs:
-        subtotal_amount += float(unit_cart_obj.price)*float(unit_cart_obj.quantity)
-
-    delivery_fee = 0
-    if subtotal_amount<100 and subtotal_amount>0:
-        delivery_fee = 15
-
-    total_amount = 1.05*(subtotal_amount+delivery_fee)
-    if online_payment==False and total_amount>0:
-        total_amount += 1.05*5
-    
-    return round(total_amount, 2)
-
-
-def fetch_total_bill_from_order(order_obj):
-    
-    unit_order_objs = UnitOrder.objects.filter(order=order_obj)
-    
-    subtotal_amount = 0
-    for unit_order_obj in unit_order_objs:
-        subtotal_amount += float(unit_order_obj.price)*float(unit_order_obj.quantity)
-
-    delivery_fee = 0
-    if subtotal_amount<100:
-        delivery_fee = 15
-
-    total_amount = 1.05*(subtotal_amount+delivery_fee)
-    if order_obj.payment_mode=="COD":
-        total_amount += 1.05*5
-    
-    return round(total_amount, 2)
-
-
 def refresh_stock(order_obj):
 
     try:
         unit_order_objs = UnitOrder.objects.filter(order=order_obj)
         uuid_list = []
         for unit_order_obj in unit_order_objs:
-            uuid_list.append(unit_order_obj.product_code)
- 
-        for uuid in uuid_list:
-            dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=uuid)
-            brand = str(dealshub_product_obj.product.base_product.brand).lower()
-            seller_sku = str(dealshub_product_obj.product.base_product.seller_sku)
+            dealshub_product_obj = unit_order_obj.product
+            brand = dealshub_product_obj.get_brand().lower()
+            seller_sku = dealshub_product_obj.get_seller_sku()
             stock = 0
             if "wigme" in seller_sku.lower():
                 continue
@@ -609,40 +438,29 @@ def calculate_gtm(order_obj):
         product_list = []
         unit_order_objs = UnitOrder.objects.filter(order=order_obj)
 
-        uuid_list = []
-        for unit_order_obj in unit_order_objs:
-            uuid_list.append(unit_order_obj.product_code)
-
-        productInfo = fetch_bulk_product_info(uuid_list)
-
         total_amount = 0
         for unit_order_obj in unit_order_objs:
             temp_dict = {
-                "name": productInfo[unit_order_obj.product_code]["productName"],
-                "id": unit_order_obj.product_code,
+                "name": unit_order_obj.product.get_name(),
+                "id": unit_order_obj.product.uuid,
                 "price": str(unit_order_obj.price),
-                "brand": productInfo[unit_order_obj.product_code]["brandName"],
-                "category": productInfo[unit_order_obj.product_code]["category"],
+                "brand": unit_order_obj.product.get_brand(),
+                "category": unit_order_obj.product.get_category(),
                 "variant": "",
                 "quantity": unit_order_obj.quantity,
                 "coupon": ""
             }
             product_list.append(temp_dict)
-            total_amount += float(unit_order_obj.price)*float(unit_order_obj.quantity)
 
-        total_amount = round(total_amount, 2)
-        delivery_fee = 0
-        if total_amount<100 and total_amount>0:
-            delivery_fee = 15
-
-        to_pay = order_obj.to_pay
-        vat = round((to_pay - to_pay/1.05), 2)
+        total_amount = order_obj.get_total_amount()
+        delivery_fee = order_obj.get_delivery_fee()
+        vat = order_obj.get_vat()
 
         purchase_info = {
             "actionField": {
                 "id": order_obj.bundleid,
                 "affiliation": "Online Store",
-                "revenue": str(to_pay),
+                "revenue": str(total_amount),
                 "tax": str(vat),
                 "shipping": str(delivery_fee),
                 "coupon": ""
@@ -654,83 +472,6 @@ def calculate_gtm(order_obj):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("GTM Calculation: %s at %s", e, str(exc_tb.tb_lineno))
     return purchase_info
-
-
-#######################################################################
-
-# APIs to Functions
-
-#######################################################################
-
-def fetch_bulk_product_info(uuidList):
-
-    productInfo = {}
-    for uuid in uuidList:
-        product_obj = Product.objects.get(uuid=uuid)
-
-        main_image_url = Config.objects.all()[0].product_404_image.image.url
-        try:
-            main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
-            main_images_list = main_images_obj.main_images.all()
-            main_image_url = main_images_list.all()[0].image.mid_image.url
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("fetch_bulk_product_info: %s at %s", e, str(exc_tb.tb_lineno))
-
-        temp_dict = {
-            "productName": product_obj.product_name,
-            "productImageUrl": main_image_url,
-            "sellerSku": product_obj.base_product.seller_sku,
-            "productId": product_obj.product_id,
-            "brandName": str(product_obj.base_product.brand),
-            "category": str(product_obj.base_product.category),
-        }
-
-        productInfo[uuid] = temp_dict
-    
-    return productInfo
-
-def fetch_company_credentials(website_group_name):
-
-    website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
-
-    credentials = json.loads(website_group_obj.payment_credentials)
-
-    return credentials
-
-
-def refresh_dealshub_stock(dealshub_product_obj):
-    
-    brand = str(dealshub_product_obj.product.base_product.brand).lower()
-    seller_sku = str(dealshub_product_obj.product.base_product.seller_sku)
-    stock = 0
-    if "wigme" in seller_sku.lower():
-        return
-    if brand=="geepas":
-        stock1 = fetch_refresh_stock(seller_sku, "1070", "TG01")
-        stock2 = fetch_refresh_stock(seller_sku, "1000", "AFS1")
-        stock = max(stock1, stock2)
-    elif brand=="baby plus":
-        stock = fetch_refresh_stock(seller_sku, "5550", "TG01")
-    elif brand=="royalford":
-        stock = fetch_refresh_stock(seller_sku, "3000", "AFS1")
-    elif brand=="krypton":
-        stock = fetch_refresh_stock(seller_sku, "2100", "TG01")
-    elif brand=="olsenmark":
-        stock = fetch_refresh_stock(seller_sku, "1100", "AFS1")
-    elif brand=="ken jardene":
-        stock = fetch_refresh_stock(seller_sku, "5550", "AFS1") # 
-    elif brand=="younglife":
-        stock = fetch_refresh_stock(seller_sku, "5000", "AFS1")
-    elif brand=="delcasa":
-        stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
-
-    if stock > 10:
-        dealshub_product_obj.stock = 5
-    else:
-        dealshub_product_obj.stock = 0
-
-    dealshub_product_obj.save()
 
 
 def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):

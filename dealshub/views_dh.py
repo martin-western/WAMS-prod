@@ -320,6 +320,8 @@ class UpdateCartDetailsAPI(APIView):
             unit_cart_obj.quantity = quantity
             unit_cart_obj.save()
 
+            update_cart_bill(unit_cart_obj.cart)
+
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -342,7 +344,11 @@ class RemoveFromCartAPI(APIView):
 
             unit_cart_uuid = data["unitCartUuid"]
             
-            UnitCart.objects.get(uuid=unit_cart_uuid).delete()
+            unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
+            cart_obj = unit_cart_obj.cart
+            unit_cart_obj.delete()
+
+            update_cart_bill(cart_obj)
 
             response["status"] = 200
         except Exception as e:
@@ -1578,9 +1584,8 @@ class ContactUsSendEmailAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            email_info = json.loads(location_group_obj.email_info)
-            to_email = email_info["email_id"]
-            password = email_info["password"]
+            to_email = location_group_obj.get_support_email_id()
+            password = location_group_obj.get_support_email_password()
 
             # Trigger Email
             try:
