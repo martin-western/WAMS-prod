@@ -667,17 +667,6 @@ class FetchPriceAndStockAmazonUAEAPI(APIView):
 
             logger.info("FetchPriceAndStockAmazonUAEAPI: %s", str(data))
 
-            permissible_channels = custom_permission_filter_channels(request.user)
-            channel_obj = Channel.objects.get(name="Amazon UAE")
-
-            if channel_obj not in permissible_channels:
-                logger.warning("FetchPriceAndStockAmazonUAEAPI Restricted Access of UAE Channel!")
-                response['status'] = 403
-                return Response(data=response)
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
             reports_api = APIs.Reports(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region="AE")
 
             request_report = reports_api.request_report(report_type="_GET_MERCHANT_LISTINGS_ALL_DATA_", marketplace_ids=marketplace_id)
@@ -791,7 +780,7 @@ class PartialUpdateProductAmazonUAEAPI(APIView):
                 response['status'] = 429
                 return Response(data=response)
 
-            xml_string = generate_xml_for_product_partialupdate(product_pk_list,SELLER_ID)
+            xml_string = generate_xml_for_product_partialupdate_amazon_uae(product_pk_list,SELLER_ID)
 
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region='AE')
 
@@ -805,8 +794,8 @@ class PartialUpdateProductAmazonUAEAPI(APIView):
                                                 user=request.user)
 
             for product_pk in product_pk_list:
-                product = Product.objects.get(pk=product_pk)
-                report_obj.products.add(product)
+                product_obj = Product.objects.get(pk=product_pk)
+                report_obj.products.add(product_obj)
 
             report_obj.save()
 

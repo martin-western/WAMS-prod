@@ -194,7 +194,7 @@ def generate_xml_for_delete_product_data_amazon_uae(seller_sku_list,seller_id):
         logger.error("Generating Delete XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
         return ""
 
-def generate_xml_for_product_partialupdate(product_pk_list,seller_id):
+def generate_xml_for_product_partialupdate_amazon_uae(product_pk_list,seller_id):
 
     try:
 
@@ -219,14 +219,14 @@ def generate_xml_for_product_partialupdate(product_pk_list,seller_id):
 
             print(product_obj.base_product)
 
-            base_dimensions_json = json.loads(product_obj.base_product.dimensions)
-            product_dimension_l_metric = base_dimensions_json["product_dimension_l_metric"]
-            product_dimension_b_metric = base_dimensions_json["product_dimension_b_metric"]
-            product_dimension_h_metric = base_dimensions_json["product_dimension_h_metric"]
+            base_dimensions_dict = json.loads(product_obj.base_product.dimensions)
+            product_dimension_l_metric = base_dimensions_dict["product_dimension_l_metric"]
+            product_dimension_b_metric = base_dimensions_dict["product_dimension_b_metric"]
+            product_dimension_h_metric = base_dimensions_dict["product_dimension_h_metric"]
 
-            product_dimension_l = base_dimensions_json["product_dimension_l"]
-            product_dimension_b = base_dimensions_json["product_dimension_b"]
-            product_dimension_h = base_dimensions_json["product_dimension_h"]
+            product_dimension_l = base_dimensions_dict["product_dimension_l"]
+            product_dimension_b = base_dimensions_dict["product_dimension_b"]
+            product_dimension_h = base_dimensions_dict["product_dimension_h"]
 
             xml_string += '<Message>\
                 <MessageID>'+message_id+'</MessageID>\
