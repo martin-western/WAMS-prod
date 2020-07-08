@@ -194,3 +194,65 @@ def generate_xml_for_delete_product_data_amazon_uae(seller_sku_list,seller_id):
         logger.error("Generating Delete XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
         return ""
 
+def generate_xml_for_product_partialupdate_amazon_uae(product_pk_list,seller_id):
+
+    try:
+
+        xml_string = """<?xml version="1.0"?>
+                        <AmazonEnvelope xsi:noNamespaceSchemaLocation="amzn-envelope.xsd"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Header>
+                                <DocumentVersion>1.01</DocumentVersion>
+                                <MerchantIdentifier>"""+seller_id+"""</MerchantIdentifier>
+                            </Header>
+                            <MessageType>Product</MessageType>
+                            <PurgeAndReplace>false</PurgeAndReplace>"""
+        
+        for product_pk in product_pk_list:
+
+            product_obj = Product.objects.get(pk=int(product_pk))
+            message_id = str(product_pk)
+
+            product_description = product_obj.product_description
+            product_name = product_obj.product_name    
+            seller_sku = product_obj.base_product.seller_sku
+
+            print(product_obj.base_product)
+
+            base_dimensions_dict = json.loads(product_obj.base_product.dimensions)
+            product_dimension_l_metric = base_dimensions_dict["product_dimension_l_metric"]
+            product_dimension_b_metric = base_dimensions_dict["product_dimension_b_metric"]
+            product_dimension_h_metric = base_dimensions_dict["product_dimension_h_metric"]
+
+            product_dimension_l = base_dimensions_dict["product_dimension_l"]
+            product_dimension_b = base_dimensions_dict["product_dimension_b"]
+            product_dimension_h = base_dimensions_dict["product_dimension_h"]
+
+            xml_string += '<Message>\
+                <MessageID>'+message_id+'</MessageID>\
+                <OperationType>PartialUpdate</OperationType>\
+                <Product>\
+                    <SKU>'+seller_sku+'</SKU>\
+                    <DescriptionData>\
+                        <Title><![CDATA['+product_name+']]></Title>\
+                        <Description><![CDATA['+product_description+']]>\
+                        </Description>\
+                        <ItemDimensions>\
+                            <Length unitOfMeasure="'+product_dimension_l_metric+'">'+product_dimension_l+'</Length>\
+                            <Width unitOfMeasure="'+product_dimension_b_metric+'">'+product_dimension_b+'</Width>\
+                            <Height unitOfMeasure="'+product_dimension_h_metric+'">'+product_dimension_h+'</Height>\
+                        </ItemDimensions>\
+                    </DescriptionData>\
+                </Product>\
+            </Message>'
+
+        xml_string +=  '</AmazonEnvelope>'
+        xml_string = xml_string.encode('utf-8')
+        
+        return xml_string
+
+    except Exception as e:
+        print(str(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Generating PartialUpdate XML UAE: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""
