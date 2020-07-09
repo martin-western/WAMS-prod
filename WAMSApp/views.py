@@ -4249,7 +4249,7 @@ class SapIntegrationAPI(APIView):
             product_obj = Product.objects.get(pk=data["product_pk"])
             seller_sku = product_obj.base_product.seller_sku
 
-            url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+            url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
             #headers = {'content-type': 'application/soap+xml'}
             #headers = {'content-type': 'text/xml'}
             headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
