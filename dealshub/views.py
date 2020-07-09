@@ -61,7 +61,7 @@ class FetchProductDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_product_obj = DealsHubProduct.objects.get(product__uuid=data["uuid"])
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["uuid"])
             product_obj = dealshub_product_obj.product
             base_product_obj = product_obj.base_product
 
