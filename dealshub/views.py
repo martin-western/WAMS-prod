@@ -322,7 +322,14 @@ class SearchAPI(APIView):
                     temp_dict["name"] = dealshub_product_obj.get_name()
                     temp_dict["brand"] = dealshub_product_obj.get_brand()
                     temp_dict["price"] = dealshub_product_obj.get_actual_price()
-                    temp_dict["wasPrice"] = str(dealshub_product.was_price)
+                    temp_dict["wasPrice"] = dealshub_product_obj.was_price
+                    temp_dict["stock"] = dealshub_product_obj.stock
+                    temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
+                    temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
+                    if dealshub_product_obj.promotion!=None:
+                        temp_dict["promotional_tag"] = dealshub_product_obj.promotion.promotion_tag
+                    else:
+                        temp_dict["promotional_tag"] = None
                     temp_dict["currency"] = dealshub_product_obj.get_currency()
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     temp_dict["id"] = dealshub_product_obj.uuid
