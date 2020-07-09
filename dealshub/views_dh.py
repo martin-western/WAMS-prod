@@ -888,7 +888,7 @@ class CreateOfflineCustomerAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchUserProfileAPI: %s", str(data))
+            logger.info("CreateOfflineCustomerAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -913,7 +913,7 @@ class CreateOfflineCustomerAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateOfflineCustomerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -2727,6 +2727,8 @@ EditShippingAddress = EditShippingAddressAPI.as_view()
 
 CreateShippingAddress = CreateShippingAddressAPI.as_view()
 
+CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
+
 DeleteShippingAddress = DeleteShippingAddressAPI.as_view()
 
 AddToCart = AddToCartAPI.as_view()
@@ -2752,6 +2754,8 @@ FetchOrderList = FetchOrderListAPI.as_view()
 FetchOrderListAdmin = FetchOrderListAdminAPI.as_view()
 
 FetchOrderDetails = FetchOrderDetailsAPI.as_view()
+
+CreateOfflineCustomer = CreateOfflineCustomerAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
 

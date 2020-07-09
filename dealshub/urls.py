@@ -67,6 +67,7 @@ urlpatterns = [
     url(r'^api/dealshub/v1.0/address/fetch-shipping-address-list/$', views.FetchShippingAddressList),
     url(r'^api/dealshub/v1.0/address/edit-shipping-address/$', views.EditShippingAddress),
     url(r'^api/dealshub/v1.0/address/create-shipping-address/$', views.CreateShippingAddress),
+    url(r'^api/dealshub/v1.0/address/create-offline-shipping-address/$', views.CreateOfflineShippingAddress),
     url(r'^api/dealshub/v1.0/address/delete-shipping-address/$', views.DeleteShippingAddress),
 
     url(r'^api/dealshub/v1.0/cart/add-to-cart/$', views.AddToCart),
@@ -82,6 +83,7 @@ urlpatterns = [
     url(r'^api/dealshub/v1.0/order/fetch-order-list/$', views.FetchOrderList),
     url(r'^api/dealshub/v1.0/order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^api/dealshub/v1.0/order/fetch-order-details/$', views.FetchOrderDetails),
+    url(r'^api/dealshub/v1.0/order/create-offline-customer/$', views.CreateOfflineCustomer),
 
     url(r'^api/dealshub/v1.0/payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
     url(r'^api/dealshub/v1.0/payment/make-purchase-request/$', views.MakePurchaseRequest),
