@@ -144,5 +144,13 @@ urlpatterns = [
     url(r'^bulk-update-noon-product-stock/$',views.BulkUpdateNoonProductStock),
     url(r'^bulk-update-noon-product-price-and-stock/$',views.BulkUpdateNoonProductStock),
 
+    url(r'^bulk-update-amazon-uae-product-price/$',views.BulkUpdateAmazonUAEProductPrice),
+    url(r'^bulk-update-amazon-uae-product-stock/$',views.BulkUpdateAmazonUAEProductStock),
+    url(r'^bulk-update-amazon-uae-product-price-and-stock/$',views.BulkUpdateAmazonUAEProductStock),
+
+    url(r'^bulk-update-amazon-uk-product-price/$',views.BulkUpdateAmazonUKProductPrice),
+    url(r'^bulk-update-amazon-uk-product-stock/$',views.BulkUpdateAmazonUKProductStock),
+    url(r'^bulk-update-amazon-uk-product-price-and-stock/$',views.BulkUpdateAmazonUKProductStock),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
