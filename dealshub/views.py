@@ -1160,6 +1160,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["now_price"] = dealshub_product_obj.now_price
                     temp_dict2["was_price"] = dealshub_product_obj.was_price
                     temp_dict2["stock"] = dealshub_product_obj.stock 
+                    if dealshub_product_obj.stock>0:
+                        temp_dict2["isStockAvailable"] = True
+                    else:
+                        temp_dict2["isStockAvailable"] = True
 
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
@@ -1256,6 +1260,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3["now_price"] = dealshub_product_obj.now_price
                             temp_dict3["was_price"] = dealshub_product_obj.was_price
                             temp_dict3["stock"] = dealshub_product_obj.stock
+                            if dealshub_product_obj.stock>0:
+                                temp_dict3["isStockAvailable"] = True
+                            else:
+                                temp_dict3["isStockAvailable"] = True
 
                             temp_products.append(temp_dict3)    # No need to Send all
                         temp_dict2["products"] = temp_products
