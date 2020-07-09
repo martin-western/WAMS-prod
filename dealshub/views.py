@@ -1156,10 +1156,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     promotion_obj = dealshub_product_obj.promotion
                     
-                    temp_dict2["promotional_price"] = str(dealshub_product_obj.promotional_price)  
-                    temp_dict2["now_price"] = str(dealshub_product_obj.now_price)
-                    temp_dict2["was_price"] = str(dealshub_product_obj.was_price)
-                    temp_dict2["stock"] = str(dealshub_product_obj.stock) 
+                    temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
+                    temp_dict2["now_price"] = dealshub_product_obj.now_price
+                    temp_dict2["was_price"] = dealshub_product_obj.was_price
+                    temp_dict2["stock"] = dealshub_product_obj.stock 
 
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
@@ -1252,10 +1252,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                             promotion_obj = dealshub_product_obj.promotion
                             
-                            temp_dict3["promotional_price"] = str(dealshub_product_obj.promotional_price)  
-                            temp_dict3["now_price"] = str(dealshub_product_obj.now_price)
-                            temp_dict3["was_price"] = str(dealshub_product_obj.was_price)
-                            temp_dict3["stock"] = str(dealshub_product_obj.stock)
+                            temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
+                            temp_dict3["now_price"] = dealshub_product_obj.now_price
+                            temp_dict3["was_price"] = dealshub_product_obj.was_price
+                            temp_dict3["stock"] = dealshub_product_obj.stock
 
                             temp_products.append(temp_dict3)    # No need to Send all
                         temp_dict2["products"] = temp_products
