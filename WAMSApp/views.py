@@ -5245,7 +5245,7 @@ class FetchChannelProductListAPI(APIView):
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "Noon SKU":
+                            elif data["option"] == "Noon SKU" and channel_name=="Noon":
                                 search_key = str(dfs.iloc[i][0]).strip()
                                 
                                 try :
@@ -5255,11 +5255,31 @@ class FetchChannelProductListAPI(APIView):
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "Partner SKU":
+                            elif data["option"] == "Partner SKU" and channel_name=="Noon":
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
                                     product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "ASIN" and channel_name=="Amazon UAE":
+                                search_key = str(dfs.iloc[i][0]).strip()
+
+                                try :
+                                    product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"partner_sku": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "ASIN" and channel_name=="Amazon UK":
+                                search_key = str(dfs.iloc[i][0]).strip()
+
+                                try :
+                                    product_obj = Product.objects.get(channel_product_amazon_uk_product_json_icontains='"partner_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
