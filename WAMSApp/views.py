@@ -25,6 +25,9 @@ from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_orders import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
+from WAMSApp.views_noon import *
+from WAMSApp.views_amazon_uae import *
+from WAMSApp.views_amazon_uk import *
 from WAMSApp.views_noon_integration import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
@@ -5194,10 +5197,82 @@ class FetchChannelProductListAPI(APIView):
                 for i in range(rows):
                     try:
                         search_key = str(dfs.iloc[i][0]).strip()
-                        search_list.append(search_key)
+                        
+                        if "option" not in data:
+                            search_list.append(search_key)
+                        else :
+                            product_objs = Product.objects.none()
+                    
+                            if data["option"] == "Product ID":
+                                search_key = str(dfs.iloc[i][0]).strip()
+                                
+                                try :
+                                    product_obj = Product.objects.get(product_id=search_key)
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "Seller SKU":
+                                search_key = str(dfs.iloc[i][0]).strip()
+                                
+                                try :
+                                    product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "Noon SKU" and channel_name=="Noon":
+                                search_key = str(dfs.iloc[i][0]).strip()
+                                
+                                try :
+                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "Partner SKU" and channel_name=="Noon":
+                                search_key = str(dfs.iloc[i][0]).strip()
+
+                                try :
+                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "ASIN" and channel_name=="Amazon UAE":
+                                search_key = str(dfs.iloc[i][0]).strip()
+
+                                try :
+                                    product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "ASIN" and channel_name=="Amazon UK":
+                                search_key = str(dfs.iloc[i][0]).strip()
+
+                                try :
+                                    product_obj = Product.objects.get(channel_product_amazon_uk_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            else:
+                                response['status'] = 405
+                                logger.warning("FetchChannelProductListAPI Wrong Template Uploaded for " + data["option"])
+                                return Response(data=response)
+
                     except Exception as e:
                         pass
-                product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
+                
+                    if "option" not in data:
+                        product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
 
             for product_obj in product_objs:
                 
@@ -5237,10 +5312,11 @@ class FetchChannelProductListAPI(APIView):
                 if channel_name=="Noon":
                     noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
                     temp_dict["product_name"] = noon_product_json["product_name"]
+                    temp_dict["noon_sku"] = noon_product_json["noon_sku"]
                     temp_dict["category"] = noon_product_json["category"]
                     temp_dict["sub_category"] = noon_product_json["sub_category"]
                     temp_dict["status"] = noon_product_json["status"]
-                    temp_dict["now_price"] = noon_product_json["now_price"]
+                    temp_dict["now_price"] = noon_product_json["sale_price"]
                     temp_dict["was_price"] = noon_product_json["was_price"]
                     temp_dict["stock"] = noon_product_json["stock"]
 
@@ -5947,10 +6023,14 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             stock_permission = custom_permission_stock(request.user, channel_name)
 
             if price_permission:
+
                 if "now_price" in data:
-                    channel_product_dict["now_price"] = float(data["now_price"])
+                    if channel_name == "Noon":
+                        channel_product_dict["sale_price"] = float(data["now_price"])
+                    else:
+                        channel_product_dict["now_price"] = float(data["now_price"])
                 if "was_price" in data:
-                    channel_product_dict["was_price"] = float(data["was_price"])    
+                    channel_product_dict["was_price"] = float(data["was_price"])
             
             if stock_permission:
                 if "stock" in data:
@@ -5967,124 +6047,6 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             logger.error("UpdateChannelProductStockandPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
-class BulkUpdateChannelProductPriceAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("BulkUpdateChannelProductPriceAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            channel_name = data["channel_name"]
-
-            channel_obj = Channel.objects.get(name=channel_name)
-
-            if(permission_channel_boolean_response(request.user,channel_obj)==False):
-                response['status'] = 403
-                logger.warning("BulkUpdateChannelProductPriceAPI Restricted Access of "+channel_name+" Channel!")
-                return Response(data=response)
-
-            price_permission = custom_permission_price(request.user, channel_name)
-            
-            if price_permission:
-                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
-                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-                rows = len(dfs.iloc[:])
-
-                for i in range(rows):
-                    try:
-                        product_id = str(dfs.iloc[i][0]).strip()
-                        price = float(dfs.iloc[i][1])
-                        
-                        product_obj = Product.objects.get(product_id=product_id)
-                        channel_product = product_obj.channel_product
-
-                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
-                        
-                        channel_product_dict["was_price"] = price
-                        channel_product_dict["now_price"] = price
-
-                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
-                            
-                        channel_product.save()
-
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("BulkUpdateChannelProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUpdateChannelProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-class BulkUpdateChannelProductStockAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("BulkUpdateChannelProductStockAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            channel_name = data["channel_name"]
-
-            channel_obj = Channel.objects.get(name=channel_name)
-
-            if(permission_channel_boolean_response(request.user,channel_obj)==False):
-                response['status'] = 403
-                logger.warning("BulkUpdateChannelProductStockAPI Restricted Access of "+channel_name+" Channel!")
-                return Response(data=response)
-
-            price_permission = custom_permission_price(request.user, channel_name)
-            
-            if price_permission:
-                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
-                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-                rows = len(dfs.iloc[:])
-
-                for i in range(rows):
-                    try:
-                        product_id = str(dfs.iloc[i][0]).strip()
-                        stock = int(dfs.iloc[i][1])
-                        
-                        product_obj = Product.objects.get(product_id=product_id)
-                        channel_product = product_obj.channel_product
-
-                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
-                        
-                        channel_product_dict["stock"] = stock
-
-                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
-                            
-                        channel_product.save()
-
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
 
 GithubWebhook = GithubWebhookAPI.as_view()
 
@@ -6244,7 +6206,3 @@ FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 FetchOCReportList = FetchOCReportListAPI.as_view()
 
 UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view()
-
-BulkUpdateChannelProductPrice = BulkUpdateChannelProductPriceAPI.as_view()
-
-BulkUpdateChannelProductStock = BulkUpdateChannelProductStockAPI.as_view()

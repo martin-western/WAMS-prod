@@ -17,7 +17,6 @@ from django.utils import timezone
 import sys
 import xlsxwriter
 
-
 def my_jwt_response_handler(token, user=None, request=None):
     
     return {
