@@ -193,10 +193,17 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2["brand"] = dealshub_product_obj.get_brand()
                 temp_dict2["price"] = dealshub_product_obj.get_actual_price()
                 temp_dict2["wasPrice"] = dealshub_product_obj.was_price
+                temp_dict2["stock"] = dealshub_product_obj.stock
+                temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
+                temp_dict2["is_promotional"] = dealshub_product_obj.promotion!=None
+                if dealshub_product_obj.promotion!=None:
+                    temp_dict2["promotional_tag"] = dealshub_product_obj.promotion.promotion_tag
+                else:
+                    temp_dict2["promotional_tag"] = None
                 temp_dict2["currency"] = dealshub_product_obj.get_currency()
                 temp_dict2["uuid"] = dealshub_product_obj.uuid
                 temp_dict2["id"] = dealshub_product_obj.uuid
-                temp_dict2["heroImageUrl"] = dealshub_heading_obj.get_main_image_url()
+                temp_dict2["heroImageUrl"] = dealshub_product_obj.get_main_image_url()
 
                 temp_dict["productsArray"].append(temp_dict2)
 
@@ -1712,6 +1719,13 @@ class FetchUnitBannerProductsAPI(APIView):
                 temp_dict["brand"] = dealshub_product_obj.get_brand()
                 temp_dict["price"] = dealshub_product_obj.get_actual_price()
                 temp_dict["wasPrice"] = dealshub_product_obj.was_price
+                temp_dict["stock"] = dealshub_product_obj.stock
+                temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
+                temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
+                if dealshub_product_obj.promotion!=None:
+                    temp_dict["promotional_tag"] = dealshub_product_obj.promotion.promotion_tag
+                else:
+                    temp_dict["promotional_tag"] = None
                 temp_dict["currency"] = dealshub_product_obj.get_currency()
                 temp_dict["uuid"] = dealshub_product_obj.uuid
                 temp_dict["id"] = dealshub_product_obj.uuid
