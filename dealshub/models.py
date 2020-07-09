@@ -108,13 +108,13 @@ class DealsHubProduct(models.Model):
         return str(self.location_group.location.currency)
 
     def get_category(self):
-        if self.base_product_obj.category!=None:
-            return str(self.product.base_product_obj.category)
+        if self.base_product.category!=None:
+            return str(self.product.base_product.category)
         return ""
 
     def get_sub_category(self):
-        if self.base_product_obj.sub_category!=None:
-            return str(self.product.base_product_obj.sub_category)
+        if self.base_product.sub_category!=None:
+            return str(self.product.base_product.sub_category)
         return ""
 
     def get_name(self):
