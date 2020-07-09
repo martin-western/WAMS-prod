@@ -108,6 +108,11 @@ urlpatterns = [
     url(r'^fetch-product-details-sales-integration/$',views.FetchProductDetailsSalesIntegration),
     url(r'^fetch-bulk-product-details-sales-integration/$',views.FetchBulkProductDetailsSalesIntegration),
 
+    url(r'^move-to-main-images/$',views.MoveToMainImages),
+    url(r'^move-to-sub-images/$',views.MoveToSubImages),
+
+    url(r'^generate-reports/$',views.GenerateReports),
+
     url(r'^upload-bulk-export/$',views.UploadBulkExport),
     url(r'^search-bulk-export/$',views.SearchBulkExport),
     url(r'^fetch-data-points/$',views.FetchDataPoints),
@@ -115,6 +120,16 @@ urlpatterns = [
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
     url(r'^fetch-company-credentials/$',views.FetchCompanyCredentials),
+
+    url(r'^fetch-orders-for-account-manager/$',views.FetchOrdersForAccountManager),
+    url(r'^fetch-orders-for-warehouse-manager/$',views.FetchOrdersForWarehouseManager),
+    url(r'^fetch-shipping-method/$',views.FetchShippingMethod),
+    url(r'^set-shipping-method/$',views.SetShippingMethod),
+    url(r'^set-orders-status/$',views.SetOrdersStatus),
+    url(r'^cancel-orders/$',views.CancelOrders),
+
+    url(r'^download-orders/$',views.DownloadOrders),
+    url(r'^upload-orders/$',views.UploadOrders),
 
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
 
@@ -124,18 +139,10 @@ urlpatterns = [
 
     url(r'^fetch-statistics/$',views.FetchStatistics),
     url(r'^update-channel-product-stock-and-price/$',views.UpdateChannelProductStockandPrice),
+    url(r'^bulk-update-channel-product-price/$',views.BulkUpdateChannelProductPrice),
+    url(r'^bulk-update-channel-product-stock/$',views.BulkUpdateChannelProductStock),
 
-    url(r'^bulk-update-noon-product-price/$',views.BulkUpdateNoonProductPrice),
-    url(r'^bulk-update-noon-product-stock/$',views.BulkUpdateNoonProductStock),
-    url(r'^bulk-update-noon-product-price-and-stock/$',views.BulkUpdateNoonProductStock),
 
-    url(r'^bulk-update-amazon-uae-product-price/$',views.BulkUpdateAmazonUAEProductPrice),
-    url(r'^bulk-update-amazon-uae-product-stock/$',views.BulkUpdateAmazonUAEProductStock),
-    url(r'^bulk-update-amazon-uae-product-price-and-stock/$',views.BulkUpdateAmazonUAEProductStock),
-
-    url(r'^bulk-update-amazon-uk-product-price/$',views.BulkUpdateAmazonUKProductPrice),
-    url(r'^bulk-update-amazon-uk-product-stock/$',views.BulkUpdateAmazonUKProductStock),
-    url(r'^bulk-update-amazon-uk-product-price-and-stock/$',views.BulkUpdateAmazonUKProductStock),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

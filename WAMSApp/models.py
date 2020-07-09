@@ -17,12 +17,11 @@ import uuid
 logger = logging.getLogger(__name__)
 
 noon_product_json = {
-
+    
     "product_name" : "",
     "noon_sku" : "",
-    "partner_sku" : "",
-    "partner_barcode" : "",
-    "psku_code":"",
+    "parent_sku" : "",
+    "parent_barcode" : "",
     "category" : "",
     "subtitle" : "",
     "sub_category" : "",
@@ -36,7 +35,8 @@ noon_product_json = {
     "status" : "Inactive",
     "http_link": "",
     "now_price":0.0,
-    "sale_price":0.0,
+    "was_price":0.0,
+    "sale_price":"",
     "sale_start":"",
     "sale_end":"",
     "stock":0,
@@ -179,78 +179,6 @@ amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
 
-
-class Location(models.Model):
-
-    name = models.CharField(max_length=200, default="")
-    country = models.CharField(max_length=200, default="UAE")
-    uuid = models.CharField(max_length=200, default="")
-    currency = models.CharField(max_length=20, default="AED")
-    payfort_multiplier = models.IntegerField(default=1)
-
-    def __str__(self):
-        return str(self.name)
-
-    def save(self, *args, **kwargs):
-
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-
-        super(Location, self).save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = "Location"
-        verbose_name_plural = "Location"
-
-
-class LocationGroup(models.Model):
-
-    name = models.CharField(max_length=100, default="")
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    website_group = models.ForeignKey('WebsiteGroup', on_delete=models.CASCADE)
-    delivery_fee = models.FloatField(default=0)
-    free_delivery_threshold = models.FloatField(default=100)
-    cod_charge = models.FloatField(default=5)
-    email_info = models.TextField(default="{}")
-    mshastra_info = models.TextField(default="{}")
-    uuid = models.CharField(max_length=200, default="")
-
-    def __str__(self):
-        return str(self.location)
-
-    def save(self, *args, **kwargs):
-
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-
-        super(LocationGroup, self).save(*args, **kwargs)
-
-    def get_support_email_id(self):
-        return json.loads(self.email_info)["support"]["email_id"]
-
-    def get_support_email_password(self):
-        return json.loads(self.email_info)["support"]["password"]
-
-    def get_order_from_email_id(self):
-        return json.loads(self.email_info)["order"]["email_id"]
-
-    def get_order_from_email_password(self):
-        return json.loads(self.email_info)["order"]["password"]
-
-    def get_order_to_email_list(self):
-        return json.loads(self.email_info)["order_to_list"]
-
-    def get_order_cc_email_list(self):
-        return json.loads(self.email_info)["order_cc_list"]
-
-    def get_order_bcc_email_list(self):
-        return json.loads(self.email_info)["order_bcc_list"]
-
-    class Meta:
-        verbose_name = "LocationGroup"
-        verbose_name_plural = "LocationGroup"
-
-
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -332,6 +260,39 @@ class OmnyCommUser(User):
     class Meta:
         verbose_name = "OmnyCommUser"
         verbose_name_plural = "OmnyCommUser"
+
+# class Factory(models.Model): 
+
+#     factory_code = models.CharField(max_length=300)
+#     name = models.CharField(max_length=300)
+#     images = models.ManyToManyField(Image, blank=True)
+#     other_info = models.TextField(null=True, blank=True)
+#     background_poster = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="background_poster")
+#     business_card = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL, related_name="business_card")
+#     phone_numbers = models.TextField(default="[]", blank=True)
+#     factory_emailid = models.CharField(max_length=300, null=True, blank=True)
+#     address = models.TextField(null=True, blank=True)
+#     operating_hours = models.TextField(default="[]", blank=True)
+#     bank_details = models.ForeignKey(Bank, null=True, blank=True, on_delete=models.SET_NULL, related_name="related_factory")
+#     average_delivery_days = models.IntegerField(null=True, blank=True)
+#     average_turn_around_time = models.IntegerField(null=True, blank=True)
+#     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL,related_name="logo")
+#     contact_person_name = models.CharField(max_length=300, null=True, blank=True)
+#     contact_person_emailid = models.CharField(max_length=300, null=True, blank=True)
+#     contact_person_mobile_no = models.CharField(max_length=300, null=True, blank=True)
+#     social_media_tag = models.CharField(max_length=300, null=True, blank=True)
+#     social_media_tag_information = models.CharField(max_length=300, null=True, blank=True)
+#     loading_port = models.CharField(max_length=300, null=True, blank=True)
+#     location = models.CharField(max_length=300, null=True, blank=True)
+#     created_date = models.DateTimeField(null=True, blank=True)
+#     created_by = models.ForeignKey(OmnyCommUser,blank=True)
+
+#     class Meta:
+#         verbose_name = "BaseFactory"
+#         verbose_name_plural = "BaseFactories"
+
+#     def __str__(self):
+#         return str(self.name)
         
 
 class ImageBucket(models.Model):
@@ -464,7 +425,6 @@ class Brand(models.Model):
 
 class WebsiteGroup(models.Model):
 
-    link = models.CharField(max_length=100, default="")
     name = models.CharField(max_length=100, unique=True)
     brands = models.ManyToManyField(Brand, blank=True)
     categories = models.ManyToManyField(Category, blank=True)
@@ -639,6 +599,7 @@ class Product(models.Model):
     history = AuditlogHistoryField()
 
     no_of_images_for_filter = models.IntegerField(default=0)
+    # factory = models.ForeignKey(Factory, null=True, blank=True)
     dynamic_form_attributes = models.TextField(default="{}")
 
     min_price = models.FloatField(default=0)
@@ -861,7 +822,6 @@ class CustomPermission(models.Model):
     oc_reports = models.TextField(default="[]")
     verify_product = models.BooleanField(default=False)
     page_list = models.TextField(default="[]")
-    location_groups = models.ManyToManyField(LocationGroup, blank=True)
     organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)
 
     class Meta:

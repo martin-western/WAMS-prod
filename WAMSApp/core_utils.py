@@ -62,7 +62,7 @@ def custom_permission_filter_dealshub_product(user):
     try:
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         brands = permission_obj.brands.all()
-        dealshub_product_objs = DealsHubProduct.objects.filter(product__base_product__brand__in=brands, location_group__in=permission_obj.location_groups.all()).order_by('-pk')
+        dealshub_product_objs = DealsHubProduct.objects.filter(product__base_product__brand__in=brands).order_by('-pk')
         logger.info("custom_permission_filter_dealshub_product done")
         return dealshub_product_objs
     
