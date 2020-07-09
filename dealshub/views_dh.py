@@ -176,6 +176,48 @@ class CreateShippingAddressAPI(APIView):
 
         return Response(data=response)
 
+class CreateOfflineShippingAddressAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateOfflineShippingAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            first_name = data["firstName"]
+            last_name = data["lastName"]
+            line1 = data["line1"]
+            line2 = data["line2"]
+            line3 = data["line3"]
+            line4 = data["line4"]
+            address_lines = json.dumps([line1, line2, line3, line4])
+            state = data["state"]
+            postcode = data["postcode"]
+            if postcode==None:
+                postcode = ""
+            contact_number = data["contactNumber"]
+            tag = data.get("tag", "")
+            if tag==None:
+                tag = ""
+
+            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj)
+
+            response["uuid"] = address_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOfflineShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class DeleteShippingAddressAPI(APIView):
 
@@ -839,6 +881,43 @@ class FetchOrderDetailsAPI(APIView):
         
         return Response(data=response)
 
+class CreateOfflineCustomerAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchUserProfileAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            contact_number = data["contact_number"]
+            website_group_name = data["website_group_name"]
+
+            digits = "0123456789"
+            OTP = ""
+            for i in range(6):
+                OTP += digits[int(math.floor(random.random()*10))]
+
+            if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
+                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
+                dealshub_user_obj.set_password(OTP)
+                dealshub_user_obj.verification_code = OTP
+                dealshub_user_obj.save()
+            else:
+                dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+                dealshub_user_obj.set_password(OTP)
+                dealshub_user_obj.verification_code = OTP
+                dealshub_user_obj.save()
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 
 class FetchUserProfileAPI(APIView):
 
@@ -863,7 +942,7 @@ class FetchUserProfileAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
@@ -1627,7 +1706,7 @@ class SendOTPSMSLoginAPI(APIView):
             mshastra_info = json.loads(location_group_obj.mshastra_info)
 
             digits = "0123456789"
-            OTP = "" 
+            OTP = ""
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
