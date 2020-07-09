@@ -5219,10 +5219,62 @@ class FetchChannelProductListAPI(APIView):
                 for i in range(rows):
                     try:
                         search_key = str(dfs.iloc[i][0]).strip()
-                        search_list.append(search_key)
+                        
+                        if "option" not in data:
+                            search_list.append(search_key)
+                        else :
+                            product_objs = Product.objects.none()
+                    
+                            if data["option"] == "Product ID":
+                                search_key = str(dfs.iloc[i][0]).strip()
+                                
+                                try :
+                                    product_obj = Product.objects.get(product_id=search_key)
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "Seller SKU":
+                                search_key = str(dfs.iloc[i][0]).strip()
+                                
+                                try :
+                                    product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "Noon SKU":
+                                search_key = str(dfs.iloc[i][0]).strip()
+                                
+                                try :
+                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "Partner SKU":
+                                search_key = str(dfs.iloc[i][0]).strip()
+
+                                try :
+                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            else:
+                                response['status'] = 405
+                                logger.warning("FetchChannelProductListAPI Wrong Template Uploaded for " + data["option"])
+                                return Response(data=response)
+
                     except Exception as e:
                         pass
-                product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
+                
+                    if "option" not in data:
+                        product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
 
             for product_obj in product_objs:
                 
