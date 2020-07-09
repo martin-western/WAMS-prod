@@ -30,6 +30,8 @@ urlpatterns = [
     url(r'^fetch-report-details/$',views.FetchReportDetails),
     url(r'^refresh-report-status/$',views.RefreshReportStatus),
 
-    url(r'^fetch-orders-periodically/$',views.FetchOrdersPeriodically),    
+    url(r'^fetch-orders-periodically/$',views.FetchOrdersPeriodically),   
+    url(r'^fetch-price-and-stock-periodically-amazon-uae',views.FetchPriceAndStockAmazonUAE), 
+    url(r'^partial-update-products-amazon-uae',views.PartialUpdateProductAmazonUAE), 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

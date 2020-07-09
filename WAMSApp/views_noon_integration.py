@@ -74,9 +74,11 @@ class PushPriceAPI(APIView):
 
                     seller_sku = product_obj.base_product.seller_sku
                     was_price = noon_product["was_price"]
-                    now_price = noon_product["now_price"]
+                    sale_price = noon_product["sale_price"]
+                    sale_start = noon_product["sale_start"]
+                    sale_end = noon_product["sale_end"]
 
-                    tsv_writer.writerow([country_code, partner_id ,seller_sku,str(float(was_price)),"",str(float(now_price)),""])
+                    tsv_writer.writerow([country_code, partner_id ,seller_sku,str(float(was_price)),str(sale_end),str(float(sale_price)),str(sale_start)])
                 
             urls = requests.post('https://integration.noon.partners/public/signed-url/noon_price_update.tsv',
                                      headers=headers).json()

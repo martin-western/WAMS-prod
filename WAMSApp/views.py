@@ -1,9 +1,6 @@
-from django.db.models import Count
-
-from WAMSApp.models import *
-
 from auditlog.models import *
-from dealshub.models import DealsHubProduct
+from dealshub.models import *
+from WAMSApp.models import *
 from WAMSApp.utils import *
 from WAMSApp.constants import *
 
@@ -28,8 +25,10 @@ from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_orders import *
 from WAMSApp.views_mws_amazon_uk import *
 from WAMSApp.views_mws_amazon_uae import *
+from WAMSApp.views_noon import *
+from WAMSApp.views_amazon_uae import *
+from WAMSApp.views_amazon_uk import *
 from WAMSApp.views_noon_integration import *
-from WAMSApp.views_dh import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
 
@@ -189,7 +188,10 @@ class CreateNewBaseProductAPI(APIView):
 
             product_obj = Product.objects.create(product_name=product_name, base_product=base_product_obj, dynamic_form_attributes=json.dumps(dynamic_form_attributes))
 
-            DealsHubProduct.objects.create(product=product_obj)
+
+            location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
+            for location_group_obj in location_group_objs:
+                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -200,6 +202,7 @@ class CreateNewBaseProductAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class CreateNewProductAPI(APIView):
 
@@ -263,7 +266,9 @@ class CreateNewProductAPI(APIView):
                                             base_product=base_product_obj,
                                             dynamic_form_attributes=json.dumps(dynamic_form_attributes))
 
-            DealsHubProduct.objects.create(product=product_obj)
+            location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
+            for location_group_obj in location_group_objs:
+                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -340,6 +345,7 @@ class SaveNoonChannelProductAPI(APIView):
 
         return Response(data=response)
 
+
 class SaveAmazonUKChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -402,6 +408,7 @@ class SaveAmazonUKChannelProductAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class SaveAmazonUAEChannelProductAPI(APIView):
 
@@ -467,6 +474,7 @@ class SaveAmazonUAEChannelProductAPI(APIView):
 
         return Response(data=response)
 
+
 class SaveEbayChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -531,6 +539,7 @@ class SaveEbayChannelProductAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class FetchChannelProductAPI(APIView):
 
@@ -644,6 +653,7 @@ class FetchChannelProductAPI(APIView):
                              e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class FetchBaseProductDetailsAPI(APIView):
 
@@ -773,22 +783,7 @@ class FetchProductDetailsAPI(APIView):
 
             response["is_bundle_product"] = product_obj.is_bundle_product
 
-            try:
-                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
-                response["was_price"] = dealshub_product_obj.was_price
-                response["now_price"] = dealshub_product_obj.now_price
-                response["stock"] = dealshub_product_obj.stock
-                response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
-            except Exception as e:
-                response["was_price"] = 0
-                response["now_price"] = 0
-                response["stock"] = 0
-                response["is_cod_allowed"] = True
-
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
-            response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
-
-            response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
 
 
             response["product_description_amazon_uk"] = product_obj.product_description
@@ -935,7 +930,11 @@ class FetchDealsHubProductsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
             dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
+            dealshub_product_objs = dealshub_product_objs.filter(location_group=location_group_obj)
 
             search_list = data.get("search_list", "[]")
 
@@ -1005,7 +1004,7 @@ class FetchDealsHubProductsAPI(APIView):
                     product_obj = dealshub_product_obj.product
                     temp_dict ={}
                     temp_dict["product_pk"] = product_obj.pk
-                    temp_dict["product_uuid"] = product_obj.uuid
+                    temp_dict["product_uuid"] = dealshub_product_obj.uuid
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = product_obj.product_name
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
@@ -1084,7 +1083,7 @@ class UpdateDealshubProductAPI(APIView):
 
             product_uuid = data["product_uuid"]
 
-            dh_product_obj = DealsHubProduct.objects.get(product__uuid=product_uuid)
+            dh_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
 
             price_permission = custom_permission_price(request.user, "dealshub")
             stock_permission = custom_permission_stock(request.user, "dealshub")
@@ -1385,9 +1384,6 @@ class SaveProductAPI(APIView):
 
             min_price = float(data.get("min_price", 0))
             max_price = float(data.get("max_price", 0))
-            was_price = float(data.get("was_price", 0))
-            now_price = float(data.get("now_price", 0))
-            stock = int(data.get("stock", 0))
 
             is_cod_allowed = data.get("is_cod_allowed", False)
             is_bundle_product = data.get("is_bundle_product", False)
@@ -1400,22 +1396,6 @@ class SaveProductAPI(APIView):
             if custom_permission_price(request.user, "variant")==True:
                 product_obj.min_price = min_price
                 product_obj.max_price = max_price
-
-            try:
-                dealshub_product_obj = DealsHubProduct.objects.get(product=product_obj)
-                dealshub_product_obj.is_cod_allowed = is_cod_allowed
-                if custom_permission_price(request.user, "dealshub")==True:
-                    dealshub_product_obj.was_price = was_price
-                    if now_price>=min_price and now_price<=max_price:
-                        dealshub_product_obj.now_price = now_price
-                    dealshub_product_obj.save()
-
-                if custom_permission_stock(request.user, "dealshub")==True and stock>=0:
-                    dealshub_product_obj.stock = stock
-                    dealshub_product_obj.save()
-                dealshub_product_obj.save()
-            except Exception as e:
-                pass
 
 
             product_obj.product_id = product_id
@@ -4468,12 +4448,11 @@ class FetchUserProfileAPI(APIView):
             noon_functions = json.loads(custom_permission_obj.noon_functions)
             verify_product = custom_permission_obj.verify_product
 
-            OmnyCommUser_obj = content_manager
-
-            if(OmnyCommUser_obj.website_group != None):
+            if(custom_permission_obj.location_groups.count()>0):
                 permissions_dict["Ecommerce"] = {}
                 permissions_dict["Ecommerce"]["Items"] = []
-                permissions_dict["Ecommerce"]["Items"].append("Can Manage Ecommerce")
+                for location_group_obj in custom_permission_obj.location_groups.all():
+                    permissions_dict["Ecommerce"]["Items"].append(location_group_obj.name)
 
             for key in price.keys():
                 if(price[key]==True):
@@ -5218,10 +5197,82 @@ class FetchChannelProductListAPI(APIView):
                 for i in range(rows):
                     try:
                         search_key = str(dfs.iloc[i][0]).strip()
-                        search_list.append(search_key)
+                        
+                        if "option" not in data:
+                            search_list.append(search_key)
+                        else :
+                            product_objs = Product.objects.none()
+                    
+                            if data["option"] == "Product ID":
+                                search_key = str(dfs.iloc[i][0]).strip()
+                                
+                                try :
+                                    product_obj = Product.objects.get(product_id=search_key)
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "Seller SKU":
+                                search_key = str(dfs.iloc[i][0]).strip()
+                                
+                                try :
+                                    product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "Noon SKU" and channel_name=="Noon":
+                                search_key = str(dfs.iloc[i][0]).strip()
+                                
+                                try :
+                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "Partner SKU" and channel_name=="Noon":
+                                search_key = str(dfs.iloc[i][0]).strip()
+
+                                try :
+                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "ASIN" and channel_name=="Amazon UAE":
+                                search_key = str(dfs.iloc[i][0]).strip()
+
+                                try :
+                                    product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            elif data["option"] == "ASIN" and channel_name=="Amazon UK":
+                                search_key = str(dfs.iloc[i][0]).strip()
+
+                                try :
+                                    product_obj = Product.objects.get(channel_product_amazon_uk_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_objs.append(product_obj)
+                                except Exception as e:
+                                    excel_errors.append("More than one product found for " + search_key)
+                                    pass
+
+                            else:
+                                response['status'] = 405
+                                logger.warning("FetchChannelProductListAPI Wrong Template Uploaded for " + data["option"])
+                                return Response(data=response)
+
                     except Exception as e:
                         pass
-                product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
+                
+                    if "option" not in data:
+                        product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
 
             for product_obj in product_objs:
                 
@@ -5261,10 +5312,11 @@ class FetchChannelProductListAPI(APIView):
                 if channel_name=="Noon":
                     noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
                     temp_dict["product_name"] = noon_product_json["product_name"]
+                    temp_dict["noon_sku"] = noon_product_json["noon_sku"]
                     temp_dict["category"] = noon_product_json["category"]
                     temp_dict["sub_category"] = noon_product_json["sub_category"]
                     temp_dict["status"] = noon_product_json["status"]
-                    temp_dict["now_price"] = noon_product_json["now_price"]
+                    temp_dict["now_price"] = noon_product_json["sale_price"]
                     temp_dict["was_price"] = noon_product_json["was_price"]
                     temp_dict["stock"] = noon_product_json["stock"]
 
@@ -5457,135 +5509,6 @@ class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchBulkProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-class MoveToMainImagesAPI(APIView):
-
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        
-        try:
-            data = request.data
-
-            logger.info("MoveToMainImagesAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            channel_name = data["channel_name"]
-            image_pk = data["image_pk"]
-            product_pk = data["product_pk"]
-            
-            main_images_obj = MainImages.objects.get(product__pk=product_pk, channel__name=channel_name)
-            sub_images_obj = SubImages.objects.get(product__pk=product_pk, channel__name=channel_name)
-
-            image_bucket_obj = ImageBucket.objects.get(pk=image_pk)
-            sub_images_obj.sub_images.remove(image_bucket_obj)
-            main_images_obj.main_images.add(image_bucket_obj)
-            main_images_obj.save()
-            sub_images_obj.save()
-
-            response['status'] = 200
-        
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("MoveToMainImagesAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-class MoveToSubImagesAPI(APIView):
-
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        
-        try:
-            data = request.data
-
-            logger.info("MoveToSubImagesAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            channel_name = data["channel_name"]
-            image_pk = data["image_pk"]
-            product_pk = data["product_pk"]
-            
-            main_images_obj = MainImages.objects.get(product__pk=product_pk, channel__name=channel_name)
-            sub_images_obj = SubImages.objects.get(product__pk=product_pk, channel__name=channel_name)
-
-            image_bucket_obj = ImageBucket.objects.get(pk=image_pk)
-            main_images_obj.main_images.remove(image_bucket_obj)
-            sub_images_obj.sub_images.add(image_bucket_obj)
-            sub_images_obj.save()
-            main_images_obj.save()
-
-            response['status'] = 200
-        
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("MoveToSubImagesAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-class GenerateReportsAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        
-        try:
-            data = request.data
-
-            logger.info("GenerateReportsAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            filter_parameters = data["filter_parameters"]  
-
-            search_list_product_objs = Product.objects.filter(base_product__brand__organization=request.user.organization)
-
-            search_list_product_objs = custom_permission_filter_products(request.user)
-
-
-            if filter_parameters["brand_name"] != "":
-                brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
-                search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
-
-            without_images = 0
-            if filter_parameters["has_image"] == "1":
-                without_images = 0
-                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
-            elif filter_parameters["has_image"] == "0":
-                without_images = 1
-                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
-
-            generate_images_report(search_list_product_objs)
-            generate_mega_bulk_upload(search_list_product_objs)
-            generate_flyer_report()
-
-            response["file_path_1"] = "https://"+SERVER_IP+"/files/csv/images-count-report.xlsx"
-            response["file_path_2"] = "https://"+SERVER_IP+"/files/csv/mega-bulk-export.xlsx"
-            response["file_path_3"] = "https://"+SERVER_IP+"/files/csv/flyer-report.xlsx"
-            
-            response['status'] = 200
-        
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GenerateReportsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5898,13 +5821,16 @@ class CheckSectionPermissionsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub = False
-            if OmnyCommUser.objects.get(username=request.user.username).website_group!=None:
-                dealshub = True
-
-            response["dealshub"] = dealshub
+            ecommerce_pages = []
+            location_group_objs = CustomPermission.objects.get(username=request.user.username).location_groups.all()
+            for location_group_obj in location_group_objs:
+                temp_dict = {}
+                temp_dict["name"] = location_group_obj.name
+                temp_dict["uuid"] = location_group_obj.uuid
+                ecommerce_pages.append(temp_dict)
 
             response["page_list"] = get_custom_permission_page_list(request.user)
+            response["ecommerce_pages"] = ecommerce_pages
 
             response['status'] = 200
 
@@ -6097,10 +6023,14 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             stock_permission = custom_permission_stock(request.user, channel_name)
 
             if price_permission:
+
                 if "now_price" in data:
-                    channel_product_dict["now_price"] = float(data["now_price"])
+                    if channel_name == "Noon":
+                        channel_product_dict["sale_price"] = float(data["now_price"])
+                    else:
+                        channel_product_dict["now_price"] = float(data["now_price"])
                 if "was_price" in data:
-                    channel_product_dict["was_price"] = float(data["was_price"])    
+                    channel_product_dict["was_price"] = float(data["was_price"])
             
             if stock_permission:
                 if "stock" in data:
@@ -6117,124 +6047,6 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             logger.error("UpdateChannelProductStockandPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
-class BulkUpdateChannelProductPriceAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("BulkUpdateChannelProductPriceAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            channel_name = data["channel_name"]
-
-            channel_obj = Channel.objects.get(name=channel_name)
-
-            if(permission_channel_boolean_response(request.user,channel_obj)==False):
-                response['status'] = 403
-                logger.warning("BulkUpdateChannelProductPriceAPI Restricted Access of "+channel_name+" Channel!")
-                return Response(data=response)
-
-            price_permission = custom_permission_price(request.user, channel_name)
-            
-            if price_permission:
-                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
-                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-                rows = len(dfs.iloc[:])
-
-                for i in range(rows):
-                    try:
-                        product_id = str(dfs.iloc[i][0]).strip()
-                        price = float(dfs.iloc[i][1])
-                        
-                        product_obj = Product.objects.get(product_id=product_id)
-                        channel_product = product_obj.channel_product
-
-                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
-                        
-                        channel_product_dict["was_price"] = price
-                        channel_product_dict["now_price"] = price
-
-                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
-                            
-                        channel_product.save()
-
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("BulkUpdateChannelProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUpdateChannelProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-class BulkUpdateChannelProductStockAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("BulkUpdateChannelProductStockAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            channel_name = data["channel_name"]
-
-            channel_obj = Channel.objects.get(name=channel_name)
-
-            if(permission_channel_boolean_response(request.user,channel_obj)==False):
-                response['status'] = 403
-                logger.warning("BulkUpdateChannelProductStockAPI Restricted Access of "+channel_name+" Channel!")
-                return Response(data=response)
-
-            price_permission = custom_permission_price(request.user, channel_name)
-            
-            if price_permission:
-                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
-                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-                rows = len(dfs.iloc[:])
-
-                for i in range(rows):
-                    try:
-                        product_id = str(dfs.iloc[i][0]).strip()
-                        stock = int(dfs.iloc[i][1])
-                        
-                        product_obj = Product.objects.get(product_id=product_id)
-                        channel_product = product_obj.channel_product
-
-                        channel_product_dict = get_channel_product_dict(channel_name,channel_product)
-                        
-                        channel_product_dict["stock"] = stock
-
-                        channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
-                            
-                        channel_product.save()
-
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUpdateChannelProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
 
 GithubWebhook = GithubWebhookAPI.as_view()
 
@@ -6370,12 +6182,6 @@ FetchProductDetailsSalesIntegration = FetchProductDetailsSalesIntegrationAPI.as_
 
 FetchBulkProductDetailsSalesIntegration = FetchBulkProductDetailsSalesIntegrationAPI.as_view()
 
-MoveToMainImages = MoveToMainImagesAPI.as_view()
-
-MoveToSubImages = MoveToSubImagesAPI.as_view()
-
-GenerateReports = GenerateReportsAPI.as_view()
-
 # Bulk Export APIs
 UploadBulkExport = UploadBulkExportAPI.as_view()
 
@@ -6400,7 +6206,3 @@ FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 FetchOCReportList = FetchOCReportListAPI.as_view()
 
 UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view()
-
-BulkUpdateChannelProductPrice = BulkUpdateChannelProductPriceAPI.as_view()
-
-BulkUpdateChannelProductStock = BulkUpdateChannelProductStockAPI.as_view()
