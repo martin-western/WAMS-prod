@@ -1140,6 +1140,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         section_products = section_products[:14]
 
                 for dealshub_product_obj in section_products:
+                    if dealshub_product_obj.now_price==0:
+                        continue
                     temp_dict2 = {}
 
                     temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_main_image_url()
@@ -1238,6 +1240,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     if is_dealshub==False :
                         temp_products = []
                         for dealshub_product_obj in unit_banner_products:
+                            if dealshub_product_obj.now_price==0:
+                                continue
                             temp_dict3 = {}
 
                             temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_main_image_url()
