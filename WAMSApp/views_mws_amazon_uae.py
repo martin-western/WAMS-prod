@@ -23,7 +23,6 @@ import logging
 import sys
 import xlrd
 import time
-import re
 
 from datetime import datetime
 from django.utils import timezone
@@ -654,162 +653,6 @@ class GetProductInventoryAmazonUAEAPI(APIView):
 
         return Response(data=response)
 
-class FetchPriceAndStockAmazonUAEAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-
-        try:
-
-            data = request.data
-
-            logger.info("FetchPriceAndStockAmazonUAEAPI: %s", str(data))
-
-            reports_api = APIs.Reports(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region="AE")
-
-            request_report = reports_api.request_report(report_type="_GET_MERCHANT_LISTINGS_ALL_DATA_", marketplace_ids=marketplace_id)
-
-            request_report = request_report.parsed
-
-            request_report_id = request_report["ReportRequestInfo"]["ReportRequestId"]["value"]
-
-            time.sleep(30)
-
-            report_list = reports_api.get_report_list(request_ids=request_report_id)
-
-            report_list = report_list._response_dict
-
-            report_id = report_list["GetReportListResult"]["ReportInfo"]["ReportId"]["value"]
-
-            report = reports_api.get_report(report_id)
-
-            report = report.parsed
-
-            report = report.decode("windows-1252").splitlines()
-
-            cnt = 0
-            for line in report:
-
-                try:
-
-                    row = re.split('\t',line)
-
-                    if(cnt > 0):
-                        price = float(row[4])
-                        quantity = int(float(row[5]))
-                        status = row[-1]
-                        ASIN = ""
-                        seller_sku = row[3]
-
-                        asin_list = [16,17,18,-7]
-                        for col in asin_list:
-                            if(row[col]!="" and len(row[col])==10):
-                                ASIN = row[col]
-                                break
-
-                        try:
-                            product = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
-                            channel_product = product.channel_product   
-                            amazon_uae_product_json = json.loads(channel_product.amazon_uae_product_json)
-                            amazon_uae_product_json["now_price"] = price
-                            amazon_uae_product_json["stock"] = quantity
-                            if(status != "Active"):
-                                status = "Listed"
-                            amazon_uae_product_json["status"] = status
-                            amazon_uae_product_json["ASIN"] = ASIN
-                            channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product_json)
-                            channel_product.save()
-
-                            updated_products += 1
-
-                        except Exception as e:
-                            pass
-
-                    cnt += 1
-
-                except Exception as e:
-                    pass
-
-            response["total_products"] = cnt-1
-            response["updated_products"] = updated_products
-            response["status"] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchPriceAndStockAmazonUAEAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-class PartialUpdateProductAmazonUAEAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-
-        try:
-
-            data = request.data
-            
-            logger.info("PartialUpdateProductAmazonUAEAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            if custom_permission_mws_functions(request.user,"update_products_on_amazon") == False:
-                logger.warning("PartialUpdateProductAmazonUAEAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
-
-            permissible_channels = custom_permission_filter_channels(request.user)
-
-            channel_obj = Channel.objects.get(name="Amazon UAE")
-
-            if channel_obj not in permissible_channels:
-                logger.warning("PartialUpdateProductAmazonUAEAPI Restricted Access of UAE Channel!")
-                response['status'] = 403
-                return Response(data=response)
-
-            product_pk_list = data["product_pk_list"]
-
-            if(len(product_pk_list)>30):
-                logger.warning("PartialUpdateProductAmazonUAEAPI More then 30 Products!")
-                response['status'] = 429
-                return Response(data=response)
-
-            xml_string = generate_xml_for_product_partialupdate_amazon_uae(product_pk_list,SELLER_ID)
-
-            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region='AE')
-
-            response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_DATA_",marketplaceids=marketplace_id)
-
-            feed_submission_id = response_submeet_feed.parsed["FeedSubmissionInfo"]["FeedSubmissionId"]["value"]
-
-            report_obj = Report.objects.create(feed_submission_id=feed_submission_id,
-                                                operation_type="Update",
-                                                channel = channel_obj,
-                                                user=request.user)
-
-            for product_pk in product_pk_list:
-                product_obj = Product.objects.get(pk=product_pk)
-                report_obj.products.add(product_obj)
-
-            report_obj.save()
-
-            response["feed_submission_id"] = feed_submission_id
-
-            response["status"] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PartialUpdateProductAmazonUAEAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
 GetMatchingProductsAmazonUAEMWS = GetMatchingProductsAmazonUAEMWSAPI.as_view()
 
 GetPricingProductsAmazonUAEMWS = GetPricingProductsAmazonUAEMWSAPI.as_view()
@@ -821,7 +664,3 @@ PushProductsInventoryAmazonUAE = PushProductsInventoryAmazonUAEAPI.as_view()
 PushProductsPriceAmazonUAE = PushProductsPriceAmazonUAEAPI.as_view()
 
 GetProductInventoryAmazonUAE = GetProductInventoryAmazonUAEAPI.as_view()
-
-FetchPriceAndStockAmazonUAE = FetchPriceAndStockAmazonUAEAPI.as_view()
-
-PartialUpdateProductAmazonUAE = PartialUpdateProductAmazonUAEAPI.as_view()
