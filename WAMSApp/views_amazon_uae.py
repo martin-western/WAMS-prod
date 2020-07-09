@@ -44,7 +44,7 @@ import threading
 
 logger = logging.getLogger(__name__)
 
-class BulkUpdateNoonProductPriceAPI(APIView):
+class BulkUpdateAmazonUAEProductPriceAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -52,24 +52,24 @@ class BulkUpdateNoonProductPriceAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("BulkUpdateNoonProductPriceAPI: %s", str(data))
+            logger.info("BulkUpdateAmazonUAEProductPriceAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            channel_name = "Noon"
+            channel_name = "Amazon UAE"
             channel_obj = Channel.objects.get(name=channel_name)
 
             if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
-                logger.warning("BulkUpdateNoonProductPriceAPI Restricted Access of "+channel_name+" Channel!")
+                logger.warning("BulkUpdateAmazonUAEProductPriceAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
 
             price_permission = custom_permission_price(request.user, channel_name)
             
             if not price_permission:
                 response['status'] = 403
-                logger.warning("BulkUpdateNoonProductPriceAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
+                logger.warning("BulkUpdateAmazonUAEProductPriceAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-price.xlsx', data["import_file"])
@@ -79,15 +79,15 @@ class BulkUpdateNoonProductPriceAPI(APIView):
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateNoonProductPriceAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateAmazonUAEProductPriceAPI Sheet 1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
-            excel_header = str(dfs.columns[0]).strip()
+            excel_header = str(dfs.iloc[0][0]).strip()
 
             if data["option"] != excel_header:
                 response['status'] = 405
-                logger.warning("BulkUpdateNoonProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                logger.warning("BulkUpdateAmazonUAEProductPriceAPI Wrong Template Uploaded for " + data["option"])
                 return Response(data=response)
 
             excel_errors = []
@@ -112,24 +112,16 @@ class BulkUpdateNoonProductPriceAPI(APIView):
                             excel_errors.append("More than one product found for " + search_key)
                             pass
 
-                    elif data["option"] == "Noon SKU":
+                    elif data["option"] == "ASIN":
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
                             pass
 
-                    elif data["option"] == "Partner SKU":
-                        search_key = str(dfs.iloc[i][0]).strip()
-
-                        try :
-                            product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
-                        except Exception as e:
-                            excel_errors.append("More than one product found for " + search_key)
-                            pass
-
+                   
                     try :
                         was_price = float(dfs.iloc[i][1])
                         sale_price = float(dfs.iloc[i][2])
@@ -150,18 +142,18 @@ class BulkUpdateNoonProductPriceAPI(APIView):
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateNoonProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("BulkUpdateAmazonUAEProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["excel_errors"] = excel_errors
             response['status'] = 200               
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUpdateNoonProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("BulkUpdateAmazonUAEProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class BulkUpdateNoonProductStockAPI(APIView):
+class BulkUpdateAmazon UAEProductStockAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -169,24 +161,24 @@ class BulkUpdateNoonProductStockAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("BulkUpdateNoonProductStockAPI: %s", str(data))
+            logger.info("BulkUpdateAmazon UAEProductStockAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            channel_name = "Noon"
+            channel_name = "Amazon UAE"
             channel_obj = Channel.objects.get(name=channel_name)
 
             if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
-                logger.warning("BulkUpdateNoonProductStockAPI Restricted Access of "+channel_name+" Channel!")
+                logger.warning("BulkUpdateAmazon UAEProductStockAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
 
             stock_permission = custom_permission_stock(request.user, channel_name)
             
             if not stock_permission:
                 response['status'] = 403
-                logger.warning("BulkUpdateNoonProductPriceAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
+                logger.warning("BulkUpdateAmazon UAEProductPriceAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-stock.xlsx', data["import_file"])
@@ -196,7 +188,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateNoonProductStockAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateAmazon UAEProductStockAPI Sheet 1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -204,7 +196,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
 
             if data["option"] != excel_header:
                 response['status'] = 405
-                logger.warning("BulkUpdateNoonProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                logger.warning("BulkUpdateAmazon UAEProductPriceAPI Wrong Template Uploaded for " + data["option"])
                 return Response(data=response)
 
             excel_errors = []
@@ -230,7 +222,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                             excel_errors.append("More then one product found for " + search_key)
                             pass
 
-                    elif data["option"] == "Noon SKU":
+                    elif data["option"] == "Amazon UAE SKU":
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
@@ -266,18 +258,18 @@ class BulkUpdateNoonProductStockAPI(APIView):
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateNoonProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("BulkUpdateAmazon UAEProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["excel_errors"] = excel_errors
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUpdateNoonProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("BulkUpdateAmazon UAEProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class BulkUpdateNoonProductPriceAndStockAPI(APIView):
+class BulkUpdateAmazon UAEProductPriceAndStockAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -285,17 +277,17 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("BulkUpdateNoonProductPriceAndStockAPI: %s", str(data))
+            logger.info("BulkUpdateAmazon UAEProductPriceAndStockAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            channel_name = "Noon"
+            channel_name = "Amazon UAE"
             channel_obj = Channel.objects.get(name=channel_name)
 
             if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
-                logger.warning("BulkUpdateNoonProductPriceAndStockAPI Restricted Access of "+channel_name+" Channel!")
+                logger.warning("BulkUpdateAmazon UAEProductPriceAndStockAPI Restricted Access of "+channel_name+" Channel!")
                 return Response(data=response)
 
             price_permission = custom_permission_price(request.user, channel_name)
@@ -303,7 +295,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
 
             if not price_permission or not stock_permission:
                 response['status'] = 403
-                logger.warning("BulkUpdateNoonProductPriceAndStockAPI Restricted Access for Price and Stock Updation on "+channel_name+" Channel!")
+                logger.warning("BulkUpdateAmazon UAEProductPriceAndStockAPI Restricted Access for Price and Stock Updation on "+channel_name+" Channel!")
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-price-and-stock.xlsx', data["import_file"])
@@ -313,7 +305,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateNoonProductPriceAndStockAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateAmazon UAEProductPriceAndStockAPI Sheet 1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -321,7 +313,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
 
             if data["option"] != excel_header:
                 response['status'] = 405
-                logger.warning("BulkUpdateNoonProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                logger.warning("BulkUpdateAmazon UAEProductPriceAPI Wrong Template Uploaded for " + data["option"])
                 return Response(data=response)
 
             excel_errors = []
@@ -347,7 +339,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                             excel_errors.append("More then one product found for " + search_key)
                             pass
 
-                    elif data["option"] == "Noon SKU":
+                    elif data["option"] == "Amazon UAE SKU":
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
@@ -392,19 +384,19 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateNoonProductPriceAndStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("BulkUpdateAmazon UAEProductPriceAndStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["excel_errors"] = excel_errors
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUpdateNoonProductPriceAndStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("BulkUpdateAmazon UAEProductPriceAndStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-BulkUpdateNoonProductPrice = BulkUpdateNoonProductPriceAPI.as_view()
+BulkUpdateAmazon UAEProductPrice = BulkUpdateAmazon UAEProductPriceAPI.as_view()
 
-BulkUpdateNoonProductStock = BulkUpdateNoonProductStockAPI.as_view()
+BulkUpdateAmazon UAEProductStock = BulkUpdateAmazon UAEProductStockAPI.as_view()
 
-BulkUpdateNoonProductPriceAndStock = BulkUpdateNoonProductPriceAndStockAPI.as_view()
+BulkUpdateAmazon UAEProductPriceAndStock = BulkUpdateAmazon UAEProductPriceAndStockAPI.as_view()
