@@ -200,7 +200,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
-            excel_header = str(dfs.iloc[0][0]).strip()
+            excel_header = str(dfs.columns[0]).strip()
 
             if data["option"] != excel_header:
                 response['status'] = 405
@@ -317,7 +317,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
-            excel_header = str(dfs.iloc[0][0]).strip()
+            excel_header = str(dfs.columns[0]).strip()
 
             if data["option"] != excel_header:
                 response['status'] = 405
