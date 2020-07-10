@@ -135,7 +135,7 @@ class DealsHubProduct(models.Model):
     def get_actual_price(self):
         if self.promotion==None:
             return self.now_price
-        if check_valid_promotion(self.promotion)!=None:
+        if check_valid_promotion(self.promotion)==True:
             return self.promotional_price
         return self.now_price
 
