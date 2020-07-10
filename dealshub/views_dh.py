@@ -11,6 +11,7 @@ from rest_framework.permissions import AllowAny
 from dealshub.models import *
 from dealshub.constants import *
 from dealshub.utils import *
+from WAMSApp.constants import *
 
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -1619,7 +1620,7 @@ class SendOTPSMSLoginAPI(APIView):
                 data = json.loads(data)
             
             contact_number = data["contactNumber"]
-            location_group_uuid = data["locationGroupUuid"].lower()
+            location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
@@ -1693,7 +1694,7 @@ class VerifyOTPSMSLoginAPI(APIView):
 
             verified = False
             if dealshub_user_obj.verification_code==otp:
-                r = requests.post(url=OMNYCOMM_IP+"/token-auth/", data=credentials, verify=False)
+                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
                 verified = True
@@ -2185,7 +2186,7 @@ class FetchOrdersForAccountManagerAPI(APIView):
                 "api_access":api_access
             }
 
-            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/fetch-orders-for-account-manager/", data=request_data, verify=False)
+            r = requests.post(url=SERVER_IP+"/api/dealshub/v1.0/fetch-orders-for-account-manager/", data=request_data, verify=False)
             response = json.loads(r.content)
 
         except Exception as e:
@@ -2578,10 +2579,10 @@ class DownloadOrdersAPI(APIView):
 
             if report_type=="sap":
                 generate_sap_order_format(unit_order_list)
-                response["filepath"] = "https://"+SERVER_IP+"/files/csv/sap-order-format.xlsx"
+                response["filepath"] = SERVER_IP+"/files/csv/sap-order-format.xlsx"
             else:
                 generate_regular_order_format(unit_order_list)
-                response["filepath"] = "https://"+SERVER_IP+"/files/csv/regular-order-format.xlsx"
+                response["filepath"] = SERVER_IP+"/files/csv/regular-order-format.xlsx"
             
             response["status"] = 200
 
