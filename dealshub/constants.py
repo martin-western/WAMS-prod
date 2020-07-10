@@ -1,2 +1,1 @@
-OMNYCOMM_IP = "http://13.232.143.29:8012"
-DEALSHUB_IP = "http://13.232.143.29:8020"
+OMNYCOMM_IP = "http://qa.omnycomm.com:8028"
