@@ -188,6 +188,8 @@ class FetchSectionProductsAPI(APIView):
             dealshub_product_objs = paginator.page(page)
 
             for dealshub_product_obj in dealshub_product_objs:
+                if dealshub_product_obj.get_actual_price()==0:
+                    continue
                 temp_dict2 = {}
                 temp_dict2["name"] = dealshub_product_obj.get_name()
                 temp_dict2["brand"] = dealshub_product_obj.get_brand()
@@ -326,6 +328,8 @@ class SearchAPI(APIView):
             products = []
             for dealshub_product_obj in dealshub_product_objs:
                 try:
+                    if dealshub_product_obj.get_actual_price()==0:
+                        continue
                     temp_dict = {}
                     temp_dict["name"] = dealshub_product_obj.get_name()
                     temp_dict["brand"] = dealshub_product_obj.get_brand()
@@ -384,7 +388,7 @@ class SearchAPI(APIView):
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
-                        if DealsHubProduct.objects.filter(is_published=True, product__base_product__sub_category=sub_category_obj).exclude(now_price=0).exists()==False:
+                        if DealsHubProduct.objects.filter(is_published=True, product__base_product__sub_category=sub_category_obj, location_group=location_group_obj).exclude(now_price=0).exists()==False:
                             continue
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.name
@@ -1716,6 +1720,8 @@ class FetchUnitBannerProductsAPI(APIView):
 
             product_list = []
             for dealshub_product_obj in dealshub_product_objs:
+                if dealshub_product_obj.get_actual_price()==0:
+                    continue
                 temp_dict = {}
                 temp_dict["name"] = dealshub_product_obj.get_name()
                 temp_dict["brand"] = dealshub_product_obj.get_brand()
