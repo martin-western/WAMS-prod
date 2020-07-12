@@ -617,7 +617,7 @@ class FetchOrderListAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             order_list = []
-            order_objs = Order.objects.filter(owner=dealshub_user_obj, order_type="placedorder").order_by('-pk')
+            order_objs = Order.objects.filter(owner=dealshub_user_obj).order_by('-pk')
             for order_obj in order_objs:
                 voucher_obj = order_obj.voucher
                 is_voucher_applied = voucher_obj is not None
