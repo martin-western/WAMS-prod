@@ -449,6 +449,55 @@ class FetchSuperCategoriesAPI(APIView):
 FetchSuperCategories = FetchSuperCategoriesAPI.as_view()
 
 
+class FetchHeadingCategoriesAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchHeadingCategoriesAPI: %s", str(data))
+            website_group_name = data["websiteGroupName"]
+
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            category_objs = website_group_obj.categories.all()
+
+            category_list = []
+            for category_obj in category_objs:
+                temp_dict = {}
+                temp_dict["name"] = category_obj.name
+                temp_dict["uuid"] = category_obj.uuid
+                temp_dict["imageUrl"] = ""
+                if category_obj.image!=None:
+                    temp_dict["imageUrl"] = category_obj.image.mid_image.url
+                sub_category_list = []
+                sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                for sub_category_obj in sub_category_objs:
+                    temp_dict2 = {}
+                    temp_dict2["name"] = sub_category_obj.name
+                    temp_dict2["uuid"] = sub_category_obj.uuid
+                    sub_category_list.append(temp2)
+                temp_dict["subCategoryList"] = sub_category_list
+                category_list.append(temp_dict)
+
+            response['categoryList'] = category_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchHeadingCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+FetchHeadingCategories = FetchHeadingCategoriesAPI.as_view()
+
+
 class FetchCategoriesAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -592,6 +641,21 @@ class SearchAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
+
+            sub_category_list2 = []
+            try:
+                category_obj = Category.objects.get(name = category_name)
+                sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                for sub_category_obj in sub_category_objs:
+                    temp_dict2 = {}
+                    temp_dict2["name"] = sub_category_obj.name
+                    temp_dict2["uuid"] = sub_category_obj.uuid
+                    sub_category_list2.append(temp2)
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+
             is_super_category_available = False
             category_list = []
             try:
@@ -623,6 +687,7 @@ class SearchAPI(APIView):
 
             response["isSuperCategoryAvailable"] = is_super_category_available
             response["categoryList"] = category_list
+            response["subCategoryList"] = sub_category_list2
 
             is_available = True
             
