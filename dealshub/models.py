@@ -367,7 +367,7 @@ class Cart(models.Model):
         return subtotal+delivery_fee
 
     def get_vat(self):
-        total = self.get_total_amount()
+        total_amount = self.get_total_amount()
         return round((total_amount - total_amount/1.05), 2)
 
     def is_cod_allowed(self):
