@@ -644,7 +644,7 @@ class SearchAPI(APIView):
 
             sub_category_list2 = []
             try:
-                category_obj = Category.objects.get(name = category_name)
+                category_obj = website_group_obj.categories.get(name=category_name)
                 sub_category_objs = SubCategory.objects.filter(category=category_obj)
                 for sub_category_obj in sub_category_objs:
                     temp_dict2 = {}
