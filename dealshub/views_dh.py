@@ -1143,7 +1143,7 @@ class FetchTokenRequestParametersAPI(APIView):
             language = "en"
             PASS = payment_credentials["PASS"]
 
-            cart_obj = Cart.objects.get(dealshub_user=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             cart_obj.merchant_reference = merchant_reference
             cart_obj.save()
 
