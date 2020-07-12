@@ -154,7 +154,7 @@ def send_order_confirmation_mail(order_obj):
             temp_dict = {
                 "order_id": unit_order_obj.orderid,
                 "product_name": unit_order_obj.product.get_name(),
-                "productImageUrl": unit_order_obj.get_display_image_url(),
+                "productImageUrl": unit_order_obj.product.get_display_image_url(),
                 "quantity": unit_order_obj.quantity,
                 "price": unit_order_obj.price,
                 "currency": unit_order_obj.product.get_currency()
