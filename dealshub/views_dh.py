@@ -524,7 +524,7 @@ class PlaceOrderAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
