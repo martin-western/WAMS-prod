@@ -1201,7 +1201,7 @@ class MakePurchaseRequestAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
-            currency = location_group.location.currency
+            currency = location_group_obj.location.currency
 
             customer_ip = ""
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -1220,6 +1220,7 @@ class MakePurchaseRequestAPI(APIView):
             
 
             customer_email = dealshub_user_obj.email
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             amount = cart_obj.to_pay
             payfort_multiplier = int(cart_obj.location_group.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
