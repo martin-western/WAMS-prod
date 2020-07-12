@@ -481,7 +481,7 @@ class FetchHeadingCategoriesAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["name"] = sub_category_obj.name
                     temp_dict2["uuid"] = sub_category_obj.uuid
-                    sub_category_list.append(temp2)
+                    sub_category_list.append(temp_dict2)
                 temp_dict["subCategoryList"] = sub_category_list
                 category_list.append(temp_dict)
 
@@ -650,7 +650,7 @@ class SearchAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["name"] = sub_category_obj.name
                     temp_dict2["uuid"] = sub_category_obj.uuid
-                    sub_category_list2.append(temp2)
+                    sub_category_list2.append(temp_dict2)
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
