@@ -371,12 +371,10 @@ class SelectAddressAPI(APIView):
                 data = json.loads(data)
 
             address_uuid = data["addressUuid"]
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group)
             address_obj = Address.objects.get(uuid=address_uuid)
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
             
             cart_obj.shipping_address = address_obj
             cart_obj.save()
