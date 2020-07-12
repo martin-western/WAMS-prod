@@ -549,7 +549,7 @@ class PlaceOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                           product=unit_cart_obj.product,
                                                           quantity=unit_cart_obj.quantity,
-                                                          price=unit_cart_obj.product.get_actual_price(),
+                                                          price=unit_cart_obj.product.get_actual_price())
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
             # Cart gets empty
