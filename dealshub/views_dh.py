@@ -240,8 +240,7 @@ class AddToCartAPI(APIView):
                 unit_cart_obj.quantity += quantity
                 unit_cart_obj.save()
             else:
-                price = dealshub_user_obj.get_actual_price()
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity, price=price)
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity)
 
             update_cart_bill(cart_obj)
 
