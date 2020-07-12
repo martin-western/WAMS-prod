@@ -140,7 +140,7 @@ class CreateShippingAddressAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            user_obj = User.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -161,12 +161,12 @@ class CreateShippingAddressAPI(APIView):
             if tag==None:
                 tag = ""
 
-            if user_obj.first_name=="":
-                user_obj.first_name = first_name
-                user_obj.last_name = last_name
-                user_obj.save()
+            if dealshub_user_obj.first_name=="":
+                dealshub_user_obj.first_name = first_name
+                dealshub_user_obj.last_name = last_name
+                dealshub_user_obj.save()
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=user_obj, tag=tag, location_group=location_group_obj)
+            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
