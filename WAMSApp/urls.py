@@ -114,7 +114,6 @@ urlpatterns = [
     url(r'^download-bulk-export/$',views.DownloadBulkExport),
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
-    url(r'^fetch-company-credentials/$',views.FetchCompanyCredentials),
 
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
 

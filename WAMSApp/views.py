@@ -5770,41 +5770,6 @@ class FetchAllCategoriesAPI(APIView):
 
         return Response(data=response)
 
-class FetchCompanyCredentialsAPI(APIView):
-    
-    permission_classes = (permissions.AllowAny,)
-    
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        
-        try:
-            data = request.data
-
-            logger.info("FetchCompanyCredentialsAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            website_group_name = data["websiteGroupName"]
-            api_access = data["api_access"]
-
-            if api_access!="5a72db78-b0f2-41ff-b09e-6af02c5b4c77":
-                response["status"] = 403
-                return Response(data=response)
-
-            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
-
-            response["credentials"] = json.loads(website_group_obj.payment_credentials)
-            response['status'] = 200
-        
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCompanyCredentialsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
 
 class CheckSectionPermissionsAPI(APIView):
     
@@ -5821,6 +5786,7 @@ class CheckSectionPermissionsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            website_group_name = ""
             ecommerce_pages = []
             location_group_objs = CustomPermission.objects.get(user__username=request.user.username).location_groups.all()
             for location_group_obj in location_group_objs:
@@ -5829,8 +5795,13 @@ class CheckSectionPermissionsAPI(APIView):
                 temp_dict["uuid"] = location_group_obj.uuid
                 ecommerce_pages.append(temp_dict)
 
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            if omnycomm_user_obj.website_group!=None:
+                website_group_name = omnycomm_user_obj.website_group.name
+
             response["page_list"] = get_custom_permission_page_list(request.user)
             response["ecommerce_pages"] = ecommerce_pages
+            response["websiteGroupName"] = website_group_name
 
             response['status'] = 200
 
@@ -6194,8 +6165,6 @@ DownloadBulkExport = DownloadBulkExportAPI.as_view()
 TransferBulkChannel = TransferBulkChannelAPI.as_view()
 
 FetchAllCategories = FetchAllCategoriesAPI.as_view()
-
-FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()
 
 CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
 
