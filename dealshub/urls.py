@@ -100,8 +100,6 @@ urlpatterns = [
     url(r'^payfort/payment-transaction/$',views.PaymentTransaction),
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
 
-    
-    url(r'^fetch-orders-for-account-manager/$', views.FetchOrdersForAccountManager),
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
     url(r'^set-orders-status/$', views.SetOrdersStatus),
