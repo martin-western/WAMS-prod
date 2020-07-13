@@ -288,10 +288,20 @@ class FetchCartDetailsAPI(APIView):
             delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
+            vat_with_cod = cart_obj.get_vat_with_cod()
 
             response["deliveryFee"] = delivery_fee
-            response["vat"] = vat
-            response["toPay"] = total_amount
+            response["currency"] = cart_obj.get_currency()
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay" = total_amount
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod
+                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "codCharge" = cart_obj.location_group.cod_charge
+            }
             response["unitCartList"] = unit_cart_list
             response["status"] = 200
         except Exception as e:
