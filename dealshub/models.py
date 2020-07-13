@@ -352,9 +352,9 @@ class Cart(models.Model):
             subtotal += float(unit_cart_obj.product.get_actual_price())*float(unit_cart_obj.quantity)
         return subtotal
 
-    def get_delivery_fee(self):
+    def get_delivery_fee(self, cod=False):
         subtotal = self.get_subtotal()
-        if self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             if self.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
@@ -363,19 +363,19 @@ class Cart(models.Model):
             return self.location_group.delivery_fee
         return 0
 
-    def get_total_amount(self):
+    def get_total_amount(self, cod=False):
         subtotal = self.get_subtotal()
-        if self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
-        delivery_fee = self.get_delivery_fee()
+        delivery_fee = self.get_delivery_fee(cod)
         return subtotal+delivery_fee
 
-    def get_vat(self):
-        total_amount = self.get_total_amount()
+    def get_vat(self, cod=False):
+        total_amount = self.get_total_amount(cod)
         return round((total_amount - total_amount/1.05), 2)
 
     def get_vat_with_cod(self):
-        total_amount = self.get_total_amount() + self.location_group.cod_charge
+        total_amount = self.get_total_amount(True) + self.location_group.cod_charge
         return round((total_amount - total_amount/1.05), 2)
 
     def get_currency(self):
