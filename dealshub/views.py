@@ -706,7 +706,7 @@ class CreateBannerAPI(APIView):
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            banner_type_obj = BannerType.objects.get(name=banner_type, location_group=location_group_obj)
+            banner_type_obj = BannerType.objects.get(name=banner_type, website_group=location_group_obj.website_group)
 
             if name=="":
                 name = banner_type_obj.display_name
