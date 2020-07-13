@@ -2208,64 +2208,6 @@ class DeleteUserReviewAPI(APIView):
         return Response(data=response)
 
 
-class FetchOrdersForAccountManagerAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            
-            data = request.data
-            logger.info("FetchOrdersForAccountManagerAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-            
-            api_access = "5a72db78-b0f2-41ff-b09e-6af02c5b4c77"
-
-            from_date = data.get("fromDate", "")
-            to_date = data.get("toDate", "")
-            payment_type_list = data.get("paymentTypeList", [])
-            min_qty = data.get("minQty", "")
-            max_qty = data.get("maxQty", "")
-            min_price = data.get("minPrice", "")
-            max_price = data.get("maxPrice", "")
-            currency_list = data.get("currencyList", [])
-            shipping_method_list = data.get("shippingMethodList", [])
-            tracking_status_list = data.get("trackingStatusList", [])
-            search_list = data.get("searchList", [])
-            website_group_name = data.get("website_group_name", "").lower()
-
-            page = data.get("page", 1)
-
-            request_data = {
-                "fromDate":from_date,
-                "toDate":to_date,
-                "paymentTypeList":json.dumps(payment_type_list),
-                "minQty":min_qty,
-                "maxQty":max_qty,
-                "minPrice":min_price,
-                "maxPrice":max_price,
-                "currencyList":json.dumps(currency_list),
-                "shippingMethodList":json.dumps(shipping_method_list),
-                "trackingStatusList":json.dumps(tracking_status_list),
-                "searchList":json.dumps(search_list),
-                "website_group_name": website_group_name,
-                "page":page, 
-                "api_access":api_access
-            }
-
-            r = requests.post(url=SERVER_IP+"/api/dealshub/v1.0/fetch-orders-for-account-manager/", data=request_data, verify=False)
-            response = json.loads(r.content)
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrdersForAccountManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
 class FetchOrdersForWarehouseManagerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2429,7 +2371,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchOrdersForAccountManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             if int(paginator.num_pages) == int(page):
@@ -2796,8 +2738,6 @@ FetchReview = FetchReviewAPI.as_view()
 FetchProductReviews = FetchProductReviewsAPI.as_view()
 
 DeleteUserReview = DeleteUserReviewAPI.as_view()
-
-FetchOrdersForAccountManager = FetchOrdersForAccountManagerAPI.as_view()
 
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
 
