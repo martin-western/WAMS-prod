@@ -5822,7 +5822,7 @@ class CheckSectionPermissionsAPI(APIView):
                 data = json.loads(data)
 
             ecommerce_pages = []
-            location_group_objs = CustomPermission.objects.get(username=request.user.username).location_groups.all()
+            location_group_objs = CustomPermission.objects.get(user_username=request.user.username).location_groups.all()
             for location_group_obj in location_group_objs:
                 temp_dict = {}
                 temp_dict["name"] = location_group_obj.name
