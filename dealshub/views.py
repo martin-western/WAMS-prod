@@ -666,9 +666,11 @@ class FetchBannerTypesAPI(APIView):
             data = request.data
             logger.info("FetchBannerTypesAPI: %s", str(data))
 
-            website_group_name = data["websiteGroupName"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
 
-            banner_type_objs = BannerType.objects.filter(website_group__name=website_group_name)
+            banner_type_objs = BannerType.objects.filter(website_group=website_group_obj)
 
             banner_types = []
             for banner_type_obj in banner_type_objs:
