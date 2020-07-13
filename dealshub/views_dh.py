@@ -12,6 +12,7 @@ from dealshub.models import *
 from dealshub.constants import *
 from dealshub.utils import *
 from WAMSApp.constants import *
+from WAMSApp.utils import *
 
 from django.core.paginator import Paginator
 from django.db.models import Q
