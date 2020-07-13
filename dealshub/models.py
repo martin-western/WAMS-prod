@@ -61,6 +61,8 @@ class Voucher(models.Model):
         return str(self.uuid)
 
     def is_expired(self):
+        if self.is_deleted==True or self.is_published==False:
+            return True
         if timezone.now() >= self.start_time and timezone.now() <= self.end_time:
             if maximum_usage_limit==0:
                 return False

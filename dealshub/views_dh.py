@@ -600,6 +600,11 @@ class PlaceOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
+            cart_obj.voucher = None
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
             # Check if COD is allowed
@@ -1369,9 +1374,22 @@ class PaymentTransactionAPI(APIView):
                 return Response(data=response)
 
 
-
             if status=="14":
                 cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
+
+                try:
+                    voucher_obj = cart_obj.voucher
+                    if voucher_obj!=None:
+                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                            voucher_obj.total_usage += 1
+                            voucher_obj.save()
+                        else:
+                            cart_obj.voucher = None
+                            cart_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                    return Response(data=response)
 
                 order_obj = Order.objects.create(owner=cart_obj.owner, 
                                                  shipping_address=cart_obj.shipping_address,
@@ -2659,6 +2677,61 @@ class UploadOrdersAPI(APIView):
         return Response(data=response)
 
 
+class ApplyVoucherCodeAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("ApplyVoucherCodeAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            voucher_code = dat["voucher_code"]
+
+            if Voucher.objects.filter(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj).exists()==False:
+                response["error_message"] = "INVALID CODE"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+            voucher_obj = Voucher.objects.get(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj)
+            if voucher_obj.is_expired()==True:
+                response["error_message"] = "EXPIRED"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+
+            if is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==True:
+                response["error_message"] = "LIMIT EXCEEDED"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)                
+            
+            cart_obj.voucher = voucher_obj
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+            
+            response["voucher_success"] = True
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ApplyVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
@@ -2756,3 +2829,5 @@ CancelOrders = CancelOrdersAPI.as_view()
 DownloadOrders = DownloadOrdersAPI.as_view()
 
 UploadOrders = UploadOrdersAPI.as_view()
+
+ApplyVoucherCode = ApplyVoucherCodeAPI.as_view()
