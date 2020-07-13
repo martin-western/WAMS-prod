@@ -59,6 +59,7 @@ class FetchStatisticsAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
+            logger.info("FetchStatisticsAPI: %s", str(data))
 
             page = int(data["page"])
             brand_name = data.get("brand_name","")
@@ -92,33 +93,31 @@ class FetchStatisticsAPI(APIView):
                 brand_list.append(temp_dict)
 
             attribute_list = [
-
-            "Product Description",
-            "Product Name",
-            "Product ID",
-            "Product Verified",
-            "Amazon UK Product",
-            "Amazon UAE Product",
-            "Noon Product",
-            "Ebay Product",
-            "Product Features",
-            "White Background Images > 0",
-            "White Background Images > 1",
-            "White Background Images > 2",
-            "Lifestyle Images > 0",
-            "Lifestyle Images > 1",
-            "Lifestyle Images > 2",
-            "Giftbox Images > 0",
-            "Giftbox Images > 1",
-            "Giftbox Images > 2",
-            "Transparent Images > 0",
-            "Transparent Images > 1",
-            "Transparent Images > 2",
-            "Main Images",
-            "Sub Images > 0",
-            "Sub Images > 1",
-            "Sub Images > 2"
-            ]
+                "Product Description",
+                "Product Name",
+                "Product ID",
+                "Product Verified",
+                "Amazon UK Product",
+                "Amazon UAE Product",
+                "Noon Product",
+                "Ebay Product",
+                "Product Features",
+                "White Background Images > 0",
+                "White Background Images > 1",
+                "White Background Images > 2",
+                "Lifestyle Images > 0",
+                "Lifestyle Images > 1",
+                "Lifestyle Images > 2",
+                "Giftbox Images > 0",
+                "Giftbox Images > 1",
+                "Giftbox Images > 2",
+                "Transparent Images > 0",
+                "Transparent Images > 1",
+                "Transparent Images > 2",
+                "Main Images",
+                "Sub Images > 0",
+                "Sub Images > 1",
+                "Sub Images > 2"]
 
             is_available = True
 
