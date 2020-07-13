@@ -468,7 +468,7 @@ class Order(models.Model):
 
     def get_cod_charge(self):
         if self.payment_mode=="COD":
-            return order_obj.location_group.cod_charge
+            return self.location_group.cod_charge
         return 0
 
     def get_total_amount(self):
