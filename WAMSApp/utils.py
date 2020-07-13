@@ -10,6 +10,10 @@ from WAMSApp.amazon_uae import *
 from WAMSApp.ebay import *
 from WAMSApp.noon import *
 from WAMSApp.serializers import UserSerializer
+
+from django.db.models import Q
+from django.db.models import Count
+
 import requests
 import xmltodict
 import json
@@ -1730,3 +1734,140 @@ def logentry_dict_to_attributes(changes):
         new_changes = individual_logs_from_dict(json1,json2,new_changes,key)
 
     return new_changes
+
+def content_health_filtered_list(filter_parameters,search_list_product_objs):
+
+    if filter_parameters.get("Product Description", None) == True:
+        search_list_product_objs = search_list_product_objs.exclude(Q(product_description=None) | Q(product_description=""))
+    elif filter_parameters.get("Product Description", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(Q(product_description=None) | Q(product_description=""))
+
+    if filter_parameters.get("Product Name", None) == True:
+        search_list_product_objs = search_list_product_objs.exclude(Q(product_name=None) | Q(product_name=""))
+    elif filter_parameters.get("Product Name", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(Q(product_name=None) | Q(product_name=""))
+
+    if filter_parameters.get("Product ID", None) == True:
+        search_list_product_objs = search_list_product_objs.exclude(Q(product_id=None) | Q(product_id=""))
+    elif filter_parameters.get("Product ID", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(Q(product_id=None) | Q(product_id=""))
+
+    if filter_parameters.get("Product Verified", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(verified=True)
+    elif filter_parameters.get("Product Verified", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(verified=False)
+
+    if filter_parameters.get("Amazon UK Product", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uk_product_created=True)
+    elif filter_parameters.get("Amazon UK Product", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uk_product_created=False)
+
+    if filter_parameters.get("Amazon UAE Product", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uae_product_created=True)
+    elif filter_parameters.get("Amazon UAE Product", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uae_product_created=False)
+
+    if filter_parameters.get("Noon Product", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_noon_product_created=True)
+    elif filter_parameters.get("Noon Product", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_noon_product_created=False)
+
+    if filter_parameters.get("Ebay Product", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_ebay_product_created=True)
+    elif filter_parameters.get("Ebay Product", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_ebay_product_created=False)
+
+    if filter_parameters.get("Product Features", None) == True:
+        search_list_product_objs = search_list_product_objs.exclude(Q(pfl_product_features="") | Q(pfl_product_features="[]"))
+    elif filter_parameters.get("Product Features", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(Q(pfl_product_features="") | Q(pfl_product_features="[]"))
+
+    if filter_parameters.get("White Background Images > 0", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=0)
+    elif filter_parameters.get("White Background Images > 0", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c=0)
+
+    if filter_parameters.get("White Background Images > 1", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=1)
+    elif filter_parameters.get("White Background Images > 1", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__lt=2)
+
+    if filter_parameters.get("White Background Images > 2", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=2)
+    elif filter_parameters.get("White Background Images > 2", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__lt=3)
+
+    if filter_parameters.get("Lifestyle Images > 0", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__gt=0)
+    elif filter_parameters.get("Lifestyle Images > 0", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c=0)
+
+    if filter_parameters.get("Lifestyle Images > 1", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__gt=1)
+    elif filter_parameters.get("Lifestyle Images > 1", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__lt=2)
+
+    if filter_parameters.get("Lifestyle Images > 2", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__gt=2)
+    elif filter_parameters.get("Lifestyle Images > 2", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__lt=3)
+
+    if filter_parameters.get("Giftbox Images > 0", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__gt=0)
+    elif filter_parameters.get("Giftbox Images > 0", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c=0)
+
+    if filter_parameters.get("Giftbox Images > 1", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__gt=1)
+    elif filter_parameters.get("Giftbox Images > 1", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__lt=2)
+
+    if filter_parameters.get("Giftbox Images > 2", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__gt=2)
+    elif filter_parameters.get("Giftbox Images > 2", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__lt=3)
+
+    if filter_parameters.get("Transparent Images > 0", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__gt=0)
+    elif filter_parameters.get("Transparent Images > 0", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c=0)
+
+    if filter_parameters.get("Transparent Images > 1", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__gt=1)
+    elif filter_parameters.get("Transparent Images > 1", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__lt=2)
+
+    if filter_parameters.get("Transparent Images > 2", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__gt=2)
+    elif filter_parameters.get("Transparent Images > 2", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__lt=3)
+
+    if filter_parameters.get("Main Images", None) == True:  
+        search_list_product_objs = search_list_product_objs.filter(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images__gt=0))
+    elif filter_parameters.get("Main Images", None) == False:  
+        search_list_product_obj_copy = search_list_product_objs 
+        search_list_product_objs = search_list_product_objs.filter(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images=0))
+        search_list_product_objs |= search_list_product_obj_copy.exclude(mainimages__product__in=search_list_product_obj_copy)
+
+    if filter_parameters.get("Sub Images > 0", None) == True:  
+        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=0))
+    elif filter_parameters.get("Sub Images > 0", None) == False:  
+        search_list_product_obj_copy = search_list_product_objs 
+        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images=0))
+        search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
+
+    if filter_parameters.get("Sub Images > 1", None) == True:  
+        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=1))
+    elif filter_parameters.get("Sub Images > 1", None) == False:
+        search_list_product_obj_copy = search_list_product_objs
+        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=2))
+        search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
+
+    if filter_parameters.get("Sub Images > 2", None) == True:  
+        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
+    elif filter_parameters.get("Sub Images > 2", None) == False:  
+        search_list_product_obj_copy = search_list_product_objs
+        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=3))
+        search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
+
+    return search_list_product_objs 

@@ -5,6 +5,7 @@ import json
 import logging
 from django.utils import timezone
 from django.core.mail import EmailMessage
+from WAMSApp.utils import *
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +26,12 @@ def notify_user_for_report(oc_report_obj):
     email.send(fail_silently=True)
 
 
-def create_mega_bulk_oc_report(filename, uuid, brand_list):
+def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list=""):
 
     product_objs = Product.objects.filter(base_product__brand__name__in=brand_list)
+
+    if product_uuid_list!="":
+      product_objs = product_objs.filter(uuid__in=product_uuid_list)
 
     workbook = xlsxwriter.Workbook('./'+filename)
 
