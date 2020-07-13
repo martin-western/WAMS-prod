@@ -2724,7 +2724,8 @@ class ApplyVoucherCodeAPI(APIView):
 
             delivery_fee = cart_obj.get_delivery_fee(cod=True)
             subtotal = cart_obj.get_subtotal()
-            total_amount = cart_obj.get_total_amount(cod=True)
+            total_amount = cart_obj.get_total_amount()
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat = cart_obj.get_vat()
             vat_with_cod = cart_obj.get_vat_with_cod()
 
@@ -2738,7 +2739,7 @@ class ApplyVoucherCodeAPI(APIView):
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
-                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "toPay": total_amount_with_cod + cart_obj.location_group.cod_charge,
                 "codCharge": cart_obj.location_group.cod_charge
             }
             
