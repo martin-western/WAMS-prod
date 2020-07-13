@@ -2152,7 +2152,7 @@ class PublishVoucherAPI(APIView):
         try:
 
             data = request.data
-            logger.info("DeleteVoucherAPI: %s", str(data))
+            logger.info("PublishVoucherAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -2165,7 +2165,7 @@ class PublishVoucherAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("PublishVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
