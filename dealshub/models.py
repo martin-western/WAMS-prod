@@ -35,7 +35,7 @@ class Promotion(models.Model):
 class Voucher(models.Model):
 
     uuid = models.CharField(max_length=200,default="",unique=True)
-    voucher_code = models.CharField(max_length=50,unique=True)
+    voucher_code = models.CharField(max_length=50)
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
 
