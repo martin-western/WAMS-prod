@@ -5861,7 +5861,7 @@ class FetchOCReportListAPI(APIView):
                         "is_processed": oc_report_obj.is_processed,
                         "completion_date": completion_date,
                         "note": oc_report_obj.note,
-                        "filename": "https://"+SERVER_IP+"/"+oc_report_obj.filename,
+                        "filename": SERVER_IP+"/"+oc_report_obj.filename,
                         "uuid": oc_report_obj.uuid
                     }
                     oc_report_list.append(temp_dict)
