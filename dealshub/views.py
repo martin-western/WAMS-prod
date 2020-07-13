@@ -2051,7 +2051,7 @@ class UpdateVoucherAPI(APIView):
             voucher_obj.voucher_type = data["voucher_type"]
 
             if voucher_obj.voucher_type == "PD":
-                voucher_obj.percent_dicount = float(data["percent_discount"])
+                voucher_obj.percent_discount = float(data["percent_discount"])
             elif voucher_obj.voucher_type == "FD":
                 voucher_obj.fixed_discount = float(data["fixed_discount"])
 

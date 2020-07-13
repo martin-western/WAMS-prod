@@ -244,23 +244,28 @@ class AddToCartAPI(APIView):
 
             update_cart_bill(cart_obj)
 
-            delivery_fee = cart_obj.get_delivery_fee()
             subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
-            vat_with_cod = cart_obj.get_vat_with_cod()
 
-            response["deliveryFee"] = delivery_fee
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay": total_amount
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
-                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
                 "codCharge": cart_obj.location_group.cod_charge
             }
 
@@ -305,25 +310,31 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
-            delivery_fee = cart_obj.get_delivery_fee()
             subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
-            vat_with_cod = cart_obj.get_vat_with_cod()
 
-            response["deliveryFee"] = delivery_fee
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay": total_amount
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
-                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
                 "codCharge": cart_obj.location_group.cod_charge
             }
+            
             response["unitCartList"] = unit_cart_list
             response["status"] = 200
         except Exception as e:
@@ -356,23 +367,28 @@ class UpdateCartDetailsAPI(APIView):
 
             cart_obj = unit_cart_obj.cart
 
-            delivery_fee = cart_obj.get_delivery_fee()
             subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
-            vat_with_cod = cart_obj.get_vat_with_cod()
 
-            response["deliveryFee"] = delivery_fee
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay": total_amount
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
-                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
                 "codCharge": cart_obj.location_group.cod_charge
             }
 
@@ -404,23 +420,28 @@ class RemoveFromCartAPI(APIView):
 
             update_cart_bill(cart_obj)
 
-            delivery_fee = cart_obj.get_delivery_fee()
             subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
-            vat_with_cod = cart_obj.get_vat_with_cod()
 
-            response["deliveryFee"] = delivery_fee
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay": total_amount
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
-                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
                 "codCharge": cart_obj.location_group.cod_charge
             }
 
@@ -2722,27 +2743,30 @@ class ApplyVoucherCodeAPI(APIView):
 
             update_cart_bill(cart_obj)
 
-            delivery_fee = cart_obj.get_delivery_fee(cod=True)
             subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat = cart_obj.get_vat()
-            vat_with_cod = cart_obj.get_vat_with_cod()
 
-            response["deliveryFee"] = delivery_fee
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay": total_amount
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
-                "toPay": total_amount_with_cod + cart_obj.location_group.cod_charge,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
                 "codCharge": cart_obj.location_group.cod_charge
             }
-            
             response["voucher_success"] = True
             response["status"] = 200
 

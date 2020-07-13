@@ -368,14 +368,12 @@ class Cart(models.Model):
         if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee(cod)
+        if cod==True:
+            subtotal += self.location_group.cod_charge
         return subtotal+delivery_fee
 
     def get_vat(self, cod=False):
         total_amount = self.get_total_amount(cod)
-        return round((total_amount - total_amount/1.05), 2)
-
-    def get_vat_with_cod(self):
-        total_amount = self.get_total_amount(True) + self.location_group.cod_charge
         return round((total_amount - total_amount/1.05), 2)
 
     def get_currency(self):
