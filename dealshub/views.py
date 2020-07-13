@@ -1986,6 +1986,217 @@ class UpdateUnitBannerAPI(APIView):
         return Response(data=response)
 
 
+class CreateVoucherAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateVoucherAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            voucher_code = data.get("voucher_code", "VOUCHER")
+            voucher_type = data.get("voucher_type", "FD")
+            percent_discount = 0
+            fixed_discount = 0
+            maximum_discount = 0
+            minimum_purchase_amount = 0
+            customer_usage_limit = 1
+            maximum_usage_limit = 0
+
+            voucher_obj = Voucher.objects.create(voucher_code=voucher_code,
+                                                 voucher_type=voucher_type,
+                                                 percent_discount=percent_discount,
+                                                 fixed_discount=fixed_discount,
+                                                 maximum_discount=maximum_discount, 
+                                                 minimum_purchase_amount=minimum_purchase_amount,
+                                                 customer_usage_limit=customer_usage_limit, 
+                                                 maximum_usage_limit=maximum_usage_limit,
+                                                 location_group=location_group_obj)
+
+            response["uuid"] = str(voucher_obj.uuid)
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateVoucherAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateVoucherAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            voucher_uuid = data["voucher_uuid"]
+            voucher_obj = Voucher.objects.get(uuid=voucher_uuid)
+
+            voucher_code = data["voucher_code"]
+            voucher_obj.start_time = data["start_time"]
+            voucher_obj.end_time = data["end_time"]
+            voucher_obj.voucher_type = data["voucher_type"]
+
+            if voucher_obj.voucher_type == "PD":
+                voucher_obj.percent_dicount = float(data["percent_discount"])
+            elif voucher_obj.voucher_type == "FD":
+                voucher_obj.fixed_discount = float(data["fixed_discount"])
+
+            voucher_obj.maximum_discount = float(data["maximum_discount"])
+            voucher_obj.minimum_purchase_amount = float(data["minimum_purchase_amount"])
+            voucher_obj.customer_usage_limit = int(data["customer_usage_limit"])
+            voucher_obj.maximum_usage_limit = int(data["maximum_usage_limit"])
+            voucher_obj.save()
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchVouchersAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchVouchersAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            voucher_objs = Voucher.objects.filter(is_deleted=False, location_group__uuid=location_group_uuid)
+            
+            voucher_list = []
+            for voucher_obj in voucher_objs:
+                temp_dict = {}
+                temp_dict["uuid"] = voucher_obj.uuid
+                temp_dict["voucher_code"] = voucher_obj.voucher_code
+                temp_dict["start_time"] = voucher_obj.start_time
+                temp_dict["end_time"] = voucher_obj.end_time
+                temp_dict["voucher_type"] = voucher_obj.voucher_type
+
+                if voucher_obj.voucher_type == "PD":
+                    temp_dict["percent_discount"] = float(voucher_obj.percent_discount)
+                elif voucher_obj.voucher_type == "FD":
+                    temp_dict["fixed_discount"] = float(voucher_obj.fixed_discount)
+
+                temp_dict["maximum_discount"] = float(voucher_obj.maximum_discount)
+                temp_dict["minimum_purchase_amount"] = float(voucher_obj.minimum_purchase_amount)
+                temp_dict["customer_usage_limit"] = int(voucher_obj.customer_usage_limit)
+                temp_dict["maximum_usage_limit"] = int(voucher_obj.maximum_usage_limit)
+
+                voucher_list.append(temp_dict)
+
+            response["voucher_list"] = voucher_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchVouchersAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteVoucherAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteVoucherAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["voucher_uuid"]
+            voucher_obj = Voucher.objects.get(uuid=uuid)
+            voucher_obj.is_deleted = True
+            voucher_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class PublishVoucherAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteVoucherAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["voucher_uuid"]
+            voucher_obj = Voucher.objects.get(uuid=uuid)
+            voucher_obj.is_published = True
+            voucher_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UnPublishVoucherAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UnPublishVoucherAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["voucher_uuid"]
+            voucher_obj = Voucher.objects.get(uuid=uuid)
+            voucher_obj.is_published = False
+            voucher_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UnPublishVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSectionProducts = FetchSectionProductsAPI.as_view()
@@ -2071,3 +2282,15 @@ DeleteHoveringImage = DeleteHoveringImageAPI.as_view()
 UpdateSuperCategoryImage = UpdateSuperCategoryImageAPI.as_view()
 
 UpdateUnitBanner = UpdateUnitBannerAPI.as_view()
+
+CreateVoucher = CreateVoucherAPI.as_view()
+
+UpdateVoucher = UpdateVoucherAPI.as_view()
+
+FetchVouchers = FetchVouchersAPI.as_view()
+
+DeleteVoucher = DeleteVoucherAPI.as_view()
+
+PublishVoucher = PublishVoucherAPI.as_view()
+
+UnPublishVoucher = UnPublishVoucherAPI.as_view()

@@ -53,6 +53,8 @@ class Voucher(models.Model):
     maximum_usage_limit = models.IntegerField(default=0)
     minimum_purchase_amount = models.IntegerField(default=0)
     total_usage = models.IntegerField(default=0)
+    is_deleted = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
