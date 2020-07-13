@@ -2045,7 +2045,7 @@ class UpdateVoucherAPI(APIView):
             voucher_uuid = data["voucher_uuid"]
             voucher_obj = Voucher.objects.get(uuid=voucher_uuid)
 
-            voucher_code = data["voucher_code"]
+            voucher_obj.voucher_code = data["voucher_code"]
             voucher_obj.start_time = data["start_time"]
             voucher_obj.end_time = data["end_time"]
             voucher_obj.voucher_type = data["voucher_type"]
