@@ -1068,7 +1068,7 @@ class FetchCustomerDetailsAPI(APIView):
             temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
             temp_dict["is_feedback_available"] = False
             address_list = []
-            for address_obj in Address.objects.filter(user__username=dealshub_user_obj.username):
+            for address_obj in Address.objects.filter(is_deleted=False, user__username=dealshub_user_obj.username):
                 address_list.append(", ".join(json.loads(address_obj.address_lines)))
             temp_dict["addressList"] = address_list
 
@@ -1166,7 +1166,7 @@ class FetchCustomerOrdersAPI(APIView):
                     temp_dict2["productName"] = unit_order_obj.product.get_name()
                     temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
                     unit_order_list.append(temp_dict2)
-                temp_dict["totalBilling"] = str(order_obj.to_pay) + " " + str(order_obj.location_group.currency)
+                temp_dict["totalBilling"] = str(order_obj.to_pay) + " " + str(order_obj.location_group.location.currency)
                 temp_dict["unitOrderList"] = unit_order_list
                 order_list.append(temp_dict)
 
