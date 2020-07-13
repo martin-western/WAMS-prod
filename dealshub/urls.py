@@ -124,5 +124,12 @@ urlpatterns = [
     url(r'^delete-upvote/$', views.DeleteUpvote),
     url(r'^fetch-review/$', views.FetchReview),
     url(r'^fetch-product-reviews/$', views.FetchProductReviews),
-    url(r'^delete-user-review/$', views.DeleteUserReview)
+    url(r'^delete-user-review/$', views.DeleteUserReview),
+
+    url(r'^create-voucher/$', views.CreateVoucher),
+    url(r'^update-voucher/$', views.UpdateVoucher),    
+    url(r'^fetch-vouchers/$', views.FetchVouchers),
+    url(r'^delete-voucher/$', views.DeleteVoucher),
+    url(r'^publish-voucher/$', views.PublishVoucher),
+    url(r'^unpublish-voucher/$', views.UnPublishVoucher),
 ]
