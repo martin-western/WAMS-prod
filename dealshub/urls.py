@@ -107,6 +107,7 @@ urlpatterns = [
 
     url(r'^download-orders/$', views.DownloadOrders),
     url(r'^upload-orders/$', views.UploadOrders),
+    url(r'^apply-voucher-code/$', views.ApplyVoucherCode),
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
