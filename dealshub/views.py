@@ -1387,7 +1387,7 @@ class SearchSectionProductsAutocompleteAPI(APIView):
             for dealshub_product_obj in dealshub_product_objs:
                 temp_dict = {}
                 temp_dict["name"] = dealshub_product_obj.get_name()
-                temp_dict["uuid"] = dealshub_product.uuid
+                temp_dict["uuid"] = dealshub_product_obj.uuid
                 dealshub_product_list.append(temp_dict)
 
             response["productList"] = dealshub_product_list
