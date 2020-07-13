@@ -370,6 +370,13 @@ class Cart(models.Model):
         total_amount = self.get_total_amount()
         return round((total_amount - total_amount/1.05), 2)
 
+    def get_vat_with_cod(self):
+        total_amount = self.get_total_amount() + self.location_group.cod_charge
+        return round((total_amount - total_amount/1.05), 2)
+
+    def get_currency(self):
+        return str(self.location_group.location.currency)
+
     def is_cod_allowed(self):
         unit_cart_objs = UnitCart.objects.filter(cart=self)
         for unit_cart_obj in unit_cart_objs:

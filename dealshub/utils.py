@@ -178,13 +178,15 @@ def send_order_confirmation_mail(order_obj):
             }
         )
 
+        location_group_obj = order_obj.location_group
+
         email = EmailMultiAlternatives(
                     subject='Order Confirmation', 
                     body='Order Confirmation', 
-                    from_email=[order_obj.get_order_from_email_id()],
+                    from_email=[location_group_obj.get_order_from_email_id()],
                     to=[order_obj.owner.email],
-                    cc=order_obj.get_order_cc_email_list(),
-                    bcc=order_obj.get_order_bcc_email_list(),
+                    cc=location_group_obj.get_order_cc_email_list(),
+                    bcc=location_group_obj.get_order_bcc_email_list()
                 )
         email.attach_alternative(html_message, "text/html")
         email.send(fail_silently=False)
