@@ -984,13 +984,17 @@ class FetchCustomerListAPI(APIView):
 
             search_list = data.get("search_list", [])
 
+            website_group_name = data["websiteGroupName"]
+
+            website_dealshub_user_objs = DealsHubUser.objects.filter(website_group__name=website_group_name)
+
             dealshub_user_objs = DealsHubUser.objects.none()
             if len(search_list)>0:
                 for search_key in search_list:
-                    dealshub_user_objs |= DealsHubUser.objects.filter(Q(first_name__icontains=search_key) | Q(last_name__icontains=search_key) | Q(contact_number__icontains=search_key))
+                    dealshub_user_objs |= website_dealshub_user_objs.filter(Q(first_name__icontains=search_key) | Q(last_name__icontains=search_key) | Q(contact_number__icontains=search_key))
                 dealshub_user_objs = dealshub_user_objs.distinct().order_by('-pk')
             else:
-                dealshub_user_objs = DealsHubUser.objects.all().order_by('-pk')
+                dealshub_user_objs = website_dealshub_user_objs.order_by('-pk')
 
             filter_parameters = data.get("filter_parameters", {})
 
