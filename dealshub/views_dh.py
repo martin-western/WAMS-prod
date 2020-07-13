@@ -244,6 +244,24 @@ class AddToCartAPI(APIView):
 
             update_cart_bill(cart_obj)
 
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+            vat_with_cod = cart_obj.get_vat_with_cod()
+
+            response["deliveryFee"] = delivery_fee
+            response["currency"] = cart_obj.get_currency()
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+
             response["unitCartUuid"] = unit_cart_obj.uuid
             response["status"] = 200
         except Exception as e:
@@ -332,6 +350,26 @@ class UpdateCartDetailsAPI(APIView):
 
             update_cart_bill(unit_cart_obj.cart)
 
+            cart_obj = unit_cart_obj.cart
+
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+            vat_with_cod = cart_obj.get_vat_with_cod()
+
+            response["deliveryFee"] = delivery_fee
+            response["currency"] = cart_obj.get_currency()
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -359,6 +397,24 @@ class RemoveFromCartAPI(APIView):
             unit_cart_obj.delete()
 
             update_cart_bill(cart_obj)
+
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+            vat_with_cod = cart_obj.get_vat_with_cod()
+
+            response["deliveryFee"] = delivery_fee
+            response["currency"] = cart_obj.get_currency()
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
 
             response["status"] = 200
         except Exception as e:
