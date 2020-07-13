@@ -1089,7 +1089,7 @@ def generate_dynamic_export(product_uuid_list, data_point_list):
     workbook.close()
 
 
-def fetch_sap_details_for_order_punching(product_obj):
+def fetch_sap_details_for_order_punching(dealshub_product_obj):
     sap_details = {
         "company_code": "NA",
         "sales_office": "NA",
@@ -1097,32 +1097,32 @@ def fetch_sap_details_for_order_punching(product_obj):
         "purchase_org": "NA"
     }
     try:
-        if str(product_obj.base_product.brand).lower()=="geepas":
+        if dealshub_product_obj.get_brand().lower()=="geepas":
             sap_details["company_code"] = "1100"
             sap_details["sales_office"] = "1005"
             sap_details["vendor_code"] = "V1001"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="olsenmark":
+        elif dealshub_product_obj.get_brand().lower()=="olsenmark":
             sap_details["company_code"] = "1100"
             sap_details["sales_office"] = "1105"
             sap_details["vendor_code"] = "V1100"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="krypton":
+        elif dealshub_product_obj.get_brand().lower()=="krypton":
             sap_details["company_code"] = "2100"
             sap_details["sales_office"] = "2105"
             sap_details["vendor_code"] = "V2100"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="royalford":
+        elif dealshub_product_obj.get_brand().lower()=="royalford":
             sap_details["company_code"] = "3000"
             sap_details["sales_office"] = "3005"
             sap_details["vendor_code"] = "V3001"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="abraj":
+        elif dealshub_product_obj.get_brand().lower()=="abraj":
             sap_details["company_code"] = "6000"
             sap_details["sales_office"] = "6008"
             sap_details["vendor_code"] = "V6000"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="baby plus":
+        elif dealshub_product_obj.get_brand().lower()=="baby plus":
             sap_details["company_code"] = "5550"
             sap_details["sales_office"] = "5558"
             sap_details["vendor_code"] = "V5550"
@@ -1270,9 +1270,9 @@ def generate_sap_order_format(unit_order_list):
         try:
             cnt += 1
 
-            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
 
-            sap_details = fetch_sap_details_for_order_punching(product_obj)
+            sap_details = fetch_sap_details_for_order_punching(dealshub_product_obj)
 
             common_row = ["" for i in range(11)]
             common_row[0] = sap_details["company_code"]
@@ -1282,7 +1282,7 @@ def generate_sap_order_format(unit_order_list):
             common_row[4] = "ZWIC"
             common_row[5] = "40000637"
             common_row[6] = unit_order["orderId"]
-            common_row[7] = product_obj.base_product.seller_sku
+            common_row[7] = dealshub_product_obj.get_seller_sku()
             common_row[8] = unit_order["quantity"]
             
             colnum = 0
@@ -1326,9 +1326,9 @@ def generate_sap_order_format(unit_order_list):
         try:
             cnt += 1
 
-            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
 
-            sap_details = fetch_sap_details_for_order_punching(product_obj)
+            sap_details = fetch_sap_details_for_order_punching(dealshub_product_obj)
 
             common_row = ["" for i in range(15)]
             common_row[0] = "WIC"
@@ -1340,7 +1340,7 @@ def generate_sap_order_format(unit_order_list):
 
             common_row[7] = "Invoice Ref ID"
             common_row[8] = sap_details["vendor_code"]
-            common_row[9] = product_obj.base_product.seller_sku
+            common_row[9] = dealshub_product_obj.get_seller_sku()
             common_row[10] = "EA"
             common_row[11] = "EA"
             common_row[12] = unit_order["quantity"]
@@ -1390,7 +1390,7 @@ def generate_sap_order_format(unit_order_list):
         try:
             cnt += 1
 
-            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
 
             order_type = "ZJCR"
             customer_code = ""
@@ -1399,8 +1399,8 @@ def generate_sap_order_format(unit_order_list):
             elif unit_order["shippingMethod"]=="TFM":
                 customer_code = "50000627"
 
-            company_code = get_company_code_from_brand_name(product_obj.base_product.brand.name)
-            response = get_sap_batch_and_uom(company_code, product_obj.base_product.seller_sku)
+            company_code = get_company_code_from_brand_name(dealshub_product_obj.get_brand())
+            response = get_sap_batch_and_uom(company_code, dealshub_product_obj.get_seller_sku())
             batch = response["batch"]
             uom = response["uom"]
 
@@ -1411,7 +1411,7 @@ def generate_sap_order_format(unit_order_list):
             common_row[3] = unit_order["customerName"]
             common_row[4] = unit_order["area"]
             common_row[5] = unit_order["orderId"]
-            common_row[6] = product_obj.base_product.seller_sku
+            common_row[6] = dealshub_product_obj.get_seller_sku()
             common_row[7] = unit_order["quantity"]
             common_row[8] = uom
             common_row[9] = batch
