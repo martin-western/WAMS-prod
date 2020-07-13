@@ -252,17 +252,16 @@ class AddToCartAPI(APIView):
 
             response["deliveryFee"] = delivery_fee
             response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay": total_amount,
-                "subtotal": subtotal
+                "toPay": total_amount
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
                 "toPay": total_amount + cart_obj.location_group.cod_charge,
-                "codCharge": cart_obj.location_group.cod_charge,
-                "subtotal": subtotal
+                "codCharge": cart_obj.location_group.cod_charge
             }
 
             response["unitCartUuid"] = unit_cart_obj.uuid
@@ -314,17 +313,16 @@ class FetchCartDetailsAPI(APIView):
 
             response["deliveryFee"] = delivery_fee
             response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay": total_amount,
-                "subtotal": subtotal
+                "toPay": total_amount
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
                 "toPay": total_amount + cart_obj.location_group.cod_charge,
-                "codCharge": cart_obj.location_group.cod_charge,
-                "subtotal": subtotal
+                "codCharge": cart_obj.location_group.cod_charge
             }
             response["unitCartList"] = unit_cart_list
             response["status"] = 200
@@ -366,17 +364,16 @@ class UpdateCartDetailsAPI(APIView):
 
             response["deliveryFee"] = delivery_fee
             response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay": total_amount,
-                "subtotal": subtotal
+                "toPay": total_amount
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
                 "toPay": total_amount + cart_obj.location_group.cod_charge,
-                "codCharge": cart_obj.location_group.cod_charge,
-                "subtotal": subtotal
+                "codCharge": cart_obj.location_group.cod_charge
             }
 
             response["status"] = 200
@@ -415,17 +412,16 @@ class RemoveFromCartAPI(APIView):
 
             response["deliveryFee"] = delivery_fee
             response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay": total_amount,
-                "subtotal": subtotal
+                "toPay": total_amount
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
                 "toPay": total_amount + cart_obj.location_group.cod_charge,
-                "codCharge": cart_obj.location_group.cod_charge,
-                "subtotal": subtotal
+                "codCharge": cart_obj.location_group.cod_charge
             }
 
             response["status"] = 200
