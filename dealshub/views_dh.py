@@ -295,12 +295,12 @@ class FetchCartDetailsAPI(APIView):
 
             response["cardBill"] = {
                 "vat": vat,
-                "toPay" = total_amount
+                "toPay": total_amount
             }
             response["codBill"] = {
                 "vat": vat_with_cod
                 "toPay": total_amount + cart_obj.location_group.cod_charge,
-                "codCharge" = cart_obj.location_group.cod_charge
+                "codCharge": cart_obj.location_group.cod_charge
             }
             response["unitCartList"] = unit_cart_list
             response["status"] = 200
