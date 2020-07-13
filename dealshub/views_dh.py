@@ -2721,6 +2721,26 @@ class ApplyVoucherCodeAPI(APIView):
             cart_obj.save()
 
             update_cart_bill(cart_obj)
+
+            delivery_fee = cart_obj.get_delivery_fee(cod=True)
+            subtotal = cart_obj.get_subtotal()
+            total_amount = cart_obj.get_total_amount(cod=True)
+            vat = cart_obj.get_vat()
+            vat_with_cod = cart_obj.get_vat_with_cod()
+
+            response["deliveryFee"] = delivery_fee
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount + cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
             
             response["voucher_success"] = True
             response["status"] = 200
