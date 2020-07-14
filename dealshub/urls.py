@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^fetch-product-details/$', views.FetchProductDetails),
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-super-categories/$', views.FetchSuperCategories),
+    url(r'^fetch-heading-categories/$', views.FetchHeadingCategories),
 
     url(r'^search/$', views.Search),
 
