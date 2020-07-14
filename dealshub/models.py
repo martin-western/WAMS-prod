@@ -485,7 +485,7 @@ class Order(models.Model):
     def get_delivery_fee(self):
         subtotal = self.get_subtotal()
         if self.voucher!=None:
-            if self.voucher_type=="SD":
+            if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
 
