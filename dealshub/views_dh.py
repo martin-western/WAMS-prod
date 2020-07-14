@@ -2762,11 +2762,17 @@ class ApplyVoucherCodeAPI(APIView):
 
             cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
 
+            if voucher_obj.is_eligible(cart_obj.get_subtotal())==False:
+                response["error_message"] = "NOT APPLICABLE"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
             if is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==True:
                 response["error_message"] = "LIMIT EXCEEDED"
                 response["voucher_success"] = False
                 response["status"] = 200
-                return Response(data=response)                
+                return Response(data=response)
             
             cart_obj.voucher = voucher_obj
             cart_obj.save()
