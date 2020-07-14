@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 address_lines = ["", "", "", ""]
 
 
+def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
+    if voucher_obj.customer_usage_limit==0:
+        return False
+    if Order.objects.filter(owner=dealshub_user_obj, voucher=voucher_obj).count()<voucher_obj.customer_usage_limit:
+        return False
+    return True
+
+
 class Promotion(models.Model):
     
     uuid = models.CharField(max_length=200, unique=True)
