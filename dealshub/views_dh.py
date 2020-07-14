@@ -934,7 +934,7 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["currentStatus"] = unit_order_obj.current_status
                 temp_dict["quantity"] = unit_order_obj.quantity
                 temp_dict["price"] = unit_order_obj.price
-                temp_dict["currency"] = unit_order_obj.currency
+                temp_dict["currency"] = unit_order_obj.product.get_currency()
                 temp_dict["productName"] = unit_order_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                 temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
