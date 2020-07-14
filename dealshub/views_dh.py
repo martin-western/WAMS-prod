@@ -264,6 +264,8 @@ class AddToCartAPI(APIView):
                 voucher_code = cart_obj.voucher.voucher_code
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -344,6 +346,7 @@ class FetchCartDetailsAPI(APIView):
                 voucher_code = cart_obj.voucher.voucher_code
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -413,6 +416,7 @@ class UpdateCartDetailsAPI(APIView):
                 voucher_code = cart_obj.voucher.voucher_code
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -478,6 +482,7 @@ class RemoveFromCartAPI(APIView):
                 voucher_code = cart_obj.voucher.voucher_code
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -2822,6 +2827,7 @@ class ApplyVoucherCodeAPI(APIView):
                 voucher_code = cart_obj.voucher.voucher_code
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -2890,6 +2896,7 @@ class RemoveVoucherCodeAPI(APIView):
                 voucher_code = cart_obj.voucher.voucher_code
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
