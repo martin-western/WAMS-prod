@@ -334,6 +334,7 @@ class FetchCartDetailsAPI(APIView):
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
+            voucher_code = ""
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
@@ -400,6 +401,7 @@ class UpdateCartDetailsAPI(APIView):
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
+            voucher_code = ""
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
@@ -462,6 +464,7 @@ class RemoveFromCartAPI(APIView):
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
+            voucher_code = ""
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
@@ -2831,6 +2834,71 @@ class ApplyVoucherCodeAPI(APIView):
         return Response(data=response)
 
 
+class RemoveVoucherCodeAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("RemoveVoucherCodeAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+            cart_obj.voucher = None
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+            response["voucher_success"] = True
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
@@ -2930,3 +2998,5 @@ DownloadOrders = DownloadOrdersAPI.as_view()
 UploadOrders = UploadOrdersAPI.as_view()
 
 ApplyVoucherCode = ApplyVoucherCodeAPI.as_view()
+
+RemoveVoucherCode = RemoveVoucherCodeAPI.as_view()
