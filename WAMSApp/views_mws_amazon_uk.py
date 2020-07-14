@@ -39,7 +39,7 @@ SELLER_ID = MWS_PARAMS["SELLER_ID"]
 
 marketplace_id = mws.Marketplaces["UK"].marketplace_id
 
-class GetMatchingProductsAmazonUKMWSAPI(APIView):
+class GetMatchingProductsAmazonUKAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -47,12 +47,12 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
         response['status'] = 500
         try:
             if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
-                logger.warning("GetMatchingProductsAmazonUKMWSAPI Restricted Access!")
+                logger.warning("GetMatchingProductsAmazonUKAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("GetMatchingProductsAmazonUKMWSAPI: %s", str(data))
+            logger.info("GetMatchingProductsAmazonUKAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -60,7 +60,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("GetMatchingProductsAmazonUKMWSAPI More then 30 Products!")
+                logger.warning("GetMatchingProductsAmazonUKAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
@@ -69,7 +69,7 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "GetMatchingProductsAmazonUKMWSAPI Restricted Access of UK Channel!")
+                    "GetMatchingProductsAmazonUKAPI Restricted Access of UK Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -224,12 +224,12 @@ class GetMatchingProductsAmazonUKMWSAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GetMatchingProductsAmazonUKMWSAPI: %s at %s",
+            logger.error("GetMatchingProductsAmazonUKAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class GetPricingProductsAmazonUKMWSAPI(APIView):
+class GetPricingProductsAmazonUKAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -237,12 +237,12 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
         response['status'] = 500
         try:
             if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
-                logger.warning("GetPricingProductsAmazonUKMWSAPI Restricted Access!")
+                logger.warning("GetPricingProductsAmazonUKAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("GetPricingProductsAmazonUKMWSAPI: %s", str(data))
+            logger.info("GetPricingProductsAmazonUKAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -250,7 +250,7 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("GetPricingProductsAmazonUKMWSAPI More then 30 Products!")
+                logger.warning("GetPricingProductsAmazonUKAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
@@ -259,7 +259,7 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "GetPricingProductsAmazonUKMWSAPI Restricted Access of UK Channel!")
+                    "GetPricingProductsAmazonUKAPI Restricted Access of UK Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -385,7 +385,7 @@ class GetPricingProductsAmazonUKMWSAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GetPricingProductsAmazonUKMWSAPI: %s at %s",
+            logger.error("GetPricingProductsAmazonUKAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -810,9 +810,9 @@ class PartialUpdateProductAmazonUKAPI(APIView):
 
         return Response(data=response)
 
-GetMatchingProductsAmazonUKMWS = GetMatchingProductsAmazonUKMWSAPI.as_view()
+GetMatchingProductsAmazonUK = GetMatchingProductsAmazonUKAPI.as_view()
 
-GetPricingProductsAmazonUKMWS = GetPricingProductsAmazonUKMWSAPI.as_view()
+GetPricingProductsAmazonUK = GetPricingProductsAmazonUKAPI.as_view()
 
 PushProductsAmazonUK = PushProductsAmazonUKAPI.as_view()
 
