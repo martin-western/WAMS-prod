@@ -136,7 +136,7 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
 
 
 def update_cart_bill(cart_obj):
-  
+    
     cart_obj.to_pay = cart_obj.get_total_amount()
     cart_obj.save()
 
