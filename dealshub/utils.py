@@ -474,11 +474,3 @@ def calculate_gtm(order_obj):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("GTM Calculation: %s at %s", e, str(exc_tb.tb_lineno))
     return purchase_info
-
-
-def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
-    if voucher_obj.customer_usage_limit==0:
-        return False
-    if Order.objects.filter(owner=dealshub_user_obj, voucher=voucher_obj).count()<voucher_obj.customer_usage_limit:
-        return False
-    return True
