@@ -258,8 +258,10 @@ class AddToCartAPI(APIView):
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
+            voucher_code = ""
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -269,7 +271,8 @@ class AddToCartAPI(APIView):
                 "toPay": total_amount,
                 "delivery_fee": delivery_fee,
                 "is_voucher_applied": is_voucher_applied,
-                "voucher_discount": voucher_discount
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
@@ -333,6 +336,7 @@ class FetchCartDetailsAPI(APIView):
             voucher_discount = 0
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -342,7 +346,8 @@ class FetchCartDetailsAPI(APIView):
                 "toPay": total_amount,
                 "delivery_fee": delivery_fee,
                 "is_voucher_applied": is_voucher_applied,
-                "voucher_discount": voucher_discount
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
@@ -397,6 +402,7 @@ class UpdateCartDetailsAPI(APIView):
             voucher_discount = 0
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -406,7 +412,8 @@ class UpdateCartDetailsAPI(APIView):
                 "toPay": total_amount,
                 "delivery_fee": delivery_fee,
                 "is_voucher_applied": is_voucher_applied,
-                "voucher_discount": voucher_discount
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
@@ -457,6 +464,7 @@ class RemoveFromCartAPI(APIView):
             voucher_discount = 0
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -466,7 +474,8 @@ class RemoveFromCartAPI(APIView):
                 "toPay": total_amount,
                 "delivery_fee": delivery_fee,
                 "is_voucher_applied": is_voucher_applied,
-                "voucher_discount": voucher_discount
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
@@ -2793,6 +2802,7 @@ class ApplyVoucherCodeAPI(APIView):
             voucher_discount = 0
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -2802,7 +2812,8 @@ class ApplyVoucherCodeAPI(APIView):
                 "toPay": total_amount,
                 "delivery_fee": delivery_fee,
                 "is_voucher_applied": is_voucher_applied,
-                "voucher_discount": voucher_discount
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
