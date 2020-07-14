@@ -942,6 +942,7 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                 temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
+                temp_dict["productUuid"] = unit_order_obj.product.uuid
 
                 unit_order_status_list = []
                 unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
@@ -2803,6 +2804,7 @@ class ApplyVoucherCodeAPI(APIView):
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
+            voucher_code = ""
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
@@ -2868,6 +2870,7 @@ class RemoveVoucherCodeAPI(APIView):
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
+            voucher_code = ""
             if is_voucher_applied:
                 voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
                 voucher_code = cart_obj.voucher.voucher_code

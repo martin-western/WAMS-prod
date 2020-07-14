@@ -264,6 +264,44 @@ class FetchSuperCategoriesAPI(APIView):
         return Response(data=response)
 
 
+class FetchHeadingCategoriesAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchHeadingCategoriesAPI: %s", str(data))
+            website_group_name = data["websiteGroupName"]
+
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
+            super_category_objs = website_group_obj.super_categories.all()
+
+            super_category_list = []
+            for super_category_obj in super_category_objs:
+                temp_dict = {}
+                temp_dict["name"] = super_category_obj.name
+                temp_dict["uuid"] = super_category_obj.uuid
+                temp_dict["imageUrl"] = ""
+                if super_category_obj.image!=None:
+                    temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
+                super_category_list.append(temp_dict)
+
+            response['superCategoryList'] = super_category_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchHeadingCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class SearchAPI(APIView):
 
     permission_classes = [AllowAny]
