@@ -2715,7 +2715,7 @@ class ApplyVoucherCodeAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            voucher_code = dat["voucher_code"]
+            voucher_code = data["voucher_code"]
 
             if Voucher.objects.filter(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj).exists()==False:
                 response["error_message"] = "INVALID CODE"
