@@ -413,6 +413,21 @@ class SearchAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
+
+            sub_category_list2 = []
+            try:
+                category_obj = website_group_obj.categories.get(name=category_name)
+                sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                for sub_category_obj in sub_category_objs:
+                    temp_dict2 = {}
+                    temp_dict2["name"] = sub_category_obj.name
+                    temp_dict2["uuid"] = sub_category_obj.uuid
+                    sub_category_list2.append(temp_dict2)
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+
             is_super_category_available = False
             category_list = []
             try:
@@ -448,6 +463,7 @@ class SearchAPI(APIView):
 
             response["isSuperCategoryAvailable"] = is_super_category_available
             response["categoryList"] = category_list
+            response["subCategoryList"] = sub_category_list2
 
             is_available = True
             
