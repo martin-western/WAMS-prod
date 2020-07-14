@@ -1514,8 +1514,8 @@ class FetchCompanyProfileDealshubAPI(APIView):
                 temp_dict["name"] = location_group_obj.location.name
                 temp_dict["uuid"] = location_group_obj.uuid
                 temp_dict["currency"] = location_group_obj.location.currency
-                temp_dict["currency"] = location_group_obj.delivery_fee
-                temp_dict["currency"] = location_group_obj.free_delivery_threshold
+                temp_dict["delivery_fee"] = location_group_obj.delivery_fee
+                temp_dict["free_delivery_threshold"] = location_group_obj.free_delivery_threshold
                 temp_dict["cod_charge"] = location_group_obj.cod_charge
                 location_info.append(temp_dict)
 
