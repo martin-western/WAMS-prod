@@ -38,6 +38,7 @@ urlpatterns = [
 
 ######### Orders #####################
 
-    url(r'^fetch-orders-periodically/$',views.FetchOrdersPeriodically),   
+    url(r'^fetch-price-and-stock-periodically-amazon-uae',views.FetchPriceAndStockAmazonUAE), 
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
