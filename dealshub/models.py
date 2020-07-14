@@ -71,13 +71,25 @@ class Voucher(models.Model):
             return False
         return True
 
-    def get_discounted_price(self, total):
+    def get_discounted_price(self, subtotal):
         if self.voucher_type=="SD":
-            return total
-        if self.voucher_type=="FD" and total>=self.minimum_purchase_amount:
-            return (total-self.fixed_discount)
-        if self.voucher_type=="PD" and total>=self.minimum_purchase_amount:
-            return round((total-(total*self.percent_discount/100)), 2)
+            return subtotal
+        if self.voucher_type=="FD" and subtotal>=self.minimum_purchase_amount:
+            return (subtotal-self.fixed_discount)
+        if self.voucher_type=="PD" and subtotal>=self.minimum_purchase_amount:
+            discount = min(self.maximum_discount, round(subtotal*self.percent_discount/100, 2))
+            return (subtotal-discount)
+        return subtotal
+
+    def get_voucher_discount(self, subtotal):
+        if self.voucher_type=="SD":
+            return self.location_group.delivery_fee
+        if self.voucher_type=="FD" and subtotal>=self.minimum_purchase_amount:
+            return self.fixed_discount
+        if self.voucher_type=="PD" and subtotal>=self.minimum_purchase_amount:
+            discount = min(self.maximum_discount, round(subtotal*self.percent_discount/100, 2))
+            return discount
+        return 0
 
     def save(self, *args, **kwargs):
 
