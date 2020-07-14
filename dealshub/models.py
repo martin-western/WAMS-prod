@@ -66,7 +66,7 @@ class Voucher(models.Model):
         if timezone.now() >= self.start_time and timezone.now() <= self.end_time:
             if self.maximum_usage_limit==0:
                 return False
-            if total_usage>=self.maximum_usage_limit:
+            if self.total_usage>=self.maximum_usage_limit:
                 return True
             return False
         return True
