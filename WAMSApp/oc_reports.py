@@ -5,6 +5,8 @@ import json
 import logging
 from django.utils import timezone
 from django.core.mail import EmailMessage
+from django.core.mail import get_connection, send_mail
+
 from WAMSApp.utils import *
 
 logger = logging.getLogger(__name__)
@@ -14,16 +16,24 @@ def notify_user_for_report(oc_report_obj):
 
     if oc_report_obj.created_by.email=="":
         return
-    
-    email = EmailMessage(
-        subject='Omnycomm Report Generated',
-        body='This is to inform you that your requested report has been generated on Omnycomm',
-        from_email='nisarg@omnycomm.com',
-        to=[oc_report_obj.created_by.email]
-    )
 
-    email.attach_file(oc_report_obj.filename)
-    email.send(fail_silently=True)
+    try:
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username="nisarg@omnycomm.com", 
+            password="verjtzgeqareribg",
+            use_tls=True) as connection:
+            email = EmailMessage(subject='Omnycomm Report Generated', 
+                                 body='This is to inform you that your requested report has been generated on Omnycomm',
+                                 from_email='nisarg@omnycomm.com',
+                                 to=[oc_report_obj.created_by.email],
+                                 connection=connection)
+            email.attach_file(oc_report_obj.filename)
+            email.send(fail_silently=True)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error notify_user_for_report %s %s", e, str(exc_tb.tb_lineno))
 
 
 def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list=""):
