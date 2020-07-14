@@ -138,6 +138,11 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
 def update_cart_bill(cart_obj):
     
     cart_obj.to_pay = cart_obj.get_total_amount()
+
+    if cart_obj.voucher!=None:
+        voucher_obj = cart_obj.voucher
+        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
+            cart_obj.voucher = None
     cart_obj.save()
 
 
