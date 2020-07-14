@@ -375,7 +375,7 @@ class Cart(models.Model):
     def get_delivery_fee(self, cod=False):
         subtotal = self.get_subtotal()
         if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
-            if self.voucher_type=="SD":
+            if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
 
