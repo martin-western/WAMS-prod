@@ -335,14 +335,15 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                 try:
 
                     product_obj = None
-                    
+
                     if data["option"] == "Product ID":
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
                             product_obj = Product.objects.get(product_id=search_key)
                         except Exception as e:
-                            excel_errors.append("More then one product found for " + search_key)
+                            logger.info("Here   "+search_key)
+                            excel_errors.append("More than one product found for " + search_key)
                             continue
 
                     elif data["option"] == "Seller SKU":
