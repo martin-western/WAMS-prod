@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^fetch-product-details/$', views.FetchProductDetails),
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-super-categories/$', views.FetchSuperCategories),
+    url(r'^fetch-heading-categories/$', views.FetchHeadingCategories),
 
     url(r'^search/$', views.Search),
 
@@ -108,6 +109,7 @@ urlpatterns = [
     url(r'^download-orders/$', views.DownloadOrders),
     url(r'^upload-orders/$', views.UploadOrders),
     url(r'^apply-voucher-code/$', views.ApplyVoucherCode),
+    url(r'^remove-voucher-code/$', views.RemoveVoucherCode),
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 

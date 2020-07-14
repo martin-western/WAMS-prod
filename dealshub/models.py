@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 address_lines = ["", "", "", ""]
 
 
+def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
+    if voucher_obj.customer_usage_limit==0:
+        return False
+    if Order.objects.filter(owner=dealshub_user_obj, voucher=voucher_obj).count()<voucher_obj.customer_usage_limit:
+        return False
+    return True
+
+
 class Promotion(models.Model):
     
     uuid = models.CharField(max_length=200, unique=True)
@@ -64,20 +72,37 @@ class Voucher(models.Model):
         if self.is_deleted==True or self.is_published==False:
             return True
         if timezone.now() >= self.start_time and timezone.now() <= self.end_time:
-            if maximum_usage_limit==0:
+            if self.maximum_usage_limit==0:
                 return False
-            if total_usage>=maximum_usage_limit:
+            if self.total_usage>=self.maximum_usage_limit:
                 return True
             return False
         return True
 
-    def get_discounted_price(self, total):
+    def is_eligible(self, subtotal):
+        if subtotal>=self.minimum_purchase_amount:
+            return True
+        return False
+
+    def get_discounted_price(self, subtotal):
         if self.voucher_type=="SD":
-            return total
-        if self.voucher_type=="FD" and total>=self.minimum_purchase_amount:
-            return (total-self.fixed_discount)
-        if self.voucher_type=="PD" and total>=self.minimum_purchase_amount:
-            return round((total-(total*self.percent_discount/100)), 2)
+            return subtotal
+        if self.voucher_type=="FD" and subtotal>=self.minimum_purchase_amount:
+            return (subtotal-self.fixed_discount)
+        if self.voucher_type=="PD" and subtotal>=self.minimum_purchase_amount:
+            discount = min(self.maximum_discount, round(subtotal*self.percent_discount/100, 2))
+            return (subtotal-discount)
+        return subtotal
+
+    def get_voucher_discount(self, subtotal):
+        if self.voucher_type=="SD":
+            return self.location_group.delivery_fee
+        if self.voucher_type=="FD" and subtotal>=self.minimum_purchase_amount:
+            return self.fixed_discount
+        if self.voucher_type=="PD" and subtotal>=self.minimum_purchase_amount:
+            discount = min(self.maximum_discount, round(subtotal*self.percent_discount/100, 2))
+            return discount
+        return 0
 
     def save(self, *args, **kwargs):
 
@@ -355,7 +380,7 @@ class Cart(models.Model):
     def get_delivery_fee(self, cod=False):
         subtotal = self.get_subtotal()
         if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
-            if self.voucher_type=="SD":
+            if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
 
@@ -460,7 +485,7 @@ class Order(models.Model):
     def get_delivery_fee(self):
         subtotal = self.get_subtotal()
         if self.voucher!=None:
-            if self.voucher_type=="SD":
+            if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
 
@@ -482,7 +507,7 @@ class Order(models.Model):
         return subtotal+delivery_fee+cod_charge
 
     def get_vat(self):
-        total = self.get_total_amount()
+        total_amount = self.get_total_amount()
         return round((total_amount - total_amount/1.05), 2)
 
     def get_website_link(self):
