@@ -1487,139 +1487,8 @@ class FetchProductListAPI(APIView):
                 brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
                 search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
 
-            if filter_parameters.get("Product Description", None) == True:
-                search_list_product_objs = search_list_product_objs.exclude(Q(product_description=None) | Q(product_description=""))
-            elif filter_parameters.get("Product Description", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(Q(product_description=None) | Q(product_description=""))
+            search_list_product_objs = content_health_filtered_list(filter_parameters,search_list_product_objs)
 
-            if filter_parameters.get("Product Name", None) == True:
-                search_list_product_objs = search_list_product_objs.exclude(Q(product_name=None) | Q(product_name=""))
-            elif filter_parameters.get("Product Name", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(Q(product_name=None) | Q(product_name=""))
-
-            if filter_parameters.get("Product ID", None) == True:
-                search_list_product_objs = search_list_product_objs.exclude(Q(product_id=None) | Q(product_id=""))
-            elif filter_parameters.get("Product ID", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(Q(product_id=None) | Q(product_id=""))
-
-            if filter_parameters.get("Product Verified", None) == True:
-                search_list_product_objs = search_list_product_objs.filter(verified=True)
-            elif filter_parameters.get("Product Verified", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(verified=False)
-
-            if filter_parameters.get("Amazon UK Product", None) == True:
-                search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uk_product_created=True)
-            elif filter_parameters.get("Amazon UK Product", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uk_product_created=False)
-
-            if filter_parameters.get("Amazon UAE Product", None) == True:
-                search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uae_product_created=True)
-            elif filter_parameters.get("Amazon UAE Product", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uae_product_created=False)
-
-            if filter_parameters.get("Noon Product", None) == True:
-                search_list_product_objs = search_list_product_objs.filter(channel_product__is_noon_product_created=True)
-            elif filter_parameters.get("Noon Product", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(channel_product__is_noon_product_created=False)
-
-            if filter_parameters.get("Ebay Product", None) == True:
-                search_list_product_objs = search_list_product_objs.filter(channel_product__is_ebay_product_created=True)
-            elif filter_parameters.get("Ebay Product", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(channel_product__is_ebay_product_created=False)
-
-            if filter_parameters.get("Product Features", None) == True:
-                search_list_product_objs = search_list_product_objs.exclude(Q(pfl_product_features="") | Q(pfl_product_features="[]"))
-            elif filter_parameters.get("Product Features", None) == False:
-                search_list_product_objs = search_list_product_objs.filter(Q(pfl_product_features="") | Q(pfl_product_features="[]"))
-
-            if filter_parameters.get("White Background Images > 0", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=0)
-            elif filter_parameters.get("White Background Images > 0", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c=0)
-
-            if filter_parameters.get("White Background Images > 1", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=1)
-            elif filter_parameters.get("White Background Images > 1", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__lt=2)
-
-            if filter_parameters.get("White Background Images > 2", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=2)
-            elif filter_parameters.get("White Background Images > 2", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__lt=3)
-
-            if filter_parameters.get("Lifestyle Images > 0", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__gt=0)
-            elif filter_parameters.get("Lifestyle Images > 0", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c=0)
-
-            if filter_parameters.get("Lifestyle Images > 1", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__gt=1)
-            elif filter_parameters.get("Lifestyle Images > 1", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__lt=2)
-
-            if filter_parameters.get("Lifestyle Images > 2", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__gt=2)
-            elif filter_parameters.get("Lifestyle Images > 2", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__lt=3)
-
-            if filter_parameters.get("Giftbox Images > 0", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__gt=0)
-            elif filter_parameters.get("Giftbox Images > 0", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c=0)
-
-            if filter_parameters.get("Giftbox Images > 1", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__gt=1)
-            elif filter_parameters.get("Giftbox Images > 1", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__lt=2)
-
-            if filter_parameters.get("Giftbox Images > 2", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__gt=2)
-            elif filter_parameters.get("Giftbox Images > 2", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__lt=3)
-
-            if filter_parameters.get("Transparent Images > 0", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__gt=0)
-            elif filter_parameters.get("Transparent Images > 0", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c=0)
-
-            if filter_parameters.get("Transparent Images > 1", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__gt=1)
-            elif filter_parameters.get("Transparent Images > 1", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__lt=2)
-
-            if filter_parameters.get("Transparent Images > 2", None) == True:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__gt=2)
-            elif filter_parameters.get("Transparent Images > 2", None) == False:
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__lt=3)
-
-            if filter_parameters.get("Main Images", None) == True:  
-                search_list_product_objs = search_list_product_objs.filter(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images__gt=0))
-            elif filter_parameters.get("Main Images", None) == False:  
-                search_list_product_obj_copy = search_list_product_objs 
-                search_list_product_objs = search_list_product_objs.filter(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images=0))
-                search_list_product_objs |= search_list_product_obj_copy.exclude(mainimages__product__in=search_list_product_obj_copy)
-
-            if filter_parameters.get("Sub Images > 0", None) == True:  
-                search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=0))
-            elif filter_parameters.get("Sub Images > 0", None) == False:  
-                search_list_product_obj_copy = search_list_product_objs 
-                search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images=0))
-                search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
-
-            if filter_parameters.get("Sub Images > 1", None) == True:  
-                search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=1))
-            elif filter_parameters.get("Sub Images > 1", None) == False:
-                search_list_product_obj_copy = search_list_product_objs
-                search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=2))
-                search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
-
-            if filter_parameters.get("Sub Images > 2", None) == True:  
-                search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
-            elif filter_parameters.get("Sub Images > 2", None) == False:  
-                search_list_product_obj_copy = search_list_product_objs
-                search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=3))
-                search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
-              
             if len(chip_data) != 0:
                 search_list_product_lookup = Product.objects.none()
                 for tag in chip_data:
@@ -5770,41 +5639,6 @@ class FetchAllCategoriesAPI(APIView):
 
         return Response(data=response)
 
-class FetchCompanyCredentialsAPI(APIView):
-    
-    permission_classes = (permissions.AllowAny,)
-    
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        
-        try:
-            data = request.data
-
-            logger.info("FetchCompanyCredentialsAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            website_group_name = data["websiteGroupName"]
-            api_access = data["api_access"]
-
-            if api_access!="5a72db78-b0f2-41ff-b09e-6af02c5b4c77":
-                response["status"] = 403
-                return Response(data=response)
-
-            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
-
-            response["credentials"] = json.loads(website_group_obj.payment_credentials)
-            response['status'] = 200
-        
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCompanyCredentialsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
 
 class CheckSectionPermissionsAPI(APIView):
     
@@ -5821,16 +5655,22 @@ class CheckSectionPermissionsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            website_group_name = ""
             ecommerce_pages = []
-            location_group_objs = CustomPermission.objects.get(username=request.user.username).location_groups.all()
+            location_group_objs = CustomPermission.objects.get(user__username=request.user.username).location_groups.all()
             for location_group_obj in location_group_objs:
                 temp_dict = {}
                 temp_dict["name"] = location_group_obj.name
                 temp_dict["uuid"] = location_group_obj.uuid
                 ecommerce_pages.append(temp_dict)
 
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            if omnycomm_user_obj.website_group!=None:
+                website_group_name = omnycomm_user_obj.website_group.name
+
             response["page_list"] = get_custom_permission_page_list(request.user)
             response["ecommerce_pages"] = ecommerce_pages
+            response["websiteGroupName"] = website_group_name
 
             response['status'] = 200
 
@@ -5896,6 +5736,60 @@ class CreateOCReportAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateOCReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class CreateContentReportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+
+            logger.info("CreateContentReportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if OCReport.objects.filter(is_processed=False).count()>4:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            brand_name = data["brand_name"]
+            brand_list = [brand_name]
+
+            report_type = "Mega"
+
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note="", filename=filename, organization=custom_permission_obj.organization)
+
+            filter_parameters = data["filter_parameters"]
+
+            search_list_product_objs = Product.objects.filter(base_product__brand__name=brand_name)
+
+            search_list_product_objs = content_health_filtered_list(filter_parameters,search_list_product_objs)
+
+            search_list_product_objs = search_list_product_objs.values_list("uuid")
+
+            p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,search_list_product_objs))
+
+            p1.start()         
+
+            response["approved"] = True
+            response["status"] = 200   
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateContentReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5967,7 +5861,7 @@ class FetchOCReportListAPI(APIView):
                         "is_processed": oc_report_obj.is_processed,
                         "completion_date": completion_date,
                         "note": oc_report_obj.note,
-                        "filename": "https://"+SERVER_IP+"/"+oc_report_obj.filename,
+                        "filename": SERVER_IP+"/"+oc_report_obj.filename,
                         "uuid": oc_report_obj.uuid
                     }
                     oc_report_list.append(temp_dict)
@@ -6195,8 +6089,6 @@ TransferBulkChannel = TransferBulkChannelAPI.as_view()
 
 FetchAllCategories = FetchAllCategoriesAPI.as_view()
 
-FetchCompanyCredentials = FetchCompanyCredentialsAPI.as_view()
-
 CheckSectionPermissions = CheckSectionPermissionsAPI.as_view()
 
 CreateOCReport = CreateOCReportAPI.as_view()
@@ -6204,5 +6096,7 @@ CreateOCReport = CreateOCReportAPI.as_view()
 FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 
 FetchOCReportList = FetchOCReportListAPI.as_view()
+
+CreateContentReport = CreateContentReportAPI.as_view()
 
 UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view()

@@ -100,8 +100,6 @@ urlpatterns = [
     url(r'^payfort/payment-transaction/$',views.PaymentTransaction),
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
 
-    
-    url(r'^fetch-orders-for-account-manager/$', views.FetchOrdersForAccountManager),
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
     url(r'^set-orders-status/$', views.SetOrdersStatus),
@@ -109,6 +107,7 @@ urlpatterns = [
 
     url(r'^download-orders/$', views.DownloadOrders),
     url(r'^upload-orders/$', views.UploadOrders),
+    url(r'^apply-voucher-code/$', views.ApplyVoucherCode),
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
@@ -126,5 +125,12 @@ urlpatterns = [
     url(r'^delete-upvote/$', views.DeleteUpvote),
     url(r'^fetch-review/$', views.FetchReview),
     url(r'^fetch-product-reviews/$', views.FetchProductReviews),
-    url(r'^delete-user-review/$', views.DeleteUserReview)
+    url(r'^delete-user-review/$', views.DeleteUserReview),
+
+    url(r'^create-voucher/$', views.CreateVoucher),
+    url(r'^update-voucher/$', views.UpdateVoucher),    
+    url(r'^fetch-vouchers/$', views.FetchVouchers),
+    url(r'^delete-voucher/$', views.DeleteVoucher),
+    url(r'^publish-voucher/$', views.PublishVoucher),
+    url(r'^unpublish-voucher/$', views.UnPublishVoucher),
 ]

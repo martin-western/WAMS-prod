@@ -5,6 +5,7 @@ import json
 import logging
 from django.utils import timezone
 from django.core.mail import EmailMessage
+from WAMSApp.utils import *
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +26,12 @@ def notify_user_for_report(oc_report_obj):
     email.send(fail_silently=True)
 
 
-def create_mega_bulk_oc_report(filename, uuid, brand_list):
+def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list=""):
 
     product_objs = Product.objects.filter(base_product__brand__name__in=brand_list)
+
+    if product_uuid_list!="":
+      product_objs = product_objs.filter(uuid__in=product_uuid_list)
 
     workbook = xlsxwriter.Workbook('./'+filename)
 
@@ -597,7 +601,7 @@ def create_image_report(filename, uuid, brand_list):
         worksheet.write(cnt, colnum, k)
         colnum += 1
 
-    product_objs = Product.objects.all()
+    product_objs = Product.objects.none()
 
     if len(brand_list)!=0:
         product_objs = product_objs.filter(base_product__brand__name__in=brand_list)
@@ -669,7 +673,7 @@ def create_wigme_report(filename, uuid, brand_list):
         worksheet.write(cnt, colnum, k)
         colnum += 1
 
-    dh_product_objs = DealsHubProduct.objects.all()
+    dh_product_objs = DealsHubProduct.objects.none()
 
     if len(brand_list)!=0:
         dh_product_objs = dh_product_objs.filter(product__base_product__brand__name__in=brand_list)
