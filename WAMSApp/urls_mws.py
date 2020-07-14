@@ -17,7 +17,6 @@ urlpatterns = [
     url(r'^get-pricing-of-products-amazon-uk/$',views.GetPricingProductsAmazonUK),
     url(r'^get-product-inventory-amazon-uk/$',views.GetProductInventoryAmazonUK),
     url(r'^fetch-price-and-stock-periodically-amazon-uk',views.FetchPriceAndStockAmazonUK), 
-    url(r'^partial-update-products-amazon-uk',views.PartialUpdateProductAmazonUK), 
 
 ########### Amazon UAE ###############
 
@@ -28,7 +27,7 @@ urlpatterns = [
     url(r'^get-pricing-of-products-amazon-uae/$',views.GetPricingProductsAmazonUAE),
     url(r'^get-product-inventory-amazon-uae/$',views.GetProductInventoryAmazonUAE),
     url(r'^fetch-price-and-stock-periodically-amazon-uae',views.FetchPriceAndStockAmazonUAE), 
-    url(r'^partial-update-products-amazon-uae',views.PartialUpdateProductAmazonUAE), 
+
 
 ########## Feed Reports ##############
 
@@ -38,6 +37,7 @@ urlpatterns = [
 
 ######### Orders #####################
 
-    url(r'^fetch-orders-periodically/$',views.FetchOrdersPeriodically),   
+    url(r'^fetch-price-and-stock-periodically-amazon-uae',views.FetchPriceAndStockAmazonUAE), 
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
