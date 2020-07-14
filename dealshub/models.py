@@ -64,9 +64,9 @@ class Voucher(models.Model):
         if self.is_deleted==True or self.is_published==False:
             return True
         if timezone.now() >= self.start_time and timezone.now() <= self.end_time:
-            if maximum_usage_limit==0:
+            if self.maximum_usage_limit==0:
                 return False
-            if total_usage>=maximum_usage_limit:
+            if total_usage>=self.maximum_usage_limit:
                 return True
             return False
         return True
