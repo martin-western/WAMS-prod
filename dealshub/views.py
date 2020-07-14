@@ -280,25 +280,33 @@ class FetchHeadingCategoriesAPI(APIView):
 
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
-            super_category_objs = website_group_obj.super_categories.all()
+            category_objs = website_group_obj.categories.all()
 
-            super_category_list = []
-            for super_category_obj in super_category_objs:
+            category_list = []
+            for category_obj in category_objs:
                 temp_dict = {}
-                temp_dict["name"] = super_category_obj.name
-                temp_dict["uuid"] = super_category_obj.uuid
+                temp_dict["name"] = category_obj.name
+                temp_dict["uuid"] = category_obj.uuid
                 temp_dict["imageUrl"] = ""
-                if super_category_obj.image!=None:
-                    temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
-                super_category_list.append(temp_dict)
+                if category_obj.image!=None:
+                    temp_dict["imageUrl"] = category_obj.image.mid_image.url
+                sub_category_list = []
+                sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                for sub_category_obj in sub_category_objs:
+                    temp_dict2 = {}
+                    temp_dict2["name"] = sub_category_obj.name
+                    temp_dict2["uuid"] = sub_category_obj.uuid
+                    sub_category_list.append(temp_dict2)
+                temp_dict["subCategoryList"] = sub_category_list
+                category_list.append(temp_dict)
 
-            response['superCategoryList'] = super_category_list
+            response['categoryList'] = category_list
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchHeadingCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
@@ -2244,6 +2252,8 @@ FetchProductDetails = FetchProductDetailsAPI.as_view()
 FetchSectionProducts = FetchSectionProductsAPI.as_view()
 
 FetchSuperCategories = FetchSuperCategoriesAPI.as_view()
+
+FetchHeadingCategories = FetchHeadingCategoriesAPI.as_view()
 
 Search = SearchAPI.as_view()
 
