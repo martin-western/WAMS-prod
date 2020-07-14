@@ -235,7 +235,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="")
            "Noon Product Description*",
            "Product Type",
            "Product SubType",
-           "Parent SKU",
+           "Partner SKU",
            "Category*",
            "SubCategory",
            "Model Number",
@@ -484,7 +484,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="")
             common_row[195] = noon_product_json["product_description"]
             #common_row[196] = noon_product_json["product_type"]
             #common_row[197] = noon_product_json["product_subtype"]
-            common_row[198] = noon_product_json["parent_sku"]
+            common_row[198] = noon_product_json["partner_sku"]
             common_row[199] = noon_product_json["category"]
             #common_row[200] = noon_product_json["subtitle"]
             common_row[201] = noon_product_json["model_number"]

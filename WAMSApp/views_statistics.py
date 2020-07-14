@@ -73,7 +73,7 @@ class FetchStatisticsAPI(APIView):
 
             permissible_brands = permissible_brands.annotate(num_products=Count('baseproduct')).order_by('-num_products')
 
-            paginator = Paginator(permissible_brands, 20)
+            paginator = Paginator(permissible_brands, 5)
             brand_objs = paginator.page(page)
 
             brand_list = []
