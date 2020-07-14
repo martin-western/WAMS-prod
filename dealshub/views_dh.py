@@ -255,13 +255,21 @@ class AddToCartAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
                 "toPay": total_amount,
-                "delivery_fee": delivery_fee
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
@@ -321,13 +329,20 @@ class FetchCartDetailsAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
                 "toPay": total_amount,
-                "delivery_fee": delivery_fee
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
@@ -378,13 +393,20 @@ class UpdateCartDetailsAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
                 "toPay": total_amount,
-                "delivery_fee": delivery_fee
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
@@ -431,13 +453,20 @@ class RemoveFromCartAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
                 "toPay": total_amount,
-                "delivery_fee": delivery_fee
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
@@ -2754,13 +2783,20 @@ class ApplyVoucherCodeAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
             response["cardBill"] = {
                 "vat": vat,
                 "toPay": total_amount,
-                "delivery_fee": delivery_fee
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount
             }
             response["codBill"] = {
                 "vat": vat_with_cod,
