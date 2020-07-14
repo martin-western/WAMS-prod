@@ -198,7 +198,8 @@ def send_order_confirmation_mail(order_obj):
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
-                        bcc=location_group_obj.get_order_bcc_email_list()
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
                     )
             email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
@@ -251,7 +252,8 @@ def send_order_dispatch_mail(unit_order_obj):
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[unit_order_obj.order.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
-                        bcc=location_group_obj.get_order_bcc_email_list()
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
                     )
             email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
@@ -305,7 +307,8 @@ def send_order_delivered_mail(unit_order_obj):
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[unit_order_obj.order.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
-                        bcc=location_group_obj.get_order_bcc_email_list()
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
                     )
             email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
@@ -358,7 +361,8 @@ def send_order_delivery_failed_mail(unit_order_obj):
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[unit_order_obj.order.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
-                        bcc=location_group_obj.get_order_bcc_email_list()
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
                     )
             email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
@@ -411,7 +415,8 @@ def send_order_cancelled_mail(unit_order_obj):
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[unit_order_obj.order.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
-                        bcc=location_group_obj.get_order_bcc_email_list()
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
                     )
             email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
