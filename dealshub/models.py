@@ -507,7 +507,7 @@ class Order(models.Model):
         return subtotal+delivery_fee+cod_charge
 
     def get_vat(self):
-        total = self.get_total_amount()
+        total_amount = self.get_total_amount()
         return round((total_amount - total_amount/1.05), 2)
 
     def get_website_link(self):
