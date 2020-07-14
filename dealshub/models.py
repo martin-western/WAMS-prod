@@ -35,7 +35,7 @@ class Promotion(models.Model):
 class Voucher(models.Model):
 
     uuid = models.CharField(max_length=200,default="",unique=True)
-    voucher_code = models.CharField(max_length=50,unique=True)
+    voucher_code = models.CharField(max_length=50)
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
 
@@ -53,12 +53,16 @@ class Voucher(models.Model):
     maximum_usage_limit = models.IntegerField(default=0)
     minimum_purchase_amount = models.IntegerField(default=0)
     total_usage = models.IntegerField(default=0)
+    is_deleted = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return str(self.uuid)
 
     def is_expired(self):
+        if self.is_deleted==True or self.is_published==False:
+            return True
         if timezone.now() >= self.start_time and timezone.now() <= self.end_time:
             if maximum_usage_limit==0:
                 return False
@@ -348,9 +352,9 @@ class Cart(models.Model):
             subtotal += float(unit_cart_obj.product.get_actual_price())*float(unit_cart_obj.quantity)
         return subtotal
 
-    def get_delivery_fee(self):
+    def get_delivery_fee(self, cod=False):
         subtotal = self.get_subtotal()
-        if self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             if self.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
@@ -359,19 +363,17 @@ class Cart(models.Model):
             return self.location_group.delivery_fee
         return 0
 
-    def get_total_amount(self):
+    def get_total_amount(self, cod=False):
         subtotal = self.get_subtotal()
-        if self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
-        delivery_fee = self.get_delivery_fee()
+        delivery_fee = self.get_delivery_fee(cod)
+        if cod==True:
+            subtotal += self.location_group.cod_charge
         return subtotal+delivery_fee
 
-    def get_vat(self):
-        total_amount = self.get_total_amount()
-        return round((total_amount - total_amount/1.05), 2)
-
-    def get_vat_with_cod(self):
-        total_amount = self.get_total_amount() + self.location_group.cod_charge
+    def get_vat(self, cod=False):
+        total_amount = self.get_total_amount(cod)
         return round((total_amount - total_amount/1.05), 2)
 
     def get_currency(self):
@@ -468,7 +470,7 @@ class Order(models.Model):
 
     def get_cod_charge(self):
         if self.payment_mode=="COD":
-            return order_obj.location_group.cod_charge
+            return self.location_group.cod_charge
         return 0
 
     def get_total_amount(self):
