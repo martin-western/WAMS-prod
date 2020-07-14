@@ -39,7 +39,7 @@ SELLER_ID = MWS_PARAMS["SELLER_ID"]
 
 marketplace_id = mws.Marketplaces["AE"].marketplace_id
 
-class GetMatchingProductsAmazonUAEMWSAPI(APIView):
+class GetMatchingProductsAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -47,12 +47,12 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
         response['status'] = 500
         try:
             if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
-                logger.warning("GetMatchingProductsAmazonUAEMWSAPI Restricted Access!")
+                logger.warning("GetMatchingProductsAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("GetMatchingProductsAmazonUAEMWSAPI: %s", str(data))
+            logger.info("GetMatchingProductsAmazonUAEAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -60,7 +60,7 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("GetMatchingProductsAmazonUAEMWSAPI More then 30 Products!")
+                logger.warning("GetMatchingProductsAmazonUAEAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
@@ -69,7 +69,7 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "GetMatchingProductsAmazonUAEMWSAPI Restricted Access of UAE Channel!")
+                    "GetMatchingProductsAmazonUAEAPI Restricted Access of UAE Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -224,12 +224,12 @@ class GetMatchingProductsAmazonUAEMWSAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GetMatchingProductsAmazonUAEMWSAPI: %s at %s",
+            logger.error("GetMatchingProductsAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class GetPricingProductsAmazonUAEMWSAPI(APIView):
+class GetPricingProductsAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -237,12 +237,12 @@ class GetPricingProductsAmazonUAEMWSAPI(APIView):
         response['status'] = 500
         try:
             if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
-                logger.warning("GetPricingProductsAmazonUAEMWSAPI Restricted Access!")
+                logger.warning("GetPricingProductsAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("GetPricingProductsAmazonUAEMWSAPI: %s", str(data))
+            logger.info("GetPricingProductsAmazonUAEAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -250,7 +250,7 @@ class GetPricingProductsAmazonUAEMWSAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("GetPricingProductsAmazonUAEMWSAPI More then 30 Products!")
+                logger.warning("GetPricingProductsAmazonUAEAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
@@ -259,7 +259,7 @@ class GetPricingProductsAmazonUAEMWSAPI(APIView):
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "GetPricingProductsAmazonUAEMWSAPI Restricted Access of UAE Channel!")
+                    "GetPricingProductsAmazonUAEAPI Restricted Access of UAE Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -385,7 +385,7 @@ class GetPricingProductsAmazonUAEMWSAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GetPricingProductsAmazonUAEMWSAPI: %s at %s",
+            logger.error("GetPricingProductsAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
@@ -810,9 +810,9 @@ class PartialUpdateProductAmazonUAEAPI(APIView):
 
         return Response(data=response)
 
-GetMatchingProductsAmazonUAEMWS = GetMatchingProductsAmazonUAEMWSAPI.as_view()
+GetMatchingProductsAmazonUAE = GetMatchingProductsAmazonUAEAPI.as_view()
 
-GetPricingProductsAmazonUAEMWS = GetPricingProductsAmazonUAEMWSAPI.as_view()
+GetPricingProductsAmazonUAE = GetPricingProductsAmazonUAEAPI.as_view()
 
 PushProductsAmazonUAE = PushProductsAmazonUAEAPI.as_view()
 
