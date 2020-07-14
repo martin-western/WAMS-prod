@@ -324,6 +324,8 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
+            update_cart_bill(cart_obj)
+
             subtotal = cart_obj.get_subtotal()
             
             delivery_fee = cart_obj.get_delivery_fee()
