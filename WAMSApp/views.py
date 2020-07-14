@@ -1507,6 +1507,17 @@ class FetchProductListAPI(APIView):
                 brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
                 search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
 
+            without_images = 0
+            if filter_parameters["has_image"] == "1":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "0":
+                without_images = 1
+                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "2":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.annotate(c=Count('base_product__unedited_images')).filter(c__gt=1)
+
             if filter_parameters.get("Product Description", None) == True:
                 search_list_product_objs = search_list_product_objs.exclude(Q(product_description=None) | Q(product_description=""))
             elif filter_parameters.get("Product Description", None) == False:
@@ -1705,21 +1716,21 @@ class FetchProductListAPI(APIView):
                     temp_dict2["main_images"] = []
                     temp_dict["base_main_images"] = []
 
+                    if without_images==0:
+                        main_images_list = ImageBucket.objects.none()
+                        main_images_objs = MainImages.objects.filter(product=product_obj)
+                        for main_images_obj in main_images_objs:
+                            main_images_list |= main_images_obj.main_images.all()
 
-                    main_images_list = ImageBucket.objects.none()
-                    main_images_objs = MainImages.objects.filter(product=product_obj)
-                    for main_images_obj in main_images_objs:
-                        main_images_list |= main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
 
-                    main_images_list = main_images_list.distinct()
-
-                    try:
-                        main_images = create_response_images_main(main_images_list)
-                        temp_dict2["main_images"] = main_images
-                        for main_image in main_images:
-                            temp_dict["base_main_images"].append(main_image)
-                    except Exception as e:
-                        pass
+                        try:
+                            main_images = create_response_images_main(main_images_list)
+                            temp_dict2["main_images"] = main_images
+                            for main_image in main_images:
+                                temp_dict["base_main_images"].append(main_image)
+                        except Exception as e:
+                            pass
 
                     channels_of_prod =0
                     inactive_channels = 0
