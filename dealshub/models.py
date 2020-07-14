@@ -79,6 +79,11 @@ class Voucher(models.Model):
             return False
         return True
 
+    def is_eligible(self, subtotal):
+        if subtotal>=self.minimum_purchase_amount:
+            return True
+        return False
+
     def get_discounted_price(self, subtotal):
         if self.voucher_type=="SD":
             return subtotal
