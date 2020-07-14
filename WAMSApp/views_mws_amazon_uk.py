@@ -810,6 +810,73 @@ class PartialUpdateProductAmazonUKAPI(APIView):
 
         return Response(data=response)
 
+class PushProductImagesAmazonUKAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            
+            logger.info("PushProductImagesAmazonUKAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if custom_permission_mws_functions(request.user,"push_products_on_amazon") == False:
+                logger.warning("PushProductImagesAmazonUKAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            permissible_channels = custom_permission_filter_channels(request.user)
+
+            channel_obj = Channel.objects.get(name="Amazon UK")
+
+            if channel_obj not in permissible_channels:
+                logger.warning("PushProductImagesAmazonUKAPI Restricted Access of UK Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            product_pk_list = data["product_pk_list"]
+
+            if(len(product_pk_list)>30):
+                logger.warning("PushProductImagesAmazonUKAPI More then 30 Products!")
+                response['status'] = 429
+                return Response(data=response)
+
+            xml_string = generate_xml_for_product_image_amazon_uk(product_pk_list,SELLER_ID,True)
+
+            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region='UK')
+
+            response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_IMAGE_DATA_",marketplaceids=marketplace_id)
+
+            feed_submission_id = response_submeet_feed.parsed["FeedSubmissionInfo"]["FeedSubmissionId"]["value"]
+
+            report_obj = Report.objects.create(feed_submission_id=feed_submission_id,
+                                                operation_type="Push",
+                                                channel = channel_obj,
+                                                user=request.user)
+
+            for product_pk in product_pk_list:
+                product_obj = Product.objects.get(pk=product_pk)
+                report_obj.products.add(product_obj)
+
+            report_obj.save()
+
+            response["feed_submission_id"] = feed_submission_id
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PushProductImagesAmazonUKAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 GetMatchingProductsAmazonUK = GetMatchingProductsAmazonUKAPI.as_view()
 
 GetPricingProductsAmazonUK = GetPricingProductsAmazonUKAPI.as_view()
