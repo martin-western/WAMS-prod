@@ -12,7 +12,7 @@ import os
 import json
 import requests
 from dealshub.constants import *
-from django.core.mail import send_mail
+from django.core.mail import send_mail, get_connection
 from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 import threading
