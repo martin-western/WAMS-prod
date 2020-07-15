@@ -1128,6 +1128,8 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            location_group_uuid = data["uuid"]
+
             price_permission = custom_permission_price(request.user, "dealshub")
             if price_permission:
                 path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
@@ -1141,7 +1143,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
                         now_price = float(dfs.iloc[i][1])
                         was_price = float(dfs.iloc[i][2])
                         
-                        dh_product_obj = DealsHubProduct.objects.get(product__product_id=product_id)
+                        dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
                         dh_product_obj.now_price = now_price
                         dh_product_obj.was_price = was_price
                         dh_product_obj.save()
@@ -1171,6 +1173,8 @@ class BulkUpdateDealshubProductStockAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            location_group_uuid = data["uuid"]
+
             stock_permission = custom_permission_stock(request.user, "dealshub")
             if stock_permission:
                 path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
@@ -1183,7 +1187,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
                         product_id = str(dfs.iloc[i][0]).strip()
                         stock = float(dfs.iloc[i][1])
                         
-                        dh_product_obj = DealsHubProduct.objects.get(product__product_id=product_id)
+                        dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
                         dh_product_obj.stock = stock
                         dh_product_obj.save()
                     except Exception as e:
