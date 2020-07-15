@@ -429,7 +429,14 @@ class PushProductsAmazonUKAPI(APIView):
 
             response["feed_submission_id"] = ""
 
-            xml_string= generate_xml_for_post_product_data_amazon_uk(product_pk_list,SELLER_ID)
+            is_partial = data.get("is_partial",False)
+
+            xml_string = ""
+
+            if(is_partial == False):
+                xml_string= generate_xml_for_post_product_data_amazon_uk(product_pk_list,SELLER_ID)
+            else:
+                xml_string = generate_xml_for_partial_update_product_amazon_uk(product_pk_list,SELLER_ID)
 
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
                                         region='UK')
