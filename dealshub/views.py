@@ -2155,6 +2155,7 @@ class FetchVouchersAPI(APIView):
             for voucher_obj in voucher_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = voucher_obj.uuid
+                temp_dict["is_published"] = voucher_obj.is_published
                 temp_dict["voucher_code"] = voucher_obj.voucher_code
                 temp_dict["start_time"] = voucher_obj.start_time
                 temp_dict["end_time"] = voucher_obj.end_time
