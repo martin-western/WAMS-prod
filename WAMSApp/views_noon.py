@@ -98,7 +98,7 @@ class BulkUpdateNoonProductPriceAPI(APIView):
                     product_obj = None
 
                     if data["option"] == "Product ID":
-                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
                             product_obj = Product.objects.get(product_id=search_key)
@@ -218,7 +218,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                     product_obj = None
 
                     if data["option"] == "Product ID":
-                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
                             product_obj = Product.objects.get(product_id=search_key)
@@ -337,7 +337,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                     product_obj = None
 
                     if data["option"] == "Product ID":
-                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
                             product_obj = Product.objects.get(product_id=search_key)
