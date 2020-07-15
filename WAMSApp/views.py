@@ -1128,7 +1128,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            location_group_uuid = data["uuid"]
+            location_group_uuid = data["locationGroupUuid"]
 
             price_permission = custom_permission_price(request.user, "dealshub")
             if price_permission:
@@ -1173,7 +1173,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            location_group_uuid = data["uuid"]
+            location_group_uuid = data["locationGroupUuid"]
 
             stock_permission = custom_permission_stock(request.user, "dealshub")
             if stock_permission:
