@@ -185,17 +185,25 @@ def send_order_confirmation_mail(order_obj):
 
         location_group_obj = order_obj.location_group
 
-        email = EmailMultiAlternatives(
-                    subject='Order Confirmation', 
-                    body='Order Confirmation', 
-                    from_email=[location_group_obj.get_order_from_email_id()],
-                    to=[order_obj.owner.email],
-                    cc=location_group_obj.get_order_cc_email_list(),
-                    bcc=location_group_obj.get_order_bcc_email_list()
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
-        logger.info("send_order_confirmation_mail")
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Confirmation', 
+                        body='Order Confirmation', 
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[order_obj.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_confirmation_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -229,16 +237,27 @@ def send_order_dispatch_mail(unit_order_obj):
             }
         )
 
-        email = EmailMultiAlternatives(
-                    subject='Order Dispatch',
-                    body='Order Dispatch',
-                    from_email='orders@wigme.com',
-                    to=[unit_order_obj.order.owner.email],
-                    cc=['orders@wigme.com'],
-                    bcc=['hari.pk@westernint.com', 'siddhansh@omnycomm.com']
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Dispatch',
+                        body='Order Dispatch',
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_dispatch_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -273,16 +292,27 @@ def send_order_delivered_mail(unit_order_obj):
             }
         )
 
-        email = EmailMultiAlternatives(
-                    subject='Order Delivered', 
-                    body='Order Delivered', 
-                    from_email='orders@wigme.com',
-                    to=[unit_order_obj.order.owner.email],
-                    cc=['orders@wigme.com'],
-                    bcc=['hari.pk@westernint.com', 'siddhansh@omnycomm.com']
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Delivered', 
+                        body='Order Delivered', 
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_delivered_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -316,16 +346,27 @@ def send_order_delivery_failed_mail(unit_order_obj):
             }
         )
 
-        email = EmailMultiAlternatives(
-                    subject='Order Delivery Failed', 
-                    body='Order Delivery Failed', 
-                    from_email='orders@wigme.com',
-                    to=[unit_order_obj.order.owner.email],
-                    cc=['orders@wigme.com'],
-                    bcc=['hari.pk@westernint.com', 'siddhansh@omnycomm.com']
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Delivery Failed', 
+                        body='Order Delivery Failed', 
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_delivery_failed_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -359,16 +400,27 @@ def send_order_cancelled_mail(unit_order_obj):
             }
         )
 
-        email = EmailMultiAlternatives(
-                    subject='Order Cancelled', 
-                    body='Order Cancelled', 
-                    from_email='orders@wigme.com',
-                    to=[unit_order_obj.order.owner.email],
-                    cc=['orders@wigme.com'],
-                    bcc=['hari.pk@westernint.com', 'siddhansh@omnycomm.com']
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Cancelled', 
+                        body='Order Cancelled',
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_cancelled_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
