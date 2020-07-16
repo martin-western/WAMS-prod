@@ -1783,3 +1783,25 @@ for x in c:
     if uk["status"] =="Active":
         cnt+=1
         print("Cnt : " , cnt)
+
+
+from WAMSApp.models import *
+import json
+cnt=0
+for channel_product in ChannelProduct.objects.all():
+    cnt+=1
+    print("Cnt : ",cnt)
+    noon_product_json = json.loads(channel_product.noon_product_json)
+    parent_sku = noon_product_json.get("parent_sku","") 
+    if("partner_sku" not in noon_product_json):
+        noon_product_json["partner_sku"] = ""
+    if(parent_sku != ""):
+        noon_product_json["partner_sku"] = parent_sku
+    parent_barcode = noon_product_json.get("parent_barcode","") 
+    if("partner_barcode" not in noon_product_json):
+        noon_product_json["partner_barcode"] = ""
+    if(parent_barcode != ""):
+        noon_product_json["partner_barcode"] = parent_barcode
+    noon_product_json["sale_price"] = noon_product_json["now_price"]
+    channel_product.noon_product_json = json.dumps(noon_product_json)
+    channel_product.save()
