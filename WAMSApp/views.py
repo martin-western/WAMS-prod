@@ -5096,7 +5096,9 @@ class FetchChannelProductListAPI(APIView):
                     return Response(data=response)
 
                 rows = len(dfs.iloc[:])
+                
                 search_list = []
+                excel_errors = []
 
                 flag=0
                 
@@ -5137,8 +5139,8 @@ class FetchChannelProductListAPI(APIView):
                                     product_objs.append(product_obj)
                                     logger.info(product_obj)
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     logger.warning(str(e))
+                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
                             elif option == "Noon SKU" and channel_name=="Noon":
