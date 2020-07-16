@@ -5076,6 +5076,7 @@ class FetchChannelProductListAPI(APIView):
             if "import_file" in data:
 
                 product_objs = Product.objects.none()
+
                 try :
                     
                     path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
@@ -5096,10 +5097,11 @@ class FetchChannelProductListAPI(APIView):
 
                 rows = len(dfs.iloc[:])
                 search_list = []
+
                 for i in range(rows):
                     try:
                         search_key = str(dfs.iloc[i][0]).strip()
-                        
+                        logger.info(search_key)
                         if "option" not in data:
                             search_list.append(search_key)
                         else:
@@ -5114,9 +5116,7 @@ class FetchChannelProductListAPI(APIView):
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "Seller SKU":
-                                search_key = str(dfs.iloc[i][0]).strip()
-                                
+                            elif data["option"] == "Seller SKU":                               
                                 try :
                                     product_obj = Product.objects.get(base_product__seller_sku=search_key)
                                     product_objs.append(product_obj)
@@ -5125,8 +5125,6 @@ class FetchChannelProductListAPI(APIView):
                                     pass
 
                             elif data["option"] == "Noon SKU" and channel_name=="Noon":
-                                search_key = str(dfs.iloc[i][0]).strip()
-                                
                                 try :
                                     product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
@@ -5135,8 +5133,6 @@ class FetchChannelProductListAPI(APIView):
                                     pass
 
                             elif data["option"] == "Partner SKU" and channel_name=="Noon":
-                                search_key = str(dfs.iloc[i][0]).strip()
-
                                 try :
                                     product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
@@ -5145,8 +5141,6 @@ class FetchChannelProductListAPI(APIView):
                                     pass
 
                             elif data["option"] == "ASIN" and channel_name=="Amazon UAE":
-                                search_key = str(dfs.iloc[i][0]).strip()
-
                                 try :
                                     product_obj = Product.objects.get(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
@@ -5155,8 +5149,6 @@ class FetchChannelProductListAPI(APIView):
                                     pass
 
                             elif data["option"] == "ASIN" and channel_name=="Amazon UK":
-                                search_key = str(dfs.iloc[i][0]).strip()
-
                                 try :
                                     product_obj = Product.objects.get(channel_product__amazon_uk_product_json__icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
@@ -5169,15 +5161,14 @@ class FetchChannelProductListAPI(APIView):
                                 logger.warning("FetchChannelProductListAPI Wrong Template Uploaded for " + data["option"])
                                 return Response(data=response)
 
-
                     except Exception as e:
-                        continue
+                        pass
                 
                     if "option" not in data:
                         product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
 
             logger.info(product_objs)
-            
+
             for product_obj in product_objs:
                 
                 temp_dict = {}
