@@ -186,8 +186,8 @@ def send_order_confirmation_mail(order_obj):
         location_group_obj = order_obj.location_group
 
         with get_connection(
-            host="smtp.gmail.com",
-            port=587, 
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
             username=location_group_obj.get_order_from_email_id(), 
             password=location_group_obj.get_order_from_email_password(),
             use_tls=True) as connection:
@@ -240,8 +240,8 @@ def send_order_dispatch_mail(unit_order_obj):
         location_group_obj = unit_order_obj.order.location_group
 
         with get_connection(
-            host="smtp.gmail.com",
-            port=587, 
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
             username=location_group_obj.get_order_from_email_id(), 
             password=location_group_obj.get_order_from_email_password(),
             use_tls=True) as connection:
@@ -295,8 +295,8 @@ def send_order_delivered_mail(unit_order_obj):
         location_group_obj = unit_order_obj.order.location_group
 
         with get_connection(
-            host="smtp.gmail.com",
-            port=587, 
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
             username=location_group_obj.get_order_from_email_id(), 
             password=location_group_obj.get_order_from_email_password(),
             use_tls=True) as connection:
@@ -349,8 +349,8 @@ def send_order_delivery_failed_mail(unit_order_obj):
         location_group_obj = unit_order_obj.order.location_group
 
         with get_connection(
-            host="smtp.gmail.com",
-            port=587, 
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
             username=location_group_obj.get_order_from_email_id(), 
             password=location_group_obj.get_order_from_email_password(),
             use_tls=True) as connection:
@@ -403,8 +403,8 @@ def send_order_cancelled_mail(unit_order_obj):
         location_group_obj = unit_order_obj.order.location_group
 
         with get_connection(
-            host="smtp.gmail.com",
-            port=587, 
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
             username=location_group_obj.get_order_from_email_id(), 
             password=location_group_obj.get_order_from_email_password(),
             use_tls=True) as connection:

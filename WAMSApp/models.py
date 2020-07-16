@@ -225,6 +225,12 @@ class LocationGroup(models.Model):
 
         super(LocationGroup, self).save(*args, **kwargs)
 
+    def get_email_host(self):
+        return json.loads(self.email_info)["host"]
+
+    def get_email_port(self):
+        return int(json.loads(self.email_info)["port"])
+
     def get_support_email_id(self):
         return json.loads(self.email_info)["support"]["email_id"]
 
