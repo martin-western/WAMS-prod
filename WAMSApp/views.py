@@ -1569,6 +1569,7 @@ class FetchProductListAPI(APIView):
                     temp_dict2["main_images"] = []
                     temp_dict["base_main_images"] = []
 
+
                     if without_images==0:
                         main_images_list = ImageBucket.objects.none()
                         main_images_objs = MainImages.objects.filter(product=product_obj)
@@ -5073,7 +5074,8 @@ class FetchChannelProductListAPI(APIView):
             product_objs = paginator.page(page)
 
             if "import_file" in data:
-                
+
+                product_objs = Product.objects.none()
                 try :
                     
                     path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
@@ -5100,8 +5102,7 @@ class FetchChannelProductListAPI(APIView):
                         
                         if "option" not in data:
                             search_list.append(search_key)
-                        else :
-                            product_objs = Product.objects.none()
+                        else:
                     
                             if data["option"] == "Product ID":
                                 search_key = str(dfs.iloc[i][0]).strip()
@@ -5127,7 +5128,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
                                 
                                 try :
-                                    product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5137,7 +5138,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
-                                    product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5147,7 +5148,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
-                                    product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5157,7 +5158,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
-                                    product_obj = Product.objects.get(channel_product__amazon_uk_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__amazon_uk_product_json__icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5169,7 +5170,7 @@ class FetchChannelProductListAPI(APIView):
                                 return Response(data=response)
 
                     except Exception as e:
-                        pass
+                        continue
                 
                     if "option" not in data:
                         product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
