@@ -5106,7 +5106,6 @@ class FetchChannelProductListAPI(APIView):
                     flag=1
                 else:
                     option = data["option"]
-                    logger.info(option)
 
                 for i in range(rows):
                     try:
@@ -5118,61 +5117,74 @@ class FetchChannelProductListAPI(APIView):
                             search_list.append(search_key)
 
                         else:
-                            
-                            logger.info("HERE 1")
 
                             if option == "Product ID":
                                 
                                 search_key = str(int(dfs.iloc[i][0])).strip()
                                 
                                 try :
-                                    product_obj = Product.objects.get(product_id=search_key)
-                                    product_objs.add(product_obj)
+                                    product_obj = Product.objects.filter(product_id=search_key)
+                                    product_objs|=product_obj
+
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
                             elif option == "Seller SKU":                               
-                                logger.info("HERE 2")
                                 try :
-                                    product_obj = Product.objects.get(base_product__seller_sku=search_key)
-                                    product_objs.add(product_obj)
-                                    logger.info(product_obj)
+                                    product_obj = Product.objects.filter(base_product__seller_sku=search_key)
+                                    product_objs |= product_obj
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    logger.warning(str(e))
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
                             elif option == "Noon SKU" and channel_name=="Noon":
                                 try :
-                                    product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"')
+                                    product_obj = Product.objects.filter(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"')
                                     product_objs.add(product_obj)
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
                             elif option == "Partner SKU" and channel_name=="Noon":
                                 try :
-                                    product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"')
-                                    product_objs.add(product_obj)
+                                    product_obj = Product.objects.filter(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"')
+                                    product_objs |= product_obj
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
                             elif option == "ASIN" and channel_name=="Amazon UAE":
                                 try :
-                                    product_obj = Product.objects.get(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"')
-                                    product_objs.add(product_obj)
+                                    product_obj = Product.objects.filter(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"')
+                                    product_objs |= product_obj
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
                             elif option == "ASIN" and channel_name=="Amazon UK":
                                 try :
                                     product_obj = Product.objects.get(channel_product__amazon_uk_product_json__icontains='"ASIN": "'+search_key+'"')
-                                    product_objs.add(product_obj)
+                                    product_objs |= product_obj
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
                             else:
@@ -5181,13 +5193,16 @@ class FetchChannelProductListAPI(APIView):
                                 return Response(data=response)
 
                     except Exception as e:
-                        logger.warning(str(e))
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.warning("FetchChannelProductListAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         pass
                 
                 if flag==1:
                     product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
 
                 logger.info(product_objs)
+
+            product_objs = product_objs.distinct()
 
             for product_obj in product_objs:
                 
