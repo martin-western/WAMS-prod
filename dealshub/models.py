@@ -124,7 +124,7 @@ class DealsHubProduct(models.Model):
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
     is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
-    uuid = models.CharField(max_length=200, default="", unique=True)
+    uuid = models.CharField(max_length=200, default="")
 
     class Meta:
         verbose_name = "DealsHub Product"
