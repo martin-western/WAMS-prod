@@ -5200,9 +5200,7 @@ class FetchChannelProductListAPI(APIView):
                 if flag==1:
                     product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
 
-                logger.info(product_objs)
-
-            product_objs = product_objs.distinct()
+                product_objs = product_objs.distinct()
 
             for product_obj in product_objs:
                 
