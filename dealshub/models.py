@@ -124,7 +124,7 @@ class DealsHubProduct(models.Model):
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
     is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
-    uuid = models.CharField(max_length=200, default="", unique=True)
+    uuid = models.CharField(max_length=200, default="")
 
     class Meta:
         verbose_name = "DealsHub Product"
@@ -379,6 +379,8 @@ class Cart(models.Model):
 
     def get_delivery_fee(self, cod=False):
         subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
         if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             if self.voucher.voucher_type=="SD":
                 return 0
@@ -390,6 +392,8 @@ class Cart(models.Model):
 
     def get_total_amount(self, cod=False):
         subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
         if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee(cod)

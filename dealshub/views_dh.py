@@ -926,6 +926,7 @@ class FetchOrderDetailsAPI(APIView):
             response["isVoucherApplied"] = is_voucher_applied
             if is_voucher_applied:
                 response["voucherCode"] = voucher_obj.voucher_code
+                response["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
 
             address_obj = order_obj.shipping_address
             if address_obj==None:

@@ -1128,6 +1128,8 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            location_group_uuid = data["locationGroupUuid"]
+
             price_permission = custom_permission_price(request.user, "dealshub")
             if price_permission:
                 path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
@@ -1141,7 +1143,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
                         now_price = float(dfs.iloc[i][1])
                         was_price = float(dfs.iloc[i][2])
                         
-                        dh_product_obj = DealsHubProduct.objects.get(product__product_id=product_id)
+                        dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
                         dh_product_obj.now_price = now_price
                         dh_product_obj.was_price = was_price
                         dh_product_obj.save()
@@ -1171,6 +1173,8 @@ class BulkUpdateDealshubProductStockAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            location_group_uuid = data["locationGroupUuid"]
+
             stock_permission = custom_permission_stock(request.user, "dealshub")
             if stock_permission:
                 path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
@@ -1183,7 +1187,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
                         product_id = str(dfs.iloc[i][0]).strip()
                         stock = float(dfs.iloc[i][1])
                         
-                        dh_product_obj = DealsHubProduct.objects.get(product__product_id=product_id)
+                        dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
                         dh_product_obj.stock = stock
                         dh_product_obj.save()
                     except Exception as e:
@@ -1483,6 +1487,17 @@ class FetchProductListAPI(APIView):
 
             search_list_product_objs = search_list_product_objs.order_by('-pk')
 
+            without_images = 0
+            if filter_parameters["has_image"] == "1":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "0":
+                without_images = 1
+                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "2":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.annotate(c=Count('base_product__unedited_images')).filter(c__gt=1)
+
             if filter_parameters.get("brand_name", "") != "":
                 brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
                 search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
@@ -1566,7 +1581,11 @@ class FetchProductListAPI(APIView):
                     temp_dict2["main_images"] = []
                     temp_dict["base_main_images"] = []
 
+<<<<<<< HEAD
                     if(without_images == 0):
+=======
+                    if without_images==0:
+>>>>>>> ebf9cb93b8dfb10c8761885c1decab6516357740
                         main_images_list = ImageBucket.objects.none()
                         main_images_objs = MainImages.objects.filter(product=product_obj)
                         for main_images_obj in main_images_objs:
@@ -5070,10 +5089,26 @@ class FetchChannelProductListAPI(APIView):
             product_objs = paginator.page(page)
 
             if "import_file" in data:
+
                 product_objs = Product.objects.none()
-                path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
-                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                try :
+                    
+                    path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
+                    path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                    dfs = pd.read_excel(path, sheet_name=None)
+
+                except Exception as e:
+                    response['status'] = 407
+                    logger.warning("FetchChannelProductListAPI UnSupported File Format ")
+                    return Response(data=response)
+
+                try :
+                    dfs = dfs["Sheet1"]
+                except Exception as e:
+                    response['status'] = 406
+                    logger.warning("FetchChannelProductListAPI Sheet1 not found!")
+                    return Response(data=response)
+
                 rows = len(dfs.iloc[:])
                 search_list = []
                 for i in range(rows):
@@ -5082,6 +5117,7 @@ class FetchChannelProductListAPI(APIView):
                         
                         if "option" not in data:
                             search_list.append(search_key)
+                        else:
                     
                             if data["option"] == "Product ID":
                                 search_key = str(dfs.iloc[i][0]).strip()
@@ -5107,7 +5143,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
                                 
                                 try :
-                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5117,7 +5153,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
-                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5127,7 +5163,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
-                                    product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5137,7 +5173,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
-                                    product_obj = Product.objects.get(channel_product_amazon_uk_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__amazon_uk_product_json__icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
