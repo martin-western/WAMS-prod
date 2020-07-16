@@ -1504,18 +1504,6 @@ class FetchProductListAPI(APIView):
 
             search_list_product_objs = content_health_filtered_list(filter_parameters,search_list_product_objs)
 
-            without_images = 0
-            
-            if filter_parameters["has_image"] == "1":
-                without_images = 0
-                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
-            elif filter_parameters["has_image"] == "0":
-                without_images = 1
-                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
-            elif filter_parameters["has_image"] == "2":
-                without_images = 0
-                search_list_product_objs = search_list_product_objs.annotate(c=Count('base_product__unedited_images')).filter(c__gt=1)
-
             if len(chip_data) != 0:
                 search_list_product_lookup = Product.objects.none()
                 for tag in chip_data:
@@ -1581,11 +1569,8 @@ class FetchProductListAPI(APIView):
                     temp_dict2["main_images"] = []
                     temp_dict["base_main_images"] = []
 
-<<<<<<< HEAD
-                    if(without_images == 0):
-=======
+
                     if without_images==0:
->>>>>>> ebf9cb93b8dfb10c8761885c1decab6516357740
                         main_images_list = ImageBucket.objects.none()
                         main_images_objs = MainImages.objects.filter(product=product_obj)
                         for main_images_obj in main_images_objs:
