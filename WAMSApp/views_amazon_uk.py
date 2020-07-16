@@ -187,7 +187,7 @@ class BulkUpdateAmazonUKProductStockAPI(APIView):
             
             if not stock_permission:
                 response['status'] = 403
-                logger.warning("BulkUpdateAmazonUKProductPriceAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
+                logger.warning("BulkUpdateAmazonUKProductStockAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-stock.xlsx', data["import_file"])
@@ -197,14 +197,14 @@ class BulkUpdateAmazonUKProductStockAPI(APIView):
                 dfs = pd.read_excel(path, sheet_name=None)
             except Exception as e:
                 response['status'] = 407
-                logger.warning("BulkUpdateAmazonUKProductPriceAPI UnSupported File Format ")
+                logger.warning("BulkUpdateAmazonUKProductStockAPI UnSupported File Format ")
                 return Response(data=response)
 
             try :
                 dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateAmazonUKProductPriceAPI Sheet1 not found!")
+                logger.warning("BulkUpdateAmazonUKProductStockAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -212,7 +212,7 @@ class BulkUpdateAmazonUKProductStockAPI(APIView):
 
             if data["option"] != excel_header:
                 response['status'] = 405
-                logger.warning("BulkUpdateAmazonUKProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                logger.warning("BulkUpdateAmazonUKProductStockAPI Wrong Template Uploaded for " + data["option"])
                 return Response(data=response)
 
             excel_errors = []
