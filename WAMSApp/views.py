@@ -5098,17 +5098,29 @@ class FetchChannelProductListAPI(APIView):
                 rows = len(dfs.iloc[:])
                 search_list = []
 
+                flag=0
+                
+                if "option" not in data:
+                    flag=1
+                else:
+                    option = data["option"]
+                    logger.info(option)
+
                 for i in range(rows):
                     try:
                         
                         search_key = str(dfs.iloc[i][0]).strip()
                         logger.info(search_key)
 
-                        if "option" not in data:
+                        if flag == 1:
                             search_list.append(search_key)
+
                         else:
-                    
-                            if data["option"] == "Product ID":
+                            
+                            logger.info("HERE 1")
+
+                            if option == "Product ID":
+                                
                                 search_key = str(int(dfs.iloc[i][0])).strip()
                                 
                                 try :
@@ -5118,7 +5130,8 @@ class FetchChannelProductListAPI(APIView):
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "Seller SKU":                               
+                            elif option == "Seller SKU":                               
+                                logger.info("HERE 2")
                                 try :
                                     product_obj = Product.objects.get(base_product__seller_sku=search_key)
                                     product_objs.append(product_obj)
@@ -5128,7 +5141,7 @@ class FetchChannelProductListAPI(APIView):
                                     logger.warning(str(e))
                                     pass
 
-                            elif data["option"] == "Noon SKU" and channel_name=="Noon":
+                            elif option == "Noon SKU" and channel_name=="Noon":
                                 try :
                                     product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
@@ -5136,7 +5149,7 @@ class FetchChannelProductListAPI(APIView):
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "Partner SKU" and channel_name=="Noon":
+                            elif option == "Partner SKU" and channel_name=="Noon":
                                 try :
                                     product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
@@ -5144,7 +5157,7 @@ class FetchChannelProductListAPI(APIView):
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "ASIN" and channel_name=="Amazon UAE":
+                            elif option == "ASIN" and channel_name=="Amazon UAE":
                                 try :
                                     product_obj = Product.objects.get(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
@@ -5152,7 +5165,7 @@ class FetchChannelProductListAPI(APIView):
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "ASIN" and channel_name=="Amazon UK":
+                            elif option == "ASIN" and channel_name=="Amazon UK":
                                 try :
                                     product_obj = Product.objects.get(channel_product__amazon_uk_product_json__icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
@@ -5166,12 +5179,13 @@ class FetchChannelProductListAPI(APIView):
                                 return Response(data=response)
 
                     except Exception as e:
+                        logger.warning(str(e))
                         pass
                 
-                    if "option" not in data:
-                        product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
+                if flag==1:
+                    product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
 
-            logger.info(product_objs)
+                logger.info(product_objs)
 
             for product_obj in product_objs:
                 
