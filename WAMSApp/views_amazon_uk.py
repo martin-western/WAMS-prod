@@ -76,7 +76,14 @@ class BulkUpdateAmazonUKProductPriceAPI(APIView):
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateAmazonUKProductPriceAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
                 logger.warning("BulkUpdateAmazonUKProductPriceAPI Sheet1 not found!")
@@ -187,10 +194,17 @@ class BulkUpdateAmazonUKProductStockAPI(APIView):
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateAmazonUKProductPriceAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateAmazonUKProductStockAPI Sheet1 not found!")
+                logger.warning("BulkUpdateAmazonUKProductPriceAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -297,7 +311,14 @@ class BulkUpdateAmazonUKProductPriceAndStockAPI(APIView):
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateAmazonUKProductPriceAndStockAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
                 logger.warning("BulkUpdateAmazonUKProductPriceAndStockAPI Sheet1 not found!")
@@ -308,7 +329,7 @@ class BulkUpdateAmazonUKProductPriceAndStockAPI(APIView):
 
             if data["option"] != excel_header:
                 response['status'] = 405
-                logger.warning("BulkUpdateAmazonUKProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                logger.warning("BulkUpdateAmazonUKProductPriceAndStockAPI Wrong Template Uploaded for " + data["option"])
                 return Response(data=response)
 
             excel_errors = []
