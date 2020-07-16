@@ -5100,8 +5100,10 @@ class FetchChannelProductListAPI(APIView):
 
                 for i in range(rows):
                     try:
+                        
                         search_key = str(dfs.iloc[i][0]).strip()
                         logger.info(search_key)
+
                         if "option" not in data:
                             search_list.append(search_key)
                         else:
@@ -5120,8 +5122,10 @@ class FetchChannelProductListAPI(APIView):
                                 try :
                                     product_obj = Product.objects.get(base_product__seller_sku=search_key)
                                     product_objs.append(product_obj)
+                                    logger.info(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
+                                    logger.warning(str(e))
                                     pass
 
                             elif data["option"] == "Noon SKU" and channel_name=="Noon":
