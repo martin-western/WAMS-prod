@@ -5076,6 +5076,7 @@ class FetchChannelProductListAPI(APIView):
             if "import_file" in data:
 
                 product_objs = Product.objects.none()
+
                 try :
                     
                     path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
@@ -5096,10 +5097,11 @@ class FetchChannelProductListAPI(APIView):
 
                 rows = len(dfs.iloc[:])
                 search_list = []
+
                 for i in range(rows):
                     try:
                         search_key = str(dfs.iloc[i][0]).strip()
-                        
+                        logger.info(search_key)
                         if "option" not in data:
                             search_list.append(search_key)
                         else:
@@ -5158,7 +5160,7 @@ class FetchChannelProductListAPI(APIView):
                                 response['status'] = 405
                                 logger.warning("FetchChannelProductListAPI Wrong Template Uploaded for " + data["option"])
                                 return Response(data=response)
-                                
+
                     except Exception as e:
                         pass
                 
