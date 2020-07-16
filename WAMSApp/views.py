@@ -5105,7 +5105,7 @@ class FetchChannelProductListAPI(APIView):
                         else:
                     
                             if data["option"] == "Product ID":
-                                search_key = str(dfs.iloc[i][0]).strip()
+                                search_key = str(int(dfs.iloc[i][0])).strip()
                                 
                                 try :
                                     product_obj = Product.objects.get(product_id=search_key)
@@ -5169,12 +5169,15 @@ class FetchChannelProductListAPI(APIView):
                                 logger.warning("FetchChannelProductListAPI Wrong Template Uploaded for " + data["option"])
                                 return Response(data=response)
 
+
                     except Exception as e:
                         continue
                 
                     if "option" not in data:
                         product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
 
+            logger.info(product_objs)
+            
             for product_obj in product_objs:
                 
                 temp_dict = {}
