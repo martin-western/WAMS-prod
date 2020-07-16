@@ -79,7 +79,7 @@ class BulkUpdateAmazonUKProductPriceAPI(APIView):
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateAmazonUKProductPriceAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateAmazonUKProductPriceAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -190,7 +190,7 @@ class BulkUpdateAmazonUKProductStockAPI(APIView):
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateAmazonUKProductStockAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateAmazonUKProductStockAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -300,7 +300,7 @@ class BulkUpdateAmazonUKProductPriceAndStockAPI(APIView):
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateAmazonUKProductPriceAndStockAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateAmazonUKProductPriceAndStockAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
