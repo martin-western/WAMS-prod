@@ -5073,9 +5073,19 @@ class FetchChannelProductListAPI(APIView):
             product_objs = paginator.page(page)
 
             if "import_file" in data:
-                path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
-                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                
+                try :
+                    
+                    path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
+                    path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                    dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+
+                except Exception as e:
+                    response['status'] = 407
+                    logger.warning("FetchChannelProductListAPI UnSupported File Format ")
+                    return Response(data=response)
+
+
                 rows = len(dfs.iloc[:])
                 search_list = []
                 for i in range(rows):
