@@ -76,10 +76,17 @@ class BulkUpdateNoonProductPriceAPI(APIView):
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateNoonProductPriceAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateNoonProductPriceAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateNoonProductPriceAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -189,17 +196,24 @@ class BulkUpdateNoonProductStockAPI(APIView):
             
             if not stock_permission:
                 response['status'] = 403
-                logger.warning("BulkUpdateNoonProductPriceAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
+                logger.warning("BulkUpdateNoonProductStockAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-stock.xlsx', data["import_file"])
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateNoonProductStockAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateNoonProductStockAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateNoonProductStockAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -207,7 +221,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
 
             if data["option"] != excel_header:
                 response['status'] = 405
-                logger.warning("BulkUpdateNoonProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                logger.warning("BulkUpdateNoonProductStockAPI Wrong Template Uploaded for " + data["option"])
                 return Response(data=response)
 
             excel_errors = []
@@ -315,10 +329,17 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateNoonProductPriceAndStockAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateNoonProductPriceAndStockAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateNoonProductPriceAndStockAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -326,7 +347,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
 
             if data["option"] != excel_header:
                 response['status'] = 405
-                logger.warning("BulkUpdateNoonProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                logger.warning("BulkUpdateNoonProductPriceAndStockAPI Wrong Template Uploaded for " + data["option"])
                 return Response(data=response)
 
             excel_errors = []
