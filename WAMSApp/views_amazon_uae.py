@@ -187,7 +187,14 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateAmazonUAEProductStockAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
                 logger.warning("BulkUpdateAmazonUAEProductStockAPI Sheet1 not found!")

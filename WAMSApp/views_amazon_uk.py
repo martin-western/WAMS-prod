@@ -293,7 +293,7 @@ class BulkUpdateAmazonUKProductPriceAndStockAPI(APIView):
                 logger.warning("BulkUpdateAmazonUKProductPriceAndStockAPI Restricted Access for Price and Stock Updation on "+channel_name+" Channel!")
                 return Response(data=response)
 
-            path = default_storage.save('tmp/bulk-upload-noon-price-and-stock.xlsx', data["import_file"])
+            path = default_storage.save('tmp/bulk-upload-search-products.xlsx', data["import_file"])
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
