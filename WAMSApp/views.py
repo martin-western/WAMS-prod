@@ -1489,6 +1489,18 @@ class FetchProductListAPI(APIView):
 
             search_list_product_objs = content_health_filtered_list(filter_parameters,search_list_product_objs)
 
+            without_images = 0
+            
+            if filter_parameters["has_image"] == "1":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.exclude(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "0":
+                without_images = 1
+                search_list_product_objs = search_list_product_objs.filter(no_of_images_for_filter=0)
+            elif filter_parameters["has_image"] == "2":
+                without_images = 0
+                search_list_product_objs = search_list_product_objs.annotate(c=Count('base_product__unedited_images')).filter(c__gt=1)
+
             if len(chip_data) != 0:
                 search_list_product_lookup = Product.objects.none()
                 for tag in chip_data:
@@ -1554,21 +1566,21 @@ class FetchProductListAPI(APIView):
                     temp_dict2["main_images"] = []
                     temp_dict["base_main_images"] = []
 
+                    if(without_images == 0):
+                        main_images_list = ImageBucket.objects.none()
+                        main_images_objs = MainImages.objects.filter(product=product_obj)
+                        for main_images_obj in main_images_objs:
+                            main_images_list |= main_images_obj.main_images.all()
 
-                    main_images_list = ImageBucket.objects.none()
-                    main_images_objs = MainImages.objects.filter(product=product_obj)
-                    for main_images_obj in main_images_objs:
-                        main_images_list |= main_images_obj.main_images.all()
+                        main_images_list = main_images_list.distinct()
 
-                    main_images_list = main_images_list.distinct()
-
-                    try:
-                        main_images = create_response_images_main(main_images_list)
-                        temp_dict2["main_images"] = main_images
-                        for main_image in main_images:
-                            temp_dict["base_main_images"].append(main_image)
-                    except Exception as e:
-                        pass
+                        try:
+                            main_images = create_response_images_main(main_images_list)
+                            temp_dict2["main_images"] = main_images
+                            for main_image in main_images:
+                                temp_dict["base_main_images"].append(main_image)
+                        except Exception as e:
+                            pass
 
                     channels_of_prod =0
                     inactive_channels = 0
@@ -5058,6 +5070,7 @@ class FetchChannelProductListAPI(APIView):
             product_objs = paginator.page(page)
 
             if "import_file" in data:
+                product_objs = Product.objects.none()
                 path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
                 path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
@@ -5069,8 +5082,6 @@ class FetchChannelProductListAPI(APIView):
                         
                         if "option" not in data:
                             search_list.append(search_key)
-                        else :
-                            product_objs = Product.objects.none()
                     
                             if data["option"] == "Product ID":
                                 search_key = str(dfs.iloc[i][0]).strip()
@@ -5138,7 +5149,7 @@ class FetchChannelProductListAPI(APIView):
                                 return Response(data=response)
 
                     except Exception as e:
-                        pass
+                        continue
                 
                     if "option" not in data:
                         product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
