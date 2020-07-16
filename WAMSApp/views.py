@@ -5073,9 +5073,25 @@ class FetchChannelProductListAPI(APIView):
             product_objs = paginator.page(page)
 
             if "import_file" in data:
-                path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
-                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                
+                try :
+                    
+                    path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
+                    path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                    dfs = pd.read_excel(path, sheet_name=None)
+
+                except Exception as e:
+                    response['status'] = 407
+                    logger.warning("FetchChannelProductListAPI UnSupported File Format ")
+                    return Response(data=response)
+
+                try :
+                    dfs = dfs["Sheet1"]
+                except Exception as e:
+                    response['status'] = 406
+                    logger.warning("FetchChannelProductListAPI Sheet1 not found!")
+                    return Response(data=response)
+
                 rows = len(dfs.iloc[:])
                 search_list = []
                 for i in range(rows):
@@ -5111,7 +5127,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
                                 
                                 try :
-                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"noon_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5121,7 +5137,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
-                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"partner_sku": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5131,7 +5147,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
-                                    product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
@@ -5141,7 +5157,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(dfs.iloc[i][0]).strip()
 
                                 try :
-                                    product_obj = Product.objects.get(channel_product_amazon_uk_product_json_icontains='"ASIN": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__amazon_uk_product_json_icontains='"ASIN": "'+search_key+'"')
                                     product_objs.append(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
