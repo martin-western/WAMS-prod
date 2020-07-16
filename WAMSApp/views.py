@@ -5096,7 +5096,7 @@ class FetchChannelProductListAPI(APIView):
                     return Response(data=response)
 
                 rows = len(dfs.iloc[:])
-                
+
                 search_list = []
                 excel_errors = []
 
@@ -5127,7 +5127,7 @@ class FetchChannelProductListAPI(APIView):
                                 
                                 try :
                                     product_obj = Product.objects.get(product_id=search_key)
-                                    product_objs.append(product_obj)
+                                    product_objs.add(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
@@ -5136,7 +5136,7 @@ class FetchChannelProductListAPI(APIView):
                                 logger.info("HERE 2")
                                 try :
                                     product_obj = Product.objects.get(base_product__seller_sku=search_key)
-                                    product_objs.append(product_obj)
+                                    product_objs.add(product_obj)
                                     logger.info(product_obj)
                                 except Exception as e:
                                     logger.warning(str(e))
@@ -5146,7 +5146,7 @@ class FetchChannelProductListAPI(APIView):
                             elif option == "Noon SKU" and channel_name=="Noon":
                                 try :
                                     product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"')
-                                    product_objs.append(product_obj)
+                                    product_objs.add(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
@@ -5154,7 +5154,7 @@ class FetchChannelProductListAPI(APIView):
                             elif option == "Partner SKU" and channel_name=="Noon":
                                 try :
                                     product_obj = Product.objects.get(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"')
-                                    product_objs.append(product_obj)
+                                    product_objs.add(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
@@ -5162,7 +5162,7 @@ class FetchChannelProductListAPI(APIView):
                             elif option == "ASIN" and channel_name=="Amazon UAE":
                                 try :
                                     product_obj = Product.objects.get(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"')
-                                    product_objs.append(product_obj)
+                                    product_objs.add(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
@@ -5170,7 +5170,7 @@ class FetchChannelProductListAPI(APIView):
                             elif option == "ASIN" and channel_name=="Amazon UK":
                                 try :
                                     product_obj = Product.objects.get(channel_product__amazon_uk_product_json__icontains='"ASIN": "'+search_key+'"')
-                                    product_objs.append(product_obj)
+                                    product_objs.add(product_obj)
                                 except Exception as e:
                                     excel_errors.append("More than one product found for " + search_key)
                                     pass
