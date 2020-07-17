@@ -662,7 +662,7 @@ def create_image_report(filename, uuid, brand_list):
     notify_user_for_report(oc_report_obj)
 
 
-def create_wigme_report(filename, uuid, brand_list):
+def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
@@ -683,10 +683,9 @@ def create_wigme_report(filename, uuid, brand_list):
         worksheet.write(cnt, colnum, k)
         colnum += 1
 
-    dh_product_objs = DealsHubProduct.objects.none()
+    location_group_objs = custom_permission_obj.location_groups.all()
 
-    if len(brand_list)!=0:
-        dh_product_objs = dh_product_objs.filter(product__base_product__brand__name__in=brand_list)
+    dh_product_objs = DealsHubProduct.objects.filter(product__base_product__brand__name__in=brand_list, location_group__in=location_group_objs)
 
     for dh_product_obj in dh_product_objs:
         try:
