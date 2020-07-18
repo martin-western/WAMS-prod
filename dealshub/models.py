@@ -474,10 +474,10 @@ class Order(models.Model):
         super(Order, self).save(*args, **kwargs)
 
     def get_date_created(self):
-        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+        return str(timezone.localtime(self.order_placed_date).strftime("%d %b, %Y"))
 
     def get_time_created(self):
-        return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
+        return str(timezone.localtime(self.order_placed_date).strftime("%I:%M %p"))
 
     def get_subtotal(self):
         unit_order_objs = UnitOrder.objects.filter(order=self)
