@@ -1083,7 +1083,7 @@ class DeleteProductFromSectionAPI(APIView):
             dealshub_product_obj.promotion = None
             dealshub_product_obj.save()
             
-            section_obj.products.remove(product_obj)
+            section_obj.products.remove(dealshub_product_obj)
             section_obj.save()
             
             response['status'] = 200
