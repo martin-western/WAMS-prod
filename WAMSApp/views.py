@@ -1009,6 +1009,7 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["product_name"] = product_obj.product_name
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     temp_dict["channel_status"] = dealshub_product_obj.is_published
+                    temp_dict["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
                     temp_dict["category"] = "" if product_obj.base_product.category==None else str(product_obj.base_product.category)
                     temp_dict["sub_category"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
                     temp_dict["was_price"] = str(dealshub_product_obj.was_price)
@@ -1568,6 +1569,7 @@ class FetchProductListAPI(APIView):
                     
                     temp_dict2["main_images"] = []
                     temp_dict["base_main_images"] = []
+
 
                     if without_images==0:
                         main_images_list = ImageBucket.objects.none()
@@ -5073,78 +5075,117 @@ class FetchChannelProductListAPI(APIView):
             product_objs = paginator.page(page)
 
             if "import_file" in data:
-                path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
-                path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+
+                product_objs = Product.objects.none()
+
+                try :
+                    
+                    path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
+                    path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+                    dfs = pd.read_excel(path, sheet_name=None)
+
+                except Exception as e:
+                    response['status'] = 407
+                    logger.warning("FetchChannelProductListAPI UnSupported File Format ")
+                    return Response(data=response)
+
+                try :
+                    dfs = dfs["Sheet1"]
+                except Exception as e:
+                    response['status'] = 406
+                    logger.warning("FetchChannelProductListAPI Sheet1 not found!")
+                    return Response(data=response)
+
                 rows = len(dfs.iloc[:])
+
                 search_list = []
+                excel_errors = []
+
+                flag=0
+                
+                if "option" not in data:
+                    flag=1
+                else:
+                    option = data["option"]
+
                 for i in range(rows):
                     try:
-                        search_key = str(dfs.iloc[i][0]).strip()
                         
-                        if "option" not in data:
+                        search_key = str(dfs.iloc[i][0]).strip()
+                        logger.info(search_key)
+
+                        if flag == 1:
                             search_list.append(search_key)
-                        else :
-                            product_objs = Product.objects.none()
-                    
-                            if data["option"] == "Product ID":
-                                search_key = str(dfs.iloc[i][0]).strip()
+
+                        else:
+
+                            if option == "Product ID":
+                                
+                                search_key = str(int(dfs.iloc[i][0])).strip()
                                 
                                 try :
-                                    product_obj = Product.objects.get(product_id=search_key)
-                                    product_objs.append(product_obj)
+                                    product_obj = Product.objects.filter(product_id=search_key)
+                                    product_objs|=product_obj
+
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "Seller SKU":
-                                search_key = str(dfs.iloc[i][0]).strip()
-                                
+                            elif option == "Seller SKU":                               
                                 try :
-                                    product_obj = Product.objects.get(base_product__seller_sku=search_key)
-                                    product_objs.append(product_obj)
+                                    product_obj = Product.objects.filter(base_product__seller_sku=search_key)
+                                    product_objs |= product_obj
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "Noon SKU" and channel_name=="Noon":
-                                search_key = str(dfs.iloc[i][0]).strip()
-                                
+                            elif option == "Noon SKU" and channel_name=="Noon":
                                 try :
-                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"noon_sku": "'+search_key+'"')
-                                    product_objs.append(product_obj)
+                                    product_obj = Product.objects.filter(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"')
+                                    product_objs.add(product_obj)
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "Partner SKU" and channel_name=="Noon":
-                                search_key = str(dfs.iloc[i][0]).strip()
-
+                            elif option == "Partner SKU" and channel_name=="Noon":
                                 try :
-                                    product_obj = Product.objects.get(channel_product_noon_product_json_icontains='"partner_sku": "'+search_key+'"')
-                                    product_objs.append(product_obj)
+                                    product_obj = Product.objects.filter(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"')
+                                    product_objs |= product_obj
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "ASIN" and channel_name=="Amazon UAE":
-                                search_key = str(dfs.iloc[i][0]).strip()
-
+                            elif option == "ASIN" and channel_name=="Amazon UAE":
                                 try :
-                                    product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
-                                    product_objs.append(product_obj)
+                                    product_obj = Product.objects.filter(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"')
+                                    product_objs |= product_obj
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
-                            elif data["option"] == "ASIN" and channel_name=="Amazon UK":
-                                search_key = str(dfs.iloc[i][0]).strip()
-
+                            elif option == "ASIN" and channel_name=="Amazon UK":
                                 try :
-                                    product_obj = Product.objects.get(channel_product_amazon_uk_product_json_icontains='"ASIN": "'+search_key+'"')
-                                    product_objs.append(product_obj)
+                                    product_obj = Product.objects.get(channel_product__amazon_uk_product_json__icontains='"ASIN": "'+search_key+'"')
+                                    product_objs |= product_obj
+                                    
+                                    if product_obj == None :
+                                        excel_errors.append("No product found for " + search_key)
+                                        
                                 except Exception as e:
-                                    excel_errors.append("More than one product found for " + search_key)
                                     pass
 
                             else:
@@ -5153,10 +5194,14 @@ class FetchChannelProductListAPI(APIView):
                                 return Response(data=response)
 
                     except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.warning("FetchChannelProductListAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         pass
                 
-                    if "option" not in data:
-                        product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
+                if flag==1:
+                    product_objs = search_list_product_objs.filter(Q(product_id__in=search_list) | Q(base_product__seller_sku__in=search_list))
+
+                product_objs = product_objs.distinct()
 
             for product_obj in product_objs:
                 
