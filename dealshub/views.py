@@ -1152,7 +1152,7 @@ class PublishDealsHubProductsAPI(APIView):
             logger.info("PublishDealsHubProductsAPI: %s", str(data))
 
             product_uuid_list = data["product_uuid_list"]
-            for uuid in dealshub_product_obj:
+            for uuid in product_uuid_list:
                 dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
                 dealshub_product_obj.is_published = True
                 dealshub_product_obj.save()
@@ -1176,7 +1176,7 @@ class UnPublishDealsHubProductsAPI(APIView):
             logger.info("UnPublishDealsHubProductsAPI: %s", str(data))
 
             product_uuid_list = data["product_uuid_list"]
-            for uuid in dealshub_product_obj:
+            for uuid in product_uuid_list:
                 dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
                 dealshub_product_obj.is_published = False
                 dealshub_product_obj.save()
