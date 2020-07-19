@@ -1093,7 +1093,7 @@ class FetchCustomerListAPI(APIView):
                 if filter_parameters["is_cart_empty"]==True:
                     cart_objs = UnitCart.objects.all().values("cart")
                     dealshub_user_objs = dealshub_user_objs.filter(cart=None) | dealshub_user_objs.exclude(cart__in=cart_objs)
-                    dealshub_user_objs.distinct()
+                    dealshub_user_objs = dealshub_user_objs.distinct()
                 elif filter_parameters["is_cart_empty"]==False:
                     cart_objs = UnitCart.objects.all().values("cart")
                     dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs)
