@@ -1009,6 +1009,7 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["product_name"] = product_obj.product_name
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     temp_dict["channel_status"] = dealshub_product_obj.is_published
+                    temp_dict["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
                     temp_dict["category"] = "" if product_obj.base_product.category==None else str(product_obj.base_product.category)
                     temp_dict["sub_category"] = "" if product_obj.base_product.sub_category==None else str(product_obj.base_product.sub_category)
                     temp_dict["was_price"] = str(dealshub_product_obj.was_price)

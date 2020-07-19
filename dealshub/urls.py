@@ -39,6 +39,9 @@ urlpatterns = [
     url(r'^publish-dealshub-products/$', views.PublishDealsHubProducts),
     url(r'^unpublish-dealshub-products/$', views.UnPublishDealsHubProducts),
 
+    url(r'^activate-cod-dealshub-product/$', views.ActivateCODDealsHubProduct),
+    url(r'^deactivate-cod-dealshub-product/$', views.DeactivateCODDealsHubProduct),
+
     url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
     url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
 
