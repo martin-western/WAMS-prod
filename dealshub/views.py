@@ -1064,6 +1064,52 @@ class UnPublishDealsHubProductAPI(APIView):
         return Response(data=response)
 
 
+class ActivateCODDealsHubProductAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("ActivateCODDealsHubProductAPI: %s", str(data))
+
+            uuid = data["product_uuid"]
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
+            dealshub_product_obj.is_cod_allowed = True
+            dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ActivateCODDealsHubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class DeactivateCODDealsHubProductAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("DeactivateCODDealsHubProductAPI: %s", str(data))
+
+            uuid = data["product_uuid"]
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
+            dealshub_product_obj.is_cod_allowed = False
+            dealshub_product_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeactivateCODDealsHubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class DeleteProductFromSectionAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2313,6 +2359,10 @@ UnPublishDealsHubProduct = UnPublishDealsHubProductAPI.as_view()
 PublishDealsHubProducts = PublishDealsHubProductsAPI.as_view()
 
 UnPublishDealsHubProducts = UnPublishDealsHubProductsAPI.as_view()
+
+ActivateCODDealsHubProduct = ActivateCODDealsHubProductAPI.as_view()
+
+DeactivateCODDealsHubProduct = DeactivateCODDealsHubProductAPI.as_view()
 
 DeleteProductFromSection = DeleteProductFromSectionAPI.as_view()
 
