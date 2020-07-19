@@ -1845,29 +1845,21 @@ def content_health_filtered_list(filter_parameters,search_list_product_objs):
     if filter_parameters.get("Main Images", None) == True:  
         search_list_product_objs = search_list_product_objs.filter(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images__gt=0))
     elif filter_parameters.get("Main Images", None) == False:  
-        search_list_product_obj_copy = search_list_product_objs 
-        search_list_product_objs = search_list_product_objs.filter(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images=0))
-        search_list_product_objs |= search_list_product_obj_copy.exclude(mainimages__product__in=search_list_product_obj_copy)
+        search_list_product_objs = search_list_product_objs.exclude(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images__gt=0))
 
     if filter_parameters.get("Sub Images > 0", None) == True:  
         search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=0))
     elif filter_parameters.get("Sub Images > 0", None) == False:  
-        search_list_product_obj_copy = search_list_product_objs 
-        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images=0))
-        search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
+        search_list_product_objs = search_list_product_objs.exclude(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=0))
 
     if filter_parameters.get("Sub Images > 1", None) == True:  
         search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=1))
     elif filter_parameters.get("Sub Images > 1", None) == False:
-        search_list_product_obj_copy = search_list_product_objs
-        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=2))
-        search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
+        search_list_product_objs = search_list_product_objs.exclude(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=1))
 
     if filter_parameters.get("Sub Images > 2", None) == True:  
         search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
     elif filter_parameters.get("Sub Images > 2", None) == False:  
-        search_list_product_obj_copy = search_list_product_objs
-        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__lt=3))
-        search_list_product_objs |= search_list_product_obj_copy.exclude(product__product__in=search_list_product_obj_copy)
+        search_list_product_objs = search_list_product_objs.exclude(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
 
     return search_list_product_objs 
