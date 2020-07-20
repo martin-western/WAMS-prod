@@ -206,7 +206,7 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2["currency"] = dealshub_product_obj.get_currency()
                 temp_dict2["uuid"] = dealshub_product_obj.uuid
                 temp_dict2["id"] = dealshub_product_obj.uuid
-                temp_dict2["heroImageUrl"] = dealshub_product_obj.get_main_image_url()
+                temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
 
                 temp_dict["productsArray"].append(temp_dict2)
 
@@ -392,7 +392,7 @@ class SearchAPI(APIView):
                     temp_dict["currency"] = dealshub_product_obj.get_currency()
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     temp_dict["id"] = dealshub_product_obj.uuid
-                    temp_dict["heroImageUrl"] = dealshub_product_obj.get_main_image_url()
+                    temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     
                     products.append(temp_dict)
                 except Exception as e:
@@ -692,7 +692,7 @@ class SectionBulkUploadAPI(APIView):
                     section_obj.products.add(dealshub_product_obj)
 
                     temp_dict = {}
-                    temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_main_image_url()
+                    temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
                     temp_dict["name"] = dealshub_product_obj.get_name()
                     temp_dict["displayId"] = dealshub_product_obj.get_product_id()
                     temp_dict["uuid"] = dealshub_product_obj.uuid
@@ -1274,7 +1274,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         continue
                     temp_dict2 = {}
 
-                    temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_main_image_url()
+                    temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
                     temp_dict2["name"] = dealshub_product_obj.get_name()
                     temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
@@ -1378,7 +1378,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                                 continue
                             temp_dict3 = {}
 
-                            temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_main_image_url()
+                            temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
                             temp_dict3["name"] = dealshub_product_obj.get_name()
                             temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
                             temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
@@ -1682,7 +1682,7 @@ class AddProductToSectionAPI(APIView):
             dealshub_product_obj.promotion = section_obj.promotion
             dealshub_product_obj.save()
             
-            response["thumbnailImageUrl"] = dealshub_product_obj.get_main_image_url()
+            response["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
             response["name"] = dealshub_product_obj.get_name()
             response["displayId"] = dealshub_product_obj.get_product_id()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
@@ -1757,7 +1757,7 @@ class AddProductToUnitBannerAPI(APIView):
             dealshub_product_obj.save()
 
 
-            response["thumbnailImageUrl"] = dealshub_product_obj.get_main_image_url()            
+            response["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()            
             response["name"] = dealshub_product_obj.get_name()
             response["displayId"] = dealshub_product_obj.get_product_id()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
@@ -1852,7 +1852,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 temp_dict["currency"] = dealshub_product_obj.get_currency()
                 temp_dict["uuid"] = dealshub_product_obj.uuid
                 temp_dict["id"] = dealshub_product_obj.uuid
-                temp_dict["heroImageUrl"] = dealshub_product_obj.get_main_image_url()
+                temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                 
                 product_list.append(temp_dict)
 
