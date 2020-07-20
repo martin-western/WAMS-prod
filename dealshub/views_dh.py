@@ -1926,6 +1926,7 @@ class AddReviewAPI(APIView):
             product_code = str(data["product_code"])
             rating = int(data["rating"])
             review_content = data["review_content"]
+            image = data["image"]
 
             subject = str(review_content["subject"])
             content = str(review_content["content"])
@@ -1944,6 +1945,11 @@ class AddReviewAPI(APIView):
                     review_content_obj.subject = subject
                     review_content_obj.content = content
                     review_content_obj.save()
+
+                if image is not None:
+                    image_obj = Image.objects.create(image=image)
+                    review_obj.image = image_obj
+
                 review_obj.content = review_content_obj
                 review_obj.save()
                 response["uuid"] = review_obj.uuid
@@ -2162,6 +2168,13 @@ class FetchReviewAPI(APIView):
             response["username"] = str(review_obj.dealshub_user.username)
             response["product_code"] = str(review_obj.product.product.uuid)
             response["rating"] = str(review_obj.rating)
+
+            image = review_obj.image
+
+            if image!=None:
+                response["image_url"] = image.thumbnail.url
+            else:
+                response["image_url"] = ""
 
             review_content_obj = review_obj.content
             admin_comment_obj = review_content_obj.admin_comment
