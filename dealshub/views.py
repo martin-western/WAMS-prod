@@ -1293,7 +1293,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     if dealshub_product_obj.stock>0:
                         temp_dict2["isStockAvailable"] = True
                     else:
-                        temp_dict2["isStockAvailable"] = True
+                        temp_dict2["isStockAvailable"] = False
 
                     temp_products.append(temp_dict2)
                 temp_dict["products"] = temp_products
@@ -1393,7 +1393,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             if dealshub_product_obj.stock>0:
                                 temp_dict3["isStockAvailable"] = True
                             else:
-                                temp_dict3["isStockAvailable"] = True
+                                temp_dict3["isStockAvailable"] = False
 
                             temp_products.append(temp_dict3)    # No need to Send all
                         temp_dict2["products"] = temp_products
