@@ -469,12 +469,12 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
-            prefix=""
-            if location_group.website_group == "shopnesto":
-                prefix="wig"
-            else:
-                prefix="kry"
-            self.bundleid = prefix + str(uuid.uuid4())[:5]
+            order_prefix = ""
+            try:
+                order_prefix = json.loads(self.location_group.website_group.conf)["order_prefix"]
+            except Exception as e:
+                pass
+            self.bundleid = order_prefix + str(uuid.uuid4())[:5]
 
         super(Order, self).save(*args, **kwargs)
 
@@ -571,12 +571,12 @@ class UnitOrder(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
-            prefix=""
-            if location_group.website_group == "shopnesto":
-                prefix="wig"
-            else:
-                prefix="kry"
-            self.orderid = prefix + str(uuid.uuid4())[:5]
+            order_prefix = ""
+            try:
+                order_prefix = json.loads(self.order.location_group.website_group.conf)["order_prefix"]
+            except Exception as e:
+                pass
+            self.orderid = order_prefix + str(uuid.uuid4())[:5]
 
         super(UnitOrder, self).save(*args, **kwargs)
 
