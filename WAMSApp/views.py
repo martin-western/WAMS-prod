@@ -5786,7 +5786,7 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="image":
                 p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,brand_list,))
                 p1.start()
-            elif report_type.lower()=="wigme":
+            elif report_type.lower()=="ecommerce":
                 p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,custom_permission_obj,))
                 p1.start()
 

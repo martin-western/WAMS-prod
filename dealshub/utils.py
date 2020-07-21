@@ -170,10 +170,12 @@ def send_order_confirmation_mail(order_obj):
         customer_name = order_obj.get_customer_first_name()
         address_lines = json.loads(order_obj.shipping_address.address_lines)
         full_name = order_obj.get_customer_full_name()
+        website_logo = order_obj.location_group.website_group.logo.image.url
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-confirmation.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "custom_unit_order_list":  custom_unit_order_list,
                 "order_placed_date": order_placed_date,
@@ -221,10 +223,12 @@ def send_order_dispatch_mail(unit_order_obj):
         customer_name = unit_order_obj.order.get_customer_first_name()
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
         full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.location_group.website_group.logo.image.url
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-dispatch.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
                 "product_name": unit_order_obj.product.get_name(),
@@ -276,10 +280,12 @@ def send_order_delivered_mail(unit_order_obj):
 
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
         full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.location_group.website_group.logo.image.url
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivered.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
                 "product_name": unit_order_obj.product.get_name(),
@@ -330,10 +336,12 @@ def send_order_delivery_failed_mail(unit_order_obj):
 
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
         full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.location_group.website_group.logo.image.url
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivery-failed.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
                 "product_name": unit_order_obj.product.get_name(),
@@ -384,10 +392,12 @@ def send_order_cancelled_mail(unit_order_obj):
 
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
         full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.location_group.website_group.logo.image.url
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-cancelled.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
                 "product_name": productInfo[unit_order_obj.product_code]["productName"],
