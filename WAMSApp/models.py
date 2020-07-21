@@ -216,7 +216,7 @@ class LocationGroup(models.Model):
     uuid = models.CharField(max_length=200, default="")
 
     def __str__(self):
-        return str(self.location)
+        return str(self.name)
 
     def save(self, *args, **kwargs):
 
