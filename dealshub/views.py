@@ -1271,6 +1271,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_products = []
 
                 section_products = section_obj.products.all()
+                if is_dealshub==True:
+                    section_products = section_products.exclude(now_price=0).exclude(stock=0)
+
                 if limit==True:
                     if section_obj.listing_type=="Carousel":
                         section_products = section_products[:14]
@@ -1336,8 +1339,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_dict["bannerType"] = banner_obj.banner_type.name
                 temp_dict["limit"] = banner_obj.banner_type.limit
                 for unit_banner_image_obj in unit_banner_image_objs:
-                    if is_dealshub==True and unit_banner_image_obj.products.exclude(now_price=0).exclude(stock=0).exists()==False:
-                        continue
                     temp_dict2 = {}
                     temp_dict2["uid"] = unit_banner_image_obj.uuid
                     temp_dict2["httpLink"] = unit_banner_image_obj.http_link
@@ -1380,6 +1381,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
 
                     unit_banner_products = unit_banner_image_obj.products.all()
+                    if is_dealshub==True:
+                        unit_banner_products = unit_banner_products.exclude(now_price=0).exclude(stock=0).exists()==False:
 
                     if is_dealshub==False :
                         temp_products = []
