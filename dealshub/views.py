@@ -94,10 +94,11 @@ class FetchProductDetailsAPI(APIView):
             response["productDispDetails"] = product_obj.product_description 
             try:
                 specifications = json.loads(product_obj.dynamic_form_attributes)
+                new_specifications = {}
                 for key in specifications:
-                    if specifications[key]["value"]=="":
-                        del specifications[key]
-                response["specifications"] = specifications
+                    if specifications[key]["value"]!="":
+                        new_specifications[key] = specifications[key]
+                response["specifications"] = new_specifications
             except Exception as e:
                 response["specifications"] = {}
 
