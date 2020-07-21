@@ -1382,7 +1382,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     unit_banner_products = unit_banner_image_obj.products.all()
                     if is_dealshub==True:
-                        unit_banner_products = unit_banner_products.exclude(now_price=0).exclude(stock=0).exists()==False:
+                        unit_banner_products = unit_banner_products.exclude(now_price=0).exclude(stock=0)
 
                     if is_dealshub==False :
                         temp_products = []
