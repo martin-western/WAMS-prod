@@ -184,6 +184,7 @@ class FetchSectionProductsAPI(APIView):
             uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
             dealshub_product_objs = section_obj.products.all()
+            dealshub_product_objs = dealshub_product_objs.exclude(now_price=0).exclude(stock=0)
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
             temp_dict["productsArray"] = []
@@ -344,7 +345,7 @@ class SearchAPI(APIView):
             page = data.get("page", 1)
             search = {}            
 
-            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0)
+            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
             if brand_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
 
@@ -446,7 +447,7 @@ class SearchAPI(APIView):
 
                 category_objs = Category.objects.filter(super_category=super_category_obj)
                 for category_obj in category_objs:
-                    if DealsHubProduct.objects.filter(is_published=True, product__base_product__category=category_obj).exclude(now_price=0).exists()==False:
+                    if DealsHubProduct.objects.filter(is_published=True, product__base_product__category=category_obj).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
                     temp_dict = {}
                     temp_dict["name"] = category_obj.name
@@ -454,7 +455,7 @@ class SearchAPI(APIView):
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
-                        if DealsHubProduct.objects.filter(is_published=True, product__base_product__sub_category=sub_category_obj, location_group=location_group_obj).exclude(now_price=0).exists()==False:
+                        if DealsHubProduct.objects.filter(is_published=True, product__base_product__sub_category=sub_category_obj, location_group=location_group_obj).exclude(now_price=0).exclude(stock=0).exists()==False:
                             continue
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.name
@@ -1230,6 +1231,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                                 
             dealshub_admin_sections = []
             for section_obj in section_objs:
+                if is_dealshub==True and section_obj.products.exclude(now_price=0).exclude(stock=0).exists()==False:
+                    continue
                 temp_dict = {}
                 temp_dict["orderIndex"] = section_obj.order_index
                 temp_dict["type"] = "ProductListing"
@@ -1268,6 +1271,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_products = []
 
                 section_products = section_obj.products.all()
+                if is_dealshub==True:
+                    section_products = section_products.exclude(now_price=0).exclude(stock=0)
+
                 if limit==True:
                     if section_obj.listing_type=="Carousel":
                         section_products = section_products[:14]
@@ -1375,6 +1381,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
 
                     unit_banner_products = unit_banner_image_obj.products.all()
+                    if is_dealshub==True:
+                        unit_banner_products = unit_banner_products.exclude(now_price=0).exclude(stock=0)
 
                     if is_dealshub==False :
                         temp_products = []
@@ -1482,7 +1490,7 @@ class SearchSectionProductsAutocompleteAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all())
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0)
 
             dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))
 
@@ -1532,7 +1540,7 @@ class SearchProductsAutocompleteAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
-            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all(), product__product_name__icontains=search_string).values('product__base_product__category').annotate(dcount=Count('product__base_product__category')).order_by('-dcount')[:5]
+            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all(), product__product_name__icontains=search_string).exclude(now_price=0).exclude(stock=0).values('product__base_product__category').annotate(dcount=Count('product__base_product__category')).order_by('-dcount')[:5]
 
             category_list = []
             for category_key in category_key_list:
@@ -1542,6 +1550,8 @@ class SearchProductsAutocompleteAPI(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("SearchProductsAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            category_list = list(set(category_list))
 
             response["categoryList"] = category_list
             response['status'] = 200
@@ -1832,6 +1842,7 @@ class FetchUnitBannerProductsAPI(APIView):
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
 
             dealshub_product_objs = unit_banner_image_obj.products.all()
+            dealshub_product_objs = dealshub_product_objs.exclude(now_price=0).exclude(stock=0)
 
             page = int(data.get('page', 1))
             paginator = Paginator(dealshub_product_objs, 20)
