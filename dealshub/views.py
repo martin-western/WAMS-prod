@@ -1336,7 +1336,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_dict["bannerType"] = banner_obj.banner_type.name
                 temp_dict["limit"] = banner_obj.banner_type.limit
                 for unit_banner_image_obj in unit_banner_image_objs:
-                    if is dealshub==True and unit_banner_image_obj.products.exclude(now_price=0).exclude(stock=0).exists()==False:
+                    if is_dealshub==True and unit_banner_image_obj.products.exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
                     temp_dict2 = {}
                     temp_dict2["uid"] = unit_banner_image_obj.uuid
