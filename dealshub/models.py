@@ -528,6 +528,13 @@ class Order(models.Model):
     def get_customer_first_name(self):
         return self.shipping_address.first_name
 
+    def get_email_website_logo(self):
+        if self.location_group.website_group.footer_logo!=None:
+            return self.location_group.website_group.footer_logo.image.url
+        if self.location_group.website_group.logo!=None:
+            return self.location_group.website_group.logo.image.url
+        return ""
+
 
 class UnitOrder(models.Model):
 
