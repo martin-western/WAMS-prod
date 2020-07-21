@@ -469,7 +469,12 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
-            self.bundleid = "wig"+str(uuid.uuid4())[:5]
+            prefix=""
+            if location_group.website_group == "shopnesto":
+                prefix="wig"
+            else:
+                prefix="kry"
+            self.bundleid = prefix + str(uuid.uuid4())[:5]
 
         super(Order, self).save(*args, **kwargs)
 
@@ -566,7 +571,12 @@ class UnitOrder(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
-            self.orderid = "wig"+str(uuid.uuid4())[:5]
+            prefix=""
+            if location_group.website_group == "shopnesto":
+                prefix="wig"
+            else:
+                prefix="kry"
+            self.orderid = prefix + str(uuid.uuid4())[:5]
 
         super(UnitOrder, self).save(*args, **kwargs)
 
