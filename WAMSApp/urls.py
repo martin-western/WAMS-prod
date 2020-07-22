@@ -111,6 +111,7 @@ urlpatterns = [
     url(r'^upload-bulk-export/$',views.UploadBulkExport),
     url(r'^search-bulk-export/$',views.SearchBulkExport),
     url(r'^fetch-data-points/$',views.FetchDataPoints),
+    url(r'^fetch-data-points-for-upload/$',views.FetchDataPointsForUpload),
     url(r'^download-bulk-export/$',views.DownloadBulkExport),
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
@@ -121,7 +122,10 @@ urlpatterns = [
     url(r'^create-content-report/$',views.CreateContentReport),
     url(r'^fetch-oc-report-permissions/$',views.FetchOCReportPermissions),
     url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
+    url(r'^download-dynamic-excel-template/$',views.DownloadDynamicExcelTemplate),
 
+    url(r'^bulk-upload-dynamic-excel/$',views.BulkUploadDynamicExcel),
+    
     url(r'^fetch-statistics/$',views.FetchStatistics),
     url(r'^update-channel-product-stock-and-price/$',views.UpdateChannelProductStockandPrice),
 
