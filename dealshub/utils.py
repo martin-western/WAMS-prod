@@ -553,7 +553,7 @@ def get_random_products(dealshub_product_objs):
         random_set = random.sample(range(0, dealshub_product_objs.count()), 5)
         selected_dealshub_product_objs = DealsHubProduct.objects.none()
         for i in random_set:
-            selected_dealshub_product_objs |= DealsHubProduct.objects.filter(pk=dealshub_product_objs[i])
+            selected_dealshub_product_objs |= DealsHubProduct.objects.filter(pk=dealshub_product_objs[i].pk)
 
         return selected_dealshub_product_objs
     except Exception as e:
