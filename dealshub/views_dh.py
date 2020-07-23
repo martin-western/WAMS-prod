@@ -2389,6 +2389,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             invoice_logo = location_group_obj.get_email_website_logo()
             trn_number = json.loads(location_group_obj.website_group.conf).get("trn_number", "NA")
             support_contact_number = json.loads(location_group_obj.website_group.conf).get("support_contact_number", "NA")
+            footer_text = json.loads(location_group_obj.website_group.conf).get("footer_text", "NA")
 
             order_list = []
             for order_obj in order_objs:
@@ -2483,6 +2484,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["invoice_logo"] = invoice_logo
                     temp_dict["trn_number"] = trn_number
                     temp_dict["support_contact_number"] = support_contact_number
+                    temp_dict["footer_text"] = footer_text
 
                     order_list.append(temp_dict)
 
