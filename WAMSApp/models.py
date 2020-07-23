@@ -492,6 +492,8 @@ class WebsiteGroup(models.Model):
     linkedin_link = models.CharField(max_length=100,blank=True, default='')
     crunchbase_link = models.CharField(max_length=100,blank=True, default='')
 
+    conf = models.TextField(default="{}")
+
     payment_credentials = models.TextField(default="{}")
 
     class Meta:
