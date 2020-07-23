@@ -2340,6 +2340,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             page = data.get("page", 1)
 
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
@@ -2384,6 +2385,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             paginator = Paginator(order_objs, 20)
             total_orders = order_objs.count()
             order_objs = paginator.page(page)
+
+            invoice_logo = location_group_obj.get_email_website_logo()
+            trn_number = json.loads(location_group_obj.website_group.conf).get("trn_number", "NA")
+            support_contact_number = json.loads(location_group_obj.website_group.conf).get("support_contact_number", "NA")
 
             order_list = []
             for order_obj in order_objs:
@@ -2483,6 +2488,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             is_available = True
             if int(paginator.num_pages) == int(page):
                 is_available = False
+
+            response["invoice_logo"] = invoice_logo
+            response["trn_number"] = trn_number
+            response["support_contact_number"] = support_contact_number
 
             response["isAvailable"] = is_available
             response["totalOrders"] = total_orders
