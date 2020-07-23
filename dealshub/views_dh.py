@@ -11,6 +11,8 @@ from rest_framework.permissions import AllowAny
 from dealshub.models import *
 from dealshub.constants import *
 from dealshub.utils import *
+from WAMSApp.constants import *
+from WAMSApp.utils import *
 
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -139,7 +141,7 @@ class CreateShippingAddressAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            user_obj = User.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -160,12 +162,12 @@ class CreateShippingAddressAPI(APIView):
             if tag==None:
                 tag = ""
 
-            if user_obj.first_name=="":
-                user_obj.first_name = first_name
-                user_obj.last_name = last_name
-                user_obj.save()
+            if dealshub_user_obj.first_name=="":
+                dealshub_user_obj.first_name = first_name
+                dealshub_user_obj.last_name = last_name
+                dealshub_user_obj.save()
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=user_obj, tag=tag, location_group=location_group_obj)
+            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
@@ -287,10 +289,49 @@ class AddToCartAPI(APIView):
                 unit_cart_obj.quantity += quantity
                 unit_cart_obj.save()
             else:
-                price = dealshub_user_obj.get_actual_price()
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity, price=price)
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity)
 
             update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
 
             response["unitCartUuid"] = unit_cart_obj.uuid
             response["status"] = 200
@@ -333,13 +374,46 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
             delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            response["deliveryFee"] = delivery_fee
-            response["vat"] = vat
-            response["toPay"] = total_amount
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+            
             response["unitCartList"] = unit_cart_list
             response["status"] = 200
         except Exception as e:
@@ -370,6 +444,46 @@ class UpdateCartDetailsAPI(APIView):
 
             update_cart_bill(unit_cart_obj.cart)
 
+            cart_obj = unit_cart_obj.cart
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -398,6 +512,44 @@ class RemoveFromCartAPI(APIView):
 
             update_cart_bill(cart_obj)
 
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -419,12 +571,10 @@ class SelectAddressAPI(APIView):
                 data = json.loads(data)
 
             address_uuid = data["addressUuid"]
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group)
             address_obj = Address.objects.get(uuid=address_uuid)
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
             
             cart_obj.shipping_address = address_obj
             cart_obj.save()
@@ -483,6 +633,8 @@ class FetchActiveOrderDetailsAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+            update_cart_bill(cart_obj)
             
             if cart_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj).count()>0:
                 cart_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj)[0]
@@ -574,7 +726,12 @@ class PlaceOrderAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+            cart_obj.voucher = None
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
 
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
@@ -599,8 +756,7 @@ class PlaceOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                           product=unit_cart_obj.product,
                                                           quantity=unit_cart_obj.quantity,
-                                                          price=unit_cart_obj.product.get_actual_price(), 
-                                                          currency=unit_cart_obj.product.get_currency())
+                                                          price=unit_cart_obj.product.get_actual_price())
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
             # Cart gets empty
@@ -668,7 +824,7 @@ class FetchOrderListAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             order_list = []
-            order_objs = Order.objects.filter(owner=dealshub_user_obj, order_type="placedorder").order_by('-pk')
+            order_objs = Order.objects.filter(owner=dealshub_user_obj).order_by('-pk')
             for order_obj in order_objs:
                 voucher_obj = order_obj.voucher
                 is_voucher_applied = voucher_obj is not None
@@ -818,6 +974,7 @@ class FetchOrderDetailsAPI(APIView):
             response["isVoucherApplied"] = is_voucher_applied
             if is_voucher_applied:
                 response["voucherCode"] = voucher_obj.voucher_code
+                response["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
 
             address_obj = order_obj.shipping_address
             if address_obj==None:
@@ -846,11 +1003,12 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["currentStatus"] = unit_order_obj.current_status
                 temp_dict["quantity"] = unit_order_obj.quantity
                 temp_dict["price"] = unit_order_obj.price
-                temp_dict["currency"] = unit_order_obj.currency
+                temp_dict["currency"] = unit_order_obj.product.get_currency()
                 temp_dict["productName"] = unit_order_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                 temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
+                temp_dict["productUuid"] = unit_order_obj.product.uuid
 
                 unit_order_status_list = []
                 unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
@@ -1072,13 +1230,17 @@ class FetchCustomerListAPI(APIView):
 
             search_list = data.get("search_list", [])
 
+            website_group_name = data["websiteGroupName"]
+
+            website_dealshub_user_objs = DealsHubUser.objects.filter(website_group__name=website_group_name)
+
             dealshub_user_objs = DealsHubUser.objects.none()
             if len(search_list)>0:
                 for search_key in search_list:
-                    dealshub_user_objs |= DealsHubUser.objects.filter(Q(first_name__icontains=search_key) | Q(last_name__icontains=search_key) | Q(contact_number__icontains=search_key))
+                    dealshub_user_objs |= website_dealshub_user_objs.filter(Q(first_name__icontains=search_key) | Q(last_name__icontains=search_key) | Q(contact_number__icontains=search_key))
                 dealshub_user_objs = dealshub_user_objs.distinct().order_by('-pk')
             else:
-                dealshub_user_objs = DealsHubUser.objects.all().order_by('-pk')
+                dealshub_user_objs = website_dealshub_user_objs.order_by('-pk')
 
             filter_parameters = data.get("filter_parameters", {})
 
@@ -1090,7 +1252,7 @@ class FetchCustomerListAPI(APIView):
                 if filter_parameters["is_cart_empty"]==True:
                     cart_objs = UnitCart.objects.all().values("cart")
                     dealshub_user_objs = dealshub_user_objs.filter(cart=None) | dealshub_user_objs.exclude(cart__in=cart_objs)
-                    dealshub_user_objs.distinct()
+                    dealshub_user_objs = dealshub_user_objs.distinct()
                 elif filter_parameters["is_cart_empty"]==False:
                     cart_objs = UnitCart.objects.all().values("cart")
                     dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs)
@@ -1156,7 +1318,7 @@ class FetchCustomerDetailsAPI(APIView):
             temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
             temp_dict["is_feedback_available"] = False
             address_list = []
-            for address_obj in Address.objects.filter(user__username=dealshub_user_obj.username):
+            for address_obj in Address.objects.filter(is_deleted=False, user__username=dealshub_user_obj.username):
                 address_list.append(", ".join(json.loads(address_obj.address_lines)))
             temp_dict["addressList"] = address_list
 
@@ -1254,7 +1416,7 @@ class FetchCustomerOrdersAPI(APIView):
                     temp_dict2["productName"] = unit_order_obj.product.get_name()
                     temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
                     unit_order_list.append(temp_dict2)
-                temp_dict["totalBilling"] = str(order_obj.to_pay) + " " + str(order_obj.location_group.currency)
+                temp_dict["totalBilling"] = str(order_obj.to_pay) + " " + str(order_obj.location_group.location.currency)
                 temp_dict["unitOrderList"] = unit_order_list
                 order_list.append(temp_dict)
 
@@ -1304,7 +1466,7 @@ class FetchTokenRequestParametersAPI(APIView):
             language = "en"
             PASS = payment_credentials["PASS"]
 
-            cart_obj = Cart.objects.get(dealshub_user=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             cart_obj.merchant_reference = merchant_reference
             cart_obj.save()
 
@@ -1363,7 +1525,7 @@ class MakePurchaseRequestAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
-            currency = location_group.location.currency
+            currency = location_group_obj.location.currency
 
             customer_ip = ""
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -1382,6 +1544,7 @@ class MakePurchaseRequestAPI(APIView):
             
 
             customer_email = dealshub_user_obj.email
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             amount = cart_obj.to_pay
             payfort_multiplier = int(cart_obj.location_group.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
@@ -1452,9 +1615,22 @@ class PaymentTransactionAPI(APIView):
                 return Response(data=response)
 
 
-
             if status=="14":
                 cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
+
+                try:
+                    voucher_obj = cart_obj.voucher
+                    if voucher_obj!=None:
+                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                            voucher_obj.total_usage += 1
+                            voucher_obj.save()
+                        else:
+                            cart_obj.voucher = None
+                            cart_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                    return Response(data=response)
 
                 order_obj = Order.objects.create(owner=cart_obj.owner, 
                                                  shipping_address=cart_obj.shipping_address,
@@ -1471,8 +1647,7 @@ class PaymentTransactionAPI(APIView):
                     unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                               product=unit_cart_obj.product,
                                                               quantity=unit_cart_obj.quantity,
-                                                              price=unit_cart_obj.product.get_actual_price(), 
-                                                              currency=unit_cart_obj.product.get_currency())
+                                                              price=unit_cart_obj.product.get_actual_price())
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # Cart gets empty
@@ -1778,7 +1953,7 @@ class SendOTPSMSLoginAPI(APIView):
                 data = json.loads(data)
             
             contact_number = data["contactNumber"]
-            location_group_uuid = data["locationGroupUuid"].lower()
+            location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
@@ -1852,7 +2027,7 @@ class VerifyOTPSMSLoginAPI(APIView):
 
             verified = False
             if dealshub_user_obj.verification_code==otp:
-                r = requests.post(url=OMNYCOMM_IP+"/token-auth/", data=credentials, verify=False)
+                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
                 verified = True
@@ -2296,64 +2471,6 @@ class DeleteUserReviewAPI(APIView):
         return Response(data=response)
 
 
-class FetchOrdersForAccountManagerAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            
-            data = request.data
-            logger.info("FetchOrdersForAccountManagerAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-            
-            api_access = "5a72db78-b0f2-41ff-b09e-6af02c5b4c77"
-
-            from_date = data.get("fromDate", "")
-            to_date = data.get("toDate", "")
-            payment_type_list = data.get("paymentTypeList", [])
-            min_qty = data.get("minQty", "")
-            max_qty = data.get("maxQty", "")
-            min_price = data.get("minPrice", "")
-            max_price = data.get("maxPrice", "")
-            currency_list = data.get("currencyList", [])
-            shipping_method_list = data.get("shippingMethodList", [])
-            tracking_status_list = data.get("trackingStatusList", [])
-            search_list = data.get("searchList", [])
-            website_group_name = data.get("website_group_name", "").lower()
-
-            page = data.get("page", 1)
-
-            request_data = {
-                "fromDate":from_date,
-                "toDate":to_date,
-                "paymentTypeList":json.dumps(payment_type_list),
-                "minQty":min_qty,
-                "maxQty":max_qty,
-                "minPrice":min_price,
-                "maxPrice":max_price,
-                "currencyList":json.dumps(currency_list),
-                "shippingMethodList":json.dumps(shipping_method_list),
-                "trackingStatusList":json.dumps(tracking_status_list),
-                "searchList":json.dumps(search_list),
-                "website_group_name": website_group_name,
-                "page":page, 
-                "api_access":api_access
-            }
-
-            r = requests.post("https://"+DEALSHUB_IP+"/api/dealshub/v1.0/fetch-orders-for-account-manager/", data=request_data, verify=False)
-            response = json.loads(r.content)
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrdersForAccountManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
 class FetchOrdersForWarehouseManagerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2417,7 +2534,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if len(search_list)>0:
                 temp_unit_order_objs = UnitOrder.objects.none()
                 for search_string in search_list:
-                    temp_unit_order_objs |= unit_order_objs.filter(Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__owner__last_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string))
+                    temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__owner__last_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string))
                 unit_order_objs = temp_unit_order_objs.distinct()
 
 
@@ -2517,7 +2634,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchOrdersForAccountManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             if int(paginator.num_pages) == int(page):
@@ -2737,10 +2854,10 @@ class DownloadOrdersAPI(APIView):
 
             if report_type=="sap":
                 generate_sap_order_format(unit_order_list)
-                response["filepath"] = "https://"+SERVER_IP+"/files/csv/sap-order-format.xlsx"
+                response["filepath"] = SERVER_IP+"/files/csv/sap-order-format.xlsx"
             else:
                 generate_regular_order_format(unit_order_list)
-                response["filepath"] = "https://"+SERVER_IP+"/files/csv/regular-order-format.xlsx"
+                response["filepath"] = SERVER_IP+"/files/csv/regular-order-format.xlsx"
             
             response["status"] = 200
 
@@ -2797,6 +2914,173 @@ class UploadOrdersAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UploadOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class ApplyVoucherCodeAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("ApplyVoucherCodeAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            voucher_code = data["voucher_code"]
+
+            if Voucher.objects.filter(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj).exists()==False:
+                response["error_message"] = "INVALID CODE"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+            voucher_obj = Voucher.objects.get(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj)
+            if voucher_obj.is_expired()==True:
+                response["error_message"] = "EXPIRED"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+
+            if voucher_obj.is_eligible(cart_obj.get_subtotal())==False:
+                response["error_message"] = "NOT APPLICABLE"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+            if is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==True:
+                response["error_message"] = "LIMIT EXCEEDED"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+            
+            cart_obj.voucher = voucher_obj
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+            response["voucher_success"] = True
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ApplyVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class RemoveVoucherCodeAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("RemoveVoucherCodeAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+            cart_obj.voucher = None
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+            response["voucher_success"] = True
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -2893,8 +3177,6 @@ FetchProductReviews = FetchProductReviewsAPI.as_view()
 
 DeleteUserReview = DeleteUserReviewAPI.as_view()
 
-FetchOrdersForAccountManager = FetchOrdersForAccountManagerAPI.as_view()
-
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
 
 FetchShippingMethod = FetchShippingMethodAPI.as_view()
@@ -2908,3 +3190,7 @@ CancelOrders = CancelOrdersAPI.as_view()
 DownloadOrders = DownloadOrdersAPI.as_view()
 
 UploadOrders = UploadOrdersAPI.as_view()
+
+ApplyVoucherCode = ApplyVoucherCodeAPI.as_view()
+
+RemoveVoucherCode = RemoveVoucherCodeAPI.as_view()

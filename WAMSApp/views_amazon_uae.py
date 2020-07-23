@@ -76,10 +76,17 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateAmazonUAEProductPriceAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateAmazonUAEProductPriceAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateAmazonUAEProductPriceAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -94,14 +101,17 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
 
             for i in range(rows):
                 try:
+
+                    product_obj = None
+
                     if data["option"] == "Product ID":
-                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
                             product_obj = Product.objects.get(product_id=search_key)
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
-                            pass
+                            continue
 
                     elif data["option"] == "Seller SKU":
                         search_key = str(dfs.iloc[i][0]).strip()
@@ -110,18 +120,17 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
                             product_obj = Product.objects.get(base_product__seller_sku=search_key)
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
-                            pass
+                            continue
 
                     elif data["option"] == "ASIN":
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
-                            pass
+                            continue
 
-                   
                     try :
                         was_price = float(dfs.iloc[i][1])
                         sale_price = float(dfs.iloc[i][2])
@@ -178,17 +187,24 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
             
             if not stock_permission:
                 response['status'] = 403
-                logger.warning("BulkUpdateAmazonUAEProductPriceAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
+                logger.warning("BulkUpdateAmazonUAEProductStockAPI Restricted Access for Price Updation on "+channel_name+" Channel!")
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-stock.xlsx', data["import_file"])
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateAmazonUAEProductStockAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateAmazonUAEProductStockAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateAmazonUAEProductStockAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -196,7 +212,7 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
 
             if data["option"] != excel_header:
                 response['status'] = 405
-                logger.warning("BulkUpdateAmazonUAEProductPriceAPI Wrong Template Uploaded for " + data["option"])
+                logger.warning("BulkUpdateAmazonUAEProductStockAPI Wrong Template Uploaded for " + data["option"])
                 return Response(data=response)
 
             excel_errors = []
@@ -204,14 +220,16 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
             for i in range(rows):
                 try:
 
+                    product_obj = None
+
                     if data["option"] == "Product ID":
-                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
                             product_obj = Product.objects.get(product_id=search_key)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
-                            pass
+                            continue
 
                     elif data["option"] == "Seller SKU":
                         search_key = str(dfs.iloc[i][0]).strip()
@@ -220,22 +238,22 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
                             product_obj = Product.objects.get(base_product__seller_sku=search_key)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
-                            pass
+                            continue
 
                     elif data["option"] == "ASIN":
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key )
-                            pass
+                            continue
 
                     try :
                         stock = int(dfs.iloc[i][1])
                     except Exception as e:
                         response["excel_errors"].append("Wrong Stock Value for " + search_key)
-                        pass
+                        continue
                     
                     channel_product = product_obj.channel_product
 
@@ -293,10 +311,17 @@ class BulkUpdateAmazonUAEProductPriceAndStockAPI(APIView):
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
             try :
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                logger.warning("BulkUpdateAmazonUAEProductPriceAndStockAPI UnSupported File Format ")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
             except Exception as e:
                 response['status'] = 406
-                logger.warning("BulkUpdateAmazonUAEProductPriceAndStockAPI Sheet 1 not found!")
+                logger.warning("BulkUpdateAmazonUAEProductPriceAndStockAPI Sheet1 not found!")
                 return Response(data=response)
 
             rows = len(dfs.iloc[:])
@@ -312,14 +337,16 @@ class BulkUpdateAmazonUAEProductPriceAndStockAPI(APIView):
             for i in range(rows):
                 try:
 
+                    product_obj = None
+
                     if data["option"] == "Product ID":
-                        search_key = str(dfs.iloc[i][0]).strip()
+                        search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
                             product_obj = Product.objects.get(product_id=search_key)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
-                            pass
+                            continue
 
                     elif data["option"] == "Seller SKU":
                         search_key = str(dfs.iloc[i][0]).strip()
@@ -328,29 +355,29 @@ class BulkUpdateAmazonUAEProductPriceAndStockAPI(APIView):
                             product_obj = Product.objects.get(base_product__seller_sku=search_key)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
-                            pass
+                            continue
 
                     elif data["option"] == "ASIN":
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product_amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
-                            pass
+                            continue
 
                     try :
                         was_price = float(dfs.iloc[i][1])
                         sale_price = float(dfs.iloc[i][2])
                     except Exception as e:
                         excel_errors.append("Wrong Price Value for " + search_key)
-                        pass
+                        continue
                     
                     try :
                         stock = int(dfs.iloc[i][5])
                     except Exception as e:
                         excel_errors.append("Wrong Stock Value for " + search_key)
-                        pass
+                        continue
                     
                     channel_product = product_obj.channel_product
 

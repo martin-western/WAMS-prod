@@ -59,258 +59,73 @@ class FetchStatisticsAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
+            logger.info("FetchStatisticsAPI: %s", str(data))
 
             page = int(data["page"])
+            brand_name = data.get("brand_name","")
+
+            filter_parameters = data["filter_parameters"]
            
             permissible_brands = custom_permission_filter_brands(request.user)
+
+            if(brand_name != ""):
+                permissible_brands = permissible_brands.filter(name=brand_name)
+
             permissible_brands = permissible_brands.annotate(num_products=Count('baseproduct')).order_by('-num_products')
 
-            paginator = Paginator(permissible_brands, 20)
+            paginator = Paginator(permissible_brands, 5)
             brand_objs = paginator.page(page)
 
             brand_list = []
             for brand_obj in brand_objs:
 
-                product_objs_list = Product.objects.filter(base_product__brand=brand_obj)
-                baseproduct_objs_list = BaseProduct.objects.filter(brand=brand_obj)
-                total_products = product_objs_list.count()
-                total_baseproducts = baseproduct_objs_list.count()
+                search_list_product_objs = Product.objects.filter(base_product__brand=brand_obj)
+                total_products = search_list_product_objs.count()
 
-                attribute_list = []
-                result_dict = {}
+                search_list_product_objs = content_health_filtered_list(filter_parameters,search_list_product_objs)
 
-
-                yes = product_objs_list.exclude(product_description=None).exclude(product_description="").count()
-                no = total_products - yes
-                key = "Product Description"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.exclude(product_id=None).exclude(product_id="").count()
-                no = total_products - yes
-                key = "Product ID"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.filter(verified=True).count()
-                no = total_products - yes
-                key = "Product Verified"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.filter(channel_product__is_amazon_uae_product_created=True).count()
-                no = total_products - yes
-                key = "Amazon UAE Product"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.filter(channel_product__is_amazon_uk_product_created=True).count()
-                no = total_products - yes
-                key = "Amazon UK Product"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.filter(channel_product__is_noon_product_created=True).count()
-                no = total_products - yes
-                key = "Noon Product"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.filter(channel_product__is_ebay_product_created=True).count()
-                no = total_products - yes
-                key = "Ebay Product"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = MainImages.objects.annotate(num_main_images=Count('main_images')).filter(product__in=product_objs_list,is_sourced=True,num_main_images__gt=0).count()
-                no = total_products - yes
-                key = "Main Images"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images__gt=0).count()
-                no = total_products - yes
-                key = "Sub Images > 0"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images__gt=1).count()
-                no = total_products - yes
-                key = "Sub Images > 1"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(product__in=product_objs_list,is_sourced=True,num_sub_images__gt=2).count()
-                no = total_products - yes
-                key = "Sub Images > 2"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.exclude(pfl_product_features="[]").exclude(pfl_product_features="").count()
-                no = total_products - yes
-                key = "Product Features"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images__gt=0).count()
-                no = total_products - yes
-                key = "White Backgound Images > 0"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images__gt=1).count()
-                no = total_products - yes
-                key = "White Background Images > 1"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_white_background_images=Count('white_background_images')).filter(num_white_background_images__gt=2).count()
-                no = total_products - yes
-                key = "White Background Images > 2"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images__gt=0).count()                   
-                no = total_products - yes
-                key = "Lifestyle Images > 0"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images__gt=1).count()
-                no = total_products - yes
-                key = "Lifestyle Images > 1"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_lifestyle_images=Count('lifestyle_images')).filter(num_lifestyle_images__gt=2).count()
-                no = total_products - yes
-                key = "Lifestyle Images > 2"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_giftbox_images=Count('giftbox_images')).filter(num_giftbox_images__gt=0).count()
-                no = total_products - yes
-                key = "Giftbox Images > 0"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_giftbox_images=Count('giftbox_images')).filter(num_giftbox_images__gt=1).count()
-                no = total_products - yes
-                key = "Giftbox Images > 1"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_giftbox_images=Count('giftbox_images')).filter(num_giftbox_images__gt=2).count()
-                no = total_products - yes
-                key = "Giftbox Images > 2"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_transparent_images=Count('transparent_images')).filter(num_transparent_images__gt=0).count()                   
-                no = total_products - yes
-                key = "Transparent Images > 0"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_transparent_images=Count('transparent_images')).filter(num_transparent_images__gt=1).count()                   
-                no = total_products - yes
-                key = "Transparent Images > 1"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.annotate(num_transparent_images=Count('transparent_images')).filter(num_transparent_images__gt=2).count()                   
-                no = total_products - yes
-                key = "Transparent Images > 2"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
-
-                yes = product_objs_list.exclude(product_name=None).exclude(product_name="").count()
-                no = total_products - yes
-                key = "Product Name"
-                attribute_list.append(key)
-                result_dict[key] = {
-                    "yes": yes,
-                    "no": no
-                }
 
                 temp_dict = {}
                 temp_dict["brand_name"] = brand_obj.name
-                temp_dict["keys"] = attribute_list
-                temp_dict["values"] = result_dict
+                temp_dict["value"] = search_list_product_objs.count()
+                temp_dict["total_products"] = total_products
+
                 brand_list.append(temp_dict)
 
+            attribute_list = [
+                "Product Description",
+                "Product Name",
+                "Product ID",
+                "Product Verified",
+                "Amazon UK Product",
+                "Amazon UAE Product",
+                "Noon Product",
+                "Ebay Product",
+                "Product Features",
+                "White Background Images > 0",
+                "White Background Images > 1",
+                "White Background Images > 2",
+                "Lifestyle Images > 0",
+                "Lifestyle Images > 1",
+                "Lifestyle Images > 2",
+                "Giftbox Images > 0",
+                "Giftbox Images > 1",
+                "Giftbox Images > 2",
+                "Transparent Images > 0",
+                "Transparent Images > 1",
+                "Transparent Images > 2",
+                "Main Images",
+                "Sub Images > 0",
+                "Sub Images > 1",
+                "Sub Images > 2"]
+
+            is_available = True
+
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["is_available"] = is_available
+            response["keys"] = attribute_list
             response["brand_list"] = brand_list
             response['status'] = 200
 

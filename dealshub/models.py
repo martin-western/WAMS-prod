@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 address_lines = ["", "", "", ""]
 
 
+def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
+    if voucher_obj.customer_usage_limit==0:
+        return False
+    if Order.objects.filter(owner=dealshub_user_obj, voucher=voucher_obj).count()<voucher_obj.customer_usage_limit:
+        return False
+    return True
+
+
 class Promotion(models.Model):
     
     uuid = models.CharField(max_length=200, unique=True)
@@ -35,7 +43,7 @@ class Promotion(models.Model):
 class Voucher(models.Model):
 
     uuid = models.CharField(max_length=200,default="",unique=True)
-    voucher_code = models.CharField(max_length=50,unique=True)
+    voucher_code = models.CharField(max_length=50)
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
 
@@ -53,27 +61,48 @@ class Voucher(models.Model):
     maximum_usage_limit = models.IntegerField(default=0)
     minimum_purchase_amount = models.IntegerField(default=0)
     total_usage = models.IntegerField(default=0)
+    is_deleted = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return str(self.uuid)
 
     def is_expired(self):
+        if self.is_deleted==True or self.is_published==False:
+            return True
         if timezone.now() >= self.start_time and timezone.now() <= self.end_time:
-            if maximum_usage_limit==0:
+            if self.maximum_usage_limit==0:
                 return False
-            if total_usage>=maximum_usage_limit:
+            if self.total_usage>=self.maximum_usage_limit:
                 return True
             return False
         return True
 
-    def get_discounted_price(self, total):
+    def is_eligible(self, subtotal):
+        if subtotal>=self.minimum_purchase_amount:
+            return True
+        return False
+
+    def get_discounted_price(self, subtotal):
         if self.voucher_type=="SD":
-            return total
-        if self.voucher_type=="FD" and total>=self.minimum_purchase_amount:
-            return (total-self.fixed_discount)
-        if self.voucher_type=="PD" and total>=self.minimum_purchase_amount:
-            return round((total-(total*self.percent_discount/100)), 2)
+            return subtotal
+        if self.voucher_type=="FD" and subtotal>=self.minimum_purchase_amount:
+            return (subtotal-self.fixed_discount)
+        if self.voucher_type=="PD" and subtotal>=self.minimum_purchase_amount:
+            discount = min(self.maximum_discount, round(subtotal*self.percent_discount/100, 2))
+            return (subtotal-discount)
+        return subtotal
+
+    def get_voucher_discount(self, subtotal):
+        if self.voucher_type=="SD":
+            return self.location_group.delivery_fee
+        if self.voucher_type=="FD" and subtotal>=self.minimum_purchase_amount:
+            return self.fixed_discount
+        if self.voucher_type=="PD" and subtotal>=self.minimum_purchase_amount:
+            discount = min(self.maximum_discount, round(subtotal*self.percent_discount/100, 2))
+            return discount
+        return 0
 
     def save(self, *args, **kwargs):
 
@@ -95,7 +124,7 @@ class DealsHubProduct(models.Model):
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
     is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
-    uuid = models.CharField(max_length=200, default="", unique=True)
+    uuid = models.CharField(max_length=200, default="")
 
     class Meta:
         verbose_name = "DealsHub Product"
@@ -108,13 +137,13 @@ class DealsHubProduct(models.Model):
         return str(self.location_group.location.currency)
 
     def get_category(self):
-        if self.base_product_obj.category!=None:
-            return str(self.product.base_product_obj.category)
+        if self.product.base_product.category!=None:
+            return str(self.product.base_product.category)
         return ""
 
     def get_sub_category(self):
-        if self.base_product_obj.sub_category!=None:
-            return str(self.product.base_product_obj.sub_category)
+        if self.product.base_product.sub_category!=None:
+            return str(self.product.base_product.sub_category)
         return ""
 
     def get_name(self):
@@ -135,7 +164,7 @@ class DealsHubProduct(models.Model):
     def get_actual_price(self):
         if self.promotion==None:
             return self.now_price
-        if check_valid_promotion(self.promotion)!=None:
+        if check_valid_promotion(self.promotion)==True:
             return self.promotional_price
         return self.now_price
 
@@ -348,10 +377,12 @@ class Cart(models.Model):
             subtotal += float(unit_cart_obj.product.get_actual_price())*float(unit_cart_obj.quantity)
         return subtotal
 
-    def get_delivery_fee(self):
+    def get_delivery_fee(self, cod=False):
         subtotal = self.get_subtotal()
-        if self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
-            if self.voucher_type=="SD":
+        if subtotal==0:
+            return 0
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
 
@@ -359,16 +390,23 @@ class Cart(models.Model):
             return self.location_group.delivery_fee
         return 0
 
-    def get_total_amount(self):
+    def get_total_amount(self, cod=False):
         subtotal = self.get_subtotal()
-        if self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if subtotal==0:
+            return 0
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
-        delivery_fee = self.get_delivery_fee()
+        delivery_fee = self.get_delivery_fee(cod)
+        if cod==True:
+            subtotal += self.location_group.cod_charge
         return subtotal+delivery_fee
 
-    def get_vat(self):
-        total = self.get_total_amount()
+    def get_vat(self, cod=False):
+        total_amount = self.get_total_amount(cod)
         return round((total_amount - total_amount/1.05), 2)
+
+    def get_currency(self):
+        return str(self.location_group.location.currency)
 
     def is_cod_allowed(self):
         unit_cart_objs = UnitCart.objects.filter(cart=self)
@@ -431,15 +469,20 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
-            self.bundleid = "wig"+str(uuid.uuid4())[:5]
+            order_prefix = ""
+            try:
+                order_prefix = json.loads(self.location_group.website_group.conf)["order_prefix"]
+            except Exception as e:
+                pass
+            self.bundleid = order_prefix + str(uuid.uuid4())[:5]
 
         super(Order, self).save(*args, **kwargs)
 
     def get_date_created(self):
-        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+        return str(timezone.localtime(self.order_placed_date).strftime("%d %b, %Y"))
 
     def get_time_created(self):
-        return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
+        return str(timezone.localtime(self.order_placed_date).strftime("%I:%M %p"))
 
     def get_subtotal(self):
         unit_order_objs = UnitOrder.objects.filter(order=self)
@@ -451,7 +494,7 @@ class Order(models.Model):
     def get_delivery_fee(self):
         subtotal = self.get_subtotal()
         if self.voucher!=None:
-            if self.voucher_type=="SD":
+            if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
 
@@ -461,7 +504,7 @@ class Order(models.Model):
 
     def get_cod_charge(self):
         if self.payment_mode=="COD":
-            return order_obj.location_group.cod_charge
+            return self.location_group.cod_charge
         return 0
 
     def get_total_amount(self):
@@ -473,7 +516,7 @@ class Order(models.Model):
         return subtotal+delivery_fee+cod_charge
 
     def get_vat(self):
-        total = self.get_total_amount()
+        total_amount = self.get_total_amount()
         return round((total_amount - total_amount/1.05), 2)
 
     def get_website_link(self):
@@ -484,6 +527,13 @@ class Order(models.Model):
 
     def get_customer_first_name(self):
         return self.shipping_address.first_name
+
+    def get_email_website_logo(self):
+        if self.location_group.website_group.footer_logo!=None:
+            return self.location_group.website_group.footer_logo.image.url
+        if self.location_group.website_group.logo!=None:
+            return self.location_group.website_group.logo.image.url
+        return ""
 
 
 class UnitOrder(models.Model):
@@ -528,7 +578,12 @@ class UnitOrder(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
-            self.orderid = "wig"+str(uuid.uuid4())[:5]
+            order_prefix = ""
+            try:
+                order_prefix = json.loads(self.order.location_group.website_group.conf)["order_prefix"]
+            except Exception as e:
+                pass
+            self.orderid = order_prefix + str(uuid.uuid4())[:5]
 
         super(UnitOrder, self).save(*args, **kwargs)
 

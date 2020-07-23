@@ -10,6 +10,10 @@ from WAMSApp.amazon_uae import *
 from WAMSApp.ebay import *
 from WAMSApp.noon import *
 from WAMSApp.serializers import UserSerializer
+
+from django.db.models import Q
+from django.db.models import Count
+
 import requests
 import xmltodict
 import json
@@ -120,7 +124,7 @@ def fetch_prices(product_id,company_code):
 
         product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
 
-        url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
@@ -248,7 +252,7 @@ def fetch_prices_dealshub(uuid1, company_code):
         product_obj = Product.objects.get(uuid=uuid1)
         product_id = product_obj.base_product.seller_sku
 
-        url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
@@ -1085,7 +1089,7 @@ def generate_dynamic_export(product_uuid_list, data_point_list):
     workbook.close()
 
 
-def fetch_sap_details_for_order_punching(product_obj):
+def fetch_sap_details_for_order_punching(dealshub_product_obj):
     sap_details = {
         "company_code": "NA",
         "sales_office": "NA",
@@ -1093,32 +1097,32 @@ def fetch_sap_details_for_order_punching(product_obj):
         "purchase_org": "NA"
     }
     try:
-        if str(product_obj.base_product.brand).lower()=="geepas":
+        if dealshub_product_obj.get_brand().lower()=="geepas":
             sap_details["company_code"] = "1100"
             sap_details["sales_office"] = "1005"
             sap_details["vendor_code"] = "V1001"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="olsenmark":
+        elif dealshub_product_obj.get_brand().lower()=="olsenmark":
             sap_details["company_code"] = "1100"
             sap_details["sales_office"] = "1105"
             sap_details["vendor_code"] = "V1100"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="krypton":
+        elif dealshub_product_obj.get_brand().lower()=="krypton":
             sap_details["company_code"] = "2100"
             sap_details["sales_office"] = "2105"
             sap_details["vendor_code"] = "V2100"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="royalford":
+        elif dealshub_product_obj.get_brand().lower()=="royalford":
             sap_details["company_code"] = "3000"
             sap_details["sales_office"] = "3005"
             sap_details["vendor_code"] = "V3001"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="abraj":
+        elif dealshub_product_obj.get_brand().lower()=="abraj":
             sap_details["company_code"] = "6000"
             sap_details["sales_office"] = "6008"
             sap_details["vendor_code"] = "V6000"
             sap_details["purchase_org"] = "1200"
-        elif str(product_obj.base_product.brand).lower()=="baby plus":
+        elif dealshub_product_obj.get_brand().lower()=="baby plus":
             sap_details["company_code"] = "5550"
             sap_details["sales_office"] = "5558"
             sap_details["vendor_code"] = "V5550"
@@ -1170,7 +1174,7 @@ def get_sap_batch_and_uom(company_code, seller_sku):
     }
     return response
     try:
-        url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -1266,9 +1270,9 @@ def generate_sap_order_format(unit_order_list):
         try:
             cnt += 1
 
-            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
 
-            sap_details = fetch_sap_details_for_order_punching(product_obj)
+            sap_details = fetch_sap_details_for_order_punching(dealshub_product_obj)
 
             common_row = ["" for i in range(11)]
             common_row[0] = sap_details["company_code"]
@@ -1278,7 +1282,7 @@ def generate_sap_order_format(unit_order_list):
             common_row[4] = "ZWIC"
             common_row[5] = "40000637"
             common_row[6] = unit_order["orderId"]
-            common_row[7] = product_obj.base_product.seller_sku
+            common_row[7] = dealshub_product_obj.get_seller_sku()
             common_row[8] = unit_order["quantity"]
             
             colnum = 0
@@ -1322,9 +1326,9 @@ def generate_sap_order_format(unit_order_list):
         try:
             cnt += 1
 
-            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
 
-            sap_details = fetch_sap_details_for_order_punching(product_obj)
+            sap_details = fetch_sap_details_for_order_punching(dealshub_product_obj)
 
             common_row = ["" for i in range(15)]
             common_row[0] = "WIC"
@@ -1336,7 +1340,7 @@ def generate_sap_order_format(unit_order_list):
 
             common_row[7] = "Invoice Ref ID"
             common_row[8] = sap_details["vendor_code"]
-            common_row[9] = product_obj.base_product.seller_sku
+            common_row[9] = dealshub_product_obj.get_seller_sku()
             common_row[10] = "EA"
             common_row[11] = "EA"
             common_row[12] = unit_order["quantity"]
@@ -1386,7 +1390,7 @@ def generate_sap_order_format(unit_order_list):
         try:
             cnt += 1
 
-            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
 
             order_type = "ZJCR"
             customer_code = ""
@@ -1395,8 +1399,8 @@ def generate_sap_order_format(unit_order_list):
             elif unit_order["shippingMethod"]=="TFM":
                 customer_code = "50000627"
 
-            company_code = get_company_code_from_brand_name(product_obj.base_product.brand.name)
-            response = get_sap_batch_and_uom(company_code, product_obj.base_product.seller_sku)
+            company_code = get_company_code_from_brand_name(dealshub_product_obj.get_brand())
+            response = get_sap_batch_and_uom(company_code, dealshub_product_obj.get_seller_sku())
             batch = response["batch"]
             uom = response["uom"]
 
@@ -1407,7 +1411,7 @@ def generate_sap_order_format(unit_order_list):
             common_row[3] = unit_order["customerName"]
             common_row[4] = unit_order["area"]
             common_row[5] = unit_order["orderId"]
-            common_row[6] = product_obj.base_product.seller_sku
+            common_row[6] = dealshub_product_obj.get_seller_sku()
             common_row[7] = unit_order["quantity"]
             common_row[8] = uom
             common_row[9] = batch
@@ -1512,7 +1516,7 @@ def generate_regular_order_format(unit_order_list):
 def fetch_refresh_stock(seller_sku, company_code, location_code):
 
     try:
-        url="http://94.56.89.114:8001/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
@@ -1730,3 +1734,132 @@ def logentry_dict_to_attributes(changes):
         new_changes = individual_logs_from_dict(json1,json2,new_changes,key)
 
     return new_changes
+
+def content_health_filtered_list(filter_parameters,search_list_product_objs):
+
+    if filter_parameters.get("Product Description", None) == True:
+        search_list_product_objs = search_list_product_objs.exclude(Q(product_description=None) | Q(product_description=""))
+    elif filter_parameters.get("Product Description", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(Q(product_description=None) | Q(product_description=""))
+
+    if filter_parameters.get("Product Name", None) == True:
+        search_list_product_objs = search_list_product_objs.exclude(Q(product_name=None) | Q(product_name=""))
+    elif filter_parameters.get("Product Name", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(Q(product_name=None) | Q(product_name=""))
+
+    if filter_parameters.get("Product ID", None) == True:
+        search_list_product_objs = search_list_product_objs.exclude(Q(product_id=None) | Q(product_id=""))
+    elif filter_parameters.get("Product ID", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(Q(product_id=None) | Q(product_id=""))
+
+    if filter_parameters.get("Product Verified", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(verified=True)
+    elif filter_parameters.get("Product Verified", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(verified=False)
+
+    if filter_parameters.get("Amazon UK Product", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uk_product_created=True)
+    elif filter_parameters.get("Amazon UK Product", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uk_product_created=False)
+
+    if filter_parameters.get("Amazon UAE Product", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uae_product_created=True)
+    elif filter_parameters.get("Amazon UAE Product", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_amazon_uae_product_created=False)
+
+    if filter_parameters.get("Noon Product", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_noon_product_created=True)
+    elif filter_parameters.get("Noon Product", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_noon_product_created=False)
+
+    if filter_parameters.get("Ebay Product", None) == True:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_ebay_product_created=True)
+    elif filter_parameters.get("Ebay Product", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(channel_product__is_ebay_product_created=False)
+
+    if filter_parameters.get("Product Features", None) == True:
+        search_list_product_objs = search_list_product_objs.exclude(Q(pfl_product_features="") | Q(pfl_product_features="[]"))
+    elif filter_parameters.get("Product Features", None) == False:
+        search_list_product_objs = search_list_product_objs.filter(Q(pfl_product_features="") | Q(pfl_product_features="[]"))
+
+    if filter_parameters.get("White Background Images > 0", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=0)
+    elif filter_parameters.get("White Background Images > 0", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c=0)
+
+    if filter_parameters.get("White Background Images > 1", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=1)
+    elif filter_parameters.get("White Background Images > 1", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__lt=2)
+
+    if filter_parameters.get("White Background Images > 2", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__gt=2)
+    elif filter_parameters.get("White Background Images > 2", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('white_background_images')).filter(c__lt=3)
+
+    if filter_parameters.get("Lifestyle Images > 0", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__gt=0)
+    elif filter_parameters.get("Lifestyle Images > 0", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c=0)
+
+    if filter_parameters.get("Lifestyle Images > 1", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__gt=1)
+    elif filter_parameters.get("Lifestyle Images > 1", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__lt=2)
+
+    if filter_parameters.get("Lifestyle Images > 2", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__gt=2)
+    elif filter_parameters.get("Lifestyle Images > 2", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('lifestyle_images')).filter(c__lt=3)
+
+    if filter_parameters.get("Giftbox Images > 0", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__gt=0)
+    elif filter_parameters.get("Giftbox Images > 0", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c=0)
+
+    if filter_parameters.get("Giftbox Images > 1", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__gt=1)
+    elif filter_parameters.get("Giftbox Images > 1", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__lt=2)
+
+    if filter_parameters.get("Giftbox Images > 2", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__gt=2)
+    elif filter_parameters.get("Giftbox Images > 2", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('giftbox_images')).filter(c__lt=3)
+
+    if filter_parameters.get("Transparent Images > 0", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__gt=0)
+    elif filter_parameters.get("Transparent Images > 0", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c=0)
+
+    if filter_parameters.get("Transparent Images > 1", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__gt=1)
+    elif filter_parameters.get("Transparent Images > 1", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__lt=2)
+
+    if filter_parameters.get("Transparent Images > 2", None) == True:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__gt=2)
+    elif filter_parameters.get("Transparent Images > 2", None) == False:
+        search_list_product_objs = search_list_product_objs.annotate(c=Count('transparent_images')).filter(c__lt=3)
+
+    if filter_parameters.get("Main Images", None) == True:  
+        search_list_product_objs = search_list_product_objs.filter(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images__gt=0))
+    elif filter_parameters.get("Main Images", None) == False:  
+        search_list_product_objs = search_list_product_objs.exclude(mainimages__in=MainImages.objects.annotate(num_main_images=Count('main_images')).filter(is_sourced=True,num_main_images__gt=0))
+
+    if filter_parameters.get("Sub Images > 0", None) == True:  
+        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=0))
+    elif filter_parameters.get("Sub Images > 0", None) == False:  
+        search_list_product_objs = search_list_product_objs.exclude(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=0))
+
+    if filter_parameters.get("Sub Images > 1", None) == True:  
+        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=1))
+    elif filter_parameters.get("Sub Images > 1", None) == False:
+        search_list_product_objs = search_list_product_objs.exclude(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=1))
+
+    if filter_parameters.get("Sub Images > 2", None) == True:  
+        search_list_product_objs = search_list_product_objs.filter(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
+    elif filter_parameters.get("Sub Images > 2", None) == False:  
+        search_list_product_objs = search_list_product_objs.exclude(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
+
+    return search_list_product_objs 

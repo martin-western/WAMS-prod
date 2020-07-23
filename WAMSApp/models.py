@@ -216,7 +216,7 @@ class LocationGroup(models.Model):
     uuid = models.CharField(max_length=200, default="")
 
     def __str__(self):
-        return str(self.location)
+        return str(self.name)
 
     def save(self, *args, **kwargs):
 
@@ -224,6 +224,12 @@ class LocationGroup(models.Model):
             self.uuid = str(uuid.uuid4())
 
         super(LocationGroup, self).save(*args, **kwargs)
+
+    def get_email_host(self):
+        return json.loads(self.email_info)["host"]
+
+    def get_email_port(self):
+        return int(json.loads(self.email_info)["port"])
 
     def get_support_email_id(self):
         return json.loads(self.email_info)["support"]["email_id"]
@@ -485,6 +491,8 @@ class WebsiteGroup(models.Model):
     youtube_link = models.CharField(max_length=100,blank=True, default='')
     linkedin_link = models.CharField(max_length=100,blank=True, default='')
     crunchbase_link = models.CharField(max_length=100,blank=True, default='')
+
+    conf = models.TextField(default="{}")
 
     payment_credentials = models.TextField(default="{}")
 

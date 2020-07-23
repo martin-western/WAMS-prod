@@ -12,7 +12,7 @@ import os
 import json
 import requests
 from dealshub.constants import *
-from django.core.mail import send_mail
+from django.core.mail import send_mail, get_connection
 from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 import threading
@@ -136,8 +136,13 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
 
 
 def update_cart_bill(cart_obj):
-  
+    
     cart_obj.to_pay = cart_obj.get_total_amount()
+
+    if cart_obj.voucher!=None:
+        voucher_obj = cart_obj.voucher
+        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
+            cart_obj.voucher = None
     cart_obj.save()
 
 
@@ -154,7 +159,7 @@ def send_order_confirmation_mail(order_obj):
             temp_dict = {
                 "order_id": unit_order_obj.orderid,
                 "product_name": unit_order_obj.product.get_name(),
-                "productImageUrl": unit_order_obj.get_display_image_url(),
+                "productImageUrl": unit_order_obj.product.get_display_image_url(),
                 "quantity": unit_order_obj.quantity,
                 "price": unit_order_obj.price,
                 "currency": unit_order_obj.product.get_currency()
@@ -165,10 +170,12 @@ def send_order_confirmation_mail(order_obj):
         customer_name = order_obj.get_customer_first_name()
         address_lines = json.loads(order_obj.shipping_address.address_lines)
         full_name = order_obj.get_customer_full_name()
+        website_logo = order_obj.get_email_website_logo()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-confirmation.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "custom_unit_order_list":  custom_unit_order_list,
                 "order_placed_date": order_placed_date,
@@ -178,17 +185,27 @@ def send_order_confirmation_mail(order_obj):
             }
         )
 
-        email = EmailMultiAlternatives(
-                    subject='Order Confirmation', 
-                    body='Order Confirmation', 
-                    from_email=[order_obj.get_order_from_email_id()],
-                    to=[order_obj.owner.email],
-                    cc=order_obj.get_order_cc_email_list(),
-                    bcc=order_obj.get_order_bcc_email_list(),
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
-        logger.info("send_order_confirmation_mail")
+        location_group_obj = order_obj.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Confirmation', 
+                        body='Order Confirmation', 
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[order_obj.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_confirmation_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -206,10 +223,12 @@ def send_order_dispatch_mail(unit_order_obj):
         customer_name = unit_order_obj.order.get_customer_first_name()
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
         full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.get_email_website_logo()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-dispatch.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
                 "product_name": unit_order_obj.product.get_name(),
@@ -222,16 +241,27 @@ def send_order_dispatch_mail(unit_order_obj):
             }
         )
 
-        email = EmailMultiAlternatives(
-                    subject='Order Dispatch',
-                    body='Order Dispatch',
-                    from_email='orders@wigme.com',
-                    to=[unit_order_obj.order.owner.email],
-                    cc=['orders@wigme.com'],
-                    bcc=['hari.pk@westernint.com', 'siddhansh@omnycomm.com']
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Dispatch',
+                        body='Order Dispatch',
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_dispatch_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -250,10 +280,12 @@ def send_order_delivered_mail(unit_order_obj):
 
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
         full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.get_email_website_logo()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivered.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
                 "product_name": unit_order_obj.product.get_name(),
@@ -266,16 +298,27 @@ def send_order_delivered_mail(unit_order_obj):
             }
         )
 
-        email = EmailMultiAlternatives(
-                    subject='Order Delivered', 
-                    body='Order Delivered', 
-                    from_email='orders@wigme.com',
-                    to=[unit_order_obj.order.owner.email],
-                    cc=['orders@wigme.com'],
-                    bcc=['hari.pk@westernint.com', 'siddhansh@omnycomm.com']
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Delivered', 
+                        body='Order Delivered', 
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_delivered_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -293,10 +336,12 @@ def send_order_delivery_failed_mail(unit_order_obj):
 
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
         full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.get_email_website_logo()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivery-failed.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
                 "product_name": unit_order_obj.product.get_name(),
@@ -309,16 +354,27 @@ def send_order_delivery_failed_mail(unit_order_obj):
             }
         )
 
-        email = EmailMultiAlternatives(
-                    subject='Order Delivery Failed', 
-                    body='Order Delivery Failed', 
-                    from_email='orders@wigme.com',
-                    to=[unit_order_obj.order.owner.email],
-                    cc=['orders@wigme.com'],
-                    bcc=['hari.pk@westernint.com', 'siddhansh@omnycomm.com']
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Delivery Failed', 
+                        body='Order Delivery Failed', 
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_delivery_failed_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -336,10 +392,12 @@ def send_order_cancelled_mail(unit_order_obj):
 
         address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
         full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.get_email_website_logo()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-cancelled.html',
             {
+                "website_logo": website_logo,
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
                 "product_name": productInfo[unit_order_obj.product_code]["productName"],
@@ -352,16 +410,27 @@ def send_order_cancelled_mail(unit_order_obj):
             }
         )
 
-        email = EmailMultiAlternatives(
-                    subject='Order Cancelled', 
-                    body='Order Cancelled', 
-                    from_email='orders@wigme.com',
-                    to=[unit_order_obj.order.owner.email],
-                    cc=['orders@wigme.com'],
-                    bcc=['hari.pk@westernint.com', 'siddhansh@omnycomm.com']
-                )
-        email.attach_alternative(html_message, "text/html")
-        email.send(fail_silently=False)
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Cancelled', 
+                        body='Order Cancelled',
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_cancelled_mail")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -472,11 +541,3 @@ def calculate_gtm(order_obj):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("GTM Calculation: %s at %s", e, str(exc_tb.tb_lineno))
     return purchase_info
-
-
-def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
-    if voucher_obj.customer_usage_limit==0:
-        return False
-    if Order.objects.filter(owner=dealshub_user_obj, voucher=voucher_obj).count()<voucher_obj.customer_usage_limit:
-        return False
-    return True

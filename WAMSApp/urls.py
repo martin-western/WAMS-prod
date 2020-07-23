@@ -114,11 +114,11 @@ urlpatterns = [
     url(r'^download-bulk-export/$',views.DownloadBulkExport),
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
-    url(r'^fetch-company-credentials/$',views.FetchCompanyCredentials),
 
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
 
     url(r'^create-oc-report/$',views.CreateOCReport),
+    url(r'^create-content-report/$',views.CreateContentReport),
     url(r'^fetch-oc-report-permissions/$',views.FetchOCReportPermissions),
     url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
 
@@ -127,15 +127,15 @@ urlpatterns = [
 
     url(r'^bulk-update-noon-product-price/$',views.BulkUpdateNoonProductPrice),
     url(r'^bulk-update-noon-product-stock/$',views.BulkUpdateNoonProductStock),
-    url(r'^bulk-update-noon-product-price-and-stock/$',views.BulkUpdateNoonProductStock),
+    url(r'^bulk-update-noon-product-price-and-stock/$',views.BulkUpdateNoonProductPriceAndStock),
 
     url(r'^bulk-update-amazon-uae-product-price/$',views.BulkUpdateAmazonUAEProductPrice),
     url(r'^bulk-update-amazon-uae-product-stock/$',views.BulkUpdateAmazonUAEProductStock),
-    url(r'^bulk-update-amazon-uae-product-price-and-stock/$',views.BulkUpdateAmazonUAEProductStock),
+    url(r'^bulk-update-amazon-uae-product-price-and-stock/$',views.BulkUpdateAmazonUAEProductPriceAndStock),
 
     url(r'^bulk-update-amazon-uk-product-price/$',views.BulkUpdateAmazonUKProductPrice),
     url(r'^bulk-update-amazon-uk-product-stock/$',views.BulkUpdateAmazonUKProductStock),
-    url(r'^bulk-update-amazon-uk-product-price-and-stock/$',views.BulkUpdateAmazonUKProductStock),
+    url(r'^bulk-update-amazon-uk-product-price-and-stock/$',views.BulkUpdateAmazonUKProductPriceAndStock),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
