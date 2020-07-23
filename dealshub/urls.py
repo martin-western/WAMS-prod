@@ -79,7 +79,6 @@ urlpatterns = [
     url(r'^cart/update-cart-details/$', views.UpdateCartDetails),
     url(r'^cart/remove-from-cart/$', views.RemoveFromCart),
 
-
     url(r'^checkout/select-address/$', views.SelectAddress),
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
@@ -96,7 +95,7 @@ urlpatterns = [
 
     url(r'^payment/calculate-signature/$', views.CalculateSignature),
 
-    url(r'^order/create-offline-customer/$', views.CreateOfflineCustomer),
+    url(r'^user/create-offline-customer/$', views.CreateOfflineCustomer),
     url(r'^user/search-customer-autocomplete/$', views.SearchCustomeAutocomplete),
     url(r'^user/fetch-offline-user-profile/$', views.FetchOfflineUserProfile),
     url(r'^user/fetch-user-profile/$', views.FetchUserProfile),
