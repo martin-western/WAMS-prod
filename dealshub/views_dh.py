@@ -189,28 +189,34 @@ class CreateOfflineShippingAddressAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            first_name = data["firstName"]
-            last_name = data["lastName"]
-            line1 = data["line1"]
-            line2 = data["line2"]
-            line3 = data["line3"]
-            line4 = data["line4"]
-            address_lines = json.dumps([line1, line2, line3, line4])
-            state = data["state"]
-            postcode = data["postcode"]
-            if postcode==None:
-                postcode = ""
-            contact_number = data["contactNumber"]
-            tag = data.get("tag", "")
-            if tag==None:
-                tag = ""
+            if DealsHubUser.objects.filter(username=username).exists():
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj)
+                dealshub_user_obj = DealsHubUser.objects.get(username=username)
+                first_name = str(dealshub_user_obj.first_name)
+                last_name = str(dealshub_user_obj.last_name)
+                line1 = data["line1"]
+                line2 = data["line2"]
+                line3 = data["line3"]
+                line4 = data["line4"]
+                address_lines = json.dumps([line1, line2, line3, line4])
+                state = data["state"]
+                postcode = data["postcode"]
+                if postcode==None:
+                    postcode = ""
+                contact_number = dealshub_user_obj.contact_number
+                tag = data.get("tag", "")
+                if tag==None:
+                    tag = ""
 
-            response["uuid"] = address_obj.uuid
-            response['status'] = 200
+                address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj)
+
+                response["uuid"] = address_obj.uuid
+                response['status'] = 200
+            else:
+                response["status"] = 400
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -894,6 +900,9 @@ class CreateOfflineCustomerAPI(APIView):
 
             contact_number = data["contact_number"]
             website_group_name = data["website_group_name"]
+            first_name = data["first_name"]
+            last_name = data["last_name"]
+            email = data["email"]
 
             digits = "0123456789"
             OTP = ""
@@ -901,7 +910,7 @@ class CreateOfflineCustomerAPI(APIView):
                 OTP += digits[int(math.floor(random.random()*10))]
 
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
-                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
+                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, website_group=website_group_obj)
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
@@ -911,12 +920,83 @@ class CreateOfflineCustomerAPI(APIView):
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
 
+            response["username"] = dealshub_user_obj.username
+            response["status"] = 200
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateOfflineCustomerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
+
+class SearchCustomerAutocompleteAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchCustomerAutocompleteAPI: %s", str(data))
+
+            search_string = data["searchString"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+
+            user_objs = DealsHubUser.objects.filter(username__icontains=search_string,website_group=website_group_obj)[:5]
+
+            user_list = []
+            for user_obj in user_objs:
+                try:
+                    user_name = DealsHubUser.objects.get(pk=user_obj.pk).username
+                    user_list.append(user_name)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("SearchCustomerAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["userList"] = user_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchCustomerAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchOfflineUserProfileAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOfflineUserProfileAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            username = data["username"]
+
+            dealshub_user = DealsHubUser.objects.get(username=username)
+
+            response["firstName"] = dealshub_user.first_name
+            response["lastName"] = dealshub_user.last_name
+            response["emailId"] = dealshub_user.email
+            response["contactNumber"] = dealshub_user.contact_number
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOfflineUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 
 class FetchUserProfileAPI(APIView):
@@ -2756,6 +2836,10 @@ FetchOrderListAdmin = FetchOrderListAdminAPI.as_view()
 FetchOrderDetails = FetchOrderDetailsAPI.as_view()
 
 CreateOfflineCustomer = CreateOfflineCustomerAPI.as_view()
+
+SearchCustomerAutocomplete = SearchCustomerAutocompleteAPI.as_view()
+
+FetchOfflineUserProfile = FetchOfflineUserProfileAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
 

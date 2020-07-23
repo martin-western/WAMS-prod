@@ -92,6 +92,8 @@ urlpatterns = [
 
     url(r'^api/dealshub/v1.0/payment/calculate-signature/$', views.CalculateSignature),
 
+    url(r'^api/dealshub/v1.0/user/search-customer-autocomplete/$', views.SearchCustomeAutocomplete),
+    url(r'^api/dealshub/v1.0/user/fetch-offline-user-profile/$', views.FetchOfflineUserProfile),
     url(r'^api/dealshub/v1.0/user/fetch-user-profile/$', views.FetchUserProfile),
     url(r'^api/dealshub/v1.0/user/update-user-profile/$', views.UpdateUserProfile),
 
