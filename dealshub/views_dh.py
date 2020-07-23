@@ -2479,6 +2479,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["toPay"] = str(to_pay)
 
                     temp_dict["unitOrderList"] = unit_order_list
+
+                    temp_dict["invoice_logo"] = invoice_logo
+                    temp_dict["trn_number"] = trn_number
+                    temp_dict["support_contact_number"] = support_contact_number
+
                     order_list.append(temp_dict)
 
                 except Exception as e:
@@ -2488,10 +2493,6 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             is_available = True
             if int(paginator.num_pages) == int(page):
                 is_available = False
-
-            response["invoice_logo"] = invoice_logo
-            response["trn_number"] = trn_number
-            response["support_contact_number"] = support_contact_number
 
             response["isAvailable"] = is_available
             response["totalOrders"] = total_orders
