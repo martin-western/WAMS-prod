@@ -2421,6 +2421,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
+                        temp_dict["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+
                     unit_order_list = []
                     subtotal = 0
                     for unit_order_obj in unit_order_objs.filter(order=order_obj):
@@ -2435,6 +2437,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["price_without_vat"] = round(unit_order_obj.price/1.05, 2)
                         temp_dict2["vat"] = round(temp_total - temp_total/1.05, 2)
                         temp_dict2["totalPrice"] = str(temp_total)
+                        temp_dict2["total_price_without_vat"] = round(temp_total/1.05, 2)
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
@@ -2452,8 +2455,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     cod_fee = order_obj.get_cod_charge()
                     cod_fee_vat = round(cod_fee - cod_fee/1.05, 2)
 
-                    to_pay = subtotal + delivery_fee + cod_fee
-                    vat = round(to_pay - to_pay/1.05, 2)
+                    to_pay = order_obj.get_total_amount()
+                    vat = order_obj.get_vat()
                     
                     temp_dict["subtotalWithoutVat"] = str(round(subtotal/1.05,2))
                     temp_dict["subtotalVat"] = str(subtotal_vat)
