@@ -28,6 +28,7 @@ from django.db.models import Count
 
 import xmltodict
 import requests
+import random
 import json
 import os
 import xlrd
@@ -159,6 +160,21 @@ class FetchProductDetailsAPI(APIView):
 
             response["productImagesUrl"] = image_list
 
+
+            location_group_obj = dealshub_product_obj.location_group
+
+            similar_category_products = []
+            category_obj = dealshub_product_obj.product.base_product.category
+            brand_obj = dealshub_product_obj.product.base_product.brand
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__category=category_obj).exclude(now_price=0).exclude(stock=0)
+            similar_category_products = get_recommended_products(dealshub_product_objs)
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand=brand_obj).exclude(now_price=0).exclude(stock=0)
+            similar_brand_products = get_recommended_products(dealshub_product_objs)
+
+            response["similar_category_products"] = similar_category_products
+            response["similar_brand_products"] = similar_brand_products
             response['status'] = 200
 
         except Exception as e:
