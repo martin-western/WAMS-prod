@@ -147,10 +147,10 @@ def generate_xml_for_partial_update_product_amazon_uk(product_pk_list,seller_id)
                 xml_string += '<Length unitOfMeasure="'+product_dimension_l_metric+'">'+product_dimension_l+'</Length>'
 
             if(product_dimension_b != ""):
-                xml_string += '<Length unitOfMeasure="'+product_dimension_b_metric+'">'+product_dimension_b+'</Length>'
+                xml_string += '<Width unitOfMeasure="'+product_dimension_b_metric+'">'+product_dimension_b+'</Width>'
 
             if(product_dimension_h != ""):
-                xml_string += '<Length unitOfMeasure="'+product_dimension_h_metric+'">'+product_dimension_h+'</Length>'
+                xml_string += '<Height unitOfMeasure="'+product_dimension_h_metric+'">'+product_dimension_h+'</Height>'
 
             if(product_dimension_l != "" or product_dimension_b != "" or product_dimension_h != ""):
                 xml_string += """</ItemDimensions>"""
