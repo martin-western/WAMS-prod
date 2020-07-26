@@ -174,10 +174,8 @@ class FetchProductDetailsAPI(APIView):
             dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand=brand_obj).exclude(now_price=0).exclude(stock=0)
             similar_brand_products = get_recommended_products(dealshub_product_objs)
 
-            # response["similar_category_products"] = similar_category_products
-            # response["similar_brand_products"] = similar_brand_products
-            response["similar_category_products"] = []
-            response["similar_brand_products"] = []
+            response["similar_category_products"] = similar_category_products
+            response["similar_brand_products"] = similar_brand_products
             response['status'] = 200
 
         except Exception as e:
