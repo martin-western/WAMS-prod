@@ -709,14 +709,14 @@ class FetchPriceAndStockAmazonUAEAPI(APIView):
                     if(cnt > 0):
                         price = float(row[4])
                         quantity = int(float(row[5]))
-                        status = row[-1]
+                        status = str(row[-1])
                         ASIN = ""
-                        seller_sku = row[3]
+                        seller_sku = str(row[3])
 
                         asin_list = [16,17,18,-7]
                         for col in asin_list:
                             if(row[col]!="" and len(row[col])==10):
-                                ASIN = row[col]
+                                ASIN = str(row[col])
                                 break
 
                         try:
@@ -772,7 +772,7 @@ class PushProductImagesAmazonUAEAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if custom_permission_mws_functions(request.user,"push_products_on_amazon") == False:
+            if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
                 logger.warning("PushProductImagesAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
