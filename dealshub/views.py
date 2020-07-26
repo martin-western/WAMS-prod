@@ -14,6 +14,7 @@ from dealshub.views_dh import *
 from django.shortcuts import HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -1231,6 +1232,14 @@ class FetchDealshubAdminSectionsAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             resolution = data.get("resolution", "low")
 
+            if is_dealshub==True:
+                cached_value = cache.get(location_group_uuid, "has_expired")
+                if cached_value!="has_expired":
+                    response["sections_list"] = json.loads(cached_value)
+                    response['status'] = 200
+                    return Response(data=response)
+
+
             section_objs = Section.objects.filter(location_group__uuid=location_group_uuid).order_by('order_index')
 
             if is_dealshub==True:
@@ -1436,6 +1445,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 dealshub_admin_sections.append(temp_dict)
 
             dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
+
+            if is_dealshub==True:
+                cache.set(location_group_uuid, json.dumps(dealshub_admin_sections))
 
             response["sections_list"] = dealshub_admin_sections
             response['status'] = 200
