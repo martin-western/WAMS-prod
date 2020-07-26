@@ -218,7 +218,7 @@ class CreateOfflineShippingAddressAPI(APIView):
                 response["uuid"] = address_obj.uuid
                 response['status'] = 200
             else:
-                response["status"] = 400
+                response["status"] = 409
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1358,7 +1358,7 @@ class SearchCustomerAutocompleteAPI(APIView):
             for user_obj in user_objs:
                 try:
                     temp_dict = {}
-                    temp_dict["name"] = user_obj.first_name + " " + user_obj.last_name + " | " + user_obj.username
+                    temp_dict["name"] = user_obj.first_name + " " + user_obj.last_name + " | " + user_obj.contact_number
                     temp_dict["username"] = user_obj.username
                     user_list.append(temp_dict)
                 except Exception as e:
