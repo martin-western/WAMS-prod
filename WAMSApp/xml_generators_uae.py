@@ -42,6 +42,9 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
             product_name = amazon_uae_product["product_name"]
             product_description = amazon_uae_product["product_description"]
 
+            category = amazon_uae_product["category"]
+            sub_category = amazon_uae_product["sub_category"]
+
             xml_string += """<Message>
                                 <MessageID>"""+ message_id +"""</MessageID>
                                 <OperationType>Update</OperationType> 
@@ -57,8 +60,21 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
                                     <DescriptionData>
                                         <Title>"""+ product_name + """</Title>
                                         <Brand>""" + brand_name +"""</Brand>
-                                    </DescriptionData>
-                                </Product>
+                                    </DescriptionData>"""
+
+            if(category != "" and sub_category != ""):
+
+                xml_string += """<ProductData>
+                            <""" +category+""">
+                                <ProductType>
+                                    <"""+sub_category+""">
+                                    </"""+sub_category+""">
+                                </ProductType>
+                            </""" +category+""">
+                            </ProductData>"""
+
+
+            xml_string += """</Product>
                             </Message> """
 
         xml_string += """</AmazonEnvelope>"""
