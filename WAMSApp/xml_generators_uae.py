@@ -162,7 +162,7 @@ def generate_xml_for_partial_update_product_amazon_uae(product_pk_list,seller_id
                 xml_string += """<ItemDimensions>"""
 
             if(product_dimension_l != ""):
-                xml_string += '<Length unitOfMeasure="'+product_dimension_l_metric+'">'+product_dimension_l+'</Length'
+                xml_string += '<Length unitOfMeasure="'+product_dimension_l_metric+'">'+product_dimension_l+'</Length>'
 
             if(product_dimension_b != ""):
                 xml_string += '<Length unitOfMeasure="'+product_dimension_b_metric+'">'+product_dimension_b+'</Length>'
