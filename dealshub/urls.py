@@ -108,7 +108,6 @@ urlpatterns = [
     url(r'^fetch-customer-details/$', views.FetchCustomerDetails),
     url(r'^fetch-customer-orders/$', views.FetchCustomerOrders),
 
-    url(r'^payfort/payment-transaction/$',views.PaymentTransaction),
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
 
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
