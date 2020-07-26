@@ -252,6 +252,13 @@ class LocationGroup(models.Model):
     def get_order_bcc_email_list(self):
         return json.loads(self.email_info)["order_bcc_list"]
 
+    def get_email_website_logo(self):
+        if self.website_group.footer_logo!=None:
+            return self.website_group.footer_logo.image.url
+        if self.website_group.logo!=None:
+            return self.website_group.logo.image.url
+        return ""
+
     class Meta:
         verbose_name = "LocationGroup"
         verbose_name_plural = "LocationGroup"

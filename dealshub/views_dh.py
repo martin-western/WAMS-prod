@@ -178,6 +178,54 @@ class CreateShippingAddressAPI(APIView):
 
         return Response(data=response)
 
+class CreateOfflineShippingAddressAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateOfflineShippingAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            if DealsHubUser.objects.filter(username=username).exists():
+
+                dealshub_user_obj = DealsHubUser.objects.get(username=username)
+                first_name = str(dealshub_user_obj.first_name)
+                last_name = str(dealshub_user_obj.last_name)
+                line1 = data["line1"]
+                line2 = data["line2"]
+                line3 = data["line3"]
+                line4 = data["line4"]
+                address_lines = json.dumps([line1, line2, line3, line4])
+                state = data["state"]
+                postcode = data["postcode"]
+                if postcode==None:
+                    postcode = ""
+                contact_number = dealshub_user_obj.contact_number
+                tag = data.get("tag", "")
+                if tag==None:
+                    tag = ""
+
+                address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj)
+
+                response["uuid"] = address_obj.uuid
+                response['status'] = 200
+            else:
+                response["status"] = 409
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOfflineShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class DeleteShippingAddressAPI(APIView):
 
@@ -294,6 +342,94 @@ class AddToCartAPI(APIView):
         return Response(data=response)
 
 
+class AddToOfflineCartAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddToOfflineCartAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_uuid = data["productUuid"]
+            quantity = int(data["quantity"])
+            username = data["username"]
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+
+            if dealshub_product_obj.location_group!=location_group_obj:
+                response["status"] = 403
+                logger.error("AddToOfflineCartAPI: Product does not exist in LocationGroup!")
+                return Response(data=response)
+
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=username)
+            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=location_group_obj)
+            unit_cart_obj = None
+            if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists()==True:
+                unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__uuid=product_uuid)
+                unit_cart_obj.quantity += quantity
+                unit_cart_obj.save()
+            else:
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity)
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+
+            response["unitCartUuid"] = unit_cart_obj.uuid
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddToOfflineCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchCartDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -372,6 +508,88 @@ class FetchCartDetailsAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
+        return Response(data=response)
+
+
+class FetchOfflineCartDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOfflineCartDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=username)
+            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=location_group_obj)
+            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+            unit_cart_list = []
+            for unit_cart_obj in unit_cart_objs:
+                temp_dict = {}
+                temp_dict["uuid"] = unit_cart_obj.uuid
+                temp_dict["quantity"] = unit_cart_obj.quantity
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["currency"] = unit_cart_obj.product.get_currency()
+                temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
+                temp_dict["productName"] = unit_cart_obj.product.get_name()
+                temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
+                temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
+                unit_cart_list.append(temp_dict)
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+
+            response["unitCartList"] = unit_cart_list
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -658,7 +876,7 @@ class FetchActiveOrderDetailsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchActiveOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
@@ -697,7 +915,7 @@ class PlaceOrderAPI(APIView):
             cart_obj.to_pay += cart_obj.location_group.cod_charge
             cart_obj.save()
 
-            order_obj = Order.objects.create(owner=cart_obj.owner, 
+            order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
                                              to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
@@ -705,7 +923,7 @@ class PlaceOrderAPI(APIView):
                                              location_group=cart_obj.location_group)
 
             for unit_cart_obj in unit_cart_objs:
-                unit_order_obj = UnitOrder.objects.create(order=order_obj, 
+                unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=unit_cart_obj.product,
                                                           quantity=unit_cart_obj.quantity,
                                                           price=unit_cart_obj.product.get_actual_price())
@@ -739,6 +957,88 @@ class PlaceOrderAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
+        return Response(data=response)
+
+
+class PlaceOfflineOrderAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PlaceOfflineOrderAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=username)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+            cart_obj.voucher = None
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+
+            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+
+            # Check if COD is allowed
+            is_cod_allowed = True
+            if is_cod_allowed==False:
+                response["status"] = 403
+                logger.error("PlaceOfflineOrderAPI: COD not allowed!")
+                return Response(data=response)
+
+            cart_obj.to_pay += cart_obj.location_group.cod_charge
+            cart_obj.save()
+
+            order_obj = Order.objects.create(owner=cart_obj.owner,
+                                             shipping_address=cart_obj.shipping_address,
+                                             to_pay=cart_obj.to_pay,
+                                             order_placed_date=timezone.now(),
+                                             voucher=cart_obj.voucher,
+                                             is_offline_order = True,
+                                             location_group=cart_obj.location_group)
+
+            for unit_cart_obj in unit_cart_objs:
+                unit_order_obj = UnitOrder.objects.create(order=order_obj,
+                                                          product=unit_cart_obj.product,
+                                                          quantity=unit_cart_obj.quantity,
+                                                          price=unit_cart_obj.product.get_actual_price())
+                UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+            # Cart gets empty
+            for unit_cart_obj in unit_cart_objs:
+                unit_cart_obj.delete()
+
+            # cart_obj points to None
+            cart_obj.shipping_address = None
+            cart_obj.voucher = None
+            cart_obj.to_pay = 0
+            cart_obj.merchant_reference = ""
+            cart_obj.payment_info = "{}"
+            cart_obj.save()
+
+            # Trigger Email
+            try:
+                p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                p1.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("PlaceOfflineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            # Refresh Stock
+            refresh_stock(order_obj)
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PlaceOfflineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -997,6 +1297,132 @@ class FetchOrderDetailsAPI(APIView):
         
         return Response(data=response)
 
+class CreateOfflineCustomerAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("CreateOfflineCustomerAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            contact_number = data["contact_number"]
+            website_group_name = data["website_group_name"]
+            first_name = data["first_name"]
+            last_name = data["last_name"]
+            email = data["email"]
+
+            digits = "0123456789"
+            OTP = ""
+            for i in range(6):
+                OTP += digits[int(math.floor(random.random()*10))]
+
+            if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
+                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, website_group=website_group_obj)
+                dealshub_user_obj.set_password(OTP)
+                dealshub_user_obj.verification_code = OTP
+                dealshub_user_obj.save()
+                response["username"] = dealshub_user_obj.username
+                response["status"] = 200
+            else:
+                response["status"] = 409
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOfflineCustomerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SearchCustomerAutocompleteAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchCustomerAutocompleteAPI: %s", str(data))
+
+            search_string = data["searchString"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+
+            user_objs = DealsHubUser.objects.filter(username__icontains=search_string, website_group=website_group_obj)[:5]
+
+            user_list = []
+            for user_obj in user_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = user_obj.first_name + " " + user_obj.last_name + " | " + user_obj.contact_number
+                    temp_dict["username"] = user_obj.username
+                    user_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("SearchCustomerAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["userList"] = user_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchCustomerAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchOfflineUserProfileAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOfflineUserProfileAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            username = data["username"]
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=username)
+
+            response["firstName"] = dealshub_user_obj.first_name
+            response["lastName"] = dealshub_user_obj.last_name
+            response["emailId"] = dealshub_user_obj.email
+            response["contactNumber"] = dealshub_user_obj.contact_number
+
+            address_list = []
+            for address_obj in address_objs:
+                temp_dict = {}
+                temp_dict['firstName'] = address_obj.first_name
+                temp_dict['lastName'] = address_obj.last_name
+                temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
+                temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
+                temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
+                temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
+                temp_dict['state'] = address_obj.state
+                temp_dict['country'] = address_obj.get_country()
+                temp_dict['postcode'] = address_obj.postcode
+                temp_dict['contactNumber'] = str(address_obj.contact_number)
+                temp_dict['tag'] = str(address_obj.tag)
+                temp_dict['uuid'] = str(address_obj.uuid)
+
+                address_list.append(temp_dict)
+
+            response['addressList'] = address_list
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOfflineUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class FetchUserProfileAPI(APIView):
 
@@ -1010,18 +1436,18 @@ class FetchUserProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_user = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
-            response["firstName"] = dealshub_user.first_name
-            response["lastName"] = dealshub_user.last_name
-            response["emailId"] = dealshub_user.email
-            response["contactNumber"] = dealshub_user.contact_number
+            response["firstName"] = dealshub_user_obj.first_name
+            response["lastName"] = dealshub_user_obj.last_name
+            response["emailId"] = dealshub_user_obj.email
+            response["contactNumber"] = dealshub_user_obj.contact_number
 
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
@@ -1802,7 +2228,7 @@ class SendOTPSMSLoginAPI(APIView):
             mshastra_info = json.loads(location_group_obj.mshastra_info)
 
             digits = "0123456789"
-            OTP = "" 
+            OTP = ""
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
@@ -2340,6 +2766,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             page = data.get("page", 1)
 
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
@@ -2385,6 +2812,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             total_orders = order_objs.count()
             order_objs = paginator.page(page)
 
+            invoice_logo = location_group_obj.get_email_website_logo()
+            trn_number = json.loads(location_group_obj.website_group.conf).get("trn_number", "NA")
+            support_contact_number = json.loads(location_group_obj.website_group.conf).get("support_contact_number", "NA")
+            footer_text = json.loads(location_group_obj.website_group.conf).get("footer_text", "NA")
+
             order_list = []
             for order_obj in order_objs:
                 try:
@@ -2421,6 +2853,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
+                        temp_dict["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+
                     unit_order_list = []
                     subtotal = 0
                     for unit_order_obj in unit_order_objs.filter(order=order_obj):
@@ -2435,6 +2869,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["price_without_vat"] = round(unit_order_obj.price/1.05, 2)
                         temp_dict2["vat"] = round(temp_total - temp_total/1.05, 2)
                         temp_dict2["totalPrice"] = str(temp_total)
+                        temp_dict2["total_price_without_vat"] = round(temp_total/1.05, 2)
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
@@ -2452,8 +2887,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     cod_fee = order_obj.get_cod_charge()
                     cod_fee_vat = round(cod_fee - cod_fee/1.05, 2)
 
-                    to_pay = subtotal + delivery_fee + cod_fee
-                    vat = round(to_pay - to_pay/1.05, 2)
+                    to_pay = order_obj.get_total_amount()
+                    vat = order_obj.get_vat()
                     
                     temp_dict["subtotalWithoutVat"] = str(round(subtotal/1.05,2))
                     temp_dict["subtotalVat"] = str(subtotal_vat)
@@ -2471,6 +2906,12 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["toPay"] = str(to_pay)
 
                     temp_dict["unitOrderList"] = unit_order_list
+
+                    temp_dict["invoice_logo"] = invoice_logo
+                    temp_dict["trn_number"] = trn_number
+                    temp_dict["support_contact_number"] = support_contact_number
+                    temp_dict["footer_text"] = footer_text
+
                     order_list.append(temp_dict)
 
                 except Exception as e:
@@ -2932,11 +3373,17 @@ EditShippingAddress = EditShippingAddressAPI.as_view()
 
 CreateShippingAddress = CreateShippingAddressAPI.as_view()
 
+CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
+
 DeleteShippingAddress = DeleteShippingAddressAPI.as_view()
 
 AddToCart = AddToCartAPI.as_view()
 
+AddToOfflineCart = AddToOfflineCartAPI.as_view()
+
 FetchCartDetails = FetchCartDetailsAPI.as_view()
+
+FetchOfflineCartDetails = FetchOfflineCartDetailsAPI.as_view()
 
 UpdateCartDetails = UpdateCartDetailsAPI.as_view()
 
@@ -2950,6 +3397,8 @@ FetchActiveOrderDetails = FetchActiveOrderDetailsAPI.as_view()
 
 PlaceOrder = PlaceOrderAPI.as_view()
 
+PlaceOfflineOrder = PlaceOfflineOrderAPI.as_view()
+
 CancelOrder = CancelOrderAPI.as_view()
 
 FetchOrderList = FetchOrderListAPI.as_view()
@@ -2957,6 +3406,12 @@ FetchOrderList = FetchOrderListAPI.as_view()
 FetchOrderListAdmin = FetchOrderListAdminAPI.as_view()
 
 FetchOrderDetails = FetchOrderDetailsAPI.as_view()
+
+CreateOfflineCustomer = CreateOfflineCustomerAPI.as_view()
+
+SearchCustomerAutocomplete = SearchCustomerAutocompleteAPI.as_view()
+
+FetchOfflineUserProfile = FetchOfflineUserProfileAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
 

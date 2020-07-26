@@ -14,6 +14,7 @@ from dealshub.views_dh import *
 from django.shortcuts import HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -28,6 +29,7 @@ from django.db.models import Count
 
 import xmltodict
 import requests
+import random
 import json
 import os
 import xlrd
@@ -159,6 +161,21 @@ class FetchProductDetailsAPI(APIView):
 
             response["productImagesUrl"] = image_list
 
+
+            location_group_obj = dealshub_product_obj.location_group
+
+            similar_category_products = []
+            category_obj = dealshub_product_obj.product.base_product.category
+            brand_obj = dealshub_product_obj.product.base_product.brand
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__category=category_obj).exclude(now_price=0).exclude(stock=0)
+            similar_category_products = get_recommended_products(dealshub_product_objs)
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand=brand_obj).exclude(now_price=0).exclude(stock=0)
+            similar_brand_products = get_recommended_products(dealshub_product_objs)
+
+            response["similar_category_products"] = similar_category_products
+            response["similar_brand_products"] = similar_brand_products
             response['status'] = 200
 
         except Exception as e:
@@ -1215,6 +1232,14 @@ class FetchDealshubAdminSectionsAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             resolution = data.get("resolution", "low")
 
+            if is_dealshub==True:
+                cached_value = cache.get(location_group_uuid, "has_expired")
+                if cached_value!="has_expired":
+                    response["sections_list"] = json.loads(cached_value)
+                    response['status'] = 200
+                    return Response(data=response)
+
+
             section_objs = Section.objects.filter(location_group__uuid=location_group_uuid).order_by('order_index')
 
             if is_dealshub==True:
@@ -1420,6 +1445,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 dealshub_admin_sections.append(temp_dict)
 
             dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
+
+            if is_dealshub==True:
+                cache.set(location_group_uuid, json.dumps(dealshub_admin_sections))
 
             response["sections_list"] = dealshub_admin_sections
             response['status'] = 200

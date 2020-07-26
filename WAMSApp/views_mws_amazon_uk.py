@@ -706,14 +706,14 @@ class FetchPriceAndStockAmazonUKAPI(APIView):
                     if(cnt > 0):
                         price = float(row[4])
                         quantity = int(float(row[5]))
-                        status = row[-1]
+                        status = str(row[-1])
                         ASIN = ""
-                        seller_sku = row[3]
+                        seller_sku = str(row[3])
 
                         asin_list = [16,17,18,-7]
                         for col in asin_list:
                             if(row[col]!="" and len(row[col])==10):
-                                ASIN = row[col]
+                                ASIN = str(row[col])
                                 break
 
                         try:
@@ -750,72 +750,6 @@ class FetchPriceAndStockAmazonUKAPI(APIView):
 
         return Response(data=response)
 
-class PartialUpdateProductAmazonUKAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-
-        try:
-
-            data = request.data
-            
-            logger.info("PartialUpdateProductAmazonUKAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            if custom_permission_mws_functions(request.user,"update_products_on_amazon") == False:
-                logger.warning("PartialUpdateProductAmazonUKAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
-
-            permissible_channels = custom_permission_filter_channels(request.user)
-
-            channel_obj = Channel.objects.get(name="Amazon UK")
-
-            if channel_obj not in permissible_channels:
-                logger.warning("PartialUpdateProductAmazonUKAPI Restricted Access of UK Channel!")
-                response['status'] = 403
-                return Response(data=response)
-
-            product_pk_list = data["product_pk_list"]
-
-            if(len(product_pk_list)>30):
-                logger.warning("PartialUpdateProductAmazonUKAPI More then 30 Products!")
-                response['status'] = 429
-                return Response(data=response)
-
-            xml_string = generate_xml_for_product_partialupdate_amazon_uk(product_pk_list,SELLER_ID)
-
-            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region='UK')
-
-            response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_DATA_",marketplaceids=marketplace_id)
-
-            feed_submission_id = response_submeet_feed.parsed["FeedSubmissionInfo"]["FeedSubmissionId"]["value"]
-
-            report_obj = Report.objects.create(feed_submission_id=feed_submission_id,
-                                                operation_type="Update",
-                                                channel = channel_obj,
-                                                user=request.user)
-
-            for product_pk in product_pk_list:
-                product_obj = Product.objects.get(pk=product_pk)
-                report_obj.products.add(product_obj)
-
-            report_obj.save()
-
-            response["feed_submission_id"] = feed_submission_id
-
-            response["status"] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PartialUpdateProductAmazonUKAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
 
 class PushProductImagesAmazonUKAPI(APIView):
 
@@ -833,7 +767,7 @@ class PushProductImagesAmazonUKAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if custom_permission_mws_functions(request.user,"push_products_on_amazon") == False:
+            if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
                 logger.warning("PushProductImagesAmazonUKAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
@@ -854,7 +788,7 @@ class PushProductImagesAmazonUKAPI(APIView):
                 response['status'] = 429
                 return Response(data=response)
 
-            xml_string = generate_xml_for_product_image_amazon_uk(product_pk_list,SELLER_ID,True)
+            xml_string = generate_xml_for_product_image_amazon_uk(product_pk_list,SELLER_ID)
 
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region='UK')
 
@@ -898,4 +832,4 @@ GetProductInventoryAmazonUK = GetProductInventoryAmazonUKAPI.as_view()
 
 FetchPriceAndStockAmazonUK = FetchPriceAndStockAmazonUKAPI.as_view()
 
-PartialUpdateProductAmazonUK = PartialUpdateProductAmazonUKAPI.as_view()
+PushProductImagesAmazonUK = PushProductImagesAmazonUKAPI.as_view()

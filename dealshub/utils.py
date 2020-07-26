@@ -6,6 +6,7 @@ import datetime
 from django.utils import timezone
 
 import hashlib
+import random
 import sys
 import logging
 import os
@@ -541,3 +542,51 @@ def calculate_gtm(order_obj):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("GTM Calculation: %s at %s", e, str(exc_tb.tb_lineno))
     return purchase_info
+
+
+def get_random_products(dealshub_product_objs):
+    
+    try:
+        if dealshub_product_objs.count()<=5:
+            return dealshub_product_objs
+        
+        random_set = random.sample(range(0, dealshub_product_objs.count()), 5)
+        selected_dealshub_product_objs = DealsHubProduct.objects.none()
+        for i in random_set:
+            selected_dealshub_product_objs |= DealsHubProduct.objects.filter(pk=dealshub_product_objs[i].pk)
+
+        return selected_dealshub_product_objs
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_random_products: %s at %s", e, str(exc_tb.tb_lineno))
+    return dealshub_product_objs[:5]
+
+
+
+def get_recommended_products(dealshub_product_objs):
+
+    dealshub_product_objs = get_random_products(dealshub_product_objs)
+
+    product_list = []
+    for dealshub_product_obj in dealshub_product_objs:
+        if dealshub_product_obj.get_actual_price()==0:
+            continue
+        temp_dict = {}
+        temp_dict["name"] = dealshub_product_obj.get_name()
+        temp_dict["brand"] = dealshub_product_obj.get_brand()
+        temp_dict["now_price"] = dealshub_product_obj.now_price
+        temp_dict["was_price"] = dealshub_product_obj.was_price
+        temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+        temp_dict["stock"] = dealshub_product_obj.stock
+        temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
+        temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
+        if dealshub_product_obj.promotion!=None:
+            temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
+        else:
+            temp_dict["promotion_tag"] = None
+        temp_dict["currency"] = dealshub_product_obj.get_currency()
+        temp_dict["uuid"] = dealshub_product_obj.uuid
+        temp_dict["id"] = dealshub_product_obj.uuid
+        temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+        product_list.append(temp_dict)
+    return product_list

@@ -42,6 +42,9 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
             product_name = amazon_uae_product["product_name"]
             product_description = amazon_uae_product["product_description"]
 
+            category = amazon_uae_product["category"]
+            sub_category = amazon_uae_product["sub_category"]
+
             xml_string += """<Message>
                                 <MessageID>"""+ message_id +"""</MessageID>
                                 <OperationType>Update</OperationType> 
@@ -57,8 +60,21 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
                                     <DescriptionData>
                                         <Title>"""+ product_name + """</Title>
                                         <Brand>""" + brand_name +"""</Brand>
-                                    </DescriptionData>
-                                </Product>
+                                    </DescriptionData>"""
+
+            if(category != "" and sub_category != ""):
+
+                xml_string += """<ProductData>
+                            <""" +category+""">
+                                <ProductType>
+                                    <"""+sub_category+""">
+                                    </"""+sub_category+""">
+                                </ProductType>
+                            </""" +category+""">
+                            </ProductData>"""
+
+
+            xml_string += """</Product>
                             </Message> """
 
         xml_string += """</AmazonEnvelope>"""
@@ -121,9 +137,9 @@ def generate_xml_for_partial_update_product_amazon_uae(product_pk_list,seller_id
             product_dimension_b_metric = base_dimensions_dict["product_dimension_b_metric"]
             product_dimension_h_metric = base_dimensions_dict["product_dimension_h_metric"]
 
-            product_dimension_l = base_dimensions_dict["product_dimension_l"]
-            product_dimension_b = base_dimensions_dict["product_dimension_b"]
-            product_dimension_h = base_dimensions_dict["product_dimension_h"]
+            product_dimension_l = str(base_dimensions_dict["product_dimension_l"])
+            product_dimension_b = str(base_dimensions_dict["product_dimension_b"])
+            product_dimension_h = str(base_dimensions_dict["product_dimension_h"])
 
             category = amazon_uae_product_dict["category"]
             sub_category = amazon_uae_product_dict["sub_category"]
@@ -146,13 +162,13 @@ def generate_xml_for_partial_update_product_amazon_uae(product_pk_list,seller_id
                 xml_string += """<ItemDimensions>"""
 
             if(product_dimension_l != ""):
-                xml_string += '<Length unitOfMeasure="'+product_dimension_l_metric+'">'+product_dimension_l+'</Length'
+                xml_string += '<Length unitOfMeasure="'+product_dimension_l_metric+'">'+product_dimension_l+'</Length>'
 
             if(product_dimension_b != ""):
-                xml_string += '<Length unitOfMeasure="'+product_dimension_b_metric+'">'+product_dimension_b+'</Length>'
+                xml_string += '<Width unitOfMeasure="'+product_dimension_b_metric+'">'+product_dimension_b+'</Width>'
 
             if(product_dimension_h != ""):
-                xml_string += '<Length unitOfMeasure="'+product_dimension_h_metric+'">'+product_dimension_h+'</Length>'
+                xml_string += '<Height unitOfMeasure="'+product_dimension_h_metric+'">'+product_dimension_h+'</Height>'
 
             if(product_dimension_l != "" or product_dimension_b != "" or product_dimension_h != ""):
                 xml_string += """</ItemDimensions>"""
@@ -177,6 +193,7 @@ def generate_xml_for_partial_update_product_amazon_uae(product_pk_list,seller_id
                             </Message> """
 
         xml_string +=  '</AmazonEnvelope>'
+        print(xml_string)
         xml_string = xml_string.encode('utf-8')
 
         # print(xml_string)

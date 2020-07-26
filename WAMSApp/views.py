@@ -1018,26 +1018,26 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["min_price"] = str(product_obj.min_price)
                     temp_dict["max_price"] = str(product_obj.max_price)
 
-                    repr_image_url = Config.objects.all()[0].product_404_image.image.url
-                    repr_high_def_url = repr_image_url
+                    # repr_image_url = Config.objects.all()[0].product_404_image.image.url
+                    # repr_high_def_url = repr_image_url
                     
-                    main_images_obj = None
-                    try:
-                        main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
-                    except Exception as e:
-                        pass
+                    # main_images_obj = None
+                    # try:
+                    #     main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
+                    # except Exception as e:
+                    #     pass
 
-                    if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                        try:
-                            repr_image_url = main_images_obj.main_images.filter(
-                                is_main_image=True)[0].image.mid_image.url
-                        except Exception as e:
-                            repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                    # if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                    #     try:
+                    #         repr_image_url = main_images_obj.main_images.filter(
+                    #             is_main_image=True)[0].image.mid_image.url
+                    #     except Exception as e:
+                    #         repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
-                        repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                    #     repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
-                    temp_dict["repr_image_url"] = repr_image_url
-                    temp_dict["repr_high_def_url"] = repr_high_def_url
+                    temp_dict["repr_image_url"] = dealshub_product_obj.get_display_image_url()
+                    temp_dict["repr_high_def_url"] = dealshub_product_obj.get_display_image_url()
 
                     products.append(temp_dict)
                 except Exception as e:
@@ -6001,6 +6001,142 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             logger.error("UpdateChannelProductStockandPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+class DownloadDynamicExcelTemplateAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("DownloadDynamicExcelTemplateAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data_point_list = data["data_point_list"]
+
+            filename = "files/dynamic bulk upload excel/Excel Template.xlsx"
+
+            workbook = xlsxwriter.Workbook(filename)
+            worksheet = workbook.add_worksheet()
+
+            row = generate_dynamic_row(data_point_list,False)
+            colnum = 0
+            for k in row:
+                worksheet.write(0, colnum, k)
+                colnum += 1
+
+            workbook.close()
+
+            response["path"] = SERVER_IP+"/"+filename
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DownloadDynamicExcelTemplateAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class BulkUploadDynamicExcelAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUploadDynamicExcelAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            data_point_list = data["data_point_list"]
+            operation = data["operation"]
+
+            path = default_storage.save('tmp/temp-dynamic-template-upload.xlsx', data["import_file"])
+            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+
+            incoming_response = upload_dynamic_excel_for_product(path,data_point_list,operation,request.user)
+                
+            if(incoming_response["status"]!=200):
+                response["error"] = incoming_response["status_message"]
+                return Response(data=response)
+
+            response["path"] = SERVER_IP+"/"+incoming_response["result_path"]
+            response["accepted_products"] = incoming_response["accepted_products"]
+            response["rejected_products"] = incoming_response["rejected_products"]
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUploadDynamicExcelAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchDataPointsForUploadAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchDataPointsForUploadAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            operation = data["operation"]
+
+            data_point_objs = DataPoint.objects.all().exclude(name__icontains="image").exclude(name__icontains="Image")
+
+            for i in range(2,6):
+                data_point_objs = data_point_objs.exclude(variable__icontains="_"+str(i))
+
+            required_fields_to_create = ["seller_sku","product_id","product_name","brand","manufacturer","manufacturer_part_number","category","sub_category"]
+            required_fields_to_update = ["product_id"]
+
+            data_point_list = []
+            for data_point_obj in data_point_objs:
+                temp_dict = {}
+                temp_dict["name"] = data_point_obj.name
+                temp_dict["variable"] = data_point_obj.variable
+                if(str(data_point_obj.variable).split("_")[-1]=="1"):
+                    temp_dict["is_list"] = True
+                else:
+                    temp_dict["is_list"] = False
+                if(operation == "Create"): 
+                    if(str(data_point_obj.variable) in required_fields_to_create):
+                        temp_dict["is_required"] = True
+                    else:
+                        temp_dict["is_required"] = False
+                if(operation == "Update"): 
+                    if(str(data_point_obj.variable) in required_fields_to_update):
+                        temp_dict["is_required"] = True
+                    else:
+                        temp_dict["is_required"] = False
+
+                data_point_list.append(temp_dict)
+
+            response["data_point_list"] = data_point_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDataPointsForUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
+
+BulkUploadDynamicExcel = BulkUploadDynamicExcelAPI.as_view()
+
+FetchDataPointsForUpload = FetchDataPointsForUploadAPI.as_view()
 
 GithubWebhook = GithubWebhookAPI.as_view()
 
