@@ -6120,6 +6120,8 @@ class FetchDataPointsForUploadAPI(APIView):
                     else:
                         temp_dict["is_required"] = False
 
+                data_point_list.append(temp_dict)
+
             response["data_point_list"] = data_point_list
             response['status'] = 200
 
