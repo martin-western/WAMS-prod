@@ -452,6 +452,7 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
+    is_order_offline = models.BooleanField(default=False, blank=True, null=True)
     order_placed_date = models.DateTimeField(null=True, default=timezone.now)
 
     PENDING, PAID = ('pending', 'paid')
@@ -635,7 +636,7 @@ class DealsHubUser(User):
     contact_verified = models.BooleanField(default=False)
     verification_code = models.CharField(default="", max_length=50)
     website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
-    
+
     class Meta:
         verbose_name = "DealsHubUser"
         verbose_name_plural = "DealsHubUser"

@@ -75,7 +75,9 @@ urlpatterns = [
     url(r'^address/delete-shipping-address/$', views.DeleteShippingAddress),
 
     url(r'^cart/add-to-cart/$', views.AddToCart),
+    url(r'^cart/add-to-offline_cart/$',views.AddToOfflineCart),
     url(r'^cart/fetch-cart-details/$', views.FetchCartDetails),
+    url(r'^cart/fetch-offline-cart-details/$',views.FetchOfflineCartDetails),
     url(r'^cart/update-cart-details/$', views.UpdateCartDetails),
     url(r'^cart/remove-from-cart/$', views.RemoveFromCart),
 
@@ -83,6 +85,7 @@ urlpatterns = [
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
     url(r'^checkout/place-order/$', views.PlaceOrder),
+    url(r'^checkout/place-offline-order/$',views.PlaceOfflineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
