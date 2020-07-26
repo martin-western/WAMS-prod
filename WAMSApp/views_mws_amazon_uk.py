@@ -788,7 +788,7 @@ class PushProductImagesAmazonUKAPI(APIView):
                 response['status'] = 429
                 return Response(data=response)
 
-            xml_string = generate_xml_for_product_image_amazon_uk(product_pk_list,SELLER_ID,True)
+            xml_string = generate_xml_for_product_image_amazon_uk(product_pk_list,SELLER_ID)
 
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region='UK')
 
