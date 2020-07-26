@@ -99,7 +99,7 @@ urlpatterns = [
     url(r'^payment/calculate-signature/$', views.CalculateSignature),
 
     url(r'^user/create-offline-customer/$', views.CreateOfflineCustomer),
-    url(r'^user/search-customer-autocomplete/$', views.SearchCustomeAutocomplete),
+    url(r'^user/search-customer-autocomplete/$', views.SearchCustomerAutocomplete),
     url(r'^user/fetch-offline-user-profile/$', views.FetchOfflineUserProfile),
     url(r'^user/fetch-user-profile/$', views.FetchUserProfile),
     url(r'^user/update-user-profile/$', views.UpdateUserProfile),
