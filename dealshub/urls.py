@@ -71,10 +71,13 @@ urlpatterns = [
     url(r'^address/fetch-shipping-address-list/$', views.FetchShippingAddressList),
     url(r'^address/edit-shipping-address/$', views.EditShippingAddress),
     url(r'^address/create-shipping-address/$', views.CreateShippingAddress),
+    url(r'^address/create-offline-shipping-address/$', views.CreateOfflineShippingAddress),
     url(r'^address/delete-shipping-address/$', views.DeleteShippingAddress),
 
     url(r'^cart/add-to-cart/$', views.AddToCart),
+    url(r'^cart/add-to-offline_cart/$',views.AddToOfflineCart),
     url(r'^cart/fetch-cart-details/$', views.FetchCartDetails),
+    url(r'^cart/fetch-offline-cart-details/$',views.FetchOfflineCartDetails),
     url(r'^cart/update-cart-details/$', views.UpdateCartDetails),
     url(r'^cart/remove-from-cart/$', views.RemoveFromCart),
 
@@ -82,6 +85,7 @@ urlpatterns = [
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
     url(r'^checkout/place-order/$', views.PlaceOrder),
+    url(r'^checkout/place-offline-order/$',views.PlaceOfflineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
@@ -94,6 +98,9 @@ urlpatterns = [
 
     url(r'^payment/calculate-signature/$', views.CalculateSignature),
 
+    url(r'^user/create-offline-customer/$', views.CreateOfflineCustomer),
+    url(r'^user/search-customer-autocomplete/$', views.SearchCustomerAutocomplete),
+    url(r'^user/fetch-offline-user-profile/$', views.FetchOfflineUserProfile),
     url(r'^user/fetch-user-profile/$', views.FetchUserProfile),
     url(r'^user/update-user-profile/$', views.UpdateUserProfile),
 
