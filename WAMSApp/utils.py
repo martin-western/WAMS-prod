@@ -396,9 +396,413 @@ def generate_report(brand_name):
     workbook.close()
 
 
-def generate_dynamic_row(data_point_list):
+def is_part_of_list(data_point_input_variable,data_point_variable):
+    try:
 
-    row = ["Sr. No."]
+        data_point_variable_string = "".join(data_point_variable.split("_")[:-1])
+        data_point_input_variable_string = "".join(data_point_input_variable.split("_")[:-1])
+
+        data_point_variable_int = int(data_point_variable.split("_")[-1])
+        data_point_input_variable_int = int(data_point_input_variable.split("_")[-1])
+
+        if(data_point_variable_string == data_point_input_variable_string):
+            return True
+        return False
+    except:
+        return False
+
+
+def get_attribute_number(data_point_variable):
+
+    data_point_variable_int = int(data_point_variable.split("_")[-1])
+    return data_point_variable_int
+
+
+def save_data_value(product_obj, base_product_obj, channel_product_obj, data_point_variable, request_user, value):
+    
+    response = {}
+    response["status"] = 500
+    response["status_message"] = ""
+
+    try:
+        if data_point_variable=="product_name":
+            product_obj.product_name = value
+        if data_point_variable=="product_id":
+            product_obj.product_id = value
+        if data_point_variable=="product_id_type":
+            product_obj.product_id_type = ProductIDType.objects.get(name=value)
+        if data_point_variable=="product_description":
+            product_obj.product_description = value
+
+        if is_part_of_list(data_point_variable, "pfl_product_feature_1"):
+            num = get_attribute_number(data_point_variable)
+            num -= 1
+            pfl_product_features = json.loads(product_obj.pfl_product_features)
+            if len(pfl_product_features)==num:
+                pfl_product_features.append(value)
+                product_obj.pfl_product_features = json.dumps(pfl_product_features)
+            elif len(pfl_product_features)>num:
+                pfl_product_features[num] = value
+                product_obj.pfl_product_features = json.dumps(pfl_product_features)
+            else:
+                response["status_message"] = "Index out of range pfl_product_feature"
+                return response
+       
+        if data_point_variable=="color_map":
+            product_obj.color_map = value
+        if data_point_variable=="color":
+            product_obj.color = value
+        if data_point_variable=="material_type":
+            product_obj.material_type = MaterialType.objects.get(name=value)
+        if data_point_variable=="standard_price":
+            product_obj.standard_price = float(value)
+        if data_point_variable=="currency":
+            product_obj.currency = value
+        if data_point_variable=="quantity":
+            product_obj.quantity = int(float(value))
+        if data_point_variable=="barcode_string":
+            product_obj.barcode_string = value
+        if data_point_variable=="factory_notes":
+            product_obj.factory_notes = value 
+        if data_point_variable=="min_price":
+            product_obj.min_price = float(value)
+        if data_point_variable=="max_price":
+            product_obj.max_price = float(value)
+        if data_point_variable=="product_warranty":
+            product_obj.warranty = value
+        # if data_point_variable=="seller_sku":
+        #     base_product_obj.seller_sku = value
+        if data_point_variable=="category":
+            base_product_obj.category = Category.objects.get(name=value)
+        if data_point_variable=="sub_category":
+            base_product_obj.sub_category = SubCategory.objects.get(name=value)
+        if data_point_variable=="brand":
+            try:
+                permissible_brands = custom_permission_filter_brands(request_user)
+                base_product_obj.brand = permissible_brands.get(name=value)
+            except:
+                raise Exception("Brand Not in Permissible Brands")
+        if data_point_variable=="manufacturer":
+            base_product_obj.manufacturer = value
+        if data_point_variable=="manufacturer_part_number":
+            base_product_obj.manufacturer_part_number = value
+        
+        dimensions = json.loads(base_product_obj.dimensions)
+        if data_point_variable in dimensions:
+            dimensions[data_point_variable] = value
+        
+        base_product_obj.dimensions = json.dumps(dimensions)
+
+        amazon_uk_product_json = json.loads(channel_product_obj.amazon_uk_product_json)
+
+        if data_point_variable=="amazonuk_product_name":
+            amazon_uk_product_json["product_name"] = value
+        if data_point_variable=="amazonuk_product_description":
+            amazon_uk_product_json["product_description"] = value
+
+        if is_part_of_list(data_point_variable, "amazonuk_product_attribute_list_1"):
+            num = get_attribute_number(data_point_variable)
+            num -= 1
+            if len(amazon_uk_product_json["product_attribute_list"])==num:
+                amazon_uk_product_json["product_attribute_list"].append(value)
+            elif len(amazon_uk_product_json["product_attribute_list"])>num:
+                amazon_uk_product_json["product_attribute_list"][num] = value
+            else:
+                response["status_message"] = "Index out of range amazonuk_product_attribute_list"
+                return response
+
+        if data_point_variable=="amazonuk_category":
+            amazon_uk_product_json["category"] = value
+        if data_point_variable=="amazonuk_sub_category":
+            amazon_uk_product_json["sub_category"] = value
+        if data_point_variable=="amazonuk_parentage":
+            amazon_uk_product_json["parentage"] = value
+        if data_point_variable=="amazonuk_parent_sku":
+            amazon_uk_product_json["parent_sku"] = value
+        if data_point_variable=="amazonuk_relationship_type":
+            amazon_uk_product_json["relationship_type"] = value
+        if data_point_variable=="amazonuk_variation_theme":
+            amazon_uk_product_json["variation_theme"] = value
+        if data_point_variable=="amazonuk_feed_product_type":
+            amazon_uk_product_json["feed_product_type"] = value
+        if data_point_variable=="amazonuk_update_delete":
+            amazon_uk_product_json["update_delete"] = value
+        if data_point_variable=="amazonuk_recommended_browse_nodes":
+            amazon_uk_product_json["recommended_browse_nodes"] = value
+        if data_point_variable=="amazonuk_search_terms":
+            amazon_uk_product_json["search_terms"] = value
+        if data_point_variable=="amazonuk_enclosure_material":
+            amazon_uk_product_json["enclosure_material"] = value
+        if data_point_variable=="amazonuk_cover_material_type":
+            amazon_uk_product_json["cover_material_type"] = value
+
+        if is_part_of_list(data_point_variable, "amazonuk_special_feature_1"):
+            num = get_attribute_number(data_point_variable)
+            num -= 1
+            if len(amazon_uk_product_json["special_features"])==num:
+                amazon_uk_product_json["special_features"].append(value)
+            elif len(amazon_uk_product_json["special_features"])>num:
+                amazon_uk_product_json["special_features"][num] = value
+            else:
+                response["status_message"] = "Index out of range amazonuk_special_feature"
+                return response
+
+        if data_point_variable=="amazonuk_sale_price":
+            amazon_uk_product_json["sale_price"] = float(value)
+        if data_point_variable=="amazonuk_sale_from":
+            amazon_uk_product_json["sale_from"] = value
+        if data_point_variable=="amazonuk_sale_end":
+            amazon_uk_product_json["sale_end"] = value
+        if data_point_variable=="amazonuk_wattage":
+            amazon_uk_product_json["wattage"] = value
+        if data_point_variable=="amazonuk_wattage_metric":
+            amazon_uk_product_json["wattage_metric"] = value
+        if data_point_variable=="amazonuk_item_count":
+            amazon_uk_product_json["item_count"] = value
+        if data_point_variable=="amazonuk_item_count_metric":
+            amazon_uk_product_json["item_count_metric"] = value
+        if data_point_variable=="amazonuk_item_condition_note":
+            amazon_uk_product_json["item_condition_note"] = value
+        if data_point_variable=="amazonuk_max_order_quantity":
+            amazon_uk_product_json["max_order_quantity"] = value
+        if data_point_variable=="amazonuk_number_of_items":
+            amazon_uk_product_json["number_of_items"] = value
+        if data_point_variable=="amazonuk_condition_type":
+            amazon_uk_product_json["condition_type"] = value
+        if data_point_variable=="amazonuk_number_of_items":
+            amazon_uk_product_json["number_of_items"] = value
+        if data_point_variable=="amazonuk_package_length":
+            amazon_uk_product_json["dimensions"]["package_length"] = value
+        if data_point_variable=="amazonuk_package_length_metric":
+            amazon_uk_product_json["dimensions"]["package_length_metric"] = value
+        if data_point_variable=="amazonuk_package_width":
+            amazon_uk_product_json["dimensions"]["package_width"] = value
+        if data_point_variable=="amazonuk_package_width_metric":
+            amazon_uk_product_json["dimensions"]["package_width_metric"] = value
+        if data_point_variable=="amazonuk_package_height":
+            amazon_uk_product_json["dimensions"]["package_height"] = value
+        if data_point_variable=="amazonuk_package_height_metric":
+            amazon_uk_product_json["dimensions"]["package_height_metric"] = value
+        if data_point_variable=="amazonuk_package_weight":
+            amazon_uk_product_json["dimensions"]["package_weight"] = value
+        if data_point_variable=="amazonuk_package_weight_metric":
+            amazon_uk_product_json["dimensions"]["package_weight_metric"] = value
+        if data_point_variable=="amazonuk_package_quantity":
+            amazon_uk_product_json["dimensions"]["package_quantity"] = value
+        if data_point_variable=="amazonuk_shipping_weight":
+            amazon_uk_product_json["dimensions"]["shipping_weight"] = value
+        if data_point_variable=="amazonuk_shipping_weight_metric":
+            amazon_uk_product_json["dimensions"]["shipping_weight_metric"] = value
+        if data_point_variable=="amazonuk_item_display_weight":
+            amazon_uk_product_json["dimensions"]["item_display_weight"] = value
+        if data_point_variable=="amazonuk_item_display_weight_metric":
+            amazon_uk_product_json["dimensions"]["item_display_weight_metric"] = value
+        if data_point_variable=="amazonuk_item_display_volume":
+            amazon_uk_product_json["dimensions"]["item_display_volume"] = value
+        if data_point_variable=="amazonuk_item_display_volume_metric":
+            amazon_uk_product_json["dimensions"]["item_display_volume_metric"] = value
+        if data_point_variable=="amazonuk_item_display_length":
+            amazon_uk_product_json["dimensions"]["item_display_length"] = value
+        if data_point_variable=="amazonuk_item_display_length_metric":
+            amazon_uk_product_json["dimensions"]["item_display_length_metric"] = value
+        if data_point_variable=="amazonuk_item_weight":
+            amazon_uk_product_json["dimensions"]["item_weight"] = value
+        if data_point_variable=="amazonuk_item_weight_metric":
+            amazon_uk_product_json["dimensions"]["item_weight_metric"] = value
+        if data_point_variable=="amazonuk_item_length":
+            amazon_uk_product_json["dimensions"]["item_length"] = value
+        if data_point_variable=="amazonuk_item_length_metric":
+            amazon_uk_product_json["dimensions"]["item_length_metric"] = value
+        if data_point_variable=="amazonuk_item_width":
+            amazon_uk_product_json["dimensions"]["item_width"] = value
+        if data_point_variable=="amazonuk_item_width_metric":
+            amazon_uk_product_json["dimensions"]["item_width_metric"] = value
+        if data_point_variable=="amazonuk_item_height":
+            amazon_uk_product_json["dimensions"]["item_height"] = value
+        if data_point_variable=="amazonuk_item_height_metric":
+            amazon_uk_product_json["dimensions"]["item_height_metric"] = value
+        if data_point_variable=="amazonuk_item_display_width":
+            amazon_uk_product_json["dimensions"]["item_display_width"] = value
+        if data_point_variable=="amazonuk_item_display_width_metric":
+            amazon_uk_product_json["dimensions"]["item_display_width_metric"] = value
+        if data_point_variable=="amazonuk_item_display_height":
+            amazon_uk_product_json["dimensions"]["item_display_height"] = value
+        if data_point_variable=="amazonuk_item_display_height_metric":
+            amazon_uk_product_json["dimensions"]["item_display_height_metric"] = value
+        if data_point_variable=="amazonuk_http_link":
+            amazon_uk_product_json["http_link"] = value
+        if data_point_variable=="amazonuk_asin":
+            amazon_uk_product_json["ASIN"] = value
+        if data_point_variable=="amazonuk_status":
+            amazon_uk_product_json["status"] = value
+        if data_point_variable=="amazonuk_now_price":
+            amazon_uk_product_json["now_price"] = float(value)
+        if data_point_variable=="amazonuk_was_price":
+            amazon_uk_product_json["was_price"] = float(value)
+        if data_point_variable=="amazonuk_stock":
+            amazon_uk_product_json["stock"] = int(float(value))
+
+        
+        amazon_uae_product_json = json.loads(channel_product_obj.amazon_uae_product_json)
+
+        if data_point_variable=="amazonuae_product_name":
+            amazon_uae_product_json["product_name"] = value
+        if data_point_variable=="amazonuae_product_description":
+            amazon_uae_product_json["product_description"] = value
+
+        if is_part_of_list(data_point_variable, "amazonuae_product_attribute_list_1"):
+            num = get_attribute_number(data_point_variable)
+            num -= 1
+            if len(amazon_uae_product_json["product_attribute_list"])==num:
+                amazon_uae_product_json["product_attribute_list"].append(value)
+            elif len(amazon_uae_product_json["product_attribute_list"])>num:
+                amazon_uae_product_json["product_attribute_list"][num] = value
+            else:
+                response["status_message"] = "Index out of range amazonuae_product_attribute_list"
+                return response
+
+        if data_point_variable=="amazonuae_category":
+            amazon_uae_product_json["category"] = value
+        if data_point_variable=="amazonuae_sub_category":
+            amazon_uae_product_json["sub_category"] = value
+        if data_point_variable=="amazonuae_feed_product_type":
+            amazon_uae_product_json["feed_product_type"] = value
+        if data_point_variable=="amazonuae_recommended_browse_nodes":
+            amazon_uae_product_json["recommended_browse_nodes"] = value
+        if data_point_variable=="amazonuae_update_delete":
+            amazon_uae_product_json["update_delete"] = value
+        if data_point_variable=="amazonuae_http_link":
+            amazon_uae_product_json["http_link"] = value
+        if data_point_variable=="amazonuae_asin":
+            amazon_uae_product_json["ASIN"] = value
+        if data_point_variable=="amazonuae_status":
+            amazon_uae_product_json["status"] = value
+        if data_point_variable=="amazonuae_now_price":
+            amazon_uae_product_json["now_price"] = float(value)
+        if data_point_variable=="amazonuae_was_price":
+            amazon_uae_product_json["was_price"] = float(value)
+        if data_point_variable=="amazonuae_stock":
+            amazon_uae_product_json["stock"] = int(float(value))
+
+        ebay_product_json = json.loads(channel_product_obj.ebay_product_json)
+
+        if data_point_variable=="ebay_category":
+            ebay_product_json["category"] = value
+        if data_point_variable=="ebay_sub_category":
+            ebay_product_json["sub_category"] = value
+        if data_point_variable=="ebay_product_name":
+            ebay_product_json["product_name"] = value
+        if data_point_variable=="ebay_product_description":
+            ebay_product_json["product_description"] = value
+        if data_point_variable=="ebay_status":
+            ebay_product_json["status"] = value
+        if data_point_variable=="ebay_now_price":
+            ebay_product_json["now_price"] = float(value)
+        if data_point_variable=="ebay_was_price":
+            ebay_product_json["was_price"] = float(value)
+        if data_point_variable=="ebay_stock":
+            ebay_product_json["stock"] = int(float(value))
+
+        if is_part_of_list(data_point_variable, "ebay_product_attribute_list_1"):
+            num = get_attribute_number(data_point_variable)
+            num -= 1
+            if len(ebay_product_json["product_attribute_list"])==num:
+                ebay_product_json["product_attribute_list"].append(value)
+            elif len(ebay_product_json["product_attribute_list"])>num:
+                ebay_product_json["product_attribute_list"][num] = value
+            else:
+                response["status_message"] = "Index out of range ebay_product_attribute_list"
+                return response
+
+        if data_point_variable=="ebay_http_link":
+            ebay_product_json["http_link"] = value
+
+        noon_product_json = json.loads(channel_product_obj.noon_product_json)
+
+        if data_point_variable=="noon_product_name":
+            noon_product_json["product_name"] = value
+        if data_point_variable=="noon_product_type":
+            noon_product_json["product_type"] = value
+        if data_point_variable=="noon_product_subtype":
+            noon_product_json["product_subtype"] = value
+        if data_point_variable=="noon_category":
+            noon_product_json["category"] = value
+        if data_point_variable=="noon_subtitle":
+            noon_product_json["subtitle"] = value
+        if data_point_variable=="noon_sub_category":
+            noon_product_json["sub_category"] = value
+        if data_point_variable=="noon_model_number":
+            noon_product_json["model_number"] = value
+        if data_point_variable=="noon_model_name":
+            noon_product_json["model_name"] = value
+        if data_point_variable=="noon_msrp_ae":
+            noon_product_json["msrp_ae"] = value
+        if data_point_variable=="noon_msrp_ae_unit":
+            noon_product_json["msrp_ae_unit"] = value
+        if data_point_variable=="noon_product_description":
+            noon_product_json["product_description"] = value
+        if data_point_variable=="noon_now_price":
+            noon_product_json["now_price"] = float(value)
+        if data_point_variable=="noon_sale_price":
+            noon_product_json["sale_price"] = float(value)
+        if data_point_variable=="noon_sale_start":
+            noon_product_json["sale_start"] = value
+        if data_point_variable=="noon_sale_end":
+            noon_product_json["sale_end"] = value
+        if data_point_variable=="noon_stock":
+            noon_product_json["stock"] = int(float(value))
+        if data_point_variable=="noon_warranty":
+            noon_product_json["warranty"] = value
+        if data_point_variable=="noon_status":
+            noon_product_json["status"] = value
+        if data_point_variable=="noon_sku":
+            noon_product_json["noon_sku"] = value
+        if data_point_variable=="noon_partner_sku":
+            noon_product_json["partner_sku"] = value
+        if data_point_variable=="noon_partner_barcode":
+            noon_product_json["partner_barcode"] = value
+        if data_point_variable=="noon_psku_code":
+            noon_product_json["psku_code"] = value
+
+
+        if is_part_of_list(data_point_variable, "product_attribute_list_1"):
+            num = get_attribute_number(data_point_variable)
+            num -= 1
+            if len(noon_product_json["product_attribute_list"])==num:
+                noon_product_json["product_attribute_list"].append(value)
+            elif len(noon_product_json["product_attribute_list"])>num:
+                noon_product_json["product_attribute_list"][num] = value
+            else:
+                response["status_message"] = "Index out of range Noon Attribute List"
+                return response
+        
+        if data_point_variable=="noon_http_link":
+            noon_product_json["http_link"] = value
+
+        channel_product_obj.noon_product_json = json.dumps(noon_product_json)
+        channel_product_obj.amazon_uk_product_json = json.dumps(amazon_uk_product_json)
+        channel_product_obj.amazon_uae_product_json = json.dumps(amazon_uae_product_json)
+        channel_product_obj.ebay_product_json = json.dumps(ebay_product_json)
+
+        channel_product_obj.save()
+        base_product_obj.save()
+        product_obj.save()
+
+        response["status"] = 200
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("save_data_value: %s at %s", e, str(exc_tb.tb_lineno))
+        response["status_message"] = str(e)
+
+    return response
+
+def generate_dynamic_row(data_point_list,need_sr_no=True):
+
+    if(need_sr_no == True):
+        row = ["Sr. No."]
+    else:
+        row = []
     for data_point in data_point_list:
         data_point_obj = DataPoint.objects.get(variable=data_point)
         row.append(data_point_obj.name)
@@ -455,6 +859,12 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return product_obj.currency
         if data_point_variable=="quantity":
             return "" if product_obj.quantity==None else product_obj.quantity
+        if data_point_variable=="min_price":
+            return product_obj.min_price
+        if data_point_variable=="max_price":
+            return product_obj.max_price
+        if data_point_variable=="product_warranty":
+            return product_obj.warranty
 
         if data_point_variable=="main_image":
             if MainImages.objects.get(product=product_obj, is_sourced=True).main_images.count()>0:
@@ -879,7 +1289,7 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
         if data_point_variable=="amazonuk_item_display_length_metric":
             return amazon_uk_product_json["dimensions"]["item_display_length_metric"]
         if data_point_variable=="amazonuk_item_weight":
-            return amazon_uk_product_json["dimensions"]["item_weight_metric"]
+            return amazon_uk_product_json["dimensions"]["item_weight"]
         if data_point_variable=="amazonuk_item_weight_metric":
             return amazon_uk_product_json["dimensions"]["item_weight_metric"]
         if data_point_variable=="amazonuk_item_length":
@@ -892,8 +1302,8 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return amazon_uk_product_json["dimensions"]["item_width_metric"]
         if data_point_variable=="amazonuk_item_height":
             return amazon_uk_product_json["dimensions"]["item_height"]
-        if data_point_variable=="amazonuk_item_heigth_metric":
-            return amazon_uk_product_json["dimensions"]["item_heigth_metric"]
+        if data_point_variable=="amazonuk_item_height_metric":
+            return amazon_uk_product_json["dimensions"]["item_height_metric"]
         if data_point_variable=="amazonuk_item_display_width":
             return amazon_uk_product_json["dimensions"]["item_display_width"]
         if data_point_variable=="amazonuk_item_display_width_metric":
@@ -904,6 +1314,16 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return amazon_uk_product_json["dimensions"]["item_display_height_metric"]
         if data_point_variable=="amazonuk_http_link":
             return amazon_uk_product_json["http_link"]
+        if data_point_variable=="amazonuk_asin":
+            return amazon_uk_product_json["ASIN"]
+        if data_point_variable=="amazonuk_status":
+            return amazon_uk_product_json["status"]
+        if data_point_variable=="amazonuk_now_price":
+            return amazon_uk_product_json["now_price"]
+        if data_point_variable=="amazonuk_was_price":
+            return amazon_uk_product_json["was_price"]
+        if data_point_variable=="amazonuk_stock":
+            return amazon_uk_product_json["stock"]
 
         
         amazon_uae_product_json = json.loads(channel_product_obj.amazon_uae_product_json)
@@ -951,6 +1371,16 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return amazon_uae_product_json["update_delete"]
         if data_point_variable=="amazonuae_http_link":
             return amazon_uae_product_json["http_link"]
+        if data_point_variable=="amazonuae_asin":
+            return amazon_uae_product_json["ASIN"]
+        if data_point_variable=="amazonuae_status":
+            return amazon_uae_product_json["status"]
+        if data_point_variable=="amazonuae_now_price":
+            return amazon_uae_product_json["now_price"]
+        if data_point_variable=="amazonuae_was_price":
+            return amazon_uae_product_json["was_price"]
+        if data_point_variable=="amazonuae_stock":
+            return amazon_uae_product_json["stock"]
 
         ebay_product_json = json.loads(channel_product_obj.ebay_product_json)
 
@@ -962,6 +1392,14 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return ebay_product_json["product_name"]
         if data_point_variable=="ebay_product_description":
             return ebay_product_json["product_description"]
+        if data_point_variable=="ebay_status":
+            return ebay_product_json["status"]
+        if data_point_variable=="ebay_now_price":
+            return ebay_product_json["now_price"]
+        if data_point_variable=="ebay_was_price":
+            return ebay_product_json["was_price"]
+        if data_point_variable=="ebay_stock":
+            return ebay_product_json["stock"]
         if data_point_variable=="ebay_product_attribute_list_1":
             if len(ebay_product_json["product_attribute_list"])>0:
                 return ebay_product_json["product_attribute_list"][0]
@@ -1016,6 +1454,29 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return noon_product_json["msrp_ae_unit"]
         if data_point_variable=="noon_product_description":
             return noon_product_json["product_description"]
+        if data_point_variable=="noon_now_price":
+            return noon_product_json["now_price"]
+        if data_point_variable=="noon_sale_price":
+            return noon_product_json["sale_price"]
+        if data_point_variable=="noon_sale_start":
+            return noon_product_json["sale_start"]
+        if data_point_variable=="noon_sale_end":
+            return noon_product_json["sale_end"]
+        if data_point_variable=="noon_stock":
+            return noon_product_json["stock"]
+        if data_point_variable=="noon_warranty":
+            return noon_product_json["warranty"]
+        if data_point_variable=="noon_status":
+            return noon_product_json["status"]
+        if data_point_variable=="noon_sku":
+            return noon_product_json["noon_sku"]
+        if data_point_variable=="noon_partner_sku":
+            return noon_product_json["partner_sku"]
+        if data_point_variable=="noon_partner_barcode":
+            return noon_product_json["partner_barcode"]
+        if data_point_variable=="noon_psku_code":
+            return noon_product_json["psku_code"]
+               
         if data_point_variable=="product_attribute_list_1":
             if len(noon_product_json["product_attribute_list"])>0:
                 return noon_product_json["product_attribute_list"][0]
@@ -1087,6 +1548,189 @@ def generate_dynamic_export(product_uuid_list, data_point_list):
             print("Error ", e, str(exc_tb.tb_lineno))
 
     workbook.close()
+
+
+def upload_dynamic_excel_for_product(path, data_point_list,operation,request_user):
+    
+    response = {}
+    response["status_message"] = ""
+    response["status"] = 500
+
+    try:
+
+        dfs = pd.read_excel(path, sheet_name=None)
+
+        dfs = dfs["Sheet1"]
+
+        rows = len(dfs.iloc[:])
+
+        error_list = []
+
+        filename = "files/dynamic bulk upload excel/Dynamic Excel Upload Result.xlsx"
+
+        workbook = xlsxwriter.Workbook(filename)
+
+        worksheet = workbook.add_worksheet()
+
+        for i in range(rows):
+
+            errors = []
+
+            product_obj = Product.objects.none()
+            base_product_obj = BaseProduct.objects.none()
+            channel_product_obj = ChannelProduct.objects.none()
+
+            if(operation == "Update"):
+                try:
+                    product_id = None
+                    for j in range(len(data_point_list)):
+                        if(data_point_list[j] == "product_id"):
+                            product_id = str(dfs.iloc[i][j]).strip()
+
+                    errors.append(str(product_id))
+
+                    if(product_id=="" or product_id=="nan"):
+                        raise Exception("Required Fields must not be empty")
+
+                    product_obj = Product.objects.get(product_id=product_id)
+                    base_product_obj = product_obj.base_product
+                    channel_product_obj = product_obj.channel_product
+                except Exception as e:
+                    errors.append(str(e))
+                    errors.append("Not Accepted")
+                    error_list.append(errors)
+                    continue
+            else:
+                try:
+                    seller_sku = None
+                    product_id = None
+                    category_name = None
+                    sub_category_name = None
+                    brand_name = None
+
+                    product_name = ""
+                    manufacturer = ""
+                    manufacturer_part_number = ""
+
+                    for j in range(len(data_point_list)):
+                        if(data_point_list[j] == "seller_sku"):
+                            seller_sku = str(dfs.iloc[i][j]).strip()
+                        if(data_point_list[j] == "product_id"):
+                            product_id = str(dfs.iloc[i][j]).strip()
+                        if(data_point_list[j] == "product_name"):
+                            product_name = str(dfs.iloc[i][j]).strip()
+                        if(data_point_list[j] == "brand"):
+                            brand_name = str(dfs.iloc[i][j]).strip()
+                        if(data_point_list[j] == "manufacturer"):
+                            manufacturer = str(dfs.iloc[i][j]).strip()
+                        if(data_point_list[j] == "manufacturer_part_number"):
+                            manufacturer_part_number = str(dfs.iloc[i][j]).strip()
+                        if(data_point_list[j] == "category"):
+                            category_name = str(dfs.iloc[i][j]).strip()
+                        if(data_point_list[j] == "sub_category"):
+                            sub_category_name = str(dfs.iloc[i][j]).strip()
+    
+                    errors.append(str(product_id))
+
+                    if(product_name == "" or manufacturer == "" or manufacturer_part_number == "" or category_name == "" or sub_category_name == "" or product_id == "" or brand_name == "" or seller_sku == ""):
+                        raise Exception("Required Fields must not be empty")
+
+                    if(product_name == "nan" or manufacturer == "nan" or manufacturer_part_number == "nan" or category_name == "nan" or sub_category_name == "nan" or product_id == "nan" or brand_name == "nan" or seller_sku == "nan"):
+                        raise Exception("Required Fields must not be empty")
+
+                    category_obj = Category.objects.get(name=category_name)
+                    sub_category_obj = SubCategory.objects.get(name=sub_category_name)
+                    brand_obj = Brand.objects.none()
+                    permissible_brands = custom_permission_filter_brands(request_user)
+                    try:    
+                        brand_obj = permissible_brands.get(name=brand_name)
+                    except:
+                        raise Exception("Brand not in Permissible Brands")
+                    base_product_obj = BaseProduct.objects.none()
+
+                    try:
+                        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
+                    except:
+                        base_product_obj = BaseProduct.objects.create(
+                            base_product_name=product_name,
+                            seller_sku=seller_sku,
+                            brand=brand_obj,
+                            category=category_obj,
+                            sub_category=sub_category_obj,
+                            manufacturer=manufacturer,
+                            manufacturer_part_number=manufacturer_part_number,
+                        )
+                    try:
+                        product_obj = Product.objects.get(product_id=product_id)
+                    except Exception as e:
+                        product_obj = Product.objects.create(
+                            product_name = product_name,
+                            product_name_sap=product_name,
+                            pfl_product_name=product_name,
+                            base_product=base_product_obj,
+                            product_id = product_id,
+                        )
+                    channel_product_obj = product_obj.channel_product
+
+                except Exception as e:
+                    errors.append(str(e))
+                    errors.append("Not Accepted")
+                    error_list.append(errors)
+                    continue
+
+            for j in range(len(data_point_list)):
+
+                value = str(dfs.iloc[i][j]).strip()
+
+                print(data_point_list[j])
+                print(value)
+                
+                if(value != "" and value !="nan"):
+                    incoming_response = save_data_value(product_obj,base_product_obj,channel_product_obj,data_point_list[j],request_user,value)
+                else:
+                    data_point_name = DataPoint.objects.get(variable=data_point_list[j]).name
+                    errors.append(data_point_name + " is empty")
+
+                if(incoming_response["status"]!=200):  
+                    errors.append(str(incoming_response["status_message"]))
+                
+            errors.append("Accepted")
+
+            error_list.append(errors)
+
+        worksheet.write(0, 0, "Product ID")
+        worksheet.write(0, 1, "Errors")
+        worksheet.write(0, 2, "Status")
+
+        accepted_products = 0
+        rejected_products = 0
+
+        for i in range(len(error_list)):
+            row = i+2       
+            worksheet.write(row, 0, error_list[i][0])
+            worksheet.write(row, 2, error_list[i][-1])
+            if(error_list[i][-1]=="Accepted"):
+                accepted_products += 1
+            else:
+                rejected_products += 1
+            excel_error_value = ""
+            for j in range(1,len(error_list[i])-1):
+                delimiter = ""
+                if(j != len(error_list[i])-2):
+                    delimiter = " | "
+                excel_error_value += error_list[i][j] + delimiter
+            worksheet.write(row, 1, excel_error_value)
+    
+        workbook.close()
+        response["status"] = 200
+        response["result_path"] = filename
+        response["accepted_products"] = accepted_products
+        response["rejected_products"] = rejected_products
+
+    except Exception as e:
+        response["status_message"] = str(e)
+
+    return response
 
 
 def fetch_sap_details_for_order_punching(dealshub_product_obj):
