@@ -1018,26 +1018,26 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["min_price"] = str(product_obj.min_price)
                     temp_dict["max_price"] = str(product_obj.max_price)
 
-                    repr_image_url = Config.objects.all()[0].product_404_image.image.url
-                    repr_high_def_url = repr_image_url
+                    # repr_image_url = Config.objects.all()[0].product_404_image.image.url
+                    # repr_high_def_url = repr_image_url
                     
-                    main_images_obj = None
-                    try:
-                        main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
-                    except Exception as e:
-                        pass
+                    # main_images_obj = None
+                    # try:
+                    #     main_images_obj = MainImages.objects.get(product=product_obj, channel=None)
+                    # except Exception as e:
+                    #     pass
 
-                    if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
-                        try:
-                            repr_image_url = main_images_obj.main_images.filter(
-                                is_main_image=True)[0].image.mid_image.url
-                        except Exception as e:
-                            repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                    # if main_images_obj!=None and main_images_obj.main_images.filter(is_main_image=True).count() > 0:
+                    #     try:
+                    #         repr_image_url = main_images_obj.main_images.filter(
+                    #             is_main_image=True)[0].image.mid_image.url
+                    #     except Exception as e:
+                    #         repr_image_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
-                        repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
+                    #     repr_high_def_url = main_images_obj.main_images.filter(is_main_image=True)[0].image.image.url
 
-                    temp_dict["repr_image_url"] = repr_image_url
-                    temp_dict["repr_high_def_url"] = repr_high_def_url
+                    temp_dict["repr_image_url"] = dealshub_product_obj.get_display_image_url()
+                    temp_dict["repr_high_def_url"] = dealshub_product_obj.get_display_image_url()
 
                     products.append(temp_dict)
                 except Exception as e:
