@@ -119,9 +119,9 @@ def generate_xml_for_partial_update_product_amazon_uk(product_pk_list,seller_id)
             product_dimension_b_metric = base_dimensions_dict["product_dimension_b_metric"]
             product_dimension_h_metric = base_dimensions_dict["product_dimension_h_metric"]
 
-            product_dimension_l = base_dimensions_dict["product_dimension_l"]
-            product_dimension_b = base_dimensions_dict["product_dimension_b"]
-            product_dimension_h = base_dimensions_dict["product_dimension_h"]
+            product_dimension_l = str(base_dimensions_dict["product_dimension_l"])
+            product_dimension_b = str(base_dimensions_dict["product_dimension_b"])
+            product_dimension_h = str(base_dimensions_dict["product_dimension_h"])
 
             category = amazon_uk_product_dict["category"]
             sub_category = amazon_uk_product_dict["sub_category"]
