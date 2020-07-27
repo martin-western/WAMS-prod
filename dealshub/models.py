@@ -124,6 +124,8 @@ class DealsHubProduct(models.Model):
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
     is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    category = models.ForeignKey(Category, null=True, blank=True, default=None, on_delete=models.SET_NULL)
+    sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=200, default="")
 
     class Meta:
@@ -137,13 +139,13 @@ class DealsHubProduct(models.Model):
         return str(self.location_group.location.currency)
 
     def get_category(self):
-        if self.product.base_product.category!=None:
-            return str(self.product.base_product.category)
+        if self.category!=None:
+            return str(self.category)
         return ""
 
     def get_sub_category(self):
-        if self.product.base_product.sub_category!=None:
-            return str(self.product.base_product.sub_category)
+        if self.sub_category!=None:
+            return str(self.sub_category)
         return ""
 
     def get_name(self):
