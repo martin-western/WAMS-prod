@@ -6053,7 +6053,7 @@ class BulkUploadDynamicExcelAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            data_point_list = data["data_point_list"]
+            data_point_list = json.loads(data["data_point_list"])
             operation = data["operation"]
 
             path = default_storage.save('tmp/temp-dynamic-template-upload.xlsx', data["import_file"])
