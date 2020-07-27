@@ -459,6 +459,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["brand"] = unit_cart_obj.product.get_brand()
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
