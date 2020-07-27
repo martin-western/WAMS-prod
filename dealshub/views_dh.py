@@ -1375,12 +1375,12 @@ class SearchCustomerAutocompleteAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SearchCustomerAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
 class FetchOfflineUserProfileAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1401,22 +1401,25 @@ class FetchOfflineUserProfileAPI(APIView):
             response["contactNumber"] = dealshub_user_obj.contact_number
 
             address_list = []
-            for address_obj in address_objs:
-                temp_dict = {}
-                temp_dict['firstName'] = address_obj.first_name
-                temp_dict['lastName'] = address_obj.last_name
-                temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
-                temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
-                temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
-                temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
-                temp_dict['state'] = address_obj.state
-                temp_dict['country'] = address_obj.get_country()
-                temp_dict['postcode'] = address_obj.postcode
-                temp_dict['contactNumber'] = str(address_obj.contact_number)
-                temp_dict['tag'] = str(address_obj.tag)
-                temp_dict['uuid'] = str(address_obj.uuid)
+            if Address.objects.filter(user=dealshub_user_obj).exists():
+                address_objs = Address.objects.filter(user=dealshub_user_obj)
 
-                address_list.append(temp_dict)
+                for address_obj in address_objs:
+                    temp_dict = {}
+                    temp_dict['firstName'] = address_obj.first_name
+                    temp_dict['lastName'] = address_obj.last_name
+                    temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
+                    temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
+                    temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
+                    temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
+                    temp_dict['state'] = address_obj.state
+                    temp_dict['country'] = address_obj.get_country()
+                    temp_dict['postcode'] = address_obj.postcode
+                    temp_dict['contactNumber'] = str(address_obj.contact_number)
+                    temp_dict['tag'] = str(address_obj.tag)
+                    temp_dict['uuid'] = str(address_obj.uuid)
+
+                    address_list.append(temp_dict)
 
             response['addressList'] = address_list
 
