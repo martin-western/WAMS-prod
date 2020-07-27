@@ -213,7 +213,7 @@ class CreateOfflineShippingAddressAPI(APIView):
                 if tag==None:
                     tag = ""
 
-                address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj)
+                address_obj = Address.objects.create(user=dealshub_user_obj,first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj)
 
                 response["uuid"] = address_obj.uuid
                 response['status'] = 200
@@ -1334,6 +1334,44 @@ class CreateOfflineCustomerAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateOfflineCustomerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateOfflineUserProfileAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateOfflineUserProfileAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            username = data["username"]
+            email_id = data["emailId"]
+            first_name = data["firstName"]
+            last_name = data["lastName"]
+            contact_number = data["contactNumber"]
+
+            if DealsHubUser.objects.filter(username=username).exists():
+                dealshub_user_obj = DealsHubUser.objects.get(username=username)
+                dealshub_user_obj.email = email_id
+                dealshub_user_obj.first_name = first_name
+                dealshub_user_obj.last_name = last_name
+                dealshub_user_obj.contact_number = contact_number
+                dealshub_user_obj.save()
+                response['status'] = 200
+            else:
+                response['status'] = 404
+
+
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateOfflineUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -3415,6 +3453,8 @@ FetchOrderListAdmin = FetchOrderListAdminAPI.as_view()
 FetchOrderDetails = FetchOrderDetailsAPI.as_view()
 
 CreateOfflineCustomer = CreateOfflineCustomerAPI.as_view()
+
+UpdateOfflineUserProfile = UpdateOfflineUserProfileAPI.as_view()
 
 SearchCustomerAutocomplete = SearchCustomerAutocompleteAPI.as_view()
 
