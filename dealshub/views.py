@@ -1612,6 +1612,8 @@ class SearchProductsAPI(APIView):
 
             dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))
 
+            dealshub_product_objs = dealshub_product_objs[:10]
+
             dealshub_product_list = []
             for dealshub_product_obj in dealshub_product_objs:
                 temp_dict = {}
