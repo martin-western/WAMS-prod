@@ -2454,9 +2454,9 @@ SaveDealshubAdminSectionsOrder = SaveDealshubAdminSectionsOrderAPI.as_view()
 
 SearchSectionProductsAutocomplete = SearchSectionProductsAutocompleteAPI.as_view()
 
-SearchProducts = SearchProductsAPI.as_view()
-
 SearchProductsAutocomplete = SearchProductsAutocompleteAPI.as_view()
+
+SearchProducts = SearchProductsAPI.as_view()
 
 FetchDealshubPrice = FetchDealshubPriceAPI.as_view()
 
