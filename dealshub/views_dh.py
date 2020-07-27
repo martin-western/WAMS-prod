@@ -1001,7 +1001,7 @@ class PlaceOfflineOrderAPI(APIView):
                                              to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
-                                             is_offline_order = True,
+                                             is_order_offline = True,
                                              location_group=cart_obj.location_group)
 
             for unit_cart_obj in unit_cart_objs:
