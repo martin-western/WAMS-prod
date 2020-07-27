@@ -1602,7 +1602,6 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
                     base_product_obj = product_obj.base_product
                     channel_product_obj = product_obj.channel_product
                 except Exception as e:
-                    logger.errors
                     errors.append(str(e))
                     errors.append("Not Accepted")
                     error_list.append(errors)
