@@ -1591,6 +1591,44 @@ class SearchProductsAutocompleteAPI(APIView):
         return Response(data=response)
 
 
+class SearchProductsAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SearchProductsAPI: %s", str(data))
+
+            search_string = data["searchString"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0)
+
+            dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))
+
+            dealshub_product_list = []
+            for dealshub_product_obj in dealshub_product_objs:
+                temp_dict = {}
+                temp_dict["name"] = dealshub_product_obj.get_name()
+                temp_dict["uuid"] = dealshub_product_obj.uuid
+                dealshub_product_list.append(temp_dict)
+
+            response["productList"] = dealshub_product_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchDealshubPriceAPI(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -2417,6 +2455,8 @@ SaveDealshubAdminSectionsOrder = SaveDealshubAdminSectionsOrderAPI.as_view()
 SearchSectionProductsAutocomplete = SearchSectionProductsAutocompleteAPI.as_view()
 
 SearchProductsAutocomplete = SearchProductsAutocompleteAPI.as_view()
+
+SearchProducts = SearchProductsAPI.as_view()
 
 FetchDealshubPrice = FetchDealshubPriceAPI.as_view()
 
