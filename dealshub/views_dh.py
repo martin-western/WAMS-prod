@@ -1354,7 +1354,9 @@ class SearchCustomerAutocompleteAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
-            user_objs = DealsHubUser.objects.filter(username__icontains=search_string, website_group=website_group_obj)[:5]
+            user_objs = DealsHubUser.objects.filter(website_group=website_group_obj)
+
+            user_objs = user_objs.filter(Q(username__icontains=search_string))[:5]
 
             user_list = []
             for user_obj in user_objs:
