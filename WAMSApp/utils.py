@@ -1551,16 +1551,22 @@ def generate_dynamic_export(product_uuid_list, data_point_list):
 
 
 def upload_dynamic_excel_for_product(path, data_point_list,operation,request_user):
-    
+
     response = {}
     response["status_message"] = ""
     response["status"] = 500
 
     try:
 
+        logger.info("upload_dynamic_excel_for_product [Path]: %s", path)
+
+        logger.info("upload_dynamic_excel_for_product [Data Point List]: %s", data_point_list)
+
         dfs = pd.read_excel(path, sheet_name=None)
 
         dfs = dfs["Sheet1"]
+
+        logger.info("upload_dynamic_excel_for_product [Excel]: %s ", dfs)
 
         rows = len(dfs.iloc[:])
 
@@ -1599,6 +1605,8 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
                     errors.append(str(e))
                     errors.append("Not Accepted")
                     error_list.append(errors)
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("upload_dynamic_excel_for_product: %s at %s", e, str(exc_tb.tb_lineno))
                     continue
             else:
                 try:
@@ -1676,6 +1684,8 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
                     errors.append(str(e))
                     errors.append("Not Accepted")
                     error_list.append(errors)
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("upload_dynamic_excel_for_product: %s at %s", e, str(exc_tb.tb_lineno))
                     continue
 
             for j in range(len(data_point_list)):
@@ -1729,6 +1739,8 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
 
     except Exception as e:
         response["status_message"] = str(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("upload_dynamic_excel_for_product: %s at %s", e, str(exc_tb.tb_lineno))
 
     return response
 
