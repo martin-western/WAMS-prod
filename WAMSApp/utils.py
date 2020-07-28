@@ -1143,7 +1143,7 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
         if data_point_variable=="manufacturer_part_number":
             return base_product_obj.manufacturer_part_number
         
-        dimensions = json.loads(base_product.dimensions)
+        dimensions = json.loads(base_product_obj.dimensions)
         if data_point_variable in dimensions:
             return dimensions[data_point_variable]
         
