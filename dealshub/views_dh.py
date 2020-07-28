@@ -759,6 +759,36 @@ class SelectAddressAPI(APIView):
         return Response(data=response)
 
 
+class SelectOfflineAddressAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SelectOfflineAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            address_uuid = data["addressUuid"]
+            username = data["username"]
+
+            address_obj = Address.objects.get(uuid=address_uuid)
+            dealshub_user_obj = DealsHubUser.objects.get(username=username)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+            
+            cart_obj.shipping_address = address_obj
+            cart_obj.save()
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SelectOfflineAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class SelectPaymentModeAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3437,6 +3467,8 @@ UpdateCartDetails = UpdateCartDetailsAPI.as_view()
 RemoveFromCart = RemoveFromCartAPI.as_view()
 
 SelectAddress = SelectAddressAPI.as_view()
+
+SelectOfflineAddress = SelectOfflineAddressAPI.as_view()
 
 SelectPaymentMode = SelectPaymentModeAPI.as_view()
 
