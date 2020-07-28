@@ -776,7 +776,7 @@ class SelectOfflineAddressAPI(APIView):
 
             address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=address_obj.location_group)
             
             cart_obj.shipping_address = address_obj
             cart_obj.save()
