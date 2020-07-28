@@ -5595,7 +5595,7 @@ class DownloadBulkExportAPI(APIView):
             product_uuid_list = data["product_uuid_list"]
 
             generate_dynamic_export(product_uuid_list, data_point_list)
-            response["file_path"] = "https://"+SERVER_IP+"/files/csv/dynamic_export.xlsx"
+            response["file_path"] = SERVER_IP+"/files/csv/dynamic_export.xlsx"
             
             response['status'] = 200
         
