@@ -1,4 +1,5 @@
 from WAMSApp.models import *
+from WAMSApp.utils import *
 
 def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
     try:
