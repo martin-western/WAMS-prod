@@ -20,6 +20,7 @@ import json
 from django.utils import timezone
 import sys
 import xlsxwriter
+import pandas as pd
 
 def my_jwt_response_handler(token, user=None, request=None):
     
@@ -2519,3 +2520,79 @@ def content_health_filtered_list(filter_parameters,search_list_product_objs):
         search_list_product_objs = search_list_product_objs.exclude(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
 
     return search_list_product_objs 
+
+def get_recommended_browse_node(seller_sku,channel):
+
+    try:
+
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        company_code_dict ={
+            "Geepas" : "1000",
+            "Abraj": "6000",
+            "BabyPlus": "5550",
+            "Baby Plus": "5550",
+            "Crystal": "5100",
+            "Delcasa": "3050",
+            "Olsenmark": "1100",
+            "Royalford": "3000",
+            "Younglife": "5000"
+        }
+        
+        product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+        company_code = company_code_dict[product_obj.base_product.brand.name]
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soapenv:Header />
+                  <soapenv:Body>
+                  <urn:ZAPP_STOCK_PRICE>
+                   <IM_MATNR>
+                    <item>
+                     <MATNR>""" + seller_sku + """</MATNR>
+                    </item>
+                   </IM_MATNR>
+                   <IM_VKORG>
+                    <item>
+                     <VKORG>""" + company_code + """</VKORG>
+                    </item>
+                   </IM_VKORG>
+                   <T_DATA>
+                    <item>
+                     <MATNR></MATNR>
+                     <MAKTX></MAKTX>
+                     <LGORT></LGORT>
+                     <CHARG></CHARG>
+                     <SPART></SPART>
+                     <MEINS></MEINS>
+                     <ATP_QTY></ATP_QTY>
+                     <TOT_QTY></TOT_QTY>
+                     <CURRENCY></CURRENCY>
+                     <IC_EA></IC_EA>
+                     <OD_EA></OD_EA>
+                     <EX_EA></EX_EA>
+                     <RET_EA></RET_EA>
+                     <WERKS></WERKS>
+                    </item>
+                   </T_DATA>
+                  </urn:ZAPP_STOCK_PRICE>
+                  </soapenv:Body>
+                  </soapenv:Envelope>"""
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        item = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        if isinstance(item,list):
+            item = item[1]
+
+        try:
+            recommended_browse_node = CategoryMapping.objects.filter(channel__name=channel,sap_sub_category__sub_category=item["WWGHB1"])[0].recommended_browse_node
+            return recommended_browse_node
+        except:
+            logger.error("get_recommended_browse_node: Mapping not found")
+            return ""
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_recommended_browse_node: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""
