@@ -2311,11 +2311,13 @@ class SendOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
+            is_new_user = False
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
                 dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
+                is_new_user = True
             else:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
                 dealshub_user_obj.set_password(OTP)
@@ -2334,6 +2336,7 @@ class SendOTPSMSLoginAPI(APIView):
             url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
             r = requests.get(url)
 
+            response["isNewUser"] = is_new_user
             response["status"] = 200
 
         except Exception as e:
@@ -3446,6 +3449,38 @@ class RemoveVoucherCodeAPI(APIView):
         return Response(data=response)
 
 
+class FetchOrderAnalyticsParamsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOrderAnalyticsParamsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            order_obj = Order.objects.filter(location_group__uuid=location_group_uuid, owner__username=request.user.username).order_by('-pk')[0]
+
+            gtm_params = calculate_gtm(order_obj)
+
+            response["order_summary"] = gtm_params["actionField"]
+            response["order_products"] = gtm_params["products"]
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrderAnalyticsParamsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
@@ -3565,3 +3600,5 @@ UploadOrders = UploadOrdersAPI.as_view()
 ApplyVoucherCode = ApplyVoucherCodeAPI.as_view()
 
 RemoveVoucherCode = RemoveVoucherCodeAPI.as_view()
+
+FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
