@@ -58,3 +58,8 @@ admin.site.register(ProformaInvoiceBundle)
 
 admin.site.register(AmazonOrder)
 admin.site.register(AmazonItem)
+
+admin.site.register(SapSuperCategory)
+admin.site.register(SapCategory)
+admin.site.register(SapSubCategory)
+admin.site.register(CategoryMapping)
