@@ -147,4 +147,6 @@ urlpatterns = [
     url(r'^delete-voucher/$', views.DeleteVoucher),
     url(r'^publish-voucher/$', views.PublishVoucher),
     url(r'^unpublish-voucher/$', views.UnPublishVoucher),
+
+    url(r'^fetch-order-analytics-params/$', views.FetchOrderAnalyticsParams),
 ]
