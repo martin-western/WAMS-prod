@@ -628,6 +628,9 @@ class DeleteAdminCategoryAPI(APIView):
             for dealshub_product_obj in dealshub_product_objs:
                 dealshub_product_obj.promotion = None
                 dealshub_product_obj.save()
+
+            location_group_uuid = section_obj.location_group.uuid
+            cache.set(location_group_uuid, "has_expired")
                 
             section_obj.delete()
             
@@ -654,6 +657,9 @@ class PublishAdminCategoryAPI(APIView):
             section_obj = Section.objects.get(uuid=uuid)
             section_obj.is_published = True
             section_obj.save()
+
+            location_group_uuid = section_obj.location_group.uuid
+            cache.set(location_group_uuid, "has_expired")
             
             response['status'] = 200
         except Exception as e:
@@ -678,6 +684,9 @@ class UnPublishAdminCategoryAPI(APIView):
             section_obj = Section.objects.get(uuid=uuid)
             section_obj.is_published = False
             section_obj.save()
+
+            location_group_uuid = section_obj.location_group.uuid
+            cache.set(location_group_uuid, "has_expired")
             
             response['status'] = 200
         except Exception as e:
@@ -949,6 +958,9 @@ class DeleteUnitBannerAPI(APIView):
                 dealshub_product_obj.promotion = None
                 dealshub_product_obj.save()
 
+            location_group_uuid = unit_banner_obj.banner.location_group.uuid
+            cache.set(location_group_uuid, "has_expired")
+
             unit_banner_obj.delete()
             response['status'] = 200
 
@@ -980,6 +992,9 @@ class DeleteBannerAPI(APIView):
                     dealshub_product_obj.promotion = None
                     dealshub_product_obj.save()
 
+            location_group_uuid = banner_obj.location_group.uuid
+            cache.set(location_group_uuid, "has_expired")
+
             banner_obj.delete()
             
             response['status'] = 200
@@ -1005,6 +1020,9 @@ class PublishBannerAPI(APIView):
             banner_obj = Banner.objects.get(uuid=uuid)
             banner_obj.is_published = True
             banner_obj.save()
+
+            location_group_uuid = banner_obj.location_group.uuid
+            cache.set(location_group_uuid, "has_expired")
             
             response['uuid'] = banner_obj.uuid
             response['status'] = 200
@@ -1030,6 +1048,9 @@ class UnPublishBannerAPI(APIView):
             banner_obj = Banner.objects.get(uuid=uuid)
             banner_obj.is_published = False
             banner_obj.save()
+
+            location_group_uuid = banner_obj.location_group.uuid
+            cache.set(location_group_uuid, "has_expired")
             
             response['uuid'] = banner_obj.uuid
             response['status'] = 200
