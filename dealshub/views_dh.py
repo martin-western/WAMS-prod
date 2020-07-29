@@ -3462,6 +3462,9 @@ class FetchOrderAnalyticsParamsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
+            import time
+            time.sleep(2)
+
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
