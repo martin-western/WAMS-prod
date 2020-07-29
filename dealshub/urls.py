@@ -47,6 +47,7 @@ urlpatterns = [
 
     url(r'^search-section-products-autocomplete/$', views.SearchSectionProductsAutocomplete),
     url(r'^search-products-autocomplete/$', views.SearchProductsAutocomplete),
+    url(r'^search-products/$', views.SearchProducts),
 
     url(r'^fetch-dealshub-price/$', views.FetchDealshubPrice),
 
@@ -82,6 +83,7 @@ urlpatterns = [
     url(r'^cart/remove-from-cart/$', views.RemoveFromCart),
 
     url(r'^checkout/select-address/$', views.SelectAddress),
+    url(r'^checkout/select-offline-address/$', views.SelectOfflineAddress),
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
     url(r'^checkout/place-order/$', views.PlaceOrder),
@@ -99,6 +101,7 @@ urlpatterns = [
     url(r'^payment/calculate-signature/$', views.CalculateSignature),
 
     url(r'^user/create-offline-customer/$', views.CreateOfflineCustomer),
+    url(r'^user/update-offline-user-profile/$', views.UpdateOfflineUserProfile),
     url(r'^user/search-customer-autocomplete/$', views.SearchCustomerAutocomplete),
     url(r'^user/fetch-offline-user-profile/$', views.FetchOfflineUserProfile),
     url(r'^user/fetch-user-profile/$', views.FetchUserProfile),
@@ -144,4 +147,6 @@ urlpatterns = [
     url(r'^delete-voucher/$', views.DeleteVoucher),
     url(r'^publish-voucher/$', views.PublishVoucher),
     url(r'^unpublish-voucher/$', views.UnPublishVoucher),
+
+    url(r'^fetch-order-analytics-params/$', views.FetchOrderAnalyticsParams),
 ]

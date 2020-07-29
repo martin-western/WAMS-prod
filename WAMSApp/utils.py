@@ -20,6 +20,7 @@ import json
 from django.utils import timezone
 import sys
 import xlsxwriter
+import pandas as pd
 
 def my_jwt_response_handler(token, user=None, request=None):
     
@@ -784,10 +785,9 @@ def save_data_value(product_obj, base_product_obj, channel_product_obj, data_poi
         channel_product_obj.amazon_uae_product_json = json.dumps(amazon_uae_product_json)
         channel_product_obj.ebay_product_json = json.dumps(ebay_product_json)
 
-        channel_product_obj.save()
-        base_product_obj.save()
-        product_obj.save()
-
+        response["product_obj"] = product_obj
+        response["base_product_obj"] = base_product_obj
+        response["channel_product_obj"] = channel_product_obj
         response["status"] = 200
 
     except Exception as e:
@@ -821,30 +821,11 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return str(product_obj.product_id_type)
         if data_point_variable=="product_description":
             return product_obj.product_description
-        if data_point_variable=="pfl_product_feature_1":
+        if is_part_of_list(data_point_variable, "pfl_product_feature_1"):
+            num = get_attribute_number(data_point_variable)
             pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(pfl_product_features)>=1:
-                return pfl_product_features[0]
-            return ""
-        if data_point_variable=="pfl_product_feature_2":
-            pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(pfl_product_features)>=2:
-                return pfl_product_features[1]
-            return ""
-        if data_point_variable=="pfl_product_feature_3":
-            pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(pfl_product_features)>=3:
-                return pfl_product_features[2]
-            return ""
-        if data_point_variable=="pfl_product_feature_4":
-            pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(pfl_product_features)>=4:
-                return pfl_product_features[3]
-            return ""
-        if data_point_variable=="pfl_product_feature_5":
-            pfl_product_features = json.loads(product_obj.pfl_product_features)
-            if len(pfl_product_features)>=5:
-                return pfl_product_features[4]
+            if len(pfl_product_features)>=num:
+                return pfl_product_features[num-1]
             return ""
 
         if data_point_variable=="color_map":
@@ -871,260 +852,77 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
                 return MainImages.objects.get(product=product_obj, is_sourced=True).main_images.all()[0].image.image.url
             return ""
 
-        if data_point_variable=="sub_image_1":
-            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>0:
-                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[0].image.image.url
-            return ""
-        if data_point_variable=="sub_image_2":
-            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>1:
-                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[1].image.image.url
-            return ""
-        if data_point_variable=="sub_image_3":
-            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>2:
-                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[2].image.image.url
-            return ""
-        if data_point_variable=="sub_image_4":
-            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>3:
-                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[3].image.image.url
-            return ""
-        if data_point_variable=="sub_image_5":
-            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>4:
-                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[4].image.image.url
+        if is_part_of_list(data_point_variable, "sub_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.count()>=num:
+                return SubImages.objects.get(product=product_obj, is_sourced=True).sub_images.all()[num-1].image.image.url
             return ""
 
-        if data_point_variable=="white_background_image_1":
-            if product_obj.white_background_images.count()>=1:
-                return product_obj.white_background_images.all()[0].image.url
-            return ""
-        if data_point_variable=="white_background_image_2":
-            if product_obj.white_background_images.count()>=2:
-                return product_obj.white_background_images.all()[1].image.url
-            return ""
-        if data_point_variable=="white_background_image_3":
-            if product_obj.white_background_images.count()>=3:
-                return product_obj.white_background_images.all()[2].image.url
-            return ""
-        if data_point_variable=="white_background_image_4":
-            if product_obj.white_background_images.count()>=4:
-                return product_obj.white_background_images.all()[3].image.url
-            return ""
-        if data_point_variable=="white_background_image_5":
-            if product_obj.white_background_images.count()>=5:
-                return product_obj.white_background_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "white_background_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.white_background_images.count()>=num:
+                return product_obj.white_background_images.all()[num-1].image.url
             return ""
 
-        if data_point_variable=="lifestyle_image_1":
-            if product_obj.lifestyle_images.count()>=1:
-                return product_obj.lifestyle_images.all()[0].image.url
-            return ""
-        if data_point_variable=="lifestyle_image_2":
-            if product_obj.lifestyle_images.count()>=2:
-                return product_obj.lifestyle_images.all()[1].image.url
-            return ""
-        if data_point_variable=="lifestyle_image_3":
-            if product_obj.lifestyle_images.count()>=3:
-                return product_obj.lifestyle_images.all()[2].image.url
-            return ""
-        if data_point_variable=="lifestyle_image_4":
-            if product_obj.lifestyle_images.count()>=4:
-                return product_obj.lifestyle_images.all()[3].image.url
-            return ""
-        if data_point_variable=="lifestyle_image_5":
-            if product_obj.lifestyle_images.count()>=5:
-                return product_obj.lifestyle_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "lifestyle_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.lifestyle_images.count()>=num:
+                return product_obj.lifestyle_images.all()[num-1].image.url
             return ""
 
-        if data_point_variable=="certificate_image_1":
-            if product_obj.certificate_images.count()>=1:
-                return product_obj.certificate_images.all()[0].image.url
-            return ""
-        if data_point_variable=="certificate_image_2":
-            if product_obj.certificate_images.count()>=2:
-                return product_obj.certificate_images.all()[1].image.url
-            return ""
-        if data_point_variable=="certificate_image_3":
-            if product_obj.certificate_images.count()>=3:
-                return product_obj.certificate_images.all()[2].image.url
-            return ""
-        if data_point_variable=="certificate_image_4":
-            if product_obj.certificate_images.count()>=4:
-                return product_obj.certificate_images.all()[3].image.url
-            return ""
-        if data_point_variable=="certificate_image_5":
-            if product_obj.certificate_images.count()>=5:
-                return product_obj.certificate_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "certificate_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.certificate_images.count()>=num:
+                return product_obj.certificate_images.all()[num-1].image.url
             return ""
 
-        if data_point_variable=="giftbox_image_1":
-            if product_obj.giftbox_images.count()>=1:
-                return product_obj.giftbox_images.all()[0].image.url
-            return ""
-        if data_point_variable=="giftbox_image_2":
-            if product_obj.giftbox_images.count()>=2:
-                return product_obj.giftbox_images.all()[1].image.url
-            return ""
-        if data_point_variable=="giftbox_image_3":
-            if product_obj.giftbox_images.count()>=3:
-                return product_obj.giftbox_images.all()[2].image.url
-            return ""
-        if data_point_variable=="giftbox_image_4":
-            if product_obj.giftbox_images.count()>=4:
-                return product_obj.giftbox_images.all()[3].image.url
-            return ""
-        if data_point_variable=="giftbox_image_5":
-            if product_obj.giftbox_images.count()>=5:
-                return product_obj.giftbox_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "giftbox_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.giftbox_images.count()>=num:
+                return product_obj.giftbox_images.all()[num-1].image.url
             return ""
 
-        if data_point_variable=="diecut_image_1":
-            if product_obj.diecut_images.count()>=1:
-                return product_obj.diecut_images.all()[0].image.url
-            return ""
-        if data_point_variable=="diecut_image_2":
-            if product_obj.diecut_images.count()>=2:
-                return product_obj.diecut_images.all()[1].image.url
-            return ""
-        if data_point_variable=="diecut_image_3":
-            if product_obj.diecut_images.count()>=3:
-                return product_obj.diecut_images.all()[2].image.url
-            return ""
-        if data_point_variable=="diecut_image_4":
-            if product_obj.diecut_images.count()>=4:
-                return product_obj.diecut_images.all()[3].image.url
-            return ""
-        if data_point_variable=="diecut_image_5":
-            if product_obj.diecut_images.count()>=5:
-                return product_obj.diecut_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "diecut_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.diecut_images.count()>=num:
+                return product_obj.diecut_images.all()[num-1].image.url
             return ""
 
-        if data_point_variable=="aplus_content_image_1":
-            if product_obj.aplus_content_images.count()>=1:
-                return product_obj.aplus_content_images.all()[0].image.url
-            return ""
-        if data_point_variable=="aplus_content_image_2":
-            if product_obj.aplus_content_images.count()>=2:
-                return product_obj.aplus_content_images.all()[1].image.url
-            return ""
-        if data_point_variable=="aplus_content_image_3":
-            if product_obj.aplus_content_images.count()>=3:
-                return product_obj.aplus_content_images.all()[2].image.url
-            return ""
-        if data_point_variable=="aplus_content_image_4":
-            if product_obj.aplus_content_images.count()>=4:
-                return product_obj.aplus_content_images.all()[3].image.url
-            return ""
-        if data_point_variable=="aplus_content_image_5":
-            if product_obj.aplus_content_images.count()>=5:
-                return product_obj.aplus_content_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "aplus_content_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.aplus_content_images.count()>=num:
+                return product_obj.aplus_content_images.all()[num-1].image.url
             return ""
 
-        if data_point_variable=="ads_image_1":
-            if product_obj.ads_images.count()>=1:
-                return product_obj.ads_images.all()[0].image.url
-            return ""
-        if data_point_variable=="ads_image_2":
-            if product_obj.ads_images.count()>=2:
-                return product_obj.ads_images.all()[1].image.url
-            return ""
-        if data_point_variable=="ads_image_3":
-            if product_obj.ads_images.count()>=3:
-                return product_obj.ads_images.all()[2].image.url
-            return ""
-        if data_point_variable=="ads_image_4":
-            if product_obj.ads_images.count()>=4:
-                return product_obj.ads_images.all()[3].image.url
-            return ""
-        if data_point_variable=="ads_image_5":
-            if product_obj.ads_images.count()>=5:
-                return product_obj.ads_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "ads_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.ads_images.count()>=num:
+                return product_obj.ads_images.all()[num-1].image.url
             return ""
 
-        if data_point_variable=="transparent_image_1":
-            if product_obj.transparent_images.count()>=1:
-                return product_obj.transparent_images.all()[0].image.url
-            return ""
-        if data_point_variable=="transparent_image_2":
-            if product_obj.transparent_images.count()>=2:
-                return product_obj.transparent_images.all()[1].image.url
-            return ""
-        if data_point_variable=="transparent_image_3":
-            if product_obj.transparent_images.count()>=3:
-                return product_obj.transparent_images.all()[2].image.url
-            return ""
-        if data_point_variable=="transparent_image_4":
-            if product_obj.transparent_images.count()>=4:
-                return product_obj.transparent_images.all()[3].image.url
-            return ""
-        if data_point_variable=="transparent_image_5":
-            if product_obj.transparent_images.count()>=5:
-                return product_obj.transparent_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "transparent_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.transparent_images.count()>=num:
+                return product_obj.transparent_images.all()[num-1].image.url
             return ""
 
-
-        if data_point_variable=="pfl_image_1":
-            if product_obj.pfl_images.count()>=1:
-                return product_obj.pfl_images.all()[0].image.url
-            return ""
-        if data_point_variable=="pfl_image_2":
-            if product_obj.pfl_images.count()>=2:
-                return product_obj.pfl_images.all()[1].image.url
-            return ""
-        if data_point_variable=="pfl_image_3":
-            if product_obj.pfl_images.count()>=3:
-                return product_obj.pfl_images.all()[2].image.url
-            return ""
-        if data_point_variable=="pfl_image_4":
-            if product_obj.pfl_images.count()>=4:
-                return product_obj.pfl_images.all()[3].image.url
-            return ""
-        if data_point_variable=="pfl_image_5":
-            if product_obj.pfl_images.count()>=5:
-                return product_obj.pfl_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "pfl_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.pfl_images.count()>=num:
+                return product_obj.pfl_images.all()[num-1].image.url
             return ""
 
-
-        if data_point_variable=="pfl_generated_image_1":
-            if product_obj.pfl_images.count()>=1:
-                return product_obj.pfl_generated_images.all()[0].image.url
-            return ""
-        if data_point_variable=="pfl_generated_image_2":
-            if product_obj.pfl_images.count()>=2:
-                return product_obj.pfl_generated_images.all()[1].image.url
-            return ""
-        if data_point_variable=="pfl_generated_image_3":
-            if product_obj.pfl_images.count()>=3:
-                return product_obj.pfl_generated_images.all()[2].image.url
-            return ""
-        if data_point_variable=="pfl_generated_image_4":
-            if product_obj.pfl_images.count()>=4:
-                return product_obj.pfl_generated_images.all()[3].image.url
-            return ""
-        if data_point_variable=="pfl_generated_image_5":
-            if product_obj.pfl_images.count()>=5:
-                return product_obj.pfl_generated_images.all()[4].image.url
+        if is_part_of_list(data_point_variable, "pfl_generated_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if product_obj.pfl_images.count()>=num:
+                return product_obj.pfl_generated_images.all()[num-1].image.url
             return ""
 
-
-        if data_point_variable=="unedited_image_1":
-            if base_product_obj.unedited_images.count()>=1:
-                return base_product_obj.unedited_images.all()[0].image.url
-            return ""
-        if data_point_variable=="unedited_image_2":
-            if base_product_obj.unedited_images.count()>=2:
-                return base_product_obj.unedited_images.all()[1].image.url
-            return ""
-        if data_point_variable=="unedited_image_3":
-            if base_product_obj.unedited_images.count()>=3:
-                return base_product_obj.unedited_images.all()[2].image.url
-            return ""
-        if data_point_variable=="unedited_image_4":
-            if base_product_obj.unedited_images.count()>=4:
-                return base_product_obj.unedited_images.all()[3].image.url
-            return ""
-        if data_point_variable=="unedited_image_5":
-            if base_product_obj.unedited_images.count()>=5:
-                return base_product_obj.unedited_images.all()[4].image.url
-            return ""
+        if is_part_of_list(data_point_variable, "unedited_image_1"):
+            num = get_attribute_number(data_point_variable)
+            if base_product_obj.unedited_images.count()>=num:
+                return base_product_obj.unedited_images.all()[num-1].image.url
+            return ""            
 
         if data_point_variable=="barcode_string":
             return product_obj.barcode_string
@@ -1143,7 +941,7 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
         if data_point_variable=="manufacturer_part_number":
             return base_product_obj.manufacturer_part_number
         
-        dimensions = json.loads(base_product.dimensions)
+        dimensions = json.loads(base_product_obj.dimensions)
         if data_point_variable in dimensions:
             return dimensions[data_point_variable]
         
@@ -1154,29 +952,10 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
         if data_point_variable=="amazonuk_product_description":
             return amazon_uk_product_json["product_description"]
 
-        if data_point_variable=="amazonuk_product_attribute_list_1":
-            if len(amazon_uk_product_json["product_attribute_list"])>0:
-                return amazon_uk_product_json["product_attribute_list"][0]
-            else:
-                return ""
-        if data_point_variable=="amazonuk_product_attribute_list_2":
-            if len(amazon_uk_product_json["product_attribute_list"])>1:
-                return amazon_uk_product_json["product_attribute_list"][1]
-            else:
-                return ""
-        if data_point_variable=="amazonuk_product_attribute_list_3":
-            if len(amazon_uk_product_json["product_attribute_list"])>2:
-                return amazon_uk_product_json["product_attribute_list"][2]
-            else:
-                return ""
-        if data_point_variable=="amazonuk_product_attribute_list_4":
-            if len(amazon_uk_product_json["product_attribute_list"])>3:
-                return amazon_uk_product_json["product_attribute_list"][3]
-            else:
-                return ""
-        if data_point_variable=="amazonuk_product_attribute_list_5":
-            if len(amazon_uk_product_json["product_attribute_list"])>4:
-                return amazon_uk_product_json["product_attribute_list"][4]
+        if is_part_of_list(data_point_variable, "amazonuk_product_attribute_list_1"):
+            num = get_attribute_number(data_point_variable)
+            if len(amazon_uk_product_json["product_attribute_list"])>=num:
+                return amazon_uk_product_json["product_attribute_list"][num-1]
             else:
                 return ""
 
@@ -1204,29 +983,11 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return amazon_uk_product_json["enclosure_material"]
         if data_point_variable=="amazonuk_cover_material_type":
             return amazon_uk_product_json["cover_material_type"]
-        if data_point_variable=="amazonuk_special_feature_1":
-            if len(amazon_uk_product_json["special_features"])>0:
-                return amazon_uk_product_json["special_features"][0]
-            else:
-                return ""
-        if data_point_variable=="amazonuk_special_feature_2":
-            if len(amazon_uk_product_json["special_features"])>1:
-                return amazon_uk_product_json["special_features"][1]
-            else:
-                return ""
-        if data_point_variable=="amazonuk_special_feature_3":
-            if len(amazon_uk_product_json["special_features"])>2:
-                return amazon_uk_product_json["special_features"][2]
-            else:
-                return ""
-        if data_point_variable=="amazonuk_special_feature_4":
-            if len(amazon_uk_product_json["special_features"])>3:
-                return amazon_uk_product_json["special_features"][3]
-            else:
-                return ""
-        if data_point_variable=="amazonuk_special_feature_5":
-            if len(amazon_uk_product_json["special_features"])>4:
-                return amazon_uk_product_json["special_features"][4]
+
+        if is_part_of_list(data_point_variable, "amazonuk_special_feature_1"):
+            num = get_attribute_number(data_point_variable)
+            if len(amazon_uk_product_json["special_features"])>=num:
+                return amazon_uk_product_json["special_features"][num-1]
             else:
                 return ""
 
@@ -1333,29 +1094,10 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
         if data_point_variable=="amazonuae_product_description":
             return amazon_uae_product_json["product_description"]
 
-        if data_point_variable=="amazonuae_product_attribute_list_1":
-            if len(amazon_uae_product_json["product_attribute_list"])>0:
-                return amazon_uae_product_json["product_attribute_list"][0]
-            else:
-                return ""
-        if data_point_variable=="amazonuae_product_attribute_list_2":
-            if len(amazon_uae_product_json["product_attribute_list"])>1:
-                return amazon_uae_product_json["product_attribute_list"][1]
-            else:
-                return ""
-        if data_point_variable=="amazonuae_product_attribute_list_3":
-            if len(amazon_uae_product_json["product_attribute_list"])>2:
-                return amazon_uae_product_json["product_attribute_list"][2]
-            else:
-                return ""
-        if data_point_variable=="amazonuae_product_attribute_list_4":
-            if len(amazon_uae_product_json["product_attribute_list"])>3:
-                return amazon_uae_product_json["product_attribute_list"][3]
-            else:
-                return ""
-        if data_point_variable=="amazonuae_product_attribute_list_5":
-            if len(amazon_uae_product_json["product_attribute_list"])>4:
-                return amazon_uae_product_json["product_attribute_list"][4]
+        if is_part_of_list(data_point_variable, "amazonuae_product_attribute_list_1"):
+            num = get_attribute_number(data_point_variable)
+            if len(amazon_uae_product_json["product_attribute_list"])>=num:
+                return amazon_uae_product_json["product_attribute_list"][num-1]
             else:
                 return ""
 
@@ -1400,31 +1142,14 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return ebay_product_json["was_price"]
         if data_point_variable=="ebay_stock":
             return ebay_product_json["stock"]
-        if data_point_variable=="ebay_product_attribute_list_1":
-            if len(ebay_product_json["product_attribute_list"])>0:
-                return ebay_product_json["product_attribute_list"][0]
+
+        if is_part_of_list(data_point_variable, "ebay_product_attribute_list_1"):
+            num = get_attribute_number(data_point_variable)
+            if len(ebay_product_json["product_attribute_list"])>=num:
+                return ebay_product_json["product_attribute_list"][num-1]
             else:
                 return ""
-        if data_point_variable=="ebay_product_attribute_list_2":
-            if len(ebay_product_json["product_attribute_list"])>1:
-                return ebay_product_json["product_attribute_list"][1]
-            else:
-                return ""
-        if data_point_variable=="ebay_product_attribute_list_3":
-            if len(ebay_product_json["product_attribute_list"])>2:
-                return ebay_product_json["product_attribute_list"][2]
-            else:
-                return ""
-        if data_point_variable=="ebay_product_attribute_list_4":
-            if len(ebay_product_json["product_attribute_list"])>3:
-                return ebay_product_json["product_attribute_list"][3]
-            else:
-                return ""
-        if data_point_variable=="ebay_product_attribute_list_5":
-            if len(ebay_product_json["product_attribute_list"])>4:
-                return ebay_product_json["product_attribute_list"][4]
-            else:
-                return ""
+
         if data_point_variable=="ebay_http_link":
             return ebay_product_json["http_link"]
 
@@ -1476,32 +1201,14 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return noon_product_json["partner_barcode"]
         if data_point_variable=="noon_psku_code":
             return noon_product_json["psku_code"]
-               
-        if data_point_variable=="product_attribute_list_1":
-            if len(noon_product_json["product_attribute_list"])>0:
-                return noon_product_json["product_attribute_list"][0]
+
+        if is_part_of_list(data_point_variable, "product_attribute_list_1"):
+            num = get_attribute_number(data_point_variable)
+            if len(noon_product_json["product_attribute_list"])>=num:
+                return noon_product_json["product_attribute_list"][num-1]
             else:
                 return ""
-        if data_point_variable=="product_attribute_list_2":
-            if len(noon_product_json["product_attribute_list"])>1:
-                return noon_product_json["product_attribute_list"][1]
-            else:
-                return ""
-        if data_point_variable=="product_attribute_list_3":
-            if len(noon_product_json["product_attribute_list"])>2:
-                return noon_product_json["product_attribute_list"][2]
-            else:
-                return ""
-        if data_point_variable=="product_attribute_list_4":
-            if len(noon_product_json["product_attribute_list"])>3:
-                return noon_product_json["product_attribute_list"][3]
-            else:
-                return ""
-        if data_point_variable=="product_attribute_list_5":
-            if len(noon_product_json["product_attribute_list"])>4:
-                return noon_product_json["product_attribute_list"][4]
-            else:
-                return ""
+
         if data_point_variable=="noon_http_link":
             return noon_product_json["http_link"]
     except Exception as e:
@@ -1551,20 +1258,26 @@ def generate_dynamic_export(product_uuid_list, data_point_list):
 
 
 def upload_dynamic_excel_for_product(path, data_point_list,operation,request_user):
-    
+
     response = {}
     response["status_message"] = ""
     response["status"] = 500
 
     try:
 
+        logger.info("upload_dynamic_excel_for_product [Path]: %s", path)
+
+        logger.info("upload_dynamic_excel_for_product [Data Point List]: %s", data_point_list)
+
         dfs = pd.read_excel(path, sheet_name=None)
 
         dfs = dfs["Sheet1"]
 
+        logger.info("upload_dynamic_excel_for_product [Excel]: %s ", dfs)
+
         rows = len(dfs.iloc[:])
 
-        error_list = []
+        result_list = []
 
         filename = "files/dynamic bulk upload excel/Dynamic Excel Upload Result.xlsx"
 
@@ -1575,6 +1288,10 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
         for i in range(rows):
 
             errors = []
+
+            warnings = []
+
+            result = []
 
             product_obj = Product.objects.none()
             base_product_obj = BaseProduct.objects.none()
@@ -1587,18 +1304,22 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
                         if(data_point_list[j] == "product_id"):
                             product_id = str(dfs.iloc[i][j]).strip()
 
-                    errors.append(str(product_id))
+                    result.append(str(product_id))
 
                     if(product_id=="" or product_id=="nan"):
-                        raise Exception("Required Fields must not be empty")
+                        raise Exception("Required Fields must not be empty!")
 
                     product_obj = Product.objects.get(product_id=product_id)
                     base_product_obj = product_obj.base_product
                     channel_product_obj = product_obj.channel_product
                 except Exception as e:
                     errors.append(str(e))
-                    errors.append("Not Accepted")
-                    error_list.append(errors)
+                    result.append(warnings)
+                    result.append(errors)
+                    result.append("Rejected")
+                    result_list.append(result)
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("upload_dynamic_excel_for_product: %s at %s", e, str(exc_tb.tb_lineno))
                     continue
             else:
                 try:
@@ -1630,13 +1351,13 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
                         if(data_point_list[j] == "sub_category"):
                             sub_category_name = str(dfs.iloc[i][j]).strip()
     
-                    errors.append(str(product_id))
+                    result.append(str(product_id))
 
                     if(product_name == "" or manufacturer == "" or manufacturer_part_number == "" or category_name == "" or sub_category_name == "" or product_id == "" or brand_name == "" or seller_sku == ""):
-                        raise Exception("Required Fields must not be empty")
+                        raise Exception("Required Fields must not be empty!")
 
                     if(product_name == "nan" or manufacturer == "nan" or manufacturer_part_number == "nan" or category_name == "nan" or sub_category_name == "nan" or product_id == "nan" or brand_name == "nan" or seller_sku == "nan"):
-                        raise Exception("Required Fields must not be empty")
+                        raise Exception("Required Fields must not be empty!")
 
                     category_obj = Category.objects.get(name=category_name)
                     sub_category_obj = SubCategory.objects.get(name=sub_category_name)
@@ -1648,78 +1369,99 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
                         raise Exception("Brand not in Permissible Brands")
                     base_product_obj = BaseProduct.objects.none()
 
-                    try:
-                        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
-                    except:
-                        base_product_obj = BaseProduct.objects.create(
-                            base_product_name=product_name,
-                            seller_sku=seller_sku,
-                            brand=brand_obj,
-                            category=category_obj,
-                            sub_category=sub_category_obj,
-                            manufacturer=manufacturer,
-                            manufacturer_part_number=manufacturer_part_number,
-                        )
-                    try:
-                        product_obj = Product.objects.get(product_id=product_id)
-                    except Exception as e:
-                        product_obj = Product.objects.create(
-                            product_name = product_name,
-                            product_name_sap=product_name,
-                            pfl_product_name=product_name,
-                            base_product=base_product_obj,
-                            product_id = product_id,
-                        )
+                    if(BaseProduct.objects.filter(seller_sku=seller_sku).exists() or Product.objects.filter(product_id=product_id).exists()):
+                        raise Exception("Product Already Exists!")
+
+                    
+                    base_product_obj = BaseProduct.objects.create(
+                        base_product_name=product_name,
+                        seller_sku=seller_sku,
+                        brand=brand_obj,
+                        category=category_obj,
+                        sub_category=sub_category_obj,
+                        manufacturer=manufacturer,
+                        manufacturer_part_number=manufacturer_part_number,
+                    )
+                
+                    product_obj = Product.objects.create(
+                        product_name = product_name,
+                        product_name_sap=product_name,
+                        pfl_product_name=product_name,
+                        base_product=base_product_obj,
+                        product_id = product_id,
+                    )
+
                     channel_product_obj = product_obj.channel_product
 
                 except Exception as e:
                     errors.append(str(e))
-                    errors.append("Not Accepted")
-                    error_list.append(errors)
+                    result.append(warnings)
+                    result.append(errors)
+                    result.append("Rejected")
+                    result_list.append(result)
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("upload_dynamic_excel_for_product: %s at %s", e, str(exc_tb.tb_lineno))
                     continue
 
             for j in range(len(data_point_list)):
 
                 value = str(dfs.iloc[i][j]).strip()
 
-                print(data_point_list[j])
-                print(value)
-                
                 if(value != "" and value !="nan"):
                     incoming_response = save_data_value(product_obj,base_product_obj,channel_product_obj,data_point_list[j],request_user,value)
                 else:
                     data_point_name = DataPoint.objects.get(variable=data_point_list[j]).name
-                    errors.append(data_point_name + " is empty")
+                    warnings.append(data_point_name + " is empty")
+                    continue
 
                 if(incoming_response["status"]!=200):  
                     errors.append(str(incoming_response["status_message"]))
-                
-            errors.append("Accepted")
+                else:
+                    channel_product_obj = incoming_response["channel_product_obj"]
+                    product_obj = incoming_response["product_obj"]
+                    base_product_obj = incoming_response["base_product_obj"]
+               
+            result.append(warnings)
+            result.append(errors)
 
-            error_list.append(errors)
+            if(len(errors) == 0):
+                result.append("Accepted")
+                channel_product_obj.save()
+                product_obj.save()
+                base_product_obj.save()
+            else:
+                result.append("Rejected")
+                if(operation == "Create"):
+                    channel_product_obj.delete()
+                    product_obj.delete()
+                    base_product_obj.delete()
+
+            result_list.append(result)
 
         worksheet.write(0, 0, "Product ID")
-        worksheet.write(0, 1, "Errors")
-        worksheet.write(0, 2, "Status")
+        worksheet.write(0, 1, "Warnings")
+        worksheet.write(0, 2, "Errors")
+        worksheet.write(0, 3, "Status")
 
         accepted_products = 0
         rejected_products = 0
 
-        for i in range(len(error_list)):
-            row = i+2       
-            worksheet.write(row, 0, error_list[i][0])
-            worksheet.write(row, 2, error_list[i][-1])
-            if(error_list[i][-1]=="Accepted"):
+        for i in range(len(result_list)):
+            row = i+1       
+            worksheet.write(row, 0, result_list[i][0])
+            worksheet.write(row, 3, result_list[i][-1])
+            if(result_list[i][-1]=="Accepted"):
                 accepted_products += 1
             else:
                 rejected_products += 1
-            excel_error_value = ""
-            for j in range(1,len(error_list[i])-1):
-                delimiter = ""
-                if(j != len(error_list[i])-2):
-                    delimiter = " | "
-                excel_error_value += error_list[i][j] + delimiter
-            worksheet.write(row, 1, excel_error_value)
+            for k in range(1,3):
+                excel_value = ""
+                for j in range(0,len(result_list[i][k])):
+                    delimiter = ""
+                    if(j != len(result_list[i][k])-1):
+                        delimiter = " | "
+                    excel_value += result_list[i][k][j] + delimiter
+                worksheet.write(row, k, excel_value)
     
         workbook.close()
         response["status"] = 200
@@ -1729,6 +1471,8 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
 
     except Exception as e:
         response["status_message"] = str(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("upload_dynamic_excel_for_product: %s at %s", e, str(exc_tb.tb_lineno))
 
     return response
 
@@ -2507,3 +2251,79 @@ def content_health_filtered_list(filter_parameters,search_list_product_objs):
         search_list_product_objs = search_list_product_objs.exclude(product__in=SubImages.objects.annotate(num_sub_images=Count('sub_images')).filter(is_sourced=True,num_sub_images__gt=2))
 
     return search_list_product_objs 
+
+def get_recommended_browse_node(seller_sku,channel):
+
+    try:
+
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        company_code_dict ={
+            "Geepas" : "1000",
+            "Abraj": "6000",
+            "BabyPlus": "5550",
+            "Baby Plus": "5550",
+            "Crystal": "5100",
+            "Delcasa": "3050",
+            "Olsenmark": "1100",
+            "Royalford": "3000",
+            "Younglife": "5000"
+        }
+        
+        product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+        company_code = company_code_dict[product_obj.base_product.brand.name]
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soapenv:Header />
+                  <soapenv:Body>
+                  <urn:ZAPP_STOCK_PRICE>
+                   <IM_MATNR>
+                    <item>
+                     <MATNR>""" + seller_sku + """</MATNR>
+                    </item>
+                   </IM_MATNR>
+                   <IM_VKORG>
+                    <item>
+                     <VKORG>""" + company_code + """</VKORG>
+                    </item>
+                   </IM_VKORG>
+                   <T_DATA>
+                    <item>
+                     <MATNR></MATNR>
+                     <MAKTX></MAKTX>
+                     <LGORT></LGORT>
+                     <CHARG></CHARG>
+                     <SPART></SPART>
+                     <MEINS></MEINS>
+                     <ATP_QTY></ATP_QTY>
+                     <TOT_QTY></TOT_QTY>
+                     <CURRENCY></CURRENCY>
+                     <IC_EA></IC_EA>
+                     <OD_EA></OD_EA>
+                     <EX_EA></EX_EA>
+                     <RET_EA></RET_EA>
+                     <WERKS></WERKS>
+                    </item>
+                   </T_DATA>
+                  </urn:ZAPP_STOCK_PRICE>
+                  </soapenv:Body>
+                  </soapenv:Envelope>"""
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        item = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        if isinstance(item,list):
+            item = item[1]
+
+        try:
+            recommended_browse_node = CategoryMapping.objects.filter(channel__name=channel,sap_sub_category__sub_category=item["WWGHB1"])[0].recommended_browse_node
+            return recommended_browse_node
+        except:
+            logger.error("get_recommended_browse_node: Mapping not found")
+            return ""
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_recommended_browse_node: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""

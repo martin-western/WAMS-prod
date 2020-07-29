@@ -1,4 +1,5 @@
 from WAMSApp.models import *
+from WAMSApp.utils import *
 
 def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
     try:
@@ -45,6 +46,10 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
             category = amazon_uae_product["category"]
             sub_category = amazon_uae_product["sub_category"]
 
+            amazon_uae_product["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UAE")
+            product_obj.channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
+            product_obj.channel_product.save()
+
             xml_string += """<Message>
                                 <MessageID>"""+ message_id +"""</MessageID>
                                 <OperationType>Update</OperationType> 
@@ -59,8 +64,12 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
                                     </Condition>
                                     <DescriptionData>
                                         <Title>"""+ product_name + """</Title>
-                                        <Brand>""" + brand_name +"""</Brand>
-                                    </DescriptionData>"""
+                                        <Brand>""" + brand_name +"""</Brand>"""
+            
+            if(amazon_uae_product["recommended_browse_nodes"] != ""):
+                xml_string += """<RecommendedBrowseNode>"""+amazon_uae_product["recommended_browse_nodes"]+"""</RecommendedBrowseNode>"""
+
+            xml_string += """</DescriptionData>"""
 
             if(category != "" and sub_category != ""):
 
@@ -143,6 +152,10 @@ def generate_xml_for_partial_update_product_amazon_uae(product_pk_list,seller_id
 
             category = amazon_uae_product_dict["category"]
             sub_category = amazon_uae_product_dict["sub_category"]
+
+            amazon_uae_product_dict["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UAE")
+            product_obj.channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product_dict)
+            product_obj.channel_product.save()
 
             xml_string += """<Message>
                                 <MessageID>"""+ message_id +"""</MessageID>

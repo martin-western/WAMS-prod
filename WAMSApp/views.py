@@ -5595,7 +5595,7 @@ class DownloadBulkExportAPI(APIView):
             product_uuid_list = data["product_uuid_list"]
 
             generate_dynamic_export(product_uuid_list, data_point_list)
-            response["file_path"] = "https://"+SERVER_IP+"/files/csv/dynamic_export.xlsx"
+            response["file_path"] = SERVER_IP+"/files/csv/dynamic_export.xlsx"
             
             response['status'] = 200
         
@@ -6053,7 +6053,7 @@ class BulkUploadDynamicExcelAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            data_point_list = data["data_point_list"]
+            data_point_list = json.loads(data["data_point_list"])
             operation = data["operation"]
 
             path = default_storage.save('tmp/temp-dynamic-template-upload.xlsx', data["import_file"])
@@ -6094,7 +6094,7 @@ class FetchDataPointsForUploadAPI(APIView):
 
             data_point_objs = DataPoint.objects.all().exclude(name__icontains="image").exclude(name__icontains="Image")
 
-            for i in range(2,6):
+            for i in range(2,11):
                 data_point_objs = data_point_objs.exclude(variable__icontains="_"+str(i))
 
             required_fields_to_create = ["seller_sku","product_id","product_name","brand","manufacturer","manufacturer_part_number","category","sub_category"]

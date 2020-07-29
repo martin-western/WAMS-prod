@@ -213,7 +213,7 @@ class CreateOfflineShippingAddressAPI(APIView):
                 if tag==None:
                     tag = ""
 
-                address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj)
+                address_obj = Address.objects.create(user=dealshub_user_obj,first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj)
 
                 response["uuid"] = address_obj.uuid
                 response['status'] = 200
@@ -459,6 +459,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["brand"] = unit_cart_obj.product.get_brand()
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
@@ -541,6 +542,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["brand"] = unit_cart_obj.product.get_brand()
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
@@ -757,6 +759,36 @@ class SelectAddressAPI(APIView):
         return Response(data=response)
 
 
+class SelectOfflineAddressAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SelectOfflineAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            address_uuid = data["addressUuid"]
+            username = data["username"]
+
+            address_obj = Address.objects.get(uuid=address_uuid)
+            dealshub_user_obj = DealsHubUser.objects.get(username=username)
+            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=address_obj.location_group)
+            
+            cart_obj.shipping_address = address_obj
+            cart_obj.save()
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SelectOfflineAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class SelectPaymentModeAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -952,6 +984,8 @@ class PlaceOrderAPI(APIView):
             # Refresh Stock
             refresh_stock(order_obj)
 
+            response["purchase"] = calculate_gtm(order_obj)
+
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1001,7 +1035,7 @@ class PlaceOfflineOrderAPI(APIView):
                                              to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
-                                             is_offline_order = True,
+                                             is_order_offline = True,
                                              location_group=cart_obj.location_group)
 
             for unit_cart_obj in unit_cart_objs:
@@ -1319,6 +1353,8 @@ class CreateOfflineCustomerAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
                 dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, website_group=website_group_obj)
                 dealshub_user_obj.set_password(OTP)
@@ -1332,6 +1368,44 @@ class CreateOfflineCustomerAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateOfflineCustomerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateOfflineUserProfileAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateOfflineUserProfileAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            username = data["username"]
+            email_id = data["emailId"]
+            first_name = data["firstName"]
+            last_name = data["lastName"]
+            contact_number = data["contactNumber"]
+
+            if DealsHubUser.objects.filter(username=username).exists():
+                dealshub_user_obj = DealsHubUser.objects.get(username=username)
+                dealshub_user_obj.email = email_id
+                dealshub_user_obj.first_name = first_name
+                dealshub_user_obj.last_name = last_name
+                dealshub_user_obj.contact_number = contact_number
+                dealshub_user_obj.save()
+                response['status'] = 200
+            else:
+                response['status'] = 404
+
+
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateOfflineUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1352,7 +1426,9 @@ class SearchCustomerAutocompleteAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
-            user_objs = DealsHubUser.objects.filter(username__icontains=search_string, website_group=website_group_obj)[:5]
+            user_objs = DealsHubUser.objects.filter(website_group=website_group_obj)
+
+            user_objs = user_objs.filter(Q(first_name__icontains=search_string) | Q(last_name__icontains=search_string) | Q(contact_number__icontains=search_string))[:5]
 
             user_list = []
             for user_obj in user_objs:
@@ -1371,12 +1447,12 @@ class SearchCustomerAutocompleteAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SearchCustomerAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
 class FetchOfflineUserProfileAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1397,22 +1473,25 @@ class FetchOfflineUserProfileAPI(APIView):
             response["contactNumber"] = dealshub_user_obj.contact_number
 
             address_list = []
-            for address_obj in address_objs:
-                temp_dict = {}
-                temp_dict['firstName'] = address_obj.first_name
-                temp_dict['lastName'] = address_obj.last_name
-                temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
-                temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
-                temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
-                temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
-                temp_dict['state'] = address_obj.state
-                temp_dict['country'] = address_obj.get_country()
-                temp_dict['postcode'] = address_obj.postcode
-                temp_dict['contactNumber'] = str(address_obj.contact_number)
-                temp_dict['tag'] = str(address_obj.tag)
-                temp_dict['uuid'] = str(address_obj.uuid)
+            if Address.objects.filter(user=dealshub_user_obj).exists():
+                address_objs = Address.objects.filter(user=dealshub_user_obj)
 
-                address_list.append(temp_dict)
+                for address_obj in address_objs:
+                    temp_dict = {}
+                    temp_dict['firstName'] = address_obj.first_name
+                    temp_dict['lastName'] = address_obj.last_name
+                    temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
+                    temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
+                    temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
+                    temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
+                    temp_dict['state'] = address_obj.state
+                    temp_dict['country'] = address_obj.get_country()
+                    temp_dict['postcode'] = address_obj.postcode
+                    temp_dict['contactNumber'] = str(address_obj.contact_number)
+                    temp_dict['tag'] = str(address_obj.tag)
+                    temp_dict['uuid'] = str(address_obj.uuid)
+
+                    address_list.append(temp_dict)
 
             response['addressList'] = address_list
 
@@ -2232,11 +2311,13 @@ class SendOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
+            is_new_user = False
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
                 dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
+                is_new_user = True
             else:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
                 dealshub_user_obj.set_password(OTP)
@@ -2255,6 +2336,7 @@ class SendOTPSMSLoginAPI(APIView):
             url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
             r = requests.get(url)
 
+            response["isNewUser"] = is_new_user
             response["status"] = 200
 
         except Exception as e:
@@ -2853,7 +2935,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                        temp_dict["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+                        voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+                        voucher_discount_vat = round(voucher_discount - voucher_discount/1.05, 2)
+                        temp_dict["voucherDiscount"] = voucher_discount
+                        temp_dict["voucherDiscountVat"] = voucher_discount_vat
+                        temp_dict["voucherDiscountWithoutVat"] = round(voucher_discount/1.05,2)
 
                     unit_order_list = []
                     subtotal = 0
@@ -2904,6 +2990,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     temp_dict["vat"] = str(vat)
                     temp_dict["toPay"] = str(to_pay)
+                    temp_dict["toPayWithoutVat"] = str(to_pay-vat)
 
                     temp_dict["unitOrderList"] = unit_order_list
 
@@ -3367,6 +3454,41 @@ class RemoveVoucherCodeAPI(APIView):
         return Response(data=response)
 
 
+class FetchOrderAnalyticsParamsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOrderAnalyticsParamsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            import time
+            time.sleep(2)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            order_obj = Order.objects.filter(location_group__uuid=location_group_uuid, owner__username=request.user.username).order_by('-pk')[0]
+
+            gtm_params = calculate_gtm(order_obj)
+
+            response["order_summary"] = gtm_params["actionField"]
+            response["order_products"] = gtm_params["products"]
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrderAnalyticsParamsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
@@ -3391,6 +3513,8 @@ RemoveFromCart = RemoveFromCartAPI.as_view()
 
 SelectAddress = SelectAddressAPI.as_view()
 
+SelectOfflineAddress = SelectOfflineAddressAPI.as_view()
+
 SelectPaymentMode = SelectPaymentModeAPI.as_view()
 
 FetchActiveOrderDetails = FetchActiveOrderDetailsAPI.as_view()
@@ -3408,6 +3532,8 @@ FetchOrderListAdmin = FetchOrderListAdminAPI.as_view()
 FetchOrderDetails = FetchOrderDetailsAPI.as_view()
 
 CreateOfflineCustomer = CreateOfflineCustomerAPI.as_view()
+
+UpdateOfflineUserProfile = UpdateOfflineUserProfileAPI.as_view()
 
 SearchCustomerAutocomplete = SearchCustomerAutocompleteAPI.as_view()
 
@@ -3482,3 +3608,5 @@ UploadOrders = UploadOrdersAPI.as_view()
 ApplyVoucherCode = ApplyVoucherCodeAPI.as_view()
 
 RemoveVoucherCode = RemoveVoucherCodeAPI.as_view()
+
+FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
