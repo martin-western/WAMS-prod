@@ -172,6 +172,7 @@ def send_order_confirmation_mail(order_obj):
         address_lines = json.loads(order_obj.shipping_address.address_lines)
         full_name = order_obj.get_customer_full_name()
         website_logo = order_obj.get_email_website_logo()
+        email_content = order_obj.location_group.get_email_content()
 
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-confirmation.html',
@@ -182,7 +183,8 @@ def send_order_confirmation_mail(order_obj):
                 "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": order_obj.get_website_link()+"/orders/"+order_obj.uuid
+                "website_order_link": order_obj.get_website_link()+"/orders/"+order_obj.uuid,
+                "email_content": email_content
             }
         )
 

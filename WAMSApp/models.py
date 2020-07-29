@@ -259,6 +259,9 @@ class LocationGroup(models.Model):
             return self.website_group.logo.image.url
         return ""
 
+    def get_email_content(self):
+        return json.loads(self.website_group.conf)["email_content"]
+
     class Meta:
         verbose_name = "LocationGroup"
         verbose_name_plural = "LocationGroup"
