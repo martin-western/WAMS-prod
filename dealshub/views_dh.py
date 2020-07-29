@@ -2935,7 +2935,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                        temp_dict["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+                        voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+                        voucher_discount_vat = round(voucher_discount - voucher_discount/1.05, 2)
+                        temp_dict["voucherDiscount"] = voucher_discount
+                        temp_dict["voucherDiscountVat"] = voucher_discount_vat
+                        temp_dict["voucherDiscountWithoutVat"] = round(voucher_discount/1.05,2)
 
                     unit_order_list = []
                     subtotal = 0
@@ -2986,6 +2990,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     temp_dict["vat"] = str(vat)
                     temp_dict["toPay"] = str(to_pay)
+                    temp_dict["toPayWithoutVat"] = str(to_pay-vat)
 
                     temp_dict["unitOrderList"] = unit_order_list
 
