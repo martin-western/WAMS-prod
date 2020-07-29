@@ -984,6 +984,8 @@ class PlaceOrderAPI(APIView):
             # Refresh Stock
             refresh_stock(order_obj)
 
+            response["purchase"] = calculate_gtm(order_obj)
+
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
