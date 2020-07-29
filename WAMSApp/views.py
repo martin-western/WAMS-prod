@@ -6094,7 +6094,7 @@ class FetchDataPointsForUploadAPI(APIView):
 
             data_point_objs = DataPoint.objects.all().exclude(name__icontains="image").exclude(name__icontains="Image")
 
-            for i in range(2,6):
+            for i in range(2,11):
                 data_point_objs = data_point_objs.exclude(variable__icontains="_"+str(i))
 
             required_fields_to_create = ["seller_sku","product_id","product_name","brand","manufacturer","manufacturer_part_number","category","sub_category"]
