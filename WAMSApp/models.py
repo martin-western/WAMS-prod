@@ -1289,7 +1289,7 @@ class SapSuperCategory(models.Model):
 class SapCategory(models.Model):
 
     category = models.CharField(max_length=200,default="")
-    super_category = models.ForeignKey(SapSuperCategory,on_delete=models.SET_NULL)
+    super_category = models.ForeignKey(SapSuperCategory,null=True,on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "SAP Category"
@@ -1301,7 +1301,7 @@ class SapCategory(models.Model):
 class SapSubCategory(models.Model):
 
     sub_category = models.CharField(max_length=200,default="")
-    category = models.ForeignKey(SapCategory,on_delete=models.SET_NULL)
+    category = models.ForeignKey(SapCategory,null=True,on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "SAP Sub Category"
@@ -1312,11 +1312,11 @@ class SapSubCategory(models.Model):
 
 class CategoryMapping(models.Model):
 
-    sap_sub_category = models.ForeignKey(SapSubCategory,on_delete=models.SET_NULL)
+    sap_sub_category = models.ForeignKey(SapSubCategory,null=True,on_delete=models.SET_NULL)
     atp_threshold = models.FloatField(default=0)
     holding_threshold = models.FloatField(default=0)
     recommended_browse_node = models.CharField(max_length=200,default="")
-    channel = models.ForeignKey(Channel,on_delete=models.SET_NULL)
+    channel = models.ForeignKey(Channel,null=True,on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "Category Mapping"
