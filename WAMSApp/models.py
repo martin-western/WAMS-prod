@@ -1272,3 +1272,55 @@ class FactoryProduct(models.Model):
             self.uuid = str(uuid.uuid4())
         
         super(FactoryProduct, self).save(*args, **kwargs)
+
+
+class SapSuperCategory(models.Model):
+
+    super_category = models.CharField(max_length=200,default="")
+
+    class Meta:
+        verbose_name = "SAP Super Category"
+        verbose_name_plural = "SAP Super Categories"
+
+    def __str__(self):
+        return str(self.super_category)
+
+
+class SapCategory(models.Model):
+
+    category = models.CharField(max_length=200,default="")
+    super_category = models.ForeignKey(SapSuperCategory,on_delete=models.SET_NULL)
+
+    class Meta:
+        verbose_name = "SAP Category"
+        verbose_name_plural = "SAP Categories"
+
+    def __str__(self):
+        return str(self.category)
+
+class SapSubCategory(models.Model):
+
+    sub_category = models.CharField(max_length=200,default="")
+    category = models.ForeignKey(SapCategory,on_delete=models.SET_NULL)
+
+    class Meta:
+        verbose_name = "SAP Sub Category"
+        verbose_name_plural = "SAP Sub Categories"
+
+    def __str__(self):
+        return str(self.sub_category)
+
+class CategoryMapping(models.Model):
+
+    sap_sub_category = models.ForeignKey(SapSubCategory,on_delete=models.SET_NULL)
+    atp_threshold = models.FloatField(default=0)
+    holding_threshold = models.FloatField(default=0)
+    recommended_browse_node = models.CharField(max_length=200,default="")
+    channel = models.ForeignKey(Channel,on_delete=models.SET_NULL)
+
+    class Meta:
+        verbose_name = "Category Mapping"
+        verbose_name_plural = "Category Mappings"
+
+    def __str__(self):
+        return str(self.recommended_browse_node)
