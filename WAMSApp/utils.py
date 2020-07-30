@@ -1276,7 +1276,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
         data_point_list = []
 
         for x in dfs.columns:
-            data_point_list.append(str(x).strip().title())
+            data_point_list.append(str(x).strip().lower())
 
         logger.info("upload_dynamic_excel_for_product [Data Point List]: %s", data_point_list)
 
@@ -1305,9 +1305,15 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
             if(operation == "Update"):
                 try:
                     product_id = None
+                    error_flag = ["Product ID"]
                     for j in range(len(data_point_list)):
                         if(data_point_list[j] == "Product ID"):
+                            error_flag[0] = ""
                             product_id = str(dfs.iloc[i][j]).strip()
+
+                    for j in error_flag:
+                        if(j!=""):
+                            raise Exception("Required Column '" + j + "' does not exist")
 
                     result.append(str(product_id))
 
@@ -1338,25 +1344,39 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     manufacturer = ""
                     manufacturer_part_number = ""
 
+                    error_flag = ["Seller SKU","Product ID","Product Name","Brand","Manufacturer","Manufacturer Part Number","Category","SubCategory"]
+
                     for j in range(len(data_point_list)):
-                        if(data_point_list[j] == "Seller SKU"):
+                        if(data_point_list[j] == ("Seller SKU")).lower():
+                            error_flag[0] = ""
                             seller_sku = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "Product ID"):
+                        if(data_point_list[j] == ("Product ID")).lower():
+                            error_flag[1] = ""
                             product_id = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "Product Name"):
+                        if(data_point_list[j] == ("Product Name")).lower():
+                            error_flag[2] = ""
                             product_name = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "Brand"):
+                        if(data_point_list[j] == ("Brand").lower()):
+                            error_flag[3] = ""
                             brand_name = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "Manufacturer"):
+                        if(data_point_list[j] == ("Manufacturer").lower()):
+                            error_flag[4] = ""
                             manufacturer = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "Manufacturer Part Number"):
+                        if(data_point_list[j] == ("Manufacturer Part Number").lower()):
+                            error_flag[5] = ""
                             manufacturer_part_number = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "Category"):
+                        if(data_point_list[j] == ("Category").lower()):
+                            error_flag[6] = ""
                             category_name = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "SubCategory"):
+                        if(data_point_list[j] == ("SubCategory").lower()):
+                            error_flag[7] = ""
                             sub_category_name = str(dfs.iloc[i][j]).strip()
     
                     result.append(str(product_id))
+
+                    for j in error_flag:
+                        if(j!=""):
+                            raise Exception("Required Column '" + j + "' does not exist")
 
                     if(product_name == "" or manufacturer == "" or manufacturer_part_number == "" or category_name == "" or sub_category_name == "" or product_id == "" or brand_name == "" or seller_sku == ""):
                         raise Exception("Required Fields must not be empty!")
@@ -1412,10 +1432,18 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
 
                 value = str(dfs.iloc[i][j]).strip()
 
+                data_point_variable = ""
+
                 try:
-                    data_point_variable = DataPoint.objects.get(name=data_point_list[j]).variable
+                    flag = 0
+                    for data_point_obj in DataPoint.objects.all():
+                        if(str(data_point_obj.name).lower()==data_point_list[j]):
+                            data_point_variable = data_point_obj.variable
+                            break
+                    if(flag == 0):
+                        raise Exception("Did'nt Match")
                 except:
-                    errors.append("Column " + data_point_list[j] + " does not match")
+                    errors.append("Column '" + data_point_list[j] + "' does not match")
                     continue
 
                 if(value != "" and value !="nan"):
