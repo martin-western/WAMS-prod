@@ -6053,13 +6053,12 @@ class BulkUploadDynamicExcelAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            data_point_list = json.loads(data["data_point_list"])
             operation = data["operation"]
 
             path = default_storage.save('tmp/temp-dynamic-template-upload.xlsx', data["import_file"])
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
-            incoming_response = upload_dynamic_excel_for_product(path,data_point_list,operation,request.user)
+            incoming_response = upload_dynamic_excel_for_product(path,operation,request.user)
                 
             if(incoming_response["status"]!=200):
                 response["error"] = incoming_response["status_message"]
