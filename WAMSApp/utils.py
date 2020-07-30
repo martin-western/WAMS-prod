@@ -1439,6 +1439,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     for data_point_obj in DataPoint.objects.all():
                         if(str(data_point_obj.name).lower()==data_point_list[j]):
                             data_point_variable = data_point_obj.variable
+                            flag = 1
                             break
                     if(flag == 0):
                         raise Exception("Did'nt Match")
