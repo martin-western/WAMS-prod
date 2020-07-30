@@ -1307,7 +1307,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     product_id = None
                     error_flag = ["Product ID"]
                     for j in range(len(data_point_list)):
-                        if(data_point_list[j] == "Product ID"):
+                        if(data_point_list[j] == ("Product ID").lower()):
                             error_flag[0] = ""
                             product_id = str(dfs.iloc[i][j]).strip()
 
@@ -1347,13 +1347,13 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     error_flag = ["Seller SKU","Product ID","Product Name","Brand","Manufacturer","Manufacturer Part Number","Category","SubCategory"]
 
                     for j in range(len(data_point_list)):
-                        if(data_point_list[j] == ("Seller SKU")).lower():
+                        if(data_point_list[j] == ("Seller SKU").lower()):
                             error_flag[0] = ""
                             seller_sku = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == ("Product ID")).lower():
+                        if(data_point_list[j] == ("Product ID").lower()):
                             error_flag[1] = ""
                             product_id = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == ("Product Name")).lower():
+                        if(data_point_list[j] == ("Product Name").lower()):
                             error_flag[2] = ""
                             product_name = str(dfs.iloc[i][j]).strip()
                         if(data_point_list[j] == ("Brand").lower()):
