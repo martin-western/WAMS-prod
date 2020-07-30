@@ -1257,7 +1257,7 @@ def generate_dynamic_export(product_uuid_list, data_point_list):
     workbook.close()
 
 
-def upload_dynamic_excel_for_product(path, data_point_list,operation,request_user):
+def upload_dynamic_excel_for_product(path,operation,request_user):
 
     response = {}
     response["status_message"] = ""
@@ -1267,13 +1267,18 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
 
         logger.info("upload_dynamic_excel_for_product [Path]: %s", path)
 
-        logger.info("upload_dynamic_excel_for_product [Data Point List]: %s", data_point_list)
-
         dfs = pd.read_excel(path, sheet_name=None)
 
         dfs = dfs["Sheet1"]
 
         logger.info("upload_dynamic_excel_for_product [Excel]: %s ", dfs)
+
+        data_point_list = []
+
+        for x in dfs.columns:
+            data_point_list.append(str(x).trim().title())
+
+        logger.info("upload_dynamic_excel_for_product [Data Point List]: %s", data_point_list)
 
         rows = len(dfs.iloc[:])
 
@@ -1301,7 +1306,7 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
                 try:
                     product_id = None
                     for j in range(len(data_point_list)):
-                        if(data_point_list[j] == "product_id"):
+                        if(data_point_list[j] == "Product ID"):
                             product_id = str(dfs.iloc[i][j]).strip()
 
                     result.append(str(product_id))
@@ -1334,21 +1339,21 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
                     manufacturer_part_number = ""
 
                     for j in range(len(data_point_list)):
-                        if(data_point_list[j] == "seller_sku"):
+                        if(data_point_list[j] == "Seller SKU"):
                             seller_sku = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "product_id"):
+                        if(data_point_list[j] == "Product ID"):
                             product_id = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "product_name"):
+                        if(data_point_list[j] == "Product Name"):
                             product_name = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "brand"):
+                        if(data_point_list[j] == "Brand"):
                             brand_name = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "manufacturer"):
+                        if(data_point_list[j] == "Manufacturer"):
                             manufacturer = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "manufacturer_part_number"):
+                        if(data_point_list[j] == "Manufacturer Part Number"):
                             manufacturer_part_number = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "category"):
+                        if(data_point_list[j] == "Category"):
                             category_name = str(dfs.iloc[i][j]).strip()
-                        if(data_point_list[j] == "sub_category"):
+                        if(data_point_list[j] == "SubCategory"):
                             sub_category_name = str(dfs.iloc[i][j]).strip()
     
                     result.append(str(product_id))
@@ -1407,11 +1412,16 @@ def upload_dynamic_excel_for_product(path, data_point_list,operation,request_use
 
                 value = str(dfs.iloc[i][j]).strip()
 
+                try:
+                    data_point_variable = DataPoint.objects.get(name=data_point_list[j]).variable
+                except:
+                    errors.append("Column " + data_point_list[j] + " does not match")
+                    continue
+
                 if(value != "" and value !="nan"):
-                    incoming_response = save_data_value(product_obj,base_product_obj,channel_product_obj,data_point_list[j],request_user,value)
+                    incoming_response = save_data_value(product_obj,base_product_obj,channel_product_obj,data_point_variable,request_user,value)
                 else:
-                    data_point_name = DataPoint.objects.get(variable=data_point_list[j]).name
-                    warnings.append(data_point_name + " is empty")
+                    warnings.append(data_point_list[j] + " is empty")
                     continue
 
                 if(incoming_response["status"]!=200):  
