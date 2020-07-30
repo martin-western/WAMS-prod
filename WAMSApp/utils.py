@@ -1276,7 +1276,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
         data_point_list = []
 
         for x in dfs.columns:
-            data_point_list.append(str(x).trim().title())
+            data_point_list.append(str(x).strip().title())
 
         logger.info("upload_dynamic_excel_for_product [Data Point List]: %s", data_point_list)
 
