@@ -1334,6 +1334,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
                     temp_dict2["name"] = dealshub_product_obj.get_name()
                     temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
+                    temp_dict2["brand"] = dealshub_product_obj.get_brand()
                     temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
                     temp_dict2["uuid"] = dealshub_product_obj.uuid
 
@@ -1441,6 +1442,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3["name"] = dealshub_product_obj.get_name()
                             temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
                             temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
+                            temp_dict3["brand"] = dealshub_product_obj.get_brand()
                             temp_dict3["uuid"] = dealshub_product_obj.uuid
 
                             promotion_obj = dealshub_product_obj.promotion
@@ -1790,6 +1792,7 @@ class AddProductToSectionAPI(APIView):
             response["name"] = dealshub_product_obj.get_name()
             response["displayId"] = dealshub_product_obj.get_product_id()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
+            response["brand"] = dealshub_product_obj.get_brand()
 
             response["now_price"] = str(dealshub_product_obj.now_price)
             response["was_price"] = str(dealshub_product_obj.was_price)
@@ -1865,6 +1868,7 @@ class AddProductToUnitBannerAPI(APIView):
             response["name"] = dealshub_product_obj.get_name()
             response["displayId"] = dealshub_product_obj.get_product_id()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
+            response["brand"] = dealshub_product_obj.get_brand()
 
             response["now_price"] = str(dealshub_product_obj.now_price)
             response["was_price"] = str(dealshub_product_obj.was_price)
