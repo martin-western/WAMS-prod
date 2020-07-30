@@ -1298,6 +1298,8 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
 
             result = []
 
+            base_product_exists = False
+
             product_obj = Product.objects.none()
             base_product_obj = BaseProduct.objects.none()
             channel_product_obj = ChannelProduct.objects.none()
@@ -1392,21 +1394,26 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                         brand_obj = permissible_brands.get(name=brand_name)
                     except:
                         raise Exception("Brand not in Permissible Brands")
+
                     base_product_obj = BaseProduct.objects.none()
 
-                    if(BaseProduct.objects.filter(seller_sku=seller_sku).exists() or Product.objects.filter(product_id=product_id).exists()):
-                        raise Exception("Product Already Exists!")
+                    if(Product.objects.filter(product_id=product_id).exists()):
+                        raise Exception("Product Already Exists with same Product ID!")
 
-                    
-                    base_product_obj = BaseProduct.objects.create(
-                        base_product_name=product_name,
-                        seller_sku=seller_sku,
-                        brand=brand_obj,
-                        category=category_obj,
-                        sub_category=sub_category_obj,
-                        manufacturer=manufacturer,
-                        manufacturer_part_number=manufacturer_part_number,
-                    )
+                    try:
+                        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
+                        base_product_exists = True
+                    except:
+                        base_product_obj = BaseProduct.objects.create(
+                            base_product_name=product_name,
+                            seller_sku=seller_sku,
+                            brand=brand_obj,
+                            category=category_obj,
+                            sub_category=sub_category_obj,
+                            manufacturer=manufacturer,
+                            manufacturer_part_number=manufacturer_part_number,
+                        )
+                        base_product_exists = False
                 
                     product_obj = Product.objects.create(
                         product_name = product_name,
@@ -1473,7 +1480,8 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                 if(operation == "Create"):
                     channel_product_obj.delete()
                     product_obj.delete()
-                    base_product_obj.delete()
+                    if(base_product_exists == False):
+                        base_product_obj.delete()
 
             result_list.append(result)
 
