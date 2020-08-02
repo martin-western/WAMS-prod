@@ -6191,7 +6191,6 @@ class SaveDealshubProductDetailsAPI(APIView):
             promotional_price = data["promotional_price"]
             stock = data["stock"]
             is_cod_allowed = data["is_cod_allowed"]
-            is_published = data["is_published"]
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
 
