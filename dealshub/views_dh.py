@@ -2765,7 +2765,7 @@ class FetchProductReviewsAPI(APIView):
                 average_rating = float(total_rating)/float(total_reviews)
 
             is_user_reviewed = False
-            is_product_purchased = False
+            is_product_purchased = True
             if request.user!=None:
 
                 if UnitOrder.objects.filter(product__uuid=product_code, order__owner__username=request.user.username).exists():
