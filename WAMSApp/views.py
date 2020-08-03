@@ -191,7 +191,7 @@ class CreateNewBaseProductAPI(APIView):
 
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
-                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj)
+                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -268,7 +268,7 @@ class CreateNewProductAPI(APIView):
 
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
-                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj)
+                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
