@@ -98,25 +98,24 @@ class EditShippingAddressAPI(APIView):
                 data = json.loads(data)
 
             uuid = data["uuid"]
+
+            address_obj = Address.objects.get(uuid=uuid)
+            address_lines = json.loads(address_obj.address_lines)
+
             first_name = data["firstName"]
             last_name = data["lastName"]
             line1 = data["line1"]
             line2 = data["line2"]
-            line3 = data["line3"]
-            line4 = data["line4"]
-            address_lines = [line1, line2, line3, line4]
-            state = data["state"]
-            postcode = data["postcode"]
-            contact_number = data["contactNumber"]
+                
+            address_lines[0] = line1
+            address_lines[1] = line2
+
             tag = data.get("tag", "Home")
 
             address_obj = Address.objects.get(uuid=uuid)
             address_obj.first_name = first_name
             address_obj.last_name = last_name
             address_obj.address_lines = json.dumps(address_lines)
-            address_obj.state = state
-            address_obj.postcode = postcode
-            address_obj.contact_number = contact_number
             address_obj.tag = tag
             address_obj.save()
 
@@ -150,14 +149,14 @@ class CreateShippingAddressAPI(APIView):
             last_name = data["lastName"]
             line1 = data["line1"]
             line2 = data["line2"]
-            line3 = data["line3"]
-            line4 = data["line4"]
+            line3 = ""
+            line4 = location_group_obj.location.name
             address_lines = json.dumps([line1, line2, line3, line4])
-            state = data["state"]
-            postcode = data["postcode"]
+            state = ""
+            postcode = ""
             if postcode==None:
                 postcode = ""
-            contact_number = data["contactNumber"]
+            contact_number = dealshub_user_obj.contact_number
             tag = data.get("tag", "")
             if tag==None:
                 tag = ""
@@ -177,6 +176,7 @@ class CreateShippingAddressAPI(APIView):
             logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class CreateOfflineShippingAddressAPI(APIView):
     
