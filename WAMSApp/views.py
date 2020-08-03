@@ -6053,13 +6053,12 @@ class BulkUploadDynamicExcelAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            data_point_list = json.loads(data["data_point_list"])
             operation = data["operation"]
 
             path = default_storage.save('tmp/temp-dynamic-template-upload.xlsx', data["import_file"])
             path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
 
-            incoming_response = upload_dynamic_excel_for_product(path,data_point_list,operation,request.user)
+            incoming_response = upload_dynamic_excel_for_product(path,operation,request.user)
                 
             if(incoming_response["status"]!=200):
                 response["error"] = incoming_response["status_message"]
@@ -6131,6 +6130,100 @@ class FetchDataPointsForUploadAPI(APIView):
 
         return Response(data=response)
 
+
+class FetchDealshubProductDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchDealshubProductDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["product_uuid"]
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
+
+            response["product_name"] = dealshub_product_obj.get_name()
+            response["seller_sku"] = dealshub_product_obj.get_seller_sku()
+            response["product_id"] = dealshub_product_obj.get_product_id()
+            response["was_price"] = dealshub_product_obj.was_price
+            response["now_price"] = dealshub_product_obj.now_price
+            response["promotional_price"] = dealshub_product_obj.promotional_price
+            response["stock"] = dealshub_product_obj.stock
+            response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
+            response["is_published"] = dealshub_product_obj.is_published
+            response["category"] = dealshub_product_obj.get_category()
+            response["sub_category"] = dealshub_product_obj.get_sub_category()
+            response["category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.uuid)
+            response["sub_category_uuid"] = "" if dealshub_product_obj.sub_category==None else str(dealshub_product_obj.sub_category.uuid)
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealshubProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SaveDealshubProductDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("SaveDealshubProductDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["product_uuid"]
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
+            
+            was_price = data["was_price"]
+            now_price = data["now_price"]
+            promotional_price = data["promotional_price"]
+            stock = data["stock"]
+            is_cod_allowed = data["is_cod_allowed"]
+            category_uuid = data["category_uuid"]
+            sub_category_uuid = data["sub_category_uuid"]
+
+            dealshub_product_obj.was_price = was_price
+            dealshub_product_obj.now_price = now_price
+            dealshub_product_obj.promotional_price = promotional_price
+            dealshub_product_obj.stock = stock
+            dealshub_product_obj.is_cod_allowed = is_cod_allowed
+
+            category_obj = None
+            try:
+                category_obj = Category.objects.get(uuid=category_uuid)
+            except Exception as e:
+                pass
+
+            sub_category_obj = None
+            try:
+                sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
+            except Exception as e:
+                pass
+
+            dealshub_product_obj.category = category_obj
+            dealshub_product_obj.sub_category = sub_category_obj
+            dealshub_product_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveDealshubProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+        
 
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
 
@@ -6296,3 +6389,7 @@ FetchOCReportList = FetchOCReportListAPI.as_view()
 CreateContentReport = CreateContentReportAPI.as_view()
 
 UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view()
+
+FetchDealshubProductDetails = FetchDealshubProductDetailsAPI.as_view()
+
+SaveDealshubProductDetails = SaveDealshubProductDetailsAPI.as_view()

@@ -98,25 +98,24 @@ class EditShippingAddressAPI(APIView):
                 data = json.loads(data)
 
             uuid = data["uuid"]
+
+            address_obj = Address.objects.get(uuid=uuid)
+            address_lines = json.loads(address_obj.address_lines)
+
             first_name = data["firstName"]
             last_name = data["lastName"]
             line1 = data["line1"]
             line2 = data["line2"]
-            line3 = data["line3"]
-            line4 = data["line4"]
-            address_lines = [line1, line2, line3, line4]
-            state = data["state"]
-            postcode = data["postcode"]
-            contact_number = data["contactNumber"]
+                
+            address_lines[0] = line1
+            address_lines[1] = line2
+
             tag = data.get("tag", "Home")
 
             address_obj = Address.objects.get(uuid=uuid)
             address_obj.first_name = first_name
             address_obj.last_name = last_name
             address_obj.address_lines = json.dumps(address_lines)
-            address_obj.state = state
-            address_obj.postcode = postcode
-            address_obj.contact_number = contact_number
             address_obj.tag = tag
             address_obj.save()
 
@@ -150,14 +149,14 @@ class CreateShippingAddressAPI(APIView):
             last_name = data["lastName"]
             line1 = data["line1"]
             line2 = data["line2"]
-            line3 = data["line3"]
-            line4 = data["line4"]
+            line3 = ""
+            line4 = location_group_obj.location.name
             address_lines = json.dumps([line1, line2, line3, line4])
-            state = data["state"]
-            postcode = data["postcode"]
+            state = ""
+            postcode = ""
             if postcode==None:
                 postcode = ""
-            contact_number = data["contactNumber"]
+            contact_number = dealshub_user_obj.contact_number
             tag = data.get("tag", "")
             if tag==None:
                 tag = ""
@@ -177,6 +176,7 @@ class CreateShippingAddressAPI(APIView):
             logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class CreateOfflineShippingAddressAPI(APIView):
     
@@ -1112,35 +1112,39 @@ class FetchOrderListAPI(APIView):
             order_list = []
             order_objs = Order.objects.filter(owner=dealshub_user_obj).order_by('-pk')
             for order_obj in order_objs:
-                voucher_obj = order_obj.voucher
-                is_voucher_applied = voucher_obj is not None
-                temp_dict = {}
-                temp_dict["dateCreated"] = order_obj.get_date_created()
-                temp_dict["paymentMode"] = order_obj.payment_mode
-                temp_dict["paymentStatus"] = order_obj.payment_status
-                temp_dict["customerName"] = order_obj.owner.first_name+" "+order_obj.owner.last_name
-                temp_dict["bundleId"] = order_obj.bundleid
-                temp_dict["uuid"] = order_obj.uuid
-                temp_dict["isVoucherApplied"] = is_voucher_applied
-                if is_voucher_applied:
-                    temp_dict["voucherCode"] = voucher_obj.voucher_code
-                temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address()
+                try:
+                    voucher_obj = order_obj.voucher
+                    is_voucher_applied = voucher_obj is not None
+                    temp_dict = {}
+                    temp_dict["dateCreated"] = order_obj.get_date_created()
+                    temp_dict["paymentMode"] = order_obj.payment_mode
+                    temp_dict["paymentStatus"] = order_obj.payment_status
+                    temp_dict["customerName"] = order_obj.owner.first_name+" "+order_obj.owner.last_name
+                    temp_dict["bundleId"] = order_obj.bundleid
+                    temp_dict["uuid"] = order_obj.uuid
+                    temp_dict["isVoucherApplied"] = is_voucher_applied
+                    if is_voucher_applied:
+                        temp_dict["voucherCode"] = voucher_obj.voucher_code
+                    temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address()
 
-                unit_order_objs = UnitOrder.objects.filter(order=order_obj)
-                unit_order_list = []
-                for unit_order_obj in unit_order_objs:
-                    temp_dict2 = {}
-                    temp_dict2["orderId"] = unit_order_obj.orderid
-                    temp_dict2["uuid"] = unit_order_obj.uuid
-                    temp_dict2["currentStatus"] = unit_order_obj.current_status
-                    temp_dict2["quantity"] = unit_order_obj.quantity
-                    temp_dict2["price"] = unit_order_obj.price
-                    temp_dict2["currency"] = unit_order_obj.product.get_currency()
-                    temp_dict2["productName"] = unit_order_obj.product.get_name()
-                    temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
-                    unit_order_list.append(temp_dict2)
-                temp_dict["unitOrderList"] = unit_order_list
-                order_list.append(temp_dict)
+                    unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+                    unit_order_list = []
+                    for unit_order_obj in unit_order_objs:
+                        temp_dict2 = {}
+                        temp_dict2["orderId"] = unit_order_obj.orderid
+                        temp_dict2["uuid"] = unit_order_obj.uuid
+                        temp_dict2["currentStatus"] = unit_order_obj.current_status
+                        temp_dict2["quantity"] = unit_order_obj.quantity
+                        temp_dict2["price"] = unit_order_obj.price
+                        temp_dict2["currency"] = unit_order_obj.product.get_currency()
+                        temp_dict2["productName"] = unit_order_obj.product.get_name()
+                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
+                        unit_order_list.append(temp_dict2)
+                    temp_dict["unitOrderList"] = unit_order_list
+                    order_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["orderList"] = order_list
             if len(order_list)==0:
@@ -2442,23 +2446,23 @@ class AddReviewAPI(APIView):
 
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
 
-            if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
-                review_obj, created = Review.objects.get_or_create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj)
-                review_obj.rating = rating
-                review_content_obj = review_obj.content
-                if review_content_obj is None:
-                    review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
-                else:
-                    review_content_obj.subject = subject
-                    review_content_obj.content = content
-                    review_content_obj.save()
-                review_obj.content = review_content_obj
-                review_obj.save()
-                response["uuid"] = review_obj.uuid
-                response["review_content_uuid"] = review_content_obj.uuid
-                response["status"] = 200
+            #if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
+            review_obj, created = Review.objects.get_or_create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj)
+            review_obj.rating = rating
+            review_content_obj = review_obj.content
+            if review_content_obj is None:
+                review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
             else:
-                response["status"] = 403
+                review_content_obj.subject = subject
+                review_content_obj.content = content
+                review_content_obj.save()
+            review_obj.content = review_content_obj
+            review_obj.save()
+            response["uuid"] = review_obj.uuid
+            response["review_content_uuid"] = review_content_obj.uuid
+            response["status"] = 200
+            # else:
+            #     response["status"] = 403
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2761,7 +2765,7 @@ class FetchProductReviewsAPI(APIView):
                 average_rating = float(total_rating)/float(total_reviews)
 
             is_user_reviewed = False
-            is_product_purchased = False
+            is_product_purchased = True
             if request.user!=None:
 
                 if UnitOrder.objects.filter(product__uuid=product_code, order__owner__username=request.user.username).exists():

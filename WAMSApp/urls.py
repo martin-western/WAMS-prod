@@ -91,6 +91,8 @@ urlpatterns = [
     url(r'^update-dealshub-product/$',views.UpdateDealshubProduct),
     url(r'^bulk-update-dealshub-product-price/$',views.BulkUpdateDealshubProductPrice),
     url(r'^bulk-update-dealshub-product-stock/$',views.BulkUpdateDealshubProductStock),
+    url(r'^fetch-dealshub-product-details/$',views.FetchDealshubProductDetails),
+    url(r'^save-dealshub-product-details/$',views.SaveDealshubProductDetails),
 
     url(r'^fetch-audit-logs-by-user/$',views.FetchAuditLogsByUser), 
     url(r'^fetch-audit-logs/$',views.FetchAuditLogs), 
