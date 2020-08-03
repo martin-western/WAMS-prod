@@ -2446,23 +2446,23 @@ class AddReviewAPI(APIView):
 
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
 
-            if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
-                review_obj, created = Review.objects.get_or_create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj)
-                review_obj.rating = rating
-                review_content_obj = review_obj.content
-                if review_content_obj is None:
-                    review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
-                else:
-                    review_content_obj.subject = subject
-                    review_content_obj.content = content
-                    review_content_obj.save()
-                review_obj.content = review_content_obj
-                review_obj.save()
-                response["uuid"] = review_obj.uuid
-                response["review_content_uuid"] = review_content_obj.uuid
-                response["status"] = 200
+            #if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
+            review_obj, created = Review.objects.get_or_create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj)
+            review_obj.rating = rating
+            review_content_obj = review_obj.content
+            if review_content_obj is None:
+                review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
             else:
-                response["status"] = 403
+                review_content_obj.subject = subject
+                review_content_obj.content = content
+                review_content_obj.save()
+            review_obj.content = review_content_obj
+            review_obj.save()
+            response["uuid"] = review_obj.uuid
+            response["review_content_uuid"] = review_content_obj.uuid
+            response["status"] = 200
+            # else:
+            #     response["status"] = 403
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
