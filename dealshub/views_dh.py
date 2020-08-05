@@ -2907,6 +2907,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             order_objs = paginator.page(page)
 
             invoice_logo = location_group_obj.get_email_website_logo()
+            website_group_name = location_group_obj.website_group.name.lower()
             trn_number = json.loads(location_group_obj.website_group.conf).get("trn_number", "NA")
             support_contact_number = json.loads(location_group_obj.website_group.conf).get("support_contact_number", "NA")
             footer_text = json.loads(location_group_obj.website_group.conf).get("footer_text", "NA")
@@ -3007,7 +3008,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["unitOrderList"] = unit_order_list
 
                     temp_dict["invoice_logo"] = invoice_logo
-                    temp_dict["invoice_website"] = order_obj.get_website_link()
+                    temp_dict["website_group_name"] = website_group_name
                     temp_dict["trn_number"] = trn_number
                     temp_dict["support_contact_number"] = support_contact_number
                     temp_dict["footer_text"] = footer_text
