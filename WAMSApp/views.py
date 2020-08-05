@@ -6161,6 +6161,9 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.uuid)
             response["sub_category_uuid"] = "" if dealshub_product_obj.sub_category==None else str(dealshub_product_obj.sub_category.uuid)
 
+            response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
+            response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
+
             response["status"] = 200
 
         except Exception as e:
