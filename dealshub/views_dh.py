@@ -3007,6 +3007,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["unitOrderList"] = unit_order_list
 
                     temp_dict["invoice_logo"] = invoice_logo
+                    temp_dict["invoice_website"] = order_obj.get_website_link()
                     temp_dict["trn_number"] = trn_number
                     temp_dict["support_contact_number"] = support_contact_number
                     temp_dict["footer_text"] = footer_text
