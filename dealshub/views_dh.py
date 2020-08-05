@@ -282,7 +282,7 @@ class AddToCartAPI(APIView):
 
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
             if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists()==True:
                 unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__uuid=product_uuid)
@@ -370,7 +370,7 @@ class AddToOfflineCartAPI(APIView):
 
 
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
             if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists()==True:
                 unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__uuid=product_uuid)
@@ -446,7 +446,7 @@ class FetchCartDetailsAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             unit_cart_list = []
             for unit_cart_obj in unit_cart_objs:
@@ -529,7 +529,7 @@ class FetchOfflineCartDetailsAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             unit_cart_list = []
             for unit_cart_obj in unit_cart_objs:
@@ -776,7 +776,7 @@ class SelectOfflineAddressAPI(APIView):
 
             address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            cart_obj, created = Cart.objects.get_or_create(owner=dealshub_user_obj, location_group=address_obj.location_group)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
             
             cart_obj.shipping_address = address_obj
             cart_obj.save()
@@ -1364,6 +1364,10 @@ class CreateOfflineCustomerAPI(APIView):
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
+
+                for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+
                 response["username"] = dealshub_user_obj.username
                 response["status"] = 200
             else:
@@ -2322,6 +2326,10 @@ class SendOTPSMSLoginAPI(APIView):
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
                 is_new_user = True
+
+                for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+
             else:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
                 dealshub_user_obj.set_password(OTP)
