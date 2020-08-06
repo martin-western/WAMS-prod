@@ -131,19 +131,25 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
                             excel_errors.append("More than one product found for " + search_key)
                             continue
 
+                    channel_product = product_obj.channel_product
+
+                    channel_product_dict = get_channel_product_dict(channel_name,channel_product)
+
                     try :
                         was_price = float(dfs.iloc[i][1])
+                        channel_product_dict["was_price"] = was_price
+                    except Exception as e:
+                        excel_errors.append("Wrong Price Value for " + search_key)
+                        continue
+
+                    try :
                         sale_price = float(dfs.iloc[i][2])
+                        channel_product_dict["sale_price"] = sale_price
                     except Exception as e:
                         excel_errors.append("Wrong Price Value for " + search_key)
                         continue
                     
-                    channel_product = product_obj.channel_product
-
-                    channel_product_dict = get_channel_product_dict(channel_name,channel_product)
                     
-                    channel_product_dict["was_price"] = was_price
-                    channel_product_dict["sale_price"] = sale_price
 
                     channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
                         
