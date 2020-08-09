@@ -137,12 +137,9 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
                     channel_product_dict = get_channel_product_dict(channel_name,channel_product)
 
                     try :
-                        logger.info("WAS PRICE : " + str(dfs.iloc[i][1]))
                         was_price = float(dfs.iloc[i][1])
-                        logger.info("WAS PRICE after floation : " + float(dfs.iloc[i][1]))
                         channel_product_dict["was_price"] = was_price
                     except Exception as e:
-                        logger.info("IN EXCEPTION " + channel_product_dict["was_price"])
                         excel_errors.append("Wrong Was Price Value for " + search_key)
                         continue
 
