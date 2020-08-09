@@ -46,7 +46,9 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
             category = amazon_uae_product["category"]
             sub_category = amazon_uae_product["sub_category"]
 
-            amazon_uae_product["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UAE")
+            if(amazon_uae_product["recommended_browse_nodes"] != ""):
+                amazon_uae_product["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UAE")
+
             product_obj.channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
             product_obj.channel_product.save()
 
@@ -64,7 +66,8 @@ def generate_xml_for_post_product_data_amazon_uae(product_pk_list,seller_id):
                                     </Condition>
                                     <DescriptionData>
                                         <Title>"""+ product_name + """</Title>
-                                        <Brand>""" + brand_name +"""</Brand>"""
+                                        <Brand>""" + brand_name +"""</Brand>
+                                        <Manufacturer>""" + brand_name +"""</Manufacturer>"""
             
             if(amazon_uae_product["recommended_browse_nodes"] != ""):
                 xml_string += """<RecommendedBrowseNode>"""+amazon_uae_product["recommended_browse_nodes"]+"""</RecommendedBrowseNode>"""
@@ -153,7 +156,9 @@ def generate_xml_for_partial_update_product_amazon_uae(product_pk_list,seller_id
             category = amazon_uae_product_dict["category"]
             sub_category = amazon_uae_product_dict["sub_category"]
 
-            amazon_uae_product_dict["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UAE")
+            if(amazon_uae_product["recommended_browse_nodes"] != ""):
+                amazon_uae_product_dict["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UAE")
+            
             product_obj.channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product_dict)
             product_obj.channel_product.save()
 
@@ -165,6 +170,7 @@ def generate_xml_for_partial_update_product_amazon_uae(product_pk_list,seller_id
                                     <DescriptionData>
                                         <Title>"""+ product_name + """</Title>
                                         <Brand>""" + brand_name +"""</Brand>
+                                        <Manufacturer>""" + brand_name +"""</Manufacturer>
                                         <Description><![CDATA["""+product_description+"""]]></Description>"""
 
             for attribute in amazon_uae_product_dict["product_attribute_list"]:
