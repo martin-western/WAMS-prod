@@ -1818,3 +1818,27 @@ rows = len(dfs.iloc[:])
 columns = len(dfs.iloc[0][:])
 
 print(dfs.iloc[2][2])
+
+from dealshub.models import *
+import json, math
+cc = ChannelProduct.objects.exclude(amazon_uae_product_json__contains="sale_price")
+for c in cc:
+    if type(json.loads(c.amazon_uae_product_json)["was_price"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["was_price"]):
+        print("YES1", c)
+        t = json.loads(c.amazon_uae_product_json)
+        t["was_price"] = 0.0
+        c.amazon_uae_product_json = json.dumps(t)
+        c.save()
+    if type(json.loads(c.amazon_uae_product_json)["now_price"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["now_price"]):
+        print("YES2", c)
+    if type(json.loads(c.amazon_uae_product_json)["stock"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["stock"]):
+        print("YES3", c)
+    if type(json.loads(c.amazon_uae_product_json)["quantity"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["quantity"]):
+        print("YES4", c)
+    if type(json.loads(c.amazon_uae_product_json)["sale_price"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["sale_price"]):
+        print("YES5", c)
+        t = json.loads(c.amazon_uae_product_json)
+        t["sale_price"] = 0.0
+        c.amazon_uae_product_json = json.dumps(t)
+        c.save()
+
