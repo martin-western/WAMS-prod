@@ -1857,26 +1857,31 @@ for c in cc:
 
 from WAMSApp.models import *
 pp = Product.objects.all()
+cnt=0
 for p in pp:
-    product_name = p.product_name  
-    brand = p.base_product.brand.name 
-    seller_sku = p.base_product.seller_sku 
-    product_id = p.product_id 
-    final_product_name = product_name
-    print(product_name)
-    product_name_list = product_name.split(" ")
-    for e in product_name_list:
-        if seller_sku.lower() in e.lower():
-            final_product_name = final_product_name.replace(e,"")
-        if brand.lower() in e.lower():
-            final_product_name = final_product_name.replace(e,"")
-        if str(product_id) in e:
-            final_product_name = final_product_name.replace(e,"")
-    final_product_name = final_product_name.strip()
-    final_product_name = final_product_name.replace("  "," ")
-    p.product_name = final_product_name
-    p.save()
-    # print(final_product_name)
-    # print()
-    # print()
+    try:
+        product_name = p.product_name  
+        brand = p.base_product.brand.name 
+        seller_sku = p.base_product.seller_sku 
+        product_id = p.product_id 
+        final_product_name = product_name
+        product_name_list = product_name.split(" ")
+        for e in product_name_list:
+            if seller_sku.lower() in e.lower():
+                final_product_name = final_product_name.replace(e,"")
+            if brand.lower() in e.lower():
+                final_product_name = final_product_name.replace(e,"")
+            if str(product_id) in e:
+                final_product_name = final_product_name.replace(e,"")
+        final_product_name = final_product_name.strip()
+        final_product_name = final_product_name.replace("  "," ")
+        p.product_name = final_product_name
+        p.save()
+        # print(final_product_name)
+        # print()
+        # print()
+        cnt+=1
+        print(cnt)
+    except Exception as e:
+        pass
 
