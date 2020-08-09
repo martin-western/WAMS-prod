@@ -3468,6 +3468,176 @@ class RemoveVoucherCodeAPI(APIView):
         return Response(data=response)
 
 
+class ApplyOfflineVoucherCodeAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("ApplyOfflineVoucherCodeAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            voucher_code = data["voucher_code"]
+
+            username = data["username"]
+
+            if Voucher.objects.filter(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj).exists()==False:
+                response["error_message"] = "INVALID CODE"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+            voucher_obj = Voucher.objects.get(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj)
+            if voucher_obj.is_expired()==True:
+                response["error_message"] = "EXPIRED"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+
+            if voucher_obj.is_eligible(cart_obj.get_subtotal())==False:
+                response["error_message"] = "NOT APPLICABLE"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+            if is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==True:
+                response["error_message"] = "LIMIT EXCEEDED"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+            
+            cart_obj.voucher = voucher_obj
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+            response["voucher_success"] = True
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ApplyOfflineVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class RemoveOfflineVoucherCodeAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("RemoveOfflineVoucherCodeAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            username = data["username"]
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+            cart_obj.voucher = None
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
+            vat_with_cod = cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge
+            }
+            response["voucher_success"] = True
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveOfflineVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchOrderAnalyticsParamsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3622,5 +3792,9 @@ UploadOrders = UploadOrdersAPI.as_view()
 ApplyVoucherCode = ApplyVoucherCodeAPI.as_view()
 
 RemoveVoucherCode = RemoveVoucherCodeAPI.as_view()
+
+ApplyOfflineVoucherCode = ApplyOfflineVoucherCodeAPI.as_view()
+
+RemoveOfflineVoucherCode = RemoveOfflineVoucherCodeAPI.as_view()
 
 FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()

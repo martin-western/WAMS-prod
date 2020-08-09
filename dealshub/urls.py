@@ -123,6 +123,9 @@ urlpatterns = [
     url(r'^apply-voucher-code/$', views.ApplyVoucherCode),
     url(r'^remove-voucher-code/$', views.RemoveVoucherCode),
 
+    url(r'^apply-offline-voucher-code/$', views.ApplyOfflineVoucherCode),
+    url(r'^remove-offline-voucher-code/$', views.RemoveOfflineVoucherCode),
+
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
     url(r'^send-otp-sms-login/$', views.SendOTPSMSLogin),
