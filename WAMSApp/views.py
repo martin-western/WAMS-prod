@@ -5224,7 +5224,7 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = amazon_uae_product_json["category"]
                     temp_dict["sub_category"] = amazon_uae_product_json["sub_category"]
                     temp_dict["status"] = amazon_uae_product_json["status"]
-                    temp_dict["now_price"] = amazon_uae_product_json["now_price"]
+                    temp_dict["now_price"] = amazon_uae_product_json["sale_price"]
                     temp_dict["was_price"] = amazon_uae_product_json["was_price"]
                     temp_dict["stock"] = amazon_uae_product_json["stock"]
                 
