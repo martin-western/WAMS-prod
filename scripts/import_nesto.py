@@ -1805,3 +1805,16 @@ for channel_product in ChannelProduct.objects.all():
     noon_product_json["sale_price"] = noon_product_json["now_price"]
     channel_product.noon_product_json = json.dumps(noon_product_json)
     channel_product.save()
+
+
+import pandas as pd
+from WAMSApp.models import *
+
+filename = "../../../../Downloads/Price_Upload.xlsx"
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+
+dfs = dfs.fillna("")
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+print(dfs.iloc[2][2])
