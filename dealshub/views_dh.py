@@ -387,9 +387,9 @@ class AddToOfflineCartAPI(APIView):
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
-            vat_with_cod = cart_obj.get_vat(cod=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
 
             is_voucher_applied = cart_obj.voucher!=None
@@ -418,7 +418,10 @@ class AddToOfflineCartAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
 
             response["unitCartUuid"] = unit_cart_obj.uuid
@@ -554,9 +557,9 @@ class FetchOfflineCartDetailsAPI(APIView):
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
-            vat_with_cod = cart_obj.get_vat(cod=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -583,7 +586,10 @@ class FetchOfflineCartDetailsAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
 
             response["unitCartList"] = unit_cart_list
@@ -609,6 +615,7 @@ class UpdateCartDetailsAPI(APIView):
 
             unit_cart_uuid = data["unitCartUuid"]
             quantity = int(data["quantity"])
+            is_order_offline = data.get("is_order_offline", False)
 
             unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
             unit_cart_obj.quantity = quantity
@@ -624,9 +631,9 @@ class UpdateCartDetailsAPI(APIView):
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
-            vat_with_cod = cart_obj.get_vat(cod=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline)
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -653,7 +660,10 @@ class UpdateCartDetailsAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
 
             response["status"] = 200
@@ -1013,19 +1023,16 @@ class PlaceOfflineOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
-            cart_obj.voucher = None
-            cart_obj.save()
-
             update_cart_bill(cart_obj)
 
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
             # Check if COD is allowed
-            is_cod_allowed = True
-            if is_cod_allowed==False:
-                response["status"] = 403
-                logger.error("PlaceOfflineOrderAPI: COD not allowed!")
-                return Response(data=response)
+            # is_cod_allowed = True
+            # if is_cod_allowed==False:
+            #     response["status"] = 403
+            #     logger.error("PlaceOfflineOrderAPI: COD not allowed!")
+            #     return Response(data=response)
 
             cart_obj.to_pay += cart_obj.location_group.cod_charge
             cart_obj.save()
@@ -3526,9 +3533,9 @@ class ApplyOfflineVoucherCodeAPI(APIView):
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
-            vat_with_cod = cart_obj.get_vat(cod=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -3555,7 +3562,10 @@ class ApplyOfflineVoucherCodeAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
             response["voucher_success"] = True
             response["status"] = 200
@@ -3597,9 +3607,9 @@ class RemoveOfflineVoucherCodeAPI(APIView):
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
-            vat_with_cod = cart_obj.get_vat(cod=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -3626,7 +3636,10 @@ class RemoveOfflineVoucherCodeAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
             response["voucher_success"] = True
             response["status"] = 200
