@@ -57,7 +57,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 logger.warning("MakePaymentNetworkGlobalAPI Amount not passed!")
                 return Response(data=response)
 
-            outlet_ref = "e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
+            OUTLET_REF = "e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
 
             headers = {
                 "Content-Type": "application/vnd.ni-identity.v1+json", 
@@ -83,7 +83,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 }
             }
 
-            API_URL = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+outlet_ref +"/payment/hosted-session/"+session_id
+            API_URL = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
             
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
             
