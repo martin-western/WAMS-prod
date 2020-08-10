@@ -638,7 +638,7 @@ class UnitOrder(models.Model):
         return round(self.price/vat_divider, 2)
 
     def get_total_vat(self):
-        if self.location_group.vat==0:
+        if self.order.location_group.vat==0:
             return 0
         vat_divider = 1 + (self.order.location_group.vat/100)
         temp_total = self.get_subtotal()
