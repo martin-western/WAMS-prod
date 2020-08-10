@@ -1591,7 +1591,7 @@ class SearchProductsAutocompleteAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
-            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all(), product__product_name__icontains=search_string).exclude(now_price=0).exclude(stock=0).values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
+            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all()).filter(Q(product__product_name__icontains=search_string) | Q(product__base_product__seller_sku__icontains=search_string) | Q(product__base_product__brand__name__icontains=search_string)).exclude(now_price=0).exclude(stock=0).values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
 
             category_list = []
             for category_key in category_key_list:
