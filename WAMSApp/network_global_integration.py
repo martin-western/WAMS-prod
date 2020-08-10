@@ -45,7 +45,14 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 session_id = data["session_id"]
             except Exception as e:
                 response["status"] = 404
-                logger.warning("MakePaymentNetworkGlobalAPI session id not passed!")
+                logger.warning("MakePaymentNetworkGlobalAPI Session ID not passed!")
+                return Response(data=response)
+
+            try :
+                amount = float(data["amount"])
+            except Exception as e:
+                response["status"] = 405
+                logger.warning("MakePaymentNetworkGlobalAPI Amount not passed!")
                 return Response(data=response)
 
             outlet_ref = "e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
@@ -57,7 +64,27 @@ class MakePaymentNetworkGlobalAPI(APIView):
             
             network_global_response = requests.post("https://api-gateway.sandbox.ngenius-payments.com/identity/auth/access-token", headers=headers)
 
+            network_global_response_dict = json.loads(network_global_response.content)
+            access_token = response_dict["access_token"]
 
+            headers = {
+                "Authorization": "Bearer " + access_token ,
+                "Content-Type": "application/vnd.ni-payment.v2+json", 
+                "Accept": "application/vnd.ni-payment.v2+json" 
+            }
+
+            body = {
+                "action": "SALE",
+                "amount": { 
+                    "currencyCode": "AED", 
+                    "value": amount
+                }
+            }
+
+            API_URL = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+outlet_ref +"/payment/hosted-session/"+session_id
+            
+            network_global_response2 = requests.post(API_URL, data=json.dumps(body),headers=headers)
+            
             response["status"] = 200
 
         except Exception as e:
