@@ -83,9 +83,9 @@ class MakePaymentNetworkGlobalAPI(APIView):
 
             API_URL = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+outlet_ref +"/payment/hosted-session/"+session_id
             
-            network_global_response2 = requests.post(API_URL, data=json.dumps(body),headers=headers)
+            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
             
-            response["network_global_response"] = json.loads(network_global_response2)
+            response["payment_response"] = json.loads(payment_response)
             response["status"] = 200
 
         except Exception as e:
