@@ -35,6 +35,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
 
         response = {}
         response["status"] = 500
+        response["error"] = ""
         
         try:
             
@@ -44,6 +45,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
             try :
                 session_id = data["session_id"]
             except Exception as e:
+                response["error"] = "Session ID not passed!"
                 response["status"] = 404
                 logger.warning("MakePaymentNetworkGlobalAPI Session ID not passed!")
                 return Response(data=response)
@@ -86,6 +88,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
             
             response["payment_response"] = json.loads(payment_response)
+            response["error"] = "Payment Success"
             response["status"] = 200
 
         except Exception as e:
