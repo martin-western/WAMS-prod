@@ -85,6 +85,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
             
             network_global_response2 = requests.post(API_URL, data=json.dumps(body),headers=headers)
             
+            response["network_global_response"] = json.loads(network_global_response2)
             response["status"] = 200
 
         except Exception as e:
