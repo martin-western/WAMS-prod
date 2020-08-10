@@ -48,6 +48,16 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 logger.warning("MakePaymentNetworkGlobalAPI session id not passed!")
                 return Response(data=response)
 
+            outlet_ref = "e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
+
+            headers = {
+                "Content-Type": "application/vnd.ni-identity.v1+json", 
+                "Authorization": "Basic NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
+            }
+            
+            network_global_response = requests.post("https://api-gateway.sandbox.ngenius-payments.com/identity/auth/access-token", headers=headers)
+
+
             response["status"] = 200
 
         except Exception as e:
