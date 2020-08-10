@@ -2956,10 +2956,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
-                        voucher_discount_vat = round(voucher_discount - voucher_discount/1.05, 2)
+                        voucher_discount_vat = voucher_obj.get_voucher_discount_vat(voucher_discount)
+                        voucher_discount_without_vat = voucher_obj.get_voucher_discount_without_vat(voucher_discount)
                         temp_dict["voucherDiscount"] = voucher_discount
                         temp_dict["voucherDiscountVat"] = voucher_discount_vat
-                        temp_dict["voucherDiscountWithoutVat"] = round(voucher_discount/1.05,2)
+                        temp_dict["voucherDiscountWithoutVat"] = voucher_discount_without_vat
 
                     unit_order_list = []
                     subtotal = 0
@@ -2971,11 +2972,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["currentStatus"] = unit_order_obj.current_status_admin
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
-                        temp_total = float(unit_order_obj.price)*float(unit_order_obj.quantity)
-                        temp_dict2["price_without_vat"] = round(unit_order_obj.price/1.05, 2)
-                        temp_dict2["vat"] = round(temp_total - temp_total/1.05, 2)
-                        temp_dict2["totalPrice"] = str(temp_total)
-                        temp_dict2["total_price_without_vat"] = round(temp_total/1.05, 2)
+                        temp_dict2["price_without_vat"] = unit_order_obj.get_price_without_vat()
+                        temp_dict2["vat"] = unit_order_obj.get_total_vat()
+                        temp_dict2["totalPrice"] = unit_order_obj.get_subtotal()
+                        temp_dict2["total_price_without_vat"] = unit_order_obj.get_subtotal_without_vat()
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
@@ -2987,24 +2987,27 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["deliveryFailed"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="delivery failed").count()
 
                     subtotal = order_obj.get_subtotal()
-                    subtotal_vat = round(subtotal - subtotal/1.05, 2)
+                    subtotal_vat = order_obj.get_subtotal_vat()
+                    subtotal_without_vat = order_obj.get_subtotal_without_vat()
                     delivery_fee = order_obj.get_delivery_fee()
-                    delivery_fee_vat = round(delivery_fee - delivery_fee/1.05, 2)
+                    delivery_fee_vat = order_obj.get_delivery_fee_vat()
+                    delivery_fee_without_vat = order_obj.get_delivery_fee_without_vat()
                     cod_fee = order_obj.get_cod_charge()
-                    cod_fee_vat = round(cod_fee - cod_fee/1.05, 2)
+                    cod_fee_vat = order_obj.get_cod_charge_vat()
+                    cod_fee_without_vat = order_obj.get_cod_charge_without_vat()
 
                     to_pay = order_obj.get_total_amount()
                     vat = order_obj.get_vat()
                     
-                    temp_dict["subtotalWithoutVat"] = str(round(subtotal/1.05,2))
+                    temp_dict["subtotalWithoutVat"] = str(subtotal_without_vat)
                     temp_dict["subtotalVat"] = str(subtotal_vat)
                     temp_dict["subtotal"] = str(subtotal)
 
-                    temp_dict["deliveryFeeWithoutVat"] = str(round(delivery_fee/1.05,2))
+                    temp_dict["deliveryFeeWithoutVat"] = str(delivery_fee_without_vat)
                     temp_dict["deliveryFeeVat"] = str(delivery_fee_vat)
                     temp_dict["deliveryFee"] = str(delivery_fee)
 
-                    temp_dict["codFeeWithoutVat"] = str(round(cod_fee/1.05, 2))
+                    temp_dict["codFeeWithoutVat"] = str(cod_fee_without_vat)
                     temp_dict["codFeeVat"] = str(cod_fee_vat)
                     temp_dict["codFee"] = str(cod_fee)
 
@@ -3056,7 +3059,7 @@ class FetchShippingMethodAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            shipping_methods = ["WIG Fleet", "TFM"]
+            shipping_methods = ["WIG Fleet", "PPlus"]
 
             response["shippingMethods"] = shipping_methods
             response["status"] = 200

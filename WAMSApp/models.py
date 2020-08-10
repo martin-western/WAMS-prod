@@ -211,6 +211,7 @@ class LocationGroup(models.Model):
     delivery_fee = models.FloatField(default=0)
     free_delivery_threshold = models.FloatField(default=100)
     cod_charge = models.FloatField(default=5)
+    vat = models.FloatField(default=5)
     email_info = models.TextField(default="{}")
     mshastra_info = models.TextField(default="{}")
     uuid = models.CharField(max_length=200, default="")
