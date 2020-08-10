@@ -376,13 +376,7 @@ class SearchAPI(APIView):
                 available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
             
             if product_name!="":
-                
-                if available_dealshub_products.filter(product__product_name__icontains=product_name).exists():
-                    available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=product_name)
-                if available_dealshub_products.filter(product__base_product__brand__name__icontains=product_name).exists():
-                    available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__icontains=product_name)
-                if available_dealshub_products.filter(product__base_product__seller_sku__icontains=product_name).exists():
-                    available_dealshub_products = available_dealshub_products.filter(product__base_product__seller_sku__icontains=product_name)
+                available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
 
             filtered_products = DealsHubProduct.objects.none()
             try:
