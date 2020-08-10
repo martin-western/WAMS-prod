@@ -51,17 +51,33 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 return Response(data=response)
 
             try :
-                amount = float(data["amount"])
+                location_group_uuid = data["location_group_uuid"]
             except Exception as e:
-                response["status"] = 405
-                logger.warning("MakePaymentNetworkGlobalAPI Amount not passed!")
+                response["error"] = "Location Group UUID not passed!"
+                response["status"] = 404
+                logger.warning("MakePaymentNetworkGlobalAPI Location Group UUID not passed!")
                 return Response(data=response)
 
-            OUTLET_REF = "e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            currency = location_group_obj.location.currency
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            amount = cart_obj.to_pay
 
+            if amount == 0.0:
+                response["error"] = "Cart Amount is ZERO!"
+                response["status"] = 403
+                logger.warning("MakePaymentNetworkGlobalAPI Cart Amount Zero!")
+                return Response(data=response)
+
+            payfort_multiplier = int(cart_obj.location_group.location.payfort_multiplier)
+            amount = str(int(float(amount)*payfort_multiplier))
+            
+            API_KEY = "NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
+            
             headers = {
                 "Content-Type": "application/vnd.ni-identity.v1+json", 
-                "Authorization": "Basic NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
+                "Authorization": "Basic "+API_KEY
             }
             
             network_global_response = requests.post("https://api-gateway.sandbox.ngenius-payments.com/identity/auth/access-token", headers=headers)
@@ -75,14 +91,16 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 "Accept": "application/vnd.ni-payment.v2+json" 
             }
 
+
             body = {
                 "action": "SALE",
                 "amount": { 
-                    "currencyCode": "AED", 
+                    "currencyCode": currency, 
                     "value": amount
                 }
             }
 
+            OUTLET_REF = "e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
             API_URL = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
             
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
