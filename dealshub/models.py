@@ -104,6 +104,16 @@ class Voucher(models.Model):
             return discount
         return 0
 
+    def get_voucher_discount_vat(self, voucher_discount):
+        if self.location_group.vat==0:
+            return 0
+        vat_divider = 1+(self.location_group.vat/100)
+        return round(voucher_discount - voucher_discount/vat_divider, 2) 
+
+    def get_voucher_discount_without_vat(self, voucher_discount):
+        vat_divider = 1+(self.location_group.vat/100)
+        return round(voucher_discount/vat_divider, 2) 
+
     def save(self, *args, **kwargs):
 
         if self.uuid == None or self.uuid=="":
@@ -379,11 +389,11 @@ class Cart(models.Model):
             subtotal += float(unit_cart_obj.product.get_actual_price())*float(unit_cart_obj.quantity)
         return subtotal
 
-    def get_delivery_fee(self, cod=False):
+    def get_delivery_fee(self, cod=False, offline=False):
         subtotal = self.get_subtotal()
         if subtotal==0:
             return 0
-        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if (cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
@@ -392,20 +402,23 @@ class Cart(models.Model):
             return self.location_group.delivery_fee
         return 0
 
-    def get_total_amount(self, cod=False):
+    def get_total_amount(self, cod=False, offline=False):
         subtotal = self.get_subtotal()
         if subtotal==0:
             return 0
-        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if (cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
-        delivery_fee = self.get_delivery_fee(cod)
+        delivery_fee = self.get_delivery_fee(cod, offline)
         if cod==True:
             subtotal += self.location_group.cod_charge
         return subtotal+delivery_fee
 
-    def get_vat(self, cod=False):
-        total_amount = self.get_total_amount(cod)
-        return round((total_amount - total_amount/1.05), 2)
+    def get_vat(self, cod=False, offline=False):
+        total_amount = self.get_total_amount(cod, offline)
+        if self.location_group.vat==0:
+            return 0
+        vat_divider = 1+(self.location_group.vat/100)
+        return round((total_amount - total_amount/vat_divider), 2)
 
     def get_currency(self):
         return str(self.location_group.location.currency)
@@ -494,6 +507,18 @@ class Order(models.Model):
             subtotal += float(unit_order_obj.price)*float(unit_order_obj.quantity)
         return subtotal
 
+    def get_subtotal_vat(self):
+        if self.location_group.vat==0:
+            return 0
+        vat_divider = 1+(self.location_group.vat/100)
+        subtotal = self.get_subtotal()
+        return round(subtotal - subtotal/vat_divider, 2)
+
+    def get_subtotal_without_vat(self):
+        subtotal = self.get_subtotal()
+        vat_divider = 1+(self.location_group.vat/100)
+        return str(round(subtotal/vat_divider, 2))
+
     def get_delivery_fee(self):
         subtotal = self.get_subtotal()
         if self.voucher!=None:
@@ -505,10 +530,34 @@ class Order(models.Model):
             return self.location_group.delivery_fee
         return 0
 
+    def get_delivery_fee_vat(self):
+        if self.location_group.vat==0:
+            return 0
+        vat_divider = 1+(self.location_group.vat/100)
+        delivery_fee = self.get_delivery_fee()
+        return round(delivery_fee - delivery_fee/vat_divider, 2)
+
+    def get_delivery_fee_without_vat(self):
+        delivery_fee = self.get_delivery_fee()
+        vat_divider = 1+(self.location_group.vat/100)
+        return str(round(delivery_fee/vat_divider, 2))
+
     def get_cod_charge(self):
         if self.payment_mode=="COD":
             return self.location_group.cod_charge
         return 0
+
+    def get_cod_charge_vat(self):
+        if self.location_group.vat==0:
+            return 0
+        vat_divider = 1+(self.location_group.vat/100)
+        cod_fee = self.get_cod_charge()
+        return round(cod_fee - cod_fee/vat_divider, 2)
+
+    def get_cod_charge_without_vat(self):
+        cod_fee = self.get_cod_charge()
+        vat_divider = 1+(self.location_group.vat/100)
+        return str(round(cod_fee/vat_divider, 2))
 
     def get_total_amount(self):
         subtotal = self.get_subtotal()
@@ -520,7 +569,10 @@ class Order(models.Model):
 
     def get_vat(self):
         total_amount = self.get_total_amount()
-        return round((total_amount - total_amount/1.05), 2)
+        if self.location_group.vat==0:
+            return 0
+        vat_divider = 1+(self.location_group.vat/100)
+        return round((total_amount - total_amount/vat_divider), 2)
 
     def get_website_link(self):
         return self.location_group.website_group.link
@@ -577,6 +629,25 @@ class UnitOrder(models.Model):
 
     price = models.FloatField(default=None, null=True, blank=True)
     uuid = models.CharField(max_length=200, default="")
+
+    def get_subtotal(self):
+        return float(self.price)*float(self.quantity)
+
+    def get_price_without_vat(self):
+        vat_divider = 1 + (self.order.location_group.vat/100)
+        return round(self.price/vat_divider, 2)
+
+    def get_total_vat(self):
+        if self.order.location_group.vat==0:
+            return 0
+        vat_divider = 1 + (self.order.location_group.vat/100)
+        temp_total = self.get_subtotal()
+        return round(temp_total - temp_total/vat_divider, 2)
+
+    def get_subtotal_without_vat(self):
+        temp_total = self.get_subtotal()
+        vat_divider = 1 + (self.order.location_group.vat/100)
+        return  round(temp_total/vat_divider, 2)
 
     def save(self, *args, **kwargs):
         if self.pk == None:

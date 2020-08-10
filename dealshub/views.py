@@ -67,6 +67,7 @@ class FetchProductDetailsAPI(APIView):
             product_obj = dealshub_product_obj.product
             base_product_obj = product_obj.base_product
 
+            response["brand"] = dealshub_product_obj.get_brand()
             response["category"] = dealshub_product_obj.get_category()
             response["subCategory"] = dealshub_product_obj.get_sub_category()
             response["uuid"] = data["uuid"]
@@ -376,13 +377,7 @@ class SearchAPI(APIView):
                 available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
             
             if product_name!="":
-                
-                if available_dealshub_products.filter(product__product_name__icontains=product_name).exists():
-                    available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=product_name)
-                if available_dealshub_products.filter(product__base_product__brand__name__icontains=product_name).exists():
-                    available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__icontains=product_name)
-                if available_dealshub_products.filter(product__base_product__seller_sku__icontains=product_name).exists():
-                    available_dealshub_products = available_dealshub_products.filter(product__base_product__seller_sku__icontains=product_name)
+                available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
 
             filtered_products = DealsHubProduct.objects.none()
             try:
@@ -1597,7 +1592,7 @@ class SearchProductsAutocompleteAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
-            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all(), product__product_name__icontains=search_string).exclude(now_price=0).exclude(stock=0).values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
+            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all()).filter(Q(product__product_name__icontains=search_string) | Q(product__base_product__seller_sku__icontains=search_string) | Q(product__base_product__brand__name__icontains=search_string)).exclude(now_price=0).exclude(stock=0).values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
 
             category_list = []
             for category_key in category_key_list:

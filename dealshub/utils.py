@@ -15,6 +15,7 @@ import requests
 from dealshub.constants import *
 from django.core.mail import send_mail, get_connection
 from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMessage
 from django.template import loader
 import threading
 from WAMSApp.utils import fetch_refresh_stock
@@ -461,6 +462,33 @@ def contact_us_send_email(your_email, message, to_email, password):
         logger.error("contact_us_send_email: %s at %s", e, str(exc_tb.tb_lineno))
 
 
+def notify_low_stock(dealshub_product_obj):
+    try:
+        custom_permission_objs = CustomPermission.objects.filter(location_group__in=[dealshub_product_obj.location_group])
+        for custom_permission_obj in custom_permission_objs:
+            try:
+                body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
+
+                with get_connection(
+                    host="smtp.gmail.com",
+                    port=587, 
+                    username="nisarg@omnycomm.com", 
+                    password="verjtzgeqareribg",
+                    use_tls=True) as connection:
+                    email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
+                                         body=body,
+                                         from_email='nisarg@omnycomm.com',
+                                         to=[custom_permission_obj.user.email],
+                                         connection=connection)
+                    email.send(fail_silently=True)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))        
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))        
+
+
 def refresh_stock(order_obj):
 
     try:
@@ -495,7 +523,8 @@ def refresh_stock(order_obj):
             if stock > 10:
                 dealshub_product_obj.stock = 5
             else:
-                dealshub_product_obj.stock = 0
+                notify_low_stock(dealshub_product_obj)
+                #dealshub_product_obj.stock = 0
 
             dealshub_product_obj.save()
 
