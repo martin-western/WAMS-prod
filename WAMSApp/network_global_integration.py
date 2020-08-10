@@ -59,6 +59,8 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 return Response(data=response)
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            payment_credentials = json.loads(website_group_obj.payment_credentials)
             currency = location_group_obj.location.currency
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
@@ -73,7 +75,8 @@ class MakePaymentNetworkGlobalAPI(APIView):
             payfort_multiplier = int(cart_obj.location_group.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
             
-            API_KEY = "NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
+            API_KEY = payment_credentials["network_global"]["API_KEY"] # "NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
+            OUTLET_REF = payment_credentials["network_global"]["OUTLET_REF"] #"e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
             
             headers = {
                 "Content-Type": "application/vnd.ni-identity.v1+json", 
@@ -91,7 +94,6 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 "Accept": "application/vnd.ni-payment.v2+json" 
             }
 
-
             body = {
                 "action": "SALE",
                 "amount": { 
@@ -100,7 +102,6 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 }
             }
 
-            OUTLET_REF = "e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
             API_URL = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
             
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
