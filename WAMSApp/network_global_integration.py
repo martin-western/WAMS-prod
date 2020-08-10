@@ -34,14 +34,21 @@ class MakePaymentNetworkGlobalAPI(APIView):
     def post(self, request, *args, **kwargs):
 
         response = {}
-        response['status'] = 500
+        response["status"] = 500
         
         try:
             
             data = request.data
             logger.info("MakePaymentNetworkGlobalAPI: %s", str(data))
 
-            response['status'] = 200
+            try :
+                session_id = data["session_id"]
+            except Exception as e:
+                response["status"] = 404
+                logger.warning("MakePaymentNetworkGlobalAPI session id not passed!")
+                return Response(data=response)
+
+            response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
