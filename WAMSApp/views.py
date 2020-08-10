@@ -31,6 +31,7 @@ from WAMSApp.views_amazon_uk import *
 from WAMSApp.views_noon_integration import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
+from WAMSApp.network_global_integration import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
