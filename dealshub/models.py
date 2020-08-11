@@ -500,6 +500,9 @@ class Order(models.Model):
     def get_time_created(self):
         return str(timezone.localtime(self.order_placed_date).strftime("%I:%M %p"))
 
+    def get_currency(self):
+        return str(self.location_group.location.currency)
+
     def get_subtotal(self):
         unit_order_objs = UnitOrder.objects.filter(order=self)
         subtotal = 0

@@ -3015,6 +3015,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["vat"] = str(vat)
                     temp_dict["toPay"] = str(to_pay)
                     temp_dict["toPayWithoutVat"] = str(to_pay-vat)
+                    temp_dict["currency"] = str(order_obj.get_currency())
 
                     temp_dict["unitOrderList"] = unit_order_list
 
