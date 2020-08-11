@@ -751,8 +751,10 @@ class FetchProductDetailsAPI(APIView):
                 response["brand_name"] = brand_obj.name
             
             response["base_product_name"] = base_product_obj.base_product_name
+            response["super_category"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category)
             response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
             response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
+            response["super_category_uuid"] = "" if base_product_obj.category.super_category==None else str(base_product_obj.category.super_category.uuid)
             response["category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.uuid)
             response["sub_category_uuid"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category.uuid)
 
@@ -5639,31 +5641,34 @@ class FetchAllCategoriesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            category_objs = Category.objects.all()
-
-            category_list = []
-            
-            for category_obj in category_objs:
-                
+            super_category_objs = SuperCategory.objects.all()
+            super_category_list = []
+            for super_category_obj in super_category_objs:
                 try:
                     temp_dict = {}
-                    temp_dict["name"] = category_obj.name
-                    temp_dict["category_uuid"] = category_obj.uuid
-                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
-                    sub_category_list = []
-                    for sub_category_obj in sub_category_objs:
+                    temp_dict["name"] = super_category_obj.name
+                    temp_dict["super_category_uuid"] = super_category_obj.uuid
+                    category_objs = Category.objects.filter(super_category=super_category_obj)
+                    category_list = []
+                    for category_obj in category_objs:
                         temp_dict2 = {}
-                        temp_dict2["name"] = sub_category_obj.name
-                        temp_dict2["sub_category_uuid"] = sub_category_obj.uuid
-                        sub_category_list.append(temp_dict2)
-                    temp_dict["sub_category_list"] = sub_category_list
-                    category_list.append(temp_dict) 
-                
+                        temp_dict2["name"] = category_obj.name
+                        temp_dict2["category_uuid"] = category_obj.uuid
+                        sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                        sub_category_list = []
+                        for sub_category_obj in sub_category_objs:
+                            temp_dict3 = {}
+                            temp_dict3["name"] = sub_category_obj.name
+                            temp_dict3["sub_category_uuid"] = sub_category_obj.uuid
+                            sub_category_list.append(temp_dict3)
+                        temp_dict2["sub_category_list"] = sub_category_list
+                        category_list.append(temp_dict2)
+                    super_category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchAllCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
-            
-            response["category_list"] = category_list
+                
+            response["super_category_list"] = super_category_list
             response['status'] = 200
         
         except Exception as e:
