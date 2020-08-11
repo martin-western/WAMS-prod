@@ -5663,6 +5663,7 @@ class FetchAllCategoriesAPI(APIView):
                             sub_category_list.append(temp_dict3)
                         temp_dict2["sub_category_list"] = sub_category_list
                         category_list.append(temp_dict2)
+                    temp_dict["category_list"] = category_list
                     super_category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
