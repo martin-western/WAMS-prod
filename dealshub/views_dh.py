@@ -2872,9 +2872,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
             if from_date!="":
+                from_date = from_date[:10]+"T00:00:00Z"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
 
             if to_date!="":
+                to_date = to_date[:10]+"T23:59:59Z"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
 
 
