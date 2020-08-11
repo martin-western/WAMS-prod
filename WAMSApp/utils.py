@@ -1885,9 +1885,17 @@ def generate_regular_order_format(unit_order_list):
            "Product ID",
            "Seller SKU",
            "Currency",
-           "Selling Price",
-           "Delivery Fee",
            "Strike Price",
+           "Selling Price",
+           "Delivery (inc. VAT)",
+           "Delivery VAT",
+           "Delivery (excl. VAT)",
+           "COD (inc. VAT)",
+           "COD VAT",
+           "COD (excl. VAT)",
+           "Subtotal (inc. VAT)",
+           "Subtotal VAT",
+           "Subtotal (excl. VAT)", 
            "Quantity",
            "Customer Name",
            "Customer Email ID",
@@ -1896,7 +1904,8 @@ def generate_regular_order_format(unit_order_list):
            "Shipping Address",
            "Payment Status",
            "Shipping Method",
-           "Order Tracking Status"]
+           "Order Tracking Status",
+           "Order Tracking Status Time"]
 
     cnt = 0
         
@@ -1909,31 +1918,41 @@ def generate_regular_order_format(unit_order_list):
         try:
             cnt += 1
 
-            product_obj = Product.objects.get(uuid=unit_order["productUuid"])
-            dh_product_obj = DealsHubProduct.objects.get(product=product_obj)
+            dh_product_obj = DealsHubProduct.objects.get(product=unit_order["productUuid"])
 
-            common_row = ["" for i in range(21)]
+            common_row = ["" for i in range(len(row))]
             common_row[0] = str(cnt)
             common_row[1] = unit_order["orderPlacedDate"]
             common_row[2] = unit_order["bundleId"]
             common_row[3] = unit_order["orderId"]
-            common_row[4] = "WIGme"
-            common_row[5] = product_obj.product_name
-            common_row[6] = product_obj.product_id
-            common_row[7] = product_obj.base_product.seller_sku
-            common_row[8] = "AED"
-            common_row[9] = unit_order["price"]
-            common_row[10] = unit_order["deliveryFee"]
-            common_row[11] = str(dh_product_obj.was_price)
-            common_row[12] = unit_order["quantity"]
-            common_row[13] = unit_order["customerName"]
-            common_row[14] = unit_order["customerEmail"]
-            common_row[15] = unit_order["customerContactNumber"]
-            common_row[16] = unit_order["shippingAddress"]
-            common_row[17] = unit_order["shippingAddress"]
-            common_row[18] = unit_order["paymentStatus"]
-            common_row[19] = unit_order["shippingMethod"]
-            common_row[20] = unit_order["trackingStatus"]
+            common_row[4] = dh_product_obj.location_group.name
+            common_row[5] = dh_product_obj.get_name()
+            common_row[6] = dh_product_obj.get_product_id()
+            common_row[7] = dh_product_obj.get_seller_sku()
+            common_row[8] = dh_product_obj.get_currency()
+            common_row[9] = str(dh_product_obj.was_price)
+            common_row[10] = unit_order["price"]
+
+            common_row[11] = unit_order["deliveryFeeWithVat"]
+            common_row[12] = unit_order["deliveryFeeVat"]
+            common_row[13] = unit_order["deliveryFeeWithoutVat"]
+            common_row[14] = unit_order["codFeeWithVat"]
+            common_row[15] = unit_order["codFeeVat"]
+            common_row[16] = unit_order["codFeeWithoutVat"]
+            common_row[17] = unit_order["subtotalWithVat"]
+            common_row[18] = unit_order["subtotalVat"]
+            common_row[19] = unit_order["subtotalWithoutVat"]
+
+            common_row[20] = unit_order["quantity"]
+            common_row[21] = unit_order["customerName"]
+            common_row[22] = unit_order["customerEmail"]
+            common_row[23] = unit_order["customerContactNumber"]
+            common_row[24] = unit_order["shippingAddress"]
+            common_row[25] = unit_order["shippingAddress"]
+            common_row[26] = unit_order["paymentStatus"]
+            common_row[27] = unit_order["shippingMethod"]
+            common_row[28] = unit_order["trackingStatus"]
+            common_row[29] = unit_order["trackingStatusTime"]
             
             colnum = 0
             for k in common_row:

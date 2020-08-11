@@ -2879,7 +2879,6 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 to_date = to_date[:10]+"T23:59:59Z"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
 
-
             if len(payment_type_list)>0:
                 unit_order_objs = unit_order_objs.filter(order__payment_mode__in=payment_type_list)
 
@@ -3190,8 +3189,10 @@ class DownloadOrdersAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
             if from_date!="":
+                from_date = from_date[:10]+"T00:00:00Z"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
             if to_date!="":
+                to_date = to_date[:10]+"T23:59:59Z"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
             if len(payment_type_list)>0:
                 unit_order_objs = unit_order_objs.filter(order__payment_mode__in=payment_type_list)
@@ -3219,10 +3220,22 @@ class DownloadOrdersAPI(APIView):
                     customer_name = address_obj.first_name + " " + address_obj.last_name
                     area = json.loads(address_obj.address_lines)[2]
 
-                    subtotal = order_obj.get_subtotal()
-                    delivery_fee = order_obj.get_delivery_fee()
+                    delivery_fee_with_vat = order_obj.get_delivery_fee()
+                    delivery_fee_vat = order_obj.get_delivery_fee_vat()
+                    delivery_fee_without_vat = order_obj.get_delivery_fee_without_vat()
+
+                    cod_fee_with_vat = order_obj.get_cod_charge()
+                    cod_fee_vat = order_obj.get_cod_charge_vat()
+                    cod_fee_without_vat = order_obj.get_cod_charge_without_vat()
 
                     for unit_order_obj in unit_order_objs.filter(order=order_obj):
+
+                        subtotal_with_vat = unit_order_obj.get_subtotal()
+                        subtotal_vat = unit_order_obj.get_total_vat()
+                        subtotal_without_vat = unit_order_obj.get_subtotal_without_vat()
+
+                        tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
+
                         temp_dict = {
                             "orderPlacedDate": str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p")),
                             "bundleId": order_obj.bundleid,
@@ -3230,7 +3243,15 @@ class DownloadOrdersAPI(APIView):
                             "productUuid": unit_order_obj.product.uuid,
                             "quantity": str(unit_order_obj.quantity),
                             "price": str(unit_order_obj.price),
-                            "deliveryFee": str(delivery_fee),
+                            "deliveryFeeWithVat": str(delivery_fee_with_vat),
+                            "deliveryFeeVat": str(delivery_fee_vat),
+                            "deliveryFeeWithoutVat": str(delivery_fee_without_vat),
+                            "codFeeWithVat": str(cod_fee_with_vat),
+                            "codFeeVat": str(cod_fee_vat),
+                            "codFeeWithoutVat": str(cod_fee_without_vat),
+                            "subtotalWithVat": str(subtotal_with_vat),
+                            "subtotalVat": str(subtotal_vat),
+                            "subtotalWithoutVat": str(subtotal_without_vat),
                             "customerName": customer_name,
                             "customerEmail": order_obj.owner.email,
                             "customerContactNumber": str(order_obj.owner.contact_number),
@@ -3238,6 +3259,7 @@ class DownloadOrdersAPI(APIView):
                             "paymentStatus": order_obj.payment_status,
                             "shippingMethod": unit_order_obj.shipping_method,
                             "trackingStatus": unit_order_obj.current_status_admin,
+                            "trackingStatusTime": tracking_status_time,
                             "area": area,
                             "total": str(round(float(unit_order_obj.price)*float(unit_order_obj.quantity), 2))
                         }
