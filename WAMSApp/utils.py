@@ -1918,7 +1918,7 @@ def generate_regular_order_format(unit_order_list):
         try:
             cnt += 1
 
-            dh_product_obj = DealsHubProduct.objects.get(product=unit_order["productUuid"])
+            dh_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
 
             common_row = ["" for i in range(len(row))]
             common_row[0] = str(cnt)
