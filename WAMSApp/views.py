@@ -1405,35 +1405,7 @@ class SaveProductAPI(APIView):
 
 
             product_obj.product_id = product_id
-
-            try:
-                if product_obj.barcode_string != barcode_string and barcode_string != "":
-                    EAN = barcode.ean.EuropeanArticleNumber13(str(barcode_string), writer=ImageWriter())
-                    
-                    thumb = EAN.save('temp_image')
-                    thumb = IMage.open(open(thumb, "rb"))
-                    from io import BytesIO
-                    thumb_io = BytesIO()
-                    thumb.save(thumb_io, format='PNG')
-                    thumb_file = InMemoryUploadedFile(thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.getbuffer().nbytes, None)
-
-                    barcode_image = Image.objects.create(image=thumb_file)
-                    product_obj.barcode = barcode_image
-                    product_obj.barcode_string = barcode_string
-
-                    try:
-                        import os
-                        os.remove("temp_image.png")
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.warning("SaveProductAPI: %s at %s",
-                                       e, str(exc_tb.tb_lineno))
-
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SaveProductAPI: %s at %s",
-                             e, str(exc_tb.tb_lineno))
-
+            product_obj.barcode_string = barcode_string
             product_obj.product_name = product_name
             product_obj.product_description = product_description
 
