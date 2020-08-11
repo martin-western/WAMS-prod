@@ -1903,12 +1903,23 @@ columns = len(dfs.iloc[0][:])
 cnt=0
 
 for i in range(rows):
-    seller_sku = str(dfs.iloc[0][6])
-    product_id = str(dfs.iloc[0][1])
-    product_name = str(dfs.iloc[0][2])
+    seller_sku = str(dfs.iloc[i][6])
+    try :
+        product_id = str(int(dfs.iloc[i][1]))
+    except Exception as e:
+        product_id = ""
+    product_name = str(dfs.iloc[i][2])
     all_products = Product.objects.filter(base_product__seller_sku=seller_sku)
     for product_obj in all_products:
-        if product_obj.product_id == product_id:
-            if product_obj.product_name = product_name:
-                cnt+=1
-                print("Cnt : ",cnt)
+        # cnt+=1
+        # print("Cnt : ",cnt)
+        if product_obj.product_id == product_id and product_obj.product_name==product_name:
+            product_obj.channel_product.delete()
+            product_obj.delete()
+            cnt+=1
+            print("Cnt : ",cnt)
+        else:
+            print(product_obj.product_id , "    " , product_id)
+    if Product.objects.filter(base_product__seller_sku=seller_sku).all().count()==0:
+        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
+        base_product_obj.delete()
