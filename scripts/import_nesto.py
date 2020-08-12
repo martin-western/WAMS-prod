@@ -1885,3 +1885,41 @@ for p in pp:
     except Exception as e:
         pass
 
+import json
+import pandas as pd
+import os
+import sys
+from io import BytesIO as StringIO
+from WAMSApp.models import *
+from PIL import Image as IMage
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import glob
+
+filename = "scripts/Delete_Products.xlsx"
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs = dfs.fillna("")
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+cnt=0
+
+for i in range(rows):
+    seller_sku = str(dfs.iloc[i][6])
+    try :
+        product_id = str(int(dfs.iloc[i][1]))
+    except Exception as e:
+        product_id = ""
+    product_name = str(dfs.iloc[i][2])
+    all_products = Product.objects.filter(base_product__seller_sku=seller_sku)
+    for product_obj in all_products:
+        # cnt+=1
+        # print("Cnt : ",cnt)
+        if product_obj.product_id == product_id and product_obj.product_name==product_name:
+            product_obj.channel_product.delete()
+            product_obj.delete()
+            cnt+=1
+            print("Cnt : ",cnt)
+        else:
+            print(product_obj.product_id , "    " , product_id)
+    if Product.objects.filter(base_product__seller_sku=seller_sku).all().count()==0:
+        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
+        base_product_obj.delete()
