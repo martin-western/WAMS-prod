@@ -464,7 +464,7 @@ def contact_us_send_email(your_email, message, to_email, password):
 
 def notify_low_stock(dealshub_product_obj):
     try:
-        custom_permission_objs = CustomPermission.objects.filter(location_group__in=[dealshub_product_obj.location_group])
+        custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[dealshub_product_obj.location_group])
         for custom_permission_obj in custom_permission_objs:
             try:
                 body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
