@@ -523,8 +523,13 @@ def refresh_stock(order_obj):
             if stock > 10:
                 dealshub_product_obj.stock = 5
             else:
-                notify_low_stock(dealshub_product_obj)
-                #dealshub_product_obj.stock = 0
+                try:
+                    p2 = threading.Thread(target=notify_low_stock, args=(dealshub_product_obj,))
+                    p2.start()
+                    #dealshub_product_obj.stock = 0
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("refresh_stock: %s at %s", e, str(exc_tb.tb_lineno))
 
             dealshub_product_obj.save()
 
