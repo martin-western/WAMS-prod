@@ -31,6 +31,7 @@ from WAMSApp.views_amazon_uk import *
 from WAMSApp.views_noon_integration import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
+from WAMSApp.network_global_integration import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -684,8 +685,10 @@ class FetchBaseProductDetailsAPI(APIView):
                 response["brand_name"] = brand_obj.name
             
             response["base_product_name"] = base_product_obj.base_product_name
+            response["super_category"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category)
             response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
             response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
+            response["super_category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category.uuid)
             response["category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.uuid)
             response["sub_category_uuid"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category.uuid)
             response["seller_sku"] = base_product_obj.seller_sku
@@ -750,8 +753,10 @@ class FetchProductDetailsAPI(APIView):
                 response["brand_name"] = brand_obj.name
             
             response["base_product_name"] = base_product_obj.base_product_name
+            response["super_category"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category)
             response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
             response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
+            response["super_category_uuid"] = "" if base_product_obj.category.super_category==None else str(base_product_obj.category.super_category.uuid)
             response["category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.uuid)
             response["sub_category_uuid"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category.uuid)
 
@@ -1404,35 +1409,7 @@ class SaveProductAPI(APIView):
 
 
             product_obj.product_id = product_id
-
-            try:
-                if product_obj.barcode_string != barcode_string and barcode_string != "":
-                    EAN = barcode.ean.EuropeanArticleNumber13(str(barcode_string), writer=ImageWriter())
-                    
-                    thumb = EAN.save('temp_image')
-                    thumb = IMage.open(open(thumb, "rb"))
-                    from io import BytesIO
-                    thumb_io = BytesIO()
-                    thumb.save(thumb_io, format='PNG')
-                    thumb_file = InMemoryUploadedFile(thumb_io, None, 'barcode_' + product_obj.product_id + '.png', 'image/PNG', thumb_io.getbuffer().nbytes, None)
-
-                    barcode_image = Image.objects.create(image=thumb_file)
-                    product_obj.barcode = barcode_image
-                    product_obj.barcode_string = barcode_string
-
-                    try:
-                        import os
-                        os.remove("temp_image.png")
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.warning("SaveProductAPI: %s at %s",
-                                       e, str(exc_tb.tb_lineno))
-
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SaveProductAPI: %s at %s",
-                             e, str(exc_tb.tb_lineno))
-
+            product_obj.barcode_string = barcode_string
             product_obj.product_name = product_name
             product_obj.product_description = product_description
 
@@ -5224,7 +5201,7 @@ class FetchChannelProductListAPI(APIView):
                     temp_dict["category"] = amazon_uae_product_json["category"]
                     temp_dict["sub_category"] = amazon_uae_product_json["sub_category"]
                     temp_dict["status"] = amazon_uae_product_json["status"]
-                    temp_dict["now_price"] = amazon_uae_product_json["now_price"]
+                    temp_dict["now_price"] = amazon_uae_product_json["sale_price"]
                     temp_dict["was_price"] = amazon_uae_product_json["was_price"]
                     temp_dict["stock"] = amazon_uae_product_json["stock"]
                 
@@ -5666,31 +5643,35 @@ class FetchAllCategoriesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            category_objs = Category.objects.all()
-
-            category_list = []
-            
-            for category_obj in category_objs:
-                
+            super_category_objs = SuperCategory.objects.all()
+            super_category_list = []
+            for super_category_obj in super_category_objs:
                 try:
                     temp_dict = {}
-                    temp_dict["name"] = category_obj.name
-                    temp_dict["category_uuid"] = category_obj.uuid
-                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
-                    sub_category_list = []
-                    for sub_category_obj in sub_category_objs:
+                    temp_dict["name"] = super_category_obj.name
+                    temp_dict["super_category_uuid"] = super_category_obj.uuid
+                    category_objs = Category.objects.filter(super_category=super_category_obj)
+                    category_list = []
+                    for category_obj in category_objs:
                         temp_dict2 = {}
-                        temp_dict2["name"] = sub_category_obj.name
-                        temp_dict2["sub_category_uuid"] = sub_category_obj.uuid
-                        sub_category_list.append(temp_dict2)
-                    temp_dict["sub_category_list"] = sub_category_list
-                    category_list.append(temp_dict) 
-                
+                        temp_dict2["name"] = category_obj.name
+                        temp_dict2["category_uuid"] = category_obj.uuid
+                        sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                        sub_category_list = []
+                        for sub_category_obj in sub_category_objs:
+                            temp_dict3 = {}
+                            temp_dict3["name"] = sub_category_obj.name
+                            temp_dict3["sub_category_uuid"] = sub_category_obj.uuid
+                            sub_category_list.append(temp_dict3)
+                        temp_dict2["sub_category_list"] = sub_category_list
+                        category_list.append(temp_dict2)
+                    temp_dict["category_list"] = category_list
+                    super_category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchAllCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
-            
-            response["category_list"] = category_list
+                
+            response["super_category_list"] = super_category_list
             response['status'] = 200
         
         except Exception as e:
@@ -6160,6 +6141,9 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["sub_category"] = dealshub_product_obj.get_sub_category()
             response["category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.uuid)
             response["sub_category_uuid"] = "" if dealshub_product_obj.sub_category==None else str(dealshub_product_obj.sub_category.uuid)
+
+            response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
+            response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
 
             response["status"] = 200
 

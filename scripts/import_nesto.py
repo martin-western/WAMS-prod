@@ -1805,3 +1805,121 @@ for channel_product in ChannelProduct.objects.all():
     noon_product_json["sale_price"] = noon_product_json["now_price"]
     channel_product.noon_product_json = json.dumps(noon_product_json)
     channel_product.save()
+
+
+import pandas as pd
+from WAMSApp.models import *
+
+filename = "../../../../Downloads/Price_Upload.xlsx"
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+
+dfs = dfs.fillna("")
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+
+print(dfs.iloc[2][2])
+
+from dealshub.models import *
+import json, math
+cc = ChannelProduct.objects.filter(amazon_uae_product_json__contains="NaN")
+for c in cc:
+    if type(json.loads(c.amazon_uae_product_json)["was_price"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["was_price"]):
+        print("YES1", c)
+        t = json.loads(c.amazon_uae_product_json)
+        t["was_price"] = 0.0
+        c.amazon_uae_product_json = json.dumps(t)
+        c.save()
+    if type(json.loads(c.amazon_uae_product_json)["now_price"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["now_price"]):
+        print("YES2", c)
+    if type(json.loads(c.amazon_uae_product_json)["stock"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["stock"]):
+        print("YES3", c)
+    if type(json.loads(c.amazon_uae_product_json)["quantity"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["quantity"]):
+        print("YES4", c)
+    if type(json.loads(c.amazon_uae_product_json)["sale_price"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["sale_price"]):
+        print("YES5", c)
+        t = json.loads(c.amazon_uae_product_json)
+        t["sale_price"] = 0.0
+        c.amazon_uae_product_json = json.dumps(t)
+        c.save()
+
+from dealshub.models import *
+import json, math
+cnt=0
+cc = ChannelProduct.objects.exclude(amazon_uae_product_json__contains="sale_price")
+for c in cc:
+    t = json.loads(c.amazon_uae_product_json)
+    t["sale_price"] = t["now_price"]
+    c.amazon_uae_product_json = json.dumps(t)
+    c.save()
+    cnt+=1
+    print(cnt)
+
+
+from WAMSApp.models import *
+pp = Product.objects.all()
+cnt=0
+for p in pp:
+    try:
+        product_name = p.product_name  
+        brand = p.base_product.brand.name 
+        seller_sku = p.base_product.seller_sku 
+        product_id = p.product_id 
+        final_product_name = product_name
+        product_name_list = product_name.split(" ")
+        for e in product_name_list:
+            if seller_sku.lower() in e.lower():
+                final_product_name = final_product_name.replace(e,"")
+            if brand.lower() in e.lower():
+                final_product_name = final_product_name.replace(e,"")
+            if str(product_id) in e:
+                final_product_name = final_product_name.replace(e,"")
+        final_product_name = final_product_name.strip()
+        final_product_name = final_product_name.replace("  "," ")
+        p.product_name = final_product_name
+        p.save()
+        # print(final_product_name)
+        # print()
+        # print()
+        cnt+=1
+        print(cnt)
+    except Exception as e:
+        pass
+
+import json
+import pandas as pd
+import os
+import sys
+from io import BytesIO as StringIO
+from WAMSApp.models import *
+from PIL import Image as IMage
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import glob
+
+filename = "scripts/Delete_Products.xlsx"
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs = dfs.fillna("")
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+cnt=0
+
+for i in range(rows):
+    seller_sku = str(dfs.iloc[i][6])
+    try :
+        product_id = str(int(dfs.iloc[i][1]))
+    except Exception as e:
+        product_id = ""
+    product_name = str(dfs.iloc[i][2])
+    all_products = Product.objects.filter(base_product__seller_sku=seller_sku)
+    for product_obj in all_products:
+        # cnt+=1
+        # print("Cnt : ",cnt)
+        if product_obj.product_id == product_id and product_obj.product_name==product_name:
+            product_obj.channel_product.delete()
+            product_obj.delete()
+            cnt+=1
+            print("Cnt : ",cnt)
+        else:
+            print(product_obj.product_id , "    " , product_id)
+    if Product.objects.filter(base_product__seller_sku=seller_sku).all().count()==0:
+        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
+        base_product_obj.delete()

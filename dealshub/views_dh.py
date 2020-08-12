@@ -387,9 +387,9 @@ class AddToOfflineCartAPI(APIView):
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
-            vat_with_cod = cart_obj.get_vat(cod=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
 
             is_voucher_applied = cart_obj.voucher!=None
@@ -418,7 +418,10 @@ class AddToOfflineCartAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
 
             response["unitCartUuid"] = unit_cart_obj.uuid
@@ -554,9 +557,9 @@ class FetchOfflineCartDetailsAPI(APIView):
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
-            vat_with_cod = cart_obj.get_vat(cod=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -583,7 +586,10 @@ class FetchOfflineCartDetailsAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
 
             response["unitCartList"] = unit_cart_list
@@ -609,6 +615,7 @@ class UpdateCartDetailsAPI(APIView):
 
             unit_cart_uuid = data["unitCartUuid"]
             quantity = int(data["quantity"])
+            is_order_offline = data.get("is_order_offline", False)
 
             unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
             unit_cart_obj.quantity = quantity
@@ -624,9 +631,9 @@ class UpdateCartDetailsAPI(APIView):
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
-            vat_with_cod = cart_obj.get_vat(cod=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline)
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -653,7 +660,10 @@ class UpdateCartDetailsAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
             }
 
             response["status"] = 200
@@ -1013,19 +1023,16 @@ class PlaceOfflineOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
-            cart_obj.voucher = None
-            cart_obj.save()
-
             update_cart_bill(cart_obj)
 
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
             # Check if COD is allowed
-            is_cod_allowed = True
-            if is_cod_allowed==False:
-                response["status"] = 403
-                logger.error("PlaceOfflineOrderAPI: COD not allowed!")
-                return Response(data=response)
+            # is_cod_allowed = True
+            # if is_cod_allowed==False:
+            #     response["status"] = 403
+            #     logger.error("PlaceOfflineOrderAPI: COD not allowed!")
+            #     return Response(data=response)
 
             cart_obj.to_pay += cart_obj.location_group.cod_charge
             cart_obj.save()
@@ -2865,11 +2872,12 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
             if from_date!="":
+                from_date = from_date[:10]+"T00:00:00Z"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
 
             if to_date!="":
+                to_date = to_date[:10]+"T23:59:59Z"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
-
 
             if len(payment_type_list)>0:
                 unit_order_objs = unit_order_objs.filter(order__payment_mode__in=payment_type_list)
@@ -2907,6 +2915,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             order_objs = paginator.page(page)
 
             invoice_logo = location_group_obj.get_email_website_logo()
+            website_group_name = location_group_obj.website_group.name.lower()
             trn_number = json.loads(location_group_obj.website_group.conf).get("trn_number", "NA")
             support_contact_number = json.loads(location_group_obj.website_group.conf).get("support_contact_number", "NA")
             footer_text = json.loads(location_group_obj.website_group.conf).get("footer_text", "NA")
@@ -2948,10 +2957,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
-                        voucher_discount_vat = round(voucher_discount - voucher_discount/1.05, 2)
+                        voucher_discount_vat = voucher_obj.get_voucher_discount_vat(voucher_discount)
+                        voucher_discount_without_vat = voucher_obj.get_voucher_discount_without_vat(voucher_discount)
                         temp_dict["voucherDiscount"] = voucher_discount
                         temp_dict["voucherDiscountVat"] = voucher_discount_vat
-                        temp_dict["voucherDiscountWithoutVat"] = round(voucher_discount/1.05,2)
+                        temp_dict["voucherDiscountWithoutVat"] = voucher_discount_without_vat
 
                     unit_order_list = []
                     subtotal = 0
@@ -2963,11 +2973,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["currentStatus"] = unit_order_obj.current_status_admin
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
-                        temp_total = float(unit_order_obj.price)*float(unit_order_obj.quantity)
-                        temp_dict2["price_without_vat"] = round(unit_order_obj.price/1.05, 2)
-                        temp_dict2["vat"] = round(temp_total - temp_total/1.05, 2)
-                        temp_dict2["totalPrice"] = str(temp_total)
-                        temp_dict2["total_price_without_vat"] = round(temp_total/1.05, 2)
+                        temp_dict2["price_without_vat"] = unit_order_obj.get_price_without_vat()
+                        temp_dict2["vat"] = unit_order_obj.get_total_vat()
+                        temp_dict2["totalPrice"] = unit_order_obj.get_subtotal()
+                        temp_dict2["total_price_without_vat"] = unit_order_obj.get_subtotal_without_vat()
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
@@ -2979,34 +2988,39 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["deliveryFailed"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="delivery failed").count()
 
                     subtotal = order_obj.get_subtotal()
-                    subtotal_vat = round(subtotal - subtotal/1.05, 2)
+                    subtotal_vat = order_obj.get_subtotal_vat()
+                    subtotal_without_vat = order_obj.get_subtotal_without_vat()
                     delivery_fee = order_obj.get_delivery_fee()
-                    delivery_fee_vat = round(delivery_fee - delivery_fee/1.05, 2)
+                    delivery_fee_vat = order_obj.get_delivery_fee_vat()
+                    delivery_fee_without_vat = order_obj.get_delivery_fee_without_vat()
                     cod_fee = order_obj.get_cod_charge()
-                    cod_fee_vat = round(cod_fee - cod_fee/1.05, 2)
+                    cod_fee_vat = order_obj.get_cod_charge_vat()
+                    cod_fee_without_vat = order_obj.get_cod_charge_without_vat()
 
                     to_pay = order_obj.get_total_amount()
                     vat = order_obj.get_vat()
                     
-                    temp_dict["subtotalWithoutVat"] = str(round(subtotal/1.05,2))
+                    temp_dict["subtotalWithoutVat"] = str(subtotal_without_vat)
                     temp_dict["subtotalVat"] = str(subtotal_vat)
                     temp_dict["subtotal"] = str(subtotal)
 
-                    temp_dict["deliveryFeeWithoutVat"] = str(round(delivery_fee/1.05,2))
+                    temp_dict["deliveryFeeWithoutVat"] = str(delivery_fee_without_vat)
                     temp_dict["deliveryFeeVat"] = str(delivery_fee_vat)
                     temp_dict["deliveryFee"] = str(delivery_fee)
 
-                    temp_dict["codFeeWithoutVat"] = str(round(cod_fee/1.05, 2))
+                    temp_dict["codFeeWithoutVat"] = str(cod_fee_without_vat)
                     temp_dict["codFeeVat"] = str(cod_fee_vat)
                     temp_dict["codFee"] = str(cod_fee)
 
                     temp_dict["vat"] = str(vat)
                     temp_dict["toPay"] = str(to_pay)
                     temp_dict["toPayWithoutVat"] = str(to_pay-vat)
+                    temp_dict["currency"] = str(order_obj.get_currency())
 
                     temp_dict["unitOrderList"] = unit_order_list
 
                     temp_dict["invoice_logo"] = invoice_logo
+                    temp_dict["website_group_name"] = website_group_name
                     temp_dict["trn_number"] = trn_number
                     temp_dict["support_contact_number"] = support_contact_number
                     temp_dict["footer_text"] = footer_text
@@ -3047,7 +3061,7 @@ class FetchShippingMethodAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            shipping_methods = ["WIG Fleet", "TFM"]
+            shipping_methods = ["WIG Fleet", "PPlus"]
 
             response["shippingMethods"] = shipping_methods
             response["status"] = 200
@@ -3176,8 +3190,10 @@ class DownloadOrdersAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
             if from_date!="":
+                from_date = from_date[:10]+"T00:00:00Z"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
             if to_date!="":
+                to_date = to_date[:10]+"T23:59:59Z"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
             if len(payment_type_list)>0:
                 unit_order_objs = unit_order_objs.filter(order__payment_mode__in=payment_type_list)
@@ -3205,10 +3221,22 @@ class DownloadOrdersAPI(APIView):
                     customer_name = address_obj.first_name + " " + address_obj.last_name
                     area = json.loads(address_obj.address_lines)[2]
 
-                    subtotal = order_obj.get_subtotal()
-                    delivery_fee = order_obj.get_delivery_fee()
+                    delivery_fee_with_vat = order_obj.get_delivery_fee()
+                    delivery_fee_vat = order_obj.get_delivery_fee_vat()
+                    delivery_fee_without_vat = order_obj.get_delivery_fee_without_vat()
+
+                    cod_fee_with_vat = order_obj.get_cod_charge()
+                    cod_fee_vat = order_obj.get_cod_charge_vat()
+                    cod_fee_without_vat = order_obj.get_cod_charge_without_vat()
 
                     for unit_order_obj in unit_order_objs.filter(order=order_obj):
+
+                        subtotal_with_vat = unit_order_obj.get_subtotal()
+                        subtotal_vat = unit_order_obj.get_total_vat()
+                        subtotal_without_vat = unit_order_obj.get_subtotal_without_vat()
+
+                        tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
+
                         temp_dict = {
                             "orderPlacedDate": str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p")),
                             "bundleId": order_obj.bundleid,
@@ -3216,7 +3244,15 @@ class DownloadOrdersAPI(APIView):
                             "productUuid": unit_order_obj.product.uuid,
                             "quantity": str(unit_order_obj.quantity),
                             "price": str(unit_order_obj.price),
-                            "deliveryFee": str(delivery_fee),
+                            "deliveryFeeWithVat": str(delivery_fee_with_vat),
+                            "deliveryFeeVat": str(delivery_fee_vat),
+                            "deliveryFeeWithoutVat": str(delivery_fee_without_vat),
+                            "codFeeWithVat": str(cod_fee_with_vat),
+                            "codFeeVat": str(cod_fee_vat),
+                            "codFeeWithoutVat": str(cod_fee_without_vat),
+                            "subtotalWithVat": str(subtotal_with_vat),
+                            "subtotalVat": str(subtotal_vat),
+                            "subtotalWithoutVat": str(subtotal_without_vat),
                             "customerName": customer_name,
                             "customerEmail": order_obj.owner.email,
                             "customerContactNumber": str(order_obj.owner.contact_number),
@@ -3224,6 +3260,7 @@ class DownloadOrdersAPI(APIView):
                             "paymentStatus": order_obj.payment_status,
                             "shippingMethod": unit_order_obj.shipping_method,
                             "trackingStatus": unit_order_obj.current_status_admin,
+                            "trackingStatusTime": tracking_status_time,
                             "area": area,
                             "total": str(round(float(unit_order_obj.price)*float(unit_order_obj.quantity), 2))
                         }
@@ -3466,6 +3503,182 @@ class RemoveVoucherCodeAPI(APIView):
         return Response(data=response)
 
 
+class ApplyOfflineVoucherCodeAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("ApplyOfflineVoucherCodeAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            voucher_code = data["voucher_code"]
+
+            username = data["username"]
+
+            if Voucher.objects.filter(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj).exists()==False:
+                response["error_message"] = "INVALID CODE"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+            voucher_obj = Voucher.objects.get(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj)
+            if voucher_obj.is_expired()==True:
+                response["error_message"] = "EXPIRED"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+
+            if voucher_obj.is_eligible(cart_obj.get_subtotal())==False:
+                response["error_message"] = "NOT APPLICABLE"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+
+            if is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==True:
+                response["error_message"] = "LIMIT EXCEEDED"
+                response["voucher_success"] = False
+                response["status"] = 200
+                return Response(data=response)
+            
+            cart_obj.voucher = voucher_obj
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["voucher_success"] = True
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ApplyOfflineVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class RemoveOfflineVoucherCodeAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("RemoveOfflineVoucherCodeAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            username = data["username"]
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+            cart_obj.voucher = None
+            cart_obj.save()
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["voucher_success"] = True
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveOfflineVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchOrderAnalyticsParamsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3620,5 +3833,9 @@ UploadOrders = UploadOrdersAPI.as_view()
 ApplyVoucherCode = ApplyVoucherCodeAPI.as_view()
 
 RemoveVoucherCode = RemoveVoucherCodeAPI.as_view()
+
+ApplyOfflineVoucherCode = ApplyOfflineVoucherCodeAPI.as_view()
+
+RemoveOfflineVoucherCode = RemoveOfflineVoucherCodeAPI.as_view()
 
 FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()

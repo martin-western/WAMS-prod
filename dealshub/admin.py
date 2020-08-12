@@ -18,6 +18,10 @@ class SectionAdmin(admin.ModelAdmin):
     list_display = ('name', 'order_index')
 
 
+class DealsHubUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'contact_verified', 'verification_code', 'date_created')
+
+
 admin.site.register(DealsHubProduct, DealsHubProductAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(BannerType)
@@ -26,7 +30,7 @@ admin.site.register(UnitBannerImage)
 admin.site.register(Address)
 admin.site.register(UnitCart)
 admin.site.register(Cart)
-admin.site.register(DealsHubUser)
+admin.site.register(DealsHubUser, DealsHubUserAdmin)
 admin.site.register(UnitOrder)
 admin.site.register(Order)
 admin.site.register(Location)
