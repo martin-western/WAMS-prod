@@ -2872,11 +2872,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
             if from_date!="":
-                from_date = from_date[:10]+"T00:00:00Z"
+                from_date = from_date[:10]+"T00:00:00+04:00"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
 
             if to_date!="":
-                to_date = to_date[:10]+"T23:59:59Z"
+                to_date = to_date[:10]+"T23:59:59+04:00"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
 
             if len(payment_type_list)>0:
@@ -3061,7 +3061,7 @@ class FetchShippingMethodAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            shipping_methods = ["WIG Fleet", "PPlus"]
+            shipping_methods = ["WIG Fleet", "P-Plus"]
 
             response["shippingMethods"] = shipping_methods
             response["status"] = 200
@@ -3190,10 +3190,10 @@ class DownloadOrdersAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
             if from_date!="":
-                from_date = from_date[:10]+"T00:00:00Z"
+                from_date = from_date[:10]+"T00:00:00+04:00"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
             if to_date!="":
-                to_date = to_date[:10]+"T23:59:59Z"
+                to_date = to_date[:10]+"T23:59:59+04:00"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
             if len(payment_type_list)>0:
                 unit_order_objs = unit_order_objs.filter(order__payment_mode__in=payment_type_list)
