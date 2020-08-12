@@ -464,7 +464,7 @@ def contact_us_send_email(your_email, message, to_email, password):
 
 def notify_low_stock(dealshub_product_obj):
     try:
-        custom_permission_objs = CustomPermission.objects.filter(location_group__in=[dealshub_product_obj.location_group])
+        custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[dealshub_product_obj.location_group])
         for custom_permission_obj in custom_permission_objs:
             try:
                 body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
@@ -523,8 +523,13 @@ def refresh_stock(order_obj):
             if stock > 10:
                 dealshub_product_obj.stock = 5
             else:
-                notify_low_stock(dealshub_product_obj)
-                #dealshub_product_obj.stock = 0
+                try:
+                    p2 = threading.Thread(target=notify_low_stock, args=(dealshub_product_obj,))
+                    p2.start()
+                    #dealshub_product_obj.stock = 0
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("refresh_stock: %s at %s", e, str(exc_tb.tb_lineno))
 
             dealshub_product_obj.save()
 
