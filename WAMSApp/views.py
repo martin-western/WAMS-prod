@@ -685,8 +685,10 @@ class FetchBaseProductDetailsAPI(APIView):
                 response["brand_name"] = brand_obj.name
             
             response["base_product_name"] = base_product_obj.base_product_name
+            response["super_category"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category)
             response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
             response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
+            response["super_category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category.uuid)
             response["category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.uuid)
             response["sub_category_uuid"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category.uuid)
             response["seller_sku"] = base_product_obj.seller_sku
@@ -5663,6 +5665,7 @@ class FetchAllCategoriesAPI(APIView):
                             sub_category_list.append(temp_dict3)
                         temp_dict2["sub_category_list"] = sub_category_list
                         category_list.append(temp_dict2)
+                    temp_dict["category_list"] = category_list
                     super_category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
