@@ -2978,7 +2978,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["totalPrice"] = unit_order_obj.get_subtotal()
                         temp_dict2["total_price_without_vat"] = unit_order_obj.get_subtotal_without_vat()
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
-                        temp_dict2["productName"] = unit_order_obj.product.get_name()
+                        temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
                         unit_order_list.append(temp_dict2)
                     temp_dict["approved"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="approved").count()
