@@ -357,7 +357,7 @@ class SearchAPI(APIView):
             filter_list = json.loads(filter_list)
 
             brand_filter = data.get("brand_filter", [])
-            sort_filter = data.get("brand_filter", {})
+            sort_filter = data.get("sort_filter", {})
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
