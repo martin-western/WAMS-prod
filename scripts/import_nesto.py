@@ -1821,8 +1821,16 @@ print(dfs.iloc[2][2])
 
 from dealshub.models import *
 import json, math
-cc = ChannelProduct.objects.filter(amazon_uae_product_json__contains="NaN")
+# cc = ChannelProduct.objects.filter(amazon_uae_product_json__contains="NaN")
+cc = ChannelProduct.objects.all()
+i=0
 for c in cc:
+    print(i)
+    i = i+1
+    t = json.loads(c.amazon_uae_product_json)
+    t["sale_price"] = t["now_price"]
+    c.amazon_uae_product_json = json.dumps(t)
+    c.save()
     if type(json.loads(c.amazon_uae_product_json)["was_price"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["was_price"]):
         print("YES1", c)
         t = json.loads(c.amazon_uae_product_json)
@@ -1871,7 +1879,7 @@ for p in pp:
                 final_product_name = final_product_name.replace(e,"")
             if brand.lower() in e.lower():
                 final_product_name = final_product_name.replace(e,"")
-            if str(product_id) in e:
+            if str(product_id) != "" and str(product_id) in e:
                 final_product_name = final_product_name.replace(e,"")
         final_product_name = final_product_name.strip()
         final_product_name = final_product_name.replace("  "," ")
@@ -1882,6 +1890,33 @@ for p in pp:
         # print()
         cnt+=1
         print(cnt)
+    except Exception as e:
+        pass
+
+from WAMSApp.models import *
+pp = Product.objects.filter(product_name__icontains="-")
+cnt=0
+for p in pp:
+    try:
+        product_name = p.product_name  
+        brand = p.base_product.brand.name 
+        seller_sku = p.base_product.seller_sku 
+        product_id = p.product_id 
+        final_product_name = product_name
+        product_name_list = product_name.split(" ")
+        e= product_name_list[0]
+        if e.lower() == "-":
+            final_product_name = final_product_name.replace(e,"")
+            cnt+=1
+            print(cnt)
+        final_product_name = final_product_name.strip()
+        final_product_name = final_product_name.replace("  "," ")
+        p.product_name = final_product_name
+        # print(product_name)
+        # print(final_product_name)
+        # print()
+        # print()
+        p.save()
     except Exception as e:
         pass
 
@@ -1923,3 +1958,28 @@ for i in range(rows):
     if Product.objects.filter(base_product__seller_sku=seller_sku).all().count()==0:
         base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
         base_product_obj.delete()
+
+from dealshub.models import *
+super_category_obj , created = SuperCategory.objects.get_or_create(name="GENERAL")
+category_obj ,created = Category.objects.get_or_create(name="GENERAL",super_category=super_category_obj)
+sub_category_obj , created= SubCategory.objects.get_or_create(name="GENERAL",category=category_obj)
+BaseProduct.objects.filter(super_category=None).update(super_category=super_category_obj)
+BaseProduct.objects.filter(category=None).update(category=category_obj)
+BaseProduct.objects.filter(sub_category=None).update(sub_category=sub_category_obj)
+
+from dealshub.models import *
+pp = Product.objects.exclude(base_product=None)
+i=0
+for p in pp:
+    try :
+        print(i)
+        i+=1
+        category = p.base_product.category.name
+        sub_category = p.base_product.sub_category.name
+        t = json.loads(p.channel_product.amazon_uae_product_json)
+        t["category"] = category
+        t["sub_category"] = sub_category
+        p.channel_product.amazon_uae_product_json = json.dumps(t)
+        p.channel_product.save()
+    except Exception as e:
+        pass
