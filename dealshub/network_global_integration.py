@@ -106,7 +106,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
             
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
             
-            response["payment_response"] = json.loads(payment_response)
+            response["payment_response"] = json.loads(payment_response.content)
             response["error"] = "Payment Success"
             response["status"] = 200
 
