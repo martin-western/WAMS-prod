@@ -152,4 +152,5 @@ urlpatterns = [
     url(r'^unpublish-voucher/$', views.UnPublishVoucher),
 
     url(r'^fetch-order-analytics-params/$', views.FetchOrderAnalyticsParams),
+    url(r'^make-payment-network-global/$',views.MakePaymentNetworkGlobal),
 ]

@@ -375,11 +375,13 @@ class Cart(models.Model):
     to_pay = models.FloatField(default=0)
     merchant_reference = models.CharField(max_length=200, default="")
     payment_info = models.TextField(default="{}")
+    modified_date = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
 
+        modified_date = timezone.now()
         super(Cart, self).save(*args, **kwargs)
 
     def get_subtotal(self):

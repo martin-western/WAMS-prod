@@ -142,8 +142,6 @@ urlpatterns = [
     url(r'^bulk-update-amazon-uk-product-price/$',views.BulkUpdateAmazonUKProductPrice),
     url(r'^bulk-update-amazon-uk-product-stock/$',views.BulkUpdateAmazonUKProductStock),
     url(r'^bulk-update-amazon-uk-product-price-and-stock/$',views.BulkUpdateAmazonUKProductPriceAndStock),
-    
-    url(r'^make-payment-network-global/$',views.MakePaymentNetworkGlobal),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

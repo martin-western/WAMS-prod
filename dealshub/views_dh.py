@@ -1632,6 +1632,10 @@ class FetchCustomerListAPI(APIView):
                     temp_dict["contactNumber"] = dealshub_user_obj.contact_number
                     temp_dict["username"] = dealshub_user_obj.username
                     temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
+                    try:
+                        temp_dict["cart_last_modified"] = str(timezone.localtime(Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date).strftime("%d %b, %Y %H:%M"))
+                    except Exception as e:
+                        temp_dict["cart_last_modified"] = "NA"
                     temp_dict["is_feedback_available"] = False
                     customer_list.append(temp_dict)
                 except Exception as e:
@@ -1677,6 +1681,10 @@ class FetchCustomerDetailsAPI(APIView):
             temp_dict["emailId"] = dealshub_user_obj.email
             temp_dict["contactNumber"] = dealshub_user_obj.contact_number
             temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
+            try:
+                temp_dict["cart_last_modified"] = str(timezone.localtime(Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date).strftime("%d %b, %Y %H:%M"))
+            except Exception as e:
+                temp_dict["cart_last_modified"] = "NA"
             temp_dict["is_feedback_available"] = False
             address_list = []
             for address_obj in Address.objects.filter(is_deleted=False, user__username=dealshub_user_obj.username):
@@ -2872,11 +2880,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
             if from_date!="":
-                from_date = from_date[:10]+"T00:00:00Z"
+                from_date = from_date[:10]+"T00:00:00+04:00"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
 
             if to_date!="":
-                to_date = to_date[:10]+"T23:59:59Z"
+                to_date = to_date[:10]+"T23:59:59+04:00"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
 
             if len(payment_type_list)>0:
@@ -2978,7 +2986,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["totalPrice"] = unit_order_obj.get_subtotal()
                         temp_dict2["total_price_without_vat"] = unit_order_obj.get_subtotal_without_vat()
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
-                        temp_dict2["productName"] = unit_order_obj.product.get_name()
+                        temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
                         unit_order_list.append(temp_dict2)
                     temp_dict["approved"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="approved").count()
@@ -3061,7 +3069,7 @@ class FetchShippingMethodAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            shipping_methods = ["WIG Fleet", "PPlus"]
+            shipping_methods = ["WIG Fleet", "P-Plus"]
 
             response["shippingMethods"] = shipping_methods
             response["status"] = 200
@@ -3190,10 +3198,10 @@ class DownloadOrdersAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
 
             if from_date!="":
-                from_date = from_date[:10]+"T00:00:00Z"
+                from_date = from_date[:10]+"T00:00:00+04:00"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
             if to_date!="":
-                to_date = to_date[:10]+"T23:59:59Z"
+                to_date = to_date[:10]+"T23:59:59+04:00"
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
             if len(payment_type_list)>0:
                 unit_order_objs = unit_order_objs.filter(order__payment_mode__in=payment_type_list)
