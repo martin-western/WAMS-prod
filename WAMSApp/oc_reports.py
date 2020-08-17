@@ -41,7 +41,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="")
     product_objs = Product.objects.filter(base_product__brand__name__in=brand_list)
 
     if product_uuid_list!="":
-      product_objs = product_objs.filter(uuid__in=product_uuid_list)
+        product_objs = product_objs.filter(uuid__in=product_uuid_list)
 
     workbook = xlsxwriter.Workbook('./'+filename)
 
