@@ -3100,6 +3100,7 @@ class SetShippingMethodAPI(APIView):
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
                 set_shipping_method(unit_order_obj, shipping_method)
+            #set_postaplus_shipping(unit_order_uuid_list)
 
             response["status"] = 200
 
