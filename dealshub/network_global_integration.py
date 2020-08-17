@@ -86,7 +86,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
             network_global_response = requests.post("https://api-gateway.sandbox.ngenius-payments.com/identity/auth/access-token", headers=headers)
 
             network_global_response_dict = json.loads(network_global_response.content)
-            access_token = response_dict["access_token"]
+            access_token = network_global_response_dict["access_token"]
 
             headers = {
                 "Authorization": "Bearer " + access_token ,
