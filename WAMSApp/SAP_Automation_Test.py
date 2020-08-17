@@ -19,7 +19,7 @@ def fetch_prices(product_id,company_code):
     
     try:
 
-        product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
+        # product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
 
         url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
@@ -66,74 +66,8 @@ def fetch_prices(product_id,company_code):
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
-        
-        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-        
-        EX_EA = 0.0
-        IC_EA = 0.0
-        OD_EA = 0.0
-        RET_EA = 0.0
-        qty=0.0
-        
-        warehouse_dict["company_code"] = company_code
-        
-        if isinstance(items, dict):
-            temp_price = items["EX_EA"]
-            if temp_price!=None:
-                temp_price = float(temp_price)
-                EX_EA = max(temp_price, EX_EA)
-            temp_price = items["IC_EA"]
-            if temp_price!=None:
-                temp_price = float(temp_price)
-                IC_EA = max(temp_price, IC_EA)
-            temp_price = items["OD_EA"]
-            if temp_price!=None:
-                temp_price = float(temp_price)
-                OD_EA = max(temp_price, OD_EA)
-            temp_price = items["RET_EA"]
-            if temp_price!=None:
-                temp_price = float(temp_price)
-                RET_EA = max(temp_price, RET_EA)
-            temp_qty = items["TOT_QTY"]
-            if temp_qty!=None:
-                temp_qty = float(temp_qty)
-                qty = max(temp_qty, qty)
-        
-        else:
-            for item in items:
-                temp_price = item["EX_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    EX_EA = max(temp_price, EX_EA)
-                temp_price = item["IC_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    IC_EA = max(temp_price, IC_EA)
-                temp_price = item["OD_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    OD_EA = max(temp_price, OD_EA)
-                temp_price = item["RET_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    RET_EA = max(temp_price, RET_EA)
-                temp_qty = item["TOT_QTY"]
-                if temp_qty!=None:
-                    temp_qty = float(temp_qty)
-                    qty = max(temp_qty, qty)
-        
-        prices = {}
-        prices["EX_EA"] = str(EX_EA)
-        prices["IC_EA"] = str(IC_EA)
-        prices["OD_EA"] = str(OD_EA)
-        prices["RET_EA"] = str(RET_EA)
-        
-        warehouse_dict["prices"] = prices
-        warehouse_dict["qty"] = qty
 
-        product_obj.save()
-        
-        return warehouse_dict
+        print(content)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
