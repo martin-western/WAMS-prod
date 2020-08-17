@@ -13,6 +13,7 @@ from dealshub.constants import *
 from dealshub.utils import *
 from WAMSApp.constants import *
 from WAMSApp.utils import *
+from dealshub.network_global_integration import *
 
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -3741,6 +3742,11 @@ class PlaceOnlineOrderAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+            if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
 
             update_cart_bill(cart_obj)
 
