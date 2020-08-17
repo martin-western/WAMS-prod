@@ -1,19 +1,8 @@
 from WAMSApp.models import *
-from dealshub.models import *
+
 import csv
 import urllib
 import os
-from django.core.files import File
-from WAMSApp.core_utils import *
-from WAMSApp.amazon_uk import *
-from WAMSApp.amazon_uae import *
-from WAMSApp.ebay import *
-from WAMSApp.noon import *
-from WAMSApp.serializers import UserSerializer
-
-from django.db.models import Q
-from django.db.models import Count
-
 import requests
 import xmltodict
 import json
@@ -22,6 +11,8 @@ import sys
 import xlsxwriter
 import pandas as pd
 
+company_code
+customer_id = "40000195"
 
 def fetch_prices(product_id,company_code):
     
