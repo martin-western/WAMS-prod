@@ -92,7 +92,7 @@ def request_postaplus(order_obj):
                    <pos:FromCity>"""+consignee_from_city+"""</pos:FromCity>
                    <pos:FromCodeCountry>"""+consignee_from_country+"""</pos:FromCodeCountry>
                    <pos:FromMobile>"""+consignee_from_mobile+"""</pos:FromMobile>
-                   <pos:FromName></pos:FromName>
+                   <pos:FromName>WIG</pos:FromName>
                    <pos:FromPinCode></pos:FromPinCode>
                    <pos:FromProvince>"""+consignee_from_province+"""</pos:FromProvince>
                    <pos:FromTelphone></pos:FromTelphone>
@@ -104,7 +104,7 @@ def request_postaplus(order_obj):
                    <pos:ToMobile>"""+contact_number+"""</pos:ToMobile>
                    <pos:ToName>"""+customer_name+"""</pos:ToName>
                    <pos:ToProvince>"""+consignee_to_province+"""</pos:ToProvince>
-                   <pos:ToTelPhone></pos:ToTelPhone>
+                   <pos:ToTelPhone>"""+contact_number+"""</pos:ToTelPhone>
                 </pos:Consignee>
                 <pos:ItemDetails>
                     <pos:ITEMDETAILS>
