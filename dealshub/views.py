@@ -369,15 +369,6 @@ class SearchAPI(APIView):
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
-            brand_list = []
-            try:
-                brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
-                if len(brand_list)==1:
-                    brand_list = []
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
-
             # Filters
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
@@ -414,6 +405,15 @@ class SearchAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
+
+            brand_list = []
+            try:
+                brand_list = list(filtered_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+                if len(brand_list)==1:
+                    brand_list = []
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
 
             paginator = Paginator(filtered_products, 20)
             dealshub_product_objs = paginator.page(page)            
