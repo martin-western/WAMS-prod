@@ -116,4 +116,39 @@ class MakePaymentNetworkGlobalAPI(APIView):
 
         return Response(data=response)
 
+def check_order_status_from_network_global(merchant_reference, location_group_obj):
+    try:
+        payment_credentials = json.loads(location_group_obj.website_group.payment_credentials)
+        
+        API_KEY = payment_credentials["network_global"]["API_KEY"]
+        OUTLET_REF = payment_credentials["network_global"]["OUTLET_REF"]
+
+        headers = {
+            "Content-Type": "application/vnd.ni-identity.v1+json", 
+            "Authorization": "Basic "+API_KEY
+        }
+        response = requests.post("https://api-gateway.sandbox.ngenius-payments.com/identity/auth/access-token", headers=headers)
+
+        response_dict = json.loads(response.content)
+        access_token = response_dict["access_token"]
+
+        headers = {
+            "Authorization": "Bearer " + access_token ,
+            "Content-Type": "application/vnd.ni-payment.v2+json", 
+            "Accept": "application/vnd.ni-payment.v2+json" 
+        }
+
+        url = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
+        r = requests.get(url=url, headers=headers)
+
+        content = json.loads(r.content)
+        state = content["_embedded"]["payment"][0]["state"]
+        if state=="CAPTURED" or state=="AUTHORISED":
+            return True
+        return False
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("check_order_status_from_network_global: %s at %s", e, str(exc_tb.tb_lineno))        
+    return False
+
 MakePaymentNetworkGlobal = MakePaymentNetworkGlobalAPI.as_view()

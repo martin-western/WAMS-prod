@@ -4004,7 +4004,7 @@ class DeleteImageAPI(APIView):
 
                 image_bucket_obj = ImageBucket.objects.get(pk=int(image_pk))
                 sub_images_obj.sub_images.remove(image_bucket_obj)
-                sub_image_obj.save()
+                sub_images_obj.save()
 
             response['status'] = 200
 
