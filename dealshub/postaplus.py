@@ -81,10 +81,10 @@ def request_postaplus(order_obj):
                 </pos:ConnotePerformaInvoice>
                 <pos:ConnotePieces>"""+str(total_pieces)+"""</pos:ConnotePieces>
                 <pos:ConnoteProhibited>N</pos:ConnoteProhibited>
-                <ship:ConnoteRef>
-                    <ship:Reference1></ship:Reference1>
-                    <ship:Reference2>"""+bundleid+"""</ship:Reference2>
-                </ship:ConnoteRef>
+                <pos:ConnoteRef>
+                    <pos:Reference1></pos:Reference1>
+                    <pos:Reference2>"""+bundleid+"""</pos:Reference2>
+                </pos:ConnoteRef>
                 <pos:Consignee>
                    <pos:Company>"""+consignee_company+"""</pos:Company>
                    <pos:FromAddress>"""+consignee_from_address+"""</pos:FromAddress>
