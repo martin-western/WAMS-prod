@@ -3856,6 +3856,7 @@ class FetchPostaPlusTrackingAPI(APIView):
             postaplus_tracking_response = fetch_postaplus_tracking(awb_number)
 
             response["tracking_data"] = postaplus_tracking_response
+            response["awb_number"] = awb_number
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
