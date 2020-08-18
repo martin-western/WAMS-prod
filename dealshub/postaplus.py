@@ -110,9 +110,9 @@ def request_postaplus(order_obj):
                     <pos:ITEMDETAILS>
                       <pos:ConnoteHeight>0</pos:ConnoteHeight>
                       <pos:ConnoteLength>0</pos:ConnoteLength>
-                      <pos:ConnoteWeight>"""+total_weight+"""</pos:ConnoteWeight>
+                      <pos:ConnoteWeight>"""+str(total_weight)+"""</pos:ConnoteWeight>
                       <pos:ConnoteWidth>0</pos:ConnoteWidth>
-                      <pos:ScaleWeight>"""+total_weight+"""</pos:ScaleWeight>
+                      <pos:ScaleWeight>"""+str(total_weight)+"""</pos:ScaleWeight>
                    </pos:ITEMDETAILS>
                 </pos:ItemDetails>
              </tem:SHIPINFO>
