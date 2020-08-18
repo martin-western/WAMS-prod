@@ -94,7 +94,95 @@ def fetch_prices(product_id,company_code,url,customer_id):
 
 response = fetch_prices(product_id,company_code,production_url,customer_id)
 
+"""
+{ 
+'soap-env:Envelope': {
+    '@xmlns:soap-env': 'http://schemas.xmlsoap.org/soap/envelope/', 
+    'soap-env:Header': None, 
+    'soap-env:Body': {
+        'n0:ZAPP_STOCK_PRICEResponse': {
+            '@xmlns:n0': 'urn:sap-com:document:sap:rfc:functions', 
+            'IM_MATNR': {
+                'item': {
+                    'MATNR': 'GAC9380'
+                }
+            }, 
+            'IM_VKORG': {
+                'item': {
+                    'VKORG': '1000'
+                }
+            }, 'T_DATA': {
+                'item': [{
+                    'MATNR': None, 
+                    'MAKTX': None, 
+                    'LGORT': None, 
+                    'CHARG': None, 
+                    'SPART': None, 
+                    'MEINS': None, 
+                    'ATP_QTY': '0.0', 
+                    'TOT_QTY': '0.0', 
+                    'CURRENCY': None, 
+                    'IC_EA': None, 
+                    'OD_EA': None, 
+                    'EX_EA': None, 
+                    'RET_EA': None, 
+                    'WERKS': None, 
+                    'WWGHA1': None, 
+                    'WWGHB1': None, 
+                    'WWGHA2': None, 
+                    'WWGHB2': None, 
+                    'WWGHA3': None, 
+                    'WWGHB3': None}, 
+                    {
+                    'MATNR': 'GAC9380', 
+                    'MAKTX': '12" Air Cooler With Remote 5.5 L 1X1', 
+                    'LGORT': 'AFS1', 
+                    'CHARG': 'BS', 
+                    'SPART': '01', 
+                    'MEINS': 'EA', 
+                    'ATP_QTY': '0.0', 
+                    'TOT_QTY': '0.0', 
+                    'CURRENCY': 'AED', 
+                    'IC_EA': '272.00', 
+                    'OD_EA': '335.00', 
+                    'EX_EA': '280.00', 
+                    'RET_EA': '335.00', 
+                    'WERKS': '1000', 
+                    'WWGHA1': 'G03000144', 
+                    'WWGHB1': 'Mist Fan', 
+                    'WWGHA2': 'G02000022', 
+                    'WWGHB2': 'AIR COOLER', 
+                    'WWGHA3': 'G01000002', 
+                    'WWGHB3': 'HOME APPLIANCES'}, 
+                    {
+                    'MATNR': 'GAC9380', 
+                    'MAKTX': '12" Air Cooler With Remote 5.5 L 1X1', 
+                    'LGORT': 'AFS1', 
+                    'CHARG': 'ESMA', 
+                    'SPART': '01', 
+                    'MEINS': 'EA', 
+                    'ATP_QTY': '0.0', 
+                    'TOT_QTY': '0.0', 
+                    'CURRENCY': 'AED', 
+                    'IC_EA': '272.00', 
+                    'OD_EA': '335.00', 
+                    'EX_EA': '280.00', 
+                    'RET_EA': '335.00', 
+                    'WERKS': '1000', 
+                    'WWGHA1': 'G03000144', 
+                    'WWGHB1': 'Mist Fan', 
+                    'WWGHA2': 'G02000022', 
+                    'WWGHB2': 'AIR COOLER', 
+                    'WWGHA3': 'G01000002', 
+                    'WWGHB3': 'HOME APPLIANCES'}
+                    ]
+                }
+            }
+        }
+    }
+}
 
+"""
 xml_string = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:functions">
                  <IM_AUART></IM_AUART>
                  <IM_DATE></IM_DATE>
