@@ -93,9 +93,9 @@ def request_postaplus(order_obj):
                    <pos:FromCodeCountry>"""+consignee_from_country+"""</pos:FromCodeCountry>
                    <pos:FromMobile>"""+consignee_from_mobile+"""</pos:FromMobile>
                    <pos:FromName>WIG</pos:FromName>
-                   <pos:FromPinCode>"""+consignee_from_mobile+"""</pos:FromPinCode>
+                   <pos:FromPinCode></pos:FromPinCode>
                    <pos:FromProvince>"""+consignee_from_province+"""</pos:FromProvince>
-                   <pos:FromTelphone></pos:FromTelphone>
+                   <pos:FromTelphone>"""+consignee_from_mobile+"""</pos:FromTelphone>
                    <pos:ToAddress>"""+consignee_to_address+"""</pos:ToAddress>
                    <pos:ToArea>NA</pos:ToArea>
                    <pos:ToCity>"""+consignee_to_city+"""</pos:ToCity>
