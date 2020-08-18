@@ -27,21 +27,21 @@ def fetch_prices(product_id,company_code,url,customer_id):
         
         warehouse_dict = {}
         body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                  <soapenv:Header />
-                  <soapenv:Body>
-                  <urn:ZAPP_STOCK_PRICE>
-                   <IM_KUNNR>"""+ customer_id +"""</IM_KUNNR>
-                   <IM_MATNR>
+                    <soapenv:Header />
+                    <soapenv:Body>
+                    <urn:ZAPP_STOCK_PRICE>
+                    <IM_KUNNR>"""+ customer_id +"""</IM_KUNNR>
+                    <IM_MATNR>
                     <item>
                      <MATNR>""" + product_id + """</MATNR>
                     </item>
-                   </IM_MATNR>
-                   <IM_VKORG>
+                    </IM_MATNR>
+                    <IM_VKORG>
                     <item>
                      <VKORG>""" + company_code + """</VKORG>
                     </item>
-                   </IM_VKORG>
-                   <T_DATA>
+                    </IM_VKORG>
+                    <T_DATA>
                     <item>
                      <MATNR></MATNR>
                      <MAKTX></MAKTX>
@@ -57,11 +57,19 @@ def fetch_prices(product_id,company_code,url,customer_id):
                      <EX_EA></EX_EA>
                      <RET_EA></RET_EA>
                      <WERKS></WERKS>
+                     <WERKS></WERKS>
+                     <WWGHA1></WWGHA1>
+                     <WWGHB1></WWGHB1>
+                     <WWGHA2></WWGHA2>
+                     <WWGHB2></WWGHB2>
+                     <WWGHA3></WWGHA3>
+                     <WWGHB3></WWGHB3>
+                     <HQTY></HQTY>
                     </item>
-                   </T_DATA>
-                  </urn:ZAPP_STOCK_PRICE>
-                  </soapenv:Body>
-                  </soapenv:Envelope>"""
+                    </T_DATA>
+                    </urn:ZAPP_STOCK_PRICE>
+                    </soapenv:Body>
+                    </soapenv:Envelope>"""
 
         import requests
         import xmltodict
@@ -129,3 +137,122 @@ xml_string = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:funct
                   </item>
                  </T_ITEM>
                 </n0:ZAPP_HOLDING_SO>"""
+
+xml = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:functions">
+ <IM_AUART>Stri</IM_AUART>
+ <IM_DATE>2019-01-01</IM_DATE>
+ <IM_EXTRA>String 2</IM_EXTRA>
+ <IM_FLAG>S</IM_FLAG>
+ <IM_ID>String 4</IM_ID>
+ <IM_KUNNR>String 5</IM_KUNNR>
+ <IM_PERNR>6</IM_PERNR>
+ <IM_PO_NUMBER>String 7</IM_PO_NUMBER>
+ <IM_SPART>St</IM_SPART>
+ <IM_VKORG>Stri</IM_VKORG>
+ <IM_VTWEG>St</IM_VTWEG>
+ <T_ITEM>
+  <item>
+   <MATKL>String 11</MATKL>
+   <MATNR>String 12</MATNR>
+   <ITEM>13</ITEM>
+   <MAKTX>String 14</MAKTX>
+   <QTY>15</QTY>
+   <UOM>Str</UOM>
+   <PRICE>17</PRICE>
+   <INDPRICE>18</INDPRICE>
+   <DISC>19</DISC>
+   <INDDISC>20</INDDISC>
+   <CHARG>String 21</CHARG>
+   <MO_PRICE>22</MO_PRICE>
+   <NO_STOCK_IND>S</NO_STOCK_IND>
+   <NO_STOCK_FOC>S</NO_STOCK_FOC>
+   <FOC_ITEM>String 25</FOC_ITEM>
+   <FOC_QTY>26</FOC_QTY>
+   <FOC_UOM>Str</FOC_UOM>
+   <FOC_CHARG>String 28</FOC_CHARG>
+   <PRC_DIFF_IND>S</PRC_DIFF_IND>
+   <PRC_DIFF_NEW>30</PRC_DIFF_NEW>
+   <SPCL_TEXT>String 31</SPCL_TEXT>
+   <FOC_STD>S</FOC_STD>
+   <FOC_ART>S</FOC_ART>
+   <FOC_MCL>S</FOC_MCL>
+   <INDICATOR1>S</INDICATOR1>
+   <INDICATOR2>S</INDICATOR2>
+   <TEXT1>String 37</TEXT1>
+   <TEXT2>String 38</TEXT2>
+   <CHARG_LIST>String 39</CHARG_LIST>
+   <PRICE_CHANGE>S</PRICE_CHANGE>
+   <FRM_ATP>S</FRM_ATP>
+  </item>
+  <item>
+   <MATKL>String 42</MATKL>
+   <MATNR>String 43</MATNR>
+   <ITEM>44</ITEM>
+   <MAKTX>String 45</MAKTX>
+   <QTY>46</QTY>
+   <UOM>Str</UOM>
+   <PRICE>48</PRICE>
+   <INDPRICE>49</INDPRICE>
+   <DISC>50</DISC>
+   <INDDISC>51</INDDISC>
+   <CHARG>String 52</CHARG>
+   <MO_PRICE>53</MO_PRICE>
+   <NO_STOCK_IND>S</NO_STOCK_IND>
+   <NO_STOCK_FOC>S</NO_STOCK_FOC>
+   <FOC_ITEM>String 56</FOC_ITEM>
+   <FOC_QTY>57</FOC_QTY>
+   <FOC_UOM>Str</FOC_UOM>
+   <FOC_CHARG>String 59</FOC_CHARG>
+   <PRC_DIFF_IND>S</PRC_DIFF_IND>
+   <PRC_DIFF_NEW>61</PRC_DIFF_NEW>
+   <SPCL_TEXT>String 62</SPCL_TEXT>
+   <FOC_STD>S</FOC_STD>
+   <FOC_ART>S</FOC_ART>
+   <FOC_MCL>S</FOC_MCL>
+   <INDICATOR1>S</INDICATOR1>
+   <INDICATOR2>S</INDICATOR2>
+   <TEXT1>String 68</TEXT1>
+   <TEXT2>String 69</TEXT2>
+   <CHARG_LIST>String 70</CHARG_LIST>
+   <PRICE_CHANGE>S</PRICE_CHANGE>
+   <FRM_ATP>S</FRM_ATP>
+  </item>
+ </T_ITEM>
+ <T_MESSAGE>
+  <item>
+   <VBELN>String 73</VBELN>
+   <TYPE>S</TYPE>
+   <ID>String 75</ID>
+   <NUMBER>76</NUMBER>
+   <MESSAGE>String 77</MESSAGE>
+   <LOG_NO>String 78</LOG_NO>
+   <LOG_MSG_NO>79</LOG_MSG_NO>
+   <MESSAGE_V1>String 80</MESSAGE_V1>
+   <MESSAGE_V2>String 81</MESSAGE_V2>
+   <MESSAGE_V3>String 82</MESSAGE_V3>
+   <MESSAGE_V4>String 83</MESSAGE_V4>
+   <PARAMETER>String 84</PARAMETER>
+   <ROW>85</ROW>
+   <FIELD>String 86</FIELD>
+   <SYSTEM>String 87</SYSTEM>
+  </item>
+  <item>
+   <VBELN>String 88</VBELN>
+   <TYPE>S</TYPE>
+   <ID>String 90</ID>
+   <NUMBER>91</NUMBER>
+   <MESSAGE>String 92</MESSAGE>
+   <LOG_NO>String 93</LOG_NO>
+   <LOG_MSG_NO>94</LOG_MSG_NO>
+   <MESSAGE_V1>String 95</MESSAGE_V1>
+   <MESSAGE_V2>String 96</MESSAGE_V2>
+   <MESSAGE_V3>String 97</MESSAGE_V3>
+   <MESSAGE_V4>String 98</MESSAGE_V4>
+   <PARAMETER>String 99</PARAMETER>
+   <ROW>100</ROW>
+   <FIELD>String 101</FIELD>
+   <SYSTEM>String 102</SYSTEM>
+  </item>
+ </T_MESSAGE>
+</n0:ZAPP_HOLDING_SO>
+"""
