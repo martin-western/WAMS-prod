@@ -61,7 +61,8 @@ def calc_response_signature(PASS, data):
 def set_shipping_method(unit_order_obj, shipping_method):
 
     if unit_order_obj.current_status_admin in ["pending", "approved"]:
-        unit_order_obj.shipping_method = shipping_method
+        if unit_order_obj.shipping_method != shipping_method:
+            unit_order_obj.shipping_method = shipping_method
         if unit_order_obj.current_status_admin=="pending":
             unit_order_obj.current_status_admin = "approved"
             UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="ordered", status_admin="approved")

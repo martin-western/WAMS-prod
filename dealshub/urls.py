@@ -154,4 +154,6 @@ urlpatterns = [
 
     url(r'^fetch-order-analytics-params/$', views.FetchOrderAnalyticsParams),
     url(r'^make-payment-network-global/$',views.MakePaymentNetworkGlobal),
+
+    url(r'^fetch-postaplus-tracking/$',views.FetchPostaPlusTracking),
 ]

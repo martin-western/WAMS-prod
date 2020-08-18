@@ -173,6 +173,9 @@ class DealsHubProduct(models.Model):
     def get_warranty(self):
         return str(self.product.warranty)
 
+    def get_weight(self):
+        return float(self.product.weight)
+
     def get_actual_price(self):
         if self.promotion==None:
             return self.now_price
@@ -480,6 +483,9 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="pending")
     payment_info = models.TextField(default="{}")
     merchant_reference = models.CharField(max_length=200, default="")
+
+    postaplus_info = models.TextField(default="{}")
+    is_postaplus = models.BooleanField(default=False)
 
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
