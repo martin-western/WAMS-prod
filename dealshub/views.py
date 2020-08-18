@@ -372,6 +372,8 @@ class SearchAPI(APIView):
             brand_list = []
             try:
                 brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+                if len(brand_list)==1:
+                    brand_list = []
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
