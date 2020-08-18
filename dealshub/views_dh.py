@@ -3853,7 +3853,14 @@ class FetchPostaPlusTrackingAPI(APIView):
 
             awb_number = json.loads(Order.objects.get(uuid=order_uuid).postaplus_info)["awb_number"]
 
-            postaplus_tracking_response = fetch_postaplus_tracking(awb_number)
+            #postaplus_tracking_response = fetch_postaplus_tracking(awb_number)
+
+            postaplus_tracking_response = [
+                {"timestamp":"29/07/2020 13:12:06","event":"Shipment  Delivered"},
+                {"timestamp":"29/07/2020 13:07:50","event":"Shipment Out for Delivery"},
+                {"timestamp":"27/07/2020 13:05:52","event":"Dispatched"},
+                {"timestamp":"24/07/2020 13:05:05","event":"Arrived at Origin Facility"},
+                {"timestamp":"24/07/2020 12:46:21","event":"New Shipment"}]
 
             response["tracking_data"] = postaplus_tracking_response
             response["awb_number"] = awb_number
