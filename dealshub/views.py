@@ -499,9 +499,17 @@ class SearchAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
+            brand_list = []
+            try:
+                brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
+
             response["isSuperCategoryAvailable"] = is_super_category_available
             response["categoryList"] = category_list
             response["subCategoryList"] = sub_category_list2
+            response["brand_list"] = brand_list
 
             is_available = True
             
