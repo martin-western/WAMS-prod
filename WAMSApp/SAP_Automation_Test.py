@@ -154,23 +154,6 @@ xml_string = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:funct
    <FIELD>String 86</FIELD>
    <SYSTEM>String 87</SYSTEM>
   </item>
-  <item>
-   <VBELN>String 88</VBELN>
-   <TYPE>S</TYPE>
-   <ID>String 90</ID>
-   <NUMBER>91</NUMBER>
-   <MESSAGE>String 92</MESSAGE>
-   <LOG_NO>String 93</LOG_NO>
-   <LOG_MSG_NO>94</LOG_MSG_NO>
-   <MESSAGE_V1>String 95</MESSAGE_V1>
-   <MESSAGE_V2>String 96</MESSAGE_V2>
-   <MESSAGE_V3>String 97</MESSAGE_V3>
-   <MESSAGE_V4>String 98</MESSAGE_V4>
-   <PARAMETER>String 99</PARAMETER>
-   <ROW>100</ROW>
-   <FIELD>String 101</FIELD>
-   <SYSTEM>String 102</SYSTEM>
-  </item>
  </T_MESSAGE>
 </n0:ZAPP_HOLDING_SO>
 """
