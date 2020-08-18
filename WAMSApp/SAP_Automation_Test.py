@@ -12,6 +12,9 @@ import pandas as pd
 company_code = "1000"
 customer_id = "40000195"
 product_id = "GAC9380"
+qty = ""
+uom = "EA"
+charg = "BS"
 
 test_url = "http://s4hdev.geepas.local:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
 production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
@@ -81,13 +84,16 @@ def fetch_prices(product_id,company_code,url,customer_id):
 
         print(content)
 
+        return content
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         print("Fetch Prices: ", e , " at ", str(exc_tb.tb_lineno))
         
         return []
 
-fetch_prices(product_id,company_code,test_url,customer_id)
+response = fetch_prices(product_id,company_code,production_url,customer_id)
+
 
 xml_string = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:functions">
                  <IM_AUART></IM_AUART>
