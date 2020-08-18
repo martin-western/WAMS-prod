@@ -120,6 +120,8 @@ def request_postaplus(order_obj):
        </soapenv:Body>
     </soapenv:Envelope>"""
 
+        logger.info("request body: %s", str(postaplus_request_body))
+
         response = requests.post(url="https://staging.postaplus.net/APIService/PostaWebClient.svc?wsdl",
                                  headers={
                                    "Content-Type": "text/xml",
@@ -130,6 +132,8 @@ def request_postaplus(order_obj):
         content = response.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
+
+        logger.info("request content: %s", str(content))
 
         postaplus_info = {
             "awb_number": content["s:Envelope"]["s:Body"]["Shipment_CreationResponse"]["Shipment_CreationResult"]
