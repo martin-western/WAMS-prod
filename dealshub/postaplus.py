@@ -20,7 +20,7 @@ def request_postaplus(order_obj):
         postaplus_codestation = postaplus_info["codestation"]
         postaplus_password = postaplus_info["password"]
         postaplus_shipper_account = postaplus_info["shipper_account"]
-        postaplus_username = postaplus_info["shipper_account"]
+        postaplus_username = postaplus_info["postaplus_username"]
 
         consignee_company = postaplus_info["consignee_company"]
         consignee_from_address = postaplus_info["consignee_from_address"]
@@ -38,7 +38,7 @@ def request_postaplus(order_obj):
         connoteperminv = ""
         description = ""
         total_weight = 0
-        for unit_order_obj in UnitOrder.objects.filter(order=order):
+        for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
             connoteperminv += """
                 <pos:CONNOTEPERMINV>
                     <pos:CodeHS>8504.90.00</pos:CodeHS>
