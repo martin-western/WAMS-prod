@@ -3,25 +3,25 @@ from WAMSApp.models import *
 import csv
 import urllib
 import os
-import requests
-import xmltodict
 import json
 from django.utils import timezone
 import sys
 import xlsxwriter
 import pandas as pd
 
-company_code = "1090"
+company_code = "1000"
 customer_id = "40000195"
 product_id = "GAC9380"
 
-def fetch_prices(product_id,company_code):
+test_url = "http://s4hdev.geepas.local:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
+production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+
+def fetch_prices(product_id,company_code,url,customer_id):
     
     try:
 
         # product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
 
-        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
@@ -30,6 +30,7 @@ def fetch_prices(product_id,company_code):
                   <soapenv:Header />
                   <soapenv:Body>
                   <urn:ZAPP_STOCK_PRICE>
+                   <IM_KUNNR>"""+ customer_id +"""</IM_KUNNR>
                    <IM_MATNR>
                     <item>
                      <MATNR>""" + product_id + """</MATNR>
@@ -62,6 +63,9 @@ def fetch_prices(product_id,company_code):
                   </soapenv:Body>
                   </soapenv:Envelope>"""
 
+        import requests
+        import xmltodict
+        import json
         response2 = requests.post(url, auth=credentials, data=body, headers=headers)
         content = response2.content
         content = xmltodict.parse(content)
@@ -71,10 +75,11 @@ def fetch_prices(product_id,company_code):
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("Fetch Prices: %s at %s", e, str(exc_tb.tb_lineno))
+        print("Fetch Prices: ", e , " at ", str(exc_tb.tb_lineno))
         
         return []
 
+fetch_prices(product_id,company_code,test_url,customer_id)
 
 xml_string = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:functions">
                  <IM_AUART>Stri</IM_AUART>
@@ -91,7 +96,7 @@ xml_string = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:funct
                  <T_ITEM>
                   <item>
                    <MATKL>String 11</MATKL>
-                   <MATNR>String 12</MATNR>
+                   <MATNR>""" + product_id + """</MATNR>
                    <ITEM>13</ITEM>
                    <MAKTX>String 14</MAKTX>
                    <QTY>15</QTY>
@@ -122,74 +127,5 @@ xml_string = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:funct
                    <PRICE_CHANGE>S</PRICE_CHANGE>
                    <FRM_ATP>S</FRM_ATP>
                   </item>
-                  <item>
-                   <MATKL>String 42</MATKL>
-                   <MATNR>String 43</MATNR>
-                   <ITEM>44</ITEM>
-                   <MAKTX>String 45</MAKTX>
-                   <QTY>46</QTY>
-                   <UOM>Str</UOM>
-                   <PRICE>48</PRICE>
-                   <INDPRICE>49</INDPRICE>
-                   <DISC>50</DISC>
-                   <INDDISC>51</INDDISC>
-                   <CHARG>String 52</CHARG>
-                   <MO_PRICE>53</MO_PRICE>
-                   <NO_STOCK_IND>S</NO_STOCK_IND>
-                   <NO_STOCK_FOC>S</NO_STOCK_FOC>
-                   <FOC_ITEM>String 56</FOC_ITEM>
-                   <FOC_QTY>57</FOC_QTY>
-                   <FOC_UOM>Str</FOC_UOM>
-                   <FOC_CHARG>String 59</FOC_CHARG>
-                   <PRC_DIFF_IND>S</PRC_DIFF_IND>
-                   <PRC_DIFF_NEW>61</PRC_DIFF_NEW>
-                   <SPCL_TEXT>String 62</SPCL_TEXT>
-                   <FOC_STD>S</FOC_STD>
-                   <FOC_ART>S</FOC_ART>
-                   <FOC_MCL>S</FOC_MCL>
-                   <INDICATOR1>S</INDICATOR1>
-                   <INDICATOR2>S</INDICATOR2>
-                   <TEXT1>String 68</TEXT1>
-                   <TEXT2>String 69</TEXT2>
-                   <CHARG_LIST>String 70</CHARG_LIST>
-                   <PRICE_CHANGE>S</PRICE_CHANGE>
-                   <FRM_ATP>S</FRM_ATP>
-                  </item>
                  </T_ITEM>
-                 <T_MESSAGE>
-                  <item>
-                   <VBELN>String 73</VBELN>
-                   <TYPE>S</TYPE>
-                   <ID>String 75</ID>
-                   <NUMBER>76</NUMBER>
-                   <MESSAGE>String 77</MESSAGE>
-                   <LOG_NO>String 78</LOG_NO>
-                   <LOG_MSG_NO>79</LOG_MSG_NO>
-                   <MESSAGE_V1>String 80</MESSAGE_V1>
-                   <MESSAGE_V2>String 81</MESSAGE_V2>
-                   <MESSAGE_V3>String 82</MESSAGE_V3>
-                   <MESSAGE_V4>String 83</MESSAGE_V4>
-                   <PARAMETER>String 84</PARAMETER>
-                   <ROW>85</ROW>
-                   <FIELD>String 86</FIELD>
-                   <SYSTEM>String 87</SYSTEM>
-                  </item>
-                  <item>
-                   <VBELN>String 88</VBELN>
-                   <TYPE>S</TYPE>
-                   <ID>String 90</ID>
-                   <NUMBER>91</NUMBER>
-                   <MESSAGE>String 92</MESSAGE>
-                   <LOG_NO>String 93</LOG_NO>
-                   <LOG_MSG_NO>94</LOG_MSG_NO>
-                   <MESSAGE_V1>String 95</MESSAGE_V1>
-                   <MESSAGE_V2>String 96</MESSAGE_V2>
-                   <MESSAGE_V3>String 97</MESSAGE_V3>
-                   <MESSAGE_V4>String 98</MESSAGE_V4>
-                   <PARAMETER>String 99</PARAMETER>
-                   <ROW>100</ROW>
-                   <FIELD>String 101</FIELD>
-                   <SYSTEM>String 102</SYSTEM>
-                  </item>
-                 </T_MESSAGE>
                 </n0:ZAPP_HOLDING_SO>"""
