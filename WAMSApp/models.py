@@ -126,7 +126,7 @@ amazon_uae_product_json = {
     "update_delete" : "",
     "status" : "Inactive",
     "http_link": "",
-    "now_price":0.0,
+    "sale_price":0.0,
     "was_price":0.0,
     "stock":0
 }

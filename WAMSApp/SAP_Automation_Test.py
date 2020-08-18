@@ -92,8 +92,9 @@ def fetch_prices(product_id,company_code,url,customer_id):
         
         return []
 
-response = fetch_prices(product_id,company_code,production_url,customer_id)
+response = fetch_prices(product_id,company_code,test_url,customer_id)
 
+        
 """
 { 
 'soap-env:Envelope': {
@@ -183,6 +184,34 @@ response = fetch_prices(product_id,company_code,production_url,customer_id)
 }
 
 """
+items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+
+if isinstance(items, dict):
+    temp_qty = items["ATP_QTY"]
+    if temp_qty!=None:
+        temp_qty = float(temp_qty)
+        qty = max(temp_qty, qty)
+    temp_charg = items["CHARG"]
+    if temp_charg!=None:
+        charg = temp_charg
+    temp_uom = items["MEINS"]
+    if temp_uom!=None:
+        uom = temp_uom        
+else:
+    for item in items:
+        temp_qty = items["ATP_QTY"]
+        if temp_qty!=None:
+            temp_qty = float(temp_qty)
+            qty = max(temp_qty, qty)
+        temp_charg = items["CHARG"]
+        if temp_charg!=None:
+            charg = temp_charg
+        temp_uom = items["MEINS"]
+        if temp_uom!=None:
+            uom = temp_uom
+
+
+
 xml_string = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:functions">
                  <IM_AUART></IM_AUART>
                  <IM_DATE></IM_DATE>
