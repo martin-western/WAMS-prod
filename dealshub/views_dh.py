@@ -3851,7 +3851,7 @@ class FetchPostaPlusTrackingAPI(APIView):
 
             order_uuid = data["uuid"]
 
-            awb_number = json.loads(Order.objects.get(uuid=uuid).postaplus_info)["awb_number"]
+            awb_number = json.loads(Order.objects.get(uuid=order_uuid).postaplus_info)["awb_number"]
 
             postaplus_tracking_response = fetch_postaplus_tracking(awb_number)
 
