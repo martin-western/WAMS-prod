@@ -193,6 +193,8 @@ class DealsHubProduct(models.Model):
             dimensions_string = dimensions["product_dimension_l"]+" "+dimensions["product_dimension_l_metric"]+" x "
             dimensions_string += dimensions["product_dimension_b"]+" "+dimensions["product_dimension_b_metric"]+" x "
             dimensions_string += dimensions["product_dimension_h"]+" "+dimensions["product_dimension_h_metric"]
+            if dimensions["product_dimension_l"]=="" or dimensions["product_dimension_b"]=="" or dimensions["product_dimension_h"]=="":
+                dimensions_string = "NA"
         except Exception as e:
             pass
         return dimensions_string
