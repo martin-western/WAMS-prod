@@ -1634,10 +1634,6 @@ class FetchCustomerListAPI(APIView):
                     temp_dict["contactNumber"] = dealshub_user_obj.contact_number
                     temp_dict["username"] = dealshub_user_obj.username
                     temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
-                    try:
-                        temp_dict["cart_last_modified"] = str(timezone.localtime(Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date).strftime("%d %b, %Y %H:%M"))
-                    except Exception as e:
-                        temp_dict["cart_last_modified"] = "NA"
                     temp_dict["is_feedback_available"] = False
                     customer_list.append(temp_dict)
                 except Exception as e:
@@ -1684,7 +1680,10 @@ class FetchCustomerDetailsAPI(APIView):
             temp_dict["contactNumber"] = dealshub_user_obj.contact_number
             temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
             try:
-                temp_dict["cart_last_modified"] = str(timezone.localtime(Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date).strftime("%d %b, %Y %H:%M"))
+                if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
+                    temp_dict["cart_last_modified"] = str(timezone.localtime(Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date).strftime("%d %b, %Y %H:%M"))
+                else:
+                    temp_dict["cart_last_modified"] = "NA"
             except Exception as e:
                 temp_dict["cart_last_modified"] = "NA"
             temp_dict["is_feedback_available"] = False
