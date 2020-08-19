@@ -367,7 +367,7 @@ class Address(models.Model):
         verbose_name_plural = "Addresses"
 
 
-class WishLish(models.Model):
+class WishList(models.Model):
 
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
     uuid = models.CharField(max_length=200, default="")
@@ -379,16 +379,16 @@ class WishLish(models.Model):
             self.uuid = str(uuid.uuid4())
 
         modified_date = timezone.now()
-        super(Cart, self).save(*args, **kwargs)
+        super(WishList, self).save(*args, **kwargs)
 
     class Meta:
-        verbose_name = "Wish Lish"
-        verbose_name_plural = "Wish Lishs"
+        verbose_name = "Wish List"
+        verbose_name_plural = "Wish Lists"
 
 
-class UnitWishLish(models.Model):
+class UnitWishList(models.Model):
 
-    wish_lish = models.ForeignKey('WishLish', on_delete=models.CASCADE)
+    wish_list = models.ForeignKey('WishList', on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     
     date_created = models.DateTimeField(auto_now_add=True)
@@ -398,11 +398,11 @@ class UnitWishLish(models.Model):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
 
-        super(UnitWishLish, self).save(*args, **kwargs)
+        super(UnitWishList, self).save(*args, **kwargs)
 
     class Meta:
-        verbose_name = "Unit Wish Lish"
-        verbose_name_plural = "Unit Wish Lishs"
+        verbose_name = "Unit Wish List"
+        verbose_name_plural = "Unit Wish Lists"
 
 
 class Cart(models.Model):

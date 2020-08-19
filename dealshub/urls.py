@@ -157,6 +157,7 @@ urlpatterns = [
 
     url(r'^fetch-postaplus-tracking/$',views.FetchPostaPlusTracking),
 
-    url(r'^wish-lish/add-to-wish-lish/$', views.AddToWishLish),
-    url(r'^wish-lish/remove-from-wish-lish/$', views.RemoveFromWishLish),
+    url(r'^wish-list/add-to-wish-list/$', views.AddToWishList),
+    url(r'^wish-list/remove-from-wish-list/$', views.RemoveFromWishList),
+    url(r'^wish-list/fetch-wish-list/$', views.FetchWishList),
 ]
