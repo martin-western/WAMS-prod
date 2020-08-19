@@ -408,7 +408,7 @@ class Cart(models.Model):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
 
-        modified_date = timezone.now()
+        self.modified_date = timezone.now()
         super(Cart, self).save(*args, **kwargs)
 
     def get_subtotal(self):
