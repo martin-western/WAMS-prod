@@ -367,6 +367,44 @@ class Address(models.Model):
         verbose_name_plural = "Addresses"
 
 
+class WishLish(models.Model):
+
+    owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    modified_date = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+
+        modified_date = timezone.now()
+        super(Cart, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Wish Lish"
+        verbose_name_plural = "Wish Lishs"
+
+
+class UnitWishLish(models.Model):
+
+    wish_lish = models.ForeignKey('WishLish', on_delete=models.CASCADE)
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    
+    date_created = models.DateTimeField(auto_now_add=True)
+    uuid = models.CharField(max_length=200, default="")
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+
+        super(UnitWishLish, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Unit Wish Lish"
+        verbose_name_plural = "Unit Wish Lishs"
+
+
 class Cart(models.Model):
 
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)

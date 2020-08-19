@@ -40,6 +40,72 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
         return
 
 
+class AddToWishLishAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddToWishLishAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_uuid = data["productUuid"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+
+            if dealshub_product_obj.location_group!=location_group_obj:
+                response["status"] = 403
+                logger.error("AddToWishLishAPI: Product does not exist in LocationGroup!")
+                return Response(data=response)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            wish_lish_obj = WishLish.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            unit_wish_lish_obj = None
+            
+            if UnitWishLish.objects.filter(wish_lish=wish_lish_obj, product__uuid=product_uuid).exists()==False:
+                unit_wish_lish_obj = UnitWishLish.objects.create(wish_lish=wish_lish_obj, product=dealshub_product_obj)
+
+            response["unitwishlishUuid"] = unit_wish_lish_obj.uuid
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddToWishLishAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class RemoveFromWishLishAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("RemoveFromWishLishAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_wish_lish_uuid = data["unitwishlishUuid"]
+            
+            unit_wish_lish_obj = UnitWishLish.objects.get(uuid=unit_wish_lish_uuid)
+            unit_wish_lish_obj.delete()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveFromWishLishAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class FetchShippingAddressListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3993,3 +4059,7 @@ FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
 PlaceOnlineOrder = PlaceOnlineOrderAPI.as_view()
 
 FetchPostaPlusTracking = FetchPostaPlusTrackingAPI.as_view()
+
+AddToWishLish = AddToWishLishAPI.as_view()
+
+RemoveFromWishLish = RemoveFromWishLishAPI.as_view()
