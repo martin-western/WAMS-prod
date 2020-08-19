@@ -77,6 +77,14 @@ class FetchProductDetailsAPI(APIView):
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = dealshub_product_obj.get_currency()
             response["warranty"] = dealshub_product_obj.get_warranty()
+
+            response["dimensions"] = dealshub_product_obj.get_dimensions()
+            response["color"] = dealshub_product_obj.get_color()
+            response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
+            response["material"] = dealshub_product_obj.get_material()
+            response["sellerSku"] = dealshub_product_obj.get_seller_sku()
+
+
             response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
 
             promotion_obj = dealshub_product_obj.promotion
