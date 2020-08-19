@@ -6008,6 +6008,22 @@ class DownloadDynamicExcelTemplateAPI(APIView):
                 worksheet.write(0, colnum, k)
                 colnum += 1
 
+            worksheet1 = workbook.add_worksheet()
+            sub_category_objs = SubCategory.objects.all()
+            sub_category_set = {}
+            for sub_category_obj in sub_category_objs:
+                category = sub_category_obj.category.name
+                sub_category = sub_category_obj.name
+                sub_category_set.add([category, sub_category])
+
+            worksheet1.write(0, 0, "Category")
+            worksheet1.write(0, 1, "SubCategory")
+            rownum = 1
+            for k in sub_category_set:
+                worksheet1.write(rownum, 0, k[0])
+                worksheet1.write(rownum, 1, k[1])
+                rownum += 1
+
             workbook.close()
 
             response["path"] = SERVER_IP+"/"+filename
