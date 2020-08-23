@@ -77,6 +77,7 @@ class GithubWebhookAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
             logger.info("GithubWebhookAPI: %s", str(data))
 
@@ -289,6 +290,7 @@ class SaveNoonChannelProductAPI(APIView):
         response['status'] = 500
         
         try:
+            
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("SaveNoonChannelProductAPI Restricted Access!")
                 response['status'] = 403
@@ -352,7 +354,9 @@ class SaveAmazonUKChannelProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+
         try:
+            
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
                 response['status'] = 403
@@ -418,6 +422,7 @@ class SaveAmazonUAEChannelProductAPI(APIView):
         response['status'] = 500
         
         try:
+            
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access!")
                 response['status'] = 403
@@ -661,7 +666,9 @@ class FetchBaseProductDetailsAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             data = request.data
             logger.info("FetchBaseProductDetailsAPI: %s", str(data))
 
@@ -711,7 +718,9 @@ class FetchProductDetailsAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             data = request.data
             logger.info("FetchProductDetailsAPI: %s", str(data))
 
@@ -927,7 +936,9 @@ class FetchDealsHubProductsAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             data = request.data
             logger.info("FetchDealsHubProductsAPI: %s", str(data))
 
@@ -1079,7 +1090,9 @@ class UpdateDealshubProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             data = request.data
             logger.info("UpdateDealshubProductAPI: %s", str(data))
 
@@ -1126,7 +1139,9 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             data = request.data
             logger.info("BulkUpdateDealshubProductPriceAPI: %s", str(data))
 
@@ -1171,7 +1186,9 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             data = request.data
             logger.info("BulkUpdateDealshubProductStockAPI: %s", str(data))
 
@@ -1214,7 +1231,9 @@ class SaveBaseProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             if request.user.has_perm('WAMSApp.change_product') == False:
                 logger.warning("SaveBaseProductAPI Restricted Access!")
                 response['status'] = 403
@@ -1325,6 +1344,7 @@ class SaveProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             if request.user.has_perm('WAMSApp.change_product') == False:
@@ -1447,6 +1467,7 @@ class FetchProductListAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -1629,6 +1650,7 @@ class FetchExportListAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -1701,6 +1723,7 @@ class AddToExportAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             if request.user.has_perm('WAMSApp.change_exportlist') == False:
@@ -1800,6 +1823,7 @@ class FetchExportProductListAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -1902,6 +1926,7 @@ class DownloadExportListAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -1955,6 +1980,7 @@ class DownloadProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -1996,6 +2022,7 @@ class ImportProductsAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             if request.user.has_perm('WAMSApp.change_product') == False:
                 logger.warning("ImportProductsAPI Restricted Access!")
@@ -2035,6 +2062,7 @@ class UploadProductImageAPI(APIView):
         response['status'] = 500
         
         try:
+            
             if request.user.has_perm("WAMSApp.add_image") == False:
                 logger.warning("UploadProductImageAPI Restricted Access!")
                 response['status'] = 403
@@ -2170,6 +2198,7 @@ class UpdateMainImageAPI(APIView):
         response['status'] = 500
         
         try:
+            
             if request.user.has_perm('WAMSApp.change_image') == False:
                 logger.warning("UpdateMainImageAPI Restricted Access!")
                 response['status'] = 403
@@ -2220,7 +2249,9 @@ class UpdateSubImagesAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             if request.user.has_perm('WAMSApp.change_image') == False:
                 logger.warning("UpdateSubImagesAPI Restricted Access!")
                 response['status'] = 403
@@ -2272,7 +2303,9 @@ class CreateFlyerAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             if request.user.has_perm('WAMSApp.add_flyer') == False:
                 logger.warning("CreateFlyerAPI Restricted Access!")
                 response['status'] = 403
@@ -2668,6 +2701,7 @@ class CreatePFLAPI(APIView):
         response['status'] = 500
         
         try:
+            
             if request.user.has_perm('WAMSApp.add_pfl') == False:
                 logger.warning("CreatePFLAPI Restricted Access!")
                 response['status'] = 403
@@ -2699,6 +2733,7 @@ class FetchPFLDetailsAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -2848,10 +2883,12 @@ class FetchPFLDetailsAPI(APIView):
 class FetchProductListFlyerPFLAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -2932,6 +2969,7 @@ class AddProductFlyerBucketAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             # if request.user.has_perm('WAMSApp.change_flyer') == False:
             #     logger.warning("AddProductFlyerBucketAPI Restricted Access!")
@@ -3037,6 +3075,7 @@ class AddProductPFLBucketAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             # if request.user.has_perm('WAMSApp.change_pfl') == False:
             #     logger.warning("AddProductPFLBucketAPI Restricted Access!")
@@ -3091,6 +3130,7 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3199,6 +3239,7 @@ class SaveFlyerTemplateAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             # if request.user.has_perm('WAMSApp.change_flyer') == False:
             #     logger.warning("SaveFlyerTemplateAPI Restricted Access!")
@@ -3233,6 +3274,7 @@ class SavePFLTemplateAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             # if request.user.has_perm('WAMSApp.change_pfl') == False:
             #     logger.warning("SavePFLTemplateAPI Restricted Access!")
@@ -3277,6 +3319,7 @@ class UploadImageExternalBucketFlyerAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3308,6 +3351,7 @@ class UploadImageExternalBucketPFLAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3340,6 +3384,7 @@ class FetchPFLListAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3431,6 +3476,7 @@ class FetchFlyerListAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3515,6 +3561,7 @@ class UploadNewFlyerBGImageAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             # if request.user.has_perm('WAMSApp.change_flyer') == False:
             #     logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
@@ -3550,6 +3597,7 @@ class UploadFlyerTagAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             # if request.user.has_perm('WAMSApp.change_flyer') == False:
             #     logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
@@ -3585,6 +3633,7 @@ class UploadFlyerPriceTagAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             # if request.user.has_perm('WAMSApp.change_flyer') == False:
             #     logger.warning("UploadNewFlyerBGImageAPI Restricted Access!")
@@ -3621,6 +3670,7 @@ class DownloadImagesS3API(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3674,6 +3724,7 @@ class FetchBrandsAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3710,6 +3761,7 @@ class FetchChannelsAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3746,6 +3798,7 @@ class SavePFLInBucketAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3796,6 +3849,7 @@ class SaveFlyerInBucketAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3827,6 +3881,7 @@ class VerifyProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3865,6 +3920,7 @@ class LockProductAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             data = request.data
@@ -3901,6 +3957,7 @@ class DeleteImageAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             if request.user.has_perm('WAMSApp.delete_image') == False:
@@ -3963,6 +4020,7 @@ class RemoveProductFromExportListAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
 
             if request.user.has_perm('WAMSApp.change_exportlist') == False:
@@ -4004,6 +4062,7 @@ class UploadFlyerExternalImagesAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
             # if request.user.has_perm("WAMSApp.add_image") == False:
             #     logger.warning("UploadProductImageAPI Restricted Access!")
@@ -4584,6 +4643,7 @@ class FetchAuditLogsAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
             logger.info("FetchAuditLogsAPI: %s", str(data))
 
@@ -4705,8 +4765,8 @@ class CreateRequestHelpAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("CreateRequestHelpAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -4733,8 +4793,8 @@ class RefreshProductPriceAndStockAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("RefreshProductPriceAndStockAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -4764,8 +4824,8 @@ class RefreshPagePriceAndStockAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("RefreshPagePriceAndStockAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -4800,8 +4860,8 @@ class FetchCompanyProfileAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("FetchCompanyProfileAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -4858,8 +4918,8 @@ class SaveCompanyProfileAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("SaveCompanyProfileAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -4915,6 +4975,7 @@ class UploadCompanyLogoAPI(APIView):
         response['status'] = 500
         
         try:
+            
             if request.user.has_perm("WAMSApp.add_image") == False:
                 logger.warning("UploadCompanyLogoAPI Restricted Access!")
                 response['status'] = 403
@@ -4951,6 +5012,7 @@ class UploadCompanyFooterLogoAPI(APIView):
         response['status'] = 500
         
         try:
+            
             if request.user.has_perm("WAMSApp.add_image") == False:
                 logger.warning("UploadCompanyFooterLogoAPI Restricted Access!")
                 response['status'] = 403
@@ -4987,8 +5049,8 @@ class FetchChannelProductListAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("FetchChannelProductListAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5274,8 +5336,8 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("FetchProductDetailsSalesIntegrationAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5374,8 +5436,8 @@ class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("FetchBulkProductDetailsSalesIntegrationAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5426,8 +5488,8 @@ class UploadBulkExportAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("UploadBulkExportAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5479,8 +5541,8 @@ class SearchBulkExportAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("SearchBulkExportAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5526,8 +5588,8 @@ class FetchDataPointsAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("FetchDataPointsAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5560,8 +5622,8 @@ class DownloadBulkExportAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("DownloadBulkExportAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5590,8 +5652,8 @@ class TransferBulkChannelAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("TransferBulkChannelAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5635,8 +5697,8 @@ class FetchAllCategoriesAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("FetchAllCategoriesAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5688,8 +5750,8 @@ class CheckSectionPermissionsAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("CheckSectionPermissionsAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5729,8 +5791,8 @@ class CreateOCReportAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("CreateOCReportAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5787,8 +5849,8 @@ class CreateContentReportAPI(APIView):
         response['status'] = 500
 
         try:
+            
             data = request.data
-
             logger.info("CreateContentReportAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5842,8 +5904,8 @@ class FetchOCReportPermissionsAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("FetchOCReportPermissionsAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5870,8 +5932,8 @@ class FetchOCReportListAPI(APIView):
         response['status'] = 500
         
         try:
+            
             data = request.data
-
             logger.info("FetchOCReportListAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -5931,7 +5993,9 @@ class UpdateChannelProductStockandPriceAPI(APIView):
 
         response = {}
         response['status'] = 500
+
         try:
+            
             data = request.data
             logger.info("UpdateChannelProductStockandPriceAPI: %s", str(data))
 
@@ -5988,7 +6052,9 @@ class DownloadDynamicExcelTemplateAPI(APIView):
 
         response = {}
         response['status'] = 500
+
         try:
+            
             data = request.data
             logger.info("DownloadDynamicExcelTemplateAPI: %s", str(data))
 
@@ -6039,7 +6105,9 @@ class BulkUploadDynamicExcelAPI(APIView):
 
         response = {}
         response['status'] = 500
+
         try:
+            
             data = request.data
             logger.info("BulkUploadDynamicExcelAPI: %s", str(data))
 
@@ -6075,7 +6143,9 @@ class FetchDataPointsForUploadAPI(APIView):
 
         response = {}
         response['status'] = 500
+
         try:
+            
             data = request.data
             logger.info("FetchDataPointsForUploadAPI: %s", str(data))
 
@@ -6130,10 +6200,12 @@ class FetchDealshubProductDetailsAPI(APIView):
 
         response = {}
         response['status'] = 500
+
         try:
 
             data = request.data
             logger.info("FetchDealshubProductDetailsAPI: %s", str(data))
+            
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -6172,10 +6244,12 @@ class SaveDealshubProductDetailsAPI(APIView):
 
         response = {}
         response['status'] = 500
+
         try:
 
             data = request.data
             logger.info("SaveDealshubProductDetailsAPI: %s", str(data))
+            
             if not isinstance(data, dict):
                 data = json.loads(data)
 
