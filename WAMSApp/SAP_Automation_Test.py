@@ -1,22 +1,14 @@
-from WAMSApp.models import *
-
-import csv
-import urllib
-import os
-import json
-from django.utils import timezone
-import sys
-import xlsxwriter
-import pandas as pd
-
 company_code = "1000"
 customer_id = "40000195"
 product_id = "GAC9380"
-qty = ""
+qty = 0
+qty_holding = 0
 uom = "EA"
 charg = "BS"
 
-test_url = "http://s4hdev.geepas.local:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
+IP = "192.168.77.48"
+
+test_url = "http://s4hdev:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
 production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
 
 def fetch_prices(product_id,company_code,url,customer_id):
@@ -82,200 +74,145 @@ def fetch_prices(product_id,company_code,url,customer_id):
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
 
-        print(content)
-
         return content
 
     except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        print("Fetch Prices: ", e , " at ", str(exc_tb.tb_lineno))
+        print("Fetch Prices: ", e)
         
         return []
 
+
 response = fetch_prices(product_id,company_code,test_url,customer_id)
-
+print(response)
         
-"""
-{ 
-'soap-env:Envelope': {
-    '@xmlns:soap-env': 'http://schemas.xmlsoap.org/soap/envelope/', 
-    'soap-env:Header': None, 
-    'soap-env:Body': {
-        'n0:ZAPP_STOCK_PRICEResponse': {
-            '@xmlns:n0': 'urn:sap-com:document:sap:rfc:functions', 
-            'IM_MATNR': {
-                'item': {
-                    'MATNR': 'GAC9380'
-                }
-            }, 
-            'IM_VKORG': {
-                'item': {
-                    'VKORG': '1000'
-                }
-            }, 'T_DATA': {
-                'item': [{
-                    'MATNR': None, 
-                    'MAKTX': None, 
-                    'LGORT': None, 
-                    'CHARG': None, 
-                    'SPART': None, 
-                    'MEINS': None, 
-                    'ATP_QTY': '0.0', 
-                    'TOT_QTY': '0.0', 
-                    'CURRENCY': None, 
-                    'IC_EA': None, 
-                    'OD_EA': None, 
-                    'EX_EA': None, 
-                    'RET_EA': None, 
-                    'WERKS': None, 
-                    'WWGHA1': None, 
-                    'WWGHB1': None, 
-                    'WWGHA2': None, 
-                    'WWGHB2': None, 
-                    'WWGHA3': None, 
-                    'WWGHB3': None}, 
-                    {
-                    'MATNR': 'GAC9380', 
-                    'MAKTX': '12" Air Cooler With Remote 5.5 L 1X1', 
-                    'LGORT': 'AFS1', 
-                    'CHARG': 'BS', 
-                    'SPART': '01', 
-                    'MEINS': 'EA', 
-                    'ATP_QTY': '0.0', 
-                    'TOT_QTY': '0.0', 
-                    'CURRENCY': 'AED', 
-                    'IC_EA': '272.00', 
-                    'OD_EA': '335.00', 
-                    'EX_EA': '280.00', 
-                    'RET_EA': '335.00', 
-                    'WERKS': '1000', 
-                    'WWGHA1': 'G03000144', 
-                    'WWGHB1': 'Mist Fan', 
-                    'WWGHA2': 'G02000022', 
-                    'WWGHB2': 'AIR COOLER', 
-                    'WWGHA3': 'G01000002', 
-                    'WWGHB3': 'HOME APPLIANCES'}, 
-                    {
-                    'MATNR': 'GAC9380', 
-                    'MAKTX': '12" Air Cooler With Remote 5.5 L 1X1', 
-                    'LGORT': 'AFS1', 
-                    'CHARG': 'ESMA', 
-                    'SPART': '01', 
-                    'MEINS': 'EA', 
-                    'ATP_QTY': '0.0', 
-                    'TOT_QTY': '0.0', 
-                    'CURRENCY': 'AED', 
-                    'IC_EA': '272.00', 
-                    'OD_EA': '335.00', 
-                    'EX_EA': '280.00', 
-                    'RET_EA': '335.00', 
-                    'WERKS': '1000', 
-                    'WWGHA1': 'G03000144', 
-                    'WWGHB1': 'Mist Fan', 
-                    'WWGHA2': 'G02000022', 
-                    'WWGHB2': 'AIR COOLER', 
-                    'WWGHA3': 'G01000002', 
-                    'WWGHB3': 'HOME APPLIANCES'}
-                    ]
-                }
-            }
-        }
-    }
-}
+# items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICE1Response"]["T_DATA"]["item"]
 
-"""
-items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+# if isinstance(items, dict):
+#     temp_qty = items["ATP_QTY"]
+#     if temp_qty!=None:
+#         temp_qty = float(temp_qty)
+#         qty = max(temp_qty, qty)
+#     temp_qty = items["HQTY"]
+#     if temp_qty!=None:
+#         temp_qty = float(temp_qty)
+#         qty_holding = max(temp_qty, qty_holding)
+#     temp_charg = items["CHARG"]
+#     if temp_charg!=None:
+#         charg = temp_charg
+#     temp_uom = items["MEINS"]
+#     if temp_uom!=None:
+#         uom = temp_uom        
+# else:
+#     for item in items:
+#         temp_qty = item["ATP_QTY"]
+#         if temp_qty!=None:
+#             temp_qty = float(temp_qty)
+#             qty = max(temp_qty, qty)
+#         temp_qty = item["HQTY"]
+#         if temp_qty!=None:
+#             temp_qty = float(temp_qty)
+#             qty_holding = max(temp_qty, qty_holding)
+#         temp_charg = item["CHARG"]
+#         if temp_charg!=None:
+#             charg = temp_charg
+#         temp_uom = item["MEINS"]
+#         if temp_uom!=None:
+#             uom = temp_uom
 
-if isinstance(items, dict):
-    temp_qty = items["ATP_QTY"]
-    if temp_qty!=None:
-        temp_qty = float(temp_qty)
-        qty = max(temp_qty, qty)
-    temp_charg = items["CHARG"]
-    if temp_charg!=None:
-        charg = temp_charg
-    temp_uom = items["MEINS"]
-    if temp_uom!=None:
-        uom = temp_uom        
-else:
-    for item in items:
-        temp_qty = items["ATP_QTY"]
-        if temp_qty!=None:
-            temp_qty = float(temp_qty)
-            qty = max(temp_qty, qty)
-        temp_charg = items["CHARG"]
-        if temp_charg!=None:
-            charg = temp_charg
-        temp_uom = items["MEINS"]
-        if temp_uom!=None:
-            uom = temp_uom
+# qty_holding = "5"
 
+# headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+# credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
+# body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+#             <soapenv:Header/>
+#             <soapenv:Body>
+#             <urn:ZAPP_HOLDING_SO>
+#              <IM_AUART/>
+#              <IM_DATE/>
+#              <IM_EXTRA/>
+#              <IM_FLAG/>
+#              <IM_ID/>
+#              <IM_KUNNR>"""+ customer_id + """</IM_KUNNR>
+#              <IM_PERNR/>
+#              <IM_PO_NUMBER/>
+#              <IM_SPART/>
+#              <IM_VKORG>""" + company_code +"""</IM_VKORG>
+#              <IM_VTWEG/>
+#              <T_ITEM>
+#               <item>
+#                <MATKL></MATKL>
+#                <MATNR>"""+ product_id + """</MATNR>
+#                <ITEM></ITEM>
+#                <MAKTX></MAKTX>
+#                <QTY>"""+ qty_holding + """</QTY>
+#                <UOM>"""+ uom + """</UOM>
+#                <PRICE></PRICE>
+#                <INDPRICE></INDPRICE>
+#                <DISC></DISC>
+#                <INDDISC></INDDISC>
+#                <CHARG>""" + charg +"""</CHARG>
+#                <MO_PRICE></MO_PRICE>
+#                <NO_STOCK_IND></NO_STOCK_IND>
+#                <NO_STOCK_FOC></NO_STOCK_FOC>
+#                <FOC_ITEM></FOC_ITEM>
+#                <FOC_QTY></FOC_QTY>
+#                <FOC_UOM></FOC_UOM>
+#                <FOC_CHARG></FOC_CHARG>
+#                <PRC_DIFF_IND></PRC_DIFF_IND>
+#                <PRC_DIFF_NEW></PRC_DIFF_NEW>
+#                <SPCL_TEXT></SPCL_TEXT>
+#                <FOC_STD></FOC_STD>
+#                <FOC_ART></FOC_ART>
+#                <FOC_MCL></FOC_MCL>
+#                <INDICATOR1></INDICATOR1>
+#                <INDICATOR2></INDICATOR2>
+#                <TEXT1></TEXT1>
+#                <TEXT2></TEXT2>
+#                <CHARG_LIST></CHARG_LIST>
+#                <PRICE_CHANGE></PRICE_CHANGE>
+#                <FRM_ATP></FRM_ATP>
+#               </item>
+#              </T_ITEM>
+#              <T_MESSAGE>
+#               <item>
+#                <VBELN></VBELN>
+#                <TYPE></TYPE>
+#                <ID></ID>
+#                <NUMBER></NUMBER>
+#                <MESSAGE></MESSAGE>
+#                <LOG_NO></LOG_NO>
+#                <LOG_MSG_NO></LOG_MSG_NO>
+#                <MESSAGE_V1></MESSAGE_V1>
+#                <MESSAGE_V2></MESSAGE_V2>
+#                <MESSAGE_V3></MESSAGE_V3>
+#                <MESSAGE_V4></MESSAGE_V4>
+#                <PARAMETER></PARAMETER>
+#                <ROW></ROW>
+#                <FIELD></FIELD>
+#                <SYSTEM></SYSTEM>
+#               </item>
+#              </T_MESSAGE>
+#             </urn:ZAPP_HOLDING_SO>
+#             </soapenv:Body>
+#             </soapenv:Envelope>"""
 
-xml_string = """<n0:ZAPP_HOLDING_SO xmlns:n0="urn:sap-com:document:sap:rfc:functions">
-                 <IM_AUART></IM_AUART>
-                 <IM_DATE></IM_DATE>
-                 <IM_EXTRA></IM_EXTRA>
-                 <IM_FLAG></IM_FLAG>
-                 <IM_ID></IM_ID>
-                 <IM_KUNNR>"""+ customer_id + """</IM_KUNNR>
-                 <IM_PERNR></IM_PERNR>
-                 <IM_PO_NUMBER></IM_PO_NUMBER>
-                 <IM_SPART></IM_SPART>
-                 <IM_VKORG>""" + company_code +"""</IM_VKORG>
-                 <IM_VTWEG></IM_VTWEG>
-                 <T_ITEM>
-                  <item>
-                   <MATKL></MATKL>
-                   <MATNR>"""+ product_id + """</MATNR>
-                   <ITEM></ITEM>
-                   <MAKTX></MAKTX>
-                   <QTY>"""+ qty + """</QTY>
-                   <UOM>"""+ uom + """</UOM>
-                   <PRICE></PRICE>
-                   <INDPRICE></INDPRICE>
-                   <DISC></DISC>
-                   <INDDISC></INDDISC>
-                   <CHARG>""" + charg +"""</CHARG>
-                   <MO_PRICE></MO_PRICE>
-                   <NO_STOCK_IND></NO_STOCK_IND>
-                   <NO_STOCK_FOC></NO_STOCK_FOC>
-                   <FOC_ITEM></FOC_ITEM>
-                   <FOC_QTY></FOC_QTY>
-                   <FOC_UOM></FOC_UOM>
-                   <FOC_CHARG></FOC_CHARG>
-                   <PRC_DIFF_IND></PRC_DIFF_IND>
-                   <PRC_DIFF_NEW></PRC_DIFF_NEW>
-                   <SPCL_TEXT></SPCL_TEXT>
-                   <FOC_STD></FOC_STD>
-                   <FOC_ART></FOC_ART>
-                   <FOC_MCL></FOC_MCL>
-                   <INDICATOR1></INDICATOR1>
-                   <INDICATOR2></INDICATOR2>
-                   <TEXT1></TEXT1>
-                   <TEXT2></TEXT2>
-                   <CHARG_LIST></CHARG_LIST>
-                   <PRICE_CHANGE></PRICE_CHANGE>
-                   <FRM_ATP></FRM_ATP>
-                  </item>
-                 </T_ITEM>
-                 <T_MESSAGE>
-                  <item>
-                   <VBELN></VBELN>
-                   <TYPE></TYPE>
-                   <ID></ID>
-                   <NUMBER></NUMBER>
-                   <MESSAGE></MESSAGE>
-                   <LOG_NO></LOG_NO>
-                   <LOG_MSG_NO></LOG_MSG_NO>
-                   <MESSAGE_V1></MESSAGE_V1>
-                   <MESSAGE_V2></MESSAGE_V2>
-                   <MESSAGE_V3></MESSAGE_V3>
-                   <MESSAGE_V4></MESSAGE_V4>
-                   <PARAMETER></PARAMETER>
-                   <ROW></ROW>
-                   <FIELD></FIELD>
-                   <SYSTEM></SYSTEM>
-                  </item>
-                 </T_MESSAGE>
-                </n0:ZAPP_HOLDING_SO>"""
+# print(body)
+
+# holding_url = "http://s4hdev:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
+# credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+
+# import requests
+# import xmltodict
+# import json
+
+# response = requests.get(url=holding_url,auth=credentials)
+# print(response.content)
+
+# response_holding = requests.post(url=holding_url, auth=credentials, data=body, headers=headers)
+# content = response_holding.content
+# print(response_holding.status_code)
+# content = xmltodict.parse(content)
+# content = json.loads(json.dumps(content))
+
+print(content)

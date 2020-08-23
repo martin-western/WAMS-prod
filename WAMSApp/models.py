@@ -1319,8 +1319,8 @@ class SapSubCategory(models.Model):
 class CategoryMapping(models.Model):
 
     sap_sub_category = models.ForeignKey(SapSubCategory,null=True,on_delete=models.SET_NULL)
-    atp_threshold = models.FloatField(default=0)
-    holding_threshold = models.FloatField(default=0)
+    atp_threshold = models.FloatField(default=100)
+    holding_threshold = models.FloatField(default=5)
     recommended_browse_node = models.CharField(max_length=200,default="")
     channel = models.ForeignKey(Channel,null=True,on_delete=models.SET_NULL)
 
