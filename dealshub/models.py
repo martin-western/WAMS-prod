@@ -391,6 +391,44 @@ class Address(models.Model):
         verbose_name_plural = "Addresses"
 
 
+class WishList(models.Model):
+
+    owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    modified_date = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+
+        modified_date = timezone.now()
+        super(WishList, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Wish List"
+        verbose_name_plural = "Wish Lists"
+
+
+class UnitWishList(models.Model):
+
+    wish_list = models.ForeignKey('WishList', on_delete=models.CASCADE)
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    
+    date_created = models.DateTimeField(auto_now_add=True)
+    uuid = models.CharField(max_length=200, default="")
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+
+        super(UnitWishList, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Unit Wish List"
+        verbose_name_plural = "Unit Wish Lists"
+
+
 class Cart(models.Model):
 
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)

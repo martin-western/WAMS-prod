@@ -156,4 +156,8 @@ urlpatterns = [
     url(r'^make-payment-network-global/$',views.MakePaymentNetworkGlobal),
 
     url(r'^fetch-postaplus-tracking/$',views.FetchPostaPlusTracking),
+
+    url(r'^wish-list/add-to-wish-list/$', views.AddToWishList),
+    url(r'^wish-list/remove-from-wish-list/$', views.RemoveFromWishList),
+    url(r'^wish-list/fetch-wish-list/$', views.FetchWishList),
 ]
