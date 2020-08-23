@@ -173,6 +173,33 @@ class DealsHubProduct(models.Model):
     def get_warranty(self):
         return str(self.product.warranty)
 
+    def get_weight(self):
+        return float(self.product.weight)
+
+    def get_material(self):
+        if self.product.material_type==None:
+            return "NA"
+        return str(self.product.material_type)
+
+    def get_color(self):
+        if self.product.color=="":
+            return "NA"
+        return self.product.color
+
+    def get_dimensions(self):
+        dimensions = json.loads(self.product.base_product.dimensions)
+        dimensions_string = "NA"
+        try:
+            dimensions_string = dimensions["product_dimension_l"]+" "+dimensions["product_dimension_l_metric"]+" x "
+            dimensions_string += dimensions["product_dimension_b"]+" "+dimensions["product_dimension_b_metric"]+" x "
+            dimensions_string += dimensions["product_dimension_h"]+" "+dimensions["product_dimension_h_metric"]
+            if dimensions["product_dimension_l"]=="" or dimensions["product_dimension_b"]=="" or dimensions["product_dimension_h"]=="":
+                dimensions_string = "NA"
+        except Exception as e:
+            pass
+        return dimensions_string
+
+
     def get_actual_price(self):
         if self.promotion==None:
             return self.now_price
@@ -381,7 +408,7 @@ class Cart(models.Model):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
 
-        modified_date = timezone.now()
+        self.modified_date = timezone.now()
         super(Cart, self).save(*args, **kwargs)
 
     def get_subtotal(self):
@@ -480,6 +507,9 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="pending")
     payment_info = models.TextField(default="{}")
     merchant_reference = models.CharField(max_length=200, default="")
+
+    postaplus_info = models.TextField(default="{}")
+    is_postaplus = models.BooleanField(default=False)
 
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)

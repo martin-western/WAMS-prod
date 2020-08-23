@@ -6066,13 +6066,26 @@ class DownloadDynamicExcelTemplateAPI(APIView):
             filename = "files/dynamic bulk upload excel/Excel Template.xlsx"
 
             workbook = xlsxwriter.Workbook(filename)
-            worksheet = workbook.add_worksheet()
+            worksheet1 = workbook.add_worksheet()
 
             row = generate_dynamic_row(data_point_list,False)
             colnum = 0
             for k in row:
-                worksheet.write(0, colnum, k)
+                worksheet1.write(0, colnum, k)
                 colnum += 1
+
+            worksheet2 = workbook.add_worksheet()
+            worksheet2.write(0, 0, "Category")
+            worksheet2.write(0, 1, "SubCategory")
+            category_objs = Category.objects.all()
+            rownum = 1
+            for category_obj in category_objs:
+                category_name = category_obj.name
+                for sub_category_obj in SubCategory.objects.filter(category=category_obj):
+                    sub_category_name = sub_category_obj.name
+                    worksheet2.write(rownum, 0, category_name)
+                    worksheet2.write(rownum, 1, sub_category_name)
+                    rownum += 1
 
             workbook.close()
 

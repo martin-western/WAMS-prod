@@ -214,6 +214,7 @@ class LocationGroup(models.Model):
     vat = models.FloatField(default=5)
     email_info = models.TextField(default="{}")
     mshastra_info = models.TextField(default="{}")
+    postaplus_info = models.TextField(default="{}")
     uuid = models.CharField(max_length=200, default="")
 
     def __str__(self):
@@ -632,6 +633,7 @@ class Product(models.Model):
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
+    weight = models.FloatField(default=0.5)
     
     currency = models.CharField(max_length=100, default="")
     quantity = models.IntegerField(null=True, blank=True)

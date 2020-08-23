@@ -77,6 +77,14 @@ class FetchProductDetailsAPI(APIView):
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = dealshub_product_obj.get_currency()
             response["warranty"] = dealshub_product_obj.get_warranty()
+
+            response["dimensions"] = dealshub_product_obj.get_dimensions()
+            response["color"] = dealshub_product_obj.get_color()
+            response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
+            response["material"] = dealshub_product_obj.get_material()
+            response["sellerSku"] = dealshub_product_obj.get_seller_sku()
+
+
             response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
 
             promotion_obj = dealshub_product_obj.promotion
@@ -369,7 +377,6 @@ class SearchAPI(APIView):
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
-
             # Filters
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
@@ -406,6 +413,15 @@ class SearchAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
+
+            brand_list = []
+            try:
+                brand_list = list(filtered_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+                if len(brand_list)==1:
+                    brand_list = []
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
 
             paginator = Paginator(filtered_products, 20)
             dealshub_product_objs = paginator.page(page)            
@@ -487,7 +503,7 @@ class SearchAPI(APIView):
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
-                        if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj).exclude(now_price=0).exclude(stock=0).exists()==False:
+                        if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                             continue
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.name
@@ -499,9 +515,11 @@ class SearchAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
+
             response["isSuperCategoryAvailable"] = is_super_category_available
             response["categoryList"] = category_list
             response["subCategoryList"] = sub_category_list2
+            response["brand_list"] = brand_list
 
             is_available = True
             
@@ -1606,7 +1624,7 @@ class SearchProductsAutocompleteAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
-            category_key_list = DealsHubProduct.objects.filter(is_published=True, product__base_product__brand__in=website_group_obj.brands.all()).filter(Q(product__product_name__icontains=search_string) | Q(product__base_product__seller_sku__icontains=search_string) | Q(product__base_product__brand__name__icontains=search_string)).exclude(now_price=0).exclude(stock=0).values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
+            category_key_list = DealsHubProduct.objects.filter(location_group=location_group_obj, is_published=True, product__base_product__brand__in=website_group_obj.brands.all()).filter(Q(product__product_name__icontains=search_string) | Q(product__base_product__seller_sku__icontains=search_string) | Q(product__base_product__brand__name__icontains=search_string)).exclude(now_price=0).exclude(stock=0).values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
 
             category_list = []
             for category_key in category_key_list:
