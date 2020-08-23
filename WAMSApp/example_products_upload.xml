@@ -1,0 +1,37 @@
+<?xml version="1.0"?>                        
+<AmazonEnvelope xsi:noNamespaceSchemaLocation="amzn-envelope.xsd"                            
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">                            
+	<Header>                                
+		<DocumentVersion>1.01</DocumentVersion>                                
+		<MerchantIdentifier>A3DNFJ8JVFH39T</MerchantIdentifier>                            
+	</Header>                            
+	<MessageType>Product</MessageType>                            
+	<PurgeAndReplace>false</PurgeAndReplace>
+	<Message>                                
+		<MessageID>1095</MessageID>                                
+		<OperationType>Update</OperationType>                                 
+		<Product>                                    
+			<SKU>GE51034</SKU>                                    
+			<StandardProductID>                                        
+				<Type>EAN</Type>                                        
+				<Value>6294015521740</Value>                                    
+			</StandardProductID>                                    
+			<Condition>                                        
+				<ConditionType>New</ConditionType>                                    
+			</Condition>                                    
+			<DescriptionData>                                        
+				<Title>Geepas GE51034 24-Piece Rechargeable LED Emergency Lantern </Title>
+				<Brand>Geepas</Brand>                                        
+				<Manufacturer>Geepas</Manufacturer>
+			</DescriptionData>
+			<ProductData>                            
+				<Emergency Items>                                
+					<ProductType>                                    
+						<Led Emergency>                                    
+						</Led Emergency>                                
+					</ProductType>                            
+				</Emergency Items>                            
+			</ProductData>
+		</Product>                            
+	</Message> 
+</AmazonEnvelope>
