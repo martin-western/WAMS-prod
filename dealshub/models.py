@@ -24,7 +24,6 @@ def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
 class SearchKeyword(models.Model):
     word = models.CharField(default="", max_length=200)
     created_date = models.DateTimeField()
-    dealshub_user = models.ForeignKey('DealsHubUser', blank=True, null=True, on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, blank=True, null=True, on_delete=models.SET_NULL)
 
     def save(self, *args, **kwargs):
