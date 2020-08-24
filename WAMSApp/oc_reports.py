@@ -718,3 +718,54 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
     oc_report_obj.save()
 
     notify_user_for_report(oc_report_obj)
+
+
+def create_search_keyword_report(filename, uuid, custom_permission_obj):
+
+    workbook = xlsxwriter.Workbook('./'+filename)
+    worksheet = workbook.add_worksheet()
+
+    row = ["Sr. No.",
+           "Timestamp",
+           "Keyword",
+           "User",
+           "LocationGroup"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    location_group_objs = custom_permission_obj.location_groups.all()
+
+    search_keyword_objs = SearchKeyword.objects.filter(location_group__in=location_group_objs)[-5000:]
+
+    for search_keyword_obj in search_keyword_objs:
+        try:
+            cnt += 1
+            common_row = ["" for i in range(5)]
+            common_row[0] = str(cnt)
+            common_row[1] = str(search_keyword_obj.created_date)
+            common_row[2] = str(search_keyword_obj.word)
+            common_row[3] = str(search_keyword_obj.dealshub_user)
+            common_row[4] = str(search_keyword_obj.location_group)
+            
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Error create_search_keyword_report %s %s", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
+
+    oc_report_obj = OCReport.objects.get(uuid=uuid)
+    oc_report_obj.is_processed = True
+    oc_report_obj.completion_date = timezone.now()
+    oc_report_obj.save()
+
+    notify_user_for_report(oc_report_obj)

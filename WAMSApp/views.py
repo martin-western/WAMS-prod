@@ -5831,6 +5831,9 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="ecommerce":
                 p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,custom_permission_obj,))
                 p1.start()
+            elif report_type.lower()=="search keyword":
+                p1 = threading.Thread(target=create_search_keyword_report, args=(filename,oc_report_obj.uuid,custom_permission_obj,))
+                p1.start()
 
             response["approved"] = True
             response['status'] = 200
@@ -5849,7 +5852,6 @@ class CreateContentReportAPI(APIView):
         response['status'] = 500
 
         try:
-            
             data = request.data
             logger.info("CreateContentReportAPI: %s", str(data))
 
