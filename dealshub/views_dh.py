@@ -67,8 +67,10 @@ class AddToWishListAPI(APIView):
             wish_list_obj = WishList.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_wish_list_obj = None
             
-            if UnitWishList.objects.filter(wish_list=wish_list_obj, product__uuid=product_uuid).exists()==False:
+            if UnitWishList.objects.filter(wish_list=wish_list_obj, product=dealshub_product_obj).exists()==False:
                 unit_wish_list_obj = UnitWishList.objects.create(wish_list=wish_list_obj, product=dealshub_product_obj)
+            else:
+                unit_wish_list_obj = UnitWishList.objects.get(wish_list=wish_list_obj, product=dealshub_product_obj)
 
             response["unitWishListUuid"] = unit_wish_list_obj.uuid
             response["status"] = 200
