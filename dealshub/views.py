@@ -2262,6 +2262,7 @@ class CreateVoucherAPI(APIView):
 
             voucher_code = data.get("voucher_code", "VOUCHER")
             voucher_type = data.get("voucher_type", "FD")
+            description = data.get("description", "")
             percent_discount = 0
             fixed_discount = 0
             maximum_discount = 0
@@ -2277,7 +2278,8 @@ class CreateVoucherAPI(APIView):
                                                  minimum_purchase_amount=minimum_purchase_amount,
                                                  customer_usage_limit=customer_usage_limit, 
                                                  maximum_usage_limit=maximum_usage_limit,
-                                                 location_group=location_group_obj)
+                                                 location_group=location_group_obj,
+                                                 description=description)
 
             response["uuid"] = str(voucher_obj.uuid)
             response["status"] = 200
@@ -2308,6 +2310,7 @@ class UpdateVoucherAPI(APIView):
             voucher_obj.start_time = data["start_time"]
             voucher_obj.end_time = data["end_time"]
             voucher_obj.voucher_type = data["voucher_type"]
+            voucher_obj.description = data["description"]
 
             if voucher_obj.voucher_type == "PD":
                 voucher_obj.percent_discount = float(data["percent_discount"])
@@ -2353,6 +2356,7 @@ class FetchVouchersAPI(APIView):
                 temp_dict["start_time"] = voucher_obj.start_time
                 temp_dict["end_time"] = voucher_obj.end_time
                 temp_dict["voucher_type"] = voucher_obj.voucher_type
+                temp_dict["description"] = voucher_obj.description
 
                 if voucher_obj.voucher_type == "PD":
                     temp_dict["percent_discount"] = float(voucher_obj.percent_discount)
