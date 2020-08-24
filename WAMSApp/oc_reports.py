@@ -769,7 +769,7 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj):
     notify_user_for_report(oc_report_obj)
 
 
-def create_sales_report(filename, uuid, from_date, to_end, brand_list, custom_permission_obj):
+def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
