@@ -5817,6 +5817,9 @@ class CreateOCReportAPI(APIView):
             report_type = data["report_type"]
             note = data["note"]
             brand_list = data.get("brand_list", [])
+            
+            from_date = data.get("from_date", "")
+            to_date = data.get("to_date", "")
 
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
@@ -5844,6 +5847,9 @@ class CreateOCReportAPI(APIView):
                 p1.start()
             elif report_type.lower()=="search keyword":
                 p1 = threading.Thread(target=create_search_keyword_report, args=(filename,oc_report_obj.uuid,custom_permission_obj,))
+                p1.start()
+            elif report_type.lower()=="sales":
+                p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
                 p1.start()
 
             response["approved"] = True
