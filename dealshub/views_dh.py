@@ -2593,6 +2593,13 @@ class AddReviewAPI(APIView):
                 review_content_obj.subject = subject
                 review_content_obj.content = content
                 review_content_obj.save()
+            
+            image_count = int(data.get("image_count", 0))
+            for i in range(image_count):
+                image_obj = Image.objects.create(image=data["image_"+str(i)])
+                review_content_obj.images.add(image_obj)
+            review_content_obj.save()
+
             review_obj.content = review_content_obj
             review_obj.save()
             response["uuid"] = review_obj.uuid
@@ -2623,8 +2630,6 @@ class AddRatingAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
-
-            
 
             if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
                 review_obj = Review.objects.create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj, rating=rating)
@@ -2884,11 +2889,16 @@ class FetchProductReviewsAPI(APIView):
 
                 review_content = None
                 if review_content_obj is not None:
+                    image_objs = review_content_obj.images.all()
+                    image_url_list = []
+                    for image_obj in image_objs:
+                        image_url_list.append(image_obj.mid_image.url)
                     review_content = {
                         "subject" : str(review_content_obj.subject),
                         "content" : str(review_content_obj.content),
                         "upvotes_count" : str(review_content_obj.upvoted_users.count()),
-                        "admin_comment" : admin_comment
+                        "admin_comment" : admin_comment,
+                        "image_url_list": image_url_list
                     }
 
                 temp_dict["review_content"] = review_content

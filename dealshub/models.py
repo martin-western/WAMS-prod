@@ -836,6 +836,7 @@ class ReviewContent(models.Model):
     uuid = models.CharField(max_length=200, unique=True)
     subject = models.CharField(max_length=400, default="")
     content = models.TextField(max_length=500)
+    images = models.ManyToManyField(Image, blank=True)
     upvoted_users = models.ManyToManyField(DealsHubUser, blank=True)
     admin_comment = models.ForeignKey(AdminReviewComment, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
 
