@@ -127,7 +127,7 @@ print()
 print()
 print()
 
-qty_holding = "5"
+qty_holding = 5.0
 
 headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
 credentials = ("MOBSERVICE", "~lDT8+QklV=(")
@@ -208,16 +208,8 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
 holding_url = "http://s4hdev:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
 credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
-import requests
-import xmltodict
-import json
-
-response = requests.get(url=holding_url,auth=credentials)
-print(response.content)
-
 response_holding = requests.post(url=holding_url, auth=credentials, data=body, headers=headers)
 content = response_holding.content
-print(response_holding.status_code)
 content = xmltodict.parse(content)
 content = json.loads(json.dumps(content))
 
