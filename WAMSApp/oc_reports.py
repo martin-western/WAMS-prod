@@ -790,7 +790,16 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
 
     location_group_objs = custom_permission_obj.location_groups.all()
 
-    dh_product_objs = DealsHubProduct.objects.filter(product__base_product__brand__name__in=brand_list, location_group__in=location_group_objs)
+    unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs)
+    if from_date!="":
+        from_date = from_date[:10]+"T00:00:00+04:00"
+        unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
+
+    if to_date!="":
+        to_date = to_date[:10]+"T23:59:59+04:00"
+        unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
+
+    dh_product_objs = DealsHubProduct.objects.filter(pk__in=unit_order_objs.values_list('product__pk', flat=True).distinct(), product__base_product__brand__name__in=brand_list, location_group__in=location_group_objs)
 
     for dh_product_obj in dh_product_objs:
         try:
