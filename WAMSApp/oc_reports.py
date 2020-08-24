@@ -728,7 +728,6 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj):
     row = ["Sr. No.",
            "Timestamp",
            "Keyword",
-           "User",
            "LocationGroup"]
 
     cnt = 0
@@ -745,12 +744,11 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj):
     for search_keyword_obj in search_keyword_objs:
         try:
             cnt += 1
-            common_row = ["" for i in range(5)]
+            common_row = ["" for i in range(4)]
             common_row[0] = str(cnt)
             common_row[1] = str(search_keyword_obj.created_date)
             common_row[2] = str(search_keyword_obj.word)
-            common_row[3] = str(search_keyword_obj.dealshub_user)
-            common_row[4] = str(search_keyword_obj.location_group)
+            common_row[3] = str(search_keyword_obj.location_group)
             
             colnum = 0
             for k in common_row:
