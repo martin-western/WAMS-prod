@@ -378,7 +378,7 @@ class SearchAPI(APIView):
             if product_name!="":
                 dealshub_user_obj = None
                 if request.user!=None:
-                    logger.debug("request user %s", str(request.user.username))
+                    logger.info("request user %s", str(request.user.username))
                     dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
                 SearchKeyword.objects.create(word=product_name, dealshub_user=dealshub_user_obj, location_group=location_group_obj)
 
