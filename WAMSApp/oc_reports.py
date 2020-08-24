@@ -739,7 +739,7 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj):
 
     location_group_objs = custom_permission_obj.location_groups.all()
 
-    search_keyword_objs = SearchKeyword.objects.filter(location_group__in=location_group_objs)[-5000:]
+    search_keyword_objs = SearchKeyword.objects.filter(location_group__in=location_group_objs).order_by('-pk')[:5000]
 
     for search_keyword_obj in search_keyword_objs:
         try:
