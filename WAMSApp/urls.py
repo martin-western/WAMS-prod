@@ -143,5 +143,9 @@ urlpatterns = [
     url(r'^bulk-update-amazon-uk-product-stock/$',views.BulkUpdateAmazonUKProductStock),
     url(r'^bulk-update-amazon-uk-product-price-and-stock/$',views.BulkUpdateAmazonUKProductPriceAndStock),
 
+    url(r'^-fetch-category-list/$',views.FetchCategoryList),
+    url(r'^-search-category-list/$',views.SearchCategoryList),
+    url(r'^-update-category-mapping/$',views.UpdateCategoryMapping),
+    
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

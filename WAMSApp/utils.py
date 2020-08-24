@@ -2393,3 +2393,16 @@ def get_recommended_browse_node(seller_sku,channel):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("get_recommended_browse_node: %s at %s", e, str(exc_tb.tb_lineno))
         return ""
+
+
+def get_category_mapping(category_mapping_pk):
+
+    category_mapping = CategoryMapping.objects.get(pk=category_mapping_pk)
+
+    all_data_category_mapping = {}
+    all_data_category_mapping['pk'] = category_mapping.pk
+    all_data_category_mapping['atp_thresold'] = category_mapping.atp_thresold
+    all_data_category_mapping['holding_thresold'] = category_mapping.holding_thresold
+    all_data_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
+
+    return all_data_category_mapping
