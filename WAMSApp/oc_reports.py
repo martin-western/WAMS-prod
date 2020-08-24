@@ -777,6 +777,7 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
     row = ["Sr. No.",
            "Seller SKU",
            "Product ID",
+           "Product Name",
            "Brand",
            "Location",
            "Units Sold",
@@ -820,14 +821,15 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
                 revenue += unit_order_obj.get_subtotal()
 
             cnt += 1
-            common_row = ["" for i in range(7)]
+            common_row = ["" for i in range(8)]
             common_row[0] = str(cnt)
             common_row[1] = str(dh_product_obj.get_seller_sku())
             common_row[2] = str(dh_product_obj.get_product_id())
-            common_row[3] = str(dh_product_obj.get_brand())
-            common_row[4] = str(dh_product_obj.location_group)
-            common_row[5] = str(total_count)
-            common_row[6] = str(revenue)
+            common_row[3] = str(dh_product_obj.get_name())
+            common_row[4] = str(dh_product_obj.get_brand())
+            common_row[5] = str(dh_product_obj.location_group)
+            common_row[6] = str(total_count)
+            common_row[7] = str(revenue)
             
             colnum = 0
             for k in common_row:
