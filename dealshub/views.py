@@ -373,7 +373,10 @@ class SearchAPI(APIView):
             website_group_obj = location_group_obj.website_group
 
             page = data.get("page", 1)
-            search = {}            
+            search = {}
+
+            if product_name!="":
+                SearchKeyword.objects.create(word=product_name, location_group=location_group_obj)
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
@@ -465,7 +468,7 @@ class SearchAPI(APIView):
                         filters.append(temp_dict)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
 
             sub_category_list2 = []
@@ -476,11 +479,11 @@ class SearchAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["name"] = sub_category_obj.name
                     temp_dict2["uuid"] = sub_category_obj.uuid
+                    temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                     sub_category_list2.append(temp_dict2)
-
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_super_category_available = False
             category_list = []
@@ -495,11 +498,12 @@ class SearchAPI(APIView):
 
                 category_objs = Category.objects.filter(super_category=super_category_obj)
                 for category_obj in category_objs:
-                    if DealsHubProduct.objects.filter(is_published=True, category=category_obj).exclude(now_price=0).exclude(stock=0).exists()==False:
+                    if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
                     temp_dict = {}
                     temp_dict["name"] = category_obj.name
                     temp_dict["uuid"] = category_obj.uuid
+                    temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
@@ -508,12 +512,14 @@ class SearchAPI(APIView):
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.name
                         temp_dict2["uuid"] = sub_category_obj.uuid
+                        temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                         sub_category_list.append(temp_dict2)
-                    temp_dict["subCategoryList"] = sub_category_list
-                    category_list.append(temp_dict)
+                    if len(sub_category_list)>0:
+                        temp_dict["subCategoryList"] = sub_category_list
+                        category_list.append(temp_dict)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
 
             response["isSuperCategoryAvailable"] = is_super_category_available
@@ -522,7 +528,6 @@ class SearchAPI(APIView):
             response["brand_list"] = brand_list
 
             is_available = True
-            
             if int(paginator.num_pages) == int(page):
                 is_available = False
 
@@ -2257,6 +2262,7 @@ class CreateVoucherAPI(APIView):
 
             voucher_code = data.get("voucher_code", "VOUCHER")
             voucher_type = data.get("voucher_type", "FD")
+            description = data.get("description", "")
             percent_discount = 0
             fixed_discount = 0
             maximum_discount = 0
@@ -2272,7 +2278,8 @@ class CreateVoucherAPI(APIView):
                                                  minimum_purchase_amount=minimum_purchase_amount,
                                                  customer_usage_limit=customer_usage_limit, 
                                                  maximum_usage_limit=maximum_usage_limit,
-                                                 location_group=location_group_obj)
+                                                 location_group=location_group_obj,
+                                                 description=description)
 
             response["uuid"] = str(voucher_obj.uuid)
             response["status"] = 200
@@ -2303,6 +2310,7 @@ class UpdateVoucherAPI(APIView):
             voucher_obj.start_time = data["start_time"]
             voucher_obj.end_time = data["end_time"]
             voucher_obj.voucher_type = data["voucher_type"]
+            voucher_obj.description = data["description"]
 
             if voucher_obj.voucher_type == "PD":
                 voucher_obj.percent_discount = float(data["percent_discount"])
@@ -2348,6 +2356,7 @@ class FetchVouchersAPI(APIView):
                 temp_dict["start_time"] = voucher_obj.start_time
                 temp_dict["end_time"] = voucher_obj.end_time
                 temp_dict["voucher_type"] = voucher_obj.voucher_type
+                temp_dict["description"] = voucher_obj.description
 
                 if voucher_obj.voucher_type == "PD":
                     temp_dict["percent_discount"] = float(voucher_obj.percent_discount)

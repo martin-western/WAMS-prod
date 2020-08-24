@@ -718,3 +718,130 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
     oc_report_obj.save()
 
     notify_user_for_report(oc_report_obj)
+
+
+def create_search_keyword_report(filename, uuid, custom_permission_obj):
+
+    workbook = xlsxwriter.Workbook('./'+filename)
+    worksheet = workbook.add_worksheet()
+
+    row = ["Sr. No.",
+           "Timestamp",
+           "Keyword",
+           "LocationGroup"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    location_group_objs = custom_permission_obj.location_groups.all()
+
+    search_keyword_objs = SearchKeyword.objects.filter(location_group__in=location_group_objs).order_by('-pk')[:5000]
+
+    for search_keyword_obj in search_keyword_objs:
+        try:
+            cnt += 1
+            common_row = ["" for i in range(4)]
+            common_row[0] = str(cnt)
+            common_row[1] = str(search_keyword_obj.created_date)
+            common_row[2] = str(search_keyword_obj.word)
+            common_row[3] = str(search_keyword_obj.location_group)
+            
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Error create_search_keyword_report %s %s", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
+
+    oc_report_obj = OCReport.objects.get(uuid=uuid)
+    oc_report_obj.is_processed = True
+    oc_report_obj.completion_date = timezone.now()
+    oc_report_obj.save()
+
+    notify_user_for_report(oc_report_obj)
+
+
+def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj):
+
+    workbook = xlsxwriter.Workbook('./'+filename)
+    worksheet = workbook.add_worksheet()
+
+    row = ["Sr. No.",
+           "Seller SKU",
+           "Product ID",
+           "Brand",
+           "Location",
+           "Units Sold",
+           "Revenue"]
+
+    cnt = 0
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    location_group_objs = custom_permission_obj.location_groups.all()
+
+    unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs)
+    if from_date!="":
+        from_date = from_date[:10]+"T00:00:00+04:00"
+        unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
+
+    if to_date!="":
+        to_date = to_date[:10]+"T23:59:59+04:00"
+        unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
+
+    dh_product_objs = DealsHubProduct.objects.filter(pk__in=unit_order_objs.values_list('product__pk', flat=True).distinct(), product__base_product__brand__name__in=brand_list, location_group__in=location_group_objs)
+
+    for dh_product_obj in dh_product_objs:
+        try:
+            unit_order_objs = UnitOrder.objects.filter(product=dh_product_obj)
+
+            if from_date!="":
+                from_date = from_date[:10]+"T00:00:00+04:00"
+                unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
+
+            if to_date!="":
+                to_date = to_date[:10]+"T23:59:59+04:00"
+                unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
+
+            total_count = 0
+            revenue = 0
+            for unit_order_obj in unit_order_objs:
+                total_count += unit_order_obj.quantity
+                revenue += unit_order_obj.get_subtotal()
+
+            cnt += 1
+            common_row = ["" for i in range(7)]
+            common_row[0] = str(cnt)
+            common_row[1] = str(dh_product_obj.get_seller_sku())
+            common_row[2] = str(dh_product_obj.get_product_id())
+            common_row[3] = str(dh_product_obj.get_brand())
+            common_row[4] = str(dh_product_obj.location_group)
+            common_row[5] = str(total_count)
+            common_row[6] = str(revenue)
+            
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Error create_sales_report %s %s", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
+
+    oc_report_obj = OCReport.objects.get(uuid=uuid)
+    oc_report_obj.is_processed = True
+    oc_report_obj.completion_date = timezone.now()
+    oc_report_obj.save()
+
+    notify_user_for_report(oc_report_obj)

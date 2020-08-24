@@ -40,6 +40,114 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
         return
 
 
+class AddToWishListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddToWishListAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_uuid = data["productUuid"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+
+            if dealshub_product_obj.location_group!=location_group_obj:
+                response["status"] = 403
+                logger.error("AddToWishListAPI: Product does not exist in LocationGroup!")
+                return Response(data=response)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            wish_list_obj = WishList.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            unit_wish_list_obj = None
+            
+            if UnitWishList.objects.filter(wish_list=wish_list_obj, product__uuid=product_uuid).exists()==False:
+                unit_wish_list_obj = UnitWishList.objects.create(wish_list=wish_list_obj, product=dealshub_product_obj)
+
+            response["unitWishListUuid"] = unit_wish_list_obj.uuid
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddToWishListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class RemoveFromWishListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("RemoveFromWishListAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_wish_list_uuid = data["unitWishListUuid"]
+            
+            unit_wish_list_obj = UnitWishList.objects.get(uuid=unit_wish_list_uuid)
+            unit_wish_list_obj.delete()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveFromWishListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchWishListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchWishListAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            wish_list_obj = WishList.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            unit_wish_list_objs = UnitWishList.objects.filter(wish_list=wish_list_obj)
+            unit_wish_list = []
+            for unit_wish_list_obj in unit_wish_list_objs:
+                temp_dict = {}
+                temp_dict["uuid"] = unit_wish_list_obj.uuid
+                temp_dict["price"] = unit_wish_list_obj.product.get_actual_price()
+                temp_dict["currency"] = unit_wish_list_obj.product.get_currency()
+                temp_dict["dateCreated"] = unit_wish_list_obj.get_date_created()
+                temp_dict["productName"] = unit_wish_list_obj.product.get_name()
+                temp_dict["productImageUrl"] = unit_wish_list_obj.product.get_display_image_url()
+                temp_dict["productUuid"] = unit_wish_list_obj.product.uuid
+                temp_dict["brand"] = unit_wish_list_obj.product.get_brand()
+                temp_dict["isStockAvailable"] = unit_wish_list_obj.product.stock > 0
+                unit_wish_list.append(temp_dict)
+
+            response["unitWishList"] = unit_wish_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchWishListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class FetchShippingAddressListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1376,6 +1484,7 @@ class CreateOfflineCustomerAPI(APIView):
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
 
                 response["username"] = dealshub_user_obj.username
                 response["status"] = 200
@@ -2348,6 +2457,7 @@ class SendOTPSMSLoginAPI(APIView):
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
 
             else:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
@@ -2483,6 +2593,13 @@ class AddReviewAPI(APIView):
                 review_content_obj.subject = subject
                 review_content_obj.content = content
                 review_content_obj.save()
+            
+            image_count = int(data.get("image_count", 0))
+            for i in range(image_count):
+                image_obj = Image.objects.create(image=data["image_"+str(i)])
+                review_content_obj.images.add(image_obj)
+            review_content_obj.save()
+
             review_obj.content = review_content_obj
             review_obj.save()
             response["uuid"] = review_obj.uuid
@@ -2513,8 +2630,6 @@ class AddRatingAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
-
-            
 
             if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
                 review_obj = Review.objects.create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj, rating=rating)
@@ -2774,11 +2889,16 @@ class FetchProductReviewsAPI(APIView):
 
                 review_content = None
                 if review_content_obj is not None:
+                    image_objs = review_content_obj.images.all()
+                    image_url_list = []
+                    for image_obj in image_objs:
+                        image_url_list.append(image_obj.mid_image.url)
                     review_content = {
                         "subject" : str(review_content_obj.subject),
                         "content" : str(review_content_obj.content),
                         "upvotes_count" : str(review_content_obj.upvoted_users.count()),
-                        "admin_comment" : admin_comment
+                        "admin_comment" : admin_comment,
+                        "image_url_list": image_url_list
                     }
 
                 temp_dict["review_content"] = review_content
@@ -3996,3 +4116,9 @@ FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
 PlaceOnlineOrder = PlaceOnlineOrderAPI.as_view()
 
 FetchPostaPlusTracking = FetchPostaPlusTrackingAPI.as_view()
+
+AddToWishList = AddToWishListAPI.as_view()
+
+RemoveFromWishList = RemoveFromWishListAPI.as_view()
+
+FetchWishList = FetchWishListAPI.as_view()
