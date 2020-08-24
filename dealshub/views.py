@@ -373,7 +373,13 @@ class SearchAPI(APIView):
             website_group_obj = location_group_obj.website_group
 
             page = data.get("page", 1)
-            search = {}            
+            search = {}
+
+            if product_name!="":
+                dealshub_user_obj = None
+                if request.user!=None:
+                    dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                SearchKeyword.objects.create(word=product_name, dealshub_user=dealshub_user_obj, location_group=location_group_obj)
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
