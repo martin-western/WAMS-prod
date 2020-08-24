@@ -667,6 +667,9 @@ class Product(models.Model):
 
     warranty = models.CharField(max_length=100, default="One Year")
 
+    faqs = models.TextField(default="")
+    how_to_use = models.TextField(default="")
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"

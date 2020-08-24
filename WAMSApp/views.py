@@ -735,6 +735,8 @@ class FetchProductDetailsAPI(APIView):
             amazon_uae_product_dict = json.loads(channel_product_obj.amazon_uae_product_json)
             ebay_product_dict = json.loads(channel_product_obj.ebay_product_json)
             brand_obj = base_product_obj.brand
+            faq_list = product_obj.faqs
+            how_to_use_list = product_obj.how_to_use
 
             permissible_brands = custom_permission_filter_brands(request.user)
 
@@ -919,6 +921,12 @@ class FetchProductDetailsAPI(APIView):
 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             response["verify_product"] = custom_permission_obj.verify_product
+
+            faq_list = json.loads(faq_list)
+            response['faqs'] = faq_list
+
+            how_to_use_list = json.loads(how_to_use_list)
+            response['how_to_use'] = how_to_use_list
 
             response['status'] = 200
 
@@ -1411,6 +1419,9 @@ class SaveProductAPI(APIView):
 
             dynamic_form_attributes = data["dynamic_form_attributes"]
 
+            faqs = data["faqs"]
+            how_to_use = data["how_to_use"]
+
             min_price = float(data.get("min_price", 0))
             max_price = float(data.get("max_price", 0))
 
@@ -1447,6 +1458,9 @@ class SaveProductAPI(APIView):
 
             product_obj.is_bundle_product = is_bundle_product
 
+            product.obj.faqs = json.dumps(faqs)
+            product.obj.how_to_use = json.dumps(how_to_use)
+            
             if str(dynamic_form_attributes)!="{}":
                 product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
             

@@ -46,6 +46,7 @@ class Voucher(models.Model):
     voucher_code = models.CharField(max_length=50)
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
+    desc = models.TextField(default="")
 
     VOUCHERS_TYPE = (
         ("PD","PERCENTAGE_DISCOUNT"),
