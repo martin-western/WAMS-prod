@@ -692,10 +692,10 @@ class Product(models.Model):
         if self.channel_product == None:
             channel_product_obj = ChannelProduct.objects.create()
 
-            noon_product_json_temp = channel_product_obj.noon_product_json
-            amazon_uk_product_json_temp = channel_product_obj.amazon_uk_product_json
-            amazon_uae_product_json_temp = channel_product_obj.amazon_uae_product_json
-            ebay_product_json_temp = channel_product_obj.ebay_product_json
+            noon_product_json_temp = json.loads(channel_product_obj.noon_product_json)
+            amazon_uk_product_json_temp = json.loads(channel_product_obj.amazon_uk_product_json)
+            amazon_uae_product_json_temp = json.loads(channel_product_obj.amazon_uae_product_json)
+            ebay_product_json_temp = json.loads(channel_product_obj.ebay_product_json)
 
             noon_product_json_temp["product_name"] = self.product_name
             noon_product_json_temp["product_description"] = self.product_description
