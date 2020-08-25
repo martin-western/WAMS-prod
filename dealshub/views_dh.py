@@ -2576,7 +2576,7 @@ class AddReviewAPI(APIView):
             logger.info("AddReviewAPI: %s", str(data))
             product_code = str(data["product_code"])
             rating = int(data["rating"])
-            review_content = data["review_content"]
+            review_content = json.loads(data["review_content"])
 
             subject = str(review_content["subject"])
             content = str(review_content["content"])
