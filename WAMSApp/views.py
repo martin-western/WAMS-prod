@@ -736,6 +736,8 @@ class FetchProductDetailsAPI(APIView):
             amazon_uae_product_dict = json.loads(channel_product_obj.amazon_uae_product_json)
             ebay_product_dict = json.loads(channel_product_obj.ebay_product_json)
             brand_obj = base_product_obj.brand
+            faqs = json.loads(product_obj.faqs)
+            how_to_use = json.loads(product_obj.how_to_use)
 
             permissible_brands = custom_permission_filter_brands(request.user)
 
@@ -920,6 +922,9 @@ class FetchProductDetailsAPI(APIView):
 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             response["verify_product"] = custom_permission_obj.verify_product
+
+            response['faqs'] = faqs
+            response['how_to_use'] = how_to_use
 
             response['status'] = 200
 
@@ -1412,6 +1417,9 @@ class SaveProductAPI(APIView):
 
             dynamic_form_attributes = data["dynamic_form_attributes"]
 
+            faqs = data["faqs"]
+            how_to_use = data["how_to_use"]
+
             min_price = float(data.get("min_price", 0))
             max_price = float(data.get("max_price", 0))
 
@@ -1448,6 +1456,9 @@ class SaveProductAPI(APIView):
 
             product_obj.is_bundle_product = is_bundle_product
 
+            product_obj.faqs = json.dumps(faqs)
+            product_obj.how_to_use = json.dumps(how_to_use)
+            
             if str(dynamic_form_attributes)!="{}":
                 product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
             
@@ -5807,6 +5818,9 @@ class CreateOCReportAPI(APIView):
             report_type = data["report_type"]
             note = data["note"]
             brand_list = data.get("brand_list", [])
+            
+            from_date = data.get("from_date", "")
+            to_date = data.get("to_date", "")
 
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
@@ -5832,6 +5846,12 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="ecommerce":
                 p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,custom_permission_obj,))
                 p1.start()
+            elif report_type.lower()=="search keyword":
+                p1 = threading.Thread(target=create_search_keyword_report, args=(filename,oc_report_obj.uuid,custom_permission_obj,))
+                p1.start()
+            elif report_type.lower()=="sales":
+                p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
+                p1.start()
 
             response["approved"] = True
             response['status'] = 200
@@ -5850,7 +5870,6 @@ class CreateContentReportAPI(APIView):
         response['status'] = 500
 
         try:
-            
             data = request.data
             logger.info("CreateContentReportAPI: %s", str(data))
 

@@ -21,6 +21,17 @@ def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
         return False
     return True
 
+class SearchKeyword(models.Model):
+    word = models.CharField(default="", max_length=200)
+    created_date = models.DateTimeField()
+    location_group = models.ForeignKey(LocationGroup, blank=True, null=True, on_delete=models.SET_NULL)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+        
+        super(SearchKeyword, self).save(*args, **kwargs)
 
 class Promotion(models.Model):
     
@@ -46,6 +57,7 @@ class Voucher(models.Model):
     voucher_code = models.CharField(max_length=50)
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
+    description = models.TextField(default="")
 
     VOUCHERS_TYPE = (
         ("PD","PERCENTAGE_DISCOUNT"),
@@ -423,6 +435,9 @@ class UnitWishList(models.Model):
             self.uuid = str(uuid.uuid4())
 
         super(UnitWishList, self).save(*args, **kwargs)
+
+    def get_date_created(self):
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
 
     class Meta:
         verbose_name = "Unit Wish List"
@@ -825,6 +840,7 @@ class ReviewContent(models.Model):
     uuid = models.CharField(max_length=200, unique=True)
     subject = models.CharField(max_length=400, default="")
     content = models.TextField(max_length=500)
+    images = models.ManyToManyField(Image, blank=True)
     upvoted_users = models.ManyToManyField(DealsHubUser, blank=True)
     admin_comment = models.ForeignKey(AdminReviewComment, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
 

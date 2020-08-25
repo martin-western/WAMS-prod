@@ -35,7 +35,7 @@ noon_product_json = {
     "created_date" : "",
     "status" : "Inactive",
     "http_link": "",
-    "now_price":0.0,
+    "was_price":0.0,
     "sale_price":0.0,
     "sale_start":"",
     "sale_end":"",
@@ -667,6 +667,9 @@ class Product(models.Model):
 
     warranty = models.CharField(max_length=100, default="One Year")
 
+    faqs = models.TextField(default="[]")
+    how_to_use = models.TextField(default="[]")
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
@@ -688,6 +691,42 @@ class Product(models.Model):
 
         if self.channel_product == None:
             channel_product_obj = ChannelProduct.objects.create()
+
+            try:
+                noon_product_json_temp = json.loads(channel_product_obj.noon_product_json)
+                amazon_uk_product_json_temp = json.loads(channel_product_obj.amazon_uk_product_json)
+                amazon_uae_product_json_temp = json.loads(channel_product_obj.amazon_uae_product_json)
+                ebay_product_json_temp = json.loads(channel_product_obj.ebay_product_json)
+
+                noon_product_json_temp["product_name"] = self.product_name
+                noon_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                noon_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
+                noon_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
+
+                amazon_uk_product_json_temp["product_name"] = self.product_name
+                amazon_uk_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                amazon_uk_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
+                amazon_uk_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
+
+                amazon_uae_product_json_temp["product_name"] = self.product_name
+                amazon_uae_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                amazon_uae_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
+                amazon_uae_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
+
+                ebay_product_json_temp["product_name"] = self.product_name
+                ebay_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                ebay_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
+                ebay_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
+
+                channel_product_obj.noon_product_json = json.dumps(noon_product_json_temp)
+                channel_product_obj.amazon_uk_product_json = json.dumps(amazon_uk_product_json_temp)
+                channel_product_obj.amazon_uae_product_json = json.dumps(amazon_uae_product_json_temp)
+                channel_product_obj.ebay_product_json = json.dumps(ebay_product_json_temp)
+                channel_product_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Channel Product pulling default value: %s at %s", e, str(exc_tb.tb_lineno))
+
             self.channel_product = channel_product_obj
 
         if self.product_id != None and self.product_id != "":
