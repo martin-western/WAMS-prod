@@ -116,11 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-<<<<<<< HEAD
-TIME_ZONE =  'Asia/Dubai'
-=======
 TIME_ZONE =  'Asia/Kolkata'
->>>>>>> acd5c91ddc23252f7c0e6c2245e85e727d430f83
 
 USE_I18N = True
 
@@ -241,7 +237,6 @@ MWS_PARAMS = {
     "SELLER_ID" : 'A3DNFJ8JVFH39T', #replace with your seller id
     "MWS_SECRET_KEY" : '9un2k+5Q4eCFI4SRDjNyLhjTAHXrsFkZe0mWIRop', #replace with your secret key
 
-<<<<<<< HEAD
 }
 
 
@@ -250,6 +245,4 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'nisarg@omnycomm.com'
 EMAIL_HOST_PASSWORD = 'verjtzgeqareribg'
-=======
-}
->>>>>>> acd5c91ddc23252f7c0e6c2245e85e727d430f83
+
