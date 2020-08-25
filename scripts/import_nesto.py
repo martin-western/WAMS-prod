@@ -1822,14 +1822,17 @@ print(dfs.iloc[2][2])
 from dealshub.models import *
 import json, math
 # cc = ChannelProduct.objects.filter(amazon_uae_product_json__contains="NaN")
-cc = ChannelProduct.objects.all()
+cc = ChannelProduct.objects.exclude(amazon_uae_product_json__icontains="sale_price",noon_product_json__icontains="sale_price")
 i=0
 for c in cc:
     print(i)
     i = i+1
     t = json.loads(c.amazon_uae_product_json)
-    t["sale_price"] = t["now_price"]
+    t["was_price"] = t["now_price"]
     c.amazon_uae_product_json = json.dumps(t)
+    t = json.loads(c.noon_product_json)
+    t["was_price"] = t["now_price"]
+    c.noon_product_json = json.dumps(t)
     c.save()
     if type(json.loads(c.amazon_uae_product_json)["was_price"])!=str and math.isnan(json.loads(c.amazon_uae_product_json)["was_price"]):
         print("YES1", c)

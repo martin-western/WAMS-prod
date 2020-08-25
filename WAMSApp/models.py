@@ -35,7 +35,7 @@ noon_product_json = {
     "created_date" : "",
     "status" : "Inactive",
     "http_link": "",
-    "now_price":0.0,
+    "was_price":0.0,
     "sale_price":0.0,
     "sale_start":"",
     "sale_end":"",
