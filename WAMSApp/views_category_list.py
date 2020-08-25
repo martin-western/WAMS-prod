@@ -23,7 +23,9 @@ class FetchCategoryListAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             data = request.data
             logger.info("FetchCategoryListAPI: %s", str(data))
 
@@ -33,27 +35,34 @@ class FetchCategoryListAPI(APIView):
             page = int(data['page'])
 
             all_super_categories = SapSuperCategory.objects.all()
+            super_category_names = all_super_categories.values_list('name',flat=True)
+            response["super_category_names"] = super_category_names
+
             paginator = Paginator(all_super_categories, 5)
             super_categories = paginator.page(page)
 
             super_category_list = []
             for super_category in super_categories:
+                
                 all_data = {}
                 all_data['pk'] = super_category.pk
                 all_data['name'] = super_category.super_category
                 categories = SapCategory.objects.get(super_category=super_category)
+                
                 category_list = []
                 for category in categories:
                     all_data_category = {}
                     all_data_category['pk'] = category.pk
                     all_data_category['name'] = category.category
                     sub_categories = SapSubCategory.objects.get(category=category)
+                    
                     sub_category_list = []
                     for sub_category in sub_categories:
                         all_data_sub_category = {}
                         all_data_sub_category['pk'] = sub_category.pk
                         all_data_sub_category['name'] = sub_category.sub_category
                         category_mappings = CategoryMapping.objects.get(sap_sub_category=sub_category)
+                        
                         category_mapping_list = []
                         for category_mapping in category_mappings:
                             all_data_category_mapping = {}
@@ -62,14 +71,17 @@ class FetchCategoryListAPI(APIView):
                             all_data_category_mapping['holding_thresold'] = category_mapping.holding_thresold
                             all_data_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
                             category_mapping_list.append(all_data_category_mapping)
+                        
                         all_data_category['category_mapping'] = category_mapping_list
                         sub_category_list.append(all_data_sub_category)
+                    
                     all_data_category['sub_category'] = sub_category_list
                     category_list.append(all_data_category)
+                
                 all_data['category'] = category_list
                 super_category_list.append(all_data)
 
-            response['super_category'] = super_category_list 
+            response['super_category_list'] = super_category_list 
 
             response['status'] = 200
 
