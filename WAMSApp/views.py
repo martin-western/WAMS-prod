@@ -1,20 +1,25 @@
+from auditlog.models import *
+from dealshub.models import *
 from WAMSApp.models import *
 from WAMSApp.utils import *
+from WAMSApp.constants import *
+
+from django.shortcuts import render, HttpResponse, get_object_or_404
+from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.decorators import login_required
 
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import permissions, status
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
-from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
-from django.core.mail import EmailMessage
-from django.utils import timezone
 
-<<<<<<< HEAD
-=======
 from WAMSApp.views_sourcing import *
 from WAMSApp.views_mws_report import *
 from WAMSApp.views_mws_orders import *
@@ -36,99 +41,36 @@ import barcode
 from barcode.writer import ImageWriter
 
 import xmltodict
->>>>>>> 78970e283f99ed114b1fb20a56c314a2d103c94c
 import requests
 import json
-import pytz
-import csv
-import logging
-import sys
+import os
 import xlrd
-import time
-
-
-from datetime import datetime
-from django.utils import timezone
-from django.core.files import File
+import csv
+import datetime
+import boto3
+import urllib.request, urllib.error, urllib.parse
+import pandas as pd
+import threading
 
 logger = logging.getLogger(__name__)
 
-partner_id = "11109"
-country_code = "ae"
-partner_warehouse_code = "12345"
+#@login_required(login_url='/login/')
+def FlyerPage(request, pk):
+    flyer_obj = Flyer.objects.get(pk=int(pk))
+    return render(request, 'WAMSApp/flyer.html')
+    # if flyer_obj.mode=="A4 Portrait":
+    #     return render(request, 'WAMSApp/flyer.html')
+    # elif flyer_obj.mode=="A4 Landscape":
+    #     return render(request, 'WAMSApp/flyer-landscape.html')
+    # elif flyer_obj.mode=="A5 Portrait":
+    #     return render(request, 'WAMSApp/flyer-a5-portrait.html')
+    # elif flyer_obj.mode=="A5 Landscape":
+    #     return render(request, 'WAMSApp/flyer-a5-landscape.html')
 
 
-class PushPriceAPI(APIView):
+class GithubWebhookAPI(APIView):
 
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-
-        try:
-
-            if custom_permission_noon_functions(request.user,"push_price_on_noon") == False:
-                logger.warning("Noon Integration PushPriceAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
-
-            data = request.data
-            logger.info("PushPriceAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            product_pk_list = data["product_pk_list"]
-
-            headers = {
-                        "x-partner": "11109", 
-                        "x-api-token": "AIzaSyCxOIBdBpXFeo_4YctGCimGaVkusHDu4ZQ",
-                        "content-type" : "application/json"
-                    }
-
-            with open('/tmp/noon_price_update.tsv', 'wt') as out_file:
-                tsv_writer = csv.writer(out_file, delimiter='\t')
-                tsv_writer.writerow(['country_code', 'id_partner','partner_sku','price','sale_end','sale_price','sale_start'])
-                
-                for product_pk in product_pk_list:
-                    
-                    product_obj = Product.objects.get(pk=int(product_pk))
-                    channel_product = product_obj.channel_product
-                    noon_product = json.loads(channel_product.noon_product_json)
-
-                    seller_sku = product_obj.base_product.seller_sku
-                    was_price = noon_product["was_price"]
-                    sale_price = noon_product["sale_price"]
-                    sale_start = noon_product["sale_start"]
-                    sale_end = noon_product["sale_end"]
-
-                    tsv_writer.writerow([country_code, partner_id ,seller_sku,str(float(was_price)),str(sale_end),str(float(sale_price)),str(sale_start)])
-                
-            urls = requests.post('https://integration.noon.partners/public/signed-url/noon_price_update.tsv',
-                                     headers=headers).json()
-
-            response_noon_excel = requests.put(urls['upload_url'], data=open('/tmp/noon_price_update.tsv','rb')).raise_for_status()
-
-            payload = {
-                        "filename": "noon_price_update.tsv", 
-                        "import_type": "integration_psku_update", 
-                        "url": urls['download_url'],
-                        "partner_import_ref": ""
-                    }
-
-            response_noon_api = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
-                data=json.dumps(payload),
-                headers=headers)
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("Noon Integration PushPriceAPI: %s at %s",e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-class PushStockAPI(APIView):
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
@@ -136,70 +78,641 @@ class PushStockAPI(APIView):
         response['status'] = 500
         
         try:
+            
+            data = request.data
+            logger.info("GithubWebhookAPI: %s", str(data))
 
-            if custom_permission_noon_functions(request.user,"push_stock_on_noon") == False:
-                logger.warning("Noon Integration PushStockAPI Restricted Access!")
+            ref = str(data["ref"])
+            branch = ref.split("/")[2:]
+            branch = ''.join(branch)
+            if(branch == "uat"):
+                os.system("git pull origin uat")
+                os.system("sudo systemctl restart gunicorn-5")
+                os.system("sudo systemctl restart gunicorn-6")
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GithubWebhookAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateNewBaseProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("CreateNewBaseProductAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("PushStockAPI: %s", str(data))
+            logger.info("CreateNewBaseProductAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_pk_list = data["product_pk_list"]
+            product_name = convert_to_ascii(data["base_product_name"])
+            seller_sku = convert_to_ascii(data["seller_sku"])
+            brand_name = convert_to_ascii(data["brand_name"])
+            manufacturer = convert_to_ascii(data["manufacturer"])
+            manufacturer_part_number = convert_to_ascii(data["manufacturer_part_number"])
+            base_dimensions = json.dumps(data["base_dimensions"])
+            category_uuid = data["category_uuid"]
+            sub_category_uuid = data["sub_category_uuid"]
 
-            headers = {
-                        "x-partner": "11109", 
-                        "x-api-token": "AIzaSyCxOIBdBpXFeo_4YctGCimGaVkusHDu4ZQ",
-                        "content-type" : "application/json"
-                    }
-
-            with open('/tmp/noon_stock_update.tsv', 'wt') as out_file:
-                tsv_writer = csv.writer(out_file, delimiter='\t')
-                tsv_writer.writerow(['id_partner','partner_sku','partner_warehouse_code','stock_gross','stock_updated_at'])
+            # Checking brand permission
+            brand_obj = None
+            
+            try:
                 
-                for product_pk in product_pk_list:
-                    
-                    product_obj = Product.objects.get(pk=int(product_pk))
-                    channel_product = product_obj.channel_product
-                    noon_product = json.loads(channel_product.noon_product_json)
+                permissible_brands = custom_permission_filter_brands(
+                    request.user)
+                brand_obj = Brand.objects.get(name=brand_name)
 
-                    seller_sku = product_obj.base_product.seller_sku
-                    stock = noon_product["stock"]
+                if brand_obj not in permissible_brands:
+                    logger.warning(
+                        "CreateNewBaseProductAPI Restricted Access Brand!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                
+                logger.error("CreateNewBaseProductAPI Restricted Access Brand!")
+                response['status'] = 403
+                return Response(data=response)
 
-                    tsv_writer.writerow([partner_id , seller_sku, partner_warehouse_code,str(int(stock)),""])
-               
+            if BaseProduct.objects.filter(seller_sku=seller_sku).exists():
+                
+                logger.warning("CreateNewBaseProductAPI Duplicate product detected!")
+                response["status"] = 409
+                return Response(data=response)
 
-            urls = requests.post('https://integration.noon.partners/public/signed-url/noon_stock_update.tsv',
-                                     headers=headers).json()
+            category_obj = None
+            try:
+                category_obj = Category.objects.get(uuid=category_uuid)
+            except Exception as e:
+                pass
+            sub_category_obj = None
+            try:
+                sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
+            except Exception as e:
+                pass
 
-            response_noon_excel = requests.put(urls['upload_url'], data=open('/tmp/noon_stock_update.tsv','rb')).raise_for_status()
+            base_product_obj = BaseProduct.objects.create(base_product_name=product_name,
+                                              seller_sku=seller_sku,
+                                              brand=brand_obj,
+                                              category=category_obj,
+                                              sub_category=sub_category_obj,
+                                              manufacturer=manufacturer,
+                                              manufacturer_part_number=manufacturer_part_number,
+                                              dimensions=base_dimensions)
 
-            payload = {
-                        "filename": "noon_stock_update.tsv", 
-                        "import_type": "integration_partner_warehouse_stock", 
-                        "url": urls['download_url'],
-                        "partner_import_ref": ""
+            dynamic_form_attributes = {}
+            
+            try:
+                property_data = json.loads(category_obj.property_data)
+                for prop_data in property_data:
+                    dynamic_form_attributes[prop_data["key"]] = {
+                        "type": "dropdown",
+                        "labelText": prop_data["key"].title(),
+                        "value": "",
+                        "options": prop_data["values"]
                     }
+            except Exception as e:
+                pass
 
-            response_noon_api = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
-                            data=json.dumps(payload),
-                            headers=headers)
+            product_obj = Product.objects.create(product_name=product_name, base_product=base_product_obj, dynamic_form_attributes=json.dumps(dynamic_form_attributes))
+
+
+            location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
+            for location_group_obj in location_group_objs:
+                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
+
+            response["product_pk"] = product_obj.pk
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateNewBaseProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateNewProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("CreateNewProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("CreateNewProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
+            
+            # Checking brand permission
+            brand_obj = None
+            
+            try:
+                permissible_brands = custom_permission_filter_brands(
+                    request.user)
+                brand_obj = base_product_obj.brand
+
+                if brand_obj not in permissible_brands:
+                    logger.warning(
+                        "CreateNewProductAPI Restricted Access Brand!")
+                    response['status'] = 403
+                    return Response(data=response)
+            except Exception as e:
+                logger.error("CreateNewProductAPI Restricted Access Brand!")
+                response['status'] = 403
+                return Response(data=response)
+
+            product_name = base_product_obj.base_product_name
+
+            dynamic_form_attributes = {}
+            try:
+                property_data = json.loads(base_product_obj.category.property_data)
+                for prop_data in property_data:
+                    dynamic_form_attributes[prop_data["key"]] = {
+                        "type": "dropdown",
+                        "labelText": prop_data["key"].title(),
+                        "value": "",
+                        "options": prop_data["values"]
+                    }
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("CreateNewProductAPI: %s at %s", e, str(exc_tb.tb_lineno))          
+
+            product_obj = Product.objects.create(product_name = product_name,
+                                            product_name_sap=product_name,
+                                            pfl_product_name=product_name,
+                                            base_product=base_product_obj,
+                                            dynamic_form_attributes=json.dumps(dynamic_form_attributes))
+
+            location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
+            for location_group_obj in location_group_objs:
+                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
+
+            response["product_pk"] = product_obj.pk
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateNewProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SaveNoonChannelProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("SaveNoonChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveNoonChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = "Noon"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveNoonChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                channel_obj = Channel.objects.get(name=channel_name)
+
+                if channel_obj not in permissible_channels:
+                    logger.warning(
+                        "SaveNoonChannelProductAPI Restricted Access of Noon Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("SaveNoonChannelProductAPI Restricted Access of Noon Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            noon_product_json = json.loads(data["noon_product_json"])
+            if(noon_product_json["created_date"]==""):
+                noon_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+
+            channel_product = product_obj.channel_product
+            channel_product.noon_product_json = json.dumps(noon_product_json)
+            channel_product.is_noon_product_created = True
+            channel_product.save()
 
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("Noon Integration PushStockAPI: %s at %s",e, str(exc_tb.tb_lineno))
+            logger.error("SaveNoonChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-<<<<<<< HEAD
-PushPrice = PushPriceAPI.as_view()
-=======
+class SaveAmazonUKChannelProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveAmazonUKChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = "Amazon UK"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                channel_obj = Channel.objects.get(name=channel_name)
+
+                if channel_obj not in permissible_channels:
+                    logger.warning("SaveAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("SaveAmazonUKChannelProductAPI Restricted Access of Amazon UK Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            amazon_uk_product_json = json.loads(data["amazon_uk_product_json"])
+            if(amazon_uk_product_json["created_date"]==""):
+                amazon_uk_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+
+            channel_product = product_obj.channel_product
+
+            channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product_json)
+            channel_product.is_amazon_uk_product_created = True
+            channel_product.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveAmazonUKChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SaveAmazonUAEChannelProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveAmazonUAEChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = "Amazon UAE"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(
+                    request.user)
+                channel_obj = Channel.objects.get(name=channel_name)
+
+                if channel_obj not in permissible_channels:
+                    logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("SaveAmazonUAEChannelProductAPI Restricted Access of Amazon UAE Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            amazon_uae_product_json = json.loads(data["amazon_uae_product_json"])
+            if(amazon_uae_product_json["created_date"]==""):
+                amazon_uae_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+
+            channel_product = product_obj.channel_product
+            
+            channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product_json)
+            channel_product.is_amazon_uae_product_created = True
+            channel_product.save()
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveAmazonUAEChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SaveEbayChannelProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            if request.user.has_perm('WAMSApp.add_product') == False:
+                logger.warning("SaveEbayChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("SaveEbayChannelProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            channel_name = "Ebay"
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("SaveEbayChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                channel_obj = Channel.objects.get(name=channel_name)
+
+                if channel_obj not in permissible_channels:
+                    logger.warning("SaveEbayChannelProductAPI Restricted Access of Ebay Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.error("SaveEbayChannelProductAPI Restricted Access of Ebay Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            ebay_product_json = json.loads(data["ebay_product_json"])
+            if(ebay_product_json["created_date"]==""):
+                ebay_product_json["created_date"] = datetime.datetime.now().strftime("%d %b, %Y")
+
+            channel_product = product_obj.channel_product
+            
+            channel_product.ebay_product_json = json.dumps(ebay_product_json)
+            channel_product.is_ebay_product_created = True
+            channel_product.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveEbayChannelProductAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchChannelProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response["status"] = 500
+
+        try:
+
+            data = request.data
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            logger.info("FetchChannelProductAPI: %s", str(data))
+
+            channel_name = data["channel_name"]
+
+            product_obj = Product.objects.get(pk=data["product_pk"])
+            channel_product_obj = product_obj.channel_product
+            base_product_obj = product_obj.base_product
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchChannelProductAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            channel_obj = Channel.objects.get(name=channel_name)
+            channel_product_dict = get_channel_product_dict(channel_name,channel_product_obj)
+
+            try:
+                permissible_channels = custom_permission_filter_channels(request.user)
+                
+                if channel_obj not in permissible_channels:
+                    logger.warning("Fetch"+channel_name.replace(" ","")+"ChannelProductAPI Restricted Access of "+channel_name+" Channel!")
+                    response['status'] = 403
+                    return Response(data=response)
+            
+            except Exception as e:
+                logger.warning("Fetch"+channel_name.replace(" ","")+"ChannelProductAPI Restricted Access of "+channel_name+" Channel!")
+                response['status'] = 403
+                return Response(data=response)
+
+            images = {}
+
+            main_images_list = ImageBucket.objects.none()
+            try:
+                main_images_obj = MainImages.objects.get(product=product_obj,channel=channel_obj)
+                main_images_list=main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                images["main_images"] = create_response_images_main(main_images_list)
+            except Exception as e:
+                images["main_images"] = []
+                pass
+
+
+            sub_images_list = ImageBucket.objects.none()
+            try:
+                sub_images_obj = SubImages.objects.get(product=product_obj,channel=channel_obj)
+                sub_images_list = sub_images_obj.sub_images.all()
+                sub_images_list = sub_images_list.distinct()
+                images["sub_images"] = create_response_images_sub(sub_images_list)
+            except Exception as e:
+                images["sub_images"] = []
+                pass
+
+
+            images["all_images"] = create_response_images_main_sub_delete(main_images_list) \
+                                    + create_response_images_main_sub_delete(sub_images_list)
+
+            repr_image_url = Config.objects.all()[0].product_404_image.image.url
+            repr_high_def_url = repr_image_url
+            
+            if main_images_list.filter(is_main_image=True).count() > 0:
+                try:
+                    repr_image_url = main_images_list.filter(
+                        is_main_image=True)[0].image.mid_image.url
+                except Exception as e:
+                    repr_image_url = main_images_list.filter(is_main_image=True)[0].image.image.url
+
+                repr_high_def_url = main_images_list.filter(is_main_image=True)[0].image.image.url
+
+            response["repr_image_url"] = repr_image_url
+            response["repr_high_def_url"] = repr_high_def_url
+
+            response["images"] = images
+
+            response["channel_product_json"] = channel_product_dict
+
+            response["product_id"] = product_obj.product_id
+            response["barcode"] = product_obj.barcode_string
+            response["product_id_type"] = ""
+            response["material_type"] = ""
+            
+            if product_obj.product_id_type != None:
+                response["product_id_type"] = product_obj.product_id_type.name
+            response['status'] = 200
+
+            if product_obj.material_type != None:
+                response["material_type"] = product_obj.material_type.name
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchChannelProductAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchBaseProductDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchBaseProductDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
+            brand_obj = base_product_obj.brand
+
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if brand_obj not in permissible_brands:
+                logger.warning("FetchBaseProductDetailsAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            if brand_obj == None:
+                response["brand_name"] = ""
+            else:
+                response["brand_name"] = brand_obj.name
+            
+            response["base_product_name"] = base_product_obj.base_product_name
+            response["super_category"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category)
+            response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
+            response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
+            response["super_category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category.uuid)
+            response["category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.uuid)
+            response["sub_category_uuid"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category.uuid)
+            response["seller_sku"] = base_product_obj.seller_sku
+            response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
+            response["manufacturer"] = base_product_obj.manufacturer
+            response["base_dimensions"] = json.loads(base_product_obj.dimensions)
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBaseProductDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchProductDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5968,6 +6481,5 @@ CreateContentReport = CreateContentReportAPI.as_view()
 UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view()
 
 FetchDealshubProductDetails = FetchDealshubProductDetailsAPI.as_view()
->>>>>>> 78970e283f99ed114b1fb20a56c314a2d103c94c
 
-PushStock = PushStockAPI.as_view()
+SaveDealshubProductDetails = SaveDealshubProductDetailsAPI.as_view()
