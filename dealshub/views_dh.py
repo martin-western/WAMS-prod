@@ -2913,7 +2913,7 @@ class FetchProductReviewsAPI(APIView):
 
             average_rating = 0
             if total_reviews != 0:
-                average_rating = float(total_rating)/float(total_reviews)
+                average_rating = round(float(total_rating)/float(total_reviews), 2)
 
             is_user_reviewed = False
             is_product_purchased = True
