@@ -2877,8 +2877,10 @@ class FetchProductReviewsAPI(APIView):
                 total_rating += int(review_obj.rating)
 
                 review_content_obj = review_obj.content
-                admin_comment_obj = review_content_obj.admin_comment
 
+                admin_comment_obj = None
+                if review_content_obj!=None:
+                    admin_comment_obj = review_content_obj.admin_comment
                 admin_comment = None
                 if admin_comment_obj is not None:
                     admin_comment = {
