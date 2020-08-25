@@ -1,1 +1,1 @@
-SERVER_IP = "qa.omnycomm.com:8028"
+SERVER_IP = "https://qa.omnycomm.com:8028"
