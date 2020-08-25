@@ -246,3 +246,14 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'nisarg@omnycomm.com'
 EMAIL_HOST_PASSWORD = 'verjtzgeqareribg'
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/home/ubuntu/WAMS/django_cache',
+        'TIMEOUT': 1500,
+        'OPTIONS': {
+            'MAX_ENTRIES': 50
+        }
+    }
+}
