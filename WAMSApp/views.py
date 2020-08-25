@@ -1455,8 +1455,8 @@ class SaveProductAPI(APIView):
 
             product_obj.is_bundle_product = is_bundle_product
 
-            product.obj.faqs = json.dumps(faqs)
-            product.obj.how_to_use = json.dumps(how_to_use)
+            product_obj.faqs = json.dumps(faqs)
+            product_obj.how_to_use = json.dumps(how_to_use)
             
             if str(dynamic_form_attributes)!="{}":
                 product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
