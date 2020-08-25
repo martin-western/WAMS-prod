@@ -454,7 +454,8 @@ def save_data_value(product_obj, base_product_obj, channel_product_obj, data_poi
         if data_point_variable=="color":
             product_obj.color = value
         if data_point_variable=="material_type":
-            product_obj.material_type = MaterialType.objects.get(name=value)
+            material_type_obj, created = MaterialType.objects.get_or_create(name=value)
+            product_obj.material_type = material_type_obj
         if data_point_variable=="standard_price":
             product_obj.standard_price = float(value)
         if data_point_variable=="currency":
@@ -474,9 +475,9 @@ def save_data_value(product_obj, base_product_obj, channel_product_obj, data_poi
         # if data_point_variable=="seller_sku":
         #     base_product_obj.seller_sku = value
         if data_point_variable=="category":
-            base_product_obj.category = Category.objects.get(name=value)
+            base_product_obj.category = Category.objects.filter(name=value)[0]
         if data_point_variable=="sub_category":
-            base_product_obj.sub_category = SubCategory.objects.get(name=value)
+            base_product_obj.sub_category = SubCategory.objects.filter(name=value)[0]
         if data_point_variable=="brand":
             try:
                 permissible_brands = custom_permission_filter_brands(request_user)
@@ -1386,8 +1387,8 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     if(product_name == "nan" or manufacturer == "nan" or manufacturer_part_number == "nan" or category_name == "nan" or sub_category_name == "nan" or product_id == "nan" or brand_name == "nan" or seller_sku == "nan"):
                         raise Exception("Required Fields must not be empty!")
 
-                    category_obj = Category.objects.get(name=category_name)
-                    sub_category_obj = SubCategory.objects.get(name=sub_category_name)
+                    category_obj = Category.objects.filter(name=category_name)[0]
+                    sub_category_obj = SubCategory.objects.filter(name=sub_category_name)[0]
                     brand_obj = Brand.objects.none()
                     permissible_brands = custom_permission_filter_brands(request_user)
                     try:    
@@ -2393,3 +2394,16 @@ def get_recommended_browse_node(seller_sku,channel):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("get_recommended_browse_node: %s at %s", e, str(exc_tb.tb_lineno))
         return ""
+
+
+def get_category_mapping(category_mapping_pk):
+
+    category_mapping = CategoryMapping.objects.get(pk=category_mapping_pk)
+
+    all_data_category_mapping = {}
+    all_data_category_mapping['pk'] = category_mapping.pk
+    all_data_category_mapping['atp_thresold'] = category_mapping.atp_thresold
+    all_data_category_mapping['holding_thresold'] = category_mapping.holding_thresold
+    all_data_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
+
+    return all_data_category_mapping
