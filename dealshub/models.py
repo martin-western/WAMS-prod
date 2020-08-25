@@ -436,6 +436,9 @@ class UnitWishList(models.Model):
 
         super(UnitWishList, self).save(*args, **kwargs)
 
+    def get_date_created(self):
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+
     class Meta:
         verbose_name = "Unit Wish List"
         verbose_name_plural = "Unit Wish Lists"
