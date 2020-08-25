@@ -691,43 +691,59 @@ class Product(models.Model):
 
         if self.channel_product == None:
             channel_product_obj = ChannelProduct.objects.create()
+            self.channel_product = channel_product_obj
 
-            try:
-                noon_product_json_temp = json.loads(channel_product_obj.noon_product_json)
-                amazon_uk_product_json_temp = json.loads(channel_product_obj.amazon_uk_product_json)
-                amazon_uae_product_json_temp = json.loads(channel_product_obj.amazon_uae_product_json)
-                ebay_product_json_temp = json.loads(channel_product_obj.ebay_product_json)
+        channel_product_obj = self.channel_product
+        try:
+            noon_product_json_temp = json.loads(channel_product_obj.noon_product_json)
+            amazon_uk_product_json_temp = json.loads(channel_product_obj.amazon_uk_product_json)
+            amazon_uae_product_json_temp = json.loads(channel_product_obj.amazon_uae_product_json)
+            ebay_product_json_temp = json.loads(channel_product_obj.ebay_product_json)
 
+            if noon_product_json_temp["product_name"]=="":
                 noon_product_json_temp["product_name"] = str(self.product_name)
+            if noon_product_json_temp["product_description"]=="":
                 noon_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+            if noon_product_json_temp["category"]=="":
                 noon_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
+            if noon_product_json_temp["sub_category"]=="":
                 noon_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
+            if amazon_uk_product_json_temp["product_name"]=="":
                 amazon_uk_product_json_temp["product_name"] = str(self.product_name)
+            if amazon_uk_product_json_temp["product_description"]=="":
                 amazon_uk_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+            if amazon_uk_product_json_temp["category"]=="":
                 amazon_uk_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
+            if amazon_uk_product_json_temp["sub_category"]=="":
                 amazon_uk_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
+            if amazon_uae_product_json_temp["product_name"]=="":
                 amazon_uae_product_json_temp["product_name"] = str(self.product_name)
+            if amazon_uae_product_json_temp["product_description"]=="":
                 amazon_uae_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+            if amazon_uae_product_json_temp["category"]=="":
                 amazon_uae_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
+            if amazon_uae_product_json_temp["sub_category"]=="":
                 amazon_uae_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
+            if ebay_product_json_temp["product_name"]=="":
                 ebay_product_json_temp["product_name"] = str(self.product_name)
+            if ebay_product_json_temp["product_description"]=="":
                 ebay_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+            if ebay_product_json_temp["category"]=="":
                 ebay_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
+            if ebay_product_json_temp["sub_category"]=="":
                 ebay_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
-                channel_product_obj.noon_product_json = json.dumps(noon_product_json_temp)
-                channel_product_obj.amazon_uk_product_json = json.dumps(amazon_uk_product_json_temp)
-                channel_product_obj.amazon_uae_product_json = json.dumps(amazon_uae_product_json_temp)
-                channel_product_obj.ebay_product_json = json.dumps(ebay_product_json_temp)
-                channel_product_obj.save()
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("Channel Product pulling default value: %s at %s", e, str(exc_tb.tb_lineno))
-
-            self.channel_product = channel_product_obj
+            channel_product_obj.noon_product_json = json.dumps(noon_product_json_temp)
+            channel_product_obj.amazon_uk_product_json = json.dumps(amazon_uk_product_json_temp)
+            channel_product_obj.amazon_uae_product_json = json.dumps(amazon_uae_product_json_temp)
+            channel_product_obj.ebay_product_json = json.dumps(ebay_product_json_temp)
+            channel_product_obj.save()
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Channel Product pulling default value: %s at %s", e, str(exc_tb.tb_lineno))
 
         if self.product_id != None and self.product_id != "":
             if self.product_id_type!=None and self.product_id_type.name=="ARTICLE":
