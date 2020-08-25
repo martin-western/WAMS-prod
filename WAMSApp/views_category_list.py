@@ -35,7 +35,7 @@ class FetchCategoryListAPI(APIView):
             page = int(data['page'])
 
             all_super_categories = SapSuperCategory.objects.all()
-            super_category_names = all_super_categories.values_list('name',flat=True)
+            super_category_names = all_super_categories.values_list('super_category',flat=True)
             response["super_category_names"] = super_category_names
 
             paginator = Paginator(all_super_categories, 5)

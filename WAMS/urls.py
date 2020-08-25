@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^dealshub/', include('dealshub.urls')),
     url(r'^token-auth/', obtain_jwt_token),
     url(r'^payfort/payment-transaction/$',views.PaymentTransaction),
+    url(r'^sap/$',include('WAMSApp.urls_SAP')),
 ]
