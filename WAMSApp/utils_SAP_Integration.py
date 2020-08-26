@@ -22,6 +22,8 @@ import sys
 import xlsxwriter
 import pandas as pd
 
+logger = logging.getLogger(__name__)
+
 def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
 
     try :
@@ -77,9 +79,9 @@ def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("xml_generator_for_price_and_stock_SAP: %s at %s", str(e), str(exc_tb.tb_lineno))
 
-        return ""
+        return []
 
-def fetch_prices(seller_sku,company_code,url,customer_id):
+def fetch_prices_and_stock(seller_sku,company_code,url,customer_id):
     
     try:
 
@@ -90,7 +92,9 @@ def fetch_prices(seller_sku,company_code,url,customer_id):
         
         warehouse_dict = {}
         body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        
+        response = requests.post(url, auth=credentials, data=body, headers=headers)
+        
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
@@ -98,7 +102,8 @@ def fetch_prices(seller_sku,company_code,url,customer_id):
         return content
 
     except Exception as e:
-        print("Fetch Prices: ", e)
-        
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
+
         return []
 
