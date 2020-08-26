@@ -32,6 +32,7 @@ from WAMSApp.views_noon_integration import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
 from WAMSApp.views_category_list import *
+from WAMSApp.views_SAP_Integration import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
