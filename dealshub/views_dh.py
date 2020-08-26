@@ -2896,7 +2896,11 @@ class FetchProductReviewsAPI(APIView):
                     image_objs = review_content_obj.images.all()
                     image_url_list = []
                     for image_obj in image_objs:
-                        image_url_list.append(image_obj.mid_image.url)
+                        try:
+                            image_url_list.append(image_obj.mid_image.url)
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     review_content = {
                         "subject" : str(review_content_obj.subject),
                         "content" : str(review_content_obj.content),
@@ -2931,11 +2935,15 @@ class FetchProductReviewsAPI(APIView):
                         image_objs = review_content_obj.images.all()
                         image_url_list = []
                         for image_obj in image_objs:
-                            temp_dict = {
-                                "uuid": image_obj.pk, 
-                                "url": image_obj.mid_image.url
-                            }
-                            image_url_list.append(temp_dict)
+                            try:
+                                temp_dict = {
+                                    "uuid": image_obj.pk, 
+                                    "url": image_obj.mid_image.url
+                                }
+                                image_url_list.append(temp_dict)
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         review_content = {
                             "subject" : str(review_content_obj.subject),
                             "content" : str(review_content_obj.content),
