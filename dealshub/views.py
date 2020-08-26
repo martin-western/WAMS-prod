@@ -2512,7 +2512,7 @@ class FetchPostaPlusDetailsAPI(APIView):
             response["description"] = description
             response["reference2"] = reference2
             response["shipper"] = shipper
-            response["awb_number"] = json.loads(postaplus_info)["awb_number"]
+            response["awb_number"] = postaplus_info["awb_number"]
 
             response["status"] = 200
 
