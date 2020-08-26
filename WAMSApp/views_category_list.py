@@ -119,7 +119,7 @@ class SearchCategoryListAPI(APIView):
                             category_mapping_list.append(temp_dict_category_mapping)
                         temp_dict_sub_category["category_mapping"] = category_mapping_list
                         sub_category_list.append(temp_dict_sub_category)
-
+                        
                     else:
                         sub_category_objs = SubCategory.objects.get(category=data["category"])
                         for sub_category_obj in sub_category_objs:

@@ -79,7 +79,7 @@ def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
 
         return ""
 
-def fetch_prices(product_id,company_code,url,customer_id):
+def fetch_prices(seller_sku,company_code,url,customer_id):
     
     try:
 
@@ -89,54 +89,7 @@ def fetch_prices(product_id,company_code,url,customer_id):
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
         warehouse_dict = {}
-        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                    <soapenv:Header />
-                    <soapenv:Body>
-                    <urn:ZAPP_STOCK_PRICE>
-                    <IM_KUNNR>"""+ customer_id +"""</IM_KUNNR>
-                    <IM_MATNR>
-                    <item>
-                     <MATNR>""" + product_id + """</MATNR>
-                    </item>
-                    </IM_MATNR>
-                    <IM_VKORG>
-                    <item>
-                     <VKORG>""" + company_code + """</VKORG>
-                    </item>
-                    </IM_VKORG>
-                    <T_DATA>
-                    <item>
-                     <MATNR></MATNR>
-                     <MAKTX></MAKTX>
-                     <LGORT></LGORT>
-                     <CHARG></CHARG>
-                     <SPART></SPART>
-                     <MEINS></MEINS>
-                     <ATP_QTY></ATP_QTY>
-                     <TOT_QTY></TOT_QTY>
-                     <CURRENCY></CURRENCY>
-                     <IC_EA></IC_EA>
-                     <OD_EA></OD_EA>
-                     <EX_EA></EX_EA>
-                     <RET_EA></RET_EA>
-                     <WERKS></WERKS>
-                     <WERKS></WERKS>
-                     <WWGHA1></WWGHA1>
-                     <WWGHB1></WWGHB1>
-                     <WWGHA2></WWGHA2>
-                     <WWGHB2></WWGHB2>
-                     <WWGHA3></WWGHA3>
-                     <WWGHB3></WWGHB3>
-                     <HQTY></HQTY>
-                    </item>
-                    </T_DATA>
-                    </urn:ZAPP_STOCK_PRICE>
-                    </soapenv:Body>
-                    </soapenv:Envelope>"""
-
-        import requests
-        import xmltodict
-        import json
+        body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
         response2 = requests.post(url, auth=credentials, data=body, headers=headers)
         content = response2.content
         content = xmltodict.parse(content)
