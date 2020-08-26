@@ -322,9 +322,6 @@ uid = str(uuid4.uuid())
 transfer_flag="X"
 holding_flag="X"
 
-headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-
 body = """<xml version="1.0" encoding="UTF-8">
           <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
              <soapenv:Header/>
@@ -368,7 +365,7 @@ body = """<xml version="1.0" encoding="UTF-8">
                          <INDPRICE></INDPRICE>
                          <DISC></DISC>
                          <INDDISC></INDDISC>
-                         <CHARG>""" + charg + """</CHARG>
+                         <CHARG>BS</CHARG>
                          <MO_PRICE></MO_PRICE>
                          <NO_STOCK_IND></NO_STOCK_IND>
                          <NO_STOCK_FOC></NO_STOCK_FOC>
@@ -427,3 +424,49 @@ content = json.loads(json.dumps(content))
 
 print(content)
 
+#################################
+
+###### After Order ############
+
+################################
+
+response = fetch_prices(product_id,company_code,test_url,customer_id)
+        
+items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+uom = "EA"
+charg = "BS"
+total_atp = 0.0
+total_holding = 0.0
+prices_stock_list = []
+
+if isinstance(items, dict):
+    temp_dict={}
+    temp_dict["charg"] = items["CHARG"]
+    temp_dict["uom"] = items["MEINS"]    
+    temp_dict["atp_qty"] = float(items["ATP_QTY"])
+    total_atp = total_atp+float(items["ATP_QTY"])
+    temp_dict["qty_holding"] = float(items["HQTY"])
+    total_holding = total_holding + float(items["HQTY"])
+    prices_stock_list.append(temp_dict)
+else:
+    for item in items:
+        temp_dict={}
+        temp_dict["charg"] = item["CHARG"]
+        temp_dict["uom"] = item["MEINS"]    
+        temp_dict["atp_qty"] = float(item["ATP_QTY"])
+        total_atp = total_atp+float(item["ATP_QTY"])
+        temp_dict["qty_holding"] = float(item["HQTY"])
+        total_holding = total_holding + float(item["HQTY"])
+        prices_stock_list.append(temp_dict)
+
+
+print("After Order : ")
+print("Total ATP :  ",total_atp)
+print("Total Holding :  ",total_holding)
+print()
+for item in prices_stock_list:
+    print(item["charg"])
+    print(item["uom"])
+    print(item["atp_qty"])
+    print(item["qty_holding"])
+    print()
