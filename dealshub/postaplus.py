@@ -67,7 +67,7 @@ def request_postaplus(order_obj):
                    <pos:UserName>"""+postaplus_username+"""</pos:UserName>
                 </pos:ClientInfo>
                 <pos:CodeCurrency>"""+currency+"""</pos:CodeCurrency>
-                <pos:CodeService>SRV3</pos:CodeService>
+                <pos:CodeService>SRV6</pos:CodeService>
                 <pos:CodeShippmentType>SHPT2</pos:CodeShippmentType>
                 <pos:ConnoteContact>
                    <pos:Email1></pos:Email1>
@@ -92,7 +92,7 @@ def request_postaplus(order_obj):
                    <pos:FromCity>"""+consignee_from_city+"""</pos:FromCity>
                    <pos:FromCodeCountry>"""+consignee_from_country+"""</pos:FromCodeCountry>
                    <pos:FromMobile>"""+consignee_from_mobile+"""</pos:FromMobile>
-                   <pos:FromName>WIG</pos:FromName>
+                   <pos:FromName>WESTERN INTERNATIONAL LLC - WIGME.COM</pos:FromName>
                    <pos:FromPinCode></pos:FromPinCode>
                    <pos:FromProvince>"""+consignee_from_province+"""</pos:FromProvince>
                    <pos:FromTelphone>"""+consignee_from_mobile+"""</pos:FromTelphone>
