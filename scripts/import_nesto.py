@@ -1986,3 +1986,22 @@ for p in pp:
         p.channel_product.save()
     except Exception as e:
         pass
+
+from dealshub.models import *
+import pandas as pd
+filename = "scripts/Category_List.xlsx"
+dfs = pd.read_excel(filename, sheet_name=None)["Sheet1"]
+dfs = dfs.fillna("")
+rows = len(dfs.iloc[:])
+columns = len(dfs.iloc[0][:])
+cnt=0
+for i in range(rows):
+    print(i)
+    super_category = str(dfs.iloc[i][0])
+    category = str(dfs.iloc[i][1])
+    sub_category = str(dfs.iloc[i][2])
+    print(super_category+"  "+category+"  "+sub_category)
+    sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category) 
+    sap_category , created = SapCategory.objects.get_or_create(super_category=sap_super_category,category=category) 
+    sap_sub_category , created = SapSubCategory.objects.get_or_create(category=sap_category,sub_category=sub_category) 
+    category_mapping , created = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category) 
