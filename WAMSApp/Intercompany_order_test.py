@@ -134,7 +134,7 @@ print()
 print()
 print()
 
-qty_holding = 15.0
+qty_holding = 5.0
 
 headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
 credentials = ("MOBSERVICE", "~lDT8+QklV=(")
@@ -160,13 +160,13 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
                <MATNR>"""+ product_id + """</MATNR>
                <ITEM></ITEM>
                <MAKTX></MAKTX>
-               <QTY>"""+ str(5.0) + """</QTY>
+               <QTY>"""+ str(qty_holding) + """</QTY>
                <UOM>"""+ uom + """</UOM>
                <PRICE></PRICE>
                <INDPRICE></INDPRICE>
                <DISC></DISC>
                <INDDISC></INDDISC>
-               <CHARG>ESMA</CHARG>
+               <CHARG>"""+ charg +"""</CHARG>
                <MO_PRICE></MO_PRICE>
                <NO_STOCK_IND></NO_STOCK_IND>
                <NO_STOCK_FOC></NO_STOCK_FOC>
@@ -193,7 +193,7 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
                <MATNR>"""+ product_id + """</MATNR>
                <ITEM></ITEM>
                <MAKTX></MAKTX>
-               <QTY>"""+ str(5.0) + """</QTY>
+               <QTY>"""+ str(qty_holding) + """</QTY>
                <UOM>"""+ uom + """</UOM>
                <PRICE></PRICE>
                <INDPRICE></INDPRICE>
@@ -274,112 +274,103 @@ content = response_holding.content
 content = xmltodict.parse(content)
 content = json.loads(json.dumps(content))
 
+import uuid 
+
+order_qty = 1.0
+uid = str(uuid4.uuid())
+transfer_flag="X"
+holding_flag="X"
+
 headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
 credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
-body = """<?xml version="1.0" encoding="UTF-8"?>
+body = """<xml version="1.0" encoding="UTF-8">
           <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
              <soapenv:Header/>
              <soapenv:Body>
                 <urn:ZAPP_ONLINE_ORDER>
                    <IM_AUART></IM_AUART>
                    <IM_DATE></IM_DATE>
-                   <IM_EXTRA>?</IM_EXTRA>
-                   <!--Optional:-->
-                   <IM_FLAG>?</IM_FLAG>
-                   <!--Optional:-->
-                   <IM_ID>?</IM_ID>
-                   <!--Optional:-->
-                   <IM_KUNNR>?</IM_KUNNR>
-                   <!--Optional:-->
-                   <IM_PERNR>?</IM_PERNR>
-                   <!--Optional:-->
-                   <IM_PO_NUMBER>?</IM_PO_NUMBER>
-                   <!--Optional:-->
-                   <IM_SPART>?</IM_SPART>
-                   <!--Optional:-->
-                   <IM_VKORG>?</IM_VKORG>
-                   <!--Optional:-->
-                   <IM_VTWEG>?</IM_VTWEG>
-                   <!--Optional:-->
+                   <IM_EXTRA></IM_EXTRA>
+                   <IM_FLAG>"""+ transfer_flag + """</IM_FLAG>
+                   <IM_ID>""" + uid + """</IM_ID>
+                   <IM_KUNNR>""" + customer_id + """</IM_KUNNR>
+                   <IM_PERNR></IM_PERNR>
+                   <IM_PO_NUMBER></IM_PO_NUMBER>
+                   <IM_SPART></IM_SPART>
+                   <IM_VKORG>""" + company_code + """</IM_VKORG>
+                   <IM_VTWEG></IM_VTWEG>
                    <T_CONDITION>
-                      <!--Zero or more repetitions:-->
                       <item>
-                         <KPOSN>?</KPOSN>
-                         <KSCHL>?</KSCHL>
-                         <KWERT>?</KWERT>
+                         <KPOSN></KPOSN>
+                         <KSCHL></KSCHL>
+                         <KWERT></KWERT>
                       </item>
                    </T_CONDITION>
-                   <!--Optional:-->
                    <T_DOCS>
-                      <!--Zero or more repetitions:-->
                       <item>
-                         <DOCTYP>?</DOCTYP>
-                         <VBELN>?</VBELN>
-                         <MSGTY>?</MSGTY>
-                         <MSGV1>?</MSGV1>
+                         <DOCTYP></DOCTYP>
+                         <VBELN></VBELN>
+                         <MSGTY></MSGTY>
+                         <MSGV1></MSGV1>
                       </item>
                    </T_DOCS>
-                   <!--Optional:-->
                    <T_ITEM>
-                      <!--Zero or more repetitions:-->
                       <item>
-                         <MATKL>?</MATKL>
-                         <MATNR>?</MATNR>
-                         <ITEM>?</ITEM>
-                         <MAKTX>?</MAKTX>
-                         <QTY>?</QTY>
-                         <UOM>?</UOM>
-                         <PRICE>?</PRICE>
-                         <INDPRICE>?</INDPRICE>
-                         <DISC>?</DISC>
-                         <INDDISC>?</INDDISC>
-                         <CHARG>?</CHARG>
-                         <MO_PRICE>?</MO_PRICE>
-                         <NO_STOCK_IND>?</NO_STOCK_IND>
-                         <NO_STOCK_FOC>?</NO_STOCK_FOC>
-                         <FOC_ITEM>?</FOC_ITEM>
-                         <FOC_QTY>?</FOC_QTY>
-                         <FOC_UOM>?</FOC_UOM>
-                         <FOC_CHARG>?</FOC_CHARG>
-                         <PRC_DIFF_IND>?</PRC_DIFF_IND>
-                         <PRC_DIFF_NEW>?</PRC_DIFF_NEW>
-                         <SPCL_TEXT>?</SPCL_TEXT>
-                         <FOC_STD>?</FOC_STD>
-                         <FOC_ART>?</FOC_ART>
-                         <FOC_MCL>?</FOC_MCL>
-                         <INDICATOR1>?</INDICATOR1>
-                         <INDICATOR2>?</INDICATOR2>
-                         <TEXT1>?</TEXT1>
-                         <TEXT2>?</TEXT2>
-                         <CHARG_LIST>?</CHARG_LIST>
-                         <PRICE_CHANGE>?</PRICE_CHANGE>
-                         <CONDITION1>?</CONDITION1>
-                         <CONDITION2>?</CONDITION2>
-                         <CONDITION3>?</CONDITION3>
-                         <CONDITION4>?</CONDITION4>
-                         <FRM_HOLDING>?</FRM_HOLDING>
+                         <MATKL></MATKL>
+                         <MATNR>"""+ product_id + """</MATNR>
+                         <ITEM></ITEM>
+                         <MAKTX></MAKTX>
+                         <QTY>"""+ str(order_qty) +"""</QTY>
+                         <UOM>""" + uom + """</UOM>
+                         <PRICE></PRICE>
+                         <INDPRICE></INDPRICE>
+                         <DISC></DISC>
+                         <INDDISC></INDDISC>
+                         <CHARG>""" + charg + """</CHARG>
+                         <MO_PRICE></MO_PRICE>
+                         <NO_STOCK_IND></NO_STOCK_IND>
+                         <NO_STOCK_FOC></NO_STOCK_FOC>
+                         <FOC_ITEM></FOC_ITEM>
+                         <FOC_QTY></FOC_QTY>
+                         <FOC_UOM></FOC_UOM>
+                         <FOC_CHARG></FOC_CHARG>
+                         <PRC_DIFF_IND></PRC_DIFF_IND>
+                         <PRC_DIFF_NEW></PRC_DIFF_NEW>
+                         <SPCL_TEXT></SPCL_TEXT>
+                         <FOC_STD></FOC_STD>
+                         <FOC_ART></FOC_ART>
+                         <FOC_MCL></FOC_MCL>
+                         <INDICATOR1></INDICATOR1>
+                         <INDICATOR2></INDICATOR2>
+                         <TEXT1></TEXT1>
+                         <TEXT2></TEXT2>
+                         <CHARG_LIST></CHARG_LIST>
+                         <PRICE_CHANGE></PRICE_CHANGE>
+                         <CONDITION1></CONDITION1>
+                         <CONDITION2></CONDITION2>
+                         <CONDITION3></CONDITION3>
+                         <CONDITION4></CONDITION4>
+                         <FRM_HOLDING>"""+ holding_flag + """</FRM_HOLDING>
                       </item>
                    </T_ITEM>
-                   <!--Optional:-->
                    <T_MESSAGE>
-                      <!--Zero or more repetitions:-->
                       <item>
-                         <VBELN>?</VBELN>
-                         <TYPE>?</TYPE>
-                         <ID>?</ID>
-                         <NUMBER>?</NUMBER>
-                         <MESSAGE>?</MESSAGE>
-                         <LOG_NO>?</LOG_NO>
-                         <LOG_MSG_NO>?</LOG_MSG_NO>
-                         <MESSAGE_V1>?</MESSAGE_V1>
-                         <MESSAGE_V2>?</MESSAGE_V2>
-                         <MESSAGE_V3>?</MESSAGE_V3>
-                         <MESSAGE_V4>?</MESSAGE_V4>
-                         <PARAMETER>?</PARAMETER>
-                         <ROW>?</ROW>
-                         <FIELD>?</FIELD>
-                         <SYSTEM>?</SYSTEM>
+                         <VBELN></VBELN>
+                         <TYPE></TYPE>
+                         <ID></ID>
+                         <NUMBER></NUMBER>
+                         <MESSAGE></MESSAGE>
+                         <LOG_NO></LOG_NO>
+                         <LOG_MSG_NO></LOG_MSG_NO>
+                         <MESSAGE_V1></MESSAGE_V1>
+                         <MESSAGE_V2></MESSAGE_V2>
+                         <MESSAGE_V3></MESSAGE_V3>
+                         <MESSAGE_V4></MESSAGE_V4>
+                         <PARAMETER></PARAMETER>
+                         <ROW></ROW>
+                         <FIELD></FIELD>
+                         <SYSTEM></SYSTEM>
                       </item>
                    </T_MESSAGE>
                 </urn:ZAPP_ONLINE_ORDER>
@@ -388,6 +379,12 @@ body = """<?xml version="1.0" encoding="UTF-8"?>
 
 intercompany_order_url = "http://192.168.77.48:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
 
+response_intercompany_order = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
+content = response_holding.content
+content = xmltodict.parse(content)
+content = json.loads(json.dumps(content))
+
+print(content)
 
 response = fetch_prices(product_id,company_code,test_url,customer_id)
         
