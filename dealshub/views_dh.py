@@ -2970,12 +2970,13 @@ class DeleteUserReviewImageAPI(APIView):
             data = request.data
             logger.info("DeleteUserReviewImageAPI: %s", str(data))
             
-            image_uuid = data["image_uuid"]
+            image_uuid = int(data["image_uuid"])
             user_review_uuid = data["user_review_uuid"]
 
             review_obj = Review.objects.get(uuid=user_review_uuid)
             if review_obj.dealshub_user.username==request.user.username:
                 review_content_obj = review_obj.content
+                image_obj = Image.objects.get(pk=image_uuid)
                 review_content_obj.images.remove(image_obj)
                 review_content_obj.save()
 
