@@ -95,37 +95,29 @@ prices_stock_list = []
 if isinstance(items, dict):
     temp_dict={}
     temp_charg = items["CHARG"]
-    if temp_charg!=None:
-        temp_dict["charg"] = temp_charg
+    temp_dict["charg"] = temp_charg
     temp_uom = items["MEINS"]
-    if temp_uom!=None:
-        temp_dict["uom"] = temp_uom      
+    temp_dict["uom"] = temp_uom      
     temp_qty = items["ATP_QTY"]
-    if temp_qty!=None:
-        temp_dict["atp_qty"] = float(temp_qty)
-        total_atp = total_atp+temp_qty
+    temp_dict["atp_qty"] = float(temp_qty)
+    total_atp = total_atp+float(temp_qty)
     temp_qty = items["HQTY"]
-    if temp_qty!=None:
-        temp_dict["qty_holding"] = float(temp_qty)
-        total_holding = total_holding + temp_qty
+    temp_dict["qty_holding"] = float(temp_qty)
+    total_holding = total_holding + float(temp_qty)
     prices_stock_list.append(temp_dict)
 else:
     for item in items:
         temp_dict={}
         temp_charg = items["CHARG"]
-        if temp_charg!=None:
-            temp_dict["charg"] = temp_charg
+        temp_dict["charg"] = temp_charg
         temp_uom = items["MEINS"]
-        if temp_uom!=None:
-            temp_dict["uom"] = temp_uom      
+        temp_dict["uom"] = temp_uom      
         temp_qty = items["ATP_QTY"]
-        if temp_qty!=None:
-            temp_dict["atp_qty"] = float(temp_qty)
-            total_atp = total_atp+temp_qty
+        temp_dict["atp_qty"] = float(temp_qty)
+        total_atp = total_atp+float(temp_qty)
         temp_qty = items["HQTY"]
-        if temp_qty!=None:
-            temp_dict["qty_holding"] = float(temp_qty)
-            total_holding = total_holding + temp_qty
+        temp_dict["qty_holding"] = float(temp_qty)
+        total_holding = total_holding + float(temp_qty)
         prices_stock_list.append(temp_dict)
 
 print("Before : ")
@@ -296,38 +288,31 @@ prices_stock_list = []
 if isinstance(items, dict):
     temp_dict={}
     temp_charg = items["CHARG"]
-    if temp_charg!=None:
-        temp_dict["charg"] = temp_charg
+    temp_dict["charg"] = temp_charg
     temp_uom = items["MEINS"]
-    if temp_uom!=None:
-        temp_dict["uom"] = temp_uom      
+    temp_dict["uom"] = temp_uom      
     temp_qty = items["ATP_QTY"]
-    if temp_qty!=None:
-        temp_dict["atp_qty"] = float(temp_qty)
-        total_atp = total_atp+temp_qty
+    temp_dict["atp_qty"] = float(temp_qty)
+    total_atp = total_atp+float(temp_qty)
     temp_qty = items["HQTY"]
-    if temp_qty!=None:
-        temp_dict["qty_holding"] = float(temp_qty)
-        total_holding = total_holding + temp_qty
+    temp_dict["qty_holding"] = float(temp_qty)
+    total_holding = total_holding + float(temp_qty)
     prices_stock_list.append(temp_dict)
 else:
     for item in items:
         temp_dict={}
         temp_charg = items["CHARG"]
-        if temp_charg!=None:
-            temp_dict["charg"] = temp_charg
+        temp_dict["charg"] = temp_charg
         temp_uom = items["MEINS"]
-        if temp_uom!=None:
-            temp_dict["uom"] = temp_uom      
+        temp_dict["uom"] = temp_uom      
         temp_qty = items["ATP_QTY"]
-        if temp_qty!=None:
-            temp_dict["atp_qty"] = float(temp_qty)
-            total_atp = total_atp+temp_qty
+        temp_dict["atp_qty"] = float(temp_qty)
+        total_atp = total_atp+float(temp_qty)
         temp_qty = items["HQTY"]
-        if temp_qty!=None:
-            temp_dict["qty_holding"] = float(temp_qty)
-            total_holding = total_holding + temp_qty
+        temp_dict["qty_holding"] = float(temp_qty)
+        total_holding = total_holding + float(temp_qty)
         prices_stock_list.append(temp_dict)
+
 
 print("After Holding : ")
 print("Total ATP :  ",total_atp)
