@@ -161,4 +161,6 @@ urlpatterns = [
     url(r'^wish-list/add-to-wish-list/$', views.AddToWishList),
     url(r'^wish-list/remove-from-wish-list/$', views.RemoveFromWishList),
     url(r'^wish-list/fetch-wish-list/$', views.FetchWishList),
+
+    url(r'^fetch-postaplus-details/$',views.FetchPostaPlusDetails),
 ]

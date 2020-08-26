@@ -2463,6 +2463,66 @@ class UnPublishVoucherAPI(APIView):
         return Response(data=response)
 
 
+class FetchPostaPlusDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchPostaPlusDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["orderUuid"]
+            order_obj = Order.objects.get(uuid=uuid)
+
+            ship_date = str(datetime.datetime.strftime(order_obj.order_placed_date, "%d-%b-%Y"))
+
+            postaplus_info = json.loads(order_obj.location_group.postaplus_info)
+            consignee_from_address = postaplus_info["consignee_from_address"]+"\n"+postaplus_info["consignee_from_mobile"]
+            consignee_to_address = order_obj.shipping_address.get_shipping_address()
+
+            total_pieces = 0
+            description = ""
+            total_weight = 0
+            for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                total_weight += unit_order_obj.product.get_weight()
+                description += unit_order_obj.product.get_seller_sku()+" ("+str(unit_order_obj.quantity)+"), "
+                total_pieces += unit_order_obj.quantity
+            total_weight = max(total_weight, 0.5)
+
+            cod_currency = order_obj.get_currency()
+            cod_amt = 0
+            if order_obj.payment_mode=="COD":
+                cod_amt = order_obj.to_pay
+
+            reference2 = order_obj.bundleid
+            shipper = postaplus_info["consignee_company"]
+
+            response["ship_date"] = ship_date 
+            response["consignee_from_address"] = consignee_from_address 
+            response["consignee_to_address"] = consignee_to_address
+            response["weight"] = str(weight)
+            response["total_pieces"] = total_pieces
+            response["cod_amt"] = cod_amt
+            response["cod_currency"] = cod_currency
+            response["description"] = description
+            response["reference2"] = reference2
+            response["shipper"] = shipper
+            response["awb_number"] = json.loads(postaplus_info)["awb_number"]
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchPostaPlusDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSectionProducts = FetchSectionProductsAPI.as_view()
@@ -2568,3 +2628,5 @@ DeleteVoucher = DeleteVoucherAPI.as_view()
 PublishVoucher = PublishVoucherAPI.as_view()
 
 UnPublishVoucher = UnPublishVoucherAPI.as_view()
+
+FetchPostaPlusDetails = FetchPostaPlusDetailsAPI.as_view()
