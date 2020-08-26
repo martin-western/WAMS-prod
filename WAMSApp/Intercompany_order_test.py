@@ -318,12 +318,11 @@ for item in prices_stock_list:
 
 
 order_qty = 1.0
-uid = str(uuid4.uuid())
+uid = str(uuid.uuid4()).split("-")[0]
 transfer_flag="X"
 holding_flag="X"
 
-body = """<xml version="1.0" encoding="UTF-8">
-          <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
              <soapenv:Header/>
              <soapenv:Body>
                 <urn:ZAPP_ONLINE_ORDER>
@@ -415,10 +414,13 @@ body = """<xml version="1.0" encoding="UTF-8">
              </soapenv:Body>
           </soapenv:Envelope>"""
 
+print(body)
+print()
+print()
 intercompany_order_url = "http://192.168.77.48:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
 
 response_intercompany_order = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
-content = response_holding.content
+content = response_intercompany_order.content
 content = xmltodict.parse(content)
 content = json.loads(json.dumps(content))
 
