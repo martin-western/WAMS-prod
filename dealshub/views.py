@@ -2505,9 +2505,9 @@ class FetchPostaPlusDetailsAPI(APIView):
             response["ship_date"] = ship_date 
             response["consignee_from_address"] = consignee_from_address 
             response["consignee_to_address"] = consignee_to_address
-            response["weight"] = str(weight)
-            response["total_pieces"] = total_pieces
-            response["cod_amt"] = cod_amt
+            response["weight"] = str(total_weight)
+            response["total_pieces"] = str(total_pieces)
+            response["cod_amt"] = str(cod_amt)
             response["cod_currency"] = cod_currency
             response["description"] = description
             response["reference2"] = reference2
