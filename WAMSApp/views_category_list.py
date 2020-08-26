@@ -32,17 +32,41 @@ class FetchCategoryListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            all_super_categories = SapSuperCategory.objects.all()
+            super_categories = SapSuperCategory.objects.all()
             super_category_list = []
             
-            for super_category in all_super_categories:
+            for super_category_obj in super_categories:
                 
                 temp_dict = {}
-                temp_dict['pk'] = super_category.pk
-                temp_dict['name'] = super_category.super_category
+                temp_dict['pk'] = super_category_obj.pk
+                temp_dict['name'] = super_category_obj.super_category
                 super_category_list.append(temp_dict)
 
             response['super_category_list'] = super_category_list 
+
+            categories = SapCategory.objects.all()
+            category_list = []
+            
+            for category_obj in categories:
+                
+                temp_dict = {}
+                temp_dict['pk'] = category_obj.pk
+                temp_dict['name'] = category_obj.category
+                category_list.append(temp_dict)
+
+            response['category_list'] = category_list 
+
+            sub_categories = SapSubCategory.objects.all()
+            sub_category_list = []
+            
+            for sub_category_obj in sub_categories:
+                
+                temp_dict = {}
+                temp_dict['pk'] = sub_category_obj.pk
+                temp_dict['name'] = sub_category_obj.sub_category
+                sub_category_list.append(temp_dict)
+
+            response['sub_category_list'] = sub_category_list
 
             response['status'] = 200
 
@@ -59,86 +83,86 @@ class SearchCategoryListAPI(APIView):
 
         response = {}
         response['status'] = 500
+
         try:
+
             data = request.data
             logger.info("SearchCategoryListAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-
             super_category_list = []
+
             if "super_category" in data:
-                all_data_super_category = {}
-                all_data_super_category["pk"] = SapSuperCategory.objects.get(super_category=data["super_category"]).pk
-                all_data_super_category["name"] = data["super_category"]
+                temp_dict_super_category = {}
+                temp_dict_super_category["pk"] = SapSuperCategory.objects.get(super_category=data["super_category"]).pk
+                temp_dict_super_category["name"] = data["super_category"]
+
                 category_list = []
                 if "category" in data:
-                    all_data_category = {}
-                    all_data_category["pk"] = SapCategory.objects.get(category=data["category"]).pk
-                    all_data_category["name"] = data["category"]
+                    temp_dict_category = {}
+                    temp_dict_category["pk"] = SapCategory.objects.get(category=data["category"]).pk
+                    temp_dict_category["name"] = data["category"]
+                    
                     sub_category_list = []
                     if "sub_category" in data:
-                        all_data_sub_category = {}
-                        all_data_sub_category["pk"] = SapSubCategory.objects.get(sub_category=data["sub_category"]).pk
-                        all_data_sub_category["name"] = data["sub_category"] 
+                        temp_dict_sub_category = {}
+                        temp_dict_sub_category["pk"] = SapSubCategory.objects.get(sub_category=data["sub_category"]).pk
+                        temp_dict_sub_category["name"] = data["sub_category"] 
+                        
                         category_mapping_list = []
-                        if "category_mapping_pk" in data:
-                            all_data_category_mapping = get_category_mapping(data["category_mapping_pk"])
-                            category_mapping_list.append(all_data_category_mapping)               
-            
-                        else:
-                            category_mapping_objs = CategoryMapping.objects.get(sap_sub_category=data["sub_category"])
-                            
-                            for category_mapping_obj in category_mapping_objs:
-                                all_data_category_mapping = get_category_mapping(category_mapping_obj.pk)
-                                category_mapping_list.append(all_data_category_mapping)
-                        all_data_sub_category["category_mapping"] = category_mapping_list
-                        sub_category_list.append(all_data_sub_category)
+                        category_mapping_objs = CategoryMapping.objects.get(sap_sub_category=data["sub_category"])
+                        
+                        for category_mapping_obj in category_mapping_objs:
+                            temp_dict_category_mapping = get_category_mapping(category_mapping_obj.pk)
+                            category_mapping_list.append(temp_dict_category_mapping)
+                        temp_dict_sub_category["category_mapping"] = category_mapping_list
+                        sub_category_list.append(temp_dict_sub_category)
 
                     else:
                         sub_category_objs = SubCategory.objects.get(category=data["category"])
                         for sub_category_obj in sub_category_objs:
-                            all_data_sub_category = {}
-                            all_data_sub_category["pk"] = sub_category_obj.pk
-                            all_data_sub_category["name"] = sub_category_obj.sub_category
+                            temp_dict_sub_category = {}
+                            temp_dict_sub_category["pk"] = sub_category_obj.pk
+                            temp_dict_sub_category["name"] = sub_category_obj.sub_category
                             category_mapping_list = []
                             category_mapping_objs = CategoryMapping.objects.get(sap_sub_category=sub_category_obj.sap_sub_category)
                             for category_mapping_obj in category_mapping_objs:
-                                all_data_category_mapping = get_category_mapping(category_mapping_pbj.pk)
-                                category_mapping_list.append(all_data_category_mapping)
+                                temp_dict_category_mapping = get_category_mapping(category_mapping_pbj.pk)
+                                category_mapping_list.append(temp_dict_category_mapping)
 
-                            all_data_sub_category["category_mapping"] = category_mapping_list
-                            sub_category_list.append(all_data_sub_category)
+                            temp_dict_sub_category["category_mapping"] = category_mapping_list
+                            sub_category_list.append(temp_dict_sub_category)
 
-                    all_data_category["sub_category"] = sub_category_list
-                    category_list.append(all_data_category)
+                    temp_dict_category["sub_category"] = sub_category_list
+                    category_list.append(temp_dict_category)
                 else:
                     category_objs = Category.objects.get(super_category=data["super_category"])
                     for category_obj in category_objs:
-                        all_data_category = {}
-                        all_data_category["pk"] = category_obj.pk
-                        all_data_category["name"] = category_obj.category
+                        temp_dict_category = {}
+                        temp_dict_category["pk"] = category_obj.pk
+                        temp_dict_category["name"] = category_obj.category
                         sub_category_list = []
                         sub_category_objs = SubCategory.objects.get(category=category_obj.category)
                         for sub_category_obj in sub_category_objs:
-                            all_data_sub_category = {}
-                            all_data_sub_category["pk"] = sub_category_obj.pk
-                            all_data_sub_category["name"] = sub_category_obj.sub_category
+                            temp_dict_sub_category = {}
+                            temp_dict_sub_category["pk"] = sub_category_obj.pk
+                            temp_dict_sub_category["name"] = sub_category_obj.sub_category
                             category_mapping_list = []
                             category_mapping_objs = CategoryMapping.objects.get(sap_sub_category=sub_category_obj.sap_sub_category)
                             for category_mapping_obj in category_mapping_objs:
-                                all_data_category_mapping = get_category_mapping(category_mapping_pbj.pk)
-                                category_mapping_list.append(all_data_category_mapping)
+                                temp_dict_category_mapping = get_category_mapping(category_mapping_pbj.pk)
+                                category_mapping_list.append(temp_dict_category_mapping)
 
-                            all_data_sub_category["category_mapping"] = category_mapping_list
-                            sub_category_list.append(all_data_sub_category)
+                            temp_dict_sub_category["category_mapping"] = category_mapping_list
+                            sub_category_list.append(temp_dict_sub_category)
 
-                        all_data_category["sub_category"] = sub_category_list
-                        category_list.append(all_data_category)
+                        temp_dict_category["sub_category"] = sub_category_list
+                        category_list.append(temp_dict_category)
                     
-                    all_data_super_category["category"] = category_list
-                    super_category_list.append(all_data_super_category)       
+                    temp_dict_super_category["category"] = category_list
+                    super_category_list.append(temp_dict_super_category)       
 
             response['super_category'] = super_category_list
 
