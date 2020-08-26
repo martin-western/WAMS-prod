@@ -1,11 +1,6 @@
 company_code = "1000"
 customer_id = "40000195"
 product_id = "GAC9380"
-qty = 0
-qty_holding = 0
-uom = "EA"
-charg = "BS"
-
 IP = "192.168.77.48"
 
 test_url = "http://s4hdev:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
@@ -14,9 +9,7 @@ production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_pri
 def fetch_prices(product_id,company_code,url,customer_id):
     
     try:
-
-        # product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
-
+        
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
@@ -88,21 +81,21 @@ response = fetch_prices(product_id,company_code,test_url,customer_id)
 items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
 total_atp = 0.0
 total_holding = 0.0
+prices_stock_list = []
 
 if isinstance(items, dict):
+    temp_dict={}
+    temp_charg = items["CHARG"]
+    if temp_charg!=None:
+        temp_dict["charg"] = temp_charg
     temp_qty = items["ATP_QTY"]
     if temp_qty!=None:
-        temp_qty = float(temp_qty)
-        qty = max(temp_qty, qty)
+        temp_dict["atp_qty"] = float(temp_qty)
         total_atp = total_atp+temp_qty
     temp_qty = items["HQTY"]
     if temp_qty!=None:
-        temp_qty = float(temp_qty)
-        qty_holding = max(temp_qty, qty_holding)
+        temp_dict["qty_holding"] = float(temp_qty)
         total_holding = total_holding + temp_qty
-    temp_charg = items["CHARG"]
-    if temp_charg!=None:
-        charg = temp_charg
     temp_uom = items["MEINS"]
     if temp_uom!=None:
         uom = temp_uom        
