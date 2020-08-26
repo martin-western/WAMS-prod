@@ -211,6 +211,11 @@ class DealsHubProduct(models.Model):
             pass
         return dimensions_string
 
+    def get_faqs(self):
+        return json.loads(self.product.faqs)
+
+    def get_how_to_use(self):
+        return json.loads(self.product.how_to_use)
 
     def get_actual_price(self):
         if self.promotion==None:

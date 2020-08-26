@@ -83,6 +83,8 @@ class FetchProductDetailsAPI(APIView):
             response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
             response["material"] = dealshub_product_obj.get_material()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
+            response["faqs"] = dealshub_product_obj.get_faqs()
+            response["how_to_use"] = dealshub_product_obj.get_how_to_use()
 
 
             response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
