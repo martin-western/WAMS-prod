@@ -236,5 +236,16 @@ MWS_PARAMS = {
     "MWS_ACCESS_KEY" : 'AKIAI7PSOABCBAJGX36Q', #replace with your access key
     "SELLER_ID" : 'A3DNFJ8JVFH39T', #replace with your seller id
     "MWS_SECRET_KEY" : '9un2k+5Q4eCFI4SRDjNyLhjTAHXrsFkZe0mWIRop', #replace with your secret key
+}
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/home/nisarg/Desktop/WAMS/django_cache',
+        'TIMEOUT': 1500,
+        'OPTIONS': {
+            'MAX_ENTRIES': 50
+        }
+    }
 }

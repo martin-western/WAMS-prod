@@ -2576,7 +2576,7 @@ class AddReviewAPI(APIView):
             logger.info("AddReviewAPI: %s", str(data))
             product_code = str(data["product_code"])
             rating = int(data["rating"])
-            review_content = data["review_content"]
+            review_content = json.loads(data["review_content"])
 
             subject = str(review_content["subject"])
             content = str(review_content["content"])
@@ -2896,7 +2896,11 @@ class FetchProductReviewsAPI(APIView):
                     image_objs = review_content_obj.images.all()
                     image_url_list = []
                     for image_obj in image_objs:
-                        image_url_list.append(image_obj.mid_image.url)
+                        try:
+                            image_url_list.append(image_obj.mid_image.url)
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     review_content = {
                         "subject" : str(review_content_obj.subject),
                         "content" : str(review_content_obj.content),
@@ -2913,7 +2917,7 @@ class FetchProductReviewsAPI(APIView):
 
             average_rating = 0
             if total_reviews != 0:
-                average_rating = float(total_rating)/float(total_reviews)
+                average_rating = round(float(total_rating)/float(total_reviews), 2)
 
             is_user_reviewed = False
             is_product_purchased = True
@@ -2928,10 +2932,23 @@ class FetchProductReviewsAPI(APIView):
                     review_content = None
                     review_content_obj = review_obj.content
                     if review_content_obj is not None:
+                        image_objs = review_content_obj.images.all()
+                        image_url_list = []
+                        for image_obj in image_objs:
+                            try:
+                                temp_dict = {
+                                    "uuid": image_obj.pk, 
+                                    "url": image_obj.mid_image.url
+                                }
+                                image_url_list.append(temp_dict)
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         review_content = {
                             "subject" : str(review_content_obj.subject),
                             "content" : str(review_content_obj.content),
-                            "upvotes_count" : str(review_content_obj.upvoted_users.count())
+                            "upvotes_count" : str(review_content_obj.upvoted_users.count()),
+                            "image_url_list": image_url_list
                         }
                     response["user_rating"] = str(review_obj.rating)
                     response["user_review_content"] = review_content
@@ -2946,6 +2963,36 @@ class FetchProductReviewsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteUserReviewImageAPI(APIView):
+    
+    def post(self, request, *arg, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteUserReviewImageAPI: %s", str(data))
+            
+            image_uuid = int(data["image_uuid"])
+            user_review_uuid = data["user_review_uuid"]
+
+            review_obj = Review.objects.get(uuid=user_review_uuid)
+            if review_obj.dealshub_user.username==request.user.username:
+                review_content_obj = review_obj.content
+                image_obj = Image.objects.get(pk=image_uuid)
+                review_content_obj.images.remove(image_obj)
+                review_content_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteUserReviewImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4090,6 +4137,8 @@ DeleteUpvote = DeleteUpvoteAPI.as_view()
 FetchReview = FetchReviewAPI.as_view()
 
 FetchProductReviews = FetchProductReviewsAPI.as_view()
+
+DeleteUserReviewImage = DeleteUserReviewImageAPI.as_view()
 
 DeleteUserReview = DeleteUserReviewAPI.as_view()
 
