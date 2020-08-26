@@ -2928,10 +2928,15 @@ class FetchProductReviewsAPI(APIView):
                     review_content = None
                     review_content_obj = review_obj.content
                     if review_content_obj is not None:
+                        image_objs = review_content_obj.images.all()
+                        image_url_list = []
+                        for image_obj in image_objs:
+                            image_url_list.append(image_obj.mid_image.url)
                         review_content = {
                             "subject" : str(review_content_obj.subject),
                             "content" : str(review_content_obj.content),
-                            "upvotes_count" : str(review_content_obj.upvoted_users.count())
+                            "upvotes_count" : str(review_content_obj.upvoted_users.count()),
+                            "image_url_list": image_url_list
                         }
                     response["user_rating"] = str(review_obj.rating)
                     response["user_review_content"] = review_content
