@@ -2483,7 +2483,9 @@ class FetchPostaPlusDetailsAPI(APIView):
 
             postaplus_info = json.loads(order_obj.location_group.postaplus_info)
             consignee_from_address = postaplus_info["consignee_from_address"]+"\n"+postaplus_info["consignee_from_mobile"]
+            consignee_from_address = consignee_from_address.replace("\n", "<br/>")
             consignee_to_address = order_obj.shipping_address.get_shipping_address()
+            consignee_to_address = consignee_to_address.replace("\n", "<br/>")
 
             total_pieces = 0
             description = ""
