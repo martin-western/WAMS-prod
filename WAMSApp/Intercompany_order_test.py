@@ -1,7 +1,14 @@
+import requests
+import xmltodict
+import json
+import uuid
+
 company_code = "1000"
 customer_id = "40000195"
 product_id = "GAC9380"
 IP = "192.168.77.48"
+headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
 test_url = "http://s4hdev:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
 production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
@@ -9,7 +16,7 @@ production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_pri
 def fetch_prices(product_id,company_code,url,customer_id):
     
     try:
-        
+
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
@@ -62,6 +69,7 @@ def fetch_prices(product_id,company_code,url,customer_id):
         import requests
         import xmltodict
         import json
+
         response2 = requests.post(url, auth=credentials, data=body, headers=headers)
         content = response2.content
         content = xmltodict.parse(content)
@@ -71,7 +79,6 @@ def fetch_prices(product_id,company_code,url,customer_id):
 
     except Exception as e:
         print("Fetch Prices: ", e)
-        
         return []
 
 
@@ -79,6 +86,8 @@ response = fetch_prices(product_id,company_code,test_url,customer_id)
 # print(response)
 
 items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+uom = "EA"
+charg = "BS"
 total_atp = 0.0
 total_holding = 0.0
 prices_stock_list = []
@@ -88,6 +97,9 @@ if isinstance(items, dict):
     temp_charg = items["CHARG"]
     if temp_charg!=None:
         temp_dict["charg"] = temp_charg
+    temp_uom = items["MEINS"]
+    if temp_uom!=None:
+        temp_dict["uom"] = temp_uom      
     temp_qty = items["ATP_QTY"]
     if temp_qty!=None:
         temp_dict["atp_qty"] = float(temp_qty)
@@ -96,41 +108,44 @@ if isinstance(items, dict):
     if temp_qty!=None:
         temp_dict["qty_holding"] = float(temp_qty)
         total_holding = total_holding + temp_qty
-    temp_uom = items["MEINS"]
-    if temp_uom!=None:
-        uom = temp_uom        
+    prices_stock_list.append(temp_dict)
 else:
     for item in items:
-        temp_qty = item["ATP_QTY"]
-        if temp_qty!=None:
-            temp_qty = float(temp_qty)
-            qty = max(temp_qty, qty)
-            total_atp = total_atp+temp_qty
-        temp_qty = item["HQTY"]
-        if temp_qty!=None:
-            temp_qty = float(temp_qty)
-            qty_holding = max(temp_qty, qty_holding)
-            total_holding = total_holding + temp_qty
-        temp_charg = item["CHARG"]
+        temp_dict={}
+        temp_charg = items["CHARG"]
         if temp_charg!=None:
-            charg = temp_charg
-        temp_uom = item["MEINS"]
+            temp_dict["charg"] = temp_charg
+        temp_uom = items["MEINS"]
         if temp_uom!=None:
-            uom = temp_uom
+            temp_dict["uom"] = temp_uom      
+        temp_qty = items["ATP_QTY"]
+        if temp_qty!=None:
+            temp_dict["atp_qty"] = float(temp_qty)
+            total_atp = total_atp+temp_qty
+        temp_qty = items["HQTY"]
+        if temp_qty!=None:
+            temp_dict["qty_holding"] = float(temp_qty)
+            total_holding = total_holding + temp_qty
+        prices_stock_list.append(temp_dict)
 
 print("Before : ")
 print("Total ATP :  ",total_atp)
 print("Total Holding :  ",total_holding)
-print(charg)
-print(uom)
 print()
-print()
-print()
+for item in prices_stock_list:
+    print(item["charg"])
+    print(item["uom"])
+    print(item["atp_qty"])
+    print(item["qty_holding"])
+    print()
 
-qty_holding = 5.0
+##################################
 
-headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+###### Transfer to Holding ######
+
+##################################
+
+qty_holding = 10.0
 
 body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
             <soapenv:Header/>
@@ -256,18 +271,81 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
             </soapenv:Envelope>"""
 
 holding_url = "http://s4hdev:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
-credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-
-import requests
-import xmltodict
-import json
 
 response_holding = requests.post(url=holding_url, auth=credentials, data=body, headers=headers)
 content = response_holding.content
 content = xmltodict.parse(content)
 content = json.loads(json.dumps(content))
 
-import uuid 
+
+#################################
+
+###### After Holding ############
+
+################################
+
+response = fetch_prices(product_id,company_code,test_url,customer_id)
+        
+items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+uom = "EA"
+charg = "BS"
+total_atp = 0.0
+total_holding = 0.0
+prices_stock_list = []
+
+if isinstance(items, dict):
+    temp_dict={}
+    temp_charg = items["CHARG"]
+    if temp_charg!=None:
+        temp_dict["charg"] = temp_charg
+    temp_uom = items["MEINS"]
+    if temp_uom!=None:
+        temp_dict["uom"] = temp_uom      
+    temp_qty = items["ATP_QTY"]
+    if temp_qty!=None:
+        temp_dict["atp_qty"] = float(temp_qty)
+        total_atp = total_atp+temp_qty
+    temp_qty = items["HQTY"]
+    if temp_qty!=None:
+        temp_dict["qty_holding"] = float(temp_qty)
+        total_holding = total_holding + temp_qty
+    prices_stock_list.append(temp_dict)
+else:
+    for item in items:
+        temp_dict={}
+        temp_charg = items["CHARG"]
+        if temp_charg!=None:
+            temp_dict["charg"] = temp_charg
+        temp_uom = items["MEINS"]
+        if temp_uom!=None:
+            temp_dict["uom"] = temp_uom      
+        temp_qty = items["ATP_QTY"]
+        if temp_qty!=None:
+            temp_dict["atp_qty"] = float(temp_qty)
+            total_atp = total_atp+temp_qty
+        temp_qty = items["HQTY"]
+        if temp_qty!=None:
+            temp_dict["qty_holding"] = float(temp_qty)
+            total_holding = total_holding + temp_qty
+        prices_stock_list.append(temp_dict)
+
+print("After Holding : ")
+print("Total ATP :  ",total_atp)
+print("Total Holding :  ",total_holding)
+print()
+for item in prices_stock_list:
+    print(item["charg"])
+    print(item["uom"])
+    print(item["atp_qty"])
+    print(item["qty_holding"])
+    print()
+
+
+####################################
+
+####### Intercompany Order ########
+
+###################################
 
 order_qty = 1.0
 uid = str(uuid4.uuid())
@@ -379,54 +457,3 @@ content = json.loads(json.dumps(content))
 
 print(content)
 
-response = fetch_prices(product_id,company_code,test_url,customer_id)
-        
-items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-
-total_atp = 0.0
-total_holding = 0.0
-
-if isinstance(items, dict):
-    temp_qty = items["ATP_QTY"]
-    if temp_qty!=None:
-        temp_qty = float(temp_qty)
-        qty = max(temp_qty, qty)
-        total_atp = total_atp+temp_qty
-    temp_qty = items["HQTY"]
-    if temp_qty!=None:
-        temp_qty = float(temp_qty)
-        qty_holding = max(temp_qty, qty_holding)
-        total_holding = total_holding + temp_qty
-    temp_charg = items["CHARG"]
-    if temp_charg!=None:
-        charg = temp_charg
-    temp_uom = items["MEINS"]
-    if temp_uom!=None:
-        uom = temp_uom        
-else:
-    for item in items:
-        temp_qty = item["ATP_QTY"]
-        if temp_qty!=None:
-            temp_qty = float(temp_qty)
-            qty = max(temp_qty, qty)
-            total_atp = total_atp+temp_qty
-        temp_qty = item["HQTY"]
-        if temp_qty!=None:
-            temp_qty = float(temp_qty)
-            qty_holding = max(temp_qty, qty_holding)
-            total_holding = total_holding + temp_qty
-        temp_charg = item["CHARG"]
-        if temp_charg!=None:
-            charg = temp_charg
-        temp_uom = item["MEINS"]
-        if temp_uom!=None:
-            uom = temp_uom
-
-print("Before : ")
-print("Total ATP :  ",total_atp)
-print("Total Holding :  ",total_holding)
-print(charg)
-print(uom)
-print()
-print()
-print()
