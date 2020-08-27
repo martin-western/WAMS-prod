@@ -56,11 +56,13 @@ class FetchCategoryListAPI(APIView):
                         temp_dict_sub_category['name'] = sub_category.sub_category
                         
                         category_mapping = CategoryMapping.objects.get(sap_sub_category=sub_category)
+                        
                         temp_dict_category_mapping = {}
                         temp_dict_category_mapping['pk'] = category_mapping.pk
                         temp_dict_category_mapping['atp_thresold'] = category_mapping.atp_threshold
                         temp_dict_category_mapping['holding_thresold'] = category_mapping.holding_threshold
                         temp_dict_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
+                        
                         temp_dict_sub_category['category_mapping'] = temp_dict_category_mapping
                         
                         sub_category_list.append(temp_dict_sub_category)
@@ -187,14 +189,22 @@ class UpdateCategoryMappingAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             data = request.data
             logger.info("UpdateCategoryListAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            pk = data["pk"]
+            pk = int(data.get("pk",0).strip())
+
+            if pk == 0:
+                response['status'] = 404
+                logger.error("UpdateCategoryMappingAPI PK of CategoryMapping not Passed")
+                return Response(data=response)
+
             category_mapping_obj = CategoryMapping.objects.get(pk=pk)
 
             if "atp_thresold" in data:
@@ -204,7 +214,7 @@ class UpdateCategoryMappingAPI(APIView):
                 holding_thresold = float(data["holding_thresold"])
                 category_mapping_obj.holding_threshold = holding_thresold
             if "recommended_browse_node" in data:
-                recommended_browse_node = float(data["recommended_browse_node"])
+                recommended_browse_node = str(data["recommended_browse_node"])
                 category_mapping_obj.recommended_browse_node = recommended_browse_node
 
             category_mapping_obj.save()
@@ -215,7 +225,6 @@ class UpdateCategoryMappingAPI(APIView):
             logger.error("UpdateCategoryMappingAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
 
 UpdateCategoryMapping = UpdateCategoryMappingAPI.as_view()
 
