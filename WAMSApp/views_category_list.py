@@ -34,20 +34,20 @@ class FetchCategoryListAPI(APIView):
 
             super_categories = SapSuperCategory.objects.all()
             super_category_list = []
-            
+
             for super_category in super_categories:
                 
                 temp_dict = {}
                 temp_dict['pk'] = super_category.pk
                 temp_dict['name'] = super_category.super_category
-                categories = SapCategory.objects.get(super_category=super_category)
+                categories = SapCategory.objects.filter(super_category=super_category)
                 
                 category_list = []
                 for category in categories:
                     temp_dict_category = {}
                     temp_dict_category['pk'] = category.pk
                     temp_dict_category['name'] = category.category
-                    sub_categories = SapSubCategory.objects.get(category=category)
+                    sub_categories = SapSubCategory.objects.filter(category=category)
                     
                     sub_category_list = []
                     for sub_category in sub_categories:
