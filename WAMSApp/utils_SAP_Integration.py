@@ -62,54 +62,132 @@ def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
         logger.error("xml_generator_for_price_and_stock_SAP: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
+def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id)
 
     try :
 
-        xml_feed = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                    <soapenv:Header />
-                    <soapenv:Body>
-                    <urn:ZAPP_STOCK_PRICE>
-                    <IM_KUNNR>"""+ customer_id +"""</IM_KUNNR>
-                    <IM_MATNR>
-                    <item>
-                     <MATNR>""" + seller_sku + """</MATNR>
-                    </item>
-                    </IM_MATNR>
-                    <IM_VKORG>
-                    <item>
-                     <VKORG>""" + company_code + """</VKORG>
-                    </item>
-                    </IM_VKORG>
-                    <T_DATA>
-                    <item>
-                     <MATNR></MATNR>
-                     <MAKTX></MAKTX>
-                     <LGORT></LGORT>
-                     <CHARG></CHARG>
-                     <SPART></SPART>
-                     <MEINS></MEINS>
-                     <ATP_QTY></ATP_QTY>
-                     <TOT_QTY></TOT_QTY>
-                     <CURRENCY></CURRENCY>
-                     <IC_EA></IC_EA>
-                     <OD_EA></OD_EA>
-                     <EX_EA></EX_EA>
-                     <RET_EA></RET_EA>
-                     <WERKS></WERKS>
-                     <WERKS></WERKS>
-                     <WWGHA1></WWGHA1>
-                     <WWGHB1></WWGHB1>
-                     <WWGHA2></WWGHA2>
-                     <WWGHB2></WWGHB2>
-                     <WWGHA3></WWGHA3>
-                     <WWGHB3></WWGHB3>
-                     <HQTY></HQTY>
-                    </item>
-                    </T_DATA>
-                    </urn:ZAPP_STOCK_PRICE>
-                    </soapenv:Body>
-                    </soapenv:Envelope>"""
+        xml_feed = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+            <soapenv:Header/>
+            <soapenv:Body>
+            <urn:ZAPP_HOLDING_SO>
+             <IM_AUART/>
+             <IM_DATE/>
+             <IM_EXTRA/>
+             <IM_FLAG/>
+             <IM_ID/>
+             <IM_KUNNR>"""+ customer_id + """</IM_KUNNR>
+             <IM_PERNR/>
+             <IM_PO_NUMBER/>
+             <IM_SPART/>
+             <IM_VKORG>""" + company_code +"""</IM_VKORG>
+             <IM_VTWEG/>
+             <T_ITEM>
+              <item>
+               <MATKL></MATKL>
+               <MATNR>"""+ product_id + """</MATNR>
+               <ITEM></ITEM>
+               <MAKTX></MAKTX>
+               <QTY>"""+ str(qty_holding) + """</QTY>
+               <UOM>"""+ uom + """</UOM>
+               <PRICE></PRICE>
+               <INDPRICE></INDPRICE>
+               <DISC></DISC>
+               <INDDISC></INDDISC>
+               <CHARG>ESMA</CHARG>
+               <MO_PRICE></MO_PRICE>
+               <NO_STOCK_IND></NO_STOCK_IND>
+               <NO_STOCK_FOC></NO_STOCK_FOC>
+               <FOC_ITEM></FOC_ITEM>
+               <FOC_QTY></FOC_QTY>
+               <FOC_UOM></FOC_UOM>
+               <FOC_CHARG></FOC_CHARG>
+               <PRC_DIFF_IND></PRC_DIFF_IND>
+               <PRC_DIFF_NEW></PRC_DIFF_NEW>
+               <SPCL_TEXT></SPCL_TEXT>
+               <FOC_STD></FOC_STD>
+               <FOC_ART></FOC_ART>
+               <FOC_MCL></FOC_MCL>
+               <INDICATOR1></INDICATOR1>
+               <INDICATOR2></INDICATOR2>
+               <TEXT1></TEXT1>
+               <TEXT2></TEXT2>
+               <CHARG_LIST></CHARG_LIST>
+               <PRICE_CHANGE></PRICE_CHANGE>
+               <FRM_ATP></FRM_ATP>
+              </item>
+              <item>
+               <MATKL></MATKL>
+               <MATNR>"""+ product_id + """</MATNR>
+               <ITEM></ITEM>
+               <MAKTX></MAKTX>
+               <QTY>"""+ str(qty_holding) + """</QTY>
+               <UOM>"""+ uom + """</UOM>
+               <PRICE></PRICE>
+               <INDPRICE></INDPRICE>
+               <DISC></DISC>
+               <INDDISC></INDDISC>
+               <CHARG>BS</CHARG>
+               <MO_PRICE></MO_PRICE>
+               <NO_STOCK_IND></NO_STOCK_IND>
+               <NO_STOCK_FOC></NO_STOCK_FOC>
+               <FOC_ITEM></FOC_ITEM>
+               <FOC_QTY></FOC_QTY>
+               <FOC_UOM></FOC_UOM>
+               <FOC_CHARG></FOC_CHARG>
+               <PRC_DIFF_IND></PRC_DIFF_IND>
+               <PRC_DIFF_NEW></PRC_DIFF_NEW>
+               <SPCL_TEXT></SPCL_TEXT>
+               <FOC_STD></FOC_STD>
+               <FOC_ART></FOC_ART>
+               <FOC_MCL></FOC_MCL>
+               <INDICATOR1></INDICATOR1>
+               <INDICATOR2></INDICATOR2>
+               <TEXT1></TEXT1>
+               <TEXT2></TEXT2>
+               <CHARG_LIST></CHARG_LIST>
+               <PRICE_CHANGE></PRICE_CHANGE>
+               <FRM_ATP></FRM_ATP>
+              </item>
+             </T_ITEM>
+             <T_MESSAGE>
+              <item>
+               <VBELN></VBELN>
+               <TYPE></TYPE>
+               <ID></ID>
+               <NUMBER></NUMBER>
+               <MESSAGE></MESSAGE>
+               <LOG_NO></LOG_NO>
+               <LOG_MSG_NO></LOG_MSG_NO>
+               <MESSAGE_V1></MESSAGE_V1>
+               <MESSAGE_V2></MESSAGE_V2>
+               <MESSAGE_V3></MESSAGE_V3>
+               <MESSAGE_V4></MESSAGE_V4>
+               <PARAMETER></PARAMETER>
+               <ROW></ROW>
+               <FIELD></FIELD>
+               <SYSTEM></SYSTEM>
+              </item>
+              <item>
+               <VBELN></VBELN>
+               <TYPE></TYPE>
+               <ID></ID>
+               <NUMBER></NUMBER>
+               <MESSAGE></MESSAGE>
+               <LOG_NO></LOG_NO>
+               <LOG_MSG_NO></LOG_MSG_NO>
+               <MESSAGE_V1></MESSAGE_V1>
+               <MESSAGE_V2></MESSAGE_V2>
+               <MESSAGE_V3></MESSAGE_V3>
+               <MESSAGE_V4></MESSAGE_V4>
+               <PARAMETER></PARAMETER>
+               <ROW></ROW>
+               <FIELD></FIELD>
+               <SYSTEM></SYSTEM>
+              </item>
+             </T_MESSAGE>
+            </urn:ZAPP_HOLDING_SO>
+            </soapenv:Body>
+            </soapenv:Envelope>"""
 
         return xml_feed
 
