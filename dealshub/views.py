@@ -180,7 +180,7 @@ class FetchProductDetailsAPI(APIView):
             category_obj = dealshub_product_obj.category
             brand_obj = dealshub_product_obj.product.base_product.brand
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, category=category_obj, product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, category=category_obj, product__base_product__brand__in=dealshub_product_obj.location_group.website_group.brands.all(), product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
             similar_category_products = get_recommended_products(dealshub_product_objs)
 
             dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand=brand_obj, product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
