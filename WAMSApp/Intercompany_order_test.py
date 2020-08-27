@@ -113,12 +113,12 @@ else:
         prices_stock_list.append(temp_dict)
 
 print("Before : ")
-print("Total ATP :  ",total_atp)
-print("Total Holding :  ",total_holding)
-print()
 print("Batch"+'\t'+"UOM"+'\t'+"ATP"+'\t'+"Holding")
 for item in prices_stock_list:
-    print(item["charg"]+'\t'+item["uom"]+'\t'+item["atp_qty"]+'\t'+item["qty_holding"])
+    if item["charg"] != None:
+        print(str(item["charg"])+'\t'+str(item["uom"])+'\t'+str(item["atp_qty"])+'\t'+str(item["qty_holding"]))
+print("Total"+'\t'+'\t'+str(total_atp)+'\t'+str(total_holding))
+print()
 
 ##################################
 
