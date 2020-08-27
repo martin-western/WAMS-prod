@@ -62,7 +62,7 @@ def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
         logger.error("xml_generator_for_price_and_stock_SAP: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id)
+def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information)
 
     try :
 
@@ -81,76 +81,45 @@ def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id)
              <IM_SPART/>
              <IM_VKORG>""" + company_code +"""</IM_VKORG>
              <IM_VTWEG/>
-             <T_ITEM>
-              <item>
-               <MATKL></MATKL>
-               <MATNR>"""+ product_id + """</MATNR>
-               <ITEM></ITEM>
-               <MAKTX></MAKTX>
-               <QTY>"""+ str(qty_holding) + """</QTY>
-               <UOM>"""+ uom + """</UOM>
-               <PRICE></PRICE>
-               <INDPRICE></INDPRICE>
-               <DISC></DISC>
-               <INDDISC></INDDISC>
-               <CHARG>ESMA</CHARG>
-               <MO_PRICE></MO_PRICE>
-               <NO_STOCK_IND></NO_STOCK_IND>
-               <NO_STOCK_FOC></NO_STOCK_FOC>
-               <FOC_ITEM></FOC_ITEM>
-               <FOC_QTY></FOC_QTY>
-               <FOC_UOM></FOC_UOM>
-               <FOC_CHARG></FOC_CHARG>
-               <PRC_DIFF_IND></PRC_DIFF_IND>
-               <PRC_DIFF_NEW></PRC_DIFF_NEW>
-               <SPCL_TEXT></SPCL_TEXT>
-               <FOC_STD></FOC_STD>
-               <FOC_ART></FOC_ART>
-               <FOC_MCL></FOC_MCL>
-               <INDICATOR1></INDICATOR1>
-               <INDICATOR2></INDICATOR2>
-               <TEXT1></TEXT1>
-               <TEXT2></TEXT2>
-               <CHARG_LIST></CHARG_LIST>
-               <PRICE_CHANGE></PRICE_CHANGE>
-               <FRM_ATP></FRM_ATP>
-              </item>
-              <item>
-               <MATKL></MATKL>
-               <MATNR>"""+ product_id + """</MATNR>
-               <ITEM></ITEM>
-               <MAKTX></MAKTX>
-               <QTY>"""+ str(qty_holding) + """</QTY>
-               <UOM>"""+ uom + """</UOM>
-               <PRICE></PRICE>
-               <INDPRICE></INDPRICE>
-               <DISC></DISC>
-               <INDDISC></INDDISC>
-               <CHARG>BS</CHARG>
-               <MO_PRICE></MO_PRICE>
-               <NO_STOCK_IND></NO_STOCK_IND>
-               <NO_STOCK_FOC></NO_STOCK_FOC>
-               <FOC_ITEM></FOC_ITEM>
-               <FOC_QTY></FOC_QTY>
-               <FOC_UOM></FOC_UOM>
-               <FOC_CHARG></FOC_CHARG>
-               <PRC_DIFF_IND></PRC_DIFF_IND>
-               <PRC_DIFF_NEW></PRC_DIFF_NEW>
-               <SPCL_TEXT></SPCL_TEXT>
-               <FOC_STD></FOC_STD>
-               <FOC_ART></FOC_ART>
-               <FOC_MCL></FOC_MCL>
-               <INDICATOR1></INDICATOR1>
-               <INDICATOR2></INDICATOR2>
-               <TEXT1></TEXT1>
-               <TEXT2></TEXT2>
-               <CHARG_LIST></CHARG_LIST>
-               <PRICE_CHANGE></PRICE_CHANGE>
-               <FRM_ATP></FRM_ATP>
-              </item>
-             </T_ITEM>
-             <T_MESSAGE>
-              <item>
+             <T_ITEM>"""
+
+        msg_feed="<T_MESSAGE>"
+        for item in transfer_information:
+            xml_feed+="""
+                  <item>
+                   <MATKL></MATKL>
+                   <MATNR>"""+ seller_sku + """</MATNR>
+                   <ITEM></ITEM>
+                   <MAKTX></MAKTX>
+                   <QTY>"""+ str(item["qty"]) + """</QTY>
+                   <UOM>"""+ str(item["uom"]) + """</UOM>
+                   <PRICE></PRICE>
+                   <INDPRICE></INDPRICE>
+                   <DISC></DISC>
+                   <INDDISC></INDDISC>
+                   <CHARG>"""+ str(item["batch"]) + """</CHARG>
+                   <MO_PRICE></MO_PRICE>
+                   <NO_STOCK_IND></NO_STOCK_IND>
+                   <NO_STOCK_FOC></NO_STOCK_FOC>
+                   <FOC_ITEM></FOC_ITEM>
+                   <FOC_QTY></FOC_QTY>
+                   <FOC_UOM></FOC_UOM>
+                   <FOC_CHARG></FOC_CHARG>
+                   <PRC_DIFF_IND></PRC_DIFF_IND>
+                   <PRC_DIFF_NEW></PRC_DIFF_NEW>
+                   <SPCL_TEXT></SPCL_TEXT>
+                   <FOC_STD></FOC_STD>
+                   <FOC_ART></FOC_ART>
+                   <FOC_MCL></FOC_MCL>
+                   <INDICATOR1></INDICATOR1>
+                   <INDICATOR2></INDICATOR2>
+                   <TEXT1></TEXT1>
+                   <TEXT2></TEXT2>
+                   <CHARG_LIST></CHARG_LIST>
+                   <PRICE_CHANGE></PRICE_CHANGE>
+                   <FRM_ATP></FRM_ATP>
+                  </item>"""
+            msg_feed+="""<item>
                <VBELN></VBELN>
                <TYPE></TYPE>
                <ID></ID>
@@ -183,18 +152,21 @@ def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id)
                <ROW></ROW>
                <FIELD></FIELD>
                <SYSTEM></SYSTEM>
-              </item>
-             </T_MESSAGE>
-            </urn:ZAPP_HOLDING_SO>
-            </soapenv:Body>
-            </soapenv:Envelope>"""
+              </item>"""
+              
+        xml_feed+="</T_ITEM>"
+        msg_feed+="</T_MESSAGE>"
+
+        xml_feed+=msg_feed+"""</urn:ZAPP_HOLDING_SO>
+                                </soapenv:Body>
+                                </soapenv:Envelope>"""
 
         return xml_feed
 
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("xml_generator_for_price_and_stock_SAP: %s at %s", str(e), str(exc_tb.tb_lineno))
+        logger.error("xml_generator_for_holding_tansfer: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
 def fetch_prices_and_stock(seller_sku,company_code,url,customer_id):
