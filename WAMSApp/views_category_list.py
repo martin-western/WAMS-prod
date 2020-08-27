@@ -54,18 +54,15 @@ class FetchCategoryListAPI(APIView):
                         temp_dict_sub_category = {}
                         temp_dict_sub_category['pk'] = sub_category.pk
                         temp_dict_sub_category['name'] = sub_category.sub_category
-                        category_mappings = CategoryMapping.objects.get(sap_sub_category=sub_category)
                         
-                        category_mapping_list = []
-                        for category_mapping in category_mappings:
-                            temp_dict_category_mapping = {}
-                            temp_dict_category_mapping['pk'] = category_mapping.pk
-                            temp_dict_category_mapping['atp_thresold'] = category_mapping.atp_thresold
-                            temp_dict_category_mapping['holding_thresold'] = category_mapping.holding_thresold
-                            temp_dict_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
-                            category_mapping_list.append(temp_dict_category_mapping)
+                        category_mapping = CategoryMapping.objects.get(sap_sub_category=sub_category)
+                        temp_dict_category_mapping = {}
+                        temp_dict_category_mapping['pk'] = category_mapping.pk
+                        temp_dict_category_mapping['atp_thresold'] = category_mapping.atp_thresold
+                        temp_dict_category_mapping['holding_thresold'] = category_mapping.holding_thresold
+                        temp_dict_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
+                        temp_dict_category['category_mapping'] = category_mapping
                         
-                        temp_dict_category['category_mapping'] = category_mapping_list
                         sub_category_list.append(temp_dict_sub_category)
                     
                     temp_dict_category['sub_category'] = sub_category_list
