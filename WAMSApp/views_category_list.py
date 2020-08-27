@@ -61,7 +61,7 @@ class FetchCategoryListAPI(APIView):
                         temp_dict_category_mapping['atp_thresold'] = category_mapping.atp_threshold
                         temp_dict_category_mapping['holding_thresold'] = category_mapping.holding_threshold
                         temp_dict_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
-                        temp_dict_category['category_mapping'] = category_mapping
+                        temp_dict_category['category_mapping'] = temp_dict_category_mapping
                         
                         sub_category_list.append(temp_dict_sub_category)
                     
