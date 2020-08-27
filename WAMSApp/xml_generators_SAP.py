@@ -1,7 +1,4 @@
-from WAMSApp.models import *
-import requests
-import xmltodict
-import json
+import sys
 
 logger = logging.getLogger(__name__)
 
