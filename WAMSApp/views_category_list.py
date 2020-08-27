@@ -35,38 +35,46 @@ class FetchCategoryListAPI(APIView):
             super_categories = SapSuperCategory.objects.all()
             super_category_list = []
             
-            for super_category_obj in super_categories:
+            for super_category in super_categories:
                 
                 temp_dict = {}
-                temp_dict['pk'] = super_category_obj.pk
-                temp_dict['name'] = super_category_obj.super_category
+                temp_dict['pk'] = super_category.pk
+                temp_dict['name'] = super_category.super_category
+                categories = SapCategory.objects.get(super_category=super_category)
+                
+                category_list = []
+                for category in categories:
+                    temp_dict_category = {}
+                    temp_dict_category['pk'] = category.pk
+                    temp_dict_category['name'] = category.category
+                    sub_categories = SapSubCategory.objects.get(category=category)
+                    
+                    sub_category_list = []
+                    for sub_category in sub_categories:
+                        temp_dict_sub_category = {}
+                        temp_dict_sub_category['pk'] = sub_category.pk
+                        temp_dict_sub_category['name'] = sub_category.sub_category
+                        category_mappings = CategoryMapping.objects.get(sap_sub_category=sub_category)
+                        
+                        category_mapping_list = []
+                        for category_mapping in category_mappings:
+                            temp_dict_category_mapping = {}
+                            temp_dict_category_mapping['pk'] = category_mapping.pk
+                            temp_dict_category_mapping['atp_thresold'] = category_mapping.atp_thresold
+                            temp_dict_category_mapping['holding_thresold'] = category_mapping.holding_thresold
+                            temp_dict_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
+                            category_mapping_list.append(temp_dict_category_mapping)
+                        
+                        temp_dict_category['category_mapping'] = category_mapping_list
+                        sub_category_list.append(temp_dict_sub_category)
+                    
+                    temp_dict_category['sub_category'] = sub_category_list
+                    category_list.append(temp_dict_category)
+                
+                temp_dict['category'] = category_list
                 super_category_list.append(temp_dict)
 
-            response['super_category_list'] = super_category_list 
-
-            categories = SapCategory.objects.all()
-            category_list = []
-            
-            for category_obj in categories:
-                
-                temp_dict = {}
-                temp_dict['pk'] = category_obj.pk
-                temp_dict['name'] = category_obj.category
-                category_list.append(temp_dict)
-
-            response['category_list'] = category_list 
-
-            sub_categories = SapSubCategory.objects.all()
-            sub_category_list = []
-            
-            for sub_category_obj in sub_categories:
-                
-                temp_dict = {}
-                temp_dict['pk'] = sub_category_obj.pk
-                temp_dict['name'] = sub_category_obj.sub_category
-                sub_category_list.append(temp_dict)
-
-            response['sub_category_list'] = sub_category_list
+            response['super_category_list'] = super_category_list
 
             response['status'] = 200
 
@@ -119,7 +127,7 @@ class SearchCategoryListAPI(APIView):
                             category_mapping_list.append(temp_dict_category_mapping)
                         temp_dict_sub_category["category_mapping"] = category_mapping_list
                         sub_category_list.append(temp_dict_sub_category)
-
+                        
                     else:
                         sub_category_objs = SubCategory.objects.get(category=data["category"])
                         for sub_category_obj in sub_category_objs:
