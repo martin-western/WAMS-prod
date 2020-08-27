@@ -58,8 +58,8 @@ class FetchCategoryListAPI(APIView):
                         category_mapping = CategoryMapping.objects.get(sap_sub_category=sub_category)
                         temp_dict_category_mapping = {}
                         temp_dict_category_mapping['pk'] = category_mapping.pk
-                        temp_dict_category_mapping['atp_thresold'] = category_mapping.atp_thresold
-                        temp_dict_category_mapping['holding_thresold'] = category_mapping.holding_thresold
+                        temp_dict_category_mapping['atp_thresold'] = category_mapping.atp_threshold
+                        temp_dict_category_mapping['holding_thresold'] = category_mapping.holding_threshold
                         temp_dict_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
                         temp_dict_category['category_mapping'] = category_mapping
                         
