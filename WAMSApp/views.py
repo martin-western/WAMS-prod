@@ -5976,10 +5976,10 @@ class FetchOCReportListAPI(APIView):
                 try:
                     completion_date = ""
                     if oc_report_obj.completion_date!=None:
-                        completion_date = oc_report_obj.completion_date.strftime("%d %m, %Y %H:%M")
+                        completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
                     temp_dict = {
                         "name": oc_report_obj.name,
-                        "created_date": oc_report_obj.created_date.strftime("%d %m, %Y %H:%M"),
+                        "created_date": str(timezone.localtime(oc_report_obj.created_date).strftime("%d %m, %Y %H:%M")),
                         "created_by": str(oc_report_obj.created_by),
                         "is_processed": oc_report_obj.is_processed,
                         "completion_date": completion_date,
