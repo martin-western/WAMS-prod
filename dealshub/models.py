@@ -21,6 +21,17 @@ def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
         return False
     return True
 
+class SearchKeyword(models.Model):
+    word = models.CharField(default="", max_length=200)
+    created_date = models.DateTimeField()
+    location_group = models.ForeignKey(LocationGroup, blank=True, null=True, on_delete=models.SET_NULL)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+        
+        super(SearchKeyword, self).save(*args, **kwargs)
 
 class Promotion(models.Model):
     
@@ -46,6 +57,7 @@ class Voucher(models.Model):
     voucher_code = models.CharField(max_length=50)
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
+    description = models.TextField(default="")
 
     VOUCHERS_TYPE = (
         ("PD","PERCENTAGE_DISCOUNT"),
@@ -172,6 +184,38 @@ class DealsHubProduct(models.Model):
 
     def get_warranty(self):
         return str(self.product.warranty)
+
+    def get_weight(self):
+        return float(self.product.weight)
+
+    def get_material(self):
+        if self.product.material_type==None:
+            return "NA"
+        return str(self.product.material_type)
+
+    def get_color(self):
+        if self.product.color=="":
+            return "NA"
+        return self.product.color
+
+    def get_dimensions(self):
+        dimensions = json.loads(self.product.base_product.dimensions)
+        dimensions_string = "NA"
+        try:
+            dimensions_string = dimensions["product_dimension_l"]+" "+dimensions["product_dimension_l_metric"]+" x "
+            dimensions_string += dimensions["product_dimension_b"]+" "+dimensions["product_dimension_b_metric"]+" x "
+            dimensions_string += dimensions["product_dimension_h"]+" "+dimensions["product_dimension_h_metric"]
+            if dimensions["product_dimension_l"]=="" or dimensions["product_dimension_b"]=="" or dimensions["product_dimension_h"]=="":
+                dimensions_string = "NA"
+        except Exception as e:
+            pass
+        return dimensions_string
+
+    def get_faqs(self):
+        return json.loads(self.product.faqs)
+
+    def get_how_to_use(self):
+        return json.loads(self.product.how_to_use)
 
     def get_actual_price(self):
         if self.promotion==None:
@@ -364,6 +408,47 @@ class Address(models.Model):
         verbose_name_plural = "Addresses"
 
 
+class WishList(models.Model):
+
+    owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    modified_date = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+
+        modified_date = timezone.now()
+        super(WishList, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Wish List"
+        verbose_name_plural = "Wish Lists"
+
+
+class UnitWishList(models.Model):
+
+    wish_list = models.ForeignKey('WishList', on_delete=models.CASCADE)
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    
+    date_created = models.DateTimeField(auto_now_add=True)
+    uuid = models.CharField(max_length=200, default="")
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+
+        super(UnitWishList, self).save(*args, **kwargs)
+
+    def get_date_created(self):
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+
+    class Meta:
+        verbose_name = "Unit Wish List"
+        verbose_name_plural = "Unit Wish Lists"
+
+
 class Cart(models.Model):
 
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
@@ -375,11 +460,13 @@ class Cart(models.Model):
     to_pay = models.FloatField(default=0)
     merchant_reference = models.CharField(max_length=200, default="")
     payment_info = models.TextField(default="{}")
+    modified_date = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
 
+        self.modified_date = timezone.now()
         super(Cart, self).save(*args, **kwargs)
 
     def get_subtotal(self):
@@ -478,6 +565,9 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="pending")
     payment_info = models.TextField(default="{}")
     merchant_reference = models.CharField(max_length=200, default="")
+
+    postaplus_info = models.TextField(default="{}")
+    is_postaplus = models.BooleanField(default=False)
 
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
@@ -755,6 +845,7 @@ class ReviewContent(models.Model):
     uuid = models.CharField(max_length=200, unique=True)
     subject = models.CharField(max_length=400, default="")
     content = models.TextField(max_length=500)
+    images = models.ManyToManyField(Image, blank=True)
     upvoted_users = models.ManyToManyField(DealsHubUser, blank=True)
     admin_comment = models.ForeignKey(AdminReviewComment, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
 

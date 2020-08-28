@@ -88,6 +88,7 @@ urlpatterns = [
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
     url(r'^checkout/place-order/$', views.PlaceOrder),
     url(r'^checkout/place-offline-order/$',views.PlaceOfflineOrder),
+    url(r'^checkout/place-online-order/$',views.PlaceOnlineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
@@ -142,6 +143,7 @@ urlpatterns = [
     url(r'^delete-upvote/$', views.DeleteUpvote),
     url(r'^fetch-review/$', views.FetchReview),
     url(r'^fetch-product-reviews/$', views.FetchProductReviews),
+    url(r'^delete-user-review-image/$', views.DeleteUserReviewImage),
     url(r'^delete-user-review/$', views.DeleteUserReview),
 
     url(r'^create-voucher/$', views.CreateVoucher),
@@ -152,4 +154,13 @@ urlpatterns = [
     url(r'^unpublish-voucher/$', views.UnPublishVoucher),
 
     url(r'^fetch-order-analytics-params/$', views.FetchOrderAnalyticsParams),
+    url(r'^make-payment-network-global/$',views.MakePaymentNetworkGlobal),
+
+    url(r'^fetch-postaplus-tracking/$',views.FetchPostaPlusTracking),
+
+    url(r'^wish-list/add-to-wish-list/$', views.AddToWishList),
+    url(r'^wish-list/remove-from-wish-list/$', views.RemoveFromWishList),
+    url(r'^wish-list/fetch-wish-list/$', views.FetchWishList),
+
+    url(r'^fetch-postaplus-details/$',views.FetchPostaPlusDetails),
 ]

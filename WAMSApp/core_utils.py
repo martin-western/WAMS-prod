@@ -93,7 +93,7 @@ def custom_permission_mws_functions(user,permission):
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("custom_permission_mws_functions: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.warning("custom_permission_mws_functions: %s at %s", e, str(exc_tb.tb_lineno))
         return False
 
 def custom_permission_noon_functions(user,permission):
@@ -105,7 +105,7 @@ def custom_permission_noon_functions(user,permission):
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("custom_permission_noon_functions: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.warning("custom_permission_noon_functions: %s at %s", e, str(exc_tb.tb_lineno))
         return False
 
 def custom_permission_price(user,permission):
@@ -117,7 +117,7 @@ def custom_permission_price(user,permission):
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("custom_permission_price: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.warning("custom_permission_price: %s at %s", e, str(exc_tb.tb_lineno))
         return False
 
 def custom_permission_stock(user,permission):
@@ -129,7 +129,7 @@ def custom_permission_stock(user,permission):
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("custom_permission_stock: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.warning("custom_permission_stock: %s at %s", e, str(exc_tb.tb_lineno))
         return False
 
 def custom_permission_filter_channels(user):
@@ -141,7 +141,7 @@ def custom_permission_filter_channels(user):
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("custom_permission_filter_channels: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.warning("custom_permission_filter_channels: %s at %s", e, str(exc_tb.tb_lineno))
         return []
 
 def custom_permission_filter_pfls(user):
@@ -154,7 +154,7 @@ def custom_permission_filter_pfls(user):
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("custom_permission_filter_pfls: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.warning("custom_permission_filter_pfls: %s at %s", e, str(exc_tb.tb_lineno))
         return []
 
 def create_response_images_flyer_pfl(images):
