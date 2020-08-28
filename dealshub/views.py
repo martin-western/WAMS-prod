@@ -80,7 +80,10 @@ class FetchProductDetailsAPI(APIView):
 
             response["dimensions"] = dealshub_product_obj.get_dimensions()
             response["color"] = dealshub_product_obj.get_color()
-            response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
+            if dealshub_product_obj.get_weight()==0.0:
+                response["weight"] = "NA"
+            else:
+                response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
             response["material"] = dealshub_product_obj.get_material()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
             response["faqs"] = dealshub_product_obj.get_faqs()
