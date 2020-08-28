@@ -633,7 +633,7 @@ class Product(models.Model):
     color = models.CharField(max_length=100, default="")
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
-    weight = models.FloatField(default=0.5)
+    weight = models.FloatField(default=0.0)
     
     currency = models.CharField(max_length=100, default="")
     quantity = models.IntegerField(null=True, blank=True)
