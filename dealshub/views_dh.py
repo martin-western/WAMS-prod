@@ -3279,14 +3279,17 @@ class SetShippingMethodAPI(APIView):
 
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
 
-            if shipping_method=="WIG Fleet":
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                    set_shipping_method(unit_order_obj, shipping_method)
-            elif shipping_method=="Postaplus":
-                if order_obj.is_postaplus==False:
-                    request_postaplus(order_obj)
-            else:
-                logger.warning("SetShippingMethodAPI: No method set!")    
+            # if shipping_method=="WIG Fleet":
+            #     for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+            #         set_shipping_method(unit_order_obj, shipping_method)
+            # elif shipping_method=="Postaplus":
+            #     if order_obj.is_postaplus==False:
+            #         request_postaplus(order_obj)
+            # else:
+            #     logger.warning("SetShippingMethodAPI: No method set!")
+
+            for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                set_shipping_method(unit_order_obj, shipping_method)
 
             response["status"] = 200
 
