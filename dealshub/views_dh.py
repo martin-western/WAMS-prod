@@ -1052,6 +1052,14 @@ class PlaceOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
+            try:
+                if cart_obj.shipping_address==None:
+                    address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                    cart_obj.shipping_address = address_obj
+                    cart_obj.save()
+            except Exception as e:
+                pass
+
             cart_obj.voucher = None
             cart_obj.save()
 
@@ -2098,6 +2106,14 @@ class PaymentTransactionAPI(APIView):
 
             if status=="14":
                 cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
+
+                try:
+                    if cart_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=cart_obj.owner)[0]
+                        cart_obj.shipping_address = address_obj
+                        cart_obj.save()
+                except Exception as e:
+                    pass
 
                 try:
                     voucher_obj = cart_obj.voucher
