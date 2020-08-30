@@ -502,6 +502,11 @@ class SearchAPI(APIView):
                     super_category_obj = Category.objects.filter(name=category_name)[0].super_category
 
                 category_objs = Category.objects.filter(super_category=super_category_obj)
+
+                if super_category_obj==None:
+                    category_ids = available_dealshub_products.values_list('category', flat=True).distinct()
+                    category_objs = Category.objects.filter(id__in=category_ids)
+
                 for category_obj in category_objs:
                     if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
