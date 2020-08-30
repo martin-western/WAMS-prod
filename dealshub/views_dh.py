@@ -3084,7 +3084,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
 
             if len(payment_type_list)>0:
-                unit_order_objs = unit_order_objs.filter(order__payment_mode__in=payment_type_list)
+                if "COD" in payment_type_list and "Credit Card" not in payment_type_list:
+                    unit_order_objs = unit_order_objs.filter(order__payment_mode="COD")
+                if "COD" not in payment_type_list and "Credit Card" in payment_type_list:
+                    unit_order_objs = unit_order_objs.exclude(order__payment_mode="COD")
 
             if len(shipping_method_list)>0:
                 unit_order_objs = unit_order_objs.filter(shipping_method__in=shipping_method_list)
