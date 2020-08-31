@@ -12,8 +12,6 @@ def fetch_prices_and_stock(seller_sku,company_code,url,customer_id):
     
     try:
 
-        # product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
-
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
