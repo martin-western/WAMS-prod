@@ -72,14 +72,14 @@ WSGI_APPLICATION = 'WAMS.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-"""
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 
 DATABASES = {
     'default': {
@@ -150,6 +150,8 @@ AWS_S3_OBJECT_PARAMETERS = {
 DEFAULT_FILE_STORAGE = 'WAMSApp.storage_backends.MediaStorage'
 MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
 
+# MEDIA_URL = '/files/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
 # Userid: tikenisarg@gmail.com
 # Acces Key ID: AKIA5NL25NAZB4FJDK65
 # Secret access key: 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
@@ -188,7 +190,7 @@ LOGGING = {
             'maxBytes': LOGFILE_SIZE,
             'backupCount': LOGFILE_COUNT,
             'formatter': 'standard',
-        }
+           }
     },
     'loggers': {
         LOGFILE_APP: {

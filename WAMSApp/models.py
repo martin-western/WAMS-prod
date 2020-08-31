@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from PIL import Image as IMAGE
+from PIL import ExifTags
 from io import BytesIO
 import logging
 import sys
@@ -291,16 +292,67 @@ class Image(models.Model):
             infile = self.image.file.name
             im_type = thumb.format 
             thumb_io = BytesIO()
-            thumb.save(thumb_io, format=im_type)
+
+            exif=dict(thumb._getexif().items())
+            orientation = 0
+            for index in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[index] =='Orientation':
+                    orientation = index
+                    break
+
+            if orientation!= 0 and exif[orientation] == 6:
+                thumb = thumb.rotate(270)
+            elif orientation!= 0 and exif[orientation] == 3:
+                thumb = thumb.rotate(180)
+            elif orientation!= 0 and exif[orientation] == 8:
+                thumb = thumb.rotate(90)
+            elif orientation!= 0 and exif[orientation] == 2:
+                thumb = thumb.transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation!= 0 and exif[orientation] == 5:
+                thumb = thumb.transpose(Image.FLIP_LEFT_RIGHT)
+                thumb = thumb.rotate(270)
+            elif orientation!= 0 and exif[orientation] == 4:
+                thumb = thumb.transpose(Image.FLIP_LEFT_RIGHT)
+                thumb = thumb.rotate(180)
+            elif orientation!= 0 and exif[orientation] == 7:
+                thumb = thumb.transpose(Image.FLIP_LEFT_RIGHT)
+                thumb = thumb.rotate(90)
+
+            thumb.save(thumb_io, im_type)
 
             thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
-
             self.thumbnail = thumb_file
 
             size2 = 512, 512
             thumb2 = IMAGE.open(self.image)
             thumb2.thumbnail(size2)
             thumb_io2 = BytesIO()
+
+            exif=dict(thumb2._getexif().items())
+            orientation = 0
+            for index in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[index] =='Orientation':
+                    orientation = index
+                    break
+
+            if orientation!= 0 and exif[orientation] == 6:
+                thumb2 = thumb2.rotate(270)
+            elif orientation!= 0 and exif[orientation] == 3:
+                thumb2 = thumb2.rotate(180)
+            elif orientation!= 0 and exif[orientation] == 8:
+                thumb2 = thumb2.rotate(90)
+            elif orientation!= 0 and exif[orientation] == 2:
+                thumb2 = thumb2.transpose(Image.FLIP_LEFT_RIGHT)
+            elif orientation!= 0 and exif[orientation] == 5:
+                thumb2 = thumb2.transpose(Image.FLIP_LEFT_RIGHT)
+                thumb2 = thumb2.rotate(270)
+            elif orientation!= 0 and exif[orientation] == 4:
+                thumb2 = thumb2.transpose(Image.FLIP_LEFT_RIGHT)
+                thumb2 = thumb2.rotate(180)
+            elif orientation!= 0 and exif[orientation] == 7:
+                thumb2 = thumb2.transpose(Image.FLIP_LEFT_RIGHT)
+                thumb2 = thumb2.rotate(90)
+
             thumb2.save(thumb_io2, format=im_type)
 
             thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
@@ -311,6 +363,7 @@ class Image(models.Model):
             logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
+
 
 class Bank(models.Model): 
 
