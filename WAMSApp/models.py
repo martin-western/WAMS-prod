@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from PIL import Image as IMAGE
+from PIL import ExifTags
 from io import BytesIO
 import logging
 import sys
