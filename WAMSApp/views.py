@@ -794,6 +794,7 @@ class FetchProductDetailsAPI(APIView):
             response["partially_verified"] = product_obj.partially_verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
+            response["weight"] = product_obj.weight
 
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price
@@ -1402,6 +1403,7 @@ class SaveProductAPI(APIView):
             barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
+            weight = float(data.get("weight", 0))
             standard_price = None if data["standard_price"] == "" else float(data["standard_price"])
             quantity = None if data["quantity"] == "" else int(data["quantity"])
             
@@ -1445,6 +1447,7 @@ class SaveProductAPI(APIView):
             product_obj.product_id_type = product_id_type_obj
             product_obj.color_map = color_map
             product_obj.color = color
+            product_obj.weight = weight
             
             product_obj.material_type = material_type_obj
             product_obj.standard_price = standard_price
@@ -6249,6 +6252,9 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["sub_category"] = dealshub_product_obj.get_sub_category()
             response["category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.uuid)
             response["sub_category_uuid"] = "" if dealshub_product_obj.sub_category==None else str(dealshub_product_obj.sub_category.uuid)
+
+            response["super_category"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category)
+            response["super_category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category.uuid)
 
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
             response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
