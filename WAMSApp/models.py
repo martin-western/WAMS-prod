@@ -292,32 +292,34 @@ class Image(models.Model):
             infile = self.image.file.name
             im_type = thumb.format 
             thumb_io = BytesIO()
+            def rotate_image(image):
+                exif=dict(image._getexif().items())
+                orientation = 0
+                for index in ExifTags.TAGS.keys():
+                    if ExifTags.TAGS[index] =='Orientation':
+                        orientation = index
+                        break
 
-            exif=dict(thumb._getexif().items())
-            orientation = 0
-            for index in ExifTags.TAGS.keys():
-                if ExifTags.TAGS[index] =='Orientation':
-                    orientation = index
-                    break
+                if orientation!= 0 and exif[orientation] == 6:
+                    image = image.rotate(270)
+                elif orientation!= 0 and exif[orientation] == 3:
+                    image = image.rotate(180)
+                elif orientation!= 0 and exif[orientation] == 8:
+                    image = image.rotate(90)
+                elif orientation!= 0 and exif[orientation] == 2:
+                    image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                elif orientation!= 0 and exif[orientation] == 5:
+                    image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                    image = image.rotate(270)
+                elif orientation!= 0 and exif[orientation] == 4:
+                    image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                    image = image.rotate(180)
+                elif orientation!= 0 and exif[orientation] == 7:
+                    image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                    image = image.rotate(90)
+                return image
 
-            if orientation!= 0 and exif[orientation] == 6:
-                thumb = thumb.rotate(270)
-            elif orientation!= 0 and exif[orientation] == 3:
-                thumb = thumb.rotate(180)
-            elif orientation!= 0 and exif[orientation] == 8:
-                thumb = thumb.rotate(90)
-            elif orientation!= 0 and exif[orientation] == 2:
-                thumb = thumb.transpose(Image.FLIP_LEFT_RIGHT)
-            elif orientation!= 0 and exif[orientation] == 5:
-                thumb = thumb.transpose(Image.FLIP_LEFT_RIGHT)
-                thumb = thumb.rotate(270)
-            elif orientation!= 0 and exif[orientation] == 4:
-                thumb = thumb.transpose(Image.FLIP_LEFT_RIGHT)
-                thumb = thumb.rotate(180)
-            elif orientation!= 0 and exif[orientation] == 7:
-                thumb = thumb.transpose(Image.FLIP_LEFT_RIGHT)
-                thumb = thumb.rotate(90)
-
+            thumb = rotate_image(thumb)
             thumb.save(thumb_io, im_type)
 
             thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
@@ -327,32 +329,7 @@ class Image(models.Model):
             thumb2 = IMAGE.open(self.image)
             thumb2.thumbnail(size2)
             thumb_io2 = BytesIO()
-
-            exif=dict(thumb2._getexif().items())
-            orientation = 0
-            for index in ExifTags.TAGS.keys():
-                if ExifTags.TAGS[index] =='Orientation':
-                    orientation = index
-                    break
-
-            if orientation!= 0 and exif[orientation] == 6:
-                thumb2 = thumb2.rotate(270)
-            elif orientation!= 0 and exif[orientation] == 3:
-                thumb2 = thumb2.rotate(180)
-            elif orientation!= 0 and exif[orientation] == 8:
-                thumb2 = thumb2.rotate(90)
-            elif orientation!= 0 and exif[orientation] == 2:
-                thumb2 = thumb2.transpose(Image.FLIP_LEFT_RIGHT)
-            elif orientation!= 0 and exif[orientation] == 5:
-                thumb2 = thumb2.transpose(Image.FLIP_LEFT_RIGHT)
-                thumb2 = thumb2.rotate(270)
-            elif orientation!= 0 and exif[orientation] == 4:
-                thumb2 = thumb2.transpose(Image.FLIP_LEFT_RIGHT)
-                thumb2 = thumb2.rotate(180)
-            elif orientation!= 0 and exif[orientation] == 7:
-                thumb2 = thumb2.transpose(Image.FLIP_LEFT_RIGHT)
-                thumb2 = thumb2.rotate(90)
-
+            thumb2 = rotate_image(thumb2)
             thumb2.save(thumb_io2, format=im_type)
 
             thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
