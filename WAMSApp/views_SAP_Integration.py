@@ -28,9 +28,9 @@ from django.core.files import File
 
 logger = logging.getLogger(__name__)
 
-partner_id = "11109"
-country_code = "ae"
-partner_warehouse_code = "12345"
+customer_id = "40000195"
+
+stock_price_production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
 
 class FetchPriceAndStockAPI(APIView):
 
@@ -44,7 +44,12 @@ class FetchPriceAndStockAPI(APIView):
             data = request.data
             logger.info("FetchPriceAndStockAPI: %s", str(data))
 
-            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk = data["product_pk"]
+            warehouse_code = data["warehouse_code"]
+
             response['status'] = 200
 
         except Exception as e:

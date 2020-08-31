@@ -98,7 +98,7 @@ class UpdateCategoryMappingAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            pk = int(data.get("pk",0).strip())
+            pk = int(data.get("pk",0))
 
             if pk == 0:
                 response['status'] = 404
