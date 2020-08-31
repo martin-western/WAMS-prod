@@ -254,6 +254,7 @@ class FetchSectionProductsAPI(APIView):
                 is_available = False
 
             response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
 
             response['sectionData'] = temp_dict
             response['status'] = 200
@@ -542,6 +543,7 @@ class SearchAPI(APIView):
                 is_available = False
 
             response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
             response["total_products"] = len(filtered_products)
 
             search['filters'] = filters
@@ -2018,6 +2020,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 is_available = False
 
             response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
             response["productList"] = product_list
             response['status'] = 200
 
