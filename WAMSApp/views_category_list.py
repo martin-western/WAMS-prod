@@ -83,106 +83,6 @@ class FetchCategoryListAPI(APIView):
 
         return Response(data=response)
 
-
-class SearchCategoryListAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-
-        try:
-
-            data = request.data
-            logger.info("SearchCategoryListAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            super_category_list = []
-
-            if "super_category" in data:
-                temp_dict_super_category = {}
-                temp_dict_super_category["pk"] = SapSuperCategory.objects.get(super_category=data["super_category"]).pk
-                temp_dict_super_category["name"] = data["super_category"]
-
-                category_list = []
-                if "category" in data:
-                    temp_dict_category = {}
-                    temp_dict_category["pk"] = SapCategory.objects.get(category=data["category"]).pk
-                    temp_dict_category["name"] = data["category"]
-                    
-                    sub_category_list = []
-                    if "sub_category" in data:
-                        temp_dict_sub_category = {}
-                        temp_dict_sub_category["pk"] = SapSubCategory.objects.get(sub_category=data["sub_category"]).pk
-                        temp_dict_sub_category["name"] = data["sub_category"] 
-                        
-                        category_mapping_list = []
-                        category_mapping_objs = CategoryMapping.objects.get(sap_sub_category=data["sub_category"])
-                        
-                        for category_mapping_obj in category_mapping_objs:
-                            temp_dict_category_mapping = get_category_mapping(category_mapping_obj.pk)
-                            category_mapping_list.append(temp_dict_category_mapping)
-                        temp_dict_sub_category["category_mapping"] = category_mapping_list
-                        sub_category_list.append(temp_dict_sub_category)
-                        
-                    else:
-                        sub_category_objs = SubCategory.objects.get(category=data["category"])
-                        for sub_category_obj in sub_category_objs:
-                            temp_dict_sub_category = {}
-                            temp_dict_sub_category["pk"] = sub_category_obj.pk
-                            temp_dict_sub_category["name"] = sub_category_obj.sub_category
-                            category_mapping_list = []
-                            category_mapping_objs = CategoryMapping.objects.get(sap_sub_category=sub_category_obj.sap_sub_category)
-                            for category_mapping_obj in category_mapping_objs:
-                                temp_dict_category_mapping = get_category_mapping(category_mapping_pbj.pk)
-                                category_mapping_list.append(temp_dict_category_mapping)
-
-                            temp_dict_sub_category["category_mapping"] = category_mapping_list
-                            sub_category_list.append(temp_dict_sub_category)
-
-                    temp_dict_category["sub_category"] = sub_category_list
-                    category_list.append(temp_dict_category)
-                else:
-                    category_objs = Category.objects.get(super_category=data["super_category"])
-                    for category_obj in category_objs:
-                        temp_dict_category = {}
-                        temp_dict_category["pk"] = category_obj.pk
-                        temp_dict_category["name"] = category_obj.category
-                        sub_category_list = []
-                        sub_category_objs = SubCategory.objects.get(category=category_obj.category)
-                        for sub_category_obj in sub_category_objs:
-                            temp_dict_sub_category = {}
-                            temp_dict_sub_category["pk"] = sub_category_obj.pk
-                            temp_dict_sub_category["name"] = sub_category_obj.sub_category
-                            category_mapping_list = []
-                            category_mapping_objs = CategoryMapping.objects.get(sap_sub_category=sub_category_obj.sap_sub_category)
-                            for category_mapping_obj in category_mapping_objs:
-                                temp_dict_category_mapping = get_category_mapping(category_mapping_pbj.pk)
-                                category_mapping_list.append(temp_dict_category_mapping)
-
-                            temp_dict_sub_category["category_mapping"] = category_mapping_list
-                            sub_category_list.append(temp_dict_sub_category)
-
-                        temp_dict_category["sub_category"] = sub_category_list
-                        category_list.append(temp_dict_category)
-                    
-                    temp_dict_super_category["category"] = category_list
-                    super_category_list.append(temp_dict_super_category)       
-
-            response['super_category'] = super_category_list
-
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SearchCategoryListAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-
 class UpdateCategoryMappingAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -227,7 +127,5 @@ class UpdateCategoryMappingAPI(APIView):
         return Response(data=response)
 
 UpdateCategoryMapping = UpdateCategoryMappingAPI.as_view()
-
-SearchCategoryList = SearchCategoryListAPI.as_view()
 
 FetchCategoryList = FetchCategoryListAPI.as_view()
