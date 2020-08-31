@@ -1052,6 +1052,14 @@ class PlaceOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
+            try:
+                if cart_obj.shipping_address==None:
+                    address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                    cart_obj.shipping_address = address_obj
+                    cart_obj.save()
+            except Exception as e:
+                pass
+
             cart_obj.voucher = None
             cart_obj.save()
 
@@ -2100,6 +2108,14 @@ class PaymentTransactionAPI(APIView):
                 cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
 
                 try:
+                    if cart_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=cart_obj.owner)[0]
+                        cart_obj.shipping_address = address_obj
+                        cart_obj.save()
+                except Exception as e:
+                    pass
+
+                try:
                     voucher_obj = cart_obj.voucher
                     if voucher_obj!=None:
                         if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
@@ -3068,7 +3084,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
 
             if len(payment_type_list)>0:
-                unit_order_objs = unit_order_objs.filter(order__payment_mode__in=payment_type_list)
+                if "COD" in payment_type_list and "Credit Card" not in payment_type_list:
+                    unit_order_objs = unit_order_objs.filter(order__payment_mode="COD")
+                if "COD" not in payment_type_list and "Credit Card" in payment_type_list:
+                    unit_order_objs = unit_order_objs.exclude(order__payment_mode="COD")
 
             if len(shipping_method_list)>0:
                 unit_order_objs = unit_order_objs.filter(shipping_method__in=shipping_method_list)
@@ -3279,14 +3298,17 @@ class SetShippingMethodAPI(APIView):
 
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
 
-            if shipping_method=="WIG Fleet":
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                    set_shipping_method(unit_order_obj, shipping_method)
-            elif shipping_method=="Postaplus":
-                if order_obj.is_postaplus==False:
-                    request_postaplus(order_obj)
-            else:
-                logger.warning("SetShippingMethodAPI: No method set!")    
+            # if shipping_method=="WIG Fleet":
+            #     for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+            #         set_shipping_method(unit_order_obj, shipping_method)
+            # elif shipping_method=="Postaplus":
+            #     if order_obj.is_postaplus==False:
+            #         request_postaplus(order_obj)
+            # else:
+            #     logger.warning("SetShippingMethodAPI: No method set!")
+
+            for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                set_shipping_method(unit_order_obj, shipping_method)
 
             response["status"] = 200
 

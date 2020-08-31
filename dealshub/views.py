@@ -80,7 +80,10 @@ class FetchProductDetailsAPI(APIView):
 
             response["dimensions"] = dealshub_product_obj.get_dimensions()
             response["color"] = dealshub_product_obj.get_color()
-            response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
+            if dealshub_product_obj.get_weight()==0.0:
+                response["weight"] = "NA"
+            else:
+                response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
             response["material"] = dealshub_product_obj.get_material()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
             response["faqs"] = dealshub_product_obj.get_faqs()
@@ -180,10 +183,10 @@ class FetchProductDetailsAPI(APIView):
             category_obj = dealshub_product_obj.category
             brand_obj = dealshub_product_obj.product.base_product.brand
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, category=category_obj).exclude(now_price=0).exclude(stock=0)
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, category=category_obj, product__base_product__brand__in=dealshub_product_obj.location_group.website_group.brands.all(), product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
             similar_category_products = get_recommended_products(dealshub_product_objs)
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand=brand_obj).exclude(now_price=0).exclude(stock=0)
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand=brand_obj, product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
             similar_brand_products = get_recommended_products(dealshub_product_objs)
 
             response["similar_category_products"] = similar_category_products
@@ -499,6 +502,11 @@ class SearchAPI(APIView):
                     super_category_obj = Category.objects.filter(name=category_name)[0].super_category
 
                 category_objs = Category.objects.filter(super_category=super_category_obj)
+
+                if super_category_obj==None:
+                    category_ids = available_dealshub_products.values_list('category', flat=True).distinct()
+                    category_objs = Category.objects.filter(id__in=category_ids)
+
                 for category_obj in category_objs:
                     if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue

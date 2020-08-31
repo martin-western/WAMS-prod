@@ -5255,71 +5255,74 @@ class FetchChannelProductListAPI(APIView):
                 product_objs = product_objs.distinct()
 
             for product_obj in product_objs:
-                
-                temp_dict = {}
-                temp_dict["product_pk"] = product_obj.pk
-                
-                if channel_name=="Amazon UK":
-                    amazon_uk_product_json = json.loads(product_obj.channel_product.amazon_uk_product_json)
-                    temp_dict["product_name"] = amazon_uk_product_json["product_name"]
-                    temp_dict["category"] = amazon_uk_product_json["category"]
-                    temp_dict["sub_category"] = amazon_uk_product_json["sub_category"]
-                    temp_dict["status"] = amazon_uk_product_json["status"]
-                    temp_dict["now_price"] = amazon_uk_product_json["now_price"]
-                    temp_dict["was_price"] = amazon_uk_product_json["was_price"]
-                    temp_dict["stock"] = amazon_uk_product_json["stock"]
-                
-                if channel_name=="Amazon UAE":
-                    amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
-                    temp_dict["product_name"] = amazon_uae_product_json["product_name"]
-                    temp_dict["category"] = amazon_uae_product_json["category"]
-                    temp_dict["sub_category"] = amazon_uae_product_json["sub_category"]
-                    temp_dict["status"] = amazon_uae_product_json["status"]
-                    temp_dict["now_price"] = amazon_uae_product_json["sale_price"]
-                    temp_dict["was_price"] = amazon_uae_product_json["was_price"]
-                    temp_dict["stock"] = amazon_uae_product_json["stock"]
-                
-                if channel_name=="Ebay":
-                    ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
-                    temp_dict["product_name"] = ebay_product_json["product_name"]
-                    temp_dict["category"] = ebay_product_json["category"]
-                    temp_dict["sub_category"] = ebay_product_json["sub_category"]
-                    temp_dict["status"] = ebay_product_json["status"]
-                    temp_dict["now_price"] = ebay_product_json["now_price"]
-                    temp_dict["was_price"] = ebay_product_json["was_price"]
-                    temp_dict["stock"] = ebay_product_json["stock"]
-                
-                if channel_name=="Noon":
-                    noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
-                    temp_dict["product_name"] = noon_product_json["product_name"]
-                    temp_dict["noon_sku"] = noon_product_json["noon_sku"]
-                    temp_dict["category"] = noon_product_json["category"]
-                    temp_dict["sub_category"] = noon_product_json["sub_category"]
-                    temp_dict["status"] = noon_product_json["status"]
-                    temp_dict["now_price"] = noon_product_json["sale_price"]
-                    temp_dict["was_price"] = noon_product_json["was_price"]
-                    temp_dict["stock"] = noon_product_json["stock"]
-
-                temp_dict["seller_sku"] = product_obj.base_product.seller_sku
-                
-                if product_obj.base_product.brand != None:
-                    temp_dict["brand_name"] = product_obj.base_product.brand.name
-                else:
-                    temp_dict["brand_name"] = "-"
-
                 try:
-                    main_images_list = ImageBucket.objects.none()
-                    main_images_obj = MainImages.objects.get(product = product_obj, channel__name=channel_name)
+                    temp_dict = {}
+                    temp_dict["product_pk"] = product_obj.pk
                     
-                    main_images_list |= main_images_obj.main_images.all()
+                    if channel_name=="Amazon UK":
+                        amazon_uk_product_json = json.loads(product_obj.channel_product.amazon_uk_product_json)
+                        temp_dict["product_name"] = amazon_uk_product_json["product_name"]
+                        temp_dict["category"] = amazon_uk_product_json["category"]
+                        temp_dict["sub_category"] = amazon_uk_product_json["sub_category"]
+                        temp_dict["status"] = amazon_uk_product_json["status"]
+                        temp_dict["now_price"] = amazon_uk_product_json["now_price"]
+                        temp_dict["was_price"] = amazon_uk_product_json["was_price"]
+                        temp_dict["stock"] = amazon_uk_product_json["stock"]
+                    
+                    if channel_name=="Amazon UAE":
+                        amazon_uae_product_json = json.loads(product_obj.channel_product.amazon_uae_product_json)
+                        temp_dict["product_name"] = amazon_uae_product_json["product_name"]
+                        temp_dict["category"] = amazon_uae_product_json["category"]
+                        temp_dict["sub_category"] = amazon_uae_product_json["sub_category"]
+                        temp_dict["status"] = amazon_uae_product_json["status"]
+                        temp_dict["now_price"] = amazon_uae_product_json["sale_price"]
+                        temp_dict["was_price"] = amazon_uae_product_json["was_price"]
+                        temp_dict["stock"] = amazon_uae_product_json["stock"]
+                    
+                    if channel_name=="Ebay":
+                        ebay_product_json = json.loads(product_obj.channel_product.ebay_product_json)
+                        temp_dict["product_name"] = ebay_product_json["product_name"]
+                        temp_dict["category"] = ebay_product_json["category"]
+                        temp_dict["sub_category"] = ebay_product_json["sub_category"]
+                        temp_dict["status"] = ebay_product_json["status"]
+                        temp_dict["now_price"] = ebay_product_json["now_price"]
+                        temp_dict["was_price"] = ebay_product_json["was_price"]
+                        temp_dict["stock"] = ebay_product_json["stock"]
+                    
+                    if channel_name=="Noon":
+                        noon_product_json = json.loads(product_obj.channel_product.noon_product_json)
+                        temp_dict["product_name"] = noon_product_json["product_name"]
+                        temp_dict["noon_sku"] = noon_product_json["noon_sku"]
+                        temp_dict["category"] = noon_product_json["category"]
+                        temp_dict["sub_category"] = noon_product_json["sub_category"]
+                        temp_dict["status"] = noon_product_json["status"]
+                        temp_dict["now_price"] = noon_product_json["sale_price"]
+                        temp_dict["was_price"] = noon_product_json["was_price"]
+                        temp_dict["stock"] = noon_product_json["stock"]
 
-                    main_images_list = main_images_list.distinct()
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     
-                    temp_dict["main_image"] = main_images_list[0].image.mid_image.url
+                    if product_obj.base_product.brand != None:
+                        temp_dict["brand_name"] = product_obj.base_product.brand.name
+                    else:
+                        temp_dict["brand_name"] = "-"
+
+                    try:
+                        main_images_list = ImageBucket.objects.none()
+                        main_images_obj = MainImages.objects.get(product = product_obj, channel__name=channel_name)
+                        
+                        main_images_list |= main_images_obj.main_images.all()
+
+                        main_images_list = main_images_list.distinct()
+                        
+                        temp_dict["main_image"] = main_images_list[0].image.mid_image.url
+                    except Exception as e:
+                        temp_dict["main_image"] = Config.objects.all()[0].product_404_image.image.url
+
+                    products.append(temp_dict)
                 except Exception as e:
-                    temp_dict["main_image"] = Config.objects.all()[0].product_404_image.image.url
-
-                products.append(temp_dict)
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchChannelProductListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             if paginator.num_pages == page:
