@@ -130,10 +130,12 @@ def create_intercompany_sales_order(seller_sku,company_code,customer_id,order_in
                 charg = item["charg"]
                 uom = item["uom"]
 
+                if atp_qty>0.0:
+                    break
 
-        order_information["from_holding"] = ""
-        order_information["uom"] = ""
-        order_information["batch"] = ""
+        order_information["from_holding"] = from_holding
+        order_information["uom"] = charg
+        order_information["batch"] = uom
         
         body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,order_information)
         
