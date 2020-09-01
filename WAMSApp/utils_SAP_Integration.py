@@ -113,45 +113,6 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
-        result = fetch_prices_and_stock(seller_sku,company_code)
-
-        prices_stock_list = result["prices_stock_list"]
-
-        total_atp = result["total_atp"]
-        total_holding = result["total_holding"]
-        atp_threshold = result["atp_threshold"]
-        holding_threshold = result["holding_threshold"]
-
-        if total_atp > atp_threshold:
-            from_holding=""
-
-            for item in prices_stock_list:
-
-                atp_qty = item["atp_qty"]
-                charg = item["charg"]
-                uom = item["uom"]
-
-                if atp_qty>0.0:
-                    break
-
-        else :
-            from_holding = "X" #From Frontend
-
-            if from_holding == "X":
-
-                for item in prices_stock_list:
-
-                    holding_qty = item["holding_qty"]
-                    charg = item["charg"]
-                    uom = item["uom"]
-
-                    if holding_qty>0.0:
-                        break
-
-        order_information["from_holding"] = from_holding
-        order_information["uom"] = charg
-        order_information["batch"] = uom
-        
         body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,order_information)
         
         response = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
