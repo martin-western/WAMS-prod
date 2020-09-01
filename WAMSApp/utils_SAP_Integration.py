@@ -39,7 +39,7 @@ def fetch_prices_and_stock(seller_sku,company_code,customer_id):
             temp_dict["uom"] = items["MEINS"]    
             temp_dict["atp_qty"] = float(items["ATP_QTY"])
             total_atp = total_atp+float(items["ATP_QTY"])
-            temp_dict["qty_holding"] = float(items["HQTY"])
+            temp_dict["holding_qty"] = float(items["HQTY"])
             total_holding = total_holding + float(items["HQTY"])
             prices_stock_list.append(temp_dict)
         else:
@@ -49,7 +49,7 @@ def fetch_prices_and_stock(seller_sku,company_code,customer_id):
                 temp_dict["uom"] = item["MEINS"]    
                 temp_dict["atp_qty"] = float(item["ATP_QTY"])
                 total_atp = total_atp+float(item["ATP_QTY"])
-                temp_dict["qty_holding"] = float(item["HQTY"])
+                temp_dict["holding_qty"] = float(item["HQTY"])
                 total_holding = total_holding + float(item["HQTY"])
                 prices_stock_list.append(temp_dict)
 
@@ -111,17 +111,24 @@ def create_intercompany_sales_order(seller_sku,company_code,customer_id,order_in
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
-        prices_stock_list = fetch_prices_and_stock(seller_sku,company_code,customer_id)
+        result = fetch_prices_and_stock(seller_sku,company_code,customer_id)
 
-        total_atp = prices_stock_list["total_atp"]
-        total_holding = prices_stock_list["total_holding"]
-        atp_threshold = prices_stock_list["atp_threshold"]
-        holding_threshold = prices_stock_list["holding_threshold"]
+        prices_stock_list = result["prices_stock_list"]
+
+        total_atp = result["total_atp"]
+        total_holding = result["total_holding"]
+        atp_threshold = result["atp_threshold"]
+        holding_threshold = result["holding_threshold"]
 
         if total_atp > atp_threshold:
             from_holding=""
 
-            for 
+            for item in prices_stock_list:
+
+                atp_qty = item["atp_qty"]
+                holding_qty = item["holding_qty"]
+                charg = item["charg"]
+                uom = item["uom"]
 
 
         order_information["from_holding"] = ""
