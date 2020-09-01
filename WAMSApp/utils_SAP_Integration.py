@@ -9,48 +9,7 @@ logger = logging.getLogger(__name__)
 
 price_stock_url = ""
 transfer_holding_url = ""
-intercompany_order_url = ""
-
-def get_stock_thresholds(seller_sku,company_code,customer_id):
-
-    try:
-
-        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
-        
-        body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
-        
-        response = requests.post(url=price_stock_url, auth=credentials, data=body, headers=headers)
-        
-        content = response.content
-        xml_content = xmltodict.parse(content)
-        response_dict = json.loads(json.dumps(xml_content))
-
-        item = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-        
-        if isinstance(item,list):
-            item = item[1]
-
-        super_category = item["WWGHB1"]
-        category = item["WWGHB2"]
-        sub_category = item["WWGHB3"]
-
-        sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)
-        sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
-        sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
-
-        category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
-
-        atp_threshold = CategoryMapping.atp_threshold
-        holding_threshold = CategoryMapping.holding_threshold
-
-        return prices_stock_list
-
-    except Exception as e:
-        
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("get_stock_thresholds: %s at %s", str(e), str(exc_tb.tb_lineno))
-        return []    
+intercompany_order_url = ""  
 
 def fetch_prices_and_stock(seller_sku,company_code,customer_id):
     
@@ -95,6 +54,22 @@ def fetch_prices_and_stock(seller_sku,company_code,customer_id):
 
         prices_stock_list["total_atp"] = total_atp
         prices_stock_list["total_holding"] = total_holding
+
+        if isinstance(items,list):
+            item = items[1]
+
+        super_category = item["WWGHB1"]
+        category = item["WWGHB2"]
+        sub_category = item["WWGHB3"]
+
+        sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)
+        sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
+        sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
+
+        category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
+
+        prices_stock_list["atp_threshold"] = category_mapping.atp_threshold
+        prices_stock_list["holding_threshold"] = category_mapping.holding_threshold
 
         return prices_stock_list
 
