@@ -288,31 +288,34 @@ class Image(models.Model):
         try:  
             
             def rotate_image(image):
-                exif=dict(image._getexif().items())
-                orientation = 0
-                for index in ExifTags.TAGS.keys():
-                    if ExifTags.TAGS[index] =='Orientation':
-                        orientation = index
-                        break
+                try:
+                    exif=dict(image._getexif().items())
+                    orientation = 0
+                    for index in ExifTags.TAGS.keys():
+                        if ExifTags.TAGS[index] =='Orientation':
+                            orientation = index
+                            break
 
-                if orientation!= 0 and exif[orientation] == 6:
-                    image = image.rotate(270)
-                elif orientation!= 0 and exif[orientation] == 3:
-                    image = image.rotate(180)
-                elif orientation!= 0 and exif[orientation] == 8:
-                    image = image.rotate(90)
-                elif orientation!= 0 and exif[orientation] == 2:
-                    image = image.transpose(Image.FLIP_LEFT_RIGHT)
-                elif orientation!= 0 and exif[orientation] == 5:
-                    image = image.transpose(Image.FLIP_LEFT_RIGHT)
-                    image = image.rotate(270)
-                elif orientation!= 0 and exif[orientation] == 4:
-                    image = image.transpose(Image.FLIP_LEFT_RIGHT)
-                    image = image.rotate(180)
-                elif orientation!= 0 and exif[orientation] == 7:
-                    image = image.transpose(Image.FLIP_LEFT_RIGHT)
-                    image = image.rotate(90)
-                return image
+                    if orientation!= 0 and exif[orientation] == 6:
+                        image = image.rotate(270)
+                    elif orientation!= 0 and exif[orientation] == 3:
+                        image = image.rotate(180)
+                    elif orientation!= 0 and exif[orientation] == 8:
+                        image = image.rotate(90)
+                    elif orientation!= 0 and exif[orientation] == 2:
+                        image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                    elif orientation!= 0 and exif[orientation] == 5:
+                        image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                        image = image.rotate(270)
+                    elif orientation!= 0 and exif[orientation] == 4:
+                        image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                        image = image.rotate(180)
+                    elif orientation!= 0 and exif[orientation] == 7:
+                        image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                        image = image.rotate(90)
+                    return image
+                except Exception as e:
+                    return image
 
             size = 128, 128
             thumb = IMAGE.open(self.image)
