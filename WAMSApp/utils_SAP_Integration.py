@@ -30,6 +30,7 @@ def fetch_prices_and_stock(seller_sku,company_code,customer_id):
         
         total_atp = 0.0
         total_holding = 0.0
+        result = {}
         prices_stock_list = []
 
         if isinstance(items, dict):
@@ -52,8 +53,6 @@ def fetch_prices_and_stock(seller_sku,company_code,customer_id):
                 total_holding = total_holding + float(item["HQTY"])
                 prices_stock_list.append(temp_dict)
 
-        prices_stock_list["total_atp"] = total_atp
-        prices_stock_list["total_holding"] = total_holding
 
         if isinstance(items,list):
             item = items[1]
@@ -68,10 +67,13 @@ def fetch_prices_and_stock(seller_sku,company_code,customer_id):
 
         category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
 
-        prices_stock_list["atp_threshold"] = category_mapping.atp_threshold
-        prices_stock_list["holding_threshold"] = category_mapping.holding_threshold
+        result["prices_stock_list"] = prices_stock_list
+        result["total_atp"] = total_atp
+        result["total_holding"] = total_holding
+        result["atp_threshold"] = category_mapping.atp_threshold
+        result["holding_threshold"] = category_mapping.holding_threshold
 
-        return prices_stock_list
+        return result
 
     except Exception as e:
         
@@ -119,6 +121,7 @@ def create_intercompany_sales_order(seller_sku,company_code,customer_id,order_in
         if total_atp > atp_threshold:
             from_holding=""
 
+            for 
 
 
         order_information["from_holding"] = ""
