@@ -795,6 +795,7 @@ class FetchProductDetailsAPI(APIView):
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
             response["weight"] = product_obj.weight
+            response["dimensions"] = product_obj.get_dimensions()
 
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price

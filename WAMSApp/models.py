@@ -677,6 +677,18 @@ class Product(models.Model):
     def __str__(self):
         return str(self.product_name)
 
+    def get_dimensions(self):
+        dimensions = json.loads(self.base_product.dimensions)
+        dimensions_string = "NA"
+        try:
+            dimensions_string = dimensions["product_dimension_l"]+" "+dimensions["product_dimension_l_metric"]+" x "
+            dimensions_string += dimensions["product_dimension_b"]+" "+dimensions["product_dimension_b_metric"]+" x "
+            dimensions_string += dimensions["product_dimension_h"]+" "+dimensions["product_dimension_h_metric"]
+            if dimensions["product_dimension_l"]=="" or dimensions["product_dimension_b"]=="" or dimensions["product_dimension_h"]=="":
+                dimensions_string = "NA"
+        except Exception as e:
+            pass
+        return dimensions_string
 
     def save(self, *args, **kwargs):
         
