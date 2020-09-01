@@ -26,34 +26,23 @@ def get_stock_thresholds(seller_sku,company_code,customer_id):
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
 
-        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        item = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
         
-        total_atp = 0.0
-        total_holding = 0.0
-        prices_stock_list = []
+        if isinstance(item,list):
+            item = item[1]
 
-        if isinstance(items, dict):
-            temp_dict={}
-            temp_dict["charg"] = items["CHARG"]
-            temp_dict["uom"] = items["MEINS"]    
-            temp_dict["atp_qty"] = float(items["ATP_QTY"])
-            total_atp = total_atp+float(items["ATP_QTY"])
-            temp_dict["qty_holding"] = float(items["HQTY"])
-            total_holding = total_holding + float(items["HQTY"])
-            prices_stock_list.append(temp_dict)
-        else:
-            for item in items:
-                temp_dict={}
-                temp_dict["charg"] = item["CHARG"]
-                temp_dict["uom"] = item["MEINS"]    
-                temp_dict["atp_qty"] = float(item["ATP_QTY"])
-                total_atp = total_atp+float(item["ATP_QTY"])
-                temp_dict["qty_holding"] = float(item["HQTY"])
-                total_holding = total_holding + float(item["HQTY"])
-                prices_stock_list.append(temp_dict)
+        super_category = item["WWGHB1"]
+        category = item["WWGHB2"]
+        sub_category = item["WWGHB3"]
 
-        prices_stock_list["total_atp"] = total_atp
-        prices_stock_list["total_holding"] = total_holding
+        sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)
+        sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
+        sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
+
+        category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
+
+        atp_threshold = CategoryMapping.atp_threshold
+        holding_threshold = CategoryMapping.holding_threshold
 
         return prices_stock_list
 
