@@ -130,24 +130,24 @@ class CreateNewBaseProductAPI(APIView):
 
             # Checking brand permission
             brand_obj = None
-            
             try:
-                
-                permissible_brands = custom_permission_filter_brands(
-                    request.user)
-                brand_obj = Brand.objects.get(name=brand_name)
-
-                if brand_obj not in permissible_brands:
-                    logger.warning(
-                        "CreateNewBaseProductAPI Restricted Access Brand!")
-                    response['status'] = 403
-                    return Response(data=response)
-            
+                permissible_brands = custom_permission_filter_brands(request.user)
+                if Brand.objects.filter(name=brand_name).exists()==True:
+                    brand_obj = Brand.objects.get(name=brand_name)
+                    if brand_obj not in permissible_brands:
+                        logger.warning("CreateNewBaseProductAPI Restricted Access Brand!")
+                        response['status'] = 403
+                        return Response(data=response)
+                else:
+                    custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+                    brand_obj = Brand.objects.create(name=brand_name, organization=custom_permission_obj.organization)
+                    custom_permission_obj.brands.add(brand_obj)
+                    custom_permission_obj.save()
             except Exception as e:
-                
                 logger.error("CreateNewBaseProductAPI Restricted Access Brand!")
                 response['status'] = 403
                 return Response(data=response)
+                
 
             if BaseProduct.objects.filter(seller_sku=seller_sku).exists():
                 
@@ -795,6 +795,7 @@ class FetchProductDetailsAPI(APIView):
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
             response["weight"] = product_obj.weight
+            response["dimensions"] = product_obj.get_dimensions()
 
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price
@@ -1253,13 +1254,20 @@ class SaveBaseProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            brand_obj = None
             try:
                 permissible_brands = custom_permission_filter_brands(request.user)
-                brand_obj = Brand.objects.get(name=data["brand_name"])
-                if brand_obj not in permissible_brands:
-                    logger.warning("SaveBaseProductAPI Restricted Access Brand!")
-                    response['status'] = 403
-                    return Response(data=response)
+                if Brand.objects.filter(name=data["brand_name"]).exists()==True:
+                    brand_obj = Brand.objects.get(name=data["brand_name"])
+                    if brand_obj not in permissible_brands:
+                        logger.warning("SaveBaseProductAPI Restricted Access Brand!")
+                        response['status'] = 403
+                        return Response(data=response)
+                else:
+                    custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+                    brand_obj = Brand.objects.create(name=data["brand_name"], organization=custom_permission_obj.organization)
+                    custom_permission_obj.brands.add(brand_obj)
+                    custom_permission_obj.save()
             except Exception as e:
                 logger.error("SaveBaseProductAPI Restricted Access Brand!")
                 response['status'] = 403
