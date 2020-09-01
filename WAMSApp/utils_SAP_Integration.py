@@ -11,7 +11,9 @@ price_stock_url = ""
 transfer_holding_url = ""
 intercompany_order_url = ""  
 
-def fetch_prices_and_stock(seller_sku,company_code,customer_id):
+customer_id = ""
+
+def fetch_prices_and_stock(seller_sku,company_code):
     
     try:
 
@@ -81,7 +83,7 @@ def fetch_prices_and_stock(seller_sku,company_code,customer_id):
         logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def transfer_from_atp_to_holding(seller_sku,company_code,customer_id,transfer_information):
+def transfer_from_atp_to_holding(seller_sku,company_code,transfer_information):
     
     try:
 
@@ -104,14 +106,14 @@ def transfer_from_atp_to_holding(seller_sku,company_code,customer_id,transfer_in
         logger.error("transfer_from_atp_to_holding: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def create_intercompany_sales_order(seller_sku,company_code,customer_id,order_information):
+def create_intercompany_sales_order(seller_sku,company_code,order_information):
     
     try:
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
-        result = fetch_prices_and_stock(seller_sku,company_code,customer_id)
+        result = fetch_prices_and_stock(seller_sku,company_code)
 
         prices_stock_list = result["prices_stock_list"]
 
@@ -126,12 +128,25 @@ def create_intercompany_sales_order(seller_sku,company_code,customer_id,order_in
             for item in prices_stock_list:
 
                 atp_qty = item["atp_qty"]
-                holding_qty = item["holding_qty"]
                 charg = item["charg"]
                 uom = item["uom"]
 
                 if atp_qty>0.0:
                     break
+
+        else :
+            from_holding = "X" #From Frontend
+
+            if from_holding == "X":
+
+                for item in prices_stock_list:
+
+                    holding_qty = item["holding_qty"]
+                    charg = item["charg"]
+                    uom = item["uom"]
+
+                    if holding_qty>0.0:
+                        break
 
         order_information["from_holding"] = from_holding
         order_information["uom"] = charg
