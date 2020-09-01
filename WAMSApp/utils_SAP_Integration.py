@@ -113,6 +113,8 @@ def create_intercompany_sales_order(seller_sku,company_code,customer_id,order_in
 
         total_atp = prices_stock_list["total_atp"]
         total_holding = prices_stock_list["total_holding"]
+        atp_threshold = prices_stock_list["atp_threshold"]
+        holding_threshold = prices_stock_list["holding_threshold"]
 
         if total_atp > atp_threshold:
             from_holding=""
