@@ -60,7 +60,7 @@ def get_stock_thresholds(seller_sku,company_code,customer_id):
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
+        logger.error("get_stock_thresholds: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []    
 
 def fetch_prices_and_stock(seller_sku,company_code,customer_id):
