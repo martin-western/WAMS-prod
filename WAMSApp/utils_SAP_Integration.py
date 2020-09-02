@@ -1,5 +1,5 @@
 from WAMSApp.models import *
-from WAMSApp.xml_generator_SAP import *
+from WAMSApp.xml_generators_SAP import *
 
 import requests
 import xmltodict
