@@ -1,8 +1,9 @@
 import sys
+import logging
 
 logger = logging.getLogger(__name__)
 
-def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
+def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id):
 
     try :
 
@@ -59,7 +60,7 @@ def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
         logger.error("xml_generator_for_price_and_stock_SAP: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information)
+def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information):
 
     try :
 
@@ -151,7 +152,7 @@ def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transf
         logger.error("xml_generator_for_holding_tansfer: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,order_information)
+def xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,order_information):
 
     try :
 
