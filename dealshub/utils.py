@@ -633,19 +633,8 @@ def get_recommended_products(dealshub_product_objs):
     return product_list
 
 
-def is_user_input_required_for_sap_punching(seller_sku):
+def is_user_input_required_for_sap_punching(seller_sku, company_code):
     try:
-        brand_company_dict = {
-            "geepas": "1070",
-            "baby plus": "5550",
-            "royalford": "3000",
-            "krypton": "2100",
-            "olsenmark": "1100",
-            "ken jardene": "5550",
-            "younglife": "5000",
-            "delcasa": "3000"
-        }
-        company_code = brand_company_dict[seller_sku.lower()]
         result = fetch_prices_and_stock(seller_sku, company_code)
 
         total_atp = result["total_atp"]
@@ -660,20 +649,9 @@ def is_user_input_required_for_sap_punching(seller_sku):
         return True
 
 
-def fetch_order_information_for_sap_punching(seller_sku, x_value):
+def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
 
     try:
-        brand_company_dict = {
-            "geepas": "1070",
-            "baby plus": "5550",
-            "royalford": "3000",
-            "krypton": "2100",
-            "olsenmark": "1100",
-            "ken jardene": "5550",
-            "younglife": "5000",
-            "delcasa": "3000"
-        }
-        company_code = brand_company_dict[seller_sku.lower()]
         result = fetch_prices_and_stock(seller_sku, company_code)
 
         prices_stock_list = result["prices_stock_list"]
