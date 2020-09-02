@@ -631,3 +631,85 @@ def get_recommended_products(dealshub_product_objs):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("get_recommended_products: %s at %s", e, str(exc_tb.tb_lineno))
     return product_list
+
+
+def is_user_input_required_for_sap_punching(seller_sku):
+    try:
+        brand_company_dict = {
+            "geepas": "1070",
+            "baby plus": "5550",
+            "royalford": "3000",
+            "krypton": "2100",
+            "olsenmark": "1100",
+            "ken jardene": "5550",
+            "younglife": "5000",
+            "delcasa": "3000"
+        }
+        company_code = brand_company_dict[seller_sku.lower()]
+        result = fetch_prices_and_stock(seller_sku, company_code)
+
+        total_atp = result["total_atp"]
+        atp_threshold = result["atp_threshold"]
+        holding_threshold = result["holding_threshold"]
+        if total_atp > atp_threshold:
+            return False
+        return True
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("is_user_input_required_for_sap_punching: %s at %s", e, str(exc_tb.tb_lineno)) 
+        return True
+
+
+def fetch_order_information_for_sap_punching(seller_sku, x_value):
+
+    try:
+        brand_company_dict = {
+            "geepas": "1070",
+            "baby plus": "5550",
+            "royalford": "3000",
+            "krypton": "2100",
+            "olsenmark": "1100",
+            "ken jardene": "5550",
+            "younglife": "5000",
+            "delcasa": "3000"
+        }
+        company_code = brand_company_dict[seller_sku.lower()]
+        result = fetch_prices_and_stock(seller_sku, company_code)
+
+        prices_stock_list = result["prices_stock_list"]
+        total_atp = result["total_atp"]
+        total_holding = result["total_holding"]
+        atp_threshold = result["atp_threshold"]
+        holding_threshold = result["holding_threshold"]
+        if total_atp > atp_threshold:
+            from_holding=""
+            for item in prices_stock_list:
+                atp_qty = item["atp_qty"]
+                charg = item["charg"]
+                uom = item["uom"]
+                if atp_qty>0.0:
+                    break
+        else:
+            from_holding = x_value
+            if from_holding == "X":
+                for item in prices_stock_list:
+                    holding_qty = item["holding_qty"]
+                    charg = item["charg"]
+                    uom = item["uom"]
+                    if holding_qty>0.0:
+                        break
+            else:
+                for item in prices_stock_list:
+                    atp_qty = item["atp_qty"]
+                    charg = item["charg"]
+                    uom = item["uom"]
+                    if atp_qty>0.0:
+                        break
+        order_information["from_holding"] = from_holding
+        order_information["uom"] = charg
+        order_information["batch"] = uom
+        return order_information
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_order_information_for_sap_punching: %s at %s", e, str(exc_tb.tb_lineno))
+        return {}
