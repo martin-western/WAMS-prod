@@ -222,7 +222,7 @@ class FetchSectionProductsAPI(APIView):
             temp_dict["productsArray"] = []
 
             page = int(data.get("page",1))
-            paginator = Paginator(dealshub_product_objs, 20)
+            paginator = Paginator(dealshub_product_objs, 10)
             dealshub_product_objs = paginator.page(page)
 
             for dealshub_product_obj in dealshub_product_objs:
@@ -1988,7 +1988,7 @@ class FetchUnitBannerProductsAPI(APIView):
             dealshub_product_objs = dealshub_product_objs.exclude(now_price=0).exclude(stock=0)
 
             page = int(data.get('page', 1))
-            paginator = Paginator(dealshub_product_objs, 20)
+            paginator = Paginator(dealshub_product_objs, 10)
             dealshub_product_objs = paginator.page(page)
 
             product_list = []
