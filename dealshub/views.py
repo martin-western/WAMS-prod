@@ -410,6 +410,7 @@ class SearchAPI(APIView):
             brand_list = []
             try:
                 brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+                brand_list = list(set(brand_list))
                 if len(brand_list)==1:
                     brand_list = []
             except Exception as e:
