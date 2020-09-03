@@ -873,7 +873,7 @@ def create_verified_products_report(filename, uuid, brand_list, custom_permissio
 
     for product_obj in product_objs:
         try:
-            log_entry_obj = LogEntry.objects.filter(changes__icontains='"verified": ["False", "True"]', object_pk=17265).first()
+            log_entry_obj = LogEntry.objects.filter(changes__icontains='"verified": ["False", "True"]', object_pk=product_obj.pk).first()
             date_verified = "NA"
             user = "NA"
             if log_entry_obj!=None:
