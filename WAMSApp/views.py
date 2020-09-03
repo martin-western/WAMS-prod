@@ -920,6 +920,7 @@ class FetchProductDetailsAPI(APIView):
                 pfl_pk = pfl_obj.pk
 
             response["pfl_pk"] = pfl_pk
+            response["product_pk"] = product_obj.pk
 
             response["images"] = images
             response["base_product_pk"] = base_product_obj.pk
@@ -5868,6 +5869,10 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="sales":
                 p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
                 p1.start()
+            elif report_type.lower()=="verified products":
+                p1 = threading.Thread(target=create_verified_products_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1.start()
+
 
             response["approved"] = True
             response['status'] = 200

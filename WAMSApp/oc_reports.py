@@ -847,3 +847,62 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
     oc_report_obj.save()
 
     notify_user_for_report(oc_report_obj)
+
+
+def create_verified_products_report(filename, uuid, brand_list, custom_permission_obj):
+
+    workbook = xlsxwriter.Workbook('./'+filename)
+    worksheet = workbook.add_worksheet()
+
+    row = ["Sr. No.",
+           "Seller SKU",
+           "Product ID",
+           "Product Name",
+           "Brand",
+           "Date Verified",
+           "User"]
+
+    cnt = 0
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    product_objs = Product.objects.filter(verified=True, base_product__brand__name__in=brand_list)
+
+    for product_obj in product_objs:
+        try:
+            log_entry_obj = LogEntry.objects.filter(changes__icontains='"verified": ["False", "True"]', object_pk=17265).first()
+            date_verified = "NA"
+            user = "NA"
+            if log_entry_obj!=None:
+                user = str(log_entry_obj.actor)
+                date_verified = str(timezone.localtime(log_entry_obj.timestamp).strftime("%d-%m-%Y %H:%M"))
+
+            cnt += 1
+            common_row = ["" for i in range(7)]
+            common_row[0] = str(cnt)
+            common_row[1] = str(product_obj.base_product.seller_sku)
+            common_row[2] = str(product_obj.product_id)
+            common_row[3] = str(product_obj.product_name)
+            common_row[4] = str(product_obj.base_product.brand.name)
+            common_row[5] = str(date_verified)
+            common_row[6] = str(user)
+            
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Error create_verified_products_report %s %s", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
+
+    oc_report_obj = OCReport.objects.get(uuid=uuid)
+    oc_report_obj.is_processed = True
+    oc_report_obj.completion_date = timezone.now()
+    oc_report_obj.save()
+
+    notify_user_for_report(oc_report_obj)
+
