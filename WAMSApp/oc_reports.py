@@ -6,6 +6,7 @@ import logging
 from django.utils import timezone
 from django.core.mail import EmailMessage
 from django.core.mail import get_connection, send_mail
+from auditlog.models import *
 
 from WAMSApp.utils import *
 
@@ -888,7 +889,7 @@ def create_verified_products_report(filename, uuid, brand_list, custom_permissio
             common_row[4] = str(product_obj.base_product.brand.name)
             common_row[5] = str(date_verified)
             common_row[6] = str(user)
-            
+
             colnum = 0
             for k in common_row:
                 worksheet.write(cnt, colnum, k)
