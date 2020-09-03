@@ -368,8 +368,8 @@ class SearchAPI(APIView):
             subcategory_name = data.get("subcategory", "").strip()
             brand_name = data.get("brand", "").strip()
 
-            filter_list = data.get("filters", "[]")
-            filter_list = json.loads(filter_list)
+            # filter_list = data.get("filters", "[]")
+            # filter_list = json.loads(filter_list)
 
             brand_filter = data.get("brand_filter", [])
             sort_filter = data.get("sort_filter", {})
@@ -387,8 +387,6 @@ class SearchAPI(APIView):
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
             # Filters
-            if len(brand_filter)>0:
-                available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
             if sort_filter.get("price", "")=="high-to-low":
                 available_dealshub_products = available_dealshub_products.order_by('-now_price')
             if sort_filter.get("price", "")=="low-to-high":
@@ -409,30 +407,32 @@ class SearchAPI(APIView):
             if product_name!="":
                 available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
 
-            filtered_products = DealsHubProduct.objects.none()
-            try:
-                if len(filter_list)>0:
-                    for filter_metric in filter_list:
-                        for filter_value in filter_metric["values"]:
-                            filtered_products |= available_dealshub_products.filter(product__dynamic_form_attributes__icontains='"value": "'+filter_value+'"')
-                    filtered_products = filtered_products.distinct()
-                else:
-                    filtered_products = available_dealshub_products
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-
             brand_list = []
             try:
-                brand_list = list(filtered_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+                brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
                 if len(brand_list)==1:
                     brand_list = []
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
 
-            paginator = Paginator(filtered_products, 10)
+            if len(brand_filter)>0:
+                available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
+
+            # filtered_products = DealsHubProduct.objects.none()
+            # try:
+            #     if len(filter_list)>0:
+            #         for filter_metric in filter_list:
+            #             for filter_value in filter_metric["values"]:
+            #                 filtered_products |= available_dealshub_products.filter(product__dynamic_form_attributes__icontains='"value": "'+filter_value+'"')
+            #         filtered_products = filtered_products.distinct()
+            #     else:
+            #         filtered_products = available_dealshub_products
+            # except Exception as e:
+            #     exc_type, exc_obj, exc_tb = sys.exc_info()
+            #     logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            paginator = Paginator(available_dealshub_products, 10)
             dealshub_product_objs = paginator.page(page)            
             products = []
             for dealshub_product_obj in dealshub_product_objs:
@@ -544,7 +544,7 @@ class SearchAPI(APIView):
 
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
-            response["total_products"] = len(filtered_products)
+            response["total_products"] = len(available_dealshub_products)
 
             search['filters'] = filters
             search['category'] = category_name
