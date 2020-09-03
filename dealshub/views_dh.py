@@ -1957,8 +1957,11 @@ class FetchTokenRequestParametersAPI(APIView):
             PASS = payment_credentials["PASS"]
 
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-            cart_obj.merchant_reference = merchant_reference
-            cart_obj.save()
+            if cart_obj.merchant_reference=="":
+                cart_obj.merchant_reference = merchant_reference
+                cart_obj.save()
+            else:
+                merchant_reference = cart_obj.merchant_reference
 
             request_data = {
                 "service_command": service_command,
