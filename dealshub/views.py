@@ -432,7 +432,7 @@ class SearchAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
 
-            paginator = Paginator(filtered_products, 20)
+            paginator = Paginator(filtered_products, 50)
             dealshub_product_objs = paginator.page(page)            
             products = []
             for dealshub_product_obj in dealshub_product_objs:
