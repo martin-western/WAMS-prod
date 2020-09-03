@@ -10,6 +10,8 @@ from django.utils import timezone
 from PIL import Image as IMAGE
 from PIL import ExifTags
 from io import BytesIO
+from bs4 import BeautifulSoup
+
 import logging
 import sys
 import json
@@ -709,6 +711,10 @@ class Product(models.Model):
 
     def __str__(self):
         return str(self.product_name)
+
+    def get_non_html_description(self):
+        non_html_description = BeautifulSoup(self.product_description).text
+        return non_html_description
 
     def get_dimensions(self):
         dimensions = json.loads(self.base_product.dimensions)

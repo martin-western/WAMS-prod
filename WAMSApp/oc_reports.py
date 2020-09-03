@@ -280,7 +280,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="")
             common_row[7] = str(product.base_product.manufacturer)
             common_row[8] = str(product.base_product.manufacturer_part_number)
             common_row[9] = str(product.product_id_type)
-            common_row[10] = str(product.product_description)
+            common_row[10] = str(product.get_non_html_description())
             product_features = json.loads(product.pfl_product_features)[:5]
             for i in range(len(product_features)):
                 common_row[11+i] = product_features[i]
