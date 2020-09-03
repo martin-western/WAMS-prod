@@ -1387,6 +1387,12 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     if(product_name == "nan" or manufacturer == "nan" or manufacturer_part_number == "nan" or category_name == "nan" or sub_category_name == "nan" or product_id == "nan" or brand_name == "nan" or seller_sku == "nan"):
                         raise Exception("Required Fields must not be empty!")
 
+                    if Category.objects.filter(name=category_name).exists()==False:
+                        raise Exception("Category does not exist!")
+
+                    if SubCategory.objects.filter(name=sub_category_name).exists()==False:
+                        raise Exception("SubCategory does not exist!")
+
                     category_obj = Category.objects.filter(name=category_name)[0]
                     sub_category_obj = SubCategory.objects.filter(name=sub_category_name)[0]
                     brand_obj = Brand.objects.none()
@@ -1401,6 +1407,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     if(Product.objects.filter(product_id=product_id).exists()):
                         raise Exception("Product Already Exists with same Product ID!")
 
+                    base_product_exists = False
                     try:
                         base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
                         base_product_exists = True
@@ -1414,7 +1421,6 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                             manufacturer=manufacturer,
                             manufacturer_part_number=manufacturer_part_number,
                         )
-                        base_product_exists = False
                 
                     product_obj = Product.objects.create(
                         product_name = product_name,

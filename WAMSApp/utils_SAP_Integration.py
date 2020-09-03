@@ -1,79 +1,98 @@
 from WAMSApp.models import *
+from WAMSApp.xml_generators_SAP import *
+
 import requests
 import xmltodict
 import json
 
 logger = logging.getLogger(__name__)
 
-def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
+price_stock_url = ""
+transfer_holding_url = ""
+intercompany_order_url = ""  
 
-    try :
+customer_id = ""
 
-        xml_feed = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                    <soapenv:Header />
-                    <soapenv:Body>
-                    <urn:ZAPP_STOCK_PRICE>
-                    <IM_KUNNR>"""+ customer_id +"""</IM_KUNNR>
-                    <IM_MATNR>
-                    <item>
-                     <MATNR>""" + seller_sku + """</MATNR>
-                    </item>
-                    </IM_MATNR>
-                    <IM_VKORG>
-                    <item>
-                     <VKORG>""" + company_code + """</VKORG>
-                    </item>
-                    </IM_VKORG>
-                    <T_DATA>
-                    <item>
-                     <MATNR></MATNR>
-                     <MAKTX></MAKTX>
-                     <LGORT></LGORT>
-                     <CHARG></CHARG>
-                     <SPART></SPART>
-                     <MEINS></MEINS>
-                     <ATP_QTY></ATP_QTY>
-                     <TOT_QTY></TOT_QTY>
-                     <CURRENCY></CURRENCY>
-                     <IC_EA></IC_EA>
-                     <OD_EA></OD_EA>
-                     <EX_EA></EX_EA>
-                     <RET_EA></RET_EA>
-                     <WERKS></WERKS>
-                     <WERKS></WERKS>
-                     <WWGHA1></WWGHA1>
-                     <WWGHB1></WWGHB1>
-                     <WWGHA2></WWGHA2>
-                     <WWGHB2></WWGHB2>
-                     <WWGHA3></WWGHA3>
-                     <WWGHB3></WWGHB3>
-                     <HQTY></HQTY>
-                    </item>
-                    </T_DATA>
-                    </urn:ZAPP_STOCK_PRICE>
-                    </soapenv:Body>
-                    </soapenv:Envelope>"""
-
-        return xml_feed
-
-    except Exception as e:
-        
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("xml_generator_for_price_and_stock_SAP: %s at %s", str(e), str(exc_tb.tb_lineno))
-        return []
-
-def fetch_prices_and_stock(seller_sku,company_code,url,customer_id):
+def fetch_prices_and_stock(seller_sku,company_code):
     
     try:
-
-        # product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
         body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
         
-        response = requests.post(url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=price_stock_url, auth=credentials, data=body, headers=headers)
+        
+        content = response.content
+        xml_content = xmltodict.parse(content)
+        response_dict = json.loads(json.dumps(xml_content))
+
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        
+        total_atp = 0.0
+        total_holding = 0.0
+        result = {}
+        prices_stock_list = []
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["charg"] = items["CHARG"]
+            temp_dict["uom"] = items["MEINS"]    
+            temp_dict["atp_qty"] = float(items["ATP_QTY"])
+            total_atp = total_atp+float(items["ATP_QTY"])
+            temp_dict["holding_qty"] = float(items["HQTY"])
+            total_holding = total_holding + float(items["HQTY"])
+            prices_stock_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["charg"] = item["CHARG"]
+                temp_dict["uom"] = item["MEINS"]    
+                temp_dict["atp_qty"] = float(item["ATP_QTY"])
+                total_atp = total_atp+float(item["ATP_QTY"])
+                temp_dict["holding_qty"] = float(item["HQTY"])
+                total_holding = total_holding + float(item["HQTY"])
+                prices_stock_list.append(temp_dict)
+
+
+        if isinstance(items,list):
+            item = items[1]
+
+        super_category = item["WWGHB1"]
+        category = item["WWGHB2"]
+        sub_category = item["WWGHB3"]
+
+        sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)
+        sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
+        sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
+
+        category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
+
+        result["prices_stock_list"] = prices_stock_list
+        result["total_atp"] = total_atp
+        result["total_holding"] = total_holding
+        result["atp_threshold"] = category_mapping.atp_threshold
+        result["holding_threshold"] = category_mapping.holding_threshold
+
+        return result
+
+    except Exception as e:
+        
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
+        return []
+
+def transfer_from_atp_to_holding(seller_sku,company_code,transfer_information):
+    
+    try:
+
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        
+        body = xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information)
+        
+        response = requests.post(url=transfer_holding_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -84,6 +103,28 @@ def fetch_prices_and_stock(seller_sku,company_code,url,customer_id):
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
+        logger.error("transfer_from_atp_to_holding: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
+def create_intercompany_sales_order(seller_sku,company_code,order_information):
+    
+    try:
+
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+
+        body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,order_information)
+        
+        response = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
+        
+        content = response.content
+        xml_content = xmltodict.parse(content)
+        response_dict = json.loads(json.dumps(xml_content))
+
+        return response_dict
+
+    except Exception as e:
+        
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("create_intercompany_sales_order: %s at %s", str(e), str(exc_tb.tb_lineno))
+        return []

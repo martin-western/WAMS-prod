@@ -33,6 +33,7 @@ from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
 from WAMSApp.views_category_list import *
 from WAMSApp.views_SAP_Integration import *
+from WAMSApp.utils_SAP_Integration import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -130,24 +131,24 @@ class CreateNewBaseProductAPI(APIView):
 
             # Checking brand permission
             brand_obj = None
-            
             try:
-                
-                permissible_brands = custom_permission_filter_brands(
-                    request.user)
-                brand_obj = Brand.objects.get(name=brand_name)
-
-                if brand_obj not in permissible_brands:
-                    logger.warning(
-                        "CreateNewBaseProductAPI Restricted Access Brand!")
-                    response['status'] = 403
-                    return Response(data=response)
-            
+                permissible_brands = custom_permission_filter_brands(request.user)
+                if Brand.objects.filter(name=brand_name).exists()==True:
+                    brand_obj = Brand.objects.get(name=brand_name)
+                    if brand_obj not in permissible_brands:
+                        logger.warning("CreateNewBaseProductAPI Restricted Access Brand!")
+                        response['status'] = 403
+                        return Response(data=response)
+                else:
+                    custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+                    brand_obj = Brand.objects.create(name=brand_name, organization=custom_permission_obj.organization)
+                    custom_permission_obj.brands.add(brand_obj)
+                    custom_permission_obj.save()
             except Exception as e:
-                
                 logger.error("CreateNewBaseProductAPI Restricted Access Brand!")
                 response['status'] = 403
                 return Response(data=response)
+                
 
             if BaseProduct.objects.filter(seller_sku=seller_sku).exists():
                 
@@ -794,6 +795,8 @@ class FetchProductDetailsAPI(APIView):
             response["partially_verified"] = product_obj.partially_verified
             response["color_map"] = product_obj.color_map
             response["color"] = product_obj.color
+            response["weight"] = product_obj.weight
+            response["dimensions"] = product_obj.get_dimensions()
 
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price
@@ -917,6 +920,7 @@ class FetchProductDetailsAPI(APIView):
                 pfl_pk = pfl_obj.pk
 
             response["pfl_pk"] = pfl_pk
+            response["product_pk"] = product_obj.pk
 
             response["images"] = images
             response["base_product_pk"] = base_product_obj.pk
@@ -1252,13 +1256,20 @@ class SaveBaseProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            brand_obj = None
             try:
                 permissible_brands = custom_permission_filter_brands(request.user)
-                brand_obj = Brand.objects.get(name=data["brand_name"])
-                if brand_obj not in permissible_brands:
-                    logger.warning("SaveBaseProductAPI Restricted Access Brand!")
-                    response['status'] = 403
-                    return Response(data=response)
+                if Brand.objects.filter(name=data["brand_name"]).exists()==True:
+                    brand_obj = Brand.objects.get(name=data["brand_name"])
+                    if brand_obj not in permissible_brands:
+                        logger.warning("SaveBaseProductAPI Restricted Access Brand!")
+                        response['status'] = 403
+                        return Response(data=response)
+                else:
+                    custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+                    brand_obj = Brand.objects.create(name=data["brand_name"], organization=custom_permission_obj.organization)
+                    custom_permission_obj.brands.add(brand_obj)
+                    custom_permission_obj.save()
             except Exception as e:
                 logger.error("SaveBaseProductAPI Restricted Access Brand!")
                 response['status'] = 403
@@ -1402,6 +1413,7 @@ class SaveProductAPI(APIView):
             barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
+            weight = float(data.get("weight", 0))
             standard_price = None if data["standard_price"] == "" else float(data["standard_price"])
             quantity = None if data["quantity"] == "" else int(data["quantity"])
             
@@ -1445,6 +1457,7 @@ class SaveProductAPI(APIView):
             product_obj.product_id_type = product_id_type_obj
             product_obj.color_map = color_map
             product_obj.color = color
+            product_obj.weight = weight
             
             product_obj.material_type = material_type_obj
             product_obj.standard_price = standard_price
@@ -5856,6 +5869,10 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="sales":
                 p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
                 p1.start()
+            elif report_type.lower()=="verified products":
+                p1 = threading.Thread(target=create_verified_products_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1.start()
+
 
             response["approved"] = True
             response['status'] = 200
@@ -6249,6 +6266,9 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["sub_category"] = dealshub_product_obj.get_sub_category()
             response["category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.uuid)
             response["sub_category_uuid"] = "" if dealshub_product_obj.sub_category==None else str(dealshub_product_obj.sub_category.uuid)
+
+            response["super_category"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category)
+            response["super_category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category.uuid)
 
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
             response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")

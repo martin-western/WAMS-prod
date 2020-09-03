@@ -28,9 +28,9 @@ from django.core.files import File
 
 logger = logging.getLogger(__name__)
 
-partner_id = "11109"
-country_code = "ae"
-partner_warehouse_code = "12345"
+customer_id = "40000195"
+
+stock_price_production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
 
 class FetchPriceAndStockAPI(APIView):
 
@@ -38,76 +38,18 @@ class FetchPriceAndStockAPI(APIView):
 
         response = {}
         response['status'] = 500
+        
         try:
+            
             data = request.data
-            logger.info("FetchStatisticsAPI: %s", str(data))
+            logger.info("FetchPriceAndStockAPI: %s", str(data))
 
-            page = int(data["page"])
-            brand_name = data.get("brand_name","")
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
-            filter_parameters = data["filter_parameters"]
-           
-            permissible_brands = custom_permission_filter_brands(request.user)
+            product_pk = data["product_pk"]
+            warehouse_code = data["warehouse_code"]
 
-            if(brand_name != ""):
-                permissible_brands = permissible_brands.filter(name=brand_name)
-
-            permissible_brands = permissible_brands.annotate(num_products=Count('baseproduct')).order_by('-num_products')
-
-            paginator = Paginator(permissible_brands, 5)
-            brand_objs = paginator.page(page)
-
-            brand_list = []
-            for brand_obj in brand_objs:
-
-                search_list_product_objs = Product.objects.filter(base_product__brand=brand_obj)
-                total_products = search_list_product_objs.count()
-
-                search_list_product_objs = content_health_filtered_list(filter_parameters,search_list_product_objs)
-
-
-                temp_dict = {}
-                temp_dict["brand_name"] = brand_obj.name
-                temp_dict["value"] = search_list_product_objs.count()
-                temp_dict["total_products"] = total_products
-
-                brand_list.append(temp_dict)
-
-            attribute_list = [
-                "Product Description",
-                "Product Name",
-                "Product ID",
-                "Product Verified",
-                "Amazon UK Product",
-                "Amazon UAE Product",
-                "Noon Product",
-                "Ebay Product",
-                "Product Features",
-                "White Background Images > 0",
-                "White Background Images > 1",
-                "White Background Images > 2",
-                "Lifestyle Images > 0",
-                "Lifestyle Images > 1",
-                "Lifestyle Images > 2",
-                "Giftbox Images > 0",
-                "Giftbox Images > 1",
-                "Giftbox Images > 2",
-                "Transparent Images > 0",
-                "Transparent Images > 1",
-                "Transparent Images > 2",
-                "Main Images",
-                "Sub Images > 0",
-                "Sub Images > 1",
-                "Sub Images > 2"]
-
-            is_available = True
-
-            if paginator.num_pages == page:
-                is_available = False
-
-            response["is_available"] = is_available
-            response["keys"] = attribute_list
-            response["brand_list"] = brand_list
             response['status'] = 200
 
         except Exception as e:
