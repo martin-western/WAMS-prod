@@ -2436,9 +2436,7 @@ class ContactUsSendEmailAPI(APIView):
         return Response(data=response)
 
 
-class SendOTPSMSLoginAPI(APIView):
-
-    permission_classes = [AllowAny]
+class FetchUserExistanceAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -2446,67 +2444,36 @@ class SendOTPSMSLoginAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("SendOTPSMSLoginAPI: %s", str(data))
+            logger.info("FetchUserExistanceAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             contact_number = data["contactNumber"]
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
-
-            mshastra_info = json.loads(location_group_obj.mshastra_info)
-
-            digits = "0123456789"
-            OTP = ""
-            for i in range(6):
-                OTP += digits[int(math.floor(random.random()*10))]
-
-            if contact_number in ["888888888", "940804016", "888888881"]:
-                OTP = "777777"
-
-            is_new_user = False
+            
+            is_pin_set = False
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
-                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
-                dealshub_user_obj.set_password(OTP)
-                dealshub_user_obj.verification_code = OTP
-                dealshub_user_obj.save()
-                is_new_user = True
+                DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
-
             else:
-                dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
-                dealshub_user_obj.set_password(OTP)
-                dealshub_user_obj.verification_code = OTP
-                dealshub_user_obj.save()
+                is_pin_set = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name).is_pin_set
 
-            message = "Login OTP is " + OTP
-
-            # Trigger SMS
-            prefix_code = mshastra_info["prefix_code"]
-            sender_id = mshastra_info["sender_id"]
-            user = mshastra_info["user"]
-            pwd = mshastra_info["pwd"]
-
-            contact_number = prefix_code+contact_number
-            url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
-            r = requests.get(url)
-
-            response["isNewUser"] = is_new_user
+            response["is_pin_set"] = is_pin_set
             response["status"] = 200
-
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
+            logger.error("FetchUserExistanceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
-class VerifyOTPSMSLoginAPI(APIView):
+class SetPinLoginAPI(APIView):
 
     permission_classes = [AllowAny]
 
@@ -2516,12 +2483,76 @@ class VerifyOTPSMSLoginAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("VerifyOTPSMSLoginAPI: %s", str(data))
+            logger.info("SetPinLoginAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
             
             contact_number = data["contactNumber"]
-            otp = data["otp"]
+            location_group_uuid = data["locationGroupUuid"]
+            is_reset = data.get("is_reset", False)
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+            mshastra_info = json.loads(location_group_obj.mshastra_info)
+
+            if is_reset == True:
+                digits = "0123456789"
+                new_verification_code = ""
+                for i in range(4):
+                    new_verification_code += digits[int(math.floor(random.random()*10))]
+
+                dealshub_user_obj.set_password(new_verification_code)
+                dealshub_user_obj.verification_code = new_verification_code
+                dealshub_user_obj.is_pin_set = True
+                dealshub_user_obj.save()
+                message = "Your new login pin is " + new_verification_code
+
+                # Trigger SMS
+                prefix_code = mshastra_info["prefix_code"]
+                sender_id = mshastra_info["sender_id"]
+                user = mshastra_info["user"]
+                pwd = mshastra_info["pwd"]
+
+                contact_number = prefix_code+contact_number
+                url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
+                r = requests.get(url)
+
+            else:
+                if len(verification_code)==4:
+                    dealshub_user_obj.set_password(verification_code)
+                    dealshub_user_obj.verification_code = verification_code
+                    dealshub_user_obj.is_pin_set = True
+                    dealshub_user_obj.save()
+                else:
+                    response["status"] = 403
+                    return Response(data=response)
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SetPinLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class VerifyPinSMSLoginAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("VerifyPinSMSLoginAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            contact_number = data["contactNumber"]
+            verification_code = data["verification_code"]
             location_group_uuid = data["locationGroupUuid"].lower()
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
@@ -2531,11 +2562,11 @@ class VerifyOTPSMSLoginAPI(APIView):
             
             credentials = {
                 "username": contact_number+"-"+website_group_name,
-                "password": otp
+                "password": verification_code
             }
 
             verified = False
-            if dealshub_user_obj.verification_code==otp:
+            if dealshub_user_obj.verification_code==verification_code:
                 r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
@@ -2548,7 +2579,7 @@ class VerifyOTPSMSLoginAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("VerifyOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("VerifyPinSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4180,9 +4211,7 @@ CalculateSignature = CalculateSignatureAPI.as_view()
 
 ContactUsSendEmail = ContactUsSendEmailAPI.as_view()
 
-SendOTPSMSLogin = SendOTPSMSLoginAPI.as_view()
-
-VerifyOTPSMSLogin = VerifyOTPSMSLoginAPI.as_view()
+VerifyPinSMSLogin = VerifyPinSMSLoginAPI.as_view()
 
 UpdateUserEmail = UpdateUserEmailAPI.as_view()
 
@@ -4241,3 +4270,7 @@ AddToWishList = AddToWishListAPI.as_view()
 RemoveFromWishList = RemoveFromWishListAPI.as_view()
 
 FetchWishList = FetchWishListAPI.as_view()
+
+FetchUserExistance = FetchUserExistanceAPI.as_view()
+
+SetPinLogin = SetPinLoginAPI.as_view()

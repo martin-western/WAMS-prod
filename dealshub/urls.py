@@ -129,8 +129,9 @@ urlpatterns = [
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
-    url(r'^send-otp-sms-login/$', views.SendOTPSMSLogin),
-    url(r'^verify-otp-sms-login/$', views.VerifyOTPSMSLogin),
+    url(r'^fetch-user-existance/$', views.FetchUserExistance),
+    url(r'^set-pin-login/$', views.SetPinLogin),
+    url(r'^verify-pin-sms-login/$', views.VerifyPinSMSLogin),
 
     url(r'^update-user-email/$', views.UpdateUserEmail),
 
