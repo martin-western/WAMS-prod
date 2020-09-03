@@ -222,7 +222,7 @@ class FetchSectionProductsAPI(APIView):
             temp_dict["productsArray"] = []
 
             page = int(data.get("page",1))
-            paginator = Paginator(dealshub_product_objs, 20)
+            paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
 
             for dealshub_product_obj in dealshub_product_objs:
@@ -410,6 +410,7 @@ class SearchAPI(APIView):
             brand_list = []
             try:
                 brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+                brand_list = list(set(brand_list))
                 if len(brand_list)==1:
                     brand_list = []
             except Exception as e:
@@ -432,7 +433,7 @@ class SearchAPI(APIView):
             #     exc_type, exc_obj, exc_tb = sys.exc_info()
             #     logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-            paginator = Paginator(available_dealshub_products, 10)
+            paginator = Paginator(available_dealshub_products, 50)
             dealshub_product_objs = paginator.page(page)            
             products = []
             for dealshub_product_obj in dealshub_product_objs:
@@ -1988,7 +1989,7 @@ class FetchUnitBannerProductsAPI(APIView):
             dealshub_product_objs = dealshub_product_objs.exclude(now_price=0).exclude(stock=0)
 
             page = int(data.get('page', 1))
-            paginator = Paginator(dealshub_product_objs, 20)
+            paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
 
             product_list = []
