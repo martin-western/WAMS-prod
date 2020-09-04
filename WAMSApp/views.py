@@ -1413,7 +1413,12 @@ class SaveProductAPI(APIView):
             barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
-            weight = float(data.get("weight", 0))
+            weight = 0
+            try:
+                weight = float(data.get("weight", 0))
+            except Exception as e:
+                pass
+            
             standard_price = None if data["standard_price"] == "" else float(data["standard_price"])
             quantity = None if data["quantity"] == "" else int(data["quantity"])
             
