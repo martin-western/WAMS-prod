@@ -2509,6 +2509,166 @@ class SendOTPSMSLoginAPI(APIView):
         return Response(data=response)
 
 
+class CheckUserPinSetAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("CheckUserPinSetAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+
+            is_new_user = False
+            dealshub_user_obj = None
+            if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
+                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
+                dealshub_user_obj.set_password("97631")
+                dealshub_user_obj.verification_code = "97631"
+                dealshub_user_obj.save()
+                is_new_user = True
+
+                for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+            else:
+                dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+            
+            response["is_pin_set"] = dealshub_user_obj.is_pin_set
+            response["is_new_user"] = is_new_user
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CheckUserPinSetAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SetLoginPinAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SetLoginPinAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+            pin = data["pin"]
+
+            if len(pin)!=4:
+                response["status"] = 403
+                logger.warning("SetLoginPinAPI: Pin must be 4 digit long")
+                return Response(data=response)
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+            
+            verified = False
+            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+            if dealshub_user_obj.is_pin_set==False:
+                dealshub_user_obj.set_password(pin)
+                dealshub_user_obj.verification_code = pin
+                dealshub_user_obj.is_pin_set = True
+                dealshub_user_obj.save()
+
+                credentials = {
+                    "username": contact_number+"-"+website_group_name,
+                    "password": pin
+                }
+                if dealshub_user_obj.verification_code==pin:
+                    r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                    token = json.loads(r.content)["token"]
+                    response["token"] = token
+                    dealshub_user_obj.contact_verified = True
+                    verified = True
+                    dealshub_user_obj.save()
+            else:
+                response["status"] = 403
+                logger.warning("SetLoginPinAPI: Pin already set!")
+                return Response(data=response)
+
+            response["verified"] = verified
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SetLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class VerifyLoginPinAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("VerifyLoginPinAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+            pin = data["pin"]
+
+            if len(pin)!=4:
+                response["status"] = 403
+                logger.warning("VerifyLoginPinAPI: Pin must be 4 digit long")
+                return Response(data=response)
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+            
+            verified = False
+            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+            if dealshub_user_obj.is_pin_set==True:
+                credentials = {
+                    "username": contact_number+"-"+website_group_name,
+                    "password": pin
+                }
+                if dealshub_user_obj.verification_code==pin:
+                    r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                    token = json.loads(r.content)["token"]
+                    response["token"] = token
+                    dealshub_user_obj.contact_verified = True
+                    verified = True
+                    dealshub_user_obj.save()
+
+            response["verified"] = verified
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SetLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class VerifyOTPSMSLoginAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -4186,6 +4346,12 @@ ContactUsSendEmail = ContactUsSendEmailAPI.as_view()
 SendOTPSMSLogin = SendOTPSMSLoginAPI.as_view()
 
 VerifyOTPSMSLogin = VerifyOTPSMSLoginAPI.as_view()
+
+CheckUserPinSet = CheckUserPinSetAPI.as_view()
+
+SetLoginPin = SetLoginPinAPI.as_view()
+
+VerifyLoginPin = VerifyLoginPinAPI.as_view()
 
 UpdateUserEmail = UpdateUserEmailAPI.as_view()
 

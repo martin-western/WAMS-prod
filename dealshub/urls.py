@@ -132,6 +132,10 @@ urlpatterns = [
     url(r'^send-otp-sms-login/$', views.SendOTPSMSLogin),
     url(r'^verify-otp-sms-login/$', views.VerifyOTPSMSLogin),
 
+    url(r'^check-user-pin-set/$', views.CheckUserPinSet),
+    url(r'^set-login-pin/$', views.SetLoginPin),
+    url(r'^verify-login-pin/$', views.VerifyLoginPin),
+
     url(r'^update-user-email/$', views.UpdateUserEmail),
 
     url(r'^add-review/$', views.AddReview),
