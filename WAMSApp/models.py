@@ -1197,6 +1197,24 @@ class DataPoint(models.Model):
         return self.name
 
 
+class ExportTemplate(models.Model):
+
+    name = models.CharField(max_length=200, default="")
+    data_points = models.ManyToManyField(DataPoint, blank=True)
+    user = models.ForeignKey(OmnyCommUser, blank=True, on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(ExportTemplate, self).save(*args, **kwargs)
+
+
 class TagBucket(models.Model):
 
     image = models.ForeignKey(Image, on_delete=models.CASCADE)

@@ -6342,6 +6342,115 @@ class SaveDealshubProductDetailsAPI(APIView):
             logger.error("SaveDealshubProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class FetchExportTemplatesAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            logger.info("FetchExportTemplatesAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            export_template_objs = ExportTemplate.objects.filter(user__username=request.user.username)
+
+            export_template_list = []
+            for export_template_obj in export_template_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = export_template_obj.name
+                    temp_dict["uuid"] = export_template_obj.name
+                    data_point_list = []
+                    data_point_objs = export_template_obj.data_points.all()
+                    for data_point_obj in data_point_objs:
+                        temp_dict2 = {}
+                        temp_dict2["name"] = data_point_obj.name
+                        temp_dict2["variable"] = data_point_obj.variable
+                        data_point_list.append(temp_dict2)
+                    temp_dict["data_point_list"] = data_point_list
+                    export_template_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchExportTemplatesAPI: %s at %s", e, str(exc_tb.tb_lineno))                    
+
+            response["export_template_list"] = export_template_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchExportTemplatesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateExportTemplateAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("FetchExportTemplateAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            name = data["name"]
+            data_point_list = data["data_point_list"]
+
+            omnycomm_user_obj = OmnyCommUser.objects.get(user__username=request.user.username)
+            export_template_obj = ExportTemplate.objects.create(user=omnycomm_user_obj, name=name)
+
+            for data_point in data_point_list:
+                data_point_obj = DataPoint.objects.get(variable=data_point)
+                export_template_obj.data_points.add(data_point_obj)
+
+            export_template_obj.save()
+            response["uuid"] = export_template_obj.uuid
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchExportTemplateAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteExportTemplateAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("DeleteExportTemplateAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            name = data["uuid"]
+
+            export_template_obj = ExportTemplate.objects.get(uuid=uuid)
+            export_template_obj.delete()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteExportTemplateAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
         
 
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
@@ -6512,3 +6621,9 @@ UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view
 FetchDealshubProductDetails = FetchDealshubProductDetailsAPI.as_view()
 
 SaveDealshubProductDetails = SaveDealshubProductDetailsAPI.as_view()
+
+FetchExportTemplates = FetchExportTemplatesAPI.as_view()
+
+CreateExportTemplate = CreateExportTemplateAPI.as_view()
+
+DeleteExportTemplate = DeleteExportTemplateAPI.as_view()
