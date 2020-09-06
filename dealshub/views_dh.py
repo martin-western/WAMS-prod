@@ -2669,6 +2669,60 @@ class VerifyLoginPinAPI(APIView):
         return Response(data=response)
 
 
+class ForgotLoginPinAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("ForgotLoginPinAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+            
+            mshastra_info = json.loads(location_group_obj.mshastra_info)
+
+            digits = "0123456789"
+            pin = ""
+            for i in range(4):
+                pin += digits[int(math.floor(random.random()*10))]
+
+            message = "Your PIN has been reset. New PIN is " + pin
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+            dealshub_user_obj.set_password(pin)
+            dealshub_user_obj.verification_code = pin
+            dealshub_user_obj.save()
+
+            # Trigger SMS
+            prefix_code = mshastra_info["prefix_code"]
+            sender_id = mshastra_info["sender_id"]
+            user = mshastra_info["user"]
+            pwd = mshastra_info["pwd"]
+
+            contact_number = prefix_code+contact_number
+            url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
+            r = requests.get(url)
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ForgotLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class VerifyOTPSMSLoginAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -4352,6 +4406,8 @@ CheckUserPinSet = CheckUserPinSetAPI.as_view()
 SetLoginPin = SetLoginPinAPI.as_view()
 
 VerifyLoginPin = VerifyLoginPinAPI.as_view()
+
+ForgotLoginPin = ForgotLoginPinAPI.as_view()
 
 UpdateUserEmail = UpdateUserEmailAPI.as_view()
 
