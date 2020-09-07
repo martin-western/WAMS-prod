@@ -150,6 +150,17 @@ def update_cart_bill(cart_obj):
     cart_obj.save()
 
 
+def update_fast_cart_bill(fast_cart_obj):
+    
+    fast_cart_obj.to_pay = fast_cart_obj.get_total_amount()
+
+    if fast_cart_obj.voucher!=None:
+        voucher_obj = fast_cart_obj.voucher
+        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(fast_cart_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj):
+            fast_cart_obj.voucher = None
+    fast_cart_obj.save()
+
+
 def send_order_confirmation_mail(order_obj):
     try:
         logger.info("send_order_confirmation_mail started!")
