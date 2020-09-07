@@ -6366,7 +6366,7 @@ class FetchExportTemplatesAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["name"] = export_template_obj.name
-                    temp_dict["uuid"] = export_template_obj.name
+                    temp_dict["uuid"] = export_template_obj.uuid
                     data_point_list = []
                     data_point_objs = export_template_obj.data_points.all()
                     for data_point_obj in data_point_objs:
