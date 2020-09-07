@@ -6399,7 +6399,7 @@ class CreateExportTemplateAPI(APIView):
 
         try:
             data = request.data
-            logger.info("FetchExportTemplateAPI: %s", str(data))
+            logger.info("CreateExportTemplateAPI: %s", str(data))
             
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -6407,7 +6407,7 @@ class CreateExportTemplateAPI(APIView):
             name = data["name"]
             data_point_list = data["data_point_list"]
 
-            omnycomm_user_obj = OmnyCommUser.objects.get(user__username=request.user.username)
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             export_template_obj = ExportTemplate.objects.create(user=omnycomm_user_obj, name=name)
 
             for data_point in data_point_list:
@@ -6420,7 +6420,7 @@ class CreateExportTemplateAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchExportTemplateAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateExportTemplateAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
