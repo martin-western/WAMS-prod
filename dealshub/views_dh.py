@@ -468,7 +468,7 @@ class AddToFastCartAPI(APIView):
                 data = json.loads(data)
 
             product_uuid = data["productUuid"]
-            quantity = int(data["quantity"])
+            quantity = 1
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)

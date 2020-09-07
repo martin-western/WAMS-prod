@@ -83,6 +83,8 @@ urlpatterns = [
     url(r'^cart/remove-from-cart/$', views.RemoveFromCart),
 
     url(r'^cart/fetch-fast-cart-details/$', views.FetchFastCartDetails),
+    url(r'^cart/add-to-fast-cart/$', views.AddToFastCart),
+    url(r'^cart/update-fast-cart-details/$', views.FetchFastCartDetails),
 
     url(r'^checkout/select-address/$', views.SelectAddress),
     url(r'^checkout/select-offline-address/$', views.SelectOfflineAddress),
