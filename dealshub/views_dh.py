@@ -887,8 +887,8 @@ class UpdateFastCartDetailsAPI(APIView):
             quantity = int(data["quantity"])
 
             fast_cart_obj = FastCart.objects.get(uuid=fast_cart_uuid)
-            unit_cart_obj.quantity = quantity
-            unit_cart_obj.save()
+            fast_cart_obj.quantity = quantity
+            fast_cart_obj.save()
 
             update_fast_cart_bill(fast_cart_obj)
 
