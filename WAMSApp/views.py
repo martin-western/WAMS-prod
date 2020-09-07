@@ -6407,7 +6407,7 @@ class CreateExportTemplateAPI(APIView):
             name = data["name"]
             data_point_list = data["data_point_list"]
 
-            omnycomm_user_obj = OmnyCommUser.objects.get(user__username=request.user.username)
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             export_template_obj = ExportTemplate.objects.create(user=omnycomm_user_obj, name=name)
 
             for data_point in data_point_list:
