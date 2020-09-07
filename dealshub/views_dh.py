@@ -4627,7 +4627,6 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["quantity"] = fast_cart_obj.quantity
             cart_details["price"] = fast_cart_obj.product.get_actual_price()
             cart_details["currency"] = fast_cart_obj.product.get_currency()
-            cart_details["dateCreated"] = fast_cart_obj.get_date_created()
             cart_details["productName"] = fast_cart_obj.product.get_name()
             cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()
             cart_details["productUuid"] = fast_cart_obj.product.uuid
