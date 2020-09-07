@@ -2454,6 +2454,15 @@ class PaymentTransactionAPI(APIView):
 
                 # Refresh Stock
                 refresh_stock(order_obj)
+            else:
+                if Cart.objects.filter(merchant_reference=merchant_reference).exists()==True:
+                    cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
+                    cart_obj.merchant_reference = ""
+                    cart_obj.save()
+                elif FastCart.objects.filter(merchant_reference=merchant_reference).exists()==True:
+                    fast_cart_obj = FastCart.objects.get(merchant_reference=merchant_reference)
+                    fast_cart_obj.merchant_reference = ""
+                    fast_cart_obj.save()
             
             response['status'] = 200
         except Exception as e:
