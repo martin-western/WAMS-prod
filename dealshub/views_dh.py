@@ -455,6 +455,90 @@ class AddToCartAPI(APIView):
         return Response(data=response)
 
 
+class AddToFastCartAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddToFastCartAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_uuid = data["productUuid"]
+            quantity = 1
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+
+            if dealshub_product_obj.location_group!=location_group_obj:
+                response["status"] = 403
+                logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
+                return Response(data=response)
+
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            
+            fast_cart_obj.product = dealshub_product_obj
+            fast_cart_obj.quantity = quantity
+            fast_cart_obj.save()
+
+            update_fast_cart_bill(fast_cart_obj)
+
+            subtotal = fast_cart_obj.get_subtotal()
+            
+            delivery_fee = fast_cart_obj.get_delivery_fee()
+            total_amount = fast_cart_obj.get_total_amount()
+            vat = fast_cart_obj.get_vat()
+
+            delivery_fee_with_cod = fast_cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
+            vat_with_cod = fast_cart_obj.get_vat(cod=True)
+
+
+            is_voucher_applied = fast_cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = fast_cart_obj.voucher.voucher_code
+                if fast_cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+
+            response["currency"] = fast_cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": fast_cart_obj.location_group.cod_charge
+            }
+
+            response["unitCartUuid"] = fast_cart_obj.uuid
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddToFastCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class AddToOfflineCartAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -787,6 +871,76 @@ class UpdateCartDetailsAPI(APIView):
         return Response(data=response)
 
 
+class UpdateFastCartDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateFastCartDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            fast_cart_uuid = data["fastCartUuid"]
+            quantity = int(data["quantity"])
+
+            fast_cart_obj = FastCart.objects.get(uuid=fast_cart_uuid)
+            unit_cart_obj.quantity = quantity
+            unit_cart_obj.save()
+
+            update_fast_cart_bill(fast_cart_obj)
+
+            subtotal = fast_cart_obj.get_subtotal()
+            
+            delivery_fee = fast_cart_obj.get_delivery_fee()
+            total_amount = fast_cart_obj.get_total_amount()
+            vat = fast_cart_obj.get_vat()
+
+            delivery_fee_with_cod = fast_cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
+            vat_with_cod = fast_cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = fast_cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = fast_cart_obj.voucher.voucher_code
+                if fast_cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = fast_cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": fast_cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateFastCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class RemoveFromCartAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1048,61 +1202,114 @@ class PlaceOrderAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
+
+            is_fast_cart = data.get("is_fast_cart", False)
+
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
-            try:
-                if cart_obj.shipping_address==None:
-                    address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
-                    cart_obj.shipping_address = address_obj
-                    cart_obj.save()
-            except Exception as e:
-                pass
+            order_obj = None
+            if is_fast_cart==False:
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
-            cart_obj.voucher = None
-            cart_obj.save()
+                try:
+                    if cart_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        cart_obj.shipping_address = address_obj
+                        cart_obj.save()
+                except Exception as e:
+                    pass
 
-            update_cart_bill(cart_obj)
+                cart_obj.voucher = None
+                cart_obj.save()
 
-            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+                update_cart_bill(cart_obj)
 
-            # Check if COD is allowed
-            is_cod_allowed = cart_obj.is_cod_allowed()
-            if is_cod_allowed==False:
-                response["status"] = 403
-                logger.error("PlaceOrderAPI: COD not allowed!")
-                return Response(data=response)
+                unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
-            cart_obj.to_pay += cart_obj.location_group.cod_charge
-            cart_obj.save()
+                # Check if COD is allowed
+                is_cod_allowed = cart_obj.is_cod_allowed()
+                if is_cod_allowed==False:
+                    response["status"] = 403
+                    logger.error("PlaceOrderAPI: COD not allowed!")
+                    return Response(data=response)
 
-            order_obj = Order.objects.create(owner=cart_obj.owner,
-                                             shipping_address=cart_obj.shipping_address,
-                                             to_pay=cart_obj.to_pay,
-                                             order_placed_date=timezone.now(),
-                                             voucher=cart_obj.voucher,
-                                             location_group=cart_obj.location_group)
+                cart_obj.to_pay += cart_obj.location_group.cod_charge
+                cart_obj.save()
 
-            for unit_cart_obj in unit_cart_objs:
+                order_obj = Order.objects.create(owner=cart_obj.owner,
+                                                 shipping_address=cart_obj.shipping_address,
+                                                 to_pay=cart_obj.to_pay,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=cart_obj.voucher,
+                                                 location_group=cart_obj.location_group)
+
+                for unit_cart_obj in unit_cart_objs:
+                    unit_order_obj = UnitOrder.objects.create(order=order_obj,
+                                                              product=unit_cart_obj.product,
+                                                              quantity=unit_cart_obj.quantity,
+                                                              price=unit_cart_obj.product.get_actual_price())
+                    UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+                # Cart gets empty
+                for unit_cart_obj in unit_cart_objs:
+                    unit_cart_obj.delete()
+
+                # cart_obj points to None
+                cart_obj.shipping_address = None
+                cart_obj.voucher = None
+                cart_obj.to_pay = 0
+                cart_obj.merchant_reference = ""
+                cart_obj.payment_info = "{}"
+                cart_obj.save()
+            else:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                try:
+                    if fast_cart_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        fast_cart_obj.shipping_address = address_obj
+                        fast_cart_obj.save()
+                except Exception as e:
+                    pass
+
+                fast_cart_obj.voucher = None
+                fast_cart_obj.save()
+
+                update_fast_cart_bill(fast_cart_obj)
+
+                # Check if COD is allowed
+                is_cod_allowed = fast_cart_obj.is_cod_allowed()
+                if is_cod_allowed==False:
+                    response["status"] = 403
+                    logger.error("PlaceOrderAPI: COD not allowed!")
+                    return Response(data=response)
+
+                fast_cart_obj.to_pay += fast_cart_obj.location_group.cod_charge
+                fast_cart_obj.save()
+
+                order_obj = Order.objects.create(owner=fast_cart_obj.owner,
+                                                 shipping_address=fast_cart_obj.shipping_address,
+                                                 to_pay=fast_cart_obj.to_pay,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=fast_cart_obj.voucher,
+                                                 location_group=fast_cart_obj.location_group)
+
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
-                                                          product=unit_cart_obj.product,
-                                                          quantity=unit_cart_obj.quantity,
-                                                          price=unit_cart_obj.product.get_actual_price())
+                                                          product=fast_cart_obj.product,
+                                                          quantity=fast_cart_obj.quantity,
+                                                          price=fast_cart_obj.product.get_actual_price())
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
-            # Cart gets empty
-            for unit_cart_obj in unit_cart_objs:
-                unit_cart_obj.delete()
+                # cart_obj points to None
+                fast_cart_obj.shipping_address = None
+                fast_cart_obj.voucher = None
+                fast_cart_obj.to_pay = 0
+                fast_cart_obj.merchant_reference = ""
+                fast_cart_obj.payment_info = "{}"
+                fast_cart_obj.save()
 
-            # cart_obj points to None
-            cart_obj.shipping_address = None
-            cart_obj.voucher = None
-            cart_obj.to_pay = 0
-            cart_obj.merchant_reference = ""
-            cart_obj.payment_info = "{}"
-            cart_obj.save()
 
             # Trigger Email
             try:
@@ -1956,12 +2163,21 @@ class FetchTokenRequestParametersAPI(APIView):
             language = "en"
             PASS = payment_credentials["PASS"]
 
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-            if cart_obj.merchant_reference=="":
-                cart_obj.merchant_reference = merchant_reference
-                cart_obj.save()
+            is_fast_cart = data.get("is_fast_cart", False)
+            if is_fast_cart==False:
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                if cart_obj.merchant_reference=="":
+                    cart_obj.merchant_reference = merchant_reference
+                    cart_obj.save()
+                else:
+                    merchant_reference = cart_obj.merchant_reference
             else:
-                merchant_reference = cart_obj.merchant_reference
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                if fast_cart_obj.merchant_reference=="":
+                    fast_cart_obj.merchant_reference = merchant_reference
+                    fast_cart_obj.save()
+                else:
+                    merchant_reference = fast_cart_obj.merchant_reference
 
             request_data = {
                 "service_command": service_command,
@@ -1974,6 +2190,8 @@ class FetchTokenRequestParametersAPI(APIView):
 
             keys = list(request_data.keys())
             keys.sort()
+            if "is_fast_cart" in keys:
+                keys.remove("is_fast_cart")
             signature_string = [PASS]
             for key in keys:
                 signature_string.append(key+"="+request_data[key])
@@ -2037,10 +2255,16 @@ class MakePurchaseRequestAPI(APIView):
             
 
             customer_email = dealshub_user_obj.email
+
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             amount = cart_obj.to_pay
             payfort_multiplier = int(cart_obj.location_group.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
+
+            if data.get("is_fast_cart", False)==True:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                amount = fast_cart_obj.to_pay
+                amount = str(int(float(amount)*payfort_multiplier))
 
             request_data = {
                 "command":command,
@@ -2071,8 +2295,13 @@ class MakePurchaseRequestAPI(APIView):
             payment_response = json.loads(r.content)
             logger.info("payment_response %s", str(payment_response))
 
-            cart_obj.payment_info = json.dumps(payment_response)
-            cart_obj.save()
+            if data.get("is_fast_cart", False)==True:
+                cart_obj.payment_info = json.dumps(payment_response)
+                cart_obj.save()
+            else:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                fast_cart_obj.payment_info = json.dumps(payment_response)
+                fast_cart_obj.save()
 
             response["paymentResponse"] = payment_response
             response['status'] = 200
@@ -2109,51 +2338,110 @@ class PaymentTransactionAPI(APIView):
 
 
             if status=="14":
-                cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
+                order_obj = None
+                if Cart.objects.filter(merchant_reference=merchant_reference).exists()==True:
+                    cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
 
-                try:
-                    if cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=cart_obj.owner)[0]
-                        cart_obj.shipping_address = address_obj
-                        cart_obj.save()
-                except Exception as e:
-                    pass
-
-                try:
-                    voucher_obj = cart_obj.voucher
-                    if voucher_obj!=None:
-                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
-                            voucher_obj.total_usage += 1
-                            voucher_obj.save()
-                        else:
-                            cart_obj.voucher = None
+                    try:
+                        if cart_obj.shipping_address==None:
+                            address_obj = Address.objects.filter(user=cart_obj.owner)[0]
+                            cart_obj.shipping_address = address_obj
                             cart_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
-                    return Response(data=response)
+                    except Exception as e:
+                        pass
 
-                order_obj = Order.objects.create(owner=cart_obj.owner, 
-                                                 shipping_address=cart_obj.shipping_address,
-                                                 to_pay=cart_obj.to_pay,
-                                                 order_placed_date=timezone.now(),
-                                                 voucher=cart_obj.voucher,
-                                                 location_group=cart_obj.location_group,
-                                                 payment_status="paid",
-                                                 payment_info=json.dumps(data),
-                                                 payment_mode=data.get("payment_option", "NA"))
+                    try:
+                        voucher_obj = cart_obj.voucher
+                        if voucher_obj!=None:
+                            if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                                voucher_obj.total_usage += 1
+                                voucher_obj.save()
+                            else:
+                                cart_obj.voucher = None
+                                cart_obj.save()
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                        return Response(data=response)
 
-                unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
-                for unit_cart_obj in unit_cart_objs:
+                    order_obj = Order.objects.create(owner=cart_obj.owner, 
+                                                     shipping_address=cart_obj.shipping_address,
+                                                     to_pay=cart_obj.to_pay,
+                                                     order_placed_date=timezone.now(),
+                                                     voucher=cart_obj.voucher,
+                                                     location_group=cart_obj.location_group,
+                                                     payment_status="paid",
+                                                     payment_info=json.dumps(data),
+                                                     payment_mode=data.get("payment_option", "NA"))
+
+                    unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+                    for unit_cart_obj in unit_cart_objs:
+                        unit_order_obj = UnitOrder.objects.create(order=order_obj, 
+                                                                  product=unit_cart_obj.product,
+                                                                  quantity=unit_cart_obj.quantity,
+                                                                  price=unit_cart_obj.product.get_actual_price())
+                        UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+                    # Cart gets empty
+                    for unit_cart_obj in unit_cart_objs:
+                        unit_cart_obj.delete()
+
+                    # cart_obj points to None
+                    cart_obj.shipping_address = None
+                    cart_obj.voucher = None
+                    cart_obj.to_pay = 0
+                    cart_obj.merchant_reference = ""
+                    cart_obj.payment_info = "{}"
+                    cart_obj.save()
+                elif FastCart.objects.filter(merchant_reference=merchant_reference).exists()==True:
+                    fast_cart_obj = FastCart.objects.get(merchant_reference=merchant_reference)
+
+                    try:
+                        if fast_cart_obj.shipping_address==None:
+                            address_obj = Address.objects.filter(user=fast_cart_obj.owner)[0]
+                            fast_cart_obj.shipping_address = address_obj
+                            fast_cart_obj.save()
+                    except Exception as e:
+                        pass
+
+                    try:
+                        voucher_obj = cart_obj.voucher
+                        if voucher_obj!=None:
+                            if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj)==False:
+                                voucher_obj.total_usage += 1
+                                voucher_obj.save()
+                            else:
+                                fast_cart_obj.voucher = None
+                                fast_cart_obj.save()
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                        return Response(data=response)
+
+                    order_obj = Order.objects.create(owner=fast_cart_obj.owner, 
+                                                     shipping_address=fast_cart_obj.shipping_address,
+                                                     to_pay=fast_cart_obj.to_pay,
+                                                     order_placed_date=timezone.now(),
+                                                     voucher=fast_cart_obj.voucher,
+                                                     location_group=fast_cart_obj.location_group,
+                                                     payment_status="paid",
+                                                     payment_info=json.dumps(data),
+                                                     payment_mode=data.get("payment_option", "NA"))
+
+                    
                     unit_order_obj = UnitOrder.objects.create(order=order_obj, 
-                                                              product=unit_cart_obj.product,
-                                                              quantity=unit_cart_obj.quantity,
-                                                              price=unit_cart_obj.product.get_actual_price())
+                                                              product=fast_cart_obj.product,
+                                                              quantity=fast_cart_obj.quantity,
+                                                              price=fast_cart_obj.product.get_actual_price())
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
-                # Cart gets empty
-                for unit_cart_obj in unit_cart_objs:
-                    unit_cart_obj.delete()
+                    # cart_obj points to None
+                    fast_cart_obj.shipping_address = None
+                    fast_cart_obj.voucher = None
+                    fast_cart_obj.to_pay = 0
+                    fast_cart_obj.merchant_reference = ""
+                    fast_cart_obj.payment_info = "{}"
+                    fast_cart_obj.save()
 
                 # Trigger Email
                 try:
@@ -2162,14 +2450,6 @@ class PaymentTransactionAPI(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-                # cart_obj points to None
-                cart_obj.shipping_address = None
-                cart_obj.voucher = None
-                cart_obj.to_pay = 0
-                cart_obj.merchant_reference = ""
-                cart_obj.payment_info = "{}"
-                cart_obj.save()
 
                 # Refresh Stock
                 refresh_stock(order_obj)
@@ -4321,6 +4601,85 @@ class FetchPostaPlusTrackingAPI(APIView):
         return Response(data=response)
 
 
+class FetchFastCartDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchFastCartDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            
+            cart_details = {}
+            cart_details["uuid"] = fast_cart_obj.uuid
+            cart_details["quantity"] = fast_cart_obj.quantity
+            cart_details["price"] = fast_cart_obj.product.get_actual_price()
+            cart_details["currency"] = fast_cart_obj.product.get_currency()
+            cart_details["dateCreated"] = fast_cart_obj.get_date_created()
+            cart_details["productName"] = fast_cart_obj.product.get_name()
+            cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()
+            cart_details["productUuid"] = fast_cart_obj.product.uuid
+            cart_details["brand"] = fast_cart_obj.product.get_brand()
+            cart_details["isStockAvailable"] = fast_cart_obj.product.stock > 0
+
+            update_fast_cart_bill(fast_cart_obj)
+
+            subtotal = fast_cart_obj.get_subtotal()
+            
+            delivery_fee = fast_cart_obj.get_delivery_fee()
+            total_amount = fast_cart_obj.get_total_amount()
+            vat = fast_cart_obj.get_vat()
+
+            delivery_fee_with_cod = fast_cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
+            vat_with_cod = fast_cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = fast_cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = fast_cart_obj.voucher.voucher_code
+                if fast_cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = fast_cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": fast_cart_obj.location_group.cod_charge
+            }
+            
+            response["cartDetails"] = cart_details
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchFastCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
@@ -4332,6 +4691,8 @@ CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
 DeleteShippingAddress = DeleteShippingAddressAPI.as_view()
 
 AddToCart = AddToCartAPI.as_view()
+
+AddToFastCart = AddToFastCartAPI.as_view()
 
 AddToOfflineCart = AddToOfflineCartAPI.as_view()
 
@@ -4466,3 +4827,5 @@ AddToWishList = AddToWishListAPI.as_view()
 RemoveFromWishList = RemoveFromWishListAPI.as_view()
 
 FetchWishList = FetchWishListAPI.as_view()
+
+FetchFastCartDetails = FetchFastCartDetailsAPI.as_view()
