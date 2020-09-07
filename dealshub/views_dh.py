@@ -4840,3 +4840,5 @@ RemoveFromWishList = RemoveFromWishListAPI.as_view()
 FetchWishList = FetchWishListAPI.as_view()
 
 FetchFastCartDetails = FetchFastCartDetailsAPI.as_view()
+
+UpdateFastCartDetails = UpdateFastCartDetailsAPI.as_view()
