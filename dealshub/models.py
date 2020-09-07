@@ -806,7 +806,7 @@ class FastCart(models.Model):
     merchant_reference = models.CharField(max_length=200, default="")
     payment_info = models.TextField(default="{}")
     modified_date = models.DateTimeField(null=True, blank=True)
-    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    product = models.ForeignKey(DealsHubProduct, null=True, blank=True, on_delete=models.SET_NULL)
     quantity = models.IntegerField(default=1)
 
     def save(self, *args, **kwargs):

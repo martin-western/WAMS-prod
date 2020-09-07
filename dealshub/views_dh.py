@@ -1703,6 +1703,7 @@ class CreateOfflineCustomerAPI(APIView):
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
 
                 response["username"] = dealshub_user_obj.username
                 response["status"] = 200
@@ -2760,6 +2761,7 @@ class SendOTPSMSLoginAPI(APIView):
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
 
             else:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
@@ -2822,6 +2824,7 @@ class CheckUserPinSetAPI(APIView):
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
             else:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
             
