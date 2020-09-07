@@ -794,6 +794,76 @@ class UnitOrderStatus(models.Model):
         return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
 
 
+class FastCart(models.Model):
+
+    owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    payment_mode = models.CharField(default="COD", max_length=100)
+    to_pay = models.FloatField(default=0)
+    merchant_reference = models.CharField(max_length=200, default="")
+    payment_info = models.TextField(default="{}")
+    modified_date = models.DateTimeField(null=True, blank=True)
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+
+        self.modified_date = timezone.now()
+        super(FastCart, self).save(*args, **kwargs)
+
+    def get_subtotal(self):
+        subtotal = float(self.product.get_actual_price())*float(self.quantity)
+        return subtotal
+
+    def get_delivery_fee(self, cod=False):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            if self.voucher.voucher_type=="SD":
+                return 0
+            subtotal = self.voucher.get_discounted_price(subtotal)
+
+        if subtotal < self.location_group.free_delivery_threshold:
+            return self.location_group.delivery_fee
+        return 0
+
+    def get_total_amount(self, cod=False):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            subtotal = self.voucher.get_discounted_price(subtotal)
+        delivery_fee = self.get_delivery_fee(cod)
+        if cod==True:
+            subtotal += self.location_group.cod_charge
+        return subtotal+delivery_fee
+
+    def get_vat(self, cod=False):
+        total_amount = self.get_total_amount(cod)
+        if self.location_group.vat==0:
+            return 0
+        vat_divider = 1+(self.location_group.vat/100)
+        return round((total_amount - total_amount/vat_divider), 2)
+
+    def get_currency(self):
+        return str(self.location_group.location.currency)
+
+    def is_cod_allowed(self):
+        if self.product.is_cod_allowed==False:
+            return False
+        return True
+
+    class Meta:
+        verbose_name = "Cart"
+        verbose_name_plural = "Carts"
+
+
 class DealsHubUser(User):
 
     contact_number = models.CharField(default="", max_length=50)
