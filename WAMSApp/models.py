@@ -752,36 +752,36 @@ class Product(models.Model):
             ebay_product_json_temp = json.loads(channel_product_obj.ebay_product_json)
 
             if noon_product_json_temp["product_name"]=="":
-                noon_product_json_temp["product_name"] = str(self.product_name)
+                noon_product_json_temp["product_name"] = str(self.product_name.decode("utf-8"))
             if noon_product_json_temp["product_description"]=="":
-                noon_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                noon_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description.decode("utf-8"))
             if noon_product_json_temp["category"]=="":
                 noon_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
             if noon_product_json_temp["sub_category"]=="":
                 noon_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
             if amazon_uk_product_json_temp["product_name"]=="":
-                amazon_uk_product_json_temp["product_name"] = str(self.product_name)
+                amazon_uk_product_json_temp["product_name"] = str(self.product_name.decode("utf-8"))
             if amazon_uk_product_json_temp["product_description"]=="":
-                amazon_uk_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                amazon_uk_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description.decode("utf-8"))
             if amazon_uk_product_json_temp["category"]=="":
                 amazon_uk_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
             if amazon_uk_product_json_temp["sub_category"]=="":
                 amazon_uk_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
             if amazon_uae_product_json_temp["product_name"]=="":
-                amazon_uae_product_json_temp["product_name"] = str(self.product_name)
+                amazon_uae_product_json_temp["product_name"] = str(self.product_name.decode("utf-8"))
             if amazon_uae_product_json_temp["product_description"]=="":
-                amazon_uae_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                amazon_uae_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description.decode("utf-8"))
             if amazon_uae_product_json_temp["category"]=="":
                 amazon_uae_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
             if amazon_uae_product_json_temp["sub_category"]=="":
                 amazon_uae_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
             if ebay_product_json_temp["product_name"]=="":
-                ebay_product_json_temp["product_name"] = str(self.product_name)
+                ebay_product_json_temp["product_name"] = str(self.product_name.decode("utf-8"))
             if ebay_product_json_temp["product_description"]=="":
-                ebay_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                ebay_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description.decode("utf-8"))
             if ebay_product_json_temp["category"]=="":
                 ebay_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
             if ebay_product_json_temp["sub_category"]=="":
