@@ -6439,7 +6439,7 @@ class DeleteExportTemplateAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            name = data["uuid"]
+            uuid = data["uuid"]
 
             export_template_obj = ExportTemplate.objects.get(uuid=uuid)
             export_template_obj.delete()
