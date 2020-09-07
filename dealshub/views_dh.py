@@ -484,7 +484,6 @@ class AddToFastCartAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             
-            
             fast_cart_obj.product = dealshub_product_obj
             fast_cart_obj.quantity = quantity
             fast_cart_obj.save()
@@ -868,6 +867,76 @@ class UpdateCartDetailsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class UpdateFastCartDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateFastCartDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            fast_cart_uuid = data["fastCartUuid"]
+            quantity = int(data["quantity"])
+
+            fast_cart_obj = FastCart.objects.get(uuid=fast_cart_uuid)
+            unit_cart_obj.quantity = quantity
+            unit_cart_obj.save()
+
+            update_fast_cart_bill(fast_cart_obj)
+
+            subtotal = fast_cart_obj.get_subtotal()
+            
+            delivery_fee = fast_cart_obj.get_delivery_fee()
+            total_amount = fast_cart_obj.get_total_amount()
+            vat = fast_cart_obj.get_vat()
+
+            delivery_fee_with_cod = fast_cart_obj.get_delivery_fee(cod=True)
+            total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
+            vat_with_cod = fast_cart_obj.get_vat(cod=True)
+
+            is_voucher_applied = fast_cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = fast_cart_obj.voucher.voucher_code
+                if fast_cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = fast_cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": fast_cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateFastCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
