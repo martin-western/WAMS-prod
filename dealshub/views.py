@@ -124,47 +124,54 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["features"] = []
 
+
             image_list = []
-            lifestyle_image_objs = product_obj.lifestyle_images.all()
-            for lifestyle_image_obj in lifestyle_image_objs:
-                try:
-                    temp_image = {}
-                    temp_image["original"] = lifestyle_image_obj.mid_image.url
-                    temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
-                    image_list.append(temp_image)
-                except Exception as e:
-                    pass
 
-            main_images_list = ImageBucket.objects.none()
-            main_images_objs = MainImages.objects.filter(product=product_obj, is_sourced=True)
-            for main_images_obj in main_images_objs:
-                main_images_list |= main_images_obj.main_images.all()
-            main_images_list = main_images_list.distinct()
-            main_images = create_response_images_main(main_images_list)
-            for main_image in main_images:
-                try:
-                    temp_image = {}
-                    temp_image["original"] = main_image["midimage_url"]
-                    temp_image["thumbnail"] = main_image["thumbnail_url"]
-                    image_list.append(temp_image)
-                except Exception as e:
-                    pass
+            cached_url_list = cache.get("image_url_list_"+product_obj.uuid, "has_expired")
+            if cached_url_list!="has_expired":
+                image_list = json.loads(cached_url_list)
+            else:
+                lifestyle_image_objs = product_obj.lifestyle_images.all()
+                for lifestyle_image_obj in lifestyle_image_objs:
+                    try:
+                        temp_image = {}
+                        temp_image["original"] = lifestyle_image_obj.mid_image.url
+                        temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
+                        image_list.append(temp_image)
+                    except Exception as e:
+                        pass
 
-            sub_images_list = ImageBucket.objects.none()
-            sub_images_objs = SubImages.objects.filter(product=product_obj, is_sourced=True)
-            for sub_images_obj in sub_images_objs:
-                sub_images_list |= sub_images_obj.sub_images.all()
-            sub_images_list = sub_images_list.distinct()
-            sub_images = create_response_images_sub(sub_images_list)
-            for sub_image in sub_images:
-                try:
-                    temp_image = {}
-                    temp_image["original"] = sub_image["midimage_url"]
-                    temp_image["thumbnail"] = sub_image["thumbnail_url"]
-                    image_list.append(temp_image)
-                except Exception as e:
-                    pass
+                main_images_list = ImageBucket.objects.none()
+                main_images_objs = MainImages.objects.filter(product=product_obj, is_sourced=True)
+                for main_images_obj in main_images_objs:
+                    main_images_list |= main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                main_images = create_response_images_main(main_images_list)
+                for main_image in main_images:
+                    try:
+                        temp_image = {}
+                        temp_image["original"] = main_image["midimage_url"]
+                        temp_image["thumbnail"] = main_image["thumbnail_url"]
+                        image_list.append(temp_image)
+                    except Exception as e:
+                        pass
 
+                sub_images_list = ImageBucket.objects.none()
+                sub_images_objs = SubImages.objects.filter(product=product_obj, is_sourced=True)
+                for sub_images_obj in sub_images_objs:
+                    sub_images_list |= sub_images_obj.sub_images.all()
+                sub_images_list = sub_images_list.distinct()
+                sub_images = create_response_images_sub(sub_images_list)
+                for sub_image in sub_images:
+                    try:
+                        temp_image = {}
+                        temp_image["original"] = sub_image["midimage_url"]
+                        temp_image["thumbnail"] = sub_image["thumbnail_url"]
+                        image_list.append(temp_image)
+                    except Exception as e:
+                        pass
+                cache.set("image_url_list_"+product_obj.uuid, json.dumps(image_list))
+            
             try:
                 response["heroImageUrl"] = image_list[0]["original"]
             except Exception as e:
