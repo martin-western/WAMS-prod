@@ -647,6 +647,12 @@ class ProductManager(models.Manager):
         return super(ProductManager, self).get_queryset().exclude(is_deleted=True)
 
 
+class ProductRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(ProductRecoveryManager, self).get_queryset()
+
+
 class Product(models.Model):
 
     #MISC
@@ -715,6 +721,7 @@ class Product(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     objects = ProductManager()
+    recovery = ProductRecoveryManager()
 
     class Meta:
         verbose_name = "Product"
