@@ -1023,10 +1023,15 @@ class SelectAddressAPI(APIView):
 
             address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-            
-            cart_obj.shipping_address = address_obj
-            cart_obj.save()
+
+            if data.get("is_fast_cart", False)==True:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+                fast_cart_obj.shipping_address = address_obj
+                fast_cart_obj.save()
+            else:
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+                cart_obj.shipping_address = address_obj
+                cart_obj.save()
 
             response["status"] = 200
         except Exception as e:
