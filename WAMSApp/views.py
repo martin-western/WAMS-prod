@@ -6451,6 +6451,45 @@ class DeleteExportTemplateAPI(APIView):
             logger.error("DeleteExportTemplateAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class SecureDeleteProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SecureDeleteProductAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["uuid"]
+            product_obj = Product.objects.get(uuid=uuid)
+
+            if product_obj.verified==True or product_obj.locked==True:
+                response["status"] = 403
+                return Response(data=response)
+
+            base_product_obj = product_obj.base_product
+
+            product_obj.is_deleted = True
+            product_obj.save()
+
+            if Product.objects.filter(base_product=base_product).exists()==False:
+                base_product_obj.is_deleted = True
+                base_product_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SecureDeleteProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
         
 
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
@@ -6627,3 +6666,5 @@ FetchExportTemplates = FetchExportTemplatesAPI.as_view()
 CreateExportTemplate = CreateExportTemplateAPI.as_view()
 
 DeleteExportTemplate = DeleteExportTemplateAPI.as_view()
+
+SecureDeleteProduct = SecureDeleteProductAPI.as_view()

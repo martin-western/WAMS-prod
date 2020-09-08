@@ -575,6 +575,18 @@ class MaterialType(models.Model):
         return str(self.name)
 
 
+class BaseProductManager(models.Manager):
+
+    def get_queryset(self):
+        return super(BaseProductManager, self).get_queryset().exclude(is_deleted=True)
+
+
+class BaseProductRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(BaseProductRecoveryManager, self).get_queryset()
+
+
 class BaseProduct(models.Model):
 
     base_product_name = models.CharField(max_length=300)
@@ -590,6 +602,11 @@ class BaseProduct(models.Model):
 
     dimensions = models.TextField(blank=True, default=base_dimensions_json)
     history = AuditlogHistoryField()
+
+    is_deleted = models.BooleanField(default=False)
+
+    objects = BaseProductManager()
+    recovery = BaseProductRecoveryManager()
 
     class Meta:
         verbose_name = "BaseProduct"
