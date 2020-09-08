@@ -640,6 +640,13 @@ class ChannelProduct(models.Model):
 auditlog.register(ChannelProduct, exclude_fields = ['is_noon_product_created', 'is_amazon_uk_product_created',
                                                     'is_amazon_uae_product_created', 'is_ebay_product_created'])
 
+
+class ProductManager(models.Manager):
+
+    def get_query_set(self):
+        return super(ProductManager, self).get_query_set().exclude(is_deleted=True)
+
+
 class Product(models.Model):
 
     #MISC
@@ -704,6 +711,10 @@ class Product(models.Model):
 
     faqs = models.TextField(default="[]")
     how_to_use = models.TextField(default="[]")
+
+    is_deleted = models.BooleanField(default=False)
+
+    objects = ProductManager()
 
     class Meta:
         verbose_name = "Product"
