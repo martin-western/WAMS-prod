@@ -3647,7 +3647,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["time"] = order_obj.get_time_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
-                    temp_dict["paymentStatus"] = order_obj.payment_status
+                    temp_dict["merchant_reference"] = order_obj.merchant_reference
+
 
                     address_obj = order_obj.shipping_address
 
