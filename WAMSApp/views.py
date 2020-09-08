@@ -928,6 +928,14 @@ class FetchProductDetailsAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             response["verify_product"] = custom_permission_obj.verify_product
 
+            if custom_permission_obj.delete_product==True:
+                if product_obj.verified==True or product_obj.locked==True or DealsHubProduct.objects.filter(product=product_obj, is_published=True).exists()==True:
+                    response["delete_product"] = False
+                else:
+                    response["delete_product"] = True
+            else:
+                response["delete_product"] = False
+
             response['faqs'] = faqs
             response['how_to_use'] = how_to_use
 
