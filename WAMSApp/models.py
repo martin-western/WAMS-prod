@@ -643,8 +643,8 @@ auditlog.register(ChannelProduct, exclude_fields = ['is_noon_product_created', '
 
 class ProductManager(models.Manager):
 
-    def get_query_set(self):
-        return super(ProductManager, self).get_query_set().exclude(is_deleted=True)
+    def get_queryset(self):
+        return super(ProductManager, self).get_queryset().exclude(is_deleted=True)
 
 
 class Product(models.Model):
