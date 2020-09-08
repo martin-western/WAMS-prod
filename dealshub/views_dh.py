@@ -3653,14 +3653,27 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     address_obj = order_obj.shipping_address
 
                     shipping_address = {
-                        "firstName": address_obj.first_name,
-                        "lastName": address_obj.last_name,
-                        "line1": json.loads(address_obj.address_lines)[0],
-                        "line2": json.loads(address_obj.address_lines)[1],
-                        "line3": json.loads(address_obj.address_lines)[2],
-                        "line4": json.loads(address_obj.address_lines)[3],
-                        "state": address_obj.state
+                        "firstName": "NA",
+                        "lastName": "NA",
+                        "line1": "NA",
+                        "line2": "NA",
+                        "line3": "NA",
+                        "line4": "NA",
+                        "state": "NA"
                     }
+                    try:
+                        shipping_address = {
+                            "firstName": address_obj.first_name,
+                            "lastName": address_obj.last_name,
+                            "line1": json.loads(address_obj.address_lines)[0],
+                            "line2": json.loads(address_obj.address_lines)[1],
+                            "line3": json.loads(address_obj.address_lines)[2],
+                            "line4": json.loads(address_obj.address_lines)[3],
+                            "state": address_obj.state
+                        }
+                    except Exception as e:
+                        pass
+
                     customer_name = address_obj.first_name + " " + address_obj.last_name
 
 
