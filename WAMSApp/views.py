@@ -6504,7 +6504,7 @@ class SecureDeleteProductAPI(APIView):
 
             dealshub_product_objs.update(is_deleted=True)
 
-            if Product.objects.filter(base_product=base_product).exists()==False:
+            if Product.objects.filter(base_product=base_product_obj).exists()==False:
                 base_product_obj.is_deleted = True
                 base_product_obj.save()
 
