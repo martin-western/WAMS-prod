@@ -921,6 +921,7 @@ class FetchProductDetailsAPI(APIView):
 
             response["pfl_pk"] = pfl_pk
             response["product_pk"] = product_obj.pk
+            response["product_uuid"] = product_obj.uuid
 
             response["images"] = images
             response["base_product_pk"] = base_product_obj.pk
