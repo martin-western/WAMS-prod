@@ -1024,6 +1024,7 @@ class CustomPermission(models.Model):
     stock = models.TextField(default="{}")
     oc_reports = models.TextField(default="[]")
     verify_product = models.BooleanField(default=False)
+    delete_product = models.BooleanField(default=False)
     page_list = models.TextField(default="[]")
     location_groups = models.ManyToManyField(LocationGroup, blank=True)
     organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)

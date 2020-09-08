@@ -134,6 +134,18 @@ class Voucher(models.Model):
         super(Voucher, self).save(*args, **kwargs)
 
 
+class DealsHubProductManager(models.Manager):
+
+    def get_queryset(self):
+        return super(DealsHubProductManager, self).get_queryset().exclude(is_deleted=True)
+
+
+class DealsHubProductRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(DealsHubProductRecoveryManager, self).get_queryset()
+
+
 class DealsHubProduct(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
@@ -149,6 +161,10 @@ class DealsHubProduct(models.Model):
     category = models.ForeignKey(Category, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=200, default="")
+
+    is_deleted = models.BooleanField(default=False)
+    objects = DealsHubProductManager()
+    recovery = DealsHubProductRecoveryManager()
 
     class Meta:
         verbose_name = "DealsHub Product"

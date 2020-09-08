@@ -6467,17 +6467,33 @@ class SecureDeleteProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            if custom_permission_obj.delete_product==False:
+                response["status"] = 403
+                logger.warning("SecureDeleteProductAPI: Access denied!")
+                return Response(data=response)
+
             uuid = data["uuid"]
             product_obj = Product.objects.get(uuid=uuid)
 
             if product_obj.verified==True or product_obj.locked==True:
                 response["status"] = 403
+                logger.warning("SecureDeleteProductAPI: Product is verified or locked!")
                 return Response(data=response)
 
             base_product_obj = product_obj.base_product
 
+            dealshub_product_objs = DealsHubProduct.objects.filter(product=product_obj)
+            if dealshub_product_objs.filter(is_published=True).exists()==True:
+                response["status"] = 403
+                logger.warning("SecureDeleteProductAPI: DealsHubProduct is active!")
+                return Response(data=response)
+
+
             product_obj.is_deleted = True
             product_obj.save()
+
+            dealshub_product_objs.update(is_deleted=True)
 
             if Product.objects.filter(base_product=base_product).exists()==False:
                 base_product_obj.is_deleted = True
