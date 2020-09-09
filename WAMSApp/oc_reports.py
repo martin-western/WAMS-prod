@@ -927,7 +927,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
         row = ["Sr. No.",
                "Customer Name",
                "Contact Number",
-               "Location"
+               "Location",
                "Wishlist"]
 
         cnt = 0
@@ -951,6 +951,9 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
                     product_list = []
                     for unit_wish_list_obj in UnitWishList.objects.filter(wish_list__owner=dealshub_user_obj, wish_list__location_group=location_group_obj):
                         product_list.append(unit_wish_list_obj.product.get_seller_sku()+" - "+unit_wish_list_obj.product.get_product_id())
+
+                    if cnt==1:
+                        logger.info(str(contact_number))
 
                     common_row = ["" for i in range(5)]
                     common_row[0] = str(cnt)
@@ -988,7 +991,7 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
     row = ["Sr. No.",
            "Customer Name",
            "Contact Number",
-           "Location"
+           "Location",
            "Cart"]
 
     cnt = 0
