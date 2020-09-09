@@ -947,7 +947,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
                     customer_name = (dealshub_user_obj.first_name + " " + dealshub_user_obj.last_name).strip()
                     contact_number = dealshub_user_obj.contact_number
                     product_list = []
-                    for unit_wish_list_obj in UnitWishList.objects.filter(wish_list__owner=dealshub_user_obj, location_group=location_group_obj):
+                    for unit_wish_list_obj in UnitWishList.objects.filter(wish_list__owner=dealshub_user_obj, wish_list__location_group=location_group_obj):
                         product_list.append(unit_wish_list_obj.product.get_seller_sku()+" - "+unit_wish_list_obj.product.get_product_id())
 
                     common_row = ["" for i in range(5)]
@@ -1006,7 +1006,7 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
                 customer_name = (dealshub_user_obj.first_name + " " + dealshub_user_obj.last_name).strip()
                 contact_number = dealshub_user_obj.contact_number
                 product_list = []
-                for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj, location_group=location_group_obj):
+                for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj, cart__location_group=location_group_obj):
                     product_list.append(unit_cart_obj.product.get_seller_sku()+" - "+unit_cart_obj.product.get_product_id())
 
                 common_row = ["" for i in range(5)]
