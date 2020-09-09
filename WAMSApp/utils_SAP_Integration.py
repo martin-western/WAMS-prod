@@ -90,13 +90,19 @@ def transfer_from_atp_to_holding(seller_sku,company_code,transfer_information):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
-        body = xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information)
-        
-        response = requests.post(url=transfer_holding_url, auth=credentials, data=body, headers=headers)
-        
-        content = response.content
-        xml_content = xmltodict.parse(content)
-        response_dict = json.loads(json.dumps(xml_content))
+        result = fetch_prices_and_stock(seller_sku,company_code)
+
+        if result["total_holding"] < result["holding_threshold"] :
+
+            
+
+            body = xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information)
+            
+            response = requests.post(url=transfer_holding_url, auth=credentials, data=body, headers=headers)
+            
+            content = response.content
+            xml_content = xmltodict.parse(content)
+            response_dict = json.loads(json.dumps(xml_content))
 
         return response_dict
 
