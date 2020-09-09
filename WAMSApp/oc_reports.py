@@ -920,58 +920,62 @@ def create_verified_products_report(filename, uuid, from_date, to_date, brand_li
 
 def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
-    worksheet = workbook.add_worksheet()
+    try:
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
 
-    row = ["Sr. No.",
-           "Customer Name",
-           "Contact Number",
-           "Location"
-           "Wishlist"]
+        row = ["Sr. No.",
+               "Customer Name",
+               "Contact Number",
+               "Location"
+               "Wishlist"]
 
-    cnt = 0
-    colnum = 0
-    for k in row:
-        worksheet.write(cnt, colnum, k)
-        colnum += 1
+        cnt = 0
+        colnum = 0
+        for k in row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
 
-    location_group_objs = custom_permission_obj.location_groups.all()
+        location_group_objs = custom_permission_obj.location_groups.all()
 
-    dealshub_user_objs = DealsHubUser.objects.filter(pk__in=UnitWishList.objects.filter(product__product__base_product__brand__name__in=brand_list, wish_list__location_group__in=location_group_objs).values_list('owner__pk', flat=True).distinct())
+        dealshub_user_objs = DealsHubUser.objects.filter(pk__in=UnitWishList.objects.filter(product__product__base_product__brand__name__in=brand_list, wish_list__location_group__in=location_group_objs).values_list('owner__pk', flat=True).distinct())
 
-    for dealshub_user_obj in dealshub_user_objs:
-        try:
-            for location_group_obj in location_group_objs:
-                cnt += 1
-                customer_name = (dealshub_user_obj.first_name + " " + dealshub_user_obj.last_name).strip()
-                contact_number = dealshub_user_obj.contact_number
-                product_list = []
-                for unit_wish_list_obj in UnitWishList.objects.filter(owner=dealshub_user_obj, location_group=location_group_obj):
-                    product_list.append(unit_wish_list_obj.product.get_seller_sku()+" - "+unit_wish_list_obj.product.get_product_id())
+        for dealshub_user_obj in dealshub_user_objs:
+            try:
+                for location_group_obj in location_group_objs:
+                    cnt += 1
+                    customer_name = (dealshub_user_obj.first_name + " " + dealshub_user_obj.last_name).strip()
+                    contact_number = dealshub_user_obj.contact_number
+                    product_list = []
+                    for unit_wish_list_obj in UnitWishList.objects.filter(owner=dealshub_user_obj, location_group=location_group_obj):
+                        product_list.append(unit_wish_list_obj.product.get_seller_sku()+" - "+unit_wish_list_obj.product.get_product_id())
 
-                common_row = ["" for i in range(5)]
-                common_row[0] = str(cnt)
-                common_row[1] = str(customer_name)
-                common_row[2] = str(contact_number)
-                common_row[3] = str(location_group_obj.name)
-                common_row[4] = str(",".join(product_list))
-            
-            colnum = 0
-            for k in common_row:
-                worksheet.write(cnt, colnum, k)
-                colnum += 1
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("Error create_wishlist_report %s %s", e, str(exc_tb.tb_lineno))
+                    common_row = ["" for i in range(5)]
+                    common_row[0] = str(cnt)
+                    common_row[1] = str(customer_name)
+                    common_row[2] = str(contact_number)
+                    common_row[3] = str(location_group_obj.name)
+                    common_row[4] = str(",".join(product_list))
+                
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error create_wishlist_report %s %s", e, str(exc_tb.tb_lineno))
 
-    workbook.close()
+        workbook.close()
 
-    oc_report_obj = OCReport.objects.get(uuid=uuid)
-    oc_report_obj.is_processed = True
-    oc_report_obj.completion_date = timezone.now()
-    oc_report_obj.save()
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
 
-    notify_user_for_report(oc_report_obj)
+        notify_user_for_report(oc_report_obj)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_wishlist_report %s %s", e, str(exc_tb.tb_lineno))
 
 
 def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_obj):
