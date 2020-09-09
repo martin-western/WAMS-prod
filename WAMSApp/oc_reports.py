@@ -952,9 +952,6 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
                     for unit_wish_list_obj in UnitWishList.objects.filter(wish_list__owner=dealshub_user_obj, wish_list__location_group=location_group_obj):
                         product_list.append(unit_wish_list_obj.product.get_seller_sku()+" - "+unit_wish_list_obj.product.get_product_id())
 
-                    if cnt==1:
-                        logger.info(str(product_list)+"asd")
-
                     common_row = ["" for i in range(5)]
                     common_row[0] = str(cnt)
                     common_row[1] = str(customer_name)
