@@ -937,7 +937,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
 
     location_group_objs = custom_permission_obj.location_groups.all()
 
-    dealshub_user_objs = DealsHubUser.objects.filter(pk__in=UnitWishList.objects.filter(product__product__base_product__brand__name__in=brand_list, wish_list__location_group__in=location_group_objs).values_list('owner', flat=True).distinct())
+    dealshub_user_objs = DealsHubUser.objects.filter(pk__in=UnitWishList.objects.filter(product__product__base_product__brand__name__in=brand_list, wish_list__location_group__in=location_group_objs).values_list('owner__pk', flat=True).distinct())
 
     for dealshub_user_obj in dealshub_user_objs:
         try:
@@ -993,7 +993,7 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
 
     location_group_objs = custom_permission_obj.location_groups.all()
 
-    dealshub_user_objs = DealsHubUser.objects.filter(pk__in=UnitCart.objects.filter(product__product__base_product__brand__name__in=brand_list, cart__location_group__in=location_group_objs).values_list('owner', flat=True).distinct())
+    dealshub_user_objs = DealsHubUser.objects.filter(pk__in=UnitCart.objects.filter(product__product__base_product__brand__name__in=brand_list, cart__location_group__in=location_group_objs).values_list('owner__pk', flat=True).distinct())
 
     for dealshub_user_obj in dealshub_user_objs:
         try:
