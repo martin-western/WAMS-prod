@@ -953,7 +953,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
                         product_list.append(unit_wish_list_obj.product.get_seller_sku()+" - "+unit_wish_list_obj.product.get_product_id())
 
                     if cnt==1:
-                        logger.info(str(contact_number))
+                        logger.info(str(product_list)+"asd")
 
                     common_row = ["" for i in range(5)]
                     common_row[0] = str(cnt)
