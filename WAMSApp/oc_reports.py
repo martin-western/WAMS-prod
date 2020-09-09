@@ -943,6 +943,8 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
         for dealshub_user_obj in dealshub_user_objs:
             try:
                 for location_group_obj in location_group_objs:
+                    if UnitWishList.objects.filter(wish_list__owner=dealshub_user_obj, wish_list__location_group=location_group_obj).exists()==False:
+                        continue
                     cnt += 1
                     customer_name = (dealshub_user_obj.first_name + " " + dealshub_user_obj.last_name).strip()
                     contact_number = dealshub_user_obj.contact_number
@@ -1002,6 +1004,8 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
     for dealshub_user_obj in dealshub_user_objs:
         try:
             for location_group_obj in location_group_objs:
+                if UnitCart.objects.filter(cart__owner=dealshub_user_obj, cart__location_group=location_group_obj).exists()==False:
+                    continue
                 cnt += 1
                 customer_name = (dealshub_user_obj.first_name + " " + dealshub_user_obj.last_name).strip()
                 contact_number = dealshub_user_obj.contact_number
