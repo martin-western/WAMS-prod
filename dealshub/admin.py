@@ -22,6 +22,13 @@ class DealsHubUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'contact_verified', 'verification_code', 'date_created')
 
 
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('owner', 'merchant_reference')
+
+class FastCartAdmin(admin.ModelAdmin):
+    list_display = ('owner', 'merchant_reference')
+
+
 admin.site.register(DealsHubProduct, DealsHubProductAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(BannerType)
@@ -29,7 +36,8 @@ admin.site.register(Banner)
 admin.site.register(UnitBannerImage)
 admin.site.register(Address)
 admin.site.register(UnitCart)
-admin.site.register(Cart)
+admin.site.register(Cart, CartAdmin)
+admin.site.register(FastCart, FastCartAdmin)
 admin.site.register(DealsHubUser, DealsHubUserAdmin)
 admin.site.register(UnitOrder)
 admin.site.register(Order)
