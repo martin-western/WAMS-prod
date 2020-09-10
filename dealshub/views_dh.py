@@ -2368,7 +2368,6 @@ class PaymentTransactionAPI(APIView):
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
-                        return Response(data=response)
 
                     order_obj = Order.objects.create(owner=cart_obj.owner, 
                                                      shipping_address=cart_obj.shipping_address,
@@ -2411,7 +2410,7 @@ class PaymentTransactionAPI(APIView):
                         pass
 
                     try:
-                        voucher_obj = cart_obj.voucher
+                        voucher_obj = fast_cart_obj.voucher
                         if voucher_obj!=None:
                             if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj)==False:
                                 voucher_obj.total_usage += 1
@@ -2422,7 +2421,6 @@ class PaymentTransactionAPI(APIView):
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
-                        return Response(data=response)
 
                     order_obj = Order.objects.create(owner=fast_cart_obj.owner, 
                                                      shipping_address=fast_cart_obj.shipping_address,
