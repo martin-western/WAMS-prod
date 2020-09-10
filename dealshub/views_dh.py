@@ -2464,7 +2464,7 @@ class PaymentTransactionAPI(APIView):
                     cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
                     cart_obj.merchant_reference = ""
                     cart_obj.save()
-                elif FastCart.objects.filter(merchant_reference=merchant_reference).exists()==True:
+                if FastCart.objects.filter(merchant_reference=merchant_reference).exists()==True:
                     fast_cart_obj = FastCart.objects.get(merchant_reference=merchant_reference)
                     fast_cart_obj.merchant_reference = ""
                     fast_cart_obj.save()
