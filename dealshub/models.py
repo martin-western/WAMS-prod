@@ -889,8 +889,8 @@ class FastCart(models.Model):
         return True
 
     class Meta:
-        verbose_name = "Cart"
-        verbose_name_plural = "Carts"
+        verbose_name = "FastCart"
+        verbose_name_plural = "FastCarts"
 
 
 class DealsHubUser(User):
