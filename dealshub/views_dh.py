@@ -2377,7 +2377,8 @@ class PaymentTransactionAPI(APIView):
                                                      location_group=cart_obj.location_group,
                                                      payment_status="paid",
                                                      payment_info=json.dumps(data),
-                                                     payment_mode=data.get("payment_option", "NA"))
+                                                     payment_mode=data.get("payment_option", "NA"),
+                                                     merchant_reference=merchant_reference)
 
                     unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
                     for unit_cart_obj in unit_cart_objs:
@@ -2430,7 +2431,8 @@ class PaymentTransactionAPI(APIView):
                                                      location_group=fast_cart_obj.location_group,
                                                      payment_status="paid",
                                                      payment_info=json.dumps(data),
-                                                     payment_mode=data.get("payment_option", "NA"))
+                                                     payment_mode=data.get("payment_option", "NA"),
+                                                     merchant_reference=merchant_reference)
 
                     
                     unit_order_obj = UnitOrder.objects.create(order=order_obj, 
