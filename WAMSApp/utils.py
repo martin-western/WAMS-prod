@@ -1385,6 +1385,14 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                         raise Exception("Required Fields must not be empty!")
 
                     if(product_name == "nan" or manufacturer == "nan" or manufacturer_part_number == "nan" or category_name == "nan" or sub_category_name == "nan" or product_id == "nan" or brand_name == "nan" or seller_sku == "nan"):
+                        logger.info("Product Name: %s", product_name)
+                        logger.info("Manufacturer: %s", manufacturer)
+                        logger.info("Manufacturer PN: %s", manufacturer_part_number)
+                        logger.info("Category: %s", category_name)
+                        logger.info("sub_category_name: %s", sub_category_name)
+                        logger.info("Product ID: %s", product_id)
+                        logger.info("Brand: %s", brand_name)
+                        logger.info("Seller SKU: %s", seller_sku)
                         raise Exception("Required Fields must not be empty!")
 
                     if Category.objects.filter(name=category_name).exists()==False:
