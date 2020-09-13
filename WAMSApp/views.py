@@ -878,12 +878,25 @@ class FetchProductDetailsAPI(APIView):
                 product_obj.base_product.unedited_images.all())
             images["transparent_images"] = create_response_images(
                 product_obj.transparent_images.all())
+            images["best_images"] = create_response_images(
+                product_obj.best_images.all())
 
             images["all_images"] = images["pfl_images"] + images["pfl_generated_images"] + \
                 images["white_background_images"] + images["lifestyle_images"] + \
                 images["certificate_images"] + images["giftbox_images"] + \
                 images["diecut_images"] + images["aplus_content_images"] + \
-                images["ads_images"] + images["unedited_images"] + images["transparent_images"] + create_response_images_main_sub_delete(main_images_list) + create_response_images_main_sub_delete(sub_images_list)
+                images["ads_images"] + images["unedited_images"] + images["transparent_images"] + images["best_images"] + create_response_images_main_sub_delete(main_images_list) + create_response_images_main_sub_delete(sub_images_list)
+            
+            try:
+                unique_image_dict = {}
+                unique_image_list = []
+                for image in images["all_images"]:
+                    if image["pk"] not in unique_image_dict:
+                        unique_image_list.append(image)
+                        unique_image_dict[image["pk"]] = 1
+                images["all_images"] = unique_image_list
+            except Exception as e:
+                pass
 
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
             repr_high_def_url = repr_image_url
@@ -2218,6 +2231,9 @@ class UploadProductImageAPI(APIView):
             elif data["image_category"] == "transparent_images":
                 for image_obj in image_objs:
                     product_obj.transparent_images.add(image_obj)
+            elif data["image_category"] == "best_images":
+                for image_obj in image_objs:
+                    product_obj.best_images.add(image_obj)
 
             product_obj.save()
 
@@ -3987,6 +4003,101 @@ class LockProductAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("LockProductAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CopyBestImagesAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+
+            data = request.data
+            logger.info("CopyBestImagesAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if request.user.has_perm('WAMSApp.add_image') == False:
+                logger.warning("CopyBestImagesAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+            image_pk_list = data["image_pk_list"]
+
+            for image_pk in image_pk_list:
+                image_obj = Image.objects.get(pk=int(image_pk))
+                product_obj.best_images.add(image_obj)
+            product_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CopyBestImagesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class RemoveImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+
+            data = request.data
+            logger.info("RemoveImageAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if request.user.has_perm('WAMSApp.delete_image') == False:
+                logger.warning("RemoveImageAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+            image_pk = data["image_pk"]
+            image_obj = Image.objects.get(pk=int(image_pk))
+
+            if data["image_category"] == "pfl_images":
+                product_obj.pfl_images.remove(image_obj)
+            elif data["image_category"] == "white_background_images":
+                product_obj.white_background_images.remove(image_obj)
+            elif data["image_category"] == "lifestyle_images":
+                product_obj.lifestyle_images.remove(image_obj)
+            elif data["image_category"] == "certificate_images":
+                product_obj.certificate_images.remove(image_obj)
+            elif data["image_category"] == "giftbox_images":
+                product_obj.giftbox_images.remove(image_obj)
+            elif data["image_category"] == "diecut_images":
+                product_obj.diecut_images.remove(image_obj)
+            elif data["image_category"] == "aplus_content_images":
+                product_obj.aplus_content_images.remove(image_obj)
+            elif data["image_category"] == "ads_images":
+                product_obj.ads_images.remove(image_obj)
+            elif data["image_category"] == "unedited_images":
+                product_obj.base_product.unedited_images.remove(image_obj)
+            elif data["image_category"] == "transparent_images":
+                product_obj.transparent_images.remove(image_obj)
+            elif data["image_category"] == "best_images":
+                product_obj.best_images.remove(image_obj)
+                
+            product_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5884,7 +5995,13 @@ class CreateOCReportAPI(APIView):
                 p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
                 p1.start()
             elif report_type.lower()=="verified products":
-                p1 = threading.Thread(target=create_verified_products_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_verified_products_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
+                p1.start()
+            elif report_type.lower()=="wishlist":
+                p1 = threading.Thread(target=create_wishlist_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1.start()
+            elif report_type.lower()=="abandoned cart":
+                p1 = threading.Thread(target=create_abandoned_cart_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
                 p1.start()
 
 
@@ -6603,7 +6720,11 @@ VerifyProduct = VerifyProductAPI.as_view()
 
 LockProduct = LockProductAPI.as_view()
 
+CopyBestImages = CopyBestImagesAPI.as_view()
+
 DeleteImage = DeleteImageAPI.as_view()
+
+RemoveImage = RemoveImageAPI.as_view()
 
 RemoveProductFromExportList = RemoveProductFromExportListAPI.as_view()
 
