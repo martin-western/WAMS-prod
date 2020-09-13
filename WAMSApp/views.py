@@ -889,7 +889,7 @@ class FetchProductDetailsAPI(APIView):
             
             try:
                 unique_image_dict = {}
-                unique_image_list = {}
+                unique_image_list = []
                 for image in images["all_images"]:
                     if image["pk"] not in unique_image_dict:
                         unique_image_list.append(image)
