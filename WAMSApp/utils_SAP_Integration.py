@@ -92,9 +92,14 @@ def transfer_from_atp_to_holding(seller_sku,company_code,transfer_information):
         
         result = fetch_prices_and_stock(seller_sku,company_code)
 
-        if result["total_holding"] < result["holding_threshold"] :
+        if result["total_holding"] < result["holding_threshold"] and result["total_atp"] > result["atp_threshold"]:
 
-            
+            total_holding = result["total_holding"]
+            holding_threshold = result["holding_threshold"]
+            total_atp = result["total_atp"]
+            atp_threshold = result["atp_threshold"]
+
+            total_holding_transfer = min(total_holding-holding_threshold,total_atp-atp_threshold)
 
             body = xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information)
             
