@@ -886,6 +886,17 @@ class FetchProductDetailsAPI(APIView):
                 images["certificate_images"] + images["giftbox_images"] + \
                 images["diecut_images"] + images["aplus_content_images"] + \
                 images["ads_images"] + images["unedited_images"] + images["transparent_images"] + images["best_images"] + create_response_images_main_sub_delete(main_images_list) + create_response_images_main_sub_delete(sub_images_list)
+            
+            try:
+                unique_image_dict = {}
+                unique_image_list = {}
+                for image in images["all_images"]:
+                    if image["pk"] not in unique_image_dict:
+                        unique_image_list.append(image)
+                        unique_image_dict[image["pk"]] = 1
+                images["all_images"] = unique_image_list
+            except Exception as e:
+                pass
 
             repr_image_url = Config.objects.all()[0].product_404_image.image.url
             repr_high_def_url = repr_image_url
