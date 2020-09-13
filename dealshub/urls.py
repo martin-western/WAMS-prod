@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 
 urlpatterns = [
     url(r'^fetch-product-details/$', views.FetchProductDetails),
+    url(r'^fetch-similar-products/$', views.FetchSimilarProducts),
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-super-categories/$', views.FetchSuperCategories),
     url(r'^fetch-heading-categories/$', views.FetchHeadingCategories),
@@ -82,6 +83,10 @@ urlpatterns = [
     url(r'^cart/update-cart-details/$', views.UpdateCartDetails),
     url(r'^cart/remove-from-cart/$', views.RemoveFromCart),
 
+    url(r'^cart/fetch-fast-cart-details/$', views.FetchFastCartDetails),
+    url(r'^cart/add-to-fast-cart/$', views.AddToFastCart),
+    url(r'^cart/update-fast-cart-details/$', views.UpdateFastCartDetails),
+
     url(r'^checkout/select-address/$', views.SelectAddress),
     url(r'^checkout/select-offline-address/$', views.SelectOfflineAddress),
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
@@ -131,6 +136,11 @@ urlpatterns = [
 
     url(r'^send-otp-sms-login/$', views.SendOTPSMSLogin),
     url(r'^verify-otp-sms-login/$', views.VerifyOTPSMSLogin),
+
+    url(r'^check-user-pin-set/$', views.CheckUserPinSet),
+    url(r'^set-login-pin/$', views.SetLoginPin),
+    url(r'^verify-login-pin/$', views.VerifyLoginPin),
+    url(r'^forgot-login-pin/$', views.ForgotLoginPin),
 
     url(r'^update-user-email/$', views.UpdateUserEmail),
 

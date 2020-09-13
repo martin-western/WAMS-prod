@@ -575,6 +575,18 @@ class MaterialType(models.Model):
         return str(self.name)
 
 
+class BaseProductManager(models.Manager):
+
+    def get_queryset(self):
+        return super(BaseProductManager, self).get_queryset().exclude(is_deleted=True)
+
+
+class BaseProductRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(BaseProductRecoveryManager, self).get_queryset()
+
+
 class BaseProduct(models.Model):
 
     base_product_name = models.CharField(max_length=300)
@@ -590,6 +602,11 @@ class BaseProduct(models.Model):
 
     dimensions = models.TextField(blank=True, default=base_dimensions_json)
     history = AuditlogHistoryField()
+
+    is_deleted = models.BooleanField(default=False)
+
+    objects = BaseProductManager()
+    recovery = BaseProductRecoveryManager()
 
     class Meta:
         verbose_name = "BaseProduct"
@@ -639,6 +656,19 @@ class ChannelProduct(models.Model):
 
 auditlog.register(ChannelProduct, exclude_fields = ['is_noon_product_created', 'is_amazon_uk_product_created',
                                                     'is_amazon_uae_product_created', 'is_ebay_product_created'])
+
+
+class ProductManager(models.Manager):
+
+    def get_queryset(self):
+        return super(ProductManager, self).get_queryset().exclude(is_deleted=True)
+
+
+class ProductRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(ProductRecoveryManager, self).get_queryset()
+
 
 class Product(models.Model):
 
@@ -705,6 +735,11 @@ class Product(models.Model):
     faqs = models.TextField(default="[]")
     how_to_use = models.TextField(default="[]")
 
+    is_deleted = models.BooleanField(default=False)
+
+    objects = ProductManager()
+    recovery = ProductRecoveryManager()
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
@@ -752,36 +787,36 @@ class Product(models.Model):
             ebay_product_json_temp = json.loads(channel_product_obj.ebay_product_json)
 
             if noon_product_json_temp["product_name"]=="":
-                noon_product_json_temp["product_name"] = str(self.product_name)
+                noon_product_json_temp["product_name"] = str(self.product_name.decode("utf-8"))
             if noon_product_json_temp["product_description"]=="":
-                noon_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                noon_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description.decode("utf-8"))
             if noon_product_json_temp["category"]=="":
                 noon_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
             if noon_product_json_temp["sub_category"]=="":
                 noon_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
             if amazon_uk_product_json_temp["product_name"]=="":
-                amazon_uk_product_json_temp["product_name"] = str(self.product_name)
+                amazon_uk_product_json_temp["product_name"] = str(self.product_name.decode("utf-8"))
             if amazon_uk_product_json_temp["product_description"]=="":
-                amazon_uk_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                amazon_uk_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description.decode("utf-8"))
             if amazon_uk_product_json_temp["category"]=="":
                 amazon_uk_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
             if amazon_uk_product_json_temp["sub_category"]=="":
                 amazon_uk_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
             if amazon_uae_product_json_temp["product_name"]=="":
-                amazon_uae_product_json_temp["product_name"] = str(self.product_name)
+                amazon_uae_product_json_temp["product_name"] = str(self.product_name.decode("utf-8"))
             if amazon_uae_product_json_temp["product_description"]=="":
-                amazon_uae_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                amazon_uae_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description.decode("utf-8"))
             if amazon_uae_product_json_temp["category"]=="":
                 amazon_uae_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
             if amazon_uae_product_json_temp["sub_category"]=="":
                 amazon_uae_product_json_temp["sub_category"] = "" if self.base_product.sub_category==None else str(self.base_product.sub_category)
 
             if ebay_product_json_temp["product_name"]=="":
-                ebay_product_json_temp["product_name"] = str(self.product_name)
+                ebay_product_json_temp["product_name"] = str(self.product_name.decode("utf-8"))
             if ebay_product_json_temp["product_description"]=="":
-                ebay_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description)
+                ebay_product_json_temp["product_description"] = "" if self.product_description==None else str(self.product_description.decode("utf-8"))
             if ebay_product_json_temp["category"]=="":
                 ebay_product_json_temp["category"] = "" if self.base_product.category==None else str(self.base_product.category)
             if ebay_product_json_temp["sub_category"]=="":
@@ -989,6 +1024,7 @@ class CustomPermission(models.Model):
     stock = models.TextField(default="{}")
     oc_reports = models.TextField(default="[]")
     verify_product = models.BooleanField(default=False)
+    delete_product = models.BooleanField(default=False)
     page_list = models.TextField(default="[]")
     location_groups = models.ManyToManyField(LocationGroup, blank=True)
     organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)
@@ -1195,6 +1231,24 @@ class DataPoint(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ExportTemplate(models.Model):
+
+    name = models.CharField(max_length=200, default="")
+    data_points = models.ManyToManyField(DataPoint, blank=True)
+    user = models.ForeignKey(OmnyCommUser, blank=True, on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(ExportTemplate, self).save(*args, **kwargs)
 
 
 class TagBucket(models.Model):

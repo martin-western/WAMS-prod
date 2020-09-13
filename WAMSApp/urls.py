@@ -118,6 +118,10 @@ urlpatterns = [
     url(r'^transfer-bulk-channel/$',views.TransferBulkChannel),
     url(r'^fetch-all-categories/$',views.FetchAllCategories),
 
+    url(r'^create-export-template/$',views.CreateExportTemplate),
+    url(r'^fetch-export-templates/$',views.FetchExportTemplates),
+    url(r'^delete-export-template/$',views.DeleteExportTemplate),
+
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
 
     url(r'^create-oc-report/$',views.CreateOCReport),
@@ -145,6 +149,8 @@ urlpatterns = [
 
     url(r'^fetch-category-list/$',views.FetchCategoryList),
     url(r'^update-category-mapping/$',views.UpdateCategoryMapping),
-    
+
+    url(r'^secure-delete-product/$',views.SecureDeleteProduct),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

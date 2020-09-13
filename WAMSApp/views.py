@@ -921,12 +921,21 @@ class FetchProductDetailsAPI(APIView):
 
             response["pfl_pk"] = pfl_pk
             response["product_pk"] = product_obj.pk
+            response["product_uuid"] = product_obj.uuid
 
             response["images"] = images
             response["base_product_pk"] = base_product_obj.pk
 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             response["verify_product"] = custom_permission_obj.verify_product
+
+            if custom_permission_obj.delete_product==True:
+                if product_obj.verified==True or product_obj.locked==True or DealsHubProduct.objects.filter(product=product_obj, is_published=True).exists()==True:
+                    response["delete_product"] = False
+                else:
+                    response["delete_product"] = True
+            else:
+                response["delete_product"] = False
 
             response['faqs'] = faqs
             response['how_to_use'] = how_to_use
@@ -5875,7 +5884,13 @@ class CreateOCReportAPI(APIView):
                 p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
                 p1.start()
             elif report_type.lower()=="verified products":
-                p1 = threading.Thread(target=create_verified_products_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_verified_products_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
+                p1.start()
+            elif report_type.lower()=="wishlist":
+                p1 = threading.Thread(target=create_wishlist_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1.start()
+            elif report_type.lower()=="abandoned cart":
+                p1 = threading.Thread(target=create_abandoned_cart_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
                 p1.start()
 
 
@@ -6342,6 +6357,170 @@ class SaveDealshubProductDetailsAPI(APIView):
             logger.error("SaveDealshubProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class FetchExportTemplatesAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            logger.info("FetchExportTemplatesAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            export_template_objs = ExportTemplate.objects.filter(user__username=request.user.username)
+
+            export_template_list = []
+            for export_template_obj in export_template_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = export_template_obj.name
+                    temp_dict["uuid"] = export_template_obj.uuid
+                    data_point_list = []
+                    data_point_objs = export_template_obj.data_points.all()
+                    for data_point_obj in data_point_objs:
+                        temp_dict2 = {}
+                        temp_dict2["name"] = data_point_obj.name
+                        temp_dict2["variable"] = data_point_obj.variable
+                        data_point_list.append(temp_dict2)
+                    temp_dict["data_point_list"] = data_point_list
+                    export_template_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchExportTemplatesAPI: %s at %s", e, str(exc_tb.tb_lineno))                    
+
+            response["export_template_list"] = export_template_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchExportTemplatesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateExportTemplateAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("CreateExportTemplateAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            name = data["name"]
+            data_point_list = data["data_point_list"]
+
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            export_template_obj = ExportTemplate.objects.create(user=omnycomm_user_obj, name=name)
+
+            for data_point in data_point_list:
+                data_point_obj = DataPoint.objects.get(variable=data_point)
+                export_template_obj.data_points.add(data_point_obj)
+
+            export_template_obj.save()
+            response["uuid"] = export_template_obj.uuid
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateExportTemplateAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteExportTemplateAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("DeleteExportTemplateAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["uuid"]
+
+            export_template_obj = ExportTemplate.objects.get(uuid=uuid)
+            export_template_obj.delete()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteExportTemplateAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SecureDeleteProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SecureDeleteProductAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            if custom_permission_obj.delete_product==False:
+                response["status"] = 403
+                logger.warning("SecureDeleteProductAPI: Access denied!")
+                return Response(data=response)
+
+            uuid = data["uuid"]
+            product_obj = Product.objects.get(uuid=uuid)
+
+            if product_obj.verified==True or product_obj.locked==True:
+                response["status"] = 403
+                logger.warning("SecureDeleteProductAPI: Product is verified or locked!")
+                return Response(data=response)
+
+            base_product_obj = product_obj.base_product
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(product=product_obj)
+            if dealshub_product_objs.filter(is_published=True).exists()==True:
+                response["status"] = 403
+                logger.warning("SecureDeleteProductAPI: DealsHubProduct is active!")
+                return Response(data=response)
+
+
+            product_obj.is_deleted = True
+            product_obj.save()
+
+            dealshub_product_objs.update(is_deleted=True)
+
+            if Product.objects.filter(base_product=base_product_obj).exists()==False:
+                base_product_obj.is_deleted = True
+                base_product_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SecureDeleteProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
         
 
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
@@ -6512,3 +6691,11 @@ UpdateChannelProductStockandPrice = UpdateChannelProductStockandPriceAPI.as_view
 FetchDealshubProductDetails = FetchDealshubProductDetailsAPI.as_view()
 
 SaveDealshubProductDetails = SaveDealshubProductDetailsAPI.as_view()
+
+FetchExportTemplates = FetchExportTemplatesAPI.as_view()
+
+CreateExportTemplate = CreateExportTemplateAPI.as_view()
+
+DeleteExportTemplate = DeleteExportTemplateAPI.as_view()
+
+SecureDeleteProduct = SecureDeleteProductAPI.as_view()

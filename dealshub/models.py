@@ -8,6 +8,7 @@ import uuid
 
 from WAMSApp.models import *
 from dealshub.core_utils import *
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +135,18 @@ class Voucher(models.Model):
         super(Voucher, self).save(*args, **kwargs)
 
 
+class DealsHubProductManager(models.Manager):
+
+    def get_queryset(self):
+        return super(DealsHubProductManager, self).get_queryset().exclude(is_deleted=True)
+
+
+class DealsHubProductRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(DealsHubProductRecoveryManager, self).get_queryset()
+
+
 class DealsHubProduct(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
@@ -149,6 +162,10 @@ class DealsHubProduct(models.Model):
     category = models.ForeignKey(Category, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=200, default="")
+
+    is_deleted = models.BooleanField(default=False)
+    objects = DealsHubProductManager()
+    recovery = DealsHubProductRecoveryManager()
 
     class Meta:
         verbose_name = "DealsHub Product"
@@ -225,19 +242,31 @@ class DealsHubProduct(models.Model):
         return self.now_price
 
     def get_main_image_url(self):
+        cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
+        if cached_url!="has_expired":
+            return cached_url
         main_images_list = ImageBucket.objects.none()
         main_images_objs = MainImages.objects.filter(product=self.product)
         for main_images_obj in main_images_objs:
             main_images_list |= main_images_obj.main_images.all()
         main_images_list = main_images_list.distinct()
         if main_images_list.all().count()>0:
-            return main_images_list.all()[0].image.mid_image.url
-        return Config.objects.all()[0].product_404_image.image.url
+            main_image_url = main_images_list.all()[0].image.mid_image.url
+            cache.set("main_url_"+str(self.uuid), main_image_url)
+            return main_image_url
+        main_image_url = Config.objects.all()[0].product_404_image.image.url
+        cache.set("main_url_"+str(self.uuid), main_image_url)
+        return main_image_url
 
     def get_display_image_url(self):
+        cached_url = cache.get("display_url_"+str(self.uuid), "has_expired")
+        if cached_url!="has_expired":
+            return cached_url
         lifestyle_image_objs = self.product.lifestyle_images.all()
         if lifestyle_image_objs.exists():
-            return lifestyle_image_objs[0].mid_image.url
+            display_image_url = lifestyle_image_objs[0].mid_image.url
+            cache.set("display_url_"+str(self.uuid), display_image_url)
+            return display_image_url
         return self.get_main_image_url()
 
     def save(self, *args, **kwargs):
@@ -794,6 +823,76 @@ class UnitOrderStatus(models.Model):
         return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
 
 
+class FastCart(models.Model):
+
+    owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    payment_mode = models.CharField(default="COD", max_length=100)
+    to_pay = models.FloatField(default=0)
+    merchant_reference = models.CharField(max_length=200, default="")
+    payment_info = models.TextField(default="{}")
+    modified_date = models.DateTimeField(null=True, blank=True)
+    product = models.ForeignKey(DealsHubProduct, null=True, blank=True, on_delete=models.SET_NULL)
+    quantity = models.IntegerField(default=1)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+
+        self.modified_date = timezone.now()
+        super(FastCart, self).save(*args, **kwargs)
+
+    def get_subtotal(self):
+        subtotal = float(self.product.get_actual_price())*float(self.quantity)
+        return subtotal
+
+    def get_delivery_fee(self, cod=False):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            if self.voucher.voucher_type=="SD":
+                return 0
+            subtotal = self.voucher.get_discounted_price(subtotal)
+
+        if subtotal < self.location_group.free_delivery_threshold:
+            return self.location_group.delivery_fee
+        return 0
+
+    def get_total_amount(self, cod=False):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            subtotal = self.voucher.get_discounted_price(subtotal)
+        delivery_fee = self.get_delivery_fee(cod)
+        if cod==True:
+            subtotal += self.location_group.cod_charge
+        return subtotal+delivery_fee
+
+    def get_vat(self, cod=False):
+        total_amount = self.get_total_amount(cod)
+        if self.location_group.vat==0:
+            return 0
+        vat_divider = 1+(self.location_group.vat/100)
+        return round((total_amount - total_amount/vat_divider), 2)
+
+    def get_currency(self):
+        return str(self.location_group.location.currency)
+
+    def is_cod_allowed(self):
+        if self.product.is_cod_allowed==False:
+            return False
+        return True
+
+    class Meta:
+        verbose_name = "FastCart"
+        verbose_name_plural = "FastCarts"
+
+
 class DealsHubUser(User):
 
     contact_number = models.CharField(default="", max_length=50)
@@ -801,6 +900,7 @@ class DealsHubUser(User):
     email_verified = models.BooleanField(default=False)
     contact_verified = models.BooleanField(default=False)
     verification_code = models.CharField(default="", max_length=50)
+    is_pin_set = models.BooleanField(default=False)
     website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:

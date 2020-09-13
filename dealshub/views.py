@@ -124,47 +124,54 @@ class FetchProductDetailsAPI(APIView):
             except Exception as e:
                 response["features"] = []
 
+
             image_list = []
-            lifestyle_image_objs = product_obj.lifestyle_images.all()
-            for lifestyle_image_obj in lifestyle_image_objs:
-                try:
-                    temp_image = {}
-                    temp_image["original"] = lifestyle_image_obj.mid_image.url
-                    temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
-                    image_list.append(temp_image)
-                except Exception as e:
-                    pass
 
-            main_images_list = ImageBucket.objects.none()
-            main_images_objs = MainImages.objects.filter(product=product_obj, is_sourced=True)
-            for main_images_obj in main_images_objs:
-                main_images_list |= main_images_obj.main_images.all()
-            main_images_list = main_images_list.distinct()
-            main_images = create_response_images_main(main_images_list)
-            for main_image in main_images:
-                try:
-                    temp_image = {}
-                    temp_image["original"] = main_image["midimage_url"]
-                    temp_image["thumbnail"] = main_image["thumbnail_url"]
-                    image_list.append(temp_image)
-                except Exception as e:
-                    pass
+            cached_url_list = cache.get("image_url_list_"+product_obj.uuid, "has_expired")
+            if cached_url_list!="has_expired":
+                image_list = json.loads(cached_url_list)
+            else:
+                lifestyle_image_objs = product_obj.lifestyle_images.all()
+                for lifestyle_image_obj in lifestyle_image_objs:
+                    try:
+                        temp_image = {}
+                        temp_image["original"] = lifestyle_image_obj.mid_image.url
+                        temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
+                        image_list.append(temp_image)
+                    except Exception as e:
+                        pass
 
-            sub_images_list = ImageBucket.objects.none()
-            sub_images_objs = SubImages.objects.filter(product=product_obj, is_sourced=True)
-            for sub_images_obj in sub_images_objs:
-                sub_images_list |= sub_images_obj.sub_images.all()
-            sub_images_list = sub_images_list.distinct()
-            sub_images = create_response_images_sub(sub_images_list)
-            for sub_image in sub_images:
-                try:
-                    temp_image = {}
-                    temp_image["original"] = sub_image["midimage_url"]
-                    temp_image["thumbnail"] = sub_image["thumbnail_url"]
-                    image_list.append(temp_image)
-                except Exception as e:
-                    pass
+                main_images_list = ImageBucket.objects.none()
+                main_images_objs = MainImages.objects.filter(product=product_obj, is_sourced=True)
+                for main_images_obj in main_images_objs:
+                    main_images_list |= main_images_obj.main_images.all()
+                main_images_list = main_images_list.distinct()
+                main_images = create_response_images_main(main_images_list)
+                for main_image in main_images:
+                    try:
+                        temp_image = {}
+                        temp_image["original"] = main_image["midimage_url"]
+                        temp_image["thumbnail"] = main_image["thumbnail_url"]
+                        image_list.append(temp_image)
+                    except Exception as e:
+                        pass
 
+                sub_images_list = ImageBucket.objects.none()
+                sub_images_objs = SubImages.objects.filter(product=product_obj, is_sourced=True)
+                for sub_images_obj in sub_images_objs:
+                    sub_images_list |= sub_images_obj.sub_images.all()
+                sub_images_list = sub_images_list.distinct()
+                sub_images = create_response_images_sub(sub_images_list)
+                for sub_image in sub_images:
+                    try:
+                        temp_image = {}
+                        temp_image["original"] = sub_image["midimage_url"]
+                        temp_image["thumbnail"] = sub_image["thumbnail_url"]
+                        image_list.append(temp_image)
+                    except Exception as e:
+                        pass
+                cache.set("image_url_list_"+product_obj.uuid, json.dumps(image_list))
+            
             try:
                 response["heroImageUrl"] = image_list[0]["original"]
             except Exception as e:
@@ -176,6 +183,49 @@ class FetchProductDetailsAPI(APIView):
 
             response["productImagesUrl"] = image_list
 
+
+            location_group_obj = dealshub_product_obj.location_group
+
+            # similar_category_products = []
+            # category_obj = dealshub_product_obj.category
+            # brand_obj = dealshub_product_obj.product.base_product.brand
+
+            # dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, category=category_obj, product__base_product__brand__in=dealshub_product_obj.location_group.website_group.brands.all(), product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
+            # similar_category_products = get_recommended_products(dealshub_product_objs)
+
+            # dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand=brand_obj, product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
+            # similar_brand_products = get_recommended_products(dealshub_product_objs)
+
+            # response["similar_category_products"] = similar_category_products
+            # response["similar_brand_products"] = similar_brand_products
+            response["similar_category_products"] = []
+            response["similar_brand_products"] = []
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchProductDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchSimilarProductsAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSimilarProductsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["uuid"])
 
             location_group_obj = dealshub_product_obj.location_group
 
@@ -195,7 +245,7 @@ class FetchProductDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchProductDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+            logger.error("FetchSimilarProductsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -510,6 +560,13 @@ class SearchAPI(APIView):
                     category_objs = Category.objects.filter(id__in=category_ids)
 
                 for category_obj in category_objs:
+
+                    cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
+                    if cached_response!="has_expired":
+                        if "subCategoryList" in json.loads(cached_response):
+                            category_list.append(json.loads(cached_response))
+                        continue
+
                     if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
                     temp_dict = {}
@@ -529,6 +586,7 @@ class SearchAPI(APIView):
                     if len(sub_category_list)>0:
                         temp_dict["subCategoryList"] = sub_category_list
                         category_list.append(temp_dict)
+                    cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2538,6 +2596,8 @@ class FetchPostaPlusDetailsAPI(APIView):
 
 
 FetchProductDetails = FetchProductDetailsAPI.as_view()
+
+FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
 
 FetchSectionProducts = FetchSectionProductsAPI.as_view()
 
