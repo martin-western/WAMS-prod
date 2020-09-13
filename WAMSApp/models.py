@@ -713,6 +713,7 @@ class Product(models.Model):
     ads_images = models.ManyToManyField(Image, related_name="ads_images", blank=True)
     pfl_generated_images = models.ManyToManyField(Image , related_name="pfl_generated_images" , blank = True)
     transparent_images = models.ManyToManyField(Image , related_name="transparent_images" , blank = True)
+    best_images = models.ManyToManyField(Image , related_name="best_images" , blank = True)
 
 
     # Other info
