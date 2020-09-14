@@ -583,7 +583,7 @@ def calculate_gtm(order_obj):
                 "tax": str(vat),
                 "shipping": str(delivery_fee),
                 "coupon": "",
-                "currency": str(unit_order_obj.order.get_currency()),
+                "currency": str(order_obj.get_currency())
             },
             "products": product_list
         }

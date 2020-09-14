@@ -1384,7 +1384,19 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     if(product_name == "" or manufacturer == "" or manufacturer_part_number == "" or category_name == "" or sub_category_name == "" or product_id == "" or brand_name == "" or seller_sku == ""):
                         raise Exception("Required Fields must not be empty!")
 
-                    if(product_name == "nan" or manufacturer == "nan" or manufacturer_part_number == "nan" or category_name == "nan" or sub_category_name == "nan" or product_id == "nan" or brand_name == "nan" or seller_sku == "nan"):
+                    if manufacturer == "nan":
+                        manufacturer = ""
+
+                    if manufacturer_part_number == "nan":
+                        manufacturer_part_number = ""
+
+                    if category_name == "nan":
+                        category_name = "GENERAL"
+
+                    if sub_category_name == "nan":
+                        sub_category_name = "GENERAL"
+
+                    if(product_name == "nan" or product_id == "nan" or brand_name == "nan" or seller_sku == "nan"):
                         logger.info("Product Name: %s", product_name)
                         logger.info("Manufacturer: %s", manufacturer)
                         logger.info("Manufacturer PN: %s", manufacturer_part_number)
@@ -1396,10 +1408,10 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                         raise Exception("Required Fields must not be empty!")
 
                     if Category.objects.filter(name=category_name).exists()==False:
-                        raise Exception("Category does not exist!")
+                        raise Exception("Category does not exist. Please make sure that the category is selected from sheet2 from the downloaded template.")
 
                     if SubCategory.objects.filter(name=sub_category_name).exists()==False:
-                        raise Exception("SubCategory does not exist!")
+                        raise Exception("SubCategory does not exist. Please make sure that the sub-category is selected from sheet2 from the downloaded template.")
 
                     category_obj = Category.objects.filter(name=category_name)[0]
                     sub_category_obj = SubCategory.objects.filter(name=sub_category_name)[0]
@@ -1413,7 +1425,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     base_product_obj = BaseProduct.objects.none()
 
                     if(Product.objects.filter(product_id=product_id).exists()):
-                        raise Exception("Product Already Exists with same Product ID!")
+                        raise Exception("Product Already Exists on OmnyComm with same Product ID!")
 
                     base_product_exists = False
                     try:
