@@ -2303,10 +2303,12 @@ class MakePurchaseRequestAPI(APIView):
 
             if data.get("is_fast_cart", False)==True:
                 cart_obj.payment_info = json.dumps(payment_response)
+                cart_obj.merchant_reference = merchant_reference
                 cart_obj.save()
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 fast_cart_obj.payment_info = json.dumps(payment_response)
+                fast_cart_obj.merchant_reference = merchant_reference
                 fast_cart_obj.save()
 
             response["paymentResponse"] = payment_response
