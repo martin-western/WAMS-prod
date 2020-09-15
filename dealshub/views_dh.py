@@ -2301,7 +2301,7 @@ class MakePurchaseRequestAPI(APIView):
             payment_response = json.loads(r.content)
             logger.info("payment_response %s", str(payment_response))
 
-            if data.get("is_fast_cart", False)==True:
+            if data.get("is_fast_cart", False)==False:
                 cart_obj.payment_info = json.dumps(payment_response)
                 cart_obj.merchant_reference = merchant_reference
                 cart_obj.save()
