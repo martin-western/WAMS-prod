@@ -99,7 +99,20 @@ def transfer_from_atp_to_holding(seller_sku,company_code,transfer_information):
             total_atp = result["total_atp"]
             atp_threshold = result["atp_threshold"]
 
-            total_holding_transfer = min(total_holding-holding_threshold,total_atp-atp_threshold)
+            total_holding_transfer = min(holding_threshold.total_atp-atp_threshold)
+            transfer_information = []
+
+            while total_holding_transfer > 0:
+
+                for item in result["prices_stock_list"]:
+
+                    if item["atp_qty"] <= total_holding_transfer:
+
+                        transfer_here = 
+                        temp_dict = {}
+                        temp_dict[""]
+
+                pass
 
             body = xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information)
             

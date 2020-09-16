@@ -6,15 +6,16 @@ import uuid
 company_code = "1000"
 customer_id = "40000195"
 product_id = "GDI7752"
-IP = "192.168.77.48"
+IP = "94.56.89.116"
+
 headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
 credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
 print(product_id)
 print()
 
-test_url = "http://s4hdev:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
-production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+test_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
+# production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
 
 def fetch_prices(product_id,company_code,url,customer_id):
     
@@ -254,7 +255,7 @@ print()
 #             </soapenv:Body>
 #             </soapenv:Envelope>"""
 
-# holding_url = "http://s4hdev:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
+# holding_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
 
 # response_holding = requests.post(url=holding_url, auth=credentials, data=body, headers=headers)
 # content = response_holding.content
@@ -465,7 +466,7 @@ print()
 #              </soapenv:Body>
 #           </soapenv:Envelope>"""
 
-# intercompany_order_url = "http://192.168.77.48:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
+# intercompany_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
 
 # response_intercompany_order = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
 # content = response_intercompany_order.content
