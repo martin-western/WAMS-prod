@@ -129,7 +129,7 @@ print()
 
 ##################################
 
-qty_holding = 0.0
+qty_holding = 5.0
 
 body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
             <soapenv:Header/>
@@ -312,232 +312,232 @@ print()
 ###################################
 
 
-# holding_order_qty = 3.0
-# atp_order_qty = 1.0
-# uid = str(uuid.uuid4()).split("-")[0]
-# print(uid)
-# transfer_flag="X"
-# holding_flag="X"
+holding_order_qty = 3.0
+atp_order_qty = 1.0
+uid = str(uuid.uuid4()).split("-")[0]
+print(uid)
+transfer_flag="X"
+holding_flag="X"
 
-# body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
-#              <soapenv:Header/>
-#              <soapenv:Body>
-#                 <urn:ZAPP_ONLINE_ORDER>
-#                    <IM_AUART></IM_AUART>
-#                    <IM_DATE></IM_DATE>
-#                    <IM_EXTRA></IM_EXTRA>
-#                    <IM_FLAG>"""+ transfer_flag + """</IM_FLAG>
-#                    <IM_ID>""" + uid + """</IM_ID>
-#                    <IM_KUNNR>""" + customer_id + """</IM_KUNNR>
-#                    <IM_PERNR></IM_PERNR>
-#                    <IM_PO_NUMBER></IM_PO_NUMBER>
-#                    <IM_SPART></IM_SPART>
-#                    <IM_VKORG>""" + company_code + """</IM_VKORG>
-#                    <IM_VTWEG></IM_VTWEG>
-#                    <T_CONDITION>
-#                       <item>
-#                          <KPOSN></KPOSN>
-#                          <KSCHL></KSCHL>
-#                          <KWERT></KWERT>
-#                       </item>
-#                    </T_CONDITION>
-#                    <T_DOCS>
-#                       <item>
-#                          <DOCTYP></DOCTYP>
-#                          <VBELN></VBELN>
-#                          <MSGTY></MSGTY>
-#                          <MSGV1></MSGV1>
-#                       </item>
-#                    </T_DOCS>
-#                    <T_ITEM>
-#                       <item>
-#                          <MATKL></MATKL>
-#                          <MATNR>"""+ product_id + """</MATNR>
-#                          <ITEM></ITEM>
-#                          <MAKTX></MAKTX>
-#                          <QTY>"""+ str(holding_order_qty) +"""</QTY>
-#                          <UOM>""" + uom + """</UOM>
-#                          <PRICE></PRICE>
-#                          <INDPRICE></INDPRICE>
-#                          <DISC></DISC>
-#                          <INDDISC></INDDISC>
-#                          <CHARG>BS</CHARG>
-#                          <MO_PRICE></MO_PRICE>
-#                          <NO_STOCK_IND></NO_STOCK_IND>
-#                          <NO_STOCK_FOC></NO_STOCK_FOC>
-#                          <FOC_ITEM></FOC_ITEM>
-#                          <FOC_QTY></FOC_QTY>
-#                          <FOC_UOM></FOC_UOM>
-#                          <FOC_CHARG></FOC_CHARG>
-#                          <PRC_DIFF_IND></PRC_DIFF_IND>
-#                          <PRC_DIFF_NEW></PRC_DIFF_NEW>
-#                          <SPCL_TEXT></SPCL_TEXT>
-#                          <FOC_STD></FOC_STD>
-#                          <FOC_ART></FOC_ART>
-#                          <FOC_MCL></FOC_MCL>
-#                          <INDICATOR1></INDICATOR1>
-#                          <INDICATOR2></INDICATOR2>
-#                          <TEXT1></TEXT1>
-#                          <TEXT2></TEXT2>
-#                          <CHARG_LIST></CHARG_LIST>
-#                          <PRICE_CHANGE></PRICE_CHANGE>
-#                          <CONDITION1></CONDITION1>
-#                          <CONDITION2></CONDITION2>
-#                          <CONDITION3></CONDITION3>
-#                          <CONDITION4></CONDITION4>
-#                          <FRM_HOLDING>"""+ holding_flag + """</FRM_HOLDING>
-#                       </item>
-#                       <item>
-#                          <MATKL></MATKL>
-#                          <MATNR>"""+ product_id + """</MATNR>
-#                          <ITEM></ITEM>
-#                          <MAKTX></MAKTX>
-#                          <QTY>"""+ str(atp_order_qty) +"""</QTY>
-#                          <UOM>""" + uom + """</UOM>
-#                          <PRICE></PRICE>
-#                          <INDPRICE></INDPRICE>
-#                          <DISC></DISC>
-#                          <INDDISC></INDDISC>
-#                          <CHARG>ESMA</CHARG>
-#                          <MO_PRICE></MO_PRICE>
-#                          <NO_STOCK_IND></NO_STOCK_IND>
-#                          <NO_STOCK_FOC></NO_STOCK_FOC>
-#                          <FOC_ITEM></FOC_ITEM>
-#                          <FOC_QTY></FOC_QTY>
-#                          <FOC_UOM></FOC_UOM>
-#                          <FOC_CHARG></FOC_CHARG>
-#                          <PRC_DIFF_IND></PRC_DIFF_IND>
-#                          <PRC_DIFF_NEW></PRC_DIFF_NEW>
-#                          <SPCL_TEXT></SPCL_TEXT>
-#                          <FOC_STD></FOC_STD>
-#                          <FOC_ART></FOC_ART>
-#                          <FOC_MCL></FOC_MCL>
-#                          <INDICATOR1></INDICATOR1>
-#                          <INDICATOR2></INDICATOR2>
-#                          <TEXT1></TEXT1>
-#                          <TEXT2></TEXT2>
-#                          <CHARG_LIST></CHARG_LIST>
-#                          <PRICE_CHANGE></PRICE_CHANGE>
-#                          <CONDITION1></CONDITION1>
-#                          <CONDITION2></CONDITION2>
-#                          <CONDITION3></CONDITION3>
-#                          <CONDITION4></CONDITION4>
-#                          <FRM_HOLDING></FRM_HOLDING>
-#                       </item>
-#                    </T_ITEM>
-#                    <T_MESSAGE>
-#                       <item>
-#                          <VBELN></VBELN>
-#                          <TYPE></TYPE>
-#                          <ID></ID>
-#                          <NUMBER></NUMBER>
-#                          <MESSAGE></MESSAGE>
-#                          <LOG_NO></LOG_NO>
-#                          <LOG_MSG_NO></LOG_MSG_NO>
-#                          <MESSAGE_V1></MESSAGE_V1>
-#                          <MESSAGE_V2></MESSAGE_V2>
-#                          <MESSAGE_V3></MESSAGE_V3>
-#                          <MESSAGE_V4></MESSAGE_V4>
-#                          <PARAMETER></PARAMETER>
-#                          <ROW></ROW>
-#                          <FIELD></FIELD>
-#                          <SYSTEM></SYSTEM>
-#                       </item>
-#                       <item>
-#                          <VBELN></VBELN>
-#                          <TYPE></TYPE>
-#                          <ID></ID>
-#                          <NUMBER></NUMBER>
-#                          <MESSAGE></MESSAGE>
-#                          <LOG_NO></LOG_NO>
-#                          <LOG_MSG_NO></LOG_MSG_NO>
-#                          <MESSAGE_V1></MESSAGE_V1>
-#                          <MESSAGE_V2></MESSAGE_V2>
-#                          <MESSAGE_V3></MESSAGE_V3>
-#                          <MESSAGE_V4></MESSAGE_V4>
-#                          <PARAMETER></PARAMETER>
-#                          <ROW></ROW>
-#                          <FIELD></FIELD>
-#                          <SYSTEM></SYSTEM>
-#                       </item>
-#                    </T_MESSAGE>
-#                 </urn:ZAPP_ONLINE_ORDER>
-#              </soapenv:Body>
-#           </soapenv:Envelope>"""
+body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+             <soapenv:Header/>
+             <soapenv:Body>
+                <urn:ZAPP_ONLINE_ORDER>
+                   <IM_AUART></IM_AUART>
+                   <IM_DATE></IM_DATE>
+                   <IM_EXTRA></IM_EXTRA>
+                   <IM_FLAG>"""+ transfer_flag + """</IM_FLAG>
+                   <IM_ID>""" + uid + """</IM_ID>
+                   <IM_KUNNR>""" + customer_id + """</IM_KUNNR>
+                   <IM_PERNR></IM_PERNR>
+                   <IM_PO_NUMBER></IM_PO_NUMBER>
+                   <IM_SPART></IM_SPART>
+                   <IM_VKORG>""" + company_code + """</IM_VKORG>
+                   <IM_VTWEG></IM_VTWEG>
+                   <T_CONDITION>
+                      <item>
+                         <KPOSN></KPOSN>
+                         <KSCHL></KSCHL>
+                         <KWERT></KWERT>
+                      </item>
+                   </T_CONDITION>
+                   <T_DOCS>
+                      <item>
+                         <DOCTYP></DOCTYP>
+                         <VBELN></VBELN>
+                         <MSGTY></MSGTY>
+                         <MSGV1></MSGV1>
+                      </item>
+                   </T_DOCS>
+                   <T_ITEM>
+                      <item>
+                         <MATKL></MATKL>
+                         <MATNR>"""+ product_id + """</MATNR>
+                         <ITEM></ITEM>
+                         <MAKTX></MAKTX>
+                         <QTY>"""+ str(holding_order_qty) +"""</QTY>
+                         <UOM>""" + uom + """</UOM>
+                         <PRICE></PRICE>
+                         <INDPRICE></INDPRICE>
+                         <DISC></DISC>
+                         <INDDISC></INDDISC>
+                         <CHARG>BS</CHARG>
+                         <MO_PRICE></MO_PRICE>
+                         <NO_STOCK_IND></NO_STOCK_IND>
+                         <NO_STOCK_FOC></NO_STOCK_FOC>
+                         <FOC_ITEM></FOC_ITEM>
+                         <FOC_QTY></FOC_QTY>
+                         <FOC_UOM></FOC_UOM>
+                         <FOC_CHARG></FOC_CHARG>
+                         <PRC_DIFF_IND></PRC_DIFF_IND>
+                         <PRC_DIFF_NEW></PRC_DIFF_NEW>
+                         <SPCL_TEXT></SPCL_TEXT>
+                         <FOC_STD></FOC_STD>
+                         <FOC_ART></FOC_ART>
+                         <FOC_MCL></FOC_MCL>
+                         <INDICATOR1></INDICATOR1>
+                         <INDICATOR2></INDICATOR2>
+                         <TEXT1></TEXT1>
+                         <TEXT2></TEXT2>
+                         <CHARG_LIST></CHARG_LIST>
+                         <PRICE_CHANGE></PRICE_CHANGE>
+                         <CONDITION1></CONDITION1>
+                         <CONDITION2></CONDITION2>
+                         <CONDITION3></CONDITION3>
+                         <CONDITION4></CONDITION4>
+                         <FRM_HOLDING>"""+ holding_flag + """</FRM_HOLDING>
+                      </item>
+                      <item>
+                         <MATKL></MATKL>
+                         <MATNR>"""+ product_id + """</MATNR>
+                         <ITEM></ITEM>
+                         <MAKTX></MAKTX>
+                         <QTY>"""+ str(atp_order_qty) +"""</QTY>
+                         <UOM>""" + uom + """</UOM>
+                         <PRICE></PRICE>
+                         <INDPRICE></INDPRICE>
+                         <DISC></DISC>
+                         <INDDISC></INDDISC>
+                         <CHARG>ESMA</CHARG>
+                         <MO_PRICE></MO_PRICE>
+                         <NO_STOCK_IND></NO_STOCK_IND>
+                         <NO_STOCK_FOC></NO_STOCK_FOC>
+                         <FOC_ITEM></FOC_ITEM>
+                         <FOC_QTY></FOC_QTY>
+                         <FOC_UOM></FOC_UOM>
+                         <FOC_CHARG></FOC_CHARG>
+                         <PRC_DIFF_IND></PRC_DIFF_IND>
+                         <PRC_DIFF_NEW></PRC_DIFF_NEW>
+                         <SPCL_TEXT></SPCL_TEXT>
+                         <FOC_STD></FOC_STD>
+                         <FOC_ART></FOC_ART>
+                         <FOC_MCL></FOC_MCL>
+                         <INDICATOR1></INDICATOR1>
+                         <INDICATOR2></INDICATOR2>
+                         <TEXT1></TEXT1>
+                         <TEXT2></TEXT2>
+                         <CHARG_LIST></CHARG_LIST>
+                         <PRICE_CHANGE></PRICE_CHANGE>
+                         <CONDITION1></CONDITION1>
+                         <CONDITION2></CONDITION2>
+                         <CONDITION3></CONDITION3>
+                         <CONDITION4></CONDITION4>
+                         <FRM_HOLDING></FRM_HOLDING>
+                      </item>
+                   </T_ITEM>
+                   <T_MESSAGE>
+                      <item>
+                         <VBELN></VBELN>
+                         <TYPE></TYPE>
+                         <ID></ID>
+                         <NUMBER></NUMBER>
+                         <MESSAGE></MESSAGE>
+                         <LOG_NO></LOG_NO>
+                         <LOG_MSG_NO></LOG_MSG_NO>
+                         <MESSAGE_V1></MESSAGE_V1>
+                         <MESSAGE_V2></MESSAGE_V2>
+                         <MESSAGE_V3></MESSAGE_V3>
+                         <MESSAGE_V4></MESSAGE_V4>
+                         <PARAMETER></PARAMETER>
+                         <ROW></ROW>
+                         <FIELD></FIELD>
+                         <SYSTEM></SYSTEM>
+                      </item>
+                      <item>
+                         <VBELN></VBELN>
+                         <TYPE></TYPE>
+                         <ID></ID>
+                         <NUMBER></NUMBER>
+                         <MESSAGE></MESSAGE>
+                         <LOG_NO></LOG_NO>
+                         <LOG_MSG_NO></LOG_MSG_NO>
+                         <MESSAGE_V1></MESSAGE_V1>
+                         <MESSAGE_V2></MESSAGE_V2>
+                         <MESSAGE_V3></MESSAGE_V3>
+                         <MESSAGE_V4></MESSAGE_V4>
+                         <PARAMETER></PARAMETER>
+                         <ROW></ROW>
+                         <FIELD></FIELD>
+                         <SYSTEM></SYSTEM>
+                      </item>
+                   </T_MESSAGE>
+                </urn:ZAPP_ONLINE_ORDER>
+             </soapenv:Body>
+          </soapenv:Envelope>"""
 
-# intercompany_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
+intercompany_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
 
-# response_intercompany_order = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
-# content = response_intercompany_order.content
-# content = xmltodict.parse(content)
-# response_dict = json.loads(json.dumps(content))
+response_intercompany_order = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
+content = response_intercompany_order.content
+content = xmltodict.parse(content)
+response_dict = json.loads(json.dumps(content))
 
-# items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
+items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
 
-# doc_list = []
+doc_list = []
 
-# if isinstance(items, dict):
-#     temp_dict={}
-#     temp_dict["type"] = items["DOCTYP"]
-#     temp_dict["id"] = items["VBELN"]    
-#     temp_dict["message_type"] = items["MSGTY"]    
-#     temp_dict["message"] = items["MSGV1"]    
-#     doc_list.append(temp_dict)
-# else:
-#     for item in items:
-#         temp_dict={}
-#         temp_dict["type"] = item["DOCTYP"]
-#         temp_dict["id"] = item["VBELN"]    
-#         temp_dict["message_type"] = item["MSGTY"]    
-#         temp_dict["message"] = item["MSGV1"]    
-#         doc_list.append(temp_dict)
+if isinstance(items, dict):
+    temp_dict={}
+    temp_dict["type"] = items["DOCTYP"]
+    temp_dict["id"] = items["VBELN"]    
+    temp_dict["message_type"] = items["MSGTY"]    
+    temp_dict["message"] = items["MSGV1"]    
+    doc_list.append(temp_dict)
+else:
+    for item in items:
+        temp_dict={}
+        temp_dict["type"] = item["DOCTYP"]
+        temp_dict["id"] = item["VBELN"]    
+        temp_dict["message_type"] = item["MSGTY"]    
+        temp_dict["message"] = item["MSGV1"]    
+        doc_list.append(temp_dict)
 
-# print("Order : ")
-# print("Type"+'\t'+"ID"+'\t'+"Message Type"+'\t'+"Message")
-# for item in doc_list:
-#     if item["type"] != None:
-#         print(str(item["type"])+'\t'+str(item["id"])+'\t'+str(item["message_type"])+'\t'+str(item["message"]))
-# print()
+print("Order : ")
+print("Type"+'\t'+"ID"+'\t'+"Message Type"+'\t'+"Message")
+for item in doc_list:
+    if item["type"] != None:
+        print(str(item["type"])+'\t'+str(item["id"])+'\t'+str(item["message_type"])+'\t'+str(item["message"]))
+print()
 
-# #################################
+#################################
 
-# ###### After Order ############
+###### After Order ############
 
-# ################################
+################################
 
-# response = fetch_prices(product_id,company_code,test_url,customer_id)
+response = fetch_prices(product_id,company_code,test_url,customer_id)
         
-# items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-# uom = "EA"
-# charg = "BS"
-# total_atp = 0.0
-# total_holding = 0.0
-# prices_stock_list = []
+items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+uom = "EA"
+charg = "BS"
+total_atp = 0.0
+total_holding = 0.0
+prices_stock_list = []
 
-# if isinstance(items, dict):
-#     temp_dict={}
-#     temp_dict["charg"] = items["CHARG"]
-#     temp_dict["uom"] = items["MEINS"]    
-#     temp_dict["atp_qty"] = float(items["ATP_QTY"])
-#     total_atp = total_atp+float(items["ATP_QTY"])
-#     temp_dict["qty_holding"] = float(items["HQTY"])
-#     total_holding = total_holding + float(items["HQTY"])
-#     prices_stock_list.append(temp_dict)
-# else:
-#     for item in items:
-#         temp_dict={}
-#         temp_dict["charg"] = item["CHARG"]
-#         temp_dict["uom"] = item["MEINS"]    
-#         temp_dict["atp_qty"] = float(item["ATP_QTY"])
-#         total_atp = total_atp+float(item["ATP_QTY"])
-#         temp_dict["qty_holding"] = float(item["HQTY"])
-#         total_holding = total_holding + float(item["HQTY"])
-#         prices_stock_list.append(temp_dict)
+if isinstance(items, dict):
+    temp_dict={}
+    temp_dict["charg"] = items["CHARG"]
+    temp_dict["uom"] = items["MEINS"]    
+    temp_dict["atp_qty"] = float(items["ATP_QTY"])
+    total_atp = total_atp+float(items["ATP_QTY"])
+    temp_dict["qty_holding"] = float(items["HQTY"])
+    total_holding = total_holding + float(items["HQTY"])
+    prices_stock_list.append(temp_dict)
+else:
+    for item in items:
+        temp_dict={}
+        temp_dict["charg"] = item["CHARG"]
+        temp_dict["uom"] = item["MEINS"]    
+        temp_dict["atp_qty"] = float(item["ATP_QTY"])
+        total_atp = total_atp+float(item["ATP_QTY"])
+        temp_dict["qty_holding"] = float(item["HQTY"])
+        total_holding = total_holding + float(item["HQTY"])
+        prices_stock_list.append(temp_dict)
 
-# print("After Order : ")
-# print("Batch"+'\t'+"UOM"+'\t'+"ATP"+'\t'+"Holding")
-# for item in prices_stock_list:
-#     if item["charg"] != None:
-#         print(str(item["charg"])+'\t'+str(item["uom"])+'\t'+str(item["atp_qty"])+'\t'+str(item["qty_holding"]))
-# print("Total"+'\t'+'\t'+str(total_atp)+'\t'+str(total_holding))
-# print()
+print("After Order : ")
+print("Batch"+'\t'+"UOM"+'\t'+"ATP"+'\t'+"Holding")
+for item in prices_stock_list:
+    if item["charg"] != None:
+        print(str(item["charg"])+'\t'+str(item["uom"])+'\t'+str(item["atp_qty"])+'\t'+str(item["qty_holding"]))
+print("Total"+'\t'+'\t'+str(total_atp)+'\t'+str(total_holding))
+print()
