@@ -4104,7 +4104,7 @@ class RemoveImageAPI(APIView):
             elif data["image_category"] == "transparent_images":
                 product_obj.transparent_images.remove(image_obj)
             elif data["image_category"] == "best_images":
-                product_obj.best_images.remove(image_obj)
+                ProductImage.objects.get(product=product_obj, image=image_obj).delete()
                 
             product_obj.save()
 
