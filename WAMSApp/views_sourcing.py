@@ -78,7 +78,7 @@ class CreateFactoryProductAPI(APIView):
 
             brand_obj = None
             try:
-                brand_obj = Brand.objects.get(name=brand_name)
+                brand_obj = Brand.objects.get(name=brand_name, organization=organization)
             except Exception as e:
                 logger.warning("CreateFactoryProductAPI: Brand does not exist")
 
@@ -514,7 +514,7 @@ class SaveFactoryProductAPI(APIView):
 
             brand_obj = None
             try:
-                brand_obj = Brand.objects.get(name=brand_name)
+                brand_obj = Brand.objects.get(name=brand_name, organization=organization)
             except Exception as e:
                 logger.error("SaveFactoryProductAPI: Brand does not exist")
 

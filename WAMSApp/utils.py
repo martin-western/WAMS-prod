@@ -119,11 +119,13 @@ def decode_base64_pdf(data):
         return ContentFile(decoded_file, name=complete_file_name)
 
 
-def fetch_prices(product_id,company_code):
+def fetch_prices(product_id,company_code,request_user):
     
     try:
 
-        product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
+        custom_permission = CustomPermission.objects.get(user__username=request_user.username)
+        organization = custom_permission.organization
+        product_obj = Product.objects.filter(base_product__seller_sku=product_id, base_product__brand__organization=organization)[0]
 
         url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
@@ -1291,6 +1293,9 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
 
         worksheet = workbook.add_worksheet()
 
+        custom_permission = CustomPermission.objects.get(user__username=request_user.username)
+        organization = custom_permission.organization
+
         for i in range(rows):
 
             errors = []
@@ -1323,7 +1328,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     if(product_id=="" or product_id=="nan"):
                         raise Exception("Required Fields must not be empty!")
 
-                    product_obj = Product.objects.get(product_id=product_id)
+                    product_obj = Product.objects.get(product_id=product_id, base_product__brand__organization=organization)
                     base_product_obj = product_obj.base_product
                     channel_product_obj = product_obj.channel_product
                 except Exception as e:
@@ -1424,12 +1429,12 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
 
                     base_product_obj = BaseProduct.objects.none()
 
-                    if(Product.objects.filter(product_id=product_id).exists()):
+                    if(Product.objects.filter(product_id=product_id, base_product__brand__organization=organization).exists()):
                         raise Exception("Product Already Exists on OmnyComm with same Product ID!")
 
                     base_product_exists = False
                     try:
-                        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
+                        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization=organization)
                         base_product_exists = True
                     except:
                         base_product_obj = BaseProduct.objects.create(

@@ -99,6 +99,9 @@ class BulkUpdateNoonProductPriceAPI(APIView):
                 return Response(data=response)
 
             excel_errors = []
+            user_name = request.user.username
+            custom_permission = CustomPermission.objects.get(user__username=user_name)
+            organization = custom_permission.organization
 
             for i in range(rows):
                 try:
@@ -109,7 +112,7 @@ class BulkUpdateNoonProductPriceAPI(APIView):
                         search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
-                            product_obj = Product.objects.get(product_id=search_key)
+                            product_obj = Product.objects.get(product_id=search_key, base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
                             continue
@@ -118,7 +121,7 @@ class BulkUpdateNoonProductPriceAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                            product_obj = Product.objects.get(base_product__seller_sku=search_key, base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
                             continue
@@ -127,7 +130,7 @@ class BulkUpdateNoonProductPriceAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"noon_sku": "'+search_key+'"', base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
                             continue
@@ -136,7 +139,7 @@ class BulkUpdateNoonProductPriceAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
 
                         try :
-                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"partner_sku": "'+search_key+'"', base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
                             continue
@@ -231,6 +234,9 @@ class BulkUpdateNoonProductStockAPI(APIView):
                 return Response(data=response)
 
             excel_errors = []
+            user_name = request.user.username
+            custom_permission = CustomPermission.objects.get(user__username=user_name)
+            organization = custom_permission.organization
 
             for i in range(rows):
                 try:
@@ -241,7 +247,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                         search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
-                            product_obj = Product.objects.get(product_id=search_key)
+                            product_obj = Product.objects.get(product_id=search_key, base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
@@ -250,7 +256,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                            product_obj = Product.objects.get(base_product__seller_sku=search_key, base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
@@ -259,7 +265,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"noon_sku": "'+search_key+'"', base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key )
                             continue
@@ -268,7 +274,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
 
                         try :
-                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"partner_sku": "'+search_key+'"', base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
@@ -358,6 +364,10 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                 return Response(data=response)
 
             excel_errors = []
+            user_name = request.user.username
+            custom_permission = CustomPermission.objects.get(user__username=user_name)
+            organization = custom_permission.organization
+            request.user.use
 
             for i in range(rows):
                 try:
@@ -368,7 +378,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                         search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
-                            product_obj = Product.objects.get(product_id=search_key)
+                            product_obj = Product.objects.get(product_id=search_key, base_product__brand__organization=organization)
                         except Exception as e:
                             logger.info("Here   "+search_key)
                             excel_errors.append("More than one product found for " + search_key)
@@ -378,7 +388,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                            product_obj = Product.objects.get(base_product__seller_sku=search_key, base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
@@ -387,7 +397,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"noon_sku": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"noon_sku": "'+search_key+'"', base_product__brand__organization=organization)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
@@ -396,7 +406,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
 
                         try :
-                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"partner_sku": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__noon_product_json_icontains='"partner_sku": "'+search_key+'"', base_product_brand_organization=organization)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
