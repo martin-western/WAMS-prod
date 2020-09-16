@@ -1146,6 +1146,8 @@ class UpdateDealshubProductAPI(APIView):
                 if "now_price" in data:
                     now_price = float(data["now_price"])        
                     dh_product_obj.now_price = now_price
+                    if dh_product_obj.promotional_price==0:
+                        dh_product_obj.promotional_price = now_price
                 if "promotional_price" in data:
                     promotional_price = float(data["promotional_price"])        
                     dh_product_obj.promotional_price = promotional_price
