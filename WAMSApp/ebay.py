@@ -86,24 +86,33 @@ def export_ebay(products):
                 # Graphics Part
                 images_link = []
 
+                if product.best_images.count()>0:
+                    try:
+                        best_images_objs = product.get_best_images()
+                        for best_images_obj in best_images_objs:
+                            images_link.append(str(best_images_obj.image.url))
+                        pic_url = "|".join(images_link)
+                        common_row[6] = pic_url
+                    except Exception as e:
+                        pass
+                else:
+                    try:
+                        main_images_list = ImageBucket.objects.none()
+                        main_images_obj = MainImages.objects.get(product = product, channel__name="Ebay")
+                        main_images_list = main_images_obj.main_images.distinct()
+                        for main_image in main_images_list:
+                            images_link.append(str(main_image.image.image.url))
 
-                try:
-                    main_images_list = ImageBucket.objects.none()
-                    main_images_obj = MainImages.objects.get(product = product, channel__name="Ebay")
-                    main_images_list = main_images_obj.main_images.distinct()
-                    for main_image in main_images_list:
-                        images_link.append(str(main_image.image.image.url))
-
-                    if SubImages.objects.filter(product = product, channel__name="Ebay").exists():
-                        sub_images_obj = SubImages.objects.get(product = product, channel__name="Ebay")
-                        sub_images_list = sub_images_obj.sub_images.distinct()
-                        for sub_image in sub_images_list:
-                            images_link.append(str(sub_image.image.image.url))
-                
-                    pic_url = "|".join(images_link)
-                    common_row[6] = pic_url
-                except Exception as e:
-                    pass
+                        if SubImages.objects.filter(product = product, channel__name="Ebay").exists():
+                            sub_images_obj = SubImages.objects.get(product = product, channel__name="Ebay")
+                            sub_images_list = sub_images_obj.sub_images.distinct()
+                            for sub_image in sub_images_list:
+                                images_link.append(str(sub_image.image.image.url))
+                    
+                        pic_url = "|".join(images_link)
+                        common_row[6] = pic_url
+                    except Exception as e:
+                        pass
 
                 colnum = 0
                 for row in common_row:
