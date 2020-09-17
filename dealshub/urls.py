@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^section-bulk-upload/$', views.SectionBulkUpload),
     url(r'^add-product-to-section/$', views.AddProductToSection),
     url(r'^delete-product-from-section/$', views.DeleteProductFromSection),
+    url(r'^update-product-position-in-section/$', views.UpdateProductPositionInSection),
 
     url(r'^fetch-banner-types/$', views.FetchBannerTypes),
     url(r'^create-banner/$', views.CreateBanner),

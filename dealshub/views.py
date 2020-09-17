@@ -1283,7 +1283,7 @@ class DeleteProductFromSectionAPI(APIView):
             
             section_product_instance = SectionProduct(section__uuid=section_uuid, product__uuid=product_uuid)
             
-            section_product_objs = Section.objects.filter(section__uuid=section_uuid)
+            section_product_objs = SectionProduct.objects.filter(section__uuid=section_uuid)
             section_product_objs.filter(number__gt=section_product_instance.number).update(number=F('number') - 1,)
             
             SectionProduct.objects.get(section__uuid=section_uuid, product__uuid=product_uuid).delete()
@@ -2756,3 +2756,5 @@ PublishVoucher = PublishVoucherAPI.as_view()
 UnPublishVoucher = UnPublishVoucherAPI.as_view()
 
 FetchPostaPlusDetails = FetchPostaPlusDetailsAPI.as_view()
+
+UpdateProductPositionInSection = UpdateProductPositionInSectionAPI.as_view()
