@@ -6710,9 +6710,13 @@ class FetchProductListByCategoryAPI(APIView):
                 data = json.loads(data)
 
             category_id = data["category_id"]
+            brand_name = data.get("brand_name", None)
             page = int(data.get('page', 1))
             
             product_objs = Product.objects.filter(base_product__category__uuid=category_id)
+
+            if brand_name!=None:
+                product_objs = product_objs.filter(base_product__brand__name=brand_name)                            
 
             paginator = Paginator(product_objs, 20)
             product_objs = paginator.page(page)
