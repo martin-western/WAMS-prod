@@ -502,9 +502,9 @@ print()
 
 #################################
 
-###### After Order ############
+######## After Order ############
 
-################################
+#################################
 
 response = fetch_prices(product_id,company_code,test_url,customer_id)
         
@@ -543,6 +543,12 @@ for item in prices_stock_list:
 print("Total"+'\t'+'\t'+str(total_atp)+'\t'+str(total_holding))
 print()
 
+############################
+
+###### Final Order #########
+
+############################
+
 final_order_url = "http://192.168.77.48:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
 
 city = "Dubai"
@@ -553,7 +559,7 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
              <soapenv:Header/>
              <soapenv:Body>
                 <urn:ZAPP_ONLINE_ORDER>
-                   <IM_AUART></IM_AUART>
+                   <IM_AUART>""" + str(order_type) + """</IM_AUART>
                    <IM_CITY>""" + str(city) + """</IM_CITY>
                    <IM_DATE></IM_DATE>
                    <IM_EXTRA></IM_EXTRA>
@@ -697,9 +703,9 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
              </soapenv:Body>
           </soapenv:Envelope>"""
 
-intercompany_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
-
-response_intercompany_order = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
-content = response_intercompany_order.content
+response_final_order = requests.post(url=final_order_url, auth=credentials, data=body, headers=headers)
+content = response_final_order.content
 content = xmltodict.parse(content)
 response_dict = json.loads(json.dumps(content))
+
+print(response_dict)
