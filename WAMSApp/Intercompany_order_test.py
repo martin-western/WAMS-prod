@@ -551,9 +551,12 @@ print()
 
 final_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
 
+uid = uuid.uuid4()
+print(uid)
+print()
 city = "Dubai"
 customer_name = "Raj Shah"
-end_customer_price = "Raj Shah"
+end_customer_price = 30.0
 
 body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
              <soapenv:Header/>
@@ -704,9 +707,35 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
           </soapenv:Envelope>"""
 
 response_final_order = requests.post(url=final_order_url, auth=credentials, data=body, headers=headers)
-print(response_final_order)
 content = response_final_order.content
 content = xmltodict.parse(content)
 response_dict = json.loads(json.dumps(content))
 
-print(response_dict)
+# print(response_dict)
+
+items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
+
+doc_list = []
+
+if isinstance(items, dict):
+    temp_dict={}
+    temp_dict["type"] = items["DOCTYP"]
+    temp_dict["id"] = items["VBELN"]    
+    temp_dict["message_type"] = items["MSGTY"]    
+    temp_dict["message"] = items["MSGV1"]    
+    doc_list.append(temp_dict)
+else:
+    for item in items:
+        temp_dict={}
+        temp_dict["type"] = item["DOCTYP"]
+        temp_dict["id"] = item["VBELN"]    
+        temp_dict["message_type"] = item["MSGTY"]    
+        temp_dict["message"] = item["MSGV1"]    
+        doc_list.append(temp_dict)
+
+print("Order : ")
+print("Type"+'\t'+"ID"+'\t'+"Message Type"+'\t'+"Message")
+for item in doc_list:
+    if item["type"] != None:
+        print(str(item["type"])+'\t'+str(item["id"])+'\t'+str(item["message_type"])+'\t'+str(item["message"]))
+print()
