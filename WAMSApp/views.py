@@ -6710,8 +6710,13 @@ class FetchProductListByCategoryAPI(APIView):
                 data = json.loads(data)
 
             category_id = data["category_id"]
+            page = int(data.get('page', 1))
             
             product_objs = Product.objects.filter(base_product__category__uuid=category_id)
+
+            paginator = Paginator(product_objs, 20)
+            product_objs = paginator.page(page)
+            total_pages = paginator.num_pages
 
             product_list = []
             for product_obj in product_objs:
@@ -6727,6 +6732,7 @@ class FetchProductListByCategoryAPI(APIView):
                     logger.error("FetchProductListByCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["product_list"] = product_list
+            response["total_pages"] = total_pages
             response['status'] = 200
         
         except Exception as e:
