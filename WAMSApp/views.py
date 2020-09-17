@@ -6675,8 +6675,8 @@ class FetchCategoryListByBrandAPI(APIView):
             for category_obj in category_objs:
                 try:
                     temp_dict = {}
-                    temp_dict["category_name"] = category.name
-                    temp_dict["category_id"] = category.uuid
+                    temp_dict["category_name"] = category_obj.name
+                    temp_dict["category_id"] = category_obj.uuid
                     category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
