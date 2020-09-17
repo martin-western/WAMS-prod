@@ -1276,14 +1276,17 @@ class DeleteProductFromSectionAPI(APIView):
             section_uuid = data["sectionUuid"]
             product_uuid = data["productUuid"]
 
-            section_obj = Section.objects.get(uuid=section_uuid)
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
-
+            
             dealshub_product_obj.promotion = None
             dealshub_product_obj.save()
             
-            section_obj.products.remove(dealshub_product_obj)
-            section_obj.save()
+            section_product_instance = SectionProduct(section__uuid=section_uuid, product__uuid=product_uuid)
+            
+            section_product_objs = Section.objects.filter(section__uuid=section_uuid)
+            section_product_objs.filter(number__gt=section_product_instance.number).update(number=F('number') - 1,)
+            
+            SectionProduct.objects.get(section__uuid=section_uuid, product__uuid=product_uuid).delete()
             
             response['status'] = 200
 
@@ -1386,7 +1389,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                                 
             dealshub_admin_sections = []
             for section_obj in section_objs:
-                if is_dealshub==True and section_obj.products.exclude(now_price=0).exclude(stock=0).exists()==False:
+                if is_dealshub==True and section_obj.products__product.exclude(now_price=0).exclude(stock=0).exists()==False:
                     continue
                 temp_dict = {}
                 temp_dict["orderIndex"] = section_obj.order_index
@@ -1425,17 +1428,19 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                 temp_products = []
 
-                section_products = section_obj.products.all()
+                section_product_objs = section_obj.products.all().order_by('number')
                 if is_dealshub==True:
-                    section_products = section_products.exclude(now_price=0).exclude(stock=0)
+                    section_product_objs = section_product_objs__products.exclude(now_price=0).exclude(stock=0)
 
                 if limit==True:
                     if section_obj.listing_type=="Carousel":
-                        section_products = section_products[:14]
+                        section_product_objs = section_product_objs[:14]
                     elif section_obj.listing_type=="Grid Stack":
-                        section_products = section_products[:14]
+                        section_product_objs = section_product_objs[:14]
 
-                for dealshub_product_obj in section_products:
+                for section_product_obj in section_product_objs:
+
+                    dealshub_product_obj = section_product_obj__product
                     if dealshub_product_obj.now_price==0:
                         continue
                     temp_dict2 = {}
@@ -1896,7 +1901,18 @@ class AddProductToSectionAPI(APIView):
 
             dealshub_product_obj.promotion = section_obj.promotion
             dealshub_product_obj.save()
-            
+
+            section_product_objs = SectionProduct.objects.filter(section__uuid=section_uuid).aggregate(
+                Max('number')
+            )
+
+            current_number = section_product_objs['number__max']
+            if current_number is None:
+                current_number = 0
+
+            current_number = current_number + 1            
+            SectionProduct.objects.create(product=dealshub_product_obj, section=section_obj, number=current_number)
+
             response["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
             response["name"] = dealshub_product_obj.get_name()
             response["displayId"] = dealshub_product_obj.get_product_id()
@@ -1908,14 +1924,50 @@ class AddProductToSectionAPI(APIView):
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
             response["stock"] = str(dealshub_product_obj.stock)
 
-            section_obj.products.add(dealshub_product_obj)
-            section_obj.save()
-            
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddProductToSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class UpdateProductPositionInSectionAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateProductPositionInSectionAPI: %s", str(data))
+
+            section_uuid = data["sectionUuid"]
+            from_product_uuid = data["fromProductUuid"]
+            to_product_uuid = data["toProductUuid"]
+
+            from_section_product_obj = SectionProduct.objects.get(product__uuid=from_product_uuid, section__uuid=section_uuid)
+            to_section_product_obj = SectionProduct.objects.get(product__uuid=to_product_uuid, section__uuid=section_uuid)
+
+            from_number = from_section_product_obj.number
+            to_number = to_section_product_obj.number
+
+            section_product_objs = SectionProduct.objects.filter(section__uuid=section_uuid)
+
+            if from_number > to_number:
+                section_product_objs.filter(number__lt=from_number,order__gte=to_number,).exclude(pk=from_section_product_obj.pk).update(number=F('number') + 1,)
+            else:
+                section_product_objs.filter(number__lte=to_number,number__gt=from_number,).exclude(pk=from_section_product_obj.pk,).update(number=F('number') - 1,)
+
+            from_section_product_obj.number = to_number
+            from_section_product_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateProductPositionInSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 

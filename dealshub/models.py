@@ -285,7 +285,7 @@ class Section(models.Model):
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
 
-    products = models.ManyToManyField(DealsHubProduct, blank=True)
+    products = models.ForeignKey('SectionProduct', related_name='section_products', blank=True, null=True)
     hovering_banner_image = models.ForeignKey(Image, related_name="section_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
 
     created_date = models.DateTimeField()
@@ -309,8 +309,20 @@ class Section(models.Model):
 
         if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())
-        
+
         super(Section, self).save(*args, **kwargs)
+
+
+class SectionProduct(models.Model):
+
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    section = models.ForeignKey(Section, on_delete=models.CASCADE)
+    number = models.IntegerField(default=1)
+
+    class Meta:
+        ordering = ('number',)
+        verbose_name = "Section Product"
+        verbose_name_plural = "Section Products"
 
 
 class BannerType(models.Model):
