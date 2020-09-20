@@ -741,6 +741,12 @@ class Product(models.Model):
     objects = ProductManager()
     recovery = ProductRecoveryManager()
 
+    ####### SAP Attributes #########
+
+    is_sap_exception = models.BooleanField(default=False)
+    atp_threshold = models.IntegerField(default=100)
+    holding_threshold = models.IntegerField(default=5)
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"

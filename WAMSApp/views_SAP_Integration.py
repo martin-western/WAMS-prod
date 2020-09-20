@@ -58,4 +58,32 @@ class FetchPriceAndStockAPI(APIView):
 
         return Response(data=response)
 
+class HoldingTransferAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("HoldingTransferAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_pk = data["product_pk"]
+            warehouse_code = data["warehouse_code"]
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("HoldingTransferAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 FetchPriceAndStock = FetchPriceAndStockAPI.as_view()
+
+HoldingTransfer = HoldingTransferAPI.as_view()
