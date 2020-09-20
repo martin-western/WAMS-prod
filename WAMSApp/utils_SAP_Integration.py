@@ -93,7 +93,6 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         for seller_sku in seller_sku_list :
 
             product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
-
             is_sap_exception = product_obj.is_sap_exception
 
             result = fetch_prices_and_stock(seller_sku,company_code)
@@ -101,7 +100,6 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             if is_sap_exception == True:
                 holding_threshold=product_obj.holding_threshold
                 atp_threshold=product_obj.atp_threshold
-
             else:
                 holding_threshold = result["holding_threshold"]
                 atp_threshold = result["atp_threshold"]
@@ -111,8 +109,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
             if total_holding < holding_threshold and total_atp > atp_threshold:
 
-
-                total_holding_transfer = min(holding_threshold.total_atp-atp_threshold)
+                total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold)
                 transfer_information = []
 
                 while total_holding_transfer > 0:
