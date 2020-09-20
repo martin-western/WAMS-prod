@@ -3084,7 +3084,7 @@ class UpdateUserEmailAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            email_id = data["emailId"]
+            email_id = data["emailId"].strip()
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             
