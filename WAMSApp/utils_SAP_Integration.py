@@ -83,44 +83,57 @@ def fetch_prices_and_stock(seller_sku,company_code):
         logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def transfer_from_atp_to_holding(seller_sku,company_code,transfer_information):
+def transfer_from_atp_to_holding(seller_sku_list,company_code):
     
     try:
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
-        result = fetch_prices_and_stock(seller_sku,company_code)
+        for seller_sku in seller_sku_list :
 
-        if result["total_holding"] < result["holding_threshold"] and result["total_atp"] > result["atp_threshold"]:
+            product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+
+            is_sap_exception = product_obj.is_sap_exception
+
+            result = fetch_prices_and_stock(seller_sku,company_code)
+            
+            if is_sap_exception == True:
+                holding_threshold=product_obj.holding_threshold
+                atp_threshold=product_obj.atp_threshold
+
+            else:
+                holding_threshold = result["holding_threshold"]
+                atp_threshold = result["atp_threshold"]
 
             total_holding = result["total_holding"]
-            holding_threshold = result["holding_threshold"]
             total_atp = result["total_atp"]
-            atp_threshold = result["atp_threshold"]
 
-            total_holding_transfer = min(holding_threshold.total_atp-atp_threshold)
-            transfer_information = []
+            if total_holding < holding_threshold and total_atp > atp_threshold:
 
-            while total_holding_transfer > 0:
 
-                for item in result["prices_stock_list"]:
+                total_holding_transfer = min(holding_threshold.total_atp-atp_threshold)
+                transfer_information = []
 
-                    if item["atp_qty"] <= total_holding_transfer:
+                while total_holding_transfer > 0:
 
-                        transfer_here = 
-                        temp_dict = {}
-                        temp_dict[""]
+                    for item in result["prices_stock_list"]:
 
-                pass
+                        if item["atp_qty"] <= total_holding_transfer:
 
-            body = xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information)
-            
-            response = requests.post(url=transfer_holding_url, auth=credentials, data=body, headers=headers)
-            
-            content = response.content
-            xml_content = xmltodict.parse(content)
-            response_dict = json.loads(json.dumps(xml_content))
+                            transfer_here = 
+                            temp_dict = {}
+                            temp_dict[""]
+
+                    pass
+
+        body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
+        
+        response = requests.post(url=transfer_holding_url, auth=credentials, data=body, headers=headers)
+        
+        content = response.content
+        xml_content = xmltodict.parse(content)
+        response_dict = json.loads(json.dumps(xml_content))
 
         return response_dict
 

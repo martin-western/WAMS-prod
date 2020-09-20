@@ -741,7 +741,7 @@ class Product(models.Model):
     objects = ProductManager()
     recovery = ProductRecoveryManager()
 
-    ####### SAP Attributes
+    ####### SAP Attributes #########
 
     is_sap_exception = models.BooleanField(default=False)
     atp_threshold = models.IntegerField(default=100)

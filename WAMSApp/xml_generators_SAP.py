@@ -60,7 +60,7 @@ def xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id):
         logger.error("xml_generator_for_price_and_stock_SAP: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transfer_information):
+def xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information):
 
     try :
 
@@ -86,7 +86,7 @@ def xml_generator_for_holding_tansfer(seller_sku,company_code,customer_id,transf
             xml_feed+="""
                   <item>
                    <MATKL></MATKL>
-                   <MATNR>"""+ seller_sku + """</MATNR>
+                   <MATNR>"""+ str(item["seller_sku"]) + """</MATNR>
                    <ITEM></ITEM>
                    <MAKTX></MAKTX>
                    <QTY>"""+ str(item["qty"]) + """</QTY>
