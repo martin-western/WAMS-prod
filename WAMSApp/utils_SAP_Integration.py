@@ -7,11 +7,11 @@ import json
 
 logger = logging.getLogger(__name__)
 
-price_stock_url = ""
-transfer_holding_url = ""
-intercompany_order_url = ""  
+test_price_stock_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
+test_transfer_holding_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
+test_online_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"  
 
-customer_id = ""
+test_customer_id = "40000195"
 
 def fetch_prices_and_stock(seller_sku,company_code):
     
@@ -22,7 +22,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         
         body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
         
-        response = requests.post(url=price_stock_url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=test_price_stock_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -37,7 +37,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
 
         if isinstance(items, dict):
             temp_dict={}
-            temp_dict["charg"] = items["CHARG"]
+            temp_dict["batch"] = items["CHARG"]
             temp_dict["uom"] = items["MEINS"]    
             temp_dict["atp_qty"] = float(items["ATP_QTY"])
             total_atp = total_atp+float(items["ATP_QTY"])
@@ -47,7 +47,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         else:
             for item in items:
                 temp_dict={}
-                temp_dict["charg"] = item["CHARG"]
+                temp_dict["batch"] = item["CHARG"]
                 temp_dict["uom"] = item["MEINS"]    
                 temp_dict["atp_qty"] = float(item["ATP_QTY"])
                 total_atp = total_atp+float(item["ATP_QTY"])
@@ -116,13 +116,19 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
                     for item in result["prices_stock_list"]:
 
-                        if item["atp_qty"] <= total_holding_transfer:
+                        if item["atp_qty"] >= total_holding_transfer:
 
-                            transfer_here = 
+                            transfer_here = min(total_holding_transfer,item["atp_qty"])
                             temp_dict = {}
-                            temp_dict[""]
+                            temp_dict["seller_sku"] = seller_sku
+                            temp_dict["qty"] = transfer_here
+                            temp_dict["uom"] = item["uom"]
+                            temp_dict["batch"] = item["batch"]
 
-                    pass
+                            total_holding_transfer = total_holding_transfer-transfer_here
+
+                        if total_holding_transfer == 0:
+                            break
 
         body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
         
