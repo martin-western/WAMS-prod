@@ -953,6 +953,12 @@ class FetchProductDetailsAPI(APIView):
             response['faqs'] = faqs
             response['how_to_use'] = how_to_use
 
+            ## SAP Exception
+
+            response["is_sap_exception"] = product_obj.is_sap_exception
+            response["atp_threshold"] = product_obj.atp_threshold
+            response["holding_threshold"] = product_obj.holding_threshold
+
             response['status'] = 200
 
         except Exception as e:
