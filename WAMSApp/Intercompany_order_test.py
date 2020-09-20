@@ -551,7 +551,7 @@ print()
 
 final_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
 
-uid = uuid.uuid4()
+uid = str(uuid.uuid4()).split("-")[0]
 print(uid)
 print()
 city = "Dubai"
@@ -711,7 +711,7 @@ content = response_final_order.content
 content = xmltodict.parse(content)
 response_dict = json.loads(json.dumps(content))
 
-# print(response_dict)
+print(response_dict)
 
 items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
 
