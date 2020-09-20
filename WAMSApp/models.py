@@ -713,6 +713,7 @@ class Product(models.Model):
     ads_images = models.ManyToManyField(Image, related_name="ads_images", blank=True)
     pfl_generated_images = models.ManyToManyField(Image , related_name="pfl_generated_images" , blank = True)
     transparent_images = models.ManyToManyField(Image , related_name="transparent_images" , blank = True)
+    best_images = models.ManyToManyField(Image , through='ProductImage', related_name="best_images" , blank = True)
 
 
     # Other info
@@ -763,6 +764,11 @@ class Product(models.Model):
         except Exception as e:
             pass
         return dimensions_string
+
+    def get_best_images(self):
+        image_ids = ProductImage.objects.filter(product=self).order_by('number').values_list('image', flat=True).distinct()
+        image_objs = Image.objects.filter(id__in=image_ids)
+        return image_objs
 
     def save(self, *args, **kwargs):
         
@@ -862,6 +868,17 @@ auditlog.register(Product.aplus_content_images.through)
 auditlog.register(Product.ads_images.through)
 auditlog.register(Product.pfl_generated_images.through)
 auditlog.register(Product.transparent_images.through)
+
+
+class ProductImage(models.Model):
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    number = models.IntegerField(default=1)
+
+    class Meta:
+        ordering = ('number',)
+
 
 class MainImages(models.Model):
 
