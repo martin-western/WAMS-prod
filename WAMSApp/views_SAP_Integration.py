@@ -74,82 +74,10 @@ class HoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            seller_sku_list = GES4026
+            seller_sku_list = ["GES4026","GES4026","GESL121","GFL3803","GFL3855",
+                                "GFL3882","GK175","GPM825","GTR1384","GTR34"]
 
-EXTENSION SOCKET- BS PLUG
-
-BS
-
-1278
-
-GES4026
-
-EXTENSION SOCKET- BS PLUG
-
-ESMA
-
-1000
-
-GESL121
-
-20W/2U/PIN ENERGY SAVING LAMP 1X100
-
- 
-
-2051
-
-GFL3803
-
-287 MM Length Flash Light  1X20
-
- 
-
-3255
-
-GFL3855
-
-208 MM LENGTH FLASH LIGHT 1X20
-
-BS
-
-875
-
-GFL3882
-
-3In 1 Family Pack Led Flashlight 1X12
-
- 
-
-1909
-
-GK175
-
-TRAVELING KETTLE
-
- 
-
-950
-
-GPM825
-
-POPCORN MAKER 1X8
-
-BS
-
-2138
-
-GTR1384
-
-RECHARGEABLE TRIMMER 1X24
-
- 
-
-1304
-
-GTR34
-            for seller_sku in seller_sku_list:
-
-
+            
             response['status'] = 200
 
         except Exception as e:
