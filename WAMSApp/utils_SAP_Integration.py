@@ -34,17 +34,6 @@ def fetch_prices_and_stock(seller_sku,company_code):
         total_holding = 0.0
         result = {}
         prices_stock_list = []
-
-        if isinstance(items, dict):
-            
-        
-        else:
-            for item in items:
-                
-                temp_qty = item["TOT_QTY"]
-                if temp_qty!=None:
-                    temp_qty = float(temp_qty)
-                    qty = max(temp_qty, qty)
         
         prices = {}
         prices["EX_EA"] = str(EX_EA)
