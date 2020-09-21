@@ -73,8 +73,10 @@ class HoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_pk = data["product_pk"]
-            warehouse_code = data["warehouse_code"]
+            seller_sku_list = BaseProduct.objects.filter(brand__name__in=["geepas", "royalford", "krypton", "olsenmark", "baby plus", "younglife", "para john", "delcasa"]).values_list('seller_sku',flat=True).order_by('-pk')
+
+            for seller_sku in seller_sku_list:
+
 
             response['status'] = 200
 
