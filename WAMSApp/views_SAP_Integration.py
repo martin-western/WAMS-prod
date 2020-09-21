@@ -45,6 +45,11 @@ class FetchPriceAndStockAPI(APIView):
             data = request.data
             logger.info("FetchPriceAndStockAPI: %s", str(data))
 
+            if custom_permission_sap_functions(request.user,"price_and_stock") == False:
+                logger.warning("FetchPriceAndStockAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -88,6 +93,11 @@ class HoldingTransferAPI(APIView):
             data = request.data
             logger.info("HoldingTransferAPI: %s", str(data))
 
+            if custom_permission_sap_functions(request.user,"holding_transfer") == False:
+                logger.warning("HoldingTransferAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -96,7 +106,7 @@ class HoldingTransferAPI(APIView):
 
             company_code = "1000"
 
-            transfer_from_atp_to_holding(seller_sku_list,company_code)
+            response_dict = transfer_from_atp_to_holding(seller_sku_list,company_code)
             
             response['status'] = 200
 

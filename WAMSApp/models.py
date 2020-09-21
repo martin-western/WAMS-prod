@@ -1043,6 +1043,7 @@ class CustomPermission(models.Model):
     channels = models.ManyToManyField(Channel, blank=True)
     mws_functions = models.TextField(default="{}")
     noon_functions = models.TextField(default="{}")
+    sap_functions = models.TextField(default="{}")
     price = models.TextField(default="{}")
     stock = models.TextField(default="{}")
     oc_reports = models.TextField(default="[]")
