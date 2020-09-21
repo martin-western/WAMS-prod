@@ -33,15 +33,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         total_atp = 0.0
         total_holding = 0.0
         result = {}
-        prices_stock_list = []
-        
-        prices = {}
-        prices["EX_EA"] = str(EX_EA)
-        prices["IC_EA"] = str(IC_EA)
-        prices["OD_EA"] = str(OD_EA)
-        prices["RET_EA"] = str(RET_EA)
-        
-        warehouse_dict["prices"] = prices
+        stock_list = []
 
         if isinstance(items, dict):
 
@@ -52,7 +44,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
             total_atp = total_atp+float(items["ATP_QTY"])
             temp_dict["holding_qty"] = float(items["HQTY"])
             total_holding = total_holding + float(items["HQTY"])
-            prices_stock_list.append(temp_dict)
+            stock_list.append(temp_dict)
 
             temp_price = items["EX_EA"]
             if temp_price!=None:
@@ -81,7 +73,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
                 total_atp = total_atp+float(item["ATP_QTY"])
                 temp_dict["holding_qty"] = float(item["HQTY"])
                 total_holding = total_holding + float(item["HQTY"])
-                prices_stock_list.append(temp_dict)
+                stock_list.append(temp_dict)
 
                 temp_price = item["EX_EA"]
                 if temp_price!=None:
@@ -100,7 +92,12 @@ def fetch_prices_and_stock(seller_sku,company_code):
                     temp_price = float(temp_price)
                     RET_EA = max(temp_price, RET_EA)
 
-
+        prices = {}
+        prices["EX_EA"] = str(EX_EA)
+        prices["IC_EA"] = str(IC_EA)
+        prices["OD_EA"] = str(OD_EA)
+        prices["RET_EA"] = str(RET_EA)
+        
         if isinstance(items,list):
             item = items[1]
 
@@ -114,7 +111,8 @@ def fetch_prices_and_stock(seller_sku,company_code):
 
         category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
 
-        result["prices_stock_list"] = prices_stock_list
+        result["prices"] = prices
+        result["stock_list"] = stock_list
         result["total_atp"] = total_atp
         result["total_holding"] = total_holding
         result["atp_threshold"] = category_mapping.atp_threshold
@@ -159,7 +157,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
                 while total_holding_transfer > 0:
 
-                    for item in result["prices_stock_list"]:
+                    for item in result["stock_list"]:
 
                         if item["atp_qty"] >= total_holding_transfer:
 
