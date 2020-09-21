@@ -9,6 +9,6 @@ urlpatterns = [
 ############################## SAP Automation #########################################
 
     url(r'^fetch-price-and-stock/$',views.FetchPriceAndStock),
-
+    url(r'^transfer-stock-to-holding/$',views.HoldingTransferAPI),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

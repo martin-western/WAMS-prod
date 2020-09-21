@@ -132,7 +132,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
         body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
         
-        response = requests.post(url=transfer_holding_url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -166,5 +166,5 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("create_intercompany_sales_order: %s at %s", str(e), str(exc_tb.tb_lineno))
+        logger.error("test_online_order_url: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
