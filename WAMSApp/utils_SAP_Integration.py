@@ -33,9 +33,10 @@ def fetch_prices_and_stock(seller_sku,company_code):
         total_atp = 0.0
         total_holding = 0.0
         result = {}
-        prices_stock_list = []
+        stock_list = []
 
         if isinstance(items, dict):
+
             temp_dict={}
             temp_dict["batch"] = items["CHARG"]
             temp_dict["uom"] = items["MEINS"]    
@@ -43,9 +44,29 @@ def fetch_prices_and_stock(seller_sku,company_code):
             total_atp = total_atp+float(items["ATP_QTY"])
             temp_dict["holding_qty"] = float(items["HQTY"])
             total_holding = total_holding + float(items["HQTY"])
-            prices_stock_list.append(temp_dict)
+            
+            stock_list.append(temp_dict)
+
+            temp_price = items["EX_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                EX_EA = max(temp_price, EX_EA)
+            temp_price = items["IC_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                IC_EA = max(temp_price, IC_EA)
+            temp_price = items["OD_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                OD_EA = max(temp_price, OD_EA)
+            temp_price = items["RET_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                RET_EA = max(temp_price, RET_EA)
+    
         else:
             for item in items:
+                
                 temp_dict={}
                 temp_dict["batch"] = item["CHARG"]
                 temp_dict["uom"] = item["MEINS"]    
@@ -53,9 +74,32 @@ def fetch_prices_and_stock(seller_sku,company_code):
                 total_atp = total_atp+float(item["ATP_QTY"])
                 temp_dict["holding_qty"] = float(item["HQTY"])
                 total_holding = total_holding + float(item["HQTY"])
-                prices_stock_list.append(temp_dict)
+                
+                stock_list.append(temp_dict)
 
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    EX_EA = max(temp_price, EX_EA)
+                temp_price = item["IC_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    IC_EA = max(temp_price, IC_EA)
+                temp_price = item["OD_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    OD_EA = max(temp_price, OD_EA)
+                temp_price = item["RET_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    RET_EA = max(temp_price, RET_EA)
 
+        prices = {}
+        prices["EX_EA"] = str(EX_EA)
+        prices["IC_EA"] = str(IC_EA)
+        prices["OD_EA"] = str(OD_EA)
+        prices["RET_EA"] = str(RET_EA)
+        
         if isinstance(items,list):
             item = items[1]
 
@@ -69,7 +113,8 @@ def fetch_prices_and_stock(seller_sku,company_code):
 
         category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
 
-        result["prices_stock_list"] = prices_stock_list
+        result["prices"] = prices
+        result["stock_list"] = stock_list
         result["total_atp"] = total_atp
         result["total_holding"] = total_holding
         result["atp_threshold"] = category_mapping.atp_threshold
@@ -114,37 +159,43 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
                 while total_holding_transfer > 0:
 
-                    for item in result["prices_stock_list"]:
+                    for item in result["stock_list"]:
 
                         if item["atp_qty"] >= total_holding_transfer:
 
                             transfer_here = min(total_holding_transfer,item["atp_qty"])
+                            
                             temp_dict = {}
                             temp_dict["seller_sku"] = seller_sku
                             temp_dict["qty"] = transfer_here
                             temp_dict["uom"] = item["uom"]
                             temp_dict["batch"] = item["batch"]
+                            transfer_information.append(temp_dict)
 
                             total_holding_transfer = total_holding_transfer-transfer_here
 
                         if total_holding_transfer == 0:
                             break
 
-        body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
-        
-        response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
-        
-        content = response.content
-        xml_content = xmltodict.parse(content)
-        response_dict = json.loads(json.dumps(xml_content))
+        if len(transfer_information) > 0:
 
-        return response_dict
+            body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
+            response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
+            content = response.content
+            xml_content = xmltodict.parse(content)
+            response_dict = json.loads(json.dumps(xml_content))
+
+            return response_dict
+
+        else :
+            logger.info("transfer_from_atp_to_holding : Nothing to transfer to Holding in this call",seller_sku_list)
+            return {}
 
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("transfer_from_atp_to_holding: %s at %s", str(e), str(exc_tb.tb_lineno))
-        return []
+        return {}
 
 def create_intercompany_sales_order(seller_sku,company_code,order_information):
     
