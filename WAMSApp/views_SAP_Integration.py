@@ -48,8 +48,19 @@ class FetchPriceAndStockAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_pk = data["product_pk"]
+            product_pk_list = data["product_pk_list"]
             warehouse_code = data["warehouse_code"]
+            
+            warehouses_information = []
+            
+            for product_pk in product_pk_list:
+                
+                product_obj = Product.objects.get(pk=int(product_pk))
+                warehouses_dict = fetch_prices(product_obj.base_product.seller_sku,warehouse_code)
+                warehouses_dict["product_pk"] = product_pk
+                warehouses_information.append(warehouses_dict)
+
+            response["warehouses_information"] = warehouses_information
 
             response['status'] = 200
 

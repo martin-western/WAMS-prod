@@ -36,6 +36,41 @@ def fetch_prices_and_stock(seller_sku,company_code):
         prices_stock_list = []
 
         if isinstance(items, dict):
+            
+        
+        else:
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    EX_EA = max(temp_price, EX_EA)
+                temp_price = item["IC_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    IC_EA = max(temp_price, IC_EA)
+                temp_price = item["OD_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    OD_EA = max(temp_price, OD_EA)
+                temp_price = item["RET_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    RET_EA = max(temp_price, RET_EA)
+                temp_qty = item["TOT_QTY"]
+                if temp_qty!=None:
+                    temp_qty = float(temp_qty)
+                    qty = max(temp_qty, qty)
+        
+        prices = {}
+        prices["EX_EA"] = str(EX_EA)
+        prices["IC_EA"] = str(IC_EA)
+        prices["OD_EA"] = str(OD_EA)
+        prices["RET_EA"] = str(RET_EA)
+        
+        warehouse_dict["prices"] = prices
+
+        if isinstance(items, dict):
+
             temp_dict={}
             temp_dict["batch"] = items["CHARG"]
             temp_dict["uom"] = items["MEINS"]    
@@ -44,6 +79,24 @@ def fetch_prices_and_stock(seller_sku,company_code):
             temp_dict["holding_qty"] = float(items["HQTY"])
             total_holding = total_holding + float(items["HQTY"])
             prices_stock_list.append(temp_dict)
+
+            temp_price = items["EX_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                EX_EA = max(temp_price, EX_EA)
+            temp_price = items["IC_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                IC_EA = max(temp_price, IC_EA)
+            temp_price = items["OD_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                OD_EA = max(temp_price, OD_EA)
+            temp_price = items["RET_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                RET_EA = max(temp_price, RET_EA)
+    
         else:
             for item in items:
                 temp_dict={}
