@@ -1,4 +1,5 @@
 from WAMSApp.models import *
+from dealshub.models import *
 from WAMSApp.utils import *
 
 from rest_framework.response import Response
@@ -73,9 +74,13 @@ class HoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            product_pk = data["product_pk"]
-            warehouse_code = data["warehouse_code"]
+            seller_sku_list = ["GES4026","GES4026","GESL121","GFL3803","GFL3855",
+                                "GFL3882","GK175","GPM825","GTR1384","GTR34"]
 
+            company_code = "1000"
+
+            transfer_from_atp_to_holding(seller_sku_list,company_code)
+            
             response['status'] = 200
 
         except Exception as e:
