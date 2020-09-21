@@ -40,22 +40,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         
         else:
             for item in items:
-                temp_price = item["EX_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    EX_EA = max(temp_price, EX_EA)
-                temp_price = item["IC_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    IC_EA = max(temp_price, IC_EA)
-                temp_price = item["OD_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    OD_EA = max(temp_price, OD_EA)
-                temp_price = item["RET_EA"]
-                if temp_price!=None:
-                    temp_price = float(temp_price)
-                    RET_EA = max(temp_price, RET_EA)
+                
                 temp_qty = item["TOT_QTY"]
                 if temp_qty!=None:
                     temp_qty = float(temp_qty)
@@ -99,6 +84,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
     
         else:
             for item in items:
+                
                 temp_dict={}
                 temp_dict["batch"] = item["CHARG"]
                 temp_dict["uom"] = item["MEINS"]    
@@ -107,6 +93,23 @@ def fetch_prices_and_stock(seller_sku,company_code):
                 temp_dict["holding_qty"] = float(item["HQTY"])
                 total_holding = total_holding + float(item["HQTY"])
                 prices_stock_list.append(temp_dict)
+
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    EX_EA = max(temp_price, EX_EA)
+                temp_price = item["IC_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    IC_EA = max(temp_price, IC_EA)
+                temp_price = item["OD_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    OD_EA = max(temp_price, OD_EA)
+                temp_price = item["RET_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    RET_EA = max(temp_price, RET_EA)
 
 
         if isinstance(items,list):
