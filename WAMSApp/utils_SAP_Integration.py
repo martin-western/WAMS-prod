@@ -119,32 +119,38 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
                         if item["atp_qty"] >= total_holding_transfer:
 
                             transfer_here = min(total_holding_transfer,item["atp_qty"])
+                            
                             temp_dict = {}
                             temp_dict["seller_sku"] = seller_sku
                             temp_dict["qty"] = transfer_here
                             temp_dict["uom"] = item["uom"]
                             temp_dict["batch"] = item["batch"]
+                            transfer_information.append(temp_dict)
 
                             total_holding_transfer = total_holding_transfer-transfer_here
 
                         if total_holding_transfer == 0:
                             break
 
-        body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
-        
-        response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
-        
-        content = response.content
-        xml_content = xmltodict.parse(content)
-        response_dict = json.loads(json.dumps(xml_content))
+        if len(transfer_information) > 0:
 
-        return response_dict
+            body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
+            response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
+            content = response.content
+            xml_content = xmltodict.parse(content)
+            response_dict = json.loads(json.dumps(xml_content))
+
+            return response_dict
+
+        else :
+            logger.info("transfer_from_atp_to_holding : Nothing to transfer to Holding in this call",seller_sku_list)
+            return {}
 
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("transfer_from_atp_to_holding: %s at %s", str(e), str(exc_tb.tb_lineno))
-        return []
+        return {}
 
 def create_intercompany_sales_order(seller_sku,company_code,order_information):
     
