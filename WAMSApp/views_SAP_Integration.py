@@ -54,10 +54,16 @@ class FetchPriceAndStockAPI(APIView):
             warehouses_information = []
             
             for product_pk in product_pk_list:
-                
+
                 product_obj = Product.objects.get(pk=int(product_pk))
-                warehouses_dict = fetch_prices(product_obj.base_product.seller_sku,warehouse_code)
+                price_and_stock_information = fetch_prices_and_stock(product_obj.base_product.seller_sku,warehouse_code)
+                
+                warehouses_dict["company_code"] = warehouse_code
                 warehouses_dict["product_pk"] = product_pk
+                warehouses_dict["prices"] = price_and_stock_information["prices"]
+                warehouses_dict["total_holding"] = price_and_stock_information["total_holding"]
+                warehouses_dict["total_atp"] = price_and_stock_information["total_atp"]
+                
                 warehouses_information.append(warehouses_dict)
 
             response["warehouses_information"] = warehouses_information

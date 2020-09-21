@@ -44,6 +44,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
             total_atp = total_atp+float(items["ATP_QTY"])
             temp_dict["holding_qty"] = float(items["HQTY"])
             total_holding = total_holding + float(items["HQTY"])
+            
             stock_list.append(temp_dict)
 
             temp_price = items["EX_EA"]
@@ -73,6 +74,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
                 total_atp = total_atp+float(item["ATP_QTY"])
                 temp_dict["holding_qty"] = float(item["HQTY"])
                 total_holding = total_holding + float(item["HQTY"])
+                
                 stock_list.append(temp_dict)
 
                 temp_price = item["EX_EA"]
