@@ -105,6 +105,8 @@ def fetch_prices_and_stock(seller_sku,company_code):
         prices["OD_EA"] = str(OD_EA)
         prices["RET_EA"] = str(RET_EA)
         
+        logger.info(items)
+
         if isinstance(items,list):
             items = items[1]
 
