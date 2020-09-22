@@ -574,7 +574,7 @@ class SearchAPI(APIView):
                     temp_dict["name"] = category_obj[0]
                     temp_dict["uuid"] = category_obj[1]
                     temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category__uuid=category_obj[1], location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
-                    sub_category_objs = SubCategory.objects.filter(category=category_obj).values_list('name', 'uuid')
+                    sub_category_objs = SubCategory.objects.filter(category__uuid=category_obj[1]).values_list('name', 'uuid')
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
                         if DealsHubProduct.objects.filter(is_published=True, sub_category__uuid=sub_category_obj[1], location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
