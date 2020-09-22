@@ -588,7 +588,7 @@ class SearchAPI(APIView):
                     if len(sub_category_list)>0:
                         temp_dict["subCategoryList"] = sub_category_list
                         category_list.append(temp_dict)
-                    cache.set(location_group_uuid+"-"+str(category_obj[1]), json.dumps(temp_dict))
+                    #cache.set(location_group_uuid+"-"+str(category_obj[1]), json.dumps(temp_dict))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
