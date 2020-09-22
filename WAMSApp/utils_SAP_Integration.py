@@ -20,7 +20,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
-        body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
+        body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,test_customer_id)
         
         response = requests.post(url=test_price_stock_url, auth=credentials, data=body, headers=headers)
         
@@ -179,7 +179,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
         if len(transfer_information) > 0:
 
-            body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
+            body = xml_generator_for_holding_tansfer(company_code,test_customer_id,transfer_information)
             response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
             content = response.content
             xml_content = xmltodict.parse(content)
@@ -204,7 +204,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
-        body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,order_information)
+        body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,test_customer_id,order_information)
         
         response = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
         

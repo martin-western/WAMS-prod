@@ -64,6 +64,7 @@ class FetchPriceAndStockAPI(APIView):
                 product_obj = Product.objects.get(pk=int(product_pk))
                 price_and_stock_information = fetch_prices_and_stock(product_obj.base_product.seller_sku,warehouse_code)
                 
+                warehouses_dict = {}
                 warehouses_dict["company_code"] = warehouse_code
                 warehouses_dict["product_pk"] = product_pk
                 warehouses_dict["prices"] = price_and_stock_information["prices"]
