@@ -563,18 +563,20 @@ class SearchAPI(APIView):
                 category_objs = category_objs.values_list('pk', flat=True)
                 for category_obj in category_objs:
 
-                    cached_response = cache.get(location_group_uuid+"-"+str(category_obj[1]), "has_expired")
+                    if DealsHubProduct.objects.filter(is_published=True, category__pk=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
+                        continue
+                    category_obj = Category.objects.get(pk=category_obj)
+
+                    cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
                     if cached_response!="has_expired":
                         if "subCategoryList" in json.loads(cached_response):
                             category_list.append(json.loads(cached_response))
                         continue
 
-                    if DealsHubProduct.objects.filter(is_published=True, category__pk=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
-                        continue
-                    category_obj = Category.objects.get(pk=category_obj)
+                    
                     temp_dict = {}
-                    temp_dict["name"] = category_obj[0]
-                    temp_dict["uuid"] = category_obj[1]
+                    temp_dict["name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
                     temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                     sub_category_objs = SubCategory.objects.filter(category=category_obj).values_list('pk', flat=True)
                     sub_category_list = []
@@ -583,14 +585,14 @@ class SearchAPI(APIView):
                             continue
                         sub_category_obj = SubCategory.objects.get(pk=sub_category_obj)
                         temp_dict2 = {}
-                        temp_dict2["name"] = sub_category_obj[0]
-                        temp_dict2["uuid"] = sub_category_obj[1]
+                        temp_dict2["name"] = sub_category_obj.name
+                        temp_dict2["uuid"] = sub_category_obj.uuid
                         temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                         sub_category_list.append(temp_dict2)
                     if len(sub_category_list)>0:
                         temp_dict["subCategoryList"] = sub_category_list
                         category_list.append(temp_dict)
-                    #cache.set(location_group_uuid+"-"+str(category_obj[1]), json.dumps(temp_dict))
+                    cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
