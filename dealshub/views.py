@@ -436,11 +436,6 @@ class SearchAPI(APIView):
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
-            # Filters
-            if sort_filter.get("price", "")=="high-to-low":
-                available_dealshub_products = available_dealshub_products.order_by('-now_price')
-            if sort_filter.get("price", "")=="low-to-high":
-                available_dealshub_products = available_dealshub_products.order_by('now_price')
 
             if brand_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
@@ -469,6 +464,12 @@ class SearchAPI(APIView):
 
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
+            
+            # Filters
+            if sort_filter.get("price", "")=="high-to-low":
+                available_dealshub_products = available_dealshub_products.order_by('-now_price')
+            if sort_filter.get("price", "")=="low-to-high":
+                available_dealshub_products = available_dealshub_products.order_by('now_price')
 
             # filtered_products = DealsHubProduct.objects.none()
             # try:
