@@ -92,6 +92,7 @@ items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICERespo
 uom = "EA"
 charg = "BS"
 total_atp = 0.0
+print(total_atp)
 total_holding = 0.0
 prices_stock_list = []
 
