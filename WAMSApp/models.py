@@ -741,6 +741,12 @@ class Product(models.Model):
     objects = ProductManager()
     recovery = ProductRecoveryManager()
 
+    ####### SAP Attributes #########
+
+    is_sap_exception = models.BooleanField(default=False)
+    atp_threshold = models.IntegerField(default=100)
+    holding_threshold = models.IntegerField(default=5)
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
@@ -1037,6 +1043,7 @@ class CustomPermission(models.Model):
     channels = models.ManyToManyField(Channel, blank=True)
     mws_functions = models.TextField(default="{}")
     noon_functions = models.TextField(default="{}")
+    sap_functions = models.TextField(default="{}")
     price = models.TextField(default="{}")
     stock = models.TextField(default="{}")
     oc_reports = models.TextField(default="[]")

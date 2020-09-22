@@ -953,6 +953,12 @@ class FetchProductDetailsAPI(APIView):
             response['faqs'] = faqs
             response['how_to_use'] = how_to_use
 
+            ## SAP Exception
+
+            response["is_sap_exception"] = product_obj.is_sap_exception
+            response["atp_threshold"] = product_obj.atp_threshold
+            response["holding_threshold"] = product_obj.holding_threshold
+
             response['status'] = 200
 
         except Exception as e:
@@ -1465,6 +1471,10 @@ class SaveProductAPI(APIView):
             min_price = float(data.get("min_price", 0))
             max_price = float(data.get("max_price", 0))
 
+            is_sap_exception = bool(data.get("is_sap_exception", False))
+            atp_threshold = int(data.get("atp_threshold", 100))
+            holding_threshold = int(data.get("holding_threshold", 5))
+
             is_cod_allowed = data.get("is_cod_allowed", False)
             is_bundle_product = data.get("is_bundle_product", False)
 
@@ -1505,6 +1515,13 @@ class SaveProductAPI(APIView):
             if str(dynamic_form_attributes)!="{}":
                 product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
             
+            product_obj.is_sap_exception = is_sap_exception
+
+            if is_sap_exception == True:
+
+                product_obj.atp_threshold = atp_threshold
+                product_obj.holding_threshold = holding_threshold
+
             product_obj.save()
 
             response['status'] = 200
