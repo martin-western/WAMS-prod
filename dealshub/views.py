@@ -436,6 +436,8 @@ class SearchAPI(APIView):
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
+            if product_name!="":
+                available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
 
             if brand_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
@@ -449,8 +451,6 @@ class SearchAPI(APIView):
             if subcategory_name!="":
                 available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
             
-            if product_name!="":
-                available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
 
             brand_list = []
             try:
