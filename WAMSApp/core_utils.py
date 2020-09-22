@@ -101,7 +101,7 @@ def custom_permission_sap_functions(user,permission):
     try:
         permission_obj = CustomPermission.objects.get(user__username=user.username)
         sap_functions = json.loads(permission_obj.sap_functions)
-        return sap_fucntions[permission]
+        return sap_functions[permission]
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
