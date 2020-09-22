@@ -449,6 +449,7 @@ class Category(models.Model):
     uuid = models.CharField(max_length=256, blank=True, default='')
     property_data = models.TextField(default="[]", blank=True)
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    mobile_app_image = models.ForeignKey(Image, related_name="mobile_app_image", null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -740,6 +741,12 @@ class Product(models.Model):
 
     objects = ProductManager()
     recovery = ProductRecoveryManager()
+
+    ####### SAP Attributes #########
+
+    is_sap_exception = models.BooleanField(default=False)
+    atp_threshold = models.IntegerField(default=100)
+    holding_threshold = models.IntegerField(default=5)
 
     class Meta:
         verbose_name = "Product"
@@ -1037,6 +1044,7 @@ class CustomPermission(models.Model):
     channels = models.ManyToManyField(Channel, blank=True)
     mws_functions = models.TextField(default="{}")
     noon_functions = models.TextField(default="{}")
+    sap_functions = models.TextField(default="{}")
     price = models.TextField(default="{}")
     stock = models.TextField(default="{}")
     oc_reports = models.TextField(default="[]")

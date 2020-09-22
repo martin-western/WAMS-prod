@@ -953,6 +953,12 @@ class FetchProductDetailsAPI(APIView):
             response['faqs'] = faqs
             response['how_to_use'] = how_to_use
 
+            ## SAP Exception
+
+            response["is_sap_exception"] = product_obj.is_sap_exception
+            response["atp_threshold"] = product_obj.atp_threshold
+            response["holding_threshold"] = product_obj.holding_threshold
+
             response['status'] = 200
 
         except Exception as e:
@@ -1465,6 +1471,10 @@ class SaveProductAPI(APIView):
             min_price = float(data.get("min_price", 0))
             max_price = float(data.get("max_price", 0))
 
+            is_sap_exception = bool(data.get("is_sap_exception", False))
+            atp_threshold = int(data.get("atp_threshold", 100))
+            holding_threshold = int(data.get("holding_threshold", 5))
+
             is_cod_allowed = data.get("is_cod_allowed", False)
             is_bundle_product = data.get("is_bundle_product", False)
 
@@ -1505,6 +1515,13 @@ class SaveProductAPI(APIView):
             if str(dynamic_form_attributes)!="{}":
                 product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
             
+            product_obj.is_sap_exception = is_sap_exception
+
+            if is_sap_exception == True:
+
+                product_obj.atp_threshold = atp_threshold
+                product_obj.holding_threshold = holding_threshold
+
             product_obj.save()
 
             response['status'] = 200
@@ -6843,6 +6860,101 @@ class FetchProductListByCategoryAPI(APIView):
         return Response(data=response)
 
 
+class FetchCategoriesForSalesAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchCategoriesForSalesAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            page = int(data.get('page', 1))
+
+            has_image = data.get("has_image", None)
+            
+            category_objs = Category.objects.all()
+
+            if has_image==True:
+                category_objs = category_objs.exclude(mobile_app_image=None)
+            elif has_image==False:
+                category_objs = category_objs.exclude(mobile_app_image=None)
+
+            paginator = Paginator(category_objs, 20)
+            category_objs = paginator.page(page)
+            total_pages = paginator.num_pages
+
+            category_list = []
+            for category_obj in category_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["category_name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
+                    temp_dict["super_category_name"] = category_obj.super_category.name
+                    if category_obj.mobile_app_image!=None:
+                        temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
+                    else:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    category_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCategoriesForSalesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_available = True
+            
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["category_list"] = category_list
+            response["is_available"] = is_available
+            response["total_pages"] = total_pages
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoriesForSalesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadCategorySalesImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("UploadCategorySalesImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            category_uuid = data["category_uuid"]
+            
+            category_obj = Category.objects.get(uuid=category_uuid)
+
+            image_obj = Image.objects.create(image=data["image"])
+            category_obj.mobile_app_image = image_obj
+            category_obj.save()
+
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadCategorySalesImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
 
 BulkUploadDynamicExcel = BulkUploadDynamicExcelAPI.as_view()
@@ -7027,3 +7139,7 @@ SecureDeleteProduct = SecureDeleteProductAPI.as_view()
 FetchCategoryListByBrand = FetchCategoryListByBrandAPI.as_view()
 
 FetchProductListByCategory = FetchProductListByCategoryAPI.as_view()
+
+FetchCategoriesForSales = FetchCategoriesForSalesAPI.as_view()
+
+UploadCategorySalesImage = UploadCategorySalesImageAPI.as_view()

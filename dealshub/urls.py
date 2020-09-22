@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^unpublish-admin-category/$', views.UnPublishAdminCategory),
 
     url(r'^section-bulk-upload/$', views.SectionBulkUpload),
+    url(r'^banner-bulk-upload/$', views.BannerBulkUpload),
     url(r'^add-product-to-section/$', views.AddProductToSection),
     url(r'^delete-product-from-section/$', views.DeleteProductFromSection),
 
