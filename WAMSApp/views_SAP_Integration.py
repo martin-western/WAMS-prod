@@ -103,7 +103,7 @@ class HoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            seller_sku_list = ["GES4026","GES4026","GESL121","GFL3803","GFL3855",
+            seller_sku_list = ["GES4026","GESL121","GFL3803","GFL3855",
                                 "GFL3882","GK175","GPM825","GTR1384","GTR34"]
 
             company_code = "1000"
