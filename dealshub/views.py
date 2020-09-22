@@ -893,7 +893,7 @@ class BannerBulkUploadAPI(APIView):
                 except Exception as e:
                     unsuccessful_count += 1
                     
-            section_obj.save()
+            unit_banner_obj.save()
 
             response["products"] = products
             response["unsuccessful_count"] = unsuccessful_count
