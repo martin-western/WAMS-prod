@@ -6875,8 +6875,6 @@ class FetchCategoriesForSalesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            category_id = data["category_id"]
-            brand_name = data.get("brand_name", None)
             page = int(data.get('page', 1))
 
             has_image = data.get("has_image", None)
