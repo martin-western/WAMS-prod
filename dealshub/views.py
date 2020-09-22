@@ -560,7 +560,7 @@ class SearchAPI(APIView):
                     category_ids = available_dealshub_products.values_list('category', flat=True).distinct()
                     category_objs = Category.objects.filter(id__in=category_ids)
 
-                category_objs = category_objs.values_list('name', 'uuid')
+                category_objs = category_objs.values_list('pk', flat=True)
                 for category_obj in category_objs:
 
                     cached_response = cache.get(location_group_uuid+"-"+str(category_obj[1]), "has_expired")
@@ -569,21 +569,23 @@ class SearchAPI(APIView):
                             category_list.append(json.loads(cached_response))
                         continue
 
-                    if DealsHubProduct.objects.filter(is_published=True, category__uuid=category_obj[1], location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
+                    if DealsHubProduct.objects.filter(is_published=True, category__pk=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
+                    category_obj = Category.objects.get(pk=category_obj)
                     temp_dict = {}
                     temp_dict["name"] = category_obj[0]
                     temp_dict["uuid"] = category_obj[1]
-                    temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category__uuid=category_obj[1], location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
-                    sub_category_objs = SubCategory.objects.filter(category__uuid=category_obj[1]).values_list('name', 'uuid')
+                    temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj).values_list('pk', flat=True)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
-                        if DealsHubProduct.objects.filter(is_published=True, sub_category__uuid=sub_category_obj[1], location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
+                        if DealsHubProduct.objects.filter(is_published=True, sub_category__pk=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                             continue
+                        sub_category_obj = SubCategory.objects.get(pk=sub_category_obj)
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj[0]
                         temp_dict2["uuid"] = sub_category_obj[1]
-                        temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category__uuid=sub_category_obj[1], location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
+                        temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                         sub_category_list.append(temp_dict2)
                     if len(sub_category_list)>0:
                         temp_dict["subCategoryList"] = sub_category_list
