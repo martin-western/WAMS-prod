@@ -436,8 +436,11 @@ class SearchAPI(APIView):
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
-            if product_name!="":
-                available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
+            # Filters
+            if sort_filter.get("price", "")=="high-to-low":
+                available_dealshub_products = available_dealshub_products.order_by('-now_price')
+            if sort_filter.get("price", "")=="low-to-high":
+                available_dealshub_products = available_dealshub_products.order_by('now_price')
 
             if brand_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
@@ -451,6 +454,8 @@ class SearchAPI(APIView):
             if subcategory_name!="":
                 available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
             
+            if product_name!="":
+                available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
 
             brand_list = []
             try:
@@ -464,12 +469,6 @@ class SearchAPI(APIView):
 
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
-            
-            # Filters
-            if sort_filter.get("price", "")=="high-to-low":
-                available_dealshub_products = available_dealshub_products.order_by('-now_price')
-            if sort_filter.get("price", "")=="low-to-high":
-                available_dealshub_products = available_dealshub_products.order_by('now_price')
 
             # filtered_products = DealsHubProduct.objects.none()
             # try:
@@ -532,12 +531,12 @@ class SearchAPI(APIView):
             sub_category_list2 = []
             try:
                 category_obj = website_group_obj.categories.get(name=category_name)
-                sub_category_objs = SubCategory.objects.filter(category=category_obj).values_list('name', 'uuid')
+                sub_category_objs = SubCategory.objects.filter(category=category_obj)
                 for sub_category_obj in sub_category_objs:
                     temp_dict2 = {}
-                    temp_dict2["name"] = sub_category_obj[0]
-                    temp_dict2["uuid"] = sub_category_obj[1]
-                    temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category__uuid=sub_category_obj[1], location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
+                    temp_dict2["name"] = sub_category_obj.name
+                    temp_dict2["uuid"] = sub_category_obj.uuid
+                    temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                     sub_category_list2.append(temp_dict2)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -560,12 +559,7 @@ class SearchAPI(APIView):
                     category_ids = available_dealshub_products.values_list('category', flat=True).distinct()
                     category_objs = Category.objects.filter(id__in=category_ids)
 
-                category_objs = category_objs.values_list('pk', flat=True)
                 for category_obj in category_objs:
-
-                    if DealsHubProduct.objects.filter(is_published=True, category__pk=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
-                        continue
-                    category_obj = Category.objects.get(pk=category_obj)
 
                     cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
                     if cached_response!="has_expired":
@@ -573,17 +567,17 @@ class SearchAPI(APIView):
                             category_list.append(json.loads(cached_response))
                         continue
 
-                    
+                    if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
+                        continue
                     temp_dict = {}
                     temp_dict["name"] = category_obj.name
                     temp_dict["uuid"] = category_obj.uuid
                     temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
-                    sub_category_objs = SubCategory.objects.filter(category=category_obj).values_list('pk', flat=True)
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
-                        if DealsHubProduct.objects.filter(is_published=True, sub_category__pk=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
+                        if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                             continue
-                        sub_category_obj = SubCategory.objects.get(pk=sub_category_obj)
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.name
                         temp_dict2["uuid"] = sub_category_obj.uuid
