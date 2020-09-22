@@ -33,6 +33,9 @@ def fetch_prices_and_stock(seller_sku,company_code):
         
         total_atp = 0.0
         total_holding = 0.0
+        atp_threshold = 0.0
+        holding_threshold = 0.0
+
         EX_EA = 0.0
         IC_EA = 0.0
         OD_EA = 0.0
@@ -113,12 +116,17 @@ def fetch_prices_and_stock(seller_sku,company_code):
         super_category = items["WWGHB1"]
         category = items["WWGHB2"]
         sub_category = items["WWGHB3"]
+        
+        if super_category != None and super_category!="None" and super_category != "":
+            
+            sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)
+            sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
+            sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
 
-        sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)
-        sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
-        sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
+            category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
 
-        category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
+            atp_threshold = category_mapping.atp_threshold
+            holding_threshold = category_mapping.holding_threshold
 
         result["prices"] = prices
         result["stock_list"] = stock_list
