@@ -32,6 +32,11 @@ def fetch_prices_and_stock(seller_sku,company_code):
         
         total_atp = 0.0
         total_holding = 0.0
+        EX_EA = 0.0
+        IC_EA = 0.0
+        OD_EA = 0.0
+        RET_EA = 0.0
+        
         result = {}
         stock_list = []
 
