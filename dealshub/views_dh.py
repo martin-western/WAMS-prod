@@ -2172,18 +2172,12 @@ class FetchTokenRequestParametersAPI(APIView):
             is_fast_cart = data.get("is_fast_cart", False)
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-                if cart_obj.merchant_reference=="":
-                    cart_obj.merchant_reference = merchant_reference
-                    cart_obj.save()
-                else:
-                    merchant_reference = cart_obj.merchant_reference
+                cart_obj.merchant_reference = merchant_reference
+                cart_obj.save()
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-                if fast_cart_obj.merchant_reference=="":
-                    fast_cart_obj.merchant_reference = merchant_reference
-                    fast_cart_obj.save()
-                else:
-                    merchant_reference = fast_cart_obj.merchant_reference
+                fast_cart_obj.merchant_reference = merchant_reference
+                fast_cart_obj.save()
 
             request_data = {
                 "service_command": service_command,
