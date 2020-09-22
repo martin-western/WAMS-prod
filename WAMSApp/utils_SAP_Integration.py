@@ -36,7 +36,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         IC_EA = 0.0
         OD_EA = 0.0
         RET_EA = 0.0
-        
+
         result = {}
         stock_list = []
 
@@ -106,11 +106,11 @@ def fetch_prices_and_stock(seller_sku,company_code):
         prices["RET_EA"] = str(RET_EA)
         
         if isinstance(items,list):
-            item = items[1]
+            items = items[1]
 
-        super_category = item["WWGHB1"]
-        category = item["WWGHB2"]
-        sub_category = item["WWGHB3"]
+        super_category = items["WWGHB1"]
+        category = items["WWGHB2"]
+        sub_category = items["WWGHB3"]
 
         sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)
         sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
