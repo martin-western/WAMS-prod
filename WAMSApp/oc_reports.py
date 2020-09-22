@@ -37,9 +37,9 @@ def notify_user_for_report(oc_report_obj):
         logger.error("Error notify_user_for_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list=""):
+def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="", organization_obj):
 
-    product_objs = Product.objects.filter(base_product__brand__name__in=brand_list)
+    product_objs = Product.objects.filter(base_product__brand__name__in=brand_list, base_product__brand__organization=organization_obj)
 
     if product_uuid_list!="":
         product_objs = product_objs.filter(uuid__in=product_uuid_list)
@@ -524,7 +524,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="")
     notify_user_for_report(oc_report_obj)
 
 
-def create_flyer_report(filename, uuid, brand_list):
+def create_flyer_report(filename, uuid, brand_list, organization_obj):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
@@ -546,7 +546,7 @@ def create_flyer_report(filename, uuid, brand_list):
     flyer_objs = Flyer.objects.all()
 
     if len(brand_list)!=0:
-        flyer_objs = flyer_objs.filter(brand__name__in=brand_list)
+        flyer_objs = flyer_objs.filter(brand__name__in=brand_list, brand__organization=organization_obj)
 
     for flyer_obj in flyer_objs:
         try:
@@ -584,7 +584,7 @@ def create_flyer_report(filename, uuid, brand_list):
     notify_user_for_report(oc_report_obj)
 
 
-def create_image_report(filename, uuid, brand_list):
+def create_image_report(filename, uuid, brand_list, organization_obj):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
@@ -615,7 +615,7 @@ def create_image_report(filename, uuid, brand_list):
     product_objs = Product.objects.none()
 
     if len(brand_list)!=0:
-        product_objs = product_objs.filter(base_product__brand__name__in=brand_list)
+        product_objs = product_objs.filter(base_product__brand__name__in=brand_list, brand__organization=organization_obj)
 
     for product_obj in product_objs:
         try:
@@ -869,7 +869,7 @@ def create_verified_products_report(filename, uuid, from_date, to_date, brand_li
         worksheet.write(cnt, colnum, k)
         colnum += 1
 
-    product_objs = Product.objects.filter(verified=True, base_product__brand__name__in=brand_list)
+    product_objs = Product.objects.filter(verified=True, base_product__brand__name__in=brand_list, base_product__brand__organization=custom_permission_obj.organization)
 
     for product_obj in product_objs:
         try:

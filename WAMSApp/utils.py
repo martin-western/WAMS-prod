@@ -235,7 +235,7 @@ def fetch_prices(product_id,company_code):
         warehouse_dict["prices"] = prices
         warehouse_dict["qty"] = qty
 
-        product_obj.save()
+        #product_obj.save()
         
         return warehouse_dict
 
@@ -1291,6 +1291,8 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
 
         worksheet = workbook.add_worksheet()
 
+        organization_obj = CustomPermission.objects.get(user__username=request_user.username)
+
         for i in range(rows):
 
             errors = []
@@ -1424,12 +1426,12 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
 
                     base_product_obj = BaseProduct.objects.none()
 
-                    if(Product.objects.filter(product_id=product_id).exists()):
+                    if(Product.objects.filter(product_id=product_id, base_product__brand__organization=organization_obj).exists()):
                         raise Exception("Product Already Exists on OmnyComm with same Product ID!")
 
                     base_product_exists = False
                     try:
-                        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
+                        base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization=organization_obj)
                         base_product_exists = True
                     except:
                         base_product_obj = BaseProduct.objects.create(

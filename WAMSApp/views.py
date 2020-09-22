@@ -131,17 +131,18 @@ class CreateNewBaseProductAPI(APIView):
 
             # Checking brand permission
             brand_obj = None
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
             try:
                 permissible_brands = custom_permission_filter_brands(request.user)
-                if Brand.objects.filter(name=brand_name).exists()==True:
-                    brand_obj = Brand.objects.get(name=brand_name)
+                if Brand.objects.filter(name=brand_name, organization=organization_obj).exists()==True:
+                    brand_obj = Brand.objects.get(name=brand_name, organization=organization_obj)
                     if brand_obj not in permissible_brands:
                         logger.warning("CreateNewBaseProductAPI Restricted Access Brand!")
                         response['status'] = 403
                         return Response(data=response)
                 else:
                     custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
-                    brand_obj = Brand.objects.create(name=brand_name, organization=custom_permission_obj.organization)
+                    brand_obj = Brand.objects.create(name=brand_name, organization=organization_obj)
                     custom_permission_obj.brands.add(brand_obj)
                     custom_permission_obj.save()
             except Exception as e:
@@ -150,7 +151,7 @@ class CreateNewBaseProductAPI(APIView):
                 return Response(data=response)
                 
 
-            if BaseProduct.objects.filter(seller_sku=seller_sku).exists():
+            if BaseProduct.objects.filter(seller_sku=seller_sku, brand=brand_obj).exists():
                 
                 logger.warning("CreateNewBaseProductAPI Duplicate product detected!")
                 response["status"] = 409
@@ -1281,17 +1282,18 @@ class SaveBaseProductAPI(APIView):
                 data = json.loads(data)
 
             brand_obj = None
+            organization_obj = organization.objects.get(user__username=request.user.username).organization
             try:
                 permissible_brands = custom_permission_filter_brands(request.user)
-                if Brand.objects.filter(name=data["brand_name"]).exists()==True:
-                    brand_obj = Brand.objects.get(name=data["brand_name"])
+                if Brand.objects.filter(name=data["brand_name"], organization=organization_obj).exists()==True:
+                    brand_obj = Brand.objects.get(name=data["brand_name"], organization=organization_obj)
                     if brand_obj not in permissible_brands:
                         logger.warning("SaveBaseProductAPI Restricted Access Brand!")
                         response['status'] = 403
                         return Response(data=response)
                 else:
                     custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
-                    brand_obj = Brand.objects.create(name=data["brand_name"], organization=custom_permission_obj.organization)
+                    brand_obj = Brand.objects.create(name=data["brand_name"], organization=organization_obj)
                     custom_permission_obj.brands.add(brand_obj)
                     custom_permission_obj.save()
             except Exception as e:
@@ -1321,7 +1323,7 @@ class SaveBaseProductAPI(APIView):
                 dimensions = old_dimensions
             dimensions = json.dumps(dimensions)
 
-            if BaseProduct.objects.filter(seller_sku=seller_sku).exclude(pk=data["base_product_pk"]).count() >= 1 :
+            if BaseProduct.objects.filter(seller_sku=seller_sku, brand=brand_obj).exclude(pk=data["base_product_pk"]).count() >= 1 :
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
                 return Response(data=response)
@@ -1412,11 +1414,13 @@ class SaveProductAPI(APIView):
                 return Response(data=response)
 
             product_obj.verified = False
+
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
             
             # Checking brand permission
             try:
                 permissible_brands = custom_permission_filter_brands(request.user)
-                brand_obj = Brand.objects.get(name=product_obj.base_product.brand.name)
+                brand_obj = Brand.objects.get(name=product_obj.base_product.brand.name, organization=organization_obj)
                 if brand_obj not in permissible_brands:
                     logger.warning("SaveProductAPI Restricted Access Brand!")
                     response['status'] = 403
@@ -1426,7 +1430,7 @@ class SaveProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            if Product.objects.filter(product_id=product_id).exclude(pk=data["product_pk"]).count() >= 1 :
+            if Product.objects.filter(product_id=product_id, base_product__brand__organization=organization_obj).exclude(pk=data["product_pk"]).count() >= 1 :
                 logger.warning("Duplicate product detected!")
                 response['status'] = 409
                 return Response(data=response)
@@ -1536,6 +1540,8 @@ class FetchProductListAPI(APIView):
 
             page = int(data['page'])
 
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
+
             search_list_product_objs = custom_permission_filter_products(request.user)
 
             search_list_product_objs = search_list_product_objs.order_by('-pk')
@@ -1552,7 +1558,7 @@ class FetchProductListAPI(APIView):
                 search_list_product_objs = search_list_product_objs.annotate(c=Count('base_product__unedited_images')).filter(c__gt=1)
 
             if filter_parameters.get("brand_name", "") != "":
-                brand_obj = Brand.objects.get(name=filter_parameters["brand_name"])
+                brand_obj = Brand.objects.get(name=filter_parameters["brand_name"], organization=organization_obj)
                 search_list_product_objs = search_list_product_objs.filter(base_product__brand=brand_obj)
 
             search_list_product_objs = content_health_filtered_list(filter_parameters,search_list_product_objs)
@@ -1683,6 +1689,7 @@ class FetchProductListAPI(APIView):
             
             if paginator.num_pages == page:
                 is_available = False
+                        
 
             response["is_available"] = is_available
             response["total_products"] = len(search_list_base_product_objs)
@@ -2383,6 +2390,7 @@ class CreateFlyerAPI(APIView):
                 data = json.loads(data)
 
             brand_obj = Brand.objects.get(pk=int(data["brand_pk"]))
+            organization_obj = brand_obj.organization
 
             mode = data["mode"]
 
@@ -2502,10 +2510,10 @@ class CreateFlyerAPI(APIView):
                             try:
                                 search_id = str(dfs.iloc[i][0]).strip()
                                 product_obj = None
-                                if Product.objects.filter(product_id=search_id).exists():
-                                    product_obj = Product.objects.filter(product_id=search_id)[0]
-                                elif BaseProduct.objects.filter(seller_sku=search_id).exists():
-                                    base_product_obj = BaseProduct.objects.get(seller_sku=search_id)
+                                if Product.objects.filter(product_id=search_id, base_product__brand__organization=organization_obj).exists():
+                                    product_obj = Product.objects.filter(product_id=search_id, base_product__brand__organization=organization_obj)[0]
+                                elif BaseProduct.objects.filter(seller_sku=search_id, organization=organization_obj).exists():
+                                    base_product_obj = BaseProduct.objects.get(seller_sku=search_id, organization=organization_obj)
                                     product_obj = Product.objects.filter(base_product=base_product_obj)[0]
 
                                 flyer_obj.product_bucket.add(product_obj)
@@ -3049,8 +3057,10 @@ class AddProductFlyerBucketAPI(APIView):
 
             flyer_obj = Flyer.objects.get(pk=int(data["flyer_pk"]))
 
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
+
             product_id = data["product_name"].split("|")[-1].strip()
-            product_obj = Product.objects.get(product_id=product_id)
+            product_obj = Product.objects.get(product_id=product_id, base_product__brand__organization=organization_obj)
 
             flyer_obj.product_bucket.add(product_obj)
             flyer_obj.save()
@@ -5235,6 +5245,7 @@ class FetchChannelProductListAPI(APIView):
             search_list_product_objs = []
         
             permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            organization_obj = permission_obj.organization
             brands = permission_obj.brands.all()
 
             if "brand_name" in filter_parameters and filter_parameters["brand_name"]!="":
@@ -5328,7 +5339,7 @@ class FetchChannelProductListAPI(APIView):
                                 search_key = str(int(dfs.iloc[i][0])).strip()
                                 
                                 try :
-                                    product_obj = Product.objects.filter(product_id=search_key)
+                                    product_obj = Product.objects.filter(product_id=search_key, base_product__brand__organization=organization_obj)
                                     product_objs|=product_obj
 
                                     if product_obj == None :
@@ -5339,7 +5350,7 @@ class FetchChannelProductListAPI(APIView):
 
                             elif option == "Seller SKU":                               
                                 try :
-                                    product_obj = Product.objects.filter(base_product__seller_sku=search_key)
+                                    product_obj = Product.objects.filter(base_product__seller_sku=search_key, base_product__brand__organization=organization_obj)
                                     product_objs |= product_obj
                                     
                                     if product_obj == None :
@@ -5350,7 +5361,7 @@ class FetchChannelProductListAPI(APIView):
 
                             elif option == "Noon SKU" and channel_name=="Noon":
                                 try :
-                                    product_obj = Product.objects.filter(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"')
+                                    product_obj = Product.objects.filter(channel_product__noon_product_json__icontains='"noon_sku": "'+search_key+'"', base_product__brand__organization=organization_obj)
                                     product_objs.add(product_obj)
                                     
                                     if product_obj == None :
@@ -5361,7 +5372,7 @@ class FetchChannelProductListAPI(APIView):
 
                             elif option == "Partner SKU" and channel_name=="Noon":
                                 try :
-                                    product_obj = Product.objects.filter(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"')
+                                    product_obj = Product.objects.filter(channel_product__noon_product_json__icontains='"partner_sku": "'+search_key+'"', base_product__brand__organization=organization_obj)
                                     product_objs |= product_obj
                                     
                                     if product_obj == None :
@@ -5372,7 +5383,7 @@ class FetchChannelProductListAPI(APIView):
 
                             elif option == "ASIN" and channel_name=="Amazon UAE":
                                 try :
-                                    product_obj = Product.objects.filter(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"')
+                                    product_obj = Product.objects.filter(channel_product__amazon_uae_product_json__icontains='"ASIN": "'+search_key+'"', base_product__brand__organization=organization_obj)
                                     product_objs |= product_obj
                                     
                                     if product_obj == None :
@@ -5383,7 +5394,7 @@ class FetchChannelProductListAPI(APIView):
 
                             elif option == "ASIN" and channel_name=="Amazon UK":
                                 try :
-                                    product_obj = Product.objects.get(channel_product__amazon_uk_product_json__icontains='"ASIN": "'+search_key+'"')
+                                    product_obj = Product.objects.get(channel_product__amazon_uk_product_json__icontains='"ASIN": "'+search_key+'"', base_product__brand__organization=organization_obj)
                                     product_objs |= product_obj
                                     
                                     if product_obj == None :
@@ -5669,12 +5680,14 @@ class UploadBulkExportAPI(APIView):
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
+
             product_list = []
             for i in range(rows):
                 try:
                     search_string = str(dfs.iloc[i][0]).strip()
                     #product_obj = Product.objects.get(product_id=product_id)
-                    product_objs = Product.objects.filter(Q(base_product__seller_sku=search_string) | Q(product_id=search_string))
+                    product_objs = Product.objects.filter(base_product__brand__organization=organization_obj).filter(Q(base_product__seller_sku=search_string) | Q(product_id=search_string))
                     for product_obj in product_objs:
                         temp_dict = {}
                         temp_dict["name"] = product_obj.product_name
@@ -5719,7 +5732,9 @@ class SearchBulkExportAPI(APIView):
 
             search_string = data["search_string"]
 
-            product_objs = Product.objects.filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username)
+
+            product_objs = Product.objects.filter(base_product__brand__organization=organization_obj).filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
 
             product_list = []
             for product_obj in product_objs:
@@ -6063,7 +6078,7 @@ class CreateContentReportAPI(APIView):
 
             filter_parameters = data["filter_parameters"]
 
-            search_list_product_objs = Product.objects.filter(base_product__brand__name=brand_name)
+            search_list_product_objs = Product.objects.filter(base_product__brand__name=brand_name, base_product__brand__organization=custom_permission_obj.organization)
 
             search_list_product_objs = content_health_filtered_list(filter_parameters,search_list_product_objs)
 
@@ -6843,6 +6858,103 @@ class FetchProductListByCategoryAPI(APIView):
         return Response(data=response)
 
 
+class FetchCategoriesForSalesAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchCategoriesForSalesAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            category_id = data["category_id"]
+            brand_name = data.get("brand_name", None)
+            page = int(data.get('page', 1))
+
+            has_image = data.get("has_image", None)
+            
+            category_objs = Category.objects.all()
+
+            if has_image==True:
+                category_objs = category_objs.exclude(mobile_app_image=None)
+            elif has_image==False:
+                category_objs = category_objs.exclude(mobile_app_image=None)
+
+            paginator = Paginator(category_objs, 20)
+            category_objs = paginator.page(page)
+            total_pages = paginator.num_pages
+
+            category_list = []
+            for category_obj in category_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["category_name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
+                    temp_dict["super_category_name"] = category_obj.super_category.name
+                    if category_obj.mobile_app_image!=None:
+                        temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
+                    else:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    category_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCategoriesForSalesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_available = True
+            
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["category_list"] = category_list
+            response["is_available"] = is_available
+            response["total_pages"] = total_pages
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoriesForSalesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadCategorySalesImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("UploadCategorySalesImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            category_uuid = data["category_uuid"]
+            
+            category_obj = Category.objects.get(uuid=category_uuid)
+
+            image_obj = Image.objects.create(image=data["image"])
+            category_obj.mobile_app_image = image_obj
+            category_obj.save()
+
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadCategorySalesImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
 
 BulkUploadDynamicExcel = BulkUploadDynamicExcelAPI.as_view()
@@ -7027,3 +7139,7 @@ SecureDeleteProduct = SecureDeleteProductAPI.as_view()
 FetchCategoryListByBrand = FetchCategoryListByBrandAPI.as_view()
 
 FetchProductListByCategory = FetchProductListByCategoryAPI.as_view()
+
+FetchCategoriesForSales = FetchCategoriesForSalesAPI.as_view()
+
+UploadCategorySalesImage = UploadCategorySalesImageAPI.as_view()
