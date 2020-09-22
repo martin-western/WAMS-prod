@@ -1359,10 +1359,12 @@ class FetchDealshubAdminSectionsAPI(APIView):
             limit = data.get("limit", False)
             is_dealshub = data.get("isDealshub", False)
 
+            is_bot = data.get("isBot", False)
+
             location_group_uuid = data["locationGroupUuid"]
             resolution = data.get("resolution", "low")
 
-            if is_dealshub==True:
+            if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(location_group_uuid, "has_expired")
                 if cached_value!="has_expired":
                     response["sections_list"] = json.loads(cached_value)
