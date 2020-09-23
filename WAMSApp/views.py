@@ -1288,7 +1288,7 @@ class SaveBaseProductAPI(APIView):
                 data = json.loads(data)
 
             brand_obj = None
-            organization_obj = organization.objects.get(user__username=request.user.username).organization
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
             try:
                 permissible_brands = custom_permission_filter_brands(request.user)
                 if Brand.objects.filter(name=data["brand_name"], organization=organization_obj).exists()==True:
