@@ -37,7 +37,7 @@ def notify_user_for_report(oc_report_obj):
         logger.error("Error notify_user_for_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="", organization_obj):
+def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="", organization_obj=None):
 
     product_objs = Product.objects.filter(base_product__brand__name__in=brand_list, base_product__brand__organization=organization_obj)
 
