@@ -593,7 +593,7 @@ class BaseProduct(models.Model):
     base_product_name = models.CharField(max_length=300)
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
-    seller_sku = models.CharField(max_length=200, unique=True)
+    seller_sku = models.CharField(max_length=200)
     category = models.ForeignKey(Category, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
