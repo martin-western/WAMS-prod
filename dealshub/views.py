@@ -840,6 +840,7 @@ class SectionBulkUploadAPI(APIView):
                     products.append(temp_dict)
 
                 except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("SectionBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     unsuccessful_count += 1
                     
@@ -892,6 +893,7 @@ class BannerBulkUploadAPI(APIView):
                     products.append(temp_dict)
 
                 except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("BannerBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     unsuccessful_count += 1
                     
