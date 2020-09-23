@@ -922,10 +922,10 @@ class SectionBulkDownloadAPI(APIView):
             location_group_obj = section_obj.location_group
 
             dealshub_product_objs = section_obj.products.all()
-            filename = SERVER_IP+"/files/reports/section-products-"+section_obj.name+".xlsx"
+            filename = "files/reports/section-products-"+section_obj.name+".xlsx"
             create_section_banner_product_report(dealshub_product_objs, filename)
 
-            response["filepath"] = filename
+            response["filepath"] = SERVER_IP+"/"+filename
             response['status'] = 200
 
         except Exception as e:
@@ -950,10 +950,10 @@ class BannerBulkDownloadAPI(APIView):
             location_group_obj = unit_banner_obj.banner.location_group
 
             dealshub_product_objs = unit_banner_obj.products.all()
-            filename = SERVER_IP+"/files/reports/banner-products-"+unit_banner_obj.banner.name+".xlsx"
+            filename = "files/reports/banner-products-"+unit_banner_obj.banner.name+".xlsx"
             create_section_banner_product_report(dealshub_product_objs, filename)
 
-            response["filepath"] = filename
+            response["filepath"] = SERVER_IP+"/"+filename
             response['status'] = 200
 
         except Exception as e:
