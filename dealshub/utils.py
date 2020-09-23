@@ -712,8 +712,7 @@ def create_section_banner_product_report(dealshub_product_objs, filename):
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
 
-    row = ["Sr. No.",
-           "Product ID",
+    row = ["Product ID",
            "Product Name",
            "Brand",
            "Seller SKU"]
@@ -728,12 +727,11 @@ def create_section_banner_product_report(dealshub_product_objs, filename):
     for dealshub_product_obj in dealshub_product_objs:
         try:
             cnt += 1
-            common_row = ["" for i in range(5)]
-            common_row[0] = str(cnt)
-            common_row[1] = str(dealshub_product_obj.get_product_id())
-            common_row[2] = str(dealshub_product_obj.get_name())
-            common_row[3] = str(dealshub_product_obj.get_brand())
-            common_row[4] = str(dealshub_product_obj.get_seller_sku())
+            common_row = ["" for i in range(4)]
+            common_row[0] = str(dealshub_product_obj.get_product_id())
+            common_row[1] = str(dealshub_product_obj.get_name())
+            common_row[2] = str(dealshub_product_obj.get_brand())
+            common_row[3] = str(dealshub_product_obj.get_seller_sku())
 
             colnum = 0
             for k in common_row:
