@@ -826,6 +826,7 @@ class SectionBulkUploadAPI(APIView):
 
             products = []
             unsuccessful_count = 0
+            section_obj.products.clear()
             for i in range(rows):
                 try:
                     product_id = dfs.iloc[i][0]
@@ -840,6 +841,8 @@ class SectionBulkUploadAPI(APIView):
                     products.append(temp_dict)
 
                 except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("SectionBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     unsuccessful_count += 1
                     
             section_obj.save()
@@ -852,6 +855,116 @@ class SectionBulkUploadAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SectionBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class BannerBulkUploadAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BannerBulkUploadAPI: %s", str(data))
+
+            path = default_storage.save('tmp/temp-banner.xlsx', data["import_file"])
+            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            uuid = data["uuid"]
+            unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
+            location_group_obj = unit_banner_obj.banner.location_group
+
+            products = []
+            unsuccessful_count = 0
+            unit_banner_obj.products.clear()
+            for i in range(rows):
+                try:
+                    product_id = dfs.iloc[i][0]
+                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    unit_banner_obj.products.add(dealshub_product_obj)
+
+                    temp_dict = {}
+                    temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                    temp_dict["name"] = dealshub_product_obj.get_name()
+                    temp_dict["displayId"] = dealshub_product_obj.get_product_id()
+                    temp_dict["uuid"] = dealshub_product_obj.uuid
+                    products.append(temp_dict)
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("BannerBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    unsuccessful_count += 1
+                    
+            unit_banner_obj.save()
+
+            response["products"] = products
+            response["unsuccessful_count"] = unsuccessful_count
+            response["filepath"] = path
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BannerBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class SectionBulkDownloadAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SectionBulkDownloadAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            section_obj = Section.objects.get(uuid=uuid)
+            location_group_obj = section_obj.location_group
+
+            dealshub_product_objs = section_obj.products.all()
+            filename = "files/reports/section-products-"+section_obj.name+".xlsx"
+            create_section_banner_product_report(dealshub_product_objs, filename)
+
+            response["filepath"] = SERVER_IP+"/"+filename
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SectionBulkDownloadAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class BannerBulkDownloadAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BannerBulkDownloadAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
+            location_group_obj = unit_banner_obj.banner.location_group
+
+            dealshub_product_objs = unit_banner_obj.products.all()
+            filename = "files/reports/banner-products-"+unit_banner_obj.banner.name+".xlsx"
+            create_section_banner_product_report(dealshub_product_objs, filename)
+
+            response["filepath"] = SERVER_IP+"/"+filename
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BannerBulkDownloadAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -1359,10 +1472,12 @@ class FetchDealshubAdminSectionsAPI(APIView):
             limit = data.get("limit", False)
             is_dealshub = data.get("isDealshub", False)
 
+            is_bot = data.get("isBot", False)
+
             location_group_uuid = data["locationGroupUuid"]
             resolution = data.get("resolution", "low")
 
-            if is_dealshub==True:
+            if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(location_group_uuid, "has_expired")
                 if cached_value!="has_expired":
                     response["sections_list"] = json.loads(cached_value)
@@ -2618,6 +2733,12 @@ PublishAdminCategory = PublishAdminCategoryAPI.as_view()
 UnPublishAdminCategory = UnPublishAdminCategoryAPI.as_view()
 
 SectionBulkUpload = SectionBulkUploadAPI.as_view()
+
+BannerBulkUpload = BannerBulkUploadAPI.as_view()
+
+SectionBulkDownload = SectionBulkDownloadAPI.as_view()
+
+BannerBulkDownload = BannerBulkDownloadAPI.as_view()
 
 FetchBannerTypes = FetchBannerTypesAPI.as_view()
 
