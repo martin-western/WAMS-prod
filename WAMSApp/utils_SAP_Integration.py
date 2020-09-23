@@ -154,7 +154,8 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
             if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
                 continue
-                
+
+            logger.info(seller_sku)
             product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
             is_sap_exception = product_obj.is_sap_exception
 
@@ -196,6 +197,8 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
                             break
 
         if len(transfer_information) > 0:
+
+            logger.info(transfer_information)
 
             body = xml_generator_for_holding_tansfer(company_code,test_customer_id,transfer_information)
             response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
