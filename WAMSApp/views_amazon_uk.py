@@ -60,7 +60,7 @@ class BulkUpdateAmazonUKProductPriceAPI(APIView):
             channel_name = "Amazon UK"
             channel_obj = Channel.objects.get(name=channel_name)
 
-            organization_obj = CustomPermission.objects.get(user__username=request.user.username)
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
 
             if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
