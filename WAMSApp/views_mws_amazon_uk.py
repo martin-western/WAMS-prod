@@ -696,6 +696,8 @@ class FetchPriceAndStockAmazonUKAPI(APIView):
 
             report = report.decode("windows-1252").splitlines()
 
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
+
             cnt = 0
             for line in report:
 
@@ -717,7 +719,7 @@ class FetchPriceAndStockAmazonUKAPI(APIView):
                                 break
 
                         try:
-                            product = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+                            product = Product.objects.filter(base_product__seller_sku=seller_sku, base_product__brand__organization=organization_obj)[0]
                             channel_product = product.channel_product   
                             amazon_uk_product_json = json.loads(channel_product.amazon_uk_product_json)
                             amazon_uk_product_json["now_price"] = price

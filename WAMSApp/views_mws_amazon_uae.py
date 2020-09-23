@@ -698,6 +698,8 @@ class FetchPriceAndStockAmazonUAEAPI(APIView):
 
             cnt = 0
 
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
+
             updated_products = 0
 
             for line in report:
@@ -720,7 +722,7 @@ class FetchPriceAndStockAmazonUAEAPI(APIView):
                                 break
 
                         try:
-                            product = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+                            product = Product.objects.filter(base_product__seller_sku=seller_sku, base_product__brand__organization=organization_obj)[0]
                             channel_product = product.channel_product   
                             amazon_uae_product_json = json.loads(channel_product.amazon_uae_product_json)
                             amazon_uae_product_json["now_price"] = price
