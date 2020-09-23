@@ -5,7 +5,7 @@ import uuid
 
 company_code = "1000"
 customer_id = "40000195"
-product_id = "GTR34"
+product_id = "GTR1384"
 IP = "94.56.89.116"
 
 headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}

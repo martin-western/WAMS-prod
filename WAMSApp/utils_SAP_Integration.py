@@ -29,7 +29,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         response_dict = json.loads(json.dumps(xml_content))
 
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-        logger.info(items)
+        # logger.info(items)
         
         total_atp = 0.0
         total_holding = 0.0
@@ -152,6 +152,9 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         
         for seller_sku in seller_sku_list :
 
+            if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
+                continue
+                
             product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
             is_sap_exception = product_obj.is_sap_exception
 
