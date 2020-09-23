@@ -1291,7 +1291,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
 
         worksheet = workbook.add_worksheet()
 
-        organization_obj = CustomPermission.objects.get(user__username=request_user.username)
+        organization_obj = CustomPermission.objects.get(user__username=request_user.username).organization
 
         for i in range(rows):
 
