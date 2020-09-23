@@ -123,7 +123,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
             sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
             sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
 
-            category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
+            category_mapping , created = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
 
             atp_threshold = category_mapping.atp_threshold
             holding_threshold = category_mapping.holding_threshold
