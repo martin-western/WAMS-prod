@@ -60,6 +60,8 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
             channel_name = "Amazon UAE"
             channel_obj = Channel.objects.get(name=channel_name)
 
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
+
             if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
                 logger.warning("BulkUpdateAmazonUAEProductPriceAPI Restricted Access of "+channel_name+" Channel!")
@@ -109,7 +111,7 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
                         search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
-                            product_obj = Product.objects.get(product_id=search_key)
+                            product_obj = Product.objects.get(product_id=search_key, base_product__brand__organization=organization_obj)
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
                             continue
@@ -118,7 +120,7 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                            product_obj = Product.objects.get(base_product__seller_sku=search_key, base_product__brand__organization=organization_obj)
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
                             continue
@@ -127,7 +129,7 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"', base_product__brand__organization=organization_obj)
                         except Exception as e:
                             excel_errors.append("More than one product found for " + search_key)
                             continue
@@ -183,6 +185,8 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
             channel_name = "Amazon UAE"
             channel_obj = Channel.objects.get(name=channel_name)
 
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
+
             if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
                 logger.warning("BulkUpdateAmazonUAEProductStockAPI Restricted Access of "+channel_name+" Channel!")
@@ -232,7 +236,7 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
                         search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
-                            product_obj = Product.objects.get(product_id=search_key)
+                            product_obj = Product.objects.get(product_id=search_key, base_product__brand__organization=organization_obj)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
@@ -241,7 +245,7 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                            product_obj = Product.objects.get(base_product__seller_sku=search_key, base_product__brand__organization=organization_obj)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
@@ -250,7 +254,7 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"', base_product__brand__organization=organization_obj)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key )
                             continue
@@ -299,6 +303,8 @@ class BulkUpdateAmazonUAEProductPriceAndStockAPI(APIView):
 
             channel_name = "Amazon UAE"
             channel_obj = Channel.objects.get(name=channel_name)
+
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
 
             if(permission_channel_boolean_response(request.user,channel_obj)==False):
                 response['status'] = 403
@@ -350,7 +356,7 @@ class BulkUpdateAmazonUAEProductPriceAndStockAPI(APIView):
                         search_key = str(int(dfs.iloc[i][0])).strip()
                         
                         try :
-                            product_obj = Product.objects.get(product_id=search_key)
+                            product_obj = Product.objects.get(product_id=search_key, base_product__brand__organization=organization_obj)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
@@ -359,7 +365,7 @@ class BulkUpdateAmazonUAEProductPriceAndStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(base_product__seller_sku=search_key)
+                            product_obj = Product.objects.get(base_product__seller_sku=search_key, base_product__brand__organization=organization_obj)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
@@ -368,7 +374,7 @@ class BulkUpdateAmazonUAEProductPriceAndStockAPI(APIView):
                         search_key = str(dfs.iloc[i][0]).strip()
                         
                         try :
-                            product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"')
+                            product_obj = Product.objects.get(channel_product__amazon_uae_product_json_icontains='"ASIN": "'+search_key+'"', base_product__brand__organization=organization_obj)
                         except Exception as e:
                             excel_errors.append("More then one product found for " + search_key)
                             continue
