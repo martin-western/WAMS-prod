@@ -5998,6 +5998,7 @@ class CreateOCReportAPI(APIView):
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
 
             oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
 
@@ -6007,13 +6008,13 @@ class CreateOCReportAPI(APIView):
                     brand_list.append(brand_obj.name)
 
             if report_type.lower()=="mega":
-                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,))
+                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
                 p1.start()
             elif report_type.lower()=="flyer":
-                p1 = threading.Thread(target=create_flyer_report, args=(filename,oc_report_obj.uuid,brand_list,))
+                p1 = threading.Thread(target=create_flyer_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
                 p1.start()
             elif report_type.lower()=="image":
-                p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,brand_list,))
+                p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
                 p1.start()
             elif report_type.lower()=="ecommerce":
                 p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,custom_permission_obj,))
