@@ -826,6 +826,7 @@ class SectionBulkUploadAPI(APIView):
 
             products = []
             unsuccessful_count = 0
+            section_obj.products.clear()
             for i in range(rows):
                 try:
                     product_id = dfs.iloc[i][0]
@@ -840,6 +841,8 @@ class SectionBulkUploadAPI(APIView):
                     products.append(temp_dict)
 
                 except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("SectionBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     unsuccessful_count += 1
                     
             section_obj.save()
@@ -877,6 +880,7 @@ class BannerBulkUploadAPI(APIView):
 
             products = []
             unsuccessful_count = 0
+            unit_banner_obj.products.clear()
             for i in range(rows):
                 try:
                     product_id = dfs.iloc[i][0]
@@ -891,6 +895,8 @@ class BannerBulkUploadAPI(APIView):
                     products.append(temp_dict)
 
                 except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("BannerBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     unsuccessful_count += 1
                     
             unit_banner_obj.save()
@@ -903,6 +909,62 @@ class BannerBulkUploadAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BannerBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class SectionBulkDownloadAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SectionBulkDownloadAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            section_obj = Section.objects.get(uuid=uuid)
+            location_group_obj = section_obj.location_group
+
+            dealshub_product_objs = section_obj.products.all()
+            filename = "files/reports/section-products-"+section_obj.name+".xlsx"
+            create_section_banner_product_report(dealshub_product_objs, filename)
+
+            response["filepath"] = SERVER_IP+"/"+filename
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SectionBulkDownloadAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class BannerBulkDownloadAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BannerBulkDownloadAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
+            location_group_obj = unit_banner_obj.banner.location_group
+
+            dealshub_product_objs = unit_banner_obj.products.all()
+            filename = "files/reports/banner-products-"+unit_banner_obj.banner.name+".xlsx"
+            create_section_banner_product_report(dealshub_product_objs, filename)
+
+            response["filepath"] = SERVER_IP+"/"+filename
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BannerBulkDownloadAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -2673,6 +2735,10 @@ UnPublishAdminCategory = UnPublishAdminCategoryAPI.as_view()
 SectionBulkUpload = SectionBulkUploadAPI.as_view()
 
 BannerBulkUpload = BannerBulkUploadAPI.as_view()
+
+SectionBulkDownload = SectionBulkDownloadAPI.as_view()
+
+BannerBulkDownload = BannerBulkDownloadAPI.as_view()
 
 FetchBannerTypes = FetchBannerTypesAPI.as_view()
 
