@@ -615,7 +615,7 @@ def create_image_report(filename, uuid, brand_list, organization_obj):
     product_objs = Product.objects.none()
 
     if len(brand_list)!=0:
-        product_objs = product_objs.filter(base_product__brand__name__in=brand_list, brand__organization=organization_obj)
+        product_objs = product_objs.filter(base_product__brand__name__in=brand_list, base_product__brand__organization=organization_obj)
 
     for product_obj in product_objs:
         try:
