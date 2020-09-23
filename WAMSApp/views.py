@@ -6791,6 +6791,10 @@ class FetchCategoryListByBrandAPI(APIView):
                     temp_dict = {}
                     temp_dict["category_name"] = category_obj.name
                     temp_dict["category_id"] = category_obj.uuid
+                    if category_obj.mobile_app_image!=None:
+                        temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
+                    else:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
                     category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6841,6 +6845,7 @@ class FetchProductListByCategoryAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["image_url"] = product_obj.get_display_image_url()
                     temp_dict["product_description"] = product_obj.product_description
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
