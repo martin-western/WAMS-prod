@@ -922,7 +922,7 @@ class SectionBulkDownloadAPI(APIView):
             location_group_obj = section_obj.location_group
 
             dealshub_product_objs = section_obj.products.all()
-            filename = "files/reports/section-products-"+section_obj.name+".xlsx"
+            filename = SERVER_IP+"/files/reports/section-products-"+section_obj.name+".xlsx"
             create_section_banner_product_report(dealshub_product_objs, filename)
 
             response["filepath"] = filename
@@ -950,7 +950,7 @@ class BannerBulkDownloadAPI(APIView):
             location_group_obj = unit_banner_obj.banner.location_group
 
             dealshub_product_objs = unit_banner_obj.products.all()
-            filename = "files/reports/banner-products-"+unit_banner_obj.banner.name+".xlsx"
+            filename = SERVER_IP+"/files/reports/banner-products-"+unit_banner_obj.banner.name+".xlsx"
             create_section_banner_product_report(dealshub_product_objs, filename)
 
             response["filepath"] = filename
