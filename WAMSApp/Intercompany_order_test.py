@@ -89,6 +89,7 @@ def fetch_prices(product_id,company_code,url,customer_id):
 response = fetch_prices(product_id,company_code,test_url,customer_id)
 
 items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+print(items)
 uom = "EA"
 charg = "BS"
 total_atp = 0.0
