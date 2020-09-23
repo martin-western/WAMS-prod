@@ -132,8 +132,8 @@ def fetch_prices_and_stock(seller_sku,company_code):
         result["stock_list"] = stock_list
         result["total_atp"] = total_atp
         result["total_holding"] = total_holding
-        result["atp_threshold"] = category_mapping.atp_threshold
-        result["holding_threshold"] = category_mapping.holding_threshold
+        result["atp_threshold"] = atp_threshold
+        result["holding_threshold"] = holding_threshold
 
         return result
 
