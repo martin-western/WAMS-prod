@@ -826,6 +826,7 @@ class SectionBulkUploadAPI(APIView):
 
             products = []
             unsuccessful_count = 0
+            section_obj.products.clear()
             for i in range(rows):
                 try:
                     product_id = dfs.iloc[i][0]
@@ -879,6 +880,7 @@ class BannerBulkUploadAPI(APIView):
 
             products = []
             unsuccessful_count = 0
+            unit_banner_obj.products.clear()
             for i in range(rows):
                 try:
                     product_id = dfs.iloc[i][0]
