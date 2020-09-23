@@ -2512,8 +2512,8 @@ class CreateFlyerAPI(APIView):
                                 product_obj = None
                                 if Product.objects.filter(product_id=search_id, base_product__brand__organization=organization_obj).exists():
                                     product_obj = Product.objects.filter(product_id=search_id, base_product__brand__organization=organization_obj)[0]
-                                elif BaseProduct.objects.filter(seller_sku=search_id, organization=organization_obj).exists():
-                                    base_product_obj = BaseProduct.objects.get(seller_sku=search_id, organization=organization_obj)
+                                elif BaseProduct.objects.filter(seller_sku=search_id, brand__organization=organization_obj).exists():
+                                    base_product_obj = BaseProduct.objects.get(seller_sku=search_id, brand__organization=organization_obj)
                                     product_obj = Product.objects.filter(base_product=base_product_obj)[0]
 
                                 flyer_obj.product_bucket.add(product_obj)
@@ -5732,7 +5732,7 @@ class SearchBulkExportAPI(APIView):
 
             search_string = data["search_string"]
 
-            organization_obj = CustomPermission.objects.get(user__username=request.user.username)
+            organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
 
             product_objs = Product.objects.filter(base_product__brand__organization=organization_obj).filter(Q(base_product__seller_sku__icontains=search_string) | Q(product_name__icontains=search_string))[:10]
 
