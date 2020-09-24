@@ -715,7 +715,9 @@ def create_section_banner_product_report(dealshub_product_objs, filename):
     row = ["Product ID",
            "Product Name",
            "Brand",
-           "Seller SKU"]
+           "Seller SKU",
+           "Promotional Price",
+           "Now Price"]
 
     cnt = 0
         
@@ -732,6 +734,8 @@ def create_section_banner_product_report(dealshub_product_objs, filename):
             common_row[1] = str(dealshub_product_obj.get_name())
             common_row[2] = str(dealshub_product_obj.get_brand())
             common_row[3] = str(dealshub_product_obj.get_seller_sku())
+            common_row[4] = str(dealshub_product_obj.promotional_price)
+            common_row[5] = str(dealshub_product_obj.now_price)
 
             colnum = 0
             for k in common_row:
