@@ -6,11 +6,13 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.core.cache import cache
 
 from PIL import Image as IMAGE
 from PIL import ExifTags
 from io import BytesIO
 from bs4 import BeautifulSoup
+
 
 import logging
 import sys
