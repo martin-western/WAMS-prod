@@ -29,7 +29,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         response_dict = json.loads(json.dumps(xml_content))
 
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-        logger.info(items)
+        # logger.info(items)
         
         total_atp = 0.0
         total_holding = 0.0
@@ -123,7 +123,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
             sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
             sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
 
-            category_mapping = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
+            category_mapping , created = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
 
             atp_threshold = category_mapping.atp_threshold
             holding_threshold = category_mapping.holding_threshold
@@ -152,6 +152,10 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         
         for seller_sku in seller_sku_list :
 
+            if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
+                continue
+
+            logger.info(seller_sku)
             product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
             is_sap_exception = product_obj.is_sap_exception
 
@@ -193,6 +197,8 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
                             break
 
         if len(transfer_information) > 0:
+
+            logger.info(transfer_information)
 
             body = xml_generator_for_holding_tansfer(company_code,test_customer_id,transfer_information)
             response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
