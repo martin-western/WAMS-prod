@@ -844,7 +844,7 @@ class SectionBulkUploadAPI(APIView):
                         promotional_price = float(dfs.iloc[i][1])
                     except Exception as e:
                         pass
-                    if unit_banner_obj.promotion!=None:
+                    if section_obj.promotion!=None:
                         dealshub_product_obj.promotional_price = promotional_price
                     dealshub_product_obj.save()
 
