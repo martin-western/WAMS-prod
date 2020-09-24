@@ -826,11 +826,28 @@ class SectionBulkUploadAPI(APIView):
 
             products = []
             unsuccessful_count = 0
+
+            dealshub_product_objs = section_obj.products.all()
+            dealshub_product_objs.update(promotion=None)
+
             section_obj.products.clear()
+
             for i in range(rows):
                 try:
                     product_id = dfs.iloc[i][0]
+
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    dealshub_product_obj.promotion = section_obj.promotion
+
+                    promotional_price = dealshub_product_obj.now_price
+                    try:
+                        promotional_price = float(dfs.iloc[i][1])
+                    except Exception as e:
+                        pass
+                    if section_obj.promotion!=None:
+                        dealshub_product_obj.promotional_price = promotional_price
+                    dealshub_product_obj.save()
+
                     section_obj.products.add(dealshub_product_obj)
 
                     temp_dict = {}
@@ -878,6 +895,9 @@ class BannerBulkUploadAPI(APIView):
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
             location_group_obj = unit_banner_obj.banner.location_group
 
+            dealshub_product_objs = unit_banner_obj.products.all()
+            dealshub_product_objs.update(promotion=None)
+
             products = []
             unsuccessful_count = 0
             unit_banner_obj.products.clear()
@@ -886,6 +906,16 @@ class BannerBulkUploadAPI(APIView):
                     product_id = dfs.iloc[i][0]
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     unit_banner_obj.products.add(dealshub_product_obj)
+                    dealshub_product_obj.promotion = unit_banner_obj.promotion
+
+                    promotional_price = dealshub_product_obj.now_price
+                    try:
+                        promotional_price = float(dfs.iloc[i][1])
+                    except Exception as e:
+                        pass
+                    if unit_banner_obj.promotion!=None:
+                        dealshub_product_obj.promotional_price = promotional_price
+                    dealshub_product_obj.save()
 
                     temp_dict = {}
                     temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
@@ -1544,6 +1574,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 if is_dealshub==True:
                     section_products = section_products.exclude(now_price=0).exclude(stock=0)
 
+                section_products = section_products[:14]
                 if limit==True:
                     if section_obj.listing_type=="Carousel":
                         section_products = section_products[:14]
@@ -1657,7 +1688,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     if is_dealshub==False :
                         temp_products = []
-                        for dealshub_product_obj in unit_banner_products:
+                        for dealshub_product_obj in unit_banner_products[:2]:
                             if dealshub_product_obj.now_price==0:
                                 continue
                             temp_dict3 = {}
