@@ -6905,7 +6905,7 @@ class FetchCategoriesForSalesAPI(APIView):
             if has_image==True:
                 category_objs = category_objs.exclude(mobile_app_image=None)
             elif has_image==False:
-                category_objs = category_objs.exclude(mobile_app_image=None)
+                category_objs = category_objs.filter(mobile_app_image=None)
 
             paginator = Paginator(category_objs, 20)
             category_objs = paginator.page(page)
