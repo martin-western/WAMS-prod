@@ -1570,10 +1570,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                 temp_products = []
 
-                section_products = section_obj.products.all()[:14]
+                section_products = section_obj.products.all()
                 if is_dealshub==True:
                     section_products = section_products.exclude(now_price=0).exclude(stock=0)
 
+                section_products = section_products[:14]
                 if limit==True:
                     if section_obj.listing_type=="Carousel":
                         section_products = section_products[:14]
@@ -1681,13 +1682,13 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
 
 
-                    unit_banner_products = unit_banner_image_obj.products.all()[:14]
+                    unit_banner_products = unit_banner_image_obj.products.all()
                     if is_dealshub==True:
                         unit_banner_products = unit_banner_products.exclude(now_price=0).exclude(stock=0)
 
                     if is_dealshub==False :
                         temp_products = []
-                        for dealshub_product_obj in unit_banner_products:
+                        for dealshub_product_obj in unit_banner_products[:2]:
                             if dealshub_product_obj.now_price==0:
                                 continue
                             temp_dict3 = {}
