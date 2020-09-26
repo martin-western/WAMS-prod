@@ -5542,8 +5542,8 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
 
             seller_sku = data["articleNumber"]
 
-            base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
-            product_objs = Product.objects.filter(base_product__seller_sku=seller_sku)
+            base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization__name="wig")
+            product_objs = Product.objects.filter(base_product=base_product_obj)
 
             response["product_name"] = base_product_obj.base_product_name
             response["seller_sku"] = base_product_obj.seller_sku
@@ -5651,8 +5651,8 @@ class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
             for seller_sku in seller_sku_list:
                 
                 try:
-                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
-                    product_objs = Product.objects.filter(base_product__seller_sku=seller_sku)
+                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization__name="wig")
+                    product_objs = Product.objects.filter(base_product=base_product_obj)
                     
                     main_images_list = ImageBucket.objects.none()
                     for product_obj in product_objs:
@@ -6849,7 +6849,7 @@ class FetchProductListByCategoryAPI(APIView):
             brand_name = data.get("brand_name", None)
             page = int(data.get('page', 1))
             
-            product_objs = Product.objects.filter(base_product__category__uuid=category_id)
+            product_objs = Product.objects.filter(base_product__category__uuid=category_id, base_product__brand__organization__name="wig")
 
             if brand_name!=None:
                 product_objs = product_objs.filter(base_product__brand__name=brand_name)                            
