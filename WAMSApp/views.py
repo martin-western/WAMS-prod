@@ -6025,7 +6025,7 @@ class CreateOCReportAPI(APIView):
                     brand_list.append(brand_obj.name)
 
             if report_type.lower()=="mega":
-                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
+                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,"",organization_obj,))
                 p1.start()
             elif report_type.lower()=="flyer":
                 p1 = threading.Thread(target=create_flyer_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
