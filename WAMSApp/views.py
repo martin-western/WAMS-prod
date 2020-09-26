@@ -6092,7 +6092,9 @@ class CreateContentReportAPI(APIView):
 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
 
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note="", filename=filename, organization=custom_permission_obj.organization)
+            organization_obj = custom_permission_obj.organization
+
+            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
 
             filter_parameters = data["filter_parameters"]
 
@@ -6102,7 +6104,7 @@ class CreateContentReportAPI(APIView):
 
             search_list_product_objs = search_list_product_objs.values_list("uuid")
 
-            p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,search_list_product_objs))
+            p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,search_list_product_objs,organization_obj,))
 
             p1.start()         
 
