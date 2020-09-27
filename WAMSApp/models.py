@@ -527,6 +527,7 @@ class WebsiteGroup(models.Model):
     super_categories = models.ManyToManyField(SuperCategory, blank=True)
 
     contact_info = models.CharField(max_length=100,blank=True, default='[]')
+    whatsapp_info = models.CharField(max_length=100,blank=True, default='')
     address = models.TextField(blank=True, default='')
     email_info = models.CharField(max_length=100,blank=True, default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)

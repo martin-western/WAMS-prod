@@ -3824,48 +3824,48 @@ class SetShippingMethodAPI(APIView):
             # else:
             #     logger.warning("SetShippingMethodAPI: No method set!")
 
-            # if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+            if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
 
-            #     brand_company_dict = {
-            #         "geepas": "1070",
-            #         "baby plus": "5550",
-            #         "royalford": "3000",
-            #         "krypton": "2100",
-            #         "olsenmark": "1100",
-            #         "ken jardene": "5550",
-            #         "younglife": "5000",
-            #         "delcasa": "3000"
-            #     }
+                brand_company_dict = {
+                    "geepas": "1070",
+                    "baby plus": "5550",
+                    "royalford": "3000",
+                    "krypton": "2100",
+                    "olsenmark": "1100",
+                    "ken jardene": "5550",
+                    "younglife": "5000",
+                    "delcasa": "3000"
+                }
 
-            #     user_input_sap = data.get("user_input_sap", None)
-            #     if user_input_sap==None:
-            #         modal_info_list = []
-            #         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-            #             seller_sku = unit_order_obj.product.get_seller_sku()
-            #             brand_name = unit_order_obj.product.get_brand()
-            #             company_code = brand_company_dict[brand_name.lower()]
-            #             if is_user_input_required_for_sap_punching(seller_sku, company_code)==True:
-            #                 result = fetch_prices_and_stock(seller_sku, company_code)
-            #                 modal_info_list.append(result)
-            #         if len(modal_info_list)>0:
-            #             response["modal_info_list"] = modal_info_list
-            #             response["status"] = 200
-            #             return Response(data=response)
+                user_input_sap = data.get("user_input_sap", None)
+                if user_input_sap==None:
+                    modal_info_list = []
+                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                        seller_sku = unit_order_obj.product.get_seller_sku()
+                        brand_name = unit_order_obj.product.get_brand()
+                        company_code = brand_company_dict[brand_name.lower()]
+                        if is_user_input_required_for_sap_punching(seller_sku, company_code)==True:
+                            result = fetch_prices_and_stock(seller_sku, company_code)
+                            modal_info_list.append(result)
+                    if len(modal_info_list)>0:
+                        response["modal_info_list"] = modal_info_list
+                        response["status"] = 200
+                        return Response(data=response)
 
-            #     for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-            #         seller_sku = unit_order_obj.product.get_seller_sku()
-            #         brand_name = unit_order_obj.product.get_brand()
-            #         company_code = brand_company_dict[brand_name.lower()]
-            #         order_information = []
-            #         x_value = ""
-            #         if is_user_input_required_for_sap_punching(seller_sku, company_code)==True:
-            #             x_value = user_input_sap[unit_order_obj.uuid]
-            #         order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    seller_sku = unit_order_obj.product.get_seller_sku()
+                    brand_name = unit_order_obj.product.get_brand()
+                    company_code = brand_company_dict[brand_name.lower()]
+                    order_information = []
+                    x_value = ""
+                    if is_user_input_required_for_sap_punching(seller_sku, company_code)==True:
+                        x_value = user_input_sap[unit_order_obj.uuid]
+                    order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
-            #         order_information["order_id"] = unit_order_obj.orderid
-            #         order_information["seller_sku"] = seller_sku
-            #         order_information["qty"] = unit_order_obj.quantity
-            #         create_intercompany_sales_order(seller_sku, company_code, order_information)
+                    order_information["order_id"] = unit_order_obj.orderid
+                    order_information["seller_sku"] = seller_sku
+                    order_information["qty"] = unit_order_obj.quantity
+                    create_intercompany_sales_order(seller_sku, company_code, order_information)
 
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                 set_shipping_method(unit_order_obj, shipping_method)

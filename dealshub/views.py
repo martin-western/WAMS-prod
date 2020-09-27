@@ -2006,6 +2006,7 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data = {}
             company_data["name"] = website_group_obj.name
             company_data["contact_info"] = json.loads(website_group_obj.contact_info)
+            company_data["whatsapp_info"] = website_group_obj.whatsapp_info
             company_data["email_info"] = website_group_obj.email_info
             company_data["address"] = website_group_obj.address
             company_data["primary_color"] = website_group_obj.primary_color
