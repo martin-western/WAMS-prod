@@ -654,6 +654,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
                 temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["stock"] = unit_cart_obj.product.stock
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
