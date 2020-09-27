@@ -73,6 +73,7 @@ class FetchProductDetailsAPI(APIView):
             response["subCategory"] = dealshub_product_obj.get_sub_category()
             response["uuid"] = data["uuid"]
             response["name"] = dealshub_product_obj.get_name()
+            response["stock"] = dealshub_product_obj.stock
             response["price"] = dealshub_product_obj.get_actual_price()
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = dealshub_product_obj.get_currency()
@@ -106,13 +107,12 @@ class FetchProductDetailsAPI(APIView):
 
             try:
                 variant_list = []
-                dealshub_product_objs = DealsHubProduct.objects.filter(location_group=dealshub_product_obj.location_group, product=product_obj, is_published=True).exclude(now_price=0).exclude(stock=0).exclude(pk=dealshub_product_obj.pk)
-                if dealshub_product_objs.count()>0:
-                    for dealshub_product_obj in dealshub_product_objs:
-                        temp_dict = {}
-                        temp_dict["product_name"] = dealshub_product_obj.product_name
-                        temp_dict["uuid"] = dealshub_product_obj.uuid
-                        variant_list.append(temp_dict)
+                dealshub_product_objs = DealsHubProduct.objects.filter(location_group=dealshub_product_obj.location_group, product=product_obj, is_published=True).exclude(now_price=0).exclude(stock=0)
+                for dealshub_product_obj in dealshub_product_objs:
+                    temp_dict = {}
+                    temp_dict["product_name"] = dealshub_product_obj.get_name()
+                    temp_dict["uuid"] = dealshub_product_obj.uuid
+                    variant_list.append(temp_dict)
 
                 response["variant_list"] = variant_list
             except Exception as e:
