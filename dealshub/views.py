@@ -107,7 +107,7 @@ class FetchProductDetailsAPI(APIView):
 
             try:
                 variant_list = []
-                dealshub_product_objs = DealsHubProduct.objects.filter(location_group=dealshub_product_obj.location_group, product=product_obj, is_published=True).exclude(now_price=0).exclude(stock=0)
+                dealshub_product_objs = DealsHubProduct.objects.filter(location_group=dealshub_product_obj.location_group, product__base_product=product_obj.base_product, is_published=True).exclude(now_price=0).exclude(stock=0)
                 for dealshub_product_obj in dealshub_product_objs:
                     temp_dict = {}
                     temp_dict["product_name"] = dealshub_product_obj.get_name()
