@@ -4722,7 +4722,11 @@ class PlaceOnlineOrderAPI(APIView):
                                                  to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
-                                                 location_group=fast_cart_obj.location_group)
+                                                 location_group=fast_cart_obj.location_group,
+                                                 payment_status="paid",
+                                                 payment_info=payment_info,
+                                                 payment_mode=payment_mode,
+                                                 merchant_reference=merchant_reference)
 
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
