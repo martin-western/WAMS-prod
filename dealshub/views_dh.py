@@ -3838,6 +3838,14 @@ class SetShippingMethodAPI(APIView):
                     "delcasa": "3000"
                 }
 
+
+                user_input_requirement = {}
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    seller_sku = unit_order_obj.product.get_seller_sku()
+                    brand_name = unit_order_obj.product.get_brand()
+                    company_code = brand_company_dict[brand_name.lower()]
+                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(seller_sku, company_code)
+
                 user_input_sap = data.get("user_input_sap", None)
                 if user_input_sap==None:
                     modal_info_list = []
@@ -3845,7 +3853,7 @@ class SetShippingMethodAPI(APIView):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
                         company_code = brand_company_dict[brand_name.lower()]
-                        if is_user_input_required_for_sap_punching(seller_sku, company_code)==True:
+                        if user_input_requirement[seller_sku]==True:
                             result = fetch_prices_and_stock(seller_sku, company_code)
                             result["seller_sku"] = seller_sku
                             modal_info_list.append(result)
@@ -3860,7 +3868,7 @@ class SetShippingMethodAPI(APIView):
                     company_code = brand_company_dict[brand_name.lower()]
                     order_information = []
                     x_value = ""
-                    if is_user_input_required_for_sap_punching(seller_sku, company_code)==True:
+                    if user_input_requirement[seller_sku]==True:
                         x_value = user_input_sap[unit_order_obj.uuid]
                     order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
