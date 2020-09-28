@@ -605,11 +605,13 @@ class Order(models.Model):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
             order_prefix = ""
+            order_cnt = 1
             try:
                 order_prefix = json.loads(self.location_group.website_group.conf)["order_prefix"]
+                order_cnt = Order.objects.filter(location_group=self.location_group).count()+1
             except Exception as e:
                 pass
-            self.bundleid = order_prefix + str(uuid.uuid4())[:5]
+            self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
 
         super(Order, self).save(*args, **kwargs)
 
