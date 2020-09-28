@@ -6822,6 +6822,10 @@ class FetchCategoryListByBrandAPI(APIView):
                         temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
                     else:
                         temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    if category_obj.mobile_app_image_detailed!=None:
+                        temp_dict["image_url_detailed"] = category_obj.mobile_app_image_detailed.mid_image.url
+                    else:
+                        temp_dict["image_url_detailed"] = Config.objects.all()[0].product_404_image.image.url
                     category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6933,6 +6937,10 @@ class FetchCategoriesForSalesAPI(APIView):
                         temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
                     else:
                         temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    if category_obj.mobile_app_image_detailed!=None:
+                        temp_dict["image_url_detailed"] = category_obj.mobile_app_image_detailed.mid_image.url
+                    else:
+                        temp_dict["image_url_detailed"] = Config.objects.all()[0].product_404_image.image.url
                     category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6971,11 +6979,16 @@ class UploadCategorySalesImageAPI(APIView):
                 data = json.loads(data)
 
             category_uuid = data["category_uuid"]
+            image_type = data.get("image_type", "")
             
             category_obj = Category.objects.get(uuid=category_uuid)
 
             image_obj = Image.objects.create(image=data["image"])
-            category_obj.mobile_app_image = image_obj
+
+            if image_type.lower()=="detailed":
+                category_obj.mobile_app_image_detailed = image_obj
+            else:
+                category_obj.mobile_app_image = image_obj
             category_obj.save()
 
             response['status'] = 200
