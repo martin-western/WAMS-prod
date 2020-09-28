@@ -586,12 +586,12 @@ class Order(models.Model):
     is_order_offline = models.BooleanField(default=False)
     order_placed_date = models.DateTimeField(null=True, default=timezone.now)
 
-    PENDING, PAID = ('pending', 'paid')
+    PENDING, PAID = ('cod', 'paid')
     PAYMENT_STATUS = (
-        (PENDING, "pending"),
+        (PENDING, "cod"),
         (PAID, "paid")
     )
-    payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="pending")
+    payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="cod")
     payment_info = models.TextField(default="{}")
     merchant_reference = models.CharField(max_length=200, default="")
 
