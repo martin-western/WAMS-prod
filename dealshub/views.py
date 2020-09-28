@@ -73,6 +73,7 @@ class FetchProductDetailsAPI(APIView):
             response["subCategory"] = dealshub_product_obj.get_sub_category()
             response["uuid"] = data["uuid"]
             response["name"] = dealshub_product_obj.get_name()
+            response["stock"] = dealshub_product_obj.stock
             response["price"] = dealshub_product_obj.get_actual_price()
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = dealshub_product_obj.get_currency()
@@ -103,6 +104,19 @@ class FetchProductDetailsAPI(APIView):
                 response["start_time"] = str(promotion_obj.start_time)[:19]
                 response["end_time"] = str(promotion_obj.end_time)[:19]
                 response["promotion_tag"] = str(promotion_obj.promotion_tag)
+
+            try:
+                variant_list = []
+                dealshub_product_objs = DealsHubProduct.objects.filter(location_group=dealshub_product_obj.location_group, product__base_product=product_obj.base_product, is_published=True).exclude(now_price=0).exclude(stock=0)
+                for dealshub_product_obj in dealshub_product_objs:
+                    temp_dict = {}
+                    temp_dict["product_name"] = dealshub_product_obj.get_name()
+                    temp_dict["uuid"] = dealshub_product_obj.uuid
+                    variant_list.append(temp_dict)
+
+                response["variant_list"] = variant_list
+            except Exception as e:
+                response["variant_list"] = []
 
             response["isStockAvailable"] = False
             if dealshub_product_obj.stock>0:
@@ -826,11 +840,28 @@ class SectionBulkUploadAPI(APIView):
 
             products = []
             unsuccessful_count = 0
+
+            dealshub_product_objs = section_obj.products.all()
+            dealshub_product_objs.update(promotion=None)
+
             section_obj.products.clear()
+
             for i in range(rows):
                 try:
                     product_id = dfs.iloc[i][0]
+
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    dealshub_product_obj.promotion = section_obj.promotion
+
+                    promotional_price = dealshub_product_obj.now_price
+                    try:
+                        promotional_price = float(dfs.iloc[i][1])
+                    except Exception as e:
+                        pass
+                    if section_obj.promotion!=None:
+                        dealshub_product_obj.promotional_price = promotional_price
+                    dealshub_product_obj.save()
+
                     section_obj.products.add(dealshub_product_obj)
 
                     temp_dict = {}
@@ -878,6 +909,9 @@ class BannerBulkUploadAPI(APIView):
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
             location_group_obj = unit_banner_obj.banner.location_group
 
+            dealshub_product_objs = unit_banner_obj.products.all()
+            dealshub_product_objs.update(promotion=None)
+
             products = []
             unsuccessful_count = 0
             unit_banner_obj.products.clear()
@@ -886,6 +920,16 @@ class BannerBulkUploadAPI(APIView):
                     product_id = dfs.iloc[i][0]
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     unit_banner_obj.products.add(dealshub_product_obj)
+                    dealshub_product_obj.promotion = unit_banner_obj.promotion
+
+                    promotional_price = dealshub_product_obj.now_price
+                    try:
+                        promotional_price = float(dfs.iloc[i][1])
+                    except Exception as e:
+                        pass
+                    if unit_banner_obj.promotion!=None:
+                        dealshub_product_obj.promotional_price = promotional_price
+                    dealshub_product_obj.save()
 
                     temp_dict = {}
                     temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
@@ -1544,6 +1588,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 if is_dealshub==True:
                     section_products = section_products.exclude(now_price=0).exclude(stock=0)
 
+                section_products = section_products[:14]
                 if limit==True:
                     if section_obj.listing_type=="Carousel":
                         section_products = section_products[:14]
@@ -1657,7 +1702,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     if is_dealshub==False :
                         temp_products = []
-                        for dealshub_product_obj in unit_banner_products:
+                        for dealshub_product_obj in unit_banner_products[:2]:
                             if dealshub_product_obj.now_price==0:
                                 continue
                             temp_dict3 = {}
@@ -1960,7 +2005,8 @@ class FetchCompanyProfileDealshubAPI(APIView):
 
             company_data = {}
             company_data["name"] = website_group_obj.name
-            company_data["contact_info"] = website_group_obj.contact_info
+            company_data["contact_info"] = json.loads(website_group_obj.contact_info)
+            company_data["whatsapp_info"] = website_group_obj.whatsapp_info
             company_data["email_info"] = website_group_obj.email_info
             company_data["address"] = website_group_obj.address
             company_data["primary_color"] = website_group_obj.primary_color
@@ -1972,6 +2018,8 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data["youtube_link"] = website_group_obj.youtube_link
             company_data["linkedin_link"] = website_group_obj.linkedin_link
             company_data["crunchbase_link"] = website_group_obj.crunchbase_link
+
+            company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
 
 
             company_data["logo_url"] = ""

@@ -5064,7 +5064,8 @@ class FetchCompanyProfileAPI(APIView):
 
             company_data = {}
             company_data["name"] = website_group_obj.name
-            company_data["contact_info"] = website_group_obj.contact_info
+            company_data["contact_info"] = json.loads(website_group_obj.contact_info)
+            company_data["whatsapp_info"] = website_group_obj.whatsapp_info
             company_data["email_info"] = website_group_obj.email_info
             company_data["address"] = website_group_obj.address
             company_data["primary_color"] = website_group_obj.primary_color
@@ -5076,6 +5077,8 @@ class FetchCompanyProfileAPI(APIView):
             company_data["youtube_link"] = website_group_obj.youtube_link
             company_data["linkedin_link"] = website_group_obj.linkedin_link
             company_data["crunchbase_link"] = website_group_obj.crunchbase_link
+
+            company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
             
             company_data["logo"] = []
             if website_group_obj.logo != None:
@@ -5124,31 +5127,37 @@ class SaveCompanyProfileAPI(APIView):
             
             #name = company_data["name"]
             contact_info = company_data["contact_info"]
+            whatsapp_info = company_data["whatsapp_info"]
             email_info = company_data["email_info"]
             address = company_data["address"]
-            primary_color = company_data["primary_color"]
-            secondary_color = company_data["secondary_color"]
-            navbar_text_color = company_data["navbar_text_color"]
+            # primary_color = company_data["primary_color"]
+            # secondary_color = company_data["secondary_color"]
+            # navbar_text_color = company_data["navbar_text_color"]
             facebook_link = company_data["facebook_link"]
             twitter_link = company_data["twitter_link"]
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
             linkedin_link = company_data["linkedin_link"]
             crunchbase_link = company_data["crunchbase_link"]
+
+            color_scheme = company_data["color_scheme"]
         
             #organization.name=name
-            website_group_obj.contact_info=contact_info
+            website_group_obj.contact_info=json.dumps(contact_info)
+            website_group_obj.whatsapp_info=whatsapp_info
             website_group_obj.email_info=email_info
             website_group_obj.address=address
-            website_group_obj.primary_color=primary_color
-            website_group_obj.secondary_color=secondary_color
-            website_group_obj.navbar_text_color=navbar_text_color
+            # website_group_obj.primary_color=primary_color
+            # website_group_obj.secondary_color=secondary_color
+            # website_group_obj.navbar_text_color=navbar_text_color
             website_group_obj.facebook_link=facebook_link
             website_group_obj.twitter_link=twitter_link
             website_group_obj.instagram_link=instagram_link
             website_group_obj.youtube_link=youtube_link
             website_group_obj.linkedin_link=linkedin_link
             website_group_obj.crunchbase_link=crunchbase_link
+
+            website_group_obj.color_scheme = json.dumps(color_scheme)
             
             website_group_obj.save()
 
@@ -5542,8 +5551,8 @@ class FetchProductDetailsSalesIntegrationAPI(APIView):
 
             seller_sku = data["articleNumber"]
 
-            base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
-            product_objs = Product.objects.filter(base_product__seller_sku=seller_sku)
+            base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization__name="wig")
+            product_objs = Product.objects.filter(base_product=base_product_obj)
 
             response["product_name"] = base_product_obj.base_product_name
             response["seller_sku"] = base_product_obj.seller_sku
@@ -5651,8 +5660,8 @@ class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
             for seller_sku in seller_sku_list:
                 
                 try:
-                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku)
-                    product_objs = Product.objects.filter(base_product__seller_sku=seller_sku)
+                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization__name="wig")
+                    product_objs = Product.objects.filter(base_product=base_product_obj)
                     
                     main_images_list = ImageBucket.objects.none()
                     for product_obj in product_objs:
@@ -6025,7 +6034,7 @@ class CreateOCReportAPI(APIView):
                     brand_list.append(brand_obj.name)
 
             if report_type.lower()=="mega":
-                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
+                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,"",organization_obj,))
                 p1.start()
             elif report_type.lower()=="flyer":
                 p1 = threading.Thread(target=create_flyer_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
@@ -6092,7 +6101,9 @@ class CreateContentReportAPI(APIView):
 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
 
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note="", filename=filename, organization=custom_permission_obj.organization)
+            organization_obj = custom_permission_obj.organization
+
+            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
 
             filter_parameters = data["filter_parameters"]
 
@@ -6102,7 +6113,7 @@ class CreateContentReportAPI(APIView):
 
             search_list_product_objs = search_list_product_objs.values_list("uuid")
 
-            p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,search_list_product_objs))
+            p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,search_list_product_objs,organization_obj,))
 
             p1.start()         
 
@@ -6847,7 +6858,7 @@ class FetchProductListByCategoryAPI(APIView):
             brand_name = data.get("brand_name", None)
             page = int(data.get('page', 1))
             
-            product_objs = Product.objects.filter(base_product__category__uuid=category_id)
+            product_objs = Product.objects.filter(base_product__category__uuid=category_id, base_product__brand__organization__name="wig")
 
             if brand_name!=None:
                 product_objs = product_objs.filter(base_product__brand__name=brand_name)                            

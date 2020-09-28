@@ -526,7 +526,8 @@ class WebsiteGroup(models.Model):
     categories = models.ManyToManyField(Category, blank=True)
     super_categories = models.ManyToManyField(SuperCategory, blank=True)
 
-    contact_info = models.CharField(max_length=100,blank=True, default='')
+    contact_info = models.CharField(max_length=100,blank=True, default='[]')
+    whatsapp_info = models.CharField(max_length=100,blank=True, default='')
     address = models.TextField(blank=True, default='')
     email_info = models.CharField(max_length=100,blank=True, default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
@@ -534,6 +535,7 @@ class WebsiteGroup(models.Model):
     primary_color = models.CharField(max_length=100,default = "#000000")
     secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
     navbar_text_color = models.CharField(max_length=100,default = "#FFFFFF")
+    color_scheme = models.TextField(blank=True, default='[]')
 
     facebook_link = models.CharField(max_length=100,blank=True, default='')
     twitter_link = models.CharField(max_length=100,blank=True, default='')
