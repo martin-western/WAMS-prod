@@ -3828,7 +3828,7 @@ class SetShippingMethodAPI(APIView):
             if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
 
                 brand_company_dict = {
-                    "geepas": "1070",
+                    "geepas": "1000",
                     "baby plus": "5550",
                     "royalford": "3000",
                     "krypton": "2100",
