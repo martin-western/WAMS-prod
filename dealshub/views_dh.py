@@ -3869,7 +3869,7 @@ class SetShippingMethodAPI(APIView):
                     order_information = []
                     x_value = ""
                     if user_input_requirement[seller_sku]==True:
-                        x_value = user_input_sap[unit_order_obj.uuid]
+                        x_value = user_input_sap[seller_sku]
                     order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
                     order_information["order_id"] = unit_order_obj.orderid
