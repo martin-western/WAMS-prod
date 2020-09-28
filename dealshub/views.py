@@ -111,6 +111,7 @@ class FetchProductDetailsAPI(APIView):
                 for dealshub_product_obj in dealshub_product_objs:
                     temp_dict = {}
                     temp_dict["product_name"] = dealshub_product_obj.get_name()
+                    temp_dict["image_url"] = dealshub_product_obj.get_display_image_url()
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     variant_list.append(temp_dict)
 
