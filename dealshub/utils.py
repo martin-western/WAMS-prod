@@ -666,13 +666,16 @@ def is_user_input_required_for_sap_punching(seller_sku, company_code):
 def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
 
     try:
+
         result = fetch_prices_and_stock(seller_sku, company_code)
 
-        prices_stock_list = result["prices_stock_list"]
+        stock_list = result["stock_list"]
+        prices = result["prices"]
         total_atp = result["total_atp"]
         total_holding = result["total_holding"]
         atp_threshold = result["atp_threshold"]
         holding_threshold = result["holding_threshold"]
+        
         if total_atp > atp_threshold:
             from_holding=""
             for item in prices_stock_list:
@@ -697,10 +700,13 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
                     uom = item["uom"]
                     if atp_qty>0.0:
                         break
+
         order_information["from_holding"] = from_holding
         order_information["uom"] = charg
         order_information["batch"] = uom
+
         return order_information
+    
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_order_information_for_sap_punching: %s at %s", e, str(exc_tb.tb_lineno))
