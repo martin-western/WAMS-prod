@@ -3847,6 +3847,7 @@ class SetShippingMethodAPI(APIView):
                         company_code = brand_company_dict[brand_name.lower()]
                         if is_user_input_required_for_sap_punching(seller_sku, company_code)==True:
                             result = fetch_prices_and_stock(seller_sku, company_code)
+                            result["seller_sku"] = seller_sku
                             modal_info_list.append(result)
                     if len(modal_info_list)>0:
                         response["modal_info_list"] = modal_info_list
