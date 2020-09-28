@@ -42,29 +42,25 @@ class MakePaymentNetworkGlobalAPI(APIView):
             data = request.data
             logger.info("MakePaymentNetworkGlobalAPI: %s", str(data))
 
-            try :
-                session_id = data["session_id"]
-            except Exception as e:
-                response["error"] = "Session ID not passed!"
-                response["status"] = 404
-                logger.warning("MakePaymentNetworkGlobalAPI Session ID not passed!")
-                return Response(data=response)
+            is_fast_cart = data.get("is_fast_cart", False)
 
-            try :
-                location_group_uuid = data["location_group_uuid"]
-            except Exception as e:
-                response["error"] = "Location Group UUID not passed!"
-                response["status"] = 404
-                logger.warning("MakePaymentNetworkGlobalAPI Location Group UUID not passed!")
-                return Response(data=response)
+            session_id = data["session_id"]
+            location_group_uuid = data["location_group_uuid"]
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             payment_credentials = json.loads(website_group_obj.payment_credentials)
             currency = location_group_obj.location.currency
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-            amount = cart_obj.to_pay
+
+            amount = 0
+            if is_fast_cart==False:
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                amount = cart_obj.to_pay
+            else:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                amount = fast_cart_obj.to_pay
+
 
             if amount == 0.0:
                 response["error"] = "Cart Amount is ZERO!"
@@ -72,7 +68,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 logger.warning("MakePaymentNetworkGlobalAPI Cart Amount Zero!")
                 return Response(data=response)
 
-            payfort_multiplier = int(cart_obj.location_group.location.payfort_multiplier)
+            payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
             
             API_KEY = payment_credentials["network_global"]["API_KEY"] # "NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
