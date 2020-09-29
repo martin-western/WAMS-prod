@@ -4823,6 +4823,7 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["uuid"] = fast_cart_obj.uuid
             cart_details["quantity"] = fast_cart_obj.quantity
             cart_details["price"] = fast_cart_obj.product.get_actual_price()
+            cart_details["stock"] = fast_cart_obj.product.stock
             cart_details["currency"] = fast_cart_obj.product.get_currency()
             cart_details["productName"] = fast_cart_obj.product.get_name()
             cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()
