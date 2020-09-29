@@ -227,7 +227,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
 
         body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,test_customer_id,order_information)
         
-        response = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -238,5 +238,28 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("test_online_order_url: %s at %s", str(e), str(exc_tb.tb_lineno))
+        logger.error("create_intercompany_sales_order: %s at %s", str(e), str(exc_tb.tb_lineno))
+        return []
+
+def create_final_order(seller_sku,company_code,order_information):
+    
+    try:
+
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+
+        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id,order_information)
+        
+        response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
+        
+        content = response.content
+        xml_content = xmltodict.parse(content)
+        response_dict = json.loads(json.dumps(xml_content))
+
+        return response_dict
+
+    except Exception as e:
+        
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("create_final_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
