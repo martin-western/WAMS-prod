@@ -171,10 +171,11 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             total_holding = result["total_holding"]
             total_atp = result["total_atp"]
 
+            transfer_information = []
+            
             if total_holding < holding_threshold and total_atp > atp_threshold:
 
                 total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold)
-                transfer_information = []
 
                 while total_holding_transfer > 0:
 
