@@ -3875,6 +3875,7 @@ class SetShippingMethodAPI(APIView):
                     order_information["order_id"] = unit_order_obj.orderid
                     order_information["seller_sku"] = seller_sku
                     order_information["qty"] = unit_order_obj.quantity
+                    
                     create_intercompany_sales_order(seller_sku, company_code, order_information)
 
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):

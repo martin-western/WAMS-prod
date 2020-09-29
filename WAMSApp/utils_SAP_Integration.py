@@ -227,16 +227,149 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
 
         body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,test_customer_id,order_information)
         
-        response = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
 
-        return response_dict
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
+
+        result = {}
+        doc_list = []
+        msg_list = []
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["type"] = items["DOCTYP"]
+            temp_dict["id"] = items["VBELN"]    
+            temp_dict["message_type"] = items["MSGTY"]    
+            temp_dict["message"] = items["MSGV1"]    
+            doc_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["type"] = item["DOCTYP"]
+                temp_dict["id"] = item["VBELN"]    
+                temp_dict["message_type"] = item["MSGTY"]    
+                temp_dict["message"] = item["MSGV1"]    
+                doc_list.append(temp_dict)
+
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_MESSAGE"]["item"]
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["document_number"] = items["VBELN"]
+            temp_dict["type"] = items["TYPE"]
+            temp_dict["id"] = items["ID"]    
+            temp_dict["number"] = items["NUMBER"]    
+            temp_dict["message"] = items["MESSAGE"]    
+            temp_dict["message_v1"] = items["MSGV1"]    
+            temp_dict["message_v2"] = items["MSGV2"]    
+            temp_dict["message_v3"] = items["MSGV3"]    
+            temp_dict["message_v4"] = items["MSGV4"]    
+            temp_dict["parameter"] = items["PARAMETER"]    
+            msg_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["document_number"] = item["VBELN"]
+                temp_dict["type"] = item["TYPE"]
+                temp_dict["id"] = item["ID"]    
+                temp_dict["number"] = item["NUMBER"]    
+                temp_dict["message"] = item["MESSAGE"]    
+                temp_dict["message_v1"] = item["MSGV1"]    
+                temp_dict["message_v2"] = item["MSGV2"]    
+                temp_dict["message_v3"] = item["MSGV3"]    
+                temp_dict["message_v4"] = item["MSGV4"]    
+                temp_dict["parameter"] = item["PARAMETER"]  
+                msg_list.append(temp_dict)
+
+        result["doc_list"] = doc_list
+        result["msg_list"] = msg_list
+
+        return result
 
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("test_online_order_url: %s at %s", str(e), str(exc_tb.tb_lineno))
+        logger.error("create_intercompany_sales_order: %s at %s", str(e), str(exc_tb.tb_lineno))
+        return []
+
+def create_final_order(seller_sku,company_code,order_information):
+    
+    try:
+
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+
+        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id,order_information)
+        
+        response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
+        
+        content = response.content
+        xml_content = xmltodict.parse(content)
+        response_dict = json.loads(json.dumps(xml_content))
+
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
+
+        result = {}
+        doc_list = []
+        msg_list = []
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["type"] = items["DOCTYP"]
+            temp_dict["id"] = items["VBELN"]    
+            temp_dict["message_type"] = items["MSGTY"]    
+            temp_dict["message"] = items["MSGV1"]    
+            doc_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["type"] = item["DOCTYP"]
+                temp_dict["id"] = item["VBELN"]    
+                temp_dict["message_type"] = item["MSGTY"]    
+                temp_dict["message"] = item["MSGV1"]    
+                doc_list.append(temp_dict)
+
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_MESSAGE"]["item"]
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["document_number"] = items["VBELN"]
+            temp_dict["type"] = items["TYPE"]
+            temp_dict["id"] = items["ID"]    
+            temp_dict["number"] = items["NUMBER"]    
+            temp_dict["message"] = items["MESSAGE"]    
+            temp_dict["message_v1"] = items["MSGV1"]    
+            temp_dict["message_v2"] = items["MSGV2"]    
+            temp_dict["message_v3"] = items["MSGV3"]    
+            temp_dict["message_v4"] = items["MSGV4"]    
+            temp_dict["parameter"] = items["PARAMETER"]    
+            msg_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["document_number"] = item["VBELN"]
+                temp_dict["type"] = item["TYPE"]
+                temp_dict["id"] = item["ID"]    
+                temp_dict["number"] = item["NUMBER"]    
+                temp_dict["message"] = item["MESSAGE"]    
+                temp_dict["message_v1"] = item["MSGV1"]    
+                temp_dict["message_v2"] = item["MSGV2"]    
+                temp_dict["message_v3"] = item["MSGV3"]    
+                temp_dict["message_v4"] = item["MSGV4"]    
+                temp_dict["parameter"] = item["PARAMETER"]  
+                msg_list.append(temp_dict)
+
+        result["doc_list"] = doc_list
+        result["msg_list"] = msg_list
+
+        return result
+
+    except Exception as e:
+        
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("create_final_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
