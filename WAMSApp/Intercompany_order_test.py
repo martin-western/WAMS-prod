@@ -91,7 +91,7 @@ response = fetch_prices(product_id,company_code,test_url,customer_id)
 items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
 print(items)
 uom = "EA"
-charg = "BS"
+charg = None
 total_atp = 0.0
 print(total_atp)
 total_holding = 0.0
@@ -160,7 +160,7 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
                <INDPRICE></INDPRICE>
                <DISC></DISC>
                <INDDISC></INDDISC>
-               <CHARG>ESMA</CHARG>
+               <CHARG></CHARG>
                <MO_PRICE></MO_PRICE>
                <NO_STOCK_IND></NO_STOCK_IND>
                <NO_STOCK_FOC></NO_STOCK_FOC>
@@ -193,7 +193,7 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
                <INDPRICE></INDPRICE>
                <DISC></DISC>
                <INDDISC></INDDISC>
-               <CHARG>BS</CHARG>
+               <CHARG></CHARG>
                <MO_PRICE></MO_PRICE>
                <NO_STOCK_IND></NO_STOCK_IND>
                <NO_STOCK_FOC></NO_STOCK_FOC>
@@ -273,7 +273,7 @@ response = fetch_prices(product_id,company_code,test_url,customer_id)
         
 items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
 uom = "EA"
-charg = "BS"
+charg = None
 total_atp = 0.0
 total_holding = 0.0
 prices_stock_list = []
@@ -364,7 +364,7 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
                          <INDPRICE></INDPRICE>
                          <DISC></DISC>
                          <INDDISC></INDDISC>
-                         <CHARG>BS</CHARG>
+                         <CHARG></CHARG>
                          <MO_PRICE></MO_PRICE>
                          <NO_STOCK_IND></NO_STOCK_IND>
                          <NO_STOCK_FOC></NO_STOCK_FOC>
@@ -401,7 +401,7 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
                          <INDPRICE></INDPRICE>
                          <DISC></DISC>
                          <INDDISC></INDDISC>
-                         <CHARG>ESMA</CHARG>
+                         <CHARG></CHARG>
                          <MO_PRICE></MO_PRICE>
                          <NO_STOCK_IND></NO_STOCK_IND>
                          <NO_STOCK_FOC></NO_STOCK_FOC>

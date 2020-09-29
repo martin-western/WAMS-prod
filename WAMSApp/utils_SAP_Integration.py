@@ -259,6 +259,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
 
         if isinstance(items, dict):
             temp_dict={}
+            temp_dict["document_number"] = items["VBELN"]
             temp_dict["type"] = items["TYPE"]
             temp_dict["id"] = items["ID"]    
             temp_dict["number"] = items["NUMBER"]    
@@ -272,6 +273,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         else:
             for item in items:
                 temp_dict={}
+                temp_dict["document_number"] = item["VBELN"]
                 temp_dict["type"] = item["TYPE"]
                 temp_dict["id"] = item["ID"]    
                 temp_dict["number"] = item["NUMBER"]    
