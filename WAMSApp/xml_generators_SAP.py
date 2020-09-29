@@ -275,12 +275,12 @@ def xml_generator_for_final_billing(seller_sku,company_code,customer_id,order_in
                                <IM_EXTRA></IM_EXTRA>
                                <IM_FLAG></IM_FLAG>
                                <IM_ID>""" + str(order_information["order_id"]) + """</IM_ID>
-                               <IM_KUNNR>""" + customer_id + """</IM_KUNNR>
+                               <IM_KUNNR>""" + str(customer_id) + """</IM_KUNNR>
                                <IM_PERNR></IM_PERNR>
                                <IM_PO_NUMBER></IM_PO_NUMBER>
                                <IM_SPART></IM_SPART>
                                <IM_NAME>""" + str(order_information["customer_name"]) + """</IM_NAME>
-                               <IM_VKORG>""" + company_code + """</IM_VKORG>
+                               <IM_VKORG>""" + str(company_code) + """</IM_VKORG>
                                <IM_VTWEG></IM_VTWEG>
                                <T_CONDITION>
                                   <item>
@@ -358,103 +358,11 @@ def xml_generator_for_final_billing(seller_sku,company_code,customer_id,order_in
                             </urn:ZAPP_ONLINE_ORDER>
                          </soapenv:Body>
                       </soapenv:Envelope>"""
-                               <IM_AUART></IM_AUART>
-                               <IM_DATE></IM_DATE>
-                               <IM_EXTRA></IM_EXTRA>
-                               <IM_FLAG>X</IM_FLAG>
-                               <IM_ID>""" + order_information["order_id"] + """</IM_ID>
-                               <IM_KUNNR>""" + customer_id + """</IM_KUNNR>
-                               <IM_PERNR></IM_PERNR>
-                               <IM_PO_NUMBER></IM_PO_NUMBER>
-                               <IM_SPART></IM_SPART>
-                               <IM_VKORG>""" + company_code + """</IM_VKORG>
-                               <IM_VTWEG></IM_VTWEG>
-                               <T_CONDITION>
-                                  <item>
-                                     <KPOSN></KPOSN>
-                                     <KSCHL></KSCHL>
-                                     <KWERT></KWERT>
-                                  </item>
-                               </T_CONDITION>
-                               <T_DOCS>
-                                  <item>
-                                     <DOCTYP></DOCTYP>
-                                     <VBELN></VBELN>
-                                     <MSGTY></MSGTY>
-                                     <MSGV1></MSGV1>
-                                  </item>
-                               </T_DOCS>
-                                <T_ITEM>"""
-
-        msg_feed = "<T_MESSAGE>"
-        
-        xml_feed+="""<item>
-                     <MATKL></MATKL>
-                     <MATNR>"""+ str(seller_sku) + """</MATNR>
-                     <ITEM></ITEM>
-                     <MAKTX></MAKTX>
-                     <QTY>"""+ str(order_information["qty"]) +"""</QTY>
-                     <UOM>""" + str(order_information["uom"]) + """</UOM>
-                     <PRICE></PRICE>
-                     <INDPRICE></INDPRICE>
-                     <DISC></DISC>
-                     <INDDISC></INDDISC>
-                     <CHARG>""" + str(order_information["batch"]) + """</CHARG>
-                     <MO_PRICE></MO_PRICE>
-                     <NO_STOCK_IND></NO_STOCK_IND>
-                     <NO_STOCK_FOC></NO_STOCK_FOC>
-                     <FOC_ITEM></FOC_ITEM>
-                     <FOC_QTY></FOC_QTY>
-                     <FOC_UOM></FOC_UOM>
-                     <FOC_CHARG></FOC_CHARG>
-                     <PRC_DIFF_IND></PRC_DIFF_IND>
-                     <PRC_DIFF_NEW></PRC_DIFF_NEW>
-                     <SPCL_TEXT></SPCL_TEXT>
-                     <FOC_STD></FOC_STD>
-                     <FOC_ART></FOC_ART>
-                     <FOC_MCL></FOC_MCL>
-                     <INDICATOR1></INDICATOR1>
-                     <INDICATOR2></INDICATOR2>
-                     <TEXT1></TEXT1>
-                     <TEXT2></TEXT2>
-                     <CHARG_LIST></CHARG_LIST>
-                     <PRICE_CHANGE></PRICE_CHANGE>
-                     <CONDITION1></CONDITION1>
-                     <CONDITION2></CONDITION2>
-                     <CONDITION3></CONDITION3>
-                     <CONDITION4></CONDITION4>
-                     <FRM_HOLDING>""" + str(order_information["from_holding"]) + """</FRM_HOLDING>
-                  </item>"""
-            
-        msg_feed+="""<item>
-                     <VBELN></VBELN>
-                     <TYPE></TYPE>
-                     <ID></ID>
-                     <NUMBER></NUMBER>
-                     <MESSAGE></MESSAGE>
-                     <LOG_NO></LOG_NO>
-                     <LOG_MSG_NO></LOG_MSG_NO>
-                     <MESSAGE_V1></MESSAGE_V1>
-                     <MESSAGE_V2></MESSAGE_V2>
-                     <MESSAGE_V3></MESSAGE_V3>
-                     <MESSAGE_V4></MESSAGE_V4>
-                     <PARAMETER></PARAMETER>
-                     <ROW></ROW>
-                     <FIELD></FIELD>
-                     <SYSTEM></SYSTEM>
-                  </item>"""      
-        
-        xml_feed+="</T_ITEM>"
-        msg_feed+="</T_MESSAGE>"
-
-        xml_feed+=msg_feed+"""</urn:ZAPP_ONLINE_ORDER>
-                                 </soapenv:Body>
-                              </soapenv:Envelope>"""
 
         return xml_feed
 
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("xml_generator_for_intercompany_tansfer: %s at %s", str(e), str(exc_tb.tb_lineno))
+        logger.error("xml_generator_for_final_billing: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
