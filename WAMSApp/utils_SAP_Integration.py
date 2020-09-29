@@ -233,7 +233,60 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
 
-        return response_dict
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
+
+        result = {}
+        doc_list = []
+        msg_list = []
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["type"] = items["DOCTYP"]
+            temp_dict["id"] = items["VBELN"]    
+            temp_dict["message_type"] = items["MSGTY"]    
+            temp_dict["message"] = items["MSGV1"]    
+            doc_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["type"] = item["DOCTYP"]
+                temp_dict["id"] = item["VBELN"]    
+                temp_dict["message_type"] = item["MSGTY"]    
+                temp_dict["message"] = item["MSGV1"]    
+                doc_list.append(temp_dict)
+
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_MESSAGE"]["item"]
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["type"] = items["TYPE"]
+            temp_dict["id"] = items["ID"]    
+            temp_dict["number"] = items["NUMBER"]    
+            temp_dict["message"] = items["MESSAGE"]    
+            temp_dict["message_v1"] = items["MSGV1"]    
+            temp_dict["message_v2"] = items["MSGV2"]    
+            temp_dict["message_v3"] = items["MSGV3"]    
+            temp_dict["message_v4"] = items["MSGV4"]    
+            temp_dict["parameter"] = items["PARAMETER"]    
+            msg_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["type"] = item["TYPE"]
+                temp_dict["id"] = item["ID"]    
+                temp_dict["number"] = item["NUMBER"]    
+                temp_dict["message"] = item["MESSAGE"]    
+                temp_dict["message_v1"] = item["MSGV1"]    
+                temp_dict["message_v2"] = item["MSGV2"]    
+                temp_dict["message_v3"] = item["MSGV3"]    
+                temp_dict["message_v4"] = item["MSGV4"]    
+                temp_dict["parameter"] = item["PARAMETER"]  
+                msg_list.append(temp_dict)
+
+        result["doc_list"] = doc_list
+        result["msg_list"] = msg_list
+
+        return result
 
     except Exception as e:
         

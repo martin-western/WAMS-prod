@@ -475,6 +475,8 @@ content = response_intercompany_order.content
 content = xmltodict.parse(content)
 response_dict = json.loads(json.dumps(content))
 
+print(response_dict)
+
 items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
 
 doc_list = []
