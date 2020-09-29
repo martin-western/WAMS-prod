@@ -741,3 +741,12 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
 #     if item["type"] != None:
 #         print(str(item["type"])+'\t'+str(item["id"])+'\t'+str(item["message_type"])+'\t'+str(item["message"]))
 # print()
+
+import ftplib
+
+FTP_HOST = "http://geepasftp.selfip.com/S4H_DEV/OMNICOM/"
+FTP_USER = "mapftpdev"
+FTP_PASS = "western"
+
+ftp = ftplib.FTP(FTP_HOST, FTP_USER, FTP_PASS)
+ftp.encoding = "utf-8"
