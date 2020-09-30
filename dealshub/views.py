@@ -1596,7 +1596,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 if is_dealshub==True:
                     section_products = section_products.exclude(now_price=0).exclude(stock=0)
 
-                section_products = section_products[:14]
+                section_products = section_products[:40]
                 if limit==True:
                     if section_obj.listing_type=="Carousel":
                         section_products = section_products[:14]
@@ -1710,7 +1710,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     if is_dealshub==False :
                         temp_products = []
-                        for dealshub_product_obj in unit_banner_products[:2]:
+                        for dealshub_product_obj in unit_banner_products[:40]:
                             if dealshub_product_obj.now_price==0:
                                 continue
                             temp_dict3 = {}
