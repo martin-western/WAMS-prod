@@ -412,7 +412,8 @@ def create_final_order_util(seller_sku,company_code,order_information):
         #         break
         #     time.sleep(600)
         # Checks passed
-        create_final_order(seller_sku,company_code,order_information)
+        result = create_final_order(seller_sku,company_code,order_information)
+        logger.info("RESULT FINAL: %s", str(result))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("create_final_order_util: %s at %s", str(e), str(exc_tb.tb_lineno))
