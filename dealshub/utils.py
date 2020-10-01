@@ -678,7 +678,7 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
         
         if total_atp > atp_threshold:
             from_holding=""
-            for item in prices_stock_list:
+            for item in stock_list:
                 atp_qty = item["atp_qty"]
                 charg = item["charg"]
                 uom = item["uom"]
@@ -687,14 +687,14 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
         else:
             from_holding = x_value
             if from_holding == "X":
-                for item in prices_stock_list:
+                for item in stock_list:
                     holding_qty = item["holding_qty"]
                     charg = item["charg"]
                     uom = item["uom"]
                     if holding_qty>0.0:
                         break
             else:
-                for item in prices_stock_list:
+                for item in stock_list:
                     atp_qty = item["atp_qty"]
                     charg = item["charg"]
                     uom = item["uom"]
