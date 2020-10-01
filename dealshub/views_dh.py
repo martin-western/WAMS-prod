@@ -3940,7 +3940,7 @@ class SetShippingMethodAPI(APIView):
                 #     logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 set_shipping_method(unit_order_obj, shipping_method)
 
-            response["sap_info_render"] = sap_info_render
+            #response["sap_info_render"] = sap_info_render
             response["status"] = 200
 
         except Exception as e:
