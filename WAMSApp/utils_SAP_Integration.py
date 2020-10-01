@@ -87,12 +87,12 @@ def fetch_prices_and_stock(seller_sku,company_code):
                 
                 temp_dict={}
 
-                if items["CHARG"] != None :
+                if item["CHARG"] != None :
                     temp_dict["batch"] = item["CHARG"]
                 else:
                     temp_dict["batch"] = ""
 
-                if items["MEINS"] != None :
+                if item["MEINS"] != None :
                     temp_dict["uom"] = item["MEINS"]
                 else:
                     temp_dict["uom"] = "" 
