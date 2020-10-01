@@ -3704,6 +3704,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
                         temp_dict2["uuid"] = unit_order_obj.uuid
                         temp_dict2["currentStatus"] = unit_order_obj.current_status_admin
+                        temp_dict2["sapStatus"] = unit_order_obj.sap_status
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
                         temp_dict2["price_without_vat"] = unit_order_obj.get_price_without_vat()
@@ -3912,6 +3913,7 @@ class SetShippingMethodAPI(APIView):
                     order_information["GRN_filename"] = str(do_id)+"_"+str(so_id)+".txt"
                     unit_order_obj.sap_intercompany_info = json.dumps(result_pre)
                     unit_order_obj.order_information = json.dumps(order_information)
+                    unit_order_obj.sap_status = "In GRN"
                     unit_order_obj.save()
 
                 if error_flag==1:
@@ -3925,7 +3927,7 @@ class SetShippingMethodAPI(APIView):
                     company_code = brand_company_dict[brand_name.lower()]
                     order_information = json.loads(unit_order_obj.order_information)
                     sap_intercompany_info = json.loads(unit_order_obj.sap_intercompany_info)
-                    p1 = threading.Thread(target=create_final_order_util, args=(seller_sku,company_code,order_information,))
+                    p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
                     p1.start()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()

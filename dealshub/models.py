@@ -756,6 +756,13 @@ class UnitOrder(models.Model):
 
     sap_intercompany_info = models.TextField(default="{}")
     order_information = models.TextField(default="{}")
+    SAP_STATUS = (
+        ("pending", "pending"),
+        ("In GRN", "In GRN"),
+        ("SAP Punched", "SAP Punched"),
+        ("Failed", "Failed")
+    )
+    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
 
     def get_subtotal(self):
         return float(self.price)*float(self.quantity)
