@@ -36,11 +36,11 @@ def fetch_prices_and_stock(seller_sku,company_code):
         content = response.content
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
+        response_dict = dict_clean(response_dict)
 
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
         # logger.info(items)
         
-        items = dict_clean(items)
 
         total_atp = 0.0
         total_holding = 0.0
