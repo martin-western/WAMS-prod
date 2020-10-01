@@ -3883,6 +3883,7 @@ class SetShippingMethodAPI(APIView):
                     order_information["order_id"] = unit_order_obj.orderid
                     order_information["seller_sku"] = seller_sku
                     order_information["qty"] = unit_order_obj.quantity
+                    order_information["price"] = unit_order_obj.price
 
                     if unit_order_obj.order.payment_status=="paid":
                         order_information["order_type"] = "ZJCR"
