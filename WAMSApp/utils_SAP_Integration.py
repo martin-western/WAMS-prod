@@ -203,6 +203,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             logger.info(transfer_information)
 
             body = xml_generator_for_holding_tansfer(company_code,test_customer_id,transfer_information)
+            logger.info(body)
             response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
             content = response.content
             xml_content = xmltodict.parse(content)
