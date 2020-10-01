@@ -586,12 +586,12 @@ class Order(models.Model):
     is_order_offline = models.BooleanField(default=False)
     order_placed_date = models.DateTimeField(null=True, default=timezone.now)
 
-    PENDING, PAID = ('pending', 'paid')
+    PENDING, PAID = ('cod', 'paid')
     PAYMENT_STATUS = (
-        (PENDING, "pending"),
+        (PENDING, "cod"),
         (PAID, "paid")
     )
-    payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="pending")
+    payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="cod")
     payment_info = models.TextField(default="{}")
     merchant_reference = models.CharField(max_length=200, default="")
 
@@ -605,11 +605,13 @@ class Order(models.Model):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
             order_prefix = ""
+            order_cnt = 1
             try:
                 order_prefix = json.loads(self.location_group.website_group.conf)["order_prefix"]
+                order_cnt = Order.objects.filter(location_group=self.location_group).count()+1
             except Exception as e:
                 pass
-            self.bundleid = order_prefix + str(uuid.uuid4())[:5]
+            self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
 
         super(Order, self).save(*args, **kwargs)
 
@@ -751,6 +753,17 @@ class UnitOrder(models.Model):
 
     price = models.FloatField(default=None, null=True, blank=True)
     uuid = models.CharField(max_length=200, default="")
+
+    sap_intercompany_info = models.TextField(default="{}")
+    sap_final_billing_info = models.TextField(default="{}")
+    order_information = models.TextField(default="{}")
+    SAP_STATUS = (
+        ("pending", "pending"),
+        ("In GRN", "In GRN"),
+        ("SAP Punched", "SAP Punched"),
+        ("Failed", "Failed")
+    )
+    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
 
     def get_subtotal(self):
         return float(self.price)*float(self.quantity)

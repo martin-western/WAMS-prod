@@ -73,6 +73,7 @@ class FetchProductDetailsAPI(APIView):
             response["subCategory"] = dealshub_product_obj.get_sub_category()
             response["uuid"] = data["uuid"]
             response["name"] = dealshub_product_obj.get_name()
+            response["stock"] = dealshub_product_obj.stock
             response["price"] = dealshub_product_obj.get_actual_price()
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = dealshub_product_obj.get_currency()
@@ -103,6 +104,20 @@ class FetchProductDetailsAPI(APIView):
                 response["start_time"] = str(promotion_obj.start_time)[:19]
                 response["end_time"] = str(promotion_obj.end_time)[:19]
                 response["promotion_tag"] = str(promotion_obj.promotion_tag)
+
+            try:
+                variant_list = []
+                dealshub_product_objs = DealsHubProduct.objects.filter(location_group=dealshub_product_obj.location_group, product__base_product=product_obj.base_product, is_published=True).exclude(now_price=0).exclude(stock=0)
+                for dealshub_product_obj in dealshub_product_objs:
+                    temp_dict = {}
+                    temp_dict["product_name"] = dealshub_product_obj.get_name()
+                    temp_dict["image_url"] = dealshub_product_obj.get_display_image_url()
+                    temp_dict["uuid"] = dealshub_product_obj.uuid
+                    variant_list.append(temp_dict)
+
+                response["variant_list"] = variant_list
+            except Exception as e:
+                response["variant_list"] = []
 
             response["isStockAvailable"] = False
             if dealshub_product_obj.stock>0:
@@ -341,6 +356,13 @@ class FetchSuperCategoriesAPI(APIView):
                 temp_dict["imageUrl"] = ""
                 if super_category_obj.image!=None:
                     temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
+                category_list = []
+                category_objs = Category.objects.filter(super_category=super_category_obj)[:3]
+                for category_obj in category_objs:
+                    temp_dict2 = {}
+                    temp_dict2["category_name"] = category_obj.name
+                    category_list.append(temp_dict2)
+                temp_dict["category_list"] = category_list
                 super_category_list.append(temp_dict)
 
             response['superCategoryList'] = super_category_list
@@ -1553,8 +1575,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["promotion_tag"] = None
                 else:
                     temp_dict["is_promotional"] = True
-                    temp_dict["start_time"] = str(promotion_obj.start_time)[:19]
-                    temp_dict["end_time"] = str(promotion_obj.end_time)[:19]
+                    temp_dict["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
+                    temp_dict["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
                     temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
 
                 hovering_banner_img = section_obj.hovering_banner_image
@@ -1574,7 +1596,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 if is_dealshub==True:
                     section_products = section_products.exclude(now_price=0).exclude(stock=0)
 
-                section_products = section_products[:14]
+                section_products = section_products[:40]
                 if limit==True:
                     if section_obj.listing_type=="Carousel":
                         section_products = section_products[:14]
@@ -1677,8 +1699,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2["promotion_tag"] = None
                     else:
                         temp_dict2["is_promotional"] = True
-                        temp_dict2["start_time"] = str(promotion_obj.start_time)[:19]
-                        temp_dict2["end_time"] = str(promotion_obj.end_time)[:19]
+                        temp_dict2["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
+                        temp_dict2["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
                         temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
 
 
@@ -1688,7 +1710,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     if is_dealshub==False :
                         temp_products = []
-                        for dealshub_product_obj in unit_banner_products[:2]:
+                        for dealshub_product_obj in unit_banner_products[:40]:
                             if dealshub_product_obj.now_price==0:
                                 continue
                             temp_dict3 = {}
@@ -1991,7 +2013,8 @@ class FetchCompanyProfileDealshubAPI(APIView):
 
             company_data = {}
             company_data["name"] = website_group_obj.name
-            company_data["contact_info"] = website_group_obj.contact_info
+            company_data["contact_info"] = json.loads(website_group_obj.contact_info)
+            company_data["whatsapp_info"] = website_group_obj.whatsapp_info
             company_data["email_info"] = website_group_obj.email_info
             company_data["address"] = website_group_obj.address
             company_data["primary_color"] = website_group_obj.primary_color
@@ -2003,6 +2026,8 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data["youtube_link"] = website_group_obj.youtube_link
             company_data["linkedin_link"] = website_group_obj.linkedin_link
             company_data["crunchbase_link"] = website_group_obj.crunchbase_link
+
+            company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
 
 
             company_data["logo_url"] = ""

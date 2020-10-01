@@ -5064,7 +5064,8 @@ class FetchCompanyProfileAPI(APIView):
 
             company_data = {}
             company_data["name"] = website_group_obj.name
-            company_data["contact_info"] = website_group_obj.contact_info
+            company_data["contact_info"] = json.loads(website_group_obj.contact_info)
+            company_data["whatsapp_info"] = website_group_obj.whatsapp_info
             company_data["email_info"] = website_group_obj.email_info
             company_data["address"] = website_group_obj.address
             company_data["primary_color"] = website_group_obj.primary_color
@@ -5076,6 +5077,8 @@ class FetchCompanyProfileAPI(APIView):
             company_data["youtube_link"] = website_group_obj.youtube_link
             company_data["linkedin_link"] = website_group_obj.linkedin_link
             company_data["crunchbase_link"] = website_group_obj.crunchbase_link
+
+            company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
             
             company_data["logo"] = []
             if website_group_obj.logo != None:
@@ -5124,31 +5127,37 @@ class SaveCompanyProfileAPI(APIView):
             
             #name = company_data["name"]
             contact_info = company_data["contact_info"]
+            whatsapp_info = company_data["whatsapp_info"]
             email_info = company_data["email_info"]
             address = company_data["address"]
-            primary_color = company_data["primary_color"]
-            secondary_color = company_data["secondary_color"]
-            navbar_text_color = company_data["navbar_text_color"]
+            # primary_color = company_data["primary_color"]
+            # secondary_color = company_data["secondary_color"]
+            # navbar_text_color = company_data["navbar_text_color"]
             facebook_link = company_data["facebook_link"]
             twitter_link = company_data["twitter_link"]
             instagram_link = company_data["instagram_link"]
             youtube_link = company_data["youtube_link"]
             linkedin_link = company_data["linkedin_link"]
             crunchbase_link = company_data["crunchbase_link"]
+
+            color_scheme = company_data["color_scheme"]
         
             #organization.name=name
-            website_group_obj.contact_info=contact_info
+            website_group_obj.contact_info=json.dumps(contact_info)
+            website_group_obj.whatsapp_info=whatsapp_info
             website_group_obj.email_info=email_info
             website_group_obj.address=address
-            website_group_obj.primary_color=primary_color
-            website_group_obj.secondary_color=secondary_color
-            website_group_obj.navbar_text_color=navbar_text_color
+            # website_group_obj.primary_color=primary_color
+            # website_group_obj.secondary_color=secondary_color
+            # website_group_obj.navbar_text_color=navbar_text_color
             website_group_obj.facebook_link=facebook_link
             website_group_obj.twitter_link=twitter_link
             website_group_obj.instagram_link=instagram_link
             website_group_obj.youtube_link=youtube_link
             website_group_obj.linkedin_link=linkedin_link
             website_group_obj.crunchbase_link=crunchbase_link
+
+            website_group_obj.color_scheme = json.dumps(color_scheme)
             
             website_group_obj.save()
 
@@ -6813,6 +6822,10 @@ class FetchCategoryListByBrandAPI(APIView):
                         temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
                     else:
                         temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    if category_obj.mobile_app_image_detailed!=None:
+                        temp_dict["image_url_detailed"] = category_obj.mobile_app_image_detailed.mid_image.url
+                    else:
+                        temp_dict["image_url_detailed"] = Config.objects.all()[0].product_404_image.image.url
                     category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6924,6 +6937,10 @@ class FetchCategoriesForSalesAPI(APIView):
                         temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
                     else:
                         temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    if category_obj.mobile_app_image_detailed!=None:
+                        temp_dict["image_url_detailed"] = category_obj.mobile_app_image_detailed.mid_image.url
+                    else:
+                        temp_dict["image_url_detailed"] = Config.objects.all()[0].product_404_image.image.url
                     category_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6962,11 +6979,16 @@ class UploadCategorySalesImageAPI(APIView):
                 data = json.loads(data)
 
             category_uuid = data["category_uuid"]
+            image_type = data.get("image_type", "")
             
             category_obj = Category.objects.get(uuid=category_uuid)
 
             image_obj = Image.objects.create(image=data["image"])
-            category_obj.mobile_app_image = image_obj
+
+            if image_type.lower()=="detailed":
+                category_obj.mobile_app_image_detailed = image_obj
+            else:
+                category_obj.mobile_app_image = image_obj
             category_obj.save()
 
             response['status'] = 200

@@ -654,6 +654,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
                 temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["stock"] = unit_cart_obj.product.stock
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
@@ -2750,7 +2751,7 @@ class SendOTPSMSLoginAPI(APIView):
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
-            mshastra_info = json.loads(location_group_obj.mshastra_info)
+            sms_country_info = json.loads(location_group_obj.sms_country_info)
 
             digits = "0123456789"
             OTP = ""
@@ -2782,14 +2783,22 @@ class SendOTPSMSLoginAPI(APIView):
             message = "Login OTP is " + OTP
 
             # Trigger SMS
-            prefix_code = mshastra_info["prefix_code"]
-            sender_id = mshastra_info["sender_id"]
-            user = mshastra_info["user"]
-            pwd = mshastra_info["pwd"]
+            prefix_code = sms_country_info["prefix_code"]
+            user = sms_country_info["user"]
+            pwd = sms_country_info["pwd"]
 
             contact_number = prefix_code+contact_number
-            url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
-            r = requests.get(url)
+
+            url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+            req_data = {
+                "user" : user,
+                "passwd": pwd,
+                "message": message,
+                "mobilenumber": contact_number,
+                "mtype":"N",
+                "DR":"Y"
+            }
+            r = requests.post(url=url, data=req_data)
 
             response["isNewUser"] = is_new_user
             response["status"] = 200
@@ -3695,6 +3704,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
                         temp_dict2["uuid"] = unit_order_obj.uuid
                         temp_dict2["currentStatus"] = unit_order_obj.current_status_admin
+                        temp_dict2["sapStatus"] = unit_order_obj.sap_status
+                        temp_dict2["sap_final_billing_info"] = json.loads(unit_order_obj.sap_final_billing_info)
+                        temp_dict2["sap_intercompany_info"] = json.loads(unit_order_obj.sap_intercompany_info)
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
                         temp_dict2["price_without_vat"] = unit_order_obj.get_price_without_vat()
@@ -3824,18 +3836,25 @@ class SetShippingMethodAPI(APIView):
             # else:
             #     logger.warning("SetShippingMethodAPI: No method set!")
 
+            brand_company_dict = {
+                "geepas": "1000",
+                "baby plus": "5550",
+                "royalford": "3000",
+                "krypton": "2100",
+                "olsenmark": "1100",
+                "ken jardene": "5550",
+                "younglife": "5000",
+                "delcasa": "3000"
+            }
+
             # if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
 
-            #     brand_company_dict = {
-            #         "geepas": "1070",
-            #         "baby plus": "5550",
-            #         "royalford": "3000",
-            #         "krypton": "2100",
-            #         "olsenmark": "1100",
-            #         "ken jardene": "5550",
-            #         "younglife": "5000",
-            #         "delcasa": "3000"
-            #     }
+            #     user_input_requirement = {}
+            #     for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+            #         seller_sku = unit_order_obj.product.get_seller_sku()
+            #         brand_name = unit_order_obj.product.get_brand()
+            #         company_code = brand_company_dict[brand_name.lower()]
+            #         user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(seller_sku, company_code)
 
             #     user_input_sap = data.get("user_input_sap", None)
             #     if user_input_sap==None:
@@ -3844,32 +3863,84 @@ class SetShippingMethodAPI(APIView):
             #             seller_sku = unit_order_obj.product.get_seller_sku()
             #             brand_name = unit_order_obj.product.get_brand()
             #             company_code = brand_company_dict[brand_name.lower()]
-            #             if is_user_input_required_for_sap_punching(seller_sku, company_code)==True:
+            #             if user_input_requirement[seller_sku]==True:
             #                 result = fetch_prices_and_stock(seller_sku, company_code)
+            #                 result["seller_sku"] = seller_sku
             #                 modal_info_list.append(result)
             #         if len(modal_info_list)>0:
             #             response["modal_info_list"] = modal_info_list
             #             response["status"] = 200
             #             return Response(data=response)
 
+            #     error_flag = 0
+            #     sap_info_render = []
             #     for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
             #         seller_sku = unit_order_obj.product.get_seller_sku()
             #         brand_name = unit_order_obj.product.get_brand()
             #         company_code = brand_company_dict[brand_name.lower()]
             #         order_information = []
             #         x_value = ""
-            #         if is_user_input_required_for_sap_punching(seller_sku, company_code)==True:
-            #             x_value = user_input_sap[unit_order_obj.uuid]
+            #         if user_input_requirement[seller_sku]==True:
+            #             x_value = user_input_sap[seller_sku]
             #         order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
             #         order_information["order_id"] = unit_order_obj.orderid
             #         order_information["seller_sku"] = seller_sku
             #         order_information["qty"] = unit_order_obj.quantity
-            #         create_intercompany_sales_order(seller_sku, company_code, order_information)
+            #         order_information["price"] = unit_order_obj.price
 
+            #         if unit_order_obj.order.payment_status=="paid":
+            #             order_information["order_type"] = "ZJCR"
+            #         else:
+            #             order_information["order_type"] = "ZJCD"
+            #         order_information["city"] = str(unit_order_obj.order.location_group.location.name)
+            #         order_information["customer_name"] = unit_order_obj.order.get_customer_full_name()
+                    
+            #         orig_result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
+            #         temp_dict2 = {}
+            #         temp_dict2["seller_sku"] = seller_sku
+            #         temp_dict2["intercompany_sales_info"] = orig_result_pre
+            #         sap_info_render.append(temp_dict2)
+            #         result_pre = orig_result_pre["doc_list"]
+            #         do_exists = 0
+            #         so_exists = 0
+            #         do_id = ""
+            #         so_id = ""
+            #         for k in result_pre:
+            #             if k["type"]=="DO":
+            #                 do_exists = 1
+            #                 do_id = k["id"]
+            #             elif k["type"]=="SO":
+            #                 so_exists = 1
+            #                 so_id = k["id"]
+            #         logger.info("DOC LIST: %s", str(result_pre))
+            #         if so_exists==0 or do_exists==0:
+            #             error_flag = 1
+            #             break
+            #         order_information["GRN_filename"] = str(do_id)+"_"+str(so_id)+".txt"
+            #         unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+            #         unit_order_obj.order_information = json.dumps(order_information)
+            #         unit_order_obj.sap_status = "In GRN"
+            #         unit_order_obj.save()
+
+            #     if error_flag==1:
+            #         logger.error("SetShippingMethodAPI: error_flag is 1")
+            #         return Response(data=response)
+                        
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                # try:
+                #     seller_sku = unit_order_obj.product.get_seller_sku()
+                #     brand_name = unit_order_obj.product.get_brand()
+                #     company_code = brand_company_dict[brand_name.lower()]
+                #     order_information = json.loads(unit_order_obj.order_information)
+                #     p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
+                #     p1.start()
+                # except Exception as e:
+                #     exc_type, exc_obj, exc_tb = sys.exc_info()
+                #     logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 set_shipping_method(unit_order_obj, shipping_method)
 
+            #response["sap_info_render"] = sap_info_render
             response["status"] = 200
 
         except Exception as e:
@@ -4613,68 +4684,133 @@ class PlaceOnlineOrderAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
+            is_fast_cart = data.get("is_fast_cart", False)
+
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+            order_obj = None
 
             if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            update_cart_bill(cart_obj)
+            if is_fast_cart==False:
 
-            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
-            try:
-                voucher_obj = cart_obj.voucher
-                if voucher_obj!=None:
-                    if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
-                        voucher_obj.total_usage += 1
-                        voucher_obj.save()
-                    else:
-                        cart_obj.voucher = None
-                        cart_obj.save()
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("PlaceOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                update_cart_bill(cart_obj)
 
-            payment_info = "NA"
-            payment_mode = "NA"
-            try:
-                payment_info = data["paymentMethod"]
-                payment_mode = data["paymentMethod"]["name"]
-            except Exception as e:
-                pass
+                unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
-            order_obj = Order.objects.create(owner=cart_obj.owner,
-                                             shipping_address=cart_obj.shipping_address,
-                                             to_pay=cart_obj.to_pay,
-                                             order_placed_date=timezone.now(),
-                                             voucher=cart_obj.voucher,
-                                             location_group=cart_obj.location_group,
-                                             payment_status="paid",
-                                             payment_info=payment_info,
-                                             payment_mode=payment_mode,
-                                             merchant_reference=merchant_reference)
+                try:
+                    voucher_obj = cart_obj.voucher
+                    if voucher_obj!=None:
+                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                            voucher_obj.total_usage += 1
+                            voucher_obj.save()
+                        else:
+                            cart_obj.voucher = None
+                            cart_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
 
-            for unit_cart_obj in unit_cart_objs:
+                payment_info = "NA"
+                payment_mode = "NA"
+                try:
+                    payment_info = data["paymentMethod"]
+                    payment_mode = data["paymentMethod"]["name"]
+                except Exception as e:
+                    pass
+
+                order_obj = Order.objects.create(owner=cart_obj.owner,
+                                                 shipping_address=cart_obj.shipping_address,
+                                                 to_pay=cart_obj.to_pay,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=cart_obj.voucher,
+                                                 location_group=cart_obj.location_group,
+                                                 payment_status="paid",
+                                                 payment_info=payment_info,
+                                                 payment_mode=payment_mode,
+                                                 merchant_reference=merchant_reference)
+
+                for unit_cart_obj in unit_cart_objs:
+                    unit_order_obj = UnitOrder.objects.create(order=order_obj,
+                                                              product=unit_cart_obj.product,
+                                                              quantity=unit_cart_obj.quantity,
+                                                              price=unit_cart_obj.product.get_actual_price())
+                    UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+                # Cart gets empty
+                for unit_cart_obj in unit_cart_objs:
+                    unit_cart_obj.delete()
+
+                # cart_obj points to None
+                cart_obj.shipping_address = None
+                cart_obj.voucher = None
+                cart_obj.to_pay = 0
+                cart_obj.merchant_reference = ""
+                cart_obj.payment_info = "{}"
+                cart_obj.save()
+            else:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                try:
+                    if fast_cart_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        fast_cart_obj.shipping_address = address_obj
+                        fast_cart_obj.save()
+                except Exception as e:
+                    pass
+
+                update_fast_cart_bill(fast_cart_obj)
+
+                try:
+                    voucher_obj = cart_obj.voucher
+                    if voucher_obj!=None:
+                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                            voucher_obj.total_usage += 1
+                            voucher_obj.save()
+                        else:
+                            cart_obj.voucher = None
+                            cart_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+
+                payment_info = "NA"
+                payment_mode = "NA"
+                try:
+                    payment_info = data["paymentMethod"]
+                    payment_mode = data["paymentMethod"]["name"]
+                except Exception as e:
+                    pass
+
+                order_obj = Order.objects.create(owner=fast_cart_obj.owner,
+                                                 shipping_address=fast_cart_obj.shipping_address,
+                                                 to_pay=fast_cart_obj.to_pay,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=fast_cart_obj.voucher,
+                                                 location_group=fast_cart_obj.location_group,
+                                                 payment_status="paid",
+                                                 payment_info=payment_info,
+                                                 payment_mode=payment_mode,
+                                                 merchant_reference=merchant_reference)
+
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
-                                                          product=unit_cart_obj.product,
-                                                          quantity=unit_cart_obj.quantity,
-                                                          price=unit_cart_obj.product.get_actual_price())
+                                                          product=fast_cart_obj.product,
+                                                          quantity=fast_cart_obj.quantity,
+                                                          price=fast_cart_obj.product.get_actual_price())
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
-            # Cart gets empty
-            for unit_cart_obj in unit_cart_objs:
-                unit_cart_obj.delete()
-
-            # cart_obj points to None
-            cart_obj.shipping_address = None
-            cart_obj.voucher = None
-            cart_obj.to_pay = 0
-            cart_obj.merchant_reference = ""
-            cart_obj.payment_info = "{}"
-            cart_obj.save()
+                # cart_obj points to None
+                fast_cart_obj.shipping_address = None
+                fast_cart_obj.voucher = None
+                fast_cart_obj.to_pay = 0
+                fast_cart_obj.merchant_reference = ""
+                fast_cart_obj.payment_info = "{}"
+                fast_cart_obj.save()
 
             # Trigger Email
             try:
@@ -4747,6 +4883,7 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["uuid"] = fast_cart_obj.uuid
             cart_details["quantity"] = fast_cart_obj.quantity
             cart_details["price"] = fast_cart_obj.product.get_actual_price()
+            cart_details["stock"] = fast_cart_obj.product.stock
             cart_details["currency"] = fast_cart_obj.product.get_currency()
             cart_details["productName"] = fast_cart_obj.product.get_name()
             cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()

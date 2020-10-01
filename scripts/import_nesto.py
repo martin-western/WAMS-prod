@@ -1888,6 +1888,7 @@ for p in pp:
         final_product_name = final_product_name.replace("  "," ")
         p.product_name = final_product_name
         p.save()
+        # print(product_name)
         # print(final_product_name)
         # print()
         # print()

@@ -4,6 +4,7 @@ from WAMSApp.xml_generators_SAP import *
 import requests
 import xmltodict
 import json
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +48,17 @@ def fetch_prices_and_stock(seller_sku,company_code):
         if isinstance(items, dict):
 
             temp_dict={}
-            temp_dict["batch"] = items["CHARG"]
-            temp_dict["uom"] = items["MEINS"]    
+            
+            if items["CHARG"] != None :
+                temp_dict["batch"] = items["CHARG"]
+            else:
+                temp_dict["batch"] = ""
+
+            if items["MEINS"] != None :
+                temp_dict["uom"] = items["MEINS"]
+            else:
+                temp_dict["uom"] = ""
+
             temp_dict["atp_qty"] = float(items["ATP_QTY"])
             total_atp = total_atp+float(items["ATP_QTY"])
             temp_dict["holding_qty"] = float(items["HQTY"])
@@ -77,8 +87,17 @@ def fetch_prices_and_stock(seller_sku,company_code):
             for item in items:
                 
                 temp_dict={}
-                temp_dict["batch"] = item["CHARG"]
-                temp_dict["uom"] = item["MEINS"]    
+
+                if item["CHARG"] != None :
+                    temp_dict["batch"] = item["CHARG"]
+                else:
+                    temp_dict["batch"] = ""
+
+                if item["MEINS"] != None :
+                    temp_dict["uom"] = item["MEINS"]
+                else:
+                    temp_dict["uom"] = "" 
+
                 temp_dict["atp_qty"] = float(item["ATP_QTY"])
                 total_atp = total_atp+float(item["ATP_QTY"])
                 temp_dict["holding_qty"] = float(item["HQTY"])
@@ -150,12 +169,13 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
+        transfer_information = []
+        
         for seller_sku in seller_sku_list :
 
             if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
                 continue
 
-            logger.info(seller_sku)
             product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
             is_sap_exception = product_obj.is_sap_exception
 
@@ -171,10 +191,10 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             total_holding = result["total_holding"]
             total_atp = result["total_atp"]
 
+            
             if total_holding < holding_threshold and total_atp > atp_threshold:
 
                 total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold)
-                transfer_information = []
 
                 while total_holding_transfer > 0:
 
@@ -206,6 +226,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
 
+            logger.info(response_dict)
             return response_dict
 
         else :
@@ -227,16 +248,181 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
 
         body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,test_customer_id,order_information)
         
-        response = requests.post(url=intercompany_order_url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
+        
+        content = response.content
+        xml_content = xmltodict.parse(content)
+        response_dict = json.loads(json.dumps(xml_content))
+        logger.info(response_dict)
+
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
+
+        result = {}
+        doc_list = []
+        msg_list = []
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["type"] = items["DOCTYP"]
+            temp_dict["id"] = items["VBELN"]    
+            temp_dict["message_type"] = items["MSGTY"]    
+            temp_dict["message"] = items["MSGV1"]    
+            doc_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["type"] = item["DOCTYP"]
+                temp_dict["id"] = item["VBELN"]    
+                temp_dict["message_type"] = item["MSGTY"]    
+                temp_dict["message"] = item["MSGV1"]    
+                doc_list.append(temp_dict)
+
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_MESSAGE"]["item"]
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["document_number"] = items["VBELN"]
+            temp_dict["type"] = items["TYPE"]
+            temp_dict["id"] = items["ID"]    
+            temp_dict["number"] = items["NUMBER"]    
+            temp_dict["message"] = items["MESSAGE"]    
+            temp_dict["message_v1"] = items["MESSAGE_V1"]    
+            temp_dict["message_v2"] = items["MESSAGE_V2"]    
+            temp_dict["message_v3"] = items["MESSAGE_V3"]    
+            temp_dict["message_v4"] = items["MESSAGE_V4"]    
+            temp_dict["parameter"] = items["PARAMETER"]    
+            msg_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["document_number"] = item["VBELN"]
+                temp_dict["type"] = item["TYPE"]
+                temp_dict["id"] = item["ID"]    
+                temp_dict["number"] = item["NUMBER"]    
+                temp_dict["message"] = item["MESSAGE"]    
+                temp_dict["message_v1"] = item["MESSAGE_V1"]    
+                temp_dict["message_v2"] = item["MESSAGE_V2"]    
+                temp_dict["message_v3"] = item["MESSAGE_V3"]    
+                temp_dict["message_v4"] = item["MESSAGE_V4"]    
+                temp_dict["parameter"] = item["PARAMETER"]  
+                msg_list.append(temp_dict)
+
+        result["doc_list"] = doc_list
+        result["msg_list"] = msg_list
+
+        return result
+
+    except Exception as e:
+        
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("create_intercompany_sales_order: %s at %s", str(e), str(exc_tb.tb_lineno))
+        return []
+
+def create_final_order(seller_sku,company_code,order_information):
+    
+    try:
+
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+
+        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id,order_information)
+        
+        response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
 
-        return response_dict
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
+
+        result = {}
+        doc_list = []
+        msg_list = []
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["type"] = items["DOCTYP"]
+            temp_dict["id"] = items["VBELN"]    
+            temp_dict["message_type"] = items["MSGTY"]    
+            temp_dict["message"] = items["MSGV1"]    
+            doc_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["type"] = item["DOCTYP"]
+                temp_dict["id"] = item["VBELN"]    
+                temp_dict["message_type"] = item["MSGTY"]    
+                temp_dict["message"] = item["MSGV1"]    
+                doc_list.append(temp_dict)
+
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_MESSAGE"]["item"]
+
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["document_number"] = items["VBELN"]
+            temp_dict["type"] = items["TYPE"]
+            temp_dict["id"] = items["ID"]    
+            temp_dict["number"] = items["NUMBER"]    
+            temp_dict["message"] = items["MESSAGE"]    
+            temp_dict["message_v1"] = items["MESSAGE_V1"]    
+            temp_dict["message_v2"] = items["MESSAGE_V2"]    
+            temp_dict["message_v3"] = items["MESSAGE_V3"]    
+            temp_dict["message_v4"] = items["MESSAGE_V4"]    
+            temp_dict["parameter"] = items["PARAMETER"]    
+            msg_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["document_number"] = item["VBELN"]
+                temp_dict["type"] = item["TYPE"]
+                temp_dict["id"] = item["ID"]    
+                temp_dict["number"] = item["NUMBER"]    
+                temp_dict["message"] = item["MESSAGE"]    
+                temp_dict["message_v1"] = item["MESSAGE_V1"]    
+                temp_dict["message_v2"] = item["MESSAGE_V2"]    
+                temp_dict["message_v3"] = item["MESSAGE_V3"]    
+                temp_dict["message_v4"] = item["MESSAGE_V4"]    
+                temp_dict["parameter"] = item["PARAMETER"]  
+                msg_list.append(temp_dict)
+
+        result["doc_list"] = doc_list
+        result["msg_list"] = msg_list
+
+        return result
 
     except Exception as e:
         
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("test_online_order_url: %s at %s", str(e), str(exc_tb.tb_lineno))
+        logger.error("create_final_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
+
+
+
+def create_final_order_util(unit_order_obj, seller_sku,company_code,order_information):
+    
+    try:
+        does_file_exists = False
+        for i in range(10):
+            from ftplib import FTP
+            ftp=FTP()
+            ftp.connect('geepasftp.selfip.com', 2221)
+            ftp.login('mapftpdev','western')
+            files = []
+            files = ftp.nlst("omnicom")
+            if order_information["GRN_filename"] in files:
+                does_file_exists = True
+                break
+            time.sleep(600)
+        
+        if does_file_exists==True:
+            result = create_final_order(seller_sku,company_code,order_information)
+            logger.info("RESULT FINAL: %s", str(result))
+            unit_order_obj.sap_final_billing_info = json.dumps(result)
+            unit_order_obj.sap_status = "SAP Punched"
+            unit_order_obj.save()
+        else:
+            unit_order_obj.sap_status = "Failed"
+            unit_order_obj.save()
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("create_final_order_util: %s at %s", str(e), str(exc_tb.tb_lineno))
