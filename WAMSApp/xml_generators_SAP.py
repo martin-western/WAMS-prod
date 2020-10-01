@@ -134,8 +134,7 @@ def xml_generator_for_holding_tansfer(company_code,customer_id,transfer_informat
                <ROW></ROW>
                <FIELD></FIELD>
                <SYSTEM></SYSTEM>
-              </item>
-              <item>"""
+              </item>"""
               
         xml_feed+="</T_ITEM>"
         msg_feed+="</T_MESSAGE>"

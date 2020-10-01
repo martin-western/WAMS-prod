@@ -48,8 +48,17 @@ def fetch_prices_and_stock(seller_sku,company_code):
         if isinstance(items, dict):
 
             temp_dict={}
-            temp_dict["batch"] = items["CHARG"]
-            temp_dict["uom"] = items["MEINS"]    
+            
+            if items["CHARG"] != None :
+                temp_dict["batch"] = items["CHARG"]
+            else:
+                temp_dict["batch"] = ""
+
+            if items["MEINS"] != None :
+                temp_dict["uom"] = items["MEINS"]
+            else:
+                temp_dict["uom"] = ""
+
             temp_dict["atp_qty"] = float(items["ATP_QTY"])
             total_atp = total_atp+float(items["ATP_QTY"])
             temp_dict["holding_qty"] = float(items["HQTY"])
@@ -78,8 +87,17 @@ def fetch_prices_and_stock(seller_sku,company_code):
             for item in items:
                 
                 temp_dict={}
-                temp_dict["batch"] = item["CHARG"]
-                temp_dict["uom"] = item["MEINS"]    
+
+                if item["CHARG"] != None :
+                    temp_dict["batch"] = item["CHARG"]
+                else:
+                    temp_dict["batch"] = ""
+
+                if item["MEINS"] != None :
+                    temp_dict["uom"] = item["MEINS"]
+                else:
+                    temp_dict["uom"] = "" 
+
                 temp_dict["atp_qty"] = float(item["ATP_QTY"])
                 total_atp = total_atp+float(item["ATP_QTY"])
                 temp_dict["holding_qty"] = float(item["HQTY"])
@@ -151,12 +169,13 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
+        transfer_information = []
+        
         for seller_sku in seller_sku_list :
 
             if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
                 continue
 
-            logger.info(seller_sku)
             product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
             is_sap_exception = product_obj.is_sap_exception
 
@@ -172,7 +191,6 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             total_holding = result["total_holding"]
             total_atp = result["total_atp"]
 
-            transfer_information = []
             
             if total_holding < holding_threshold and total_atp > atp_threshold:
 
@@ -208,6 +226,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
 
+            logger.info(response_dict)
             return response_dict
 
         else :
