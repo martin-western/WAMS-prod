@@ -754,6 +754,9 @@ class UnitOrder(models.Model):
     price = models.FloatField(default=None, null=True, blank=True)
     uuid = models.CharField(max_length=200, default="")
 
+    sap_intercompany_info = models.TextField(default="{}")
+    order_information = models.TextField(default="{}")
+
     def get_subtotal(self):
         return float(self.price)*float(self.quantity)
 

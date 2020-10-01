@@ -219,6 +219,7 @@ class LocationGroup(models.Model):
     vat = models.FloatField(default=5)
     email_info = models.TextField(default="{}")
     mshastra_info = models.TextField(default="{}")
+    sms_country_info = models.TextField(default="{}")
     postaplus_info = models.TextField(default="{}")
     uuid = models.CharField(max_length=200, default="")
 
