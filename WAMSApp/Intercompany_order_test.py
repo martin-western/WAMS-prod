@@ -752,3 +752,12 @@ print()
 
 # ftp = ftplib.FTP(FTP_HOST, FTP_USER, FTP_PASS)
 # ftp.encoding = "utf-8"
+
+from ftplib import FTP_TLS
+ftp=FTP_TLS()
+ftp.set_debuglevel(2)
+ftp.connect('http://geepasftp.selfip.com/S4H_DEV/OMNICOM/', 21)
+ftp.sendcmd('USER mapftpdev')
+ftp.sendcmd('PASS western')
+ftp.dir()
+ftp.close()

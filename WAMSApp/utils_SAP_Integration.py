@@ -150,6 +150,8 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
+        transfer_information = []
+        
         for seller_sku in seller_sku_list :
 
             if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
@@ -171,7 +173,6 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             total_holding = result["total_holding"]
             total_atp = result["total_atp"]
 
-            transfer_information = []
             
             if total_holding < holding_threshold and total_atp > atp_threshold:
 
