@@ -357,7 +357,33 @@ def create_final_order(seller_sku,company_code,order_information):
 
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_MESSAGE"]["item"]
 
-        
+        if isinstance(items, dict):
+            temp_dict={}
+            temp_dict["document_number"] = items["VBELN"]
+            temp_dict["type"] = items["TYPE"]
+            temp_dict["id"] = items["ID"]    
+            temp_dict["number"] = items["NUMBER"]    
+            temp_dict["message"] = items["MESSAGE"]    
+            temp_dict["message_v1"] = items["MESSAGE_V1"]    
+            temp_dict["message_v2"] = items["MESSAGE_V2"]    
+            temp_dict["message_v3"] = items["MESSAGE_V3"]    
+            temp_dict["message_v4"] = items["MESSAGE_V4"]    
+            temp_dict["parameter"] = items["PARAMETER"]    
+            msg_list.append(temp_dict)
+        else:
+            for item in items:
+                temp_dict={}
+                temp_dict["document_number"] = item["VBELN"]
+                temp_dict["type"] = item["TYPE"]
+                temp_dict["id"] = item["ID"]    
+                temp_dict["number"] = item["NUMBER"]    
+                temp_dict["message"] = item["MESSAGE"]    
+                temp_dict["message_v1"] = item["MESSAGE_V1"]    
+                temp_dict["message_v2"] = item["MESSAGE_V2"]    
+                temp_dict["message_v3"] = item["MESSAGE_V3"]    
+                temp_dict["message_v4"] = item["MESSAGE_V4"]    
+                temp_dict["parameter"] = item["PARAMETER"]  
+                msg_list.append(temp_dict)
 
         result["doc_list"] = doc_list
         result["msg_list"] = msg_list
