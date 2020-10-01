@@ -401,9 +401,16 @@ def create_final_order(seller_sku,company_code,order_information):
 def create_final_order_util(seller_sku,company_code,order_information):
     
     try:
-
-        for i in range(10):
-            time.sleep(600)
+        # for i in range(10):
+        #     from ftplib import FTP
+        #     ftp=FTP()
+        #     ftp.connect('geepasftp.selfip.com', 2221)
+        #     ftp.login('mapftpdev','western')
+        #     files = []
+        #     files = ftp.nlst("omnicom")
+        #     if order_information["GRN_filename"] in files:
+        #         break
+        #     time.sleep(600)
         # Checks passed
         create_final_order(seller_sku,company_code,order_information)
     except Exception as e:

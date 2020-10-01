@@ -3895,18 +3895,23 @@ class SetShippingMethodAPI(APIView):
                     result_pre = result_pre["doc_list"]
                     do_exists = 0
                     so_exists = 0
+                    do_id = ""
+                    so_id = ""
                     for k in result_pre:
                         if k["type"]=="DO":
                             do_exists = 1
+                            do_id = k["id"]
                         elif k["type"]=="SO":
                             so_exists = 1
+                            so_id = k["id"]
                     logger.info("DOC LIST: %s", str(result_pre))
-                    unit_order_obj.sap_intercompany_info = json.dumps(result_pre)
-                    unit_order_obj.order_information = json.dumps(order_information)
-                    unit_order_obj.save()
                     if so_exists==0 or do_exists==0:
                         error_flag = 1
                         break
+                    order_information["GRN_filename"] = str(do_id)+"_"+str(so_id)+".txt"
+                    unit_order_obj.sap_intercompany_info = json.dumps(result_pre)
+                    unit_order_obj.order_information = json.dumps(order_information)
+                    unit_order_obj.save()
 
                 if error_flag==1:
                     logger.error("SetShippingMethodAPI: error_flag is 1")
