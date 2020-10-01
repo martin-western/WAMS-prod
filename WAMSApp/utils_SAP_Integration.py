@@ -4,6 +4,7 @@ from WAMSApp.xml_generators_SAP import *
 import requests
 import xmltodict
 import json
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -374,3 +375,19 @@ def create_final_order(seller_sku,company_code,order_information):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("create_final_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
+
+
+
+def create_final_order_util(seller_sku,company_code,order_information):
+    
+    try:
+
+        for i in in range(10):
+            
+            time.sleep(600)
+
+        # Checks passed
+        create_final_order(seller_sku,company_code,order_information)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("create_final_order_util: %s at %s", str(e), str(exc_tb.tb_lineno))

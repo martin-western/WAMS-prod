@@ -2751,7 +2751,7 @@ class SendOTPSMSLoginAPI(APIView):
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
-            mshastra_info = json.loads(location_group_obj.mshastra_info)
+            sms_country_info = json.loads(location_group_obj.sms_country_info)
 
             digits = "0123456789"
             OTP = ""
@@ -2783,14 +2783,22 @@ class SendOTPSMSLoginAPI(APIView):
             message = "Login OTP is " + OTP
 
             # Trigger SMS
-            prefix_code = mshastra_info["prefix_code"]
-            sender_id = mshastra_info["sender_id"]
-            user = mshastra_info["user"]
-            pwd = mshastra_info["pwd"]
+            prefix_code = sms_country_info["prefix_code"]
+            user = sms_country_info["user"]
+            pwd = sms_country_info["pwd"]
 
             contact_number = prefix_code+contact_number
-            url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
-            r = requests.get(url)
+
+            url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+            req_data = {
+                "user" : user,
+                "passwd": pwd,
+                "message": message,
+                "mobilenumber": contact_number,
+                "mtype":"N",
+                "DR":"Y"
+            }
+            r = requests.post(url=url, data=req_data)
 
             response["isNewUser"] = is_new_user
             response["status"] = 200
@@ -3825,19 +3833,18 @@ class SetShippingMethodAPI(APIView):
             # else:
             #     logger.warning("SetShippingMethodAPI: No method set!")
 
+            brand_company_dict = {
+                "geepas": "1000",
+                "baby plus": "5550",
+                "royalford": "3000",
+                "krypton": "2100",
+                "olsenmark": "1100",
+                "ken jardene": "5550",
+                "younglife": "5000",
+                "delcasa": "3000"
+            }
+
             if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
-
-                brand_company_dict = {
-                    "geepas": "1000",
-                    "baby plus": "5550",
-                    "royalford": "3000",
-                    "krypton": "2100",
-                    "olsenmark": "1100",
-                    "ken jardene": "5550",
-                    "younglife": "5000",
-                    "delcasa": "3000"
-                }
-
 
                 user_input_requirement = {}
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
@@ -3862,6 +3869,7 @@ class SetShippingMethodAPI(APIView):
                         response["status"] = 200
                         return Response(data=response)
 
+                error_flag = 0
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
@@ -3875,10 +3883,40 @@ class SetShippingMethodAPI(APIView):
                     order_information["order_id"] = unit_order_obj.orderid
                     order_information["seller_sku"] = seller_sku
                     order_information["qty"] = unit_order_obj.quantity
-                    
-                    create_intercompany_sales_order(seller_sku, company_code, order_information)
 
+                    if unit_order_obj.order.payment_status=="paid":
+                        order_information["order_type"] = "ZJCR"
+                    else:
+                        order_information["order_type"] = "ZJCD"
+                    order_information["city"] = str(unit_order_obj.order.location_group.location.name)
+                    order_information["customer_name"] = unit_order_obj.order.get_customer_full_name()
+                    
+                    result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
+                    result_pre = result_pre["doc_list"]
+                    logger.info("DOC LIST: %s", str(result_pre))
+                    unit_order_obj.sap_intercompany_info = json.dumps(result_pre)
+                    unit_order_obj.order_information = json.dumps(order_information)
+                    unit_order_obj.save()
+                    if len(result_pre)!=2:
+                        error_flag = 1
+                        break
+
+                if error_flag==1:
+                    logger.error("SetShippingMethodAPI: error_flag is 1")
+                    return Response(data=response)
+                        
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                try:
+                    seller_sku = unit_order_obj.product.get_seller_sku()
+                    brand_name = unit_order_obj.product.get_brand()
+                    company_code = brand_company_dict[brand_name.lower()]
+                    order_information = json.loads(unit_order_obj.order_information)
+                    sap_intercompany_info = json.loads(unit_order_obj.sap_intercompany_info)
+                    p1 = threading.Thread(target=create_final_order_util, args=(seller_sku,company_code,order_information,))
+                    p1.start()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 set_shipping_method(unit_order_obj, shipping_method)
 
             response["status"] = 200
