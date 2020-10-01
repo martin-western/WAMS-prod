@@ -47,8 +47,17 @@ def fetch_prices_and_stock(seller_sku,company_code):
         if isinstance(items, dict):
 
             temp_dict={}
-            temp_dict["batch"] = items["CHARG"]
-            temp_dict["uom"] = items["MEINS"]    
+            
+            if items["CHARG"] != None :
+                temp_dict["batch"] = items["CHARG"]
+            else:
+                temp_dict["batch"] = ""
+
+            if items["MEINS"] != None :
+                temp_dict["uom"] = items["MEINS"]
+            else:
+                temp_dict["uom"] = ""
+
             temp_dict["atp_qty"] = float(items["ATP_QTY"])
             total_atp = total_atp+float(items["ATP_QTY"])
             temp_dict["holding_qty"] = float(items["HQTY"])
@@ -77,8 +86,17 @@ def fetch_prices_and_stock(seller_sku,company_code):
             for item in items:
                 
                 temp_dict={}
-                temp_dict["batch"] = item["CHARG"]
-                temp_dict["uom"] = item["MEINS"]    
+
+                if items["CHARG"] != None :
+                    temp_dict["batch"] = item["CHARG"]
+                else:
+                    temp_dict["batch"] = ""
+
+                if items["MEINS"] != None :
+                    temp_dict["uom"] = item["MEINS"]
+                else:
+                    temp_dict["uom"] = "" 
+
                 temp_dict["atp_qty"] = float(item["ATP_QTY"])
                 total_atp = total_atp+float(item["ATP_QTY"])
                 temp_dict["holding_qty"] = float(item["HQTY"])
