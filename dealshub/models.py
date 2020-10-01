@@ -755,6 +755,7 @@ class UnitOrder(models.Model):
     uuid = models.CharField(max_length=200, default="")
 
     sap_intercompany_info = models.TextField(default="{}")
+    sap_final_billing_info = models.TextField(default="{}")
     order_information = models.TextField(default="{}")
     SAP_STATUS = (
         ("pending", "pending"),
