@@ -208,6 +208,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
 
+            logger.info(response_dict)
             return response_dict
 
         else :
