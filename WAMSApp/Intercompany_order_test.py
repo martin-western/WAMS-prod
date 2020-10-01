@@ -756,7 +756,7 @@ print()
 from ftplib import FTP_TLS
 ftp=FTP_TLS()
 ftp.set_debuglevel(2)
-ftp.connect('http://geepasftp.selfip.com/S4H_DEV/OMNICOM/', 21)
+ftp.connect('ftp://geepasftp.selfip.com:2221/omnicom/', 21)
 ftp.sendcmd('USER mapftpdev')
 ftp.sendcmd('PASS western')
 ftp.dir()
