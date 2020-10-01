@@ -680,7 +680,7 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
             from_holding=""
             for item in stock_list:
                 atp_qty = item["atp_qty"]
-                charg = item["charg"]
+                batch = item["batch"]
                 uom = item["uom"]
                 if atp_qty>0.0:
                     break
@@ -689,21 +689,21 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
             if from_holding == "X":
                 for item in stock_list:
                     holding_qty = item["holding_qty"]
-                    charg = item["charg"]
+                    batch = item["batch"]
                     uom = item["uom"]
                     if holding_qty>0.0:
                         break
             else:
                 for item in stock_list:
                     atp_qty = item["atp_qty"]
-                    charg = item["charg"]
+                    batch = item["batch"]
                     uom = item["uom"]
                     if atp_qty>0.0:
                         break
 
         order_information["from_holding"] = from_holding
-        order_information["uom"] = charg
-        order_information["batch"] = uom
+        order_information["uom"] = uom
+        order_information["batch"] = batch
 
         return order_information
     
