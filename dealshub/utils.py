@@ -675,6 +675,8 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
         total_holding = result["total_holding"]
         atp_threshold = result["atp_threshold"]
         holding_threshold = result["holding_threshold"]
+
+        order_information = {}
         
         if total_atp > atp_threshold:
             from_holding=""
