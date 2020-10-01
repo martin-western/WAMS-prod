@@ -3896,12 +3896,12 @@ class SetShippingMethodAPI(APIView):
                     order_information["city"] = str(unit_order_obj.order.location_group.location.name)
                     order_information["customer_name"] = unit_order_obj.order.get_customer_full_name()
                     
-                    result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
+                    orig_result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
                     temp_dict2 = {}
                     temp_dict2["seller_sku"] = seller_sku
-                    temp_dict2["intercompany_sales_info"] = result_pre
+                    temp_dict2["intercompany_sales_info"] = orig_result_pre
                     sap_info_render.append(temp_dict2)
-                    result_pre = result_pre["doc_list"]
+                    result_pre = orig_result_pre["doc_list"]
                     do_exists = 0
                     so_exists = 0
                     do_id = ""
@@ -3918,7 +3918,7 @@ class SetShippingMethodAPI(APIView):
                         error_flag = 1
                         break
                     order_information["GRN_filename"] = str(do_id)+"_"+str(so_id)+".txt"
-                    unit_order_obj.sap_intercompany_info = json.dumps(result_pre)
+                    unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                     unit_order_obj.order_information = json.dumps(order_information)
                     unit_order_obj.sap_status = "In GRN"
                     unit_order_obj.save()
@@ -3933,7 +3933,6 @@ class SetShippingMethodAPI(APIView):
                     brand_name = unit_order_obj.product.get_brand()
                     company_code = brand_company_dict[brand_name.lower()]
                     order_information = json.loads(unit_order_obj.order_information)
-                    sap_intercompany_info = json.loads(unit_order_obj.sap_intercompany_info)
                     p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
                     p1.start()
                 except Exception as e:
