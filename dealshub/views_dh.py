@@ -3705,6 +3705,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["uuid"] = unit_order_obj.uuid
                         temp_dict2["currentStatus"] = unit_order_obj.current_status_admin
                         temp_dict2["sapStatus"] = unit_order_obj.sap_status
+                        temp_dict2["sap_final_billing_info"] = json.loads(unit_order_obj.sap_final_billing_info)
+                        temp_dict2["sap_intercompany_info"] = json.loads(unit_order_obj.sap_intercompany_info)
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
                         temp_dict2["price_without_vat"] = unit_order_obj.get_price_without_vat()
@@ -3871,6 +3873,7 @@ class SetShippingMethodAPI(APIView):
                         return Response(data=response)
 
                 error_flag = 0
+                sap_info_render = []
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
@@ -3894,6 +3897,10 @@ class SetShippingMethodAPI(APIView):
                     order_information["customer_name"] = unit_order_obj.order.get_customer_full_name()
                     
                     result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
+                    temp_dict2 = {}
+                    temp_dict2["seller_sku"] = seller_sku
+                    temp_dict2["intercompany_sales_info"] = result_pre
+                    sap_info_render.append(temp_dict2)
                     result_pre = result_pre["doc_list"]
                     do_exists = 0
                     so_exists = 0
@@ -3934,6 +3941,7 @@ class SetShippingMethodAPI(APIView):
                     logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 set_shipping_method(unit_order_obj, shipping_method)
 
+            response["sap_info_render"] = sap_info_render
             response["status"] = 200
 
         except Exception as e:

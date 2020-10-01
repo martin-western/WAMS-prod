@@ -417,6 +417,7 @@ def create_final_order_util(unit_order_obj, seller_sku,company_code,order_inform
         if does_file_exists==True:
             result = create_final_order(seller_sku,company_code,order_information)
             logger.info("RESULT FINAL: %s", str(result))
+            unit_order_obj.sap_final_billing_info = json.dumps(result)
             unit_order_obj.sap_status = "SAP Punched"
             unit_order_obj.save()
         else:
