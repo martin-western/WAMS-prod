@@ -401,10 +401,8 @@ def create_final_order_util(seller_sku,company_code,order_information):
     
     try:
 
-        for i in in range(10):
-            
+        for i in range(10):
             time.sleep(600)
-
         # Checks passed
         create_final_order(seller_sku,company_code,order_information)
     except Exception as e:
