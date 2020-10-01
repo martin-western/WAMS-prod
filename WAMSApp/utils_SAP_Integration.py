@@ -13,6 +13,15 @@ test_online_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online
 
 test_customer_id = "40000195"
 
+def dict_clean(items):
+    result = {}
+    for key, value in items:
+        if value is None:
+            value = ""
+        result[key] = value
+    return result
+
+
 def fetch_prices_and_stock(seller_sku,company_code):
     
     try:
@@ -31,6 +40,8 @@ def fetch_prices_and_stock(seller_sku,company_code):
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
         # logger.info(items)
         
+        items = dict_clean(items)
+
         total_atp = 0.0
         total_holding = 0.0
         atp_threshold = 0.0
@@ -157,7 +168,6 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
                 continue
 
-            logger.info(seller_sku)
             product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
             is_sap_exception = product_obj.is_sap_exception
 
@@ -203,7 +213,6 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             logger.info(transfer_information)
 
             body = xml_generator_for_holding_tansfer(company_code,test_customer_id,transfer_information)
-            logger.info(body)
             response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
             content = response.content
             xml_content = xmltodict.parse(content)
