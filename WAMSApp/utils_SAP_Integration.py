@@ -254,7 +254,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
         logger.info(response_dict)
-        
+
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
 
         result = {}
@@ -286,10 +286,10 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
             temp_dict["id"] = items["ID"]    
             temp_dict["number"] = items["NUMBER"]    
             temp_dict["message"] = items["MESSAGE"]    
-            temp_dict["message_v1"] = items["MSGV1"]    
-            temp_dict["message_v2"] = items["MSGV2"]    
-            temp_dict["message_v3"] = items["MSGV3"]    
-            temp_dict["message_v4"] = items["MSGV4"]    
+            temp_dict["message_v1"] = items["MESSAGE_V1"]    
+            temp_dict["message_v2"] = items["MESSAGE_V2"]    
+            temp_dict["message_v3"] = items["MESSAGE_V3"]    
+            temp_dict["message_v4"] = items["MESSAGE_V4"]    
             temp_dict["parameter"] = items["PARAMETER"]    
             msg_list.append(temp_dict)
         else:
@@ -300,10 +300,10 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
                 temp_dict["id"] = item["ID"]    
                 temp_dict["number"] = item["NUMBER"]    
                 temp_dict["message"] = item["MESSAGE"]    
-                temp_dict["message_v1"] = item["MSGV1"]    
-                temp_dict["message_v2"] = item["MSGV2"]    
-                temp_dict["message_v3"] = item["MSGV3"]    
-                temp_dict["message_v4"] = item["MSGV4"]    
+                temp_dict["message_v1"] = item["MESSAGE_V1"]    
+                temp_dict["message_v2"] = item["MESSAGE_V2"]    
+                temp_dict["message_v3"] = item["MESSAGE_V3"]    
+                temp_dict["message_v4"] = item["MESSAGE_V4"]    
                 temp_dict["parameter"] = item["PARAMETER"]  
                 msg_list.append(temp_dict)
 
@@ -364,10 +364,10 @@ def create_final_order(seller_sku,company_code,order_information):
             temp_dict["id"] = items["ID"]    
             temp_dict["number"] = items["NUMBER"]    
             temp_dict["message"] = items["MESSAGE"]    
-            temp_dict["message_v1"] = items["MSGV1"]    
-            temp_dict["message_v2"] = items["MSGV2"]    
-            temp_dict["message_v3"] = items["MSGV3"]    
-            temp_dict["message_v4"] = items["MSGV4"]    
+            temp_dict["message_v1"] = items["MESSAGE_V1"]    
+            temp_dict["message_v2"] = items["MESSAGE_V2"]    
+            temp_dict["message_v3"] = items["MESSAGE_V3"]    
+            temp_dict["message_v4"] = items["MESSAGE_V4"]    
             temp_dict["parameter"] = items["PARAMETER"]    
             msg_list.append(temp_dict)
         else:
@@ -378,10 +378,10 @@ def create_final_order(seller_sku,company_code,order_information):
                 temp_dict["id"] = item["ID"]    
                 temp_dict["number"] = item["NUMBER"]    
                 temp_dict["message"] = item["MESSAGE"]    
-                temp_dict["message_v1"] = item["MSGV1"]    
-                temp_dict["message_v2"] = item["MSGV2"]    
-                temp_dict["message_v3"] = item["MSGV3"]    
-                temp_dict["message_v4"] = item["MSGV4"]    
+                temp_dict["message_v1"] = item["MESSAGE_V1"]    
+                temp_dict["message_v2"] = item["MESSAGE_V2"]    
+                temp_dict["message_v3"] = item["MESSAGE_V3"]    
+                temp_dict["message_v4"] = item["MESSAGE_V4"]    
                 temp_dict["parameter"] = item["PARAMETER"]  
                 msg_list.append(temp_dict)
 
