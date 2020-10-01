@@ -253,7 +253,8 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         content = response.content
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
-
+        logger.info(response_dict)
+        
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
 
         result = {}
