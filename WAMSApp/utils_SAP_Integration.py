@@ -13,6 +13,7 @@ test_transfer_holding_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_ho
 test_online_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"  
 
 test_customer_id = "40000195"
+test_customer_id_final_billing = "50000151"
 
 def fetch_prices_and_stock(seller_sku,company_code):
     
