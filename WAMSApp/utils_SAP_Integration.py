@@ -168,7 +168,8 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
     try:
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        # credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        credentials = ("WIABAP", "pradeepabap456")
         
         transfer_information = []
         
