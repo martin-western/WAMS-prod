@@ -3847,100 +3847,100 @@ class SetShippingMethodAPI(APIView):
                 "delcasa": "3000"
             }
 
-            # if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+            if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
 
-            #     user_input_requirement = {}
-            #     for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-            #         seller_sku = unit_order_obj.product.get_seller_sku()
-            #         brand_name = unit_order_obj.product.get_brand()
-            #         company_code = brand_company_dict[brand_name.lower()]
-            #         user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(seller_sku, company_code)
+                user_input_requirement = {}
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    seller_sku = unit_order_obj.product.get_seller_sku()
+                    brand_name = unit_order_obj.product.get_brand()
+                    company_code = brand_company_dict[brand_name.lower()]
+                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(seller_sku, company_code)
 
-            #     user_input_sap = data.get("user_input_sap", None)
-            #     if user_input_sap==None:
-            #         modal_info_list = []
-            #         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-            #             seller_sku = unit_order_obj.product.get_seller_sku()
-            #             brand_name = unit_order_obj.product.get_brand()
-            #             company_code = brand_company_dict[brand_name.lower()]
-            #             if user_input_requirement[seller_sku]==True:
-            #                 result = fetch_prices_and_stock(seller_sku, company_code)
-            #                 result["seller_sku"] = seller_sku
-            #                 modal_info_list.append(result)
-            #         if len(modal_info_list)>0:
-            #             response["modal_info_list"] = modal_info_list
-            #             response["status"] = 200
-            #             return Response(data=response)
+                user_input_sap = data.get("user_input_sap", None)
+                if user_input_sap==None:
+                    modal_info_list = []
+                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                        seller_sku = unit_order_obj.product.get_seller_sku()
+                        brand_name = unit_order_obj.product.get_brand()
+                        company_code = brand_company_dict[brand_name.lower()]
+                        if user_input_requirement[seller_sku]==True:
+                            result = fetch_prices_and_stock(seller_sku, company_code)
+                            result["seller_sku"] = seller_sku
+                            modal_info_list.append(result)
+                    if len(modal_info_list)>0:
+                        response["modal_info_list"] = modal_info_list
+                        response["status"] = 200
+                        return Response(data=response)
 
-            #     error_flag = 0
-            #     sap_info_render = []
-            #     for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-            #         seller_sku = unit_order_obj.product.get_seller_sku()
-            #         brand_name = unit_order_obj.product.get_brand()
-            #         company_code = brand_company_dict[brand_name.lower()]
-            #         order_information = []
-            #         x_value = ""
-            #         if user_input_requirement[seller_sku]==True:
-            #             x_value = user_input_sap[seller_sku]
-            #         order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
+                error_flag = 0
+                sap_info_render = []
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    seller_sku = unit_order_obj.product.get_seller_sku()
+                    brand_name = unit_order_obj.product.get_brand()
+                    company_code = brand_company_dict[brand_name.lower()]
+                    order_information = []
+                    x_value = ""
+                    if user_input_requirement[seller_sku]==True:
+                        x_value = user_input_sap[seller_sku]
+                    order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
-            #         order_information["order_id"] = unit_order_obj.orderid
-            #         order_information["seller_sku"] = seller_sku
-            #         order_information["qty"] = unit_order_obj.quantity
-            #         order_information["price"] = unit_order_obj.price
+                    order_information["order_id"] = unit_order_obj.orderid
+                    order_information["seller_sku"] = seller_sku
+                    order_information["qty"] = unit_order_obj.quantity
+                    order_information["price"] = unit_order_obj.price
 
-            #         if unit_order_obj.order.payment_status=="paid":
-            #             order_information["order_type"] = "ZJCR"
-            #         else:
-            #             order_information["order_type"] = "ZJCD"
-            #         order_information["city"] = str(unit_order_obj.order.location_group.location.name)
-            #         order_information["customer_name"] = unit_order_obj.order.get_customer_full_name()
+                    if unit_order_obj.order.payment_status=="paid":
+                        order_information["order_type"] = "ZJCR"
+                    else:
+                        order_information["order_type"] = "ZJCD"
+                    order_information["city"] = str(unit_order_obj.order.location_group.location.name)
+                    order_information["customer_name"] = unit_order_obj.order.get_customer_full_name()
                     
-            #         orig_result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
-            #         temp_dict2 = {}
-            #         temp_dict2["seller_sku"] = seller_sku
-            #         temp_dict2["intercompany_sales_info"] = orig_result_pre
-            #         sap_info_render.append(temp_dict2)
-            #         result_pre = orig_result_pre["doc_list"]
-            #         do_exists = 0
-            #         so_exists = 0
-            #         do_id = ""
-            #         so_id = ""
-            #         for k in result_pre:
-            #             if k["type"]=="DO":
-            #                 do_exists = 1
-            #                 do_id = k["id"]
-            #             elif k["type"]=="SO":
-            #                 so_exists = 1
-            #                 so_id = k["id"]
-            #         logger.info("DOC LIST: %s", str(result_pre))
-            #         if so_exists==0 or do_exists==0:
-            #             error_flag = 1
-            #             break
-            #         order_information["GRN_filename"] = str(do_id)+"_"+str(so_id)+".txt"
-            #         unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
-            #         unit_order_obj.order_information = json.dumps(order_information)
-            #         unit_order_obj.sap_status = "In GRN"
-            #         unit_order_obj.save()
+                    orig_result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
+                    temp_dict2 = {}
+                    temp_dict2["seller_sku"] = seller_sku
+                    temp_dict2["intercompany_sales_info"] = orig_result_pre
+                    sap_info_render.append(temp_dict2)
+                    result_pre = orig_result_pre["doc_list"]
+                    do_exists = 0
+                    so_exists = 0
+                    do_id = ""
+                    so_id = ""
+                    for k in result_pre:
+                        if k["type"]=="DO":
+                            do_exists = 1
+                            do_id = k["id"]
+                        elif k["type"]=="SO":
+                            so_exists = 1
+                            so_id = k["id"]
+                    logger.info("DOC LIST: %s", str(result_pre))
+                    if so_exists==0 or do_exists==0:
+                        error_flag = 1
+                        break
+                    order_information["GRN_filename"] = str(do_id)+"_"+str(so_id)+".txt"
+                    unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                    unit_order_obj.order_information = json.dumps(order_information)
+                    unit_order_obj.sap_status = "In GRN"
+                    unit_order_obj.save()
 
-            #     if error_flag==1:
-            #         logger.error("SetShippingMethodAPI: error_flag is 1")
-            #         return Response(data=response)
+                if error_flag==1:
+                    logger.error("SetShippingMethodAPI: error_flag is 1")
+                    return Response(data=response)
                         
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                # try:
-                #     seller_sku = unit_order_obj.product.get_seller_sku()
-                #     brand_name = unit_order_obj.product.get_brand()
-                #     company_code = brand_company_dict[brand_name.lower()]
-                #     order_information = json.loads(unit_order_obj.order_information)
-                #     p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
-                #     p1.start()
-                # except Exception as e:
-                #     exc_type, exc_obj, exc_tb = sys.exc_info()
-                #     logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                try:
+                    seller_sku = unit_order_obj.product.get_seller_sku()
+                    brand_name = unit_order_obj.product.get_brand()
+                    company_code = brand_company_dict[brand_name.lower()]
+                    order_information = json.loads(unit_order_obj.order_information)
+                    p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
+                    p1.start()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SetShippingMethodAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 set_shipping_method(unit_order_obj, shipping_method)
 
-            #response["sap_info_render"] = sap_info_render
+            response["sap_info_render"] = sap_info_render
             response["status"] = 200
 
         except Exception as e:
