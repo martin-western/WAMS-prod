@@ -3884,7 +3884,9 @@ class SetShippingMethodAPI(APIView):
                         x_value = user_input_sap[seller_sku]
                     order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
-                    order_information["order_id"] = unit_order_obj.orderid
+                    intercompany_order_id = str(uuid.uuid4())
+                    order_information["order_id"] = intercompany_order_id
+                    order_information["intercompany_order_id"] = intercompany_order_id
                     order_information["seller_sku"] = seller_sku
                     order_information["qty"] = unit_order_obj.quantity
                     order_information["price"] = unit_order_obj.price
@@ -3934,6 +3936,9 @@ class SetShippingMethodAPI(APIView):
                     brand_name = unit_order_obj.product.get_brand()
                     company_code = brand_company_dict[brand_name.lower()]
                     order_information = json.loads(unit_order_obj.order_information)
+                    order_information["order_id"] = unit_order_obj.orderid
+                    unit_order_obj.order_information = json.dumps(order_information)
+                    unit_order_obj.save()
                     p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
                     p1.start()
                 except Exception as e:
