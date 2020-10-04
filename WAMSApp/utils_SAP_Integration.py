@@ -416,6 +416,8 @@ def create_final_order_util(unit_order_obj, seller_sku,company_code,order_inform
                 if order_information["GRN_filename"] in f:
                     does_file_exists = True
                     break
+            if does_file_exists==True:
+                break
             time.sleep(100)
         
         if does_file_exists==True:
