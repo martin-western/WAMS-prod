@@ -403,6 +403,7 @@ def create_final_order(seller_sku,company_code,order_information):
 def create_final_order_util(unit_order_obj, seller_sku,company_code,order_information):
     
     try:
+        logger.info("Inside create_final_order_util")
         does_file_exists = False
         for i in range(10):
             from ftplib import FTP
@@ -415,7 +416,7 @@ def create_final_order_util(unit_order_obj, seller_sku,company_code,order_inform
                 if order_information["GRN_filename"] in f:
                     does_file_exists = True
                     break
-            time.sleep(600)
+            time.sleep(100)
         
         if does_file_exists==True:
             result = create_final_order(seller_sku,company_code,order_information)
