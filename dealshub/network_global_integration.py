@@ -54,13 +54,21 @@ class MakePaymentNetworkGlobalAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             amount = 0
+            shipping_address = None
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = cart_obj.to_pay
+                shipping_address = cart_obj.shipping_address
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = fast_cart_obj.to_pay
+                shipping_address = fast_cart_obj.shipping_address
 
+            first_name = shipping_address.first_name
+            last_name = shipping_address.last_name
+            address = json.loads(shipping_address.address_lines)[0]
+            city = location_group_obj.location.name
+            country_code = "UAE"
 
             if amount == 0.0:
                 response["error"] = "Cart Amount is ZERO!"
@@ -95,8 +103,22 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 "amount": { 
                     "currencyCode": currency, 
                     "value": amount
+                },
+                "emailAddress": dealshub_user_obj.email,
+                "billingAddress": {
+                    "firstName": first_name,
+                    "lastName": last_name,
+                    "address1": address,
+                    "city": city,
+                    "countryCode": country_code
                 }
             }
+
+            first_name = ""
+            last_name = ""
+            address = ""
+            city = ""
+            country_code = ""
 
             API_URL = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
             

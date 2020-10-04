@@ -3704,6 +3704,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
                         temp_dict2["uuid"] = unit_order_obj.uuid
                         temp_dict2["currentStatus"] = unit_order_obj.current_status_admin
+                        temp_dict2["sapStatus"] = unit_order_obj.sap_status
+                        temp_dict2["sap_final_billing_info"] = json.loads(unit_order_obj.sap_final_billing_info)
+                        temp_dict2["sap_intercompany_info"] = json.loads(unit_order_obj.sap_intercompany_info)
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
                         temp_dict2["price_without_vat"] = unit_order_obj.get_price_without_vat()
@@ -3870,6 +3873,7 @@ class SetShippingMethodAPI(APIView):
                         return Response(data=response)
 
                 error_flag = 0
+                sap_info_render = []
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
@@ -3883,6 +3887,7 @@ class SetShippingMethodAPI(APIView):
                     order_information["order_id"] = unit_order_obj.orderid
                     order_information["seller_sku"] = seller_sku
                     order_information["qty"] = unit_order_obj.quantity
+                    order_information["price"] = unit_order_obj.price
 
                     if unit_order_obj.order.payment_status=="paid":
                         order_information["order_type"] = "ZJCR"
@@ -3891,15 +3896,32 @@ class SetShippingMethodAPI(APIView):
                     order_information["city"] = str(unit_order_obj.order.location_group.location.name)
                     order_information["customer_name"] = unit_order_obj.order.get_customer_full_name()
                     
-                    result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
-                    result_pre = result_pre["doc_list"]
+                    orig_result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
+                    temp_dict2 = {}
+                    temp_dict2["seller_sku"] = seller_sku
+                    temp_dict2["intercompany_sales_info"] = orig_result_pre
+                    sap_info_render.append(temp_dict2)
+                    result_pre = orig_result_pre["doc_list"]
+                    do_exists = 0
+                    so_exists = 0
+                    do_id = ""
+                    so_id = ""
+                    for k in result_pre:
+                        if k["type"]=="DO":
+                            do_exists = 1
+                            do_id = k["id"]
+                        elif k["type"]=="SO":
+                            so_exists = 1
+                            so_id = k["id"]
                     logger.info("DOC LIST: %s", str(result_pre))
-                    unit_order_obj.sap_intercompany_info = json.dumps(result_pre)
-                    unit_order_obj.order_information = json.dumps(order_information)
-                    unit_order_obj.save()
-                    if len(result_pre)!=2:
+                    if so_exists==0 or do_exists==0:
                         error_flag = 1
                         break
+                    order_information["GRN_filename"] = str(do_id)+"_"+str(so_id)+".txt"
+                    unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                    unit_order_obj.order_information = json.dumps(order_information)
+                    unit_order_obj.sap_status = "In GRN"
+                    unit_order_obj.save()
 
                 if error_flag==1:
                     logger.error("SetShippingMethodAPI: error_flag is 1")
@@ -3911,14 +3933,14 @@ class SetShippingMethodAPI(APIView):
                     brand_name = unit_order_obj.product.get_brand()
                     company_code = brand_company_dict[brand_name.lower()]
                     order_information = json.loads(unit_order_obj.order_information)
-                    sap_intercompany_info = json.loads(unit_order_obj.sap_intercompany_info)
-                    p1 = threading.Thread(target=create_final_order_util, args=(seller_sku,company_code,order_information,))
+                    p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
                     p1.start()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("SetShippingMethodAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 set_shipping_method(unit_order_obj, shipping_method)
 
+            response["sap_info_render"] = sap_info_render
             response["status"] = 200
 
         except Exception as e:

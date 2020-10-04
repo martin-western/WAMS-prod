@@ -399,14 +399,31 @@ def create_final_order(seller_sku,company_code,order_information):
 
 
 
-def create_final_order_util(seller_sku,company_code,order_information):
+def create_final_order_util(unit_order_obj, seller_sku,company_code,order_information):
     
     try:
-
+        does_file_exists = False
         for i in range(10):
+            from ftplib import FTP
+            ftp=FTP()
+            ftp.connect('geepasftp.selfip.com', 2221)
+            ftp.login('mapftpdev','western')
+            files = []
+            files = ftp.nlst("omnicom")
+            if order_information["GRN_filename"] in files:
+                does_file_exists = True
+                break
             time.sleep(600)
-        # Checks passed
-        create_final_order(seller_sku,company_code,order_information)
+        
+        if does_file_exists==True:
+            result = create_final_order(seller_sku,company_code,order_information)
+            logger.info("RESULT FINAL: %s", str(result))
+            unit_order_obj.sap_final_billing_info = json.dumps(result)
+            unit_order_obj.sap_status = "SAP Punched"
+            unit_order_obj.save()
+        else:
+            unit_order_obj.sap_status = "Failed"
+            unit_order_obj.save()
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("create_final_order_util: %s at %s", str(e), str(exc_tb.tb_lineno))
