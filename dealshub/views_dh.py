@@ -3917,7 +3917,7 @@ class SetShippingMethodAPI(APIView):
                     if so_exists==0 or do_exists==0:
                         error_flag = 1
                         break
-                    order_information["GRN_filename"] = str(do_id)+"_"+str(so_id)+".txt"
+                    order_information["GRN_filename"] = str(do_id)
                     unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                     unit_order_obj.order_information = json.dumps(order_information)
                     unit_order_obj.sap_status = "In GRN"
