@@ -3929,6 +3929,7 @@ class SetShippingMethodAPI(APIView):
                         
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                 try:
+                    logger.info("Inside for loop 1")
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
                     company_code = brand_company_dict[brand_name.lower()]
