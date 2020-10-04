@@ -411,9 +411,10 @@ def create_final_order_util(unit_order_obj, seller_sku,company_code,order_inform
             ftp.login('mapftpdev','western')
             files = []
             files = ftp.nlst("omnicom")
-            if order_information["GRN_filename"] in files:
-                does_file_exists = True
-                break
+            for f in files:
+                if order_information["GRN_filename"] in f:
+                    does_file_exists = True
+                    break
             time.sleep(600)
         
         if does_file_exists==True:
