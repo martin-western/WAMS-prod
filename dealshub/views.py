@@ -2792,6 +2792,7 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
             quantity = int(data["quantity"])
 
             unit_order_obj = UnitOrder.objects.get(uuid=uuid)
+            order_obj = unit_order_obj.order
 
             if quantity==0:
                 unit_order_obj.delete()
@@ -2799,7 +2800,7 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
                 unit_order_obj.quantity = quantity
                 unit_order_obj.save()
 
-            update_order_bill(unit_order_obj.order)
+            update_order_bill(order_obj)
 
             response["status"] = 200
 
