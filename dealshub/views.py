@@ -1573,6 +1573,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["start_time"] = None
                     temp_dict["end_time"] = None
                     temp_dict["promotion_tag"] = None
+                    temp_dict["remaining_time"] = None
                 else:
                     temp_dict["is_promotional"] = True
                     temp_dict["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
