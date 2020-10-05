@@ -162,6 +162,12 @@ def update_fast_cart_bill(fast_cart_obj):
     fast_cart_obj.save()
 
 
+def update_order_bill(order_obj):
+    
+    order_obj.to_pay = order_obj.get_total_amount()
+    order_obj.save()
+
+
 def send_order_confirmation_mail(order_obj):
     try:
         logger.info("send_order_confirmation_mail started!")
