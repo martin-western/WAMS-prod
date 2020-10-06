@@ -247,6 +247,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        logger.info(order_information)
 
         body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,test_customer_id,order_information)
         
