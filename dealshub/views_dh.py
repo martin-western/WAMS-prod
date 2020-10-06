@@ -3884,7 +3884,7 @@ class SetShippingMethodAPI(APIView):
                         x_value = user_input_sap[seller_sku]
                     order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
-                    intercompany_order_id = str(uuid.uuid4())
+                    intercompany_order_id = str(uuid.uuid4()).split("-")[0]
                     order_information["order_id"] = intercompany_order_id
                     order_information["intercompany_order_id"] = intercompany_order_id
                     order_information["seller_sku"] = seller_sku
