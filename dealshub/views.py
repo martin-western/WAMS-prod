@@ -1579,7 +1579,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
                     temp_dict["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
                     now_time = datetime.datetime.now()
-                    total_seconds = (timezone.localtime(promotion_obj.end_time) - now_time).total_seconds()
+                    total_seconds = (timezone.localtime(promotion_obj.end_time).replace(tzinfo=None) - now_time).total_seconds()
                     temp_dict["remaining_time"] = {
                         "days": int(total_seconds/(3600*24)),
                         "hours": int(total_seconds/3600)%24,
