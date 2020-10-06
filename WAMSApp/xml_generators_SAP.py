@@ -164,11 +164,11 @@ def xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,o
                                <IM_EXTRA></IM_EXTRA>
                                <IM_FLAG>X</IM_FLAG>
                                <IM_ID>""" + str(order_information["order_id"]) + """</IM_ID>
-                               <IM_KUNNR>""" + customer_id + """</IM_KUNNR>
+                               <IM_KUNNR>""" + str(customer_id) + """</IM_KUNNR>
                                <IM_PERNR></IM_PERNR>
                                <IM_PO_NUMBER></IM_PO_NUMBER>
                                <IM_SPART></IM_SPART>
-                               <IM_VKORG>""" + company_code + """</IM_VKORG>
+                               <IM_VKORG>""" + str(company_code) + """</IM_VKORG>
                                <IM_VTWEG></IM_VTWEG>
                                <T_CONDITION>
                                   <item>
