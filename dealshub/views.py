@@ -357,7 +357,7 @@ class FetchSuperCategoriesAPI(APIView):
                 if super_category_obj.image!=None:
                     temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
                 category_list = []
-                category_objs = Category.objects.filter(super_category=super_category_obj)[:3]
+                category_objs = Category.objects.filter(super_category=super_category_obj)[:30]
                 for category_obj in category_objs:
                     temp_dict2 = {}
                     temp_dict2["category_name"] = category_obj.name
