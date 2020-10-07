@@ -4991,6 +4991,7 @@ class GRNProcessingCronAPI(APIView):
                     company_code = brand_company_dict[unit_order_obj.product.get_brand().lower()]
                     order_information = json.loads(unit_order_obj.order_information)
                     order_information["order_id"] = unit_order_obj.orderid
+                    order_information["charges"] = get_all_the_charges(unit_order_obj)
                     
                     logger.info("BEFORE FINAL BILLING : %s %s %s ",seller_sku, company_code,str(order_information))
                     result = create_final_order(seller_sku, company_code, order_information)
