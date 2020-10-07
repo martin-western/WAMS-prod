@@ -1202,6 +1202,8 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
                 for i in range(rows):
                     try:
                         product_id = str(dfs.iloc[i][0]).strip()
+                        product_id = product_id.split(".")[0]
+
                         now_price = float(dfs.iloc[i][1])
                         was_price = float(dfs.iloc[i][2])
                         
@@ -1249,6 +1251,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
                 for i in range(rows):
                     try:
                         product_id = str(dfs.iloc[i][0]).strip()
+                        product_id = product_id.split(".")[0]
                         stock = float(dfs.iloc[i][1])
                         
                         dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
