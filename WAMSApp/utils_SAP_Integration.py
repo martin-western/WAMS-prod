@@ -329,7 +329,6 @@ def create_final_order(seller_sku,company_code,order_information):
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
         charges = order_information["charges"]
-        line_items = []
         header_charges = []
 
         if charges["courier_charge"] != "":
@@ -356,12 +355,8 @@ def create_final_order(seller_sku,company_code,order_information):
             temp_dict["value"] = charges["other_charge"]
             header_charges.append(temp_dict)
 
-        if charges["promotional_charge"] != "":
-            temp_dict = {}
-            temp_dict["name"] = "ZWJP"
-            temp_dict["value"] = charges["promotional_charge"]
-            line_items.append(temp_dict)
-
+        order_information["promotional_charge"] = charges["promotional_charge"]
+        order_information["header_charges"] = header_charges
 
         body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id_final_billing,order_information)
         logger.info("XML : %s",body)
