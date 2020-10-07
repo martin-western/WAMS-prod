@@ -761,3 +761,16 @@ def create_section_banner_product_report(dealshub_product_objs, filename):
             logger.error("Error create_section_banner_product_report %s %s", e, str(exc_tb.tb_lineno))
 
     workbook.close()
+
+def get_all_the_charges(unit_order_obj):
+
+    charges = {
+        "courier_charge" : "",
+        "cod_charge" : "",
+        "voucher_charge" : "",
+        "other_charge" : "",
+        "promotional_charge" : ""
+    }
+
+    
+    return charges

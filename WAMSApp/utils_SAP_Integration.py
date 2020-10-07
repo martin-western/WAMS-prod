@@ -328,6 +328,36 @@ def create_final_order(seller_sku,company_code,order_information):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
+        charges = order_information["charges"]
+        header_charges = []
+
+        if charges["courier_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZWJC"
+            temp_dict["value"] = charges["courier_charge"]
+            header_charges.append(temp_dict)
+
+        if charges["cod_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZCOD"
+            temp_dict["value"] = charges["cod_charge"]
+            header_charges.append(temp_dict)
+
+        if charges["voucher_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZWJS"
+            temp_dict["value"] = charges["voucher_charge"]
+            header_charges.append(temp_dict)
+
+        if charges["other_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZWJA"
+            temp_dict["value"] = charges["other_charge"]
+            header_charges.append(temp_dict)
+
+        order_information["promotional_charge"] = charges["promotional_charge"]
+        order_information["header_charges"] = header_charges
+
         body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id_final_billing,order_information)
         logger.info("XML : %s",body)
 
@@ -400,8 +430,6 @@ def create_final_order(seller_sku,company_code,order_information):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("create_final_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
-
-
 
 def create_final_order_util(unit_order_obj, seller_sku,company_code,order_information):
     
