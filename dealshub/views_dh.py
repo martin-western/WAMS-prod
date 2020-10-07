@@ -2991,8 +2991,6 @@ class ForgotLoginPinAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
-            
-            mshastra_info = json.loads(location_group_obj.mshastra_info)
 
             digits = "0123456789"
             pin = ""
@@ -3010,14 +3008,19 @@ class ForgotLoginPinAPI(APIView):
             dealshub_user_obj.save()
 
             # Trigger SMS
-            prefix_code = mshastra_info["prefix_code"]
-            sender_id = mshastra_info["sender_id"]
-            user = mshastra_info["user"]
-            pwd = mshastra_info["pwd"]
-
-            contact_number = prefix_code+contact_number
-            url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
-            r = requests.get(url)
+            if location_group_obj.website_group.name.lower()!="parajohn":
+                mshastra_info = json.loads(location_group_obj.mshastra_info)
+                prefix_code = mshastra_info["prefix_code"]
+                sender_id = mshastra_info["sender_id"]
+                user = mshastra_info["user"]
+                pwd = mshastra_info["pwd"]
+                contact_number = prefix_code+contact_number
+                url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
+                r = requests.get(url)
+            else:
+                contact_number = "971"+contact_number
+                url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to="+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+                r = requests.get(url)
 
             response["status"] = 200
 
@@ -4154,7 +4157,7 @@ class UploadOrdersAPI(APIView):
                 data = json.loads(data)
             
             path = default_storage.save('tmp/temp-orders.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "https://cdn.omnycomm.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
