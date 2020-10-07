@@ -4973,18 +4973,18 @@ class GRNProcessingCronAPI(APIView):
             files = ftp.nlst("omnicom")
 
             brand_company_dict = {
-                "geepas": "1000",
+                "geepas": "1200",
                 "baby plus": "5550",
                 "royalford": "3000",
                 "krypton": "2100",
                 "olsenmark": "1100",
                 "ken jardene": "5550",
                 "younglife": "5000",
-                "delcasa": "3000"
+                "delcasa": "3050"
             }
 
             for f in files:
-                if UnitOrder.objects.filter(grn_filename=f).exclude(sap_status="SAP Punched").exists():
+                if UnitOrder.objects.filter(grn_filename=f).exclude(sap_status="Success").exists():
                     unit_order_obj = UnitOrder.objects.get(grn_filename=f)
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     company_code = brand_company_dict[unit_order_obj.product.get_brand().lower()]
