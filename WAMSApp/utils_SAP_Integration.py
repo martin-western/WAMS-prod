@@ -328,7 +328,7 @@ def create_final_order(seller_sku,company_code,order_information):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
-        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id,order_information)
+        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id_final_billing,order_information)
         
         response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
         
