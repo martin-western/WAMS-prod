@@ -328,13 +328,15 @@ def create_final_order(seller_sku,company_code,order_information):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
-        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id,order_information)
-        
+        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id_final_billing,order_information)
+        logger.info("XML : %s",body)
+
         response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
+        logger.info("Response : %s",response_dict)
 
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
 
@@ -406,7 +408,7 @@ def create_final_order_util(unit_order_obj, seller_sku,company_code,order_inform
     try:
         logger.info("Inside create_final_order_util")
         does_file_exists = False
-        for i in range(10):
+        for i in range(12):
             from ftplib import FTP
             ftp=FTP()
             ftp.connect('geepasftp.selfip.com', 2221)
@@ -419,7 +421,7 @@ def create_final_order_util(unit_order_obj, seller_sku,company_code,order_inform
                     break
             if does_file_exists==True:
                 break
-            time.sleep(100)
+            time.sleep(600)
         
         if does_file_exists==True:
             result = create_final_order(seller_sku,company_code,order_information)

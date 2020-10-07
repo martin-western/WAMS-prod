@@ -4973,27 +4973,28 @@ class GRNProcessingCronAPI(APIView):
             files = ftp.nlst("omnicom")
 
             brand_company_dict = {
-                "geepas": "1000",
+                "geepas": "1200",
                 "baby plus": "5550",
                 "royalford": "3000",
                 "krypton": "2100",
                 "olsenmark": "1100",
                 "ken jardene": "5550",
                 "younglife": "5000",
-                "delcasa": "3000"
+                "delcasa": "3050"
             }
 
             for f in files:
                 search_file = f.split("_")[0]
-                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="SAP Punched").exists():
+                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="Success").exists():
                     unit_order_obj = UnitOrder.objects.get(grn_filename=search_file)
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     company_code = brand_company_dict[unit_order_obj.product.get_brand().lower()]
                     order_information = json.loads(unit_order_obj.order_information)
                     order_information["order_id"] = unit_order_obj.orderid
-
+                    
+                    logger.info("BEFORE FINAL BILLING : %s %s %s ",seller_sku, company_code,str(order_information))
                     result = create_final_order(seller_sku, company_code, order_information)
-                    logger.info("RESULT FINAL: %s", str(result))
+                    logger.info("RESULT FINAL: %s",str(result))
                     unit_order_obj.sap_final_billing_info = json.dumps(result)
                     unit_order_obj.sap_status = "SAP Punched"
                     unit_order_obj.order_information = json.dumps(order_information)
