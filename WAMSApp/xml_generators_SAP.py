@@ -308,7 +308,7 @@ def xml_generator_for_final_billing(seller_sku,company_code,customer_id,order_in
                                      <INDPRICE></INDPRICE>
                                      <DISC></DISC>
                                      <INDDISC></INDDISC>
-                                     <CHARG>BS</CHARG>
+                                     <CHARG>""" + str(order_information["batch"]) + """</CHARG>
                                      <MO_PRICE></MO_PRICE>
                                      <NO_STOCK_IND></NO_STOCK_IND>
                                      <NO_STOCK_FOC></NO_STOCK_FOC>
