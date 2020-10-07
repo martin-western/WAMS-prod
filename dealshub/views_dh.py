@@ -3923,6 +3923,7 @@ class SetShippingMethodAPI(APIView):
                         error_flag = 1
                         break
                     order_information["GRN_filename"] = str(do_id)
+                    unit_order_obj.grn_filename = str(do_id)
                     unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                     unit_order_obj.order_information = json.dumps(order_information)
                     unit_order_obj.sap_status = "In GRN"
@@ -4949,6 +4950,64 @@ class FetchFastCartDetailsAPI(APIView):
         return Response(data=response)
 
 
+class GRNProcessingCronAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("GRNProcessingCronAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            from ftplib import FTP
+            ftp=FTP()
+            ftp.connect('geepasftp.selfip.com', 2221)
+            ftp.login('mapftpdev','western')
+            files = []
+            files = ftp.nlst("omnicom")
+
+            brand_company_dict = {
+                "geepas": "1000",
+                "baby plus": "5550",
+                "royalford": "3000",
+                "krypton": "2100",
+                "olsenmark": "1100",
+                "ken jardene": "5550",
+                "younglife": "5000",
+                "delcasa": "3000"
+            }
+
+            for f in files:
+                if UnitOrder.objects.filter(grn_filename=f).exclude(sap_status="SAP Punched").exists():
+                    unit_order_obj = UnitOrder.objects.get(grn_filename=f)
+                    seller_sku = unit_order_obj.product.get_seller_sku()
+                    company_code = brand_company_dict[unit_order_obj.product.get_brand().lower()]
+                    order_information = json.loads(unit_order_obj.order_information)
+                    order_information["order_id"] = unit_order_obj.orderid
+
+                    result = create_final_order(seller_sku, company_code, order_information)
+                    logger.info("RESULT FINAL: %s", str(result))
+                    unit_order_obj.sap_final_billing_info = json.dumps(result)
+                    unit_order_obj.sap_status = "SAP Punched"
+                    unit_order_obj.order_information = json.dumps(order_information)
+                    unit_order_obj.save()
+
+                    # Remove file from ftp - TBD
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GRNProcessingCronAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
@@ -5100,3 +5159,5 @@ FetchWishList = FetchWishListAPI.as_view()
 FetchFastCartDetails = FetchFastCartDetailsAPI.as_view()
 
 UpdateFastCartDetails = UpdateFastCartDetailsAPI.as_view()
+
+GRNProcessingCron = GRNProcessingCronAPI.as_view()
