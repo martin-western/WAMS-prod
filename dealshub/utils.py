@@ -772,5 +772,19 @@ def get_all_the_charges(unit_order_obj):
         "promotional_charge" : ""
     }
 
+    order_obj = unit_order_obj.order
+
+    cod_charge = order_obj.get_cod_charge()
+    courier_charge = order_obj.get_delivery_fee()
+
+    voucher_obj = order_obj.voucher
+    is_voucher_applied = voucher_obj is not None
+
+    if is_voucher_applied:
+        voucher_charge = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+
+    charges["cod_charge"] = cod_charge
+    charges["courier_charge"] = courier_charge
+    charges["voucher_charge"] = voucher_charge
     
     return charges
