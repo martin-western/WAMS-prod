@@ -329,12 +329,14 @@ def create_final_order(seller_sku,company_code,order_information):
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
         body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id_final_billing,order_information)
-        
+        logger.info("XML : %s",body)
+
         response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
+        logger.info("Response : %s",response_dict)
 
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
 
