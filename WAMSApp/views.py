@@ -1042,7 +1042,7 @@ class FetchDealsHubProductsAPI(APIView):
 
             if "import_file" in data:
                 path = default_storage.save('tmp/search-dh-file.xlsx', data["import_file"])
-                path = "https://cdn.omnycomm.com/"+path
+                path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
                 rows = len(dfs.iloc[:])
                 search_list = []
@@ -1195,7 +1195,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
             price_permission = custom_permission_price(request.user, "dealshub")
             if price_permission:
                 path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
-                path = "https://cdn.omnycomm.com/"+path
+                path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
                 rows = len(dfs.iloc[:])
 
@@ -1242,7 +1242,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
             stock_permission = custom_permission_stock(request.user, "dealshub")
             if stock_permission:
                 path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
-                path = "https://cdn.omnycomm.com/"+path
+                path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
                 rows = len(dfs.iloc[:])
 
@@ -2508,7 +2508,7 @@ class CreateFlyerAPI(APIView):
                 try:
                     if data["import_file"] != "undefined" and data["import_file"] != None and data["import_file"] != "":
                         path = default_storage.save('tmp/temp-flyer.xlsx', data["import_file"])
-                        path = "https://cdn.omnycomm.com/"+path
+                        path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
                         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
                         rows = len(dfs.iloc[:])
                         item_data = []
@@ -5322,7 +5322,7 @@ class FetchChannelProductListAPI(APIView):
                 try :
                     
                     path = default_storage.save('tmp/search-channel-file.xlsx', data["import_file"])
-                    path = "https://cdn.omnycomm.com/"+path
+                    path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
                     dfs = pd.read_excel(path, sheet_name=None)
 
                 except Exception as e:
@@ -5702,7 +5702,7 @@ class UploadBulkExportAPI(APIView):
                 data = json.loads(data)
 
             path = default_storage.save('tmp/temp-bulk-upload.xlsx', data["import_file"])
-            path = "https://cdn.omnycomm.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
@@ -6348,7 +6348,7 @@ class BulkUploadDynamicExcelAPI(APIView):
             operation = data["operation"]
 
             path = default_storage.save('tmp/temp-dynamic-template-upload.xlsx', data["import_file"])
-            path = "https://cdn.omnycomm.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
             incoming_response = upload_dynamic_excel_for_product(path,operation,request.user)
                 

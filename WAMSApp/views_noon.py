@@ -75,7 +75,7 @@ class BulkUpdateNoonProductPriceAPI(APIView):
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-price.xlsx', data["import_file"])
-            path = "https://cdn.omnycomm.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
             try :
                 dfs = pd.read_excel(path, sheet_name=None)
@@ -209,7 +209,7 @@ class BulkUpdateNoonProductStockAPI(APIView):
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-stock.xlsx', data["import_file"])
-            path = "https://cdn.omnycomm.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
             try :
                 dfs = pd.read_excel(path, sheet_name=None)
@@ -338,7 +338,7 @@ class BulkUpdateNoonProductPriceAndStockAPI(APIView):
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-price-and-stock.xlsx', data["import_file"])
-            path = "https://cdn.omnycomm.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
             try :
                 dfs = pd.read_excel(path, sheet_name=None)
