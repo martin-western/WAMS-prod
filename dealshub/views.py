@@ -857,7 +857,7 @@ class SectionBulkUploadAPI(APIView):
 
             for i in range(rows):
                 try:
-                    product_id = dfs.iloc[i][0].strip()
+                    product_id = str(dfs.iloc[i][0]).strip()
                     product_id = product_id.split(".")[0]
                     logger.info("PRODUCT ID: %s", str(product_id))
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
