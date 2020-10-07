@@ -4984,8 +4984,9 @@ class GRNProcessingCronAPI(APIView):
             }
 
             for f in files:
-                if UnitOrder.objects.filter(grn_filename=f).exclude(sap_status="SAP Punched").exists():
-                    unit_order_obj = UnitOrder.objects.get(grn_filename=f)
+                search_file = f.split("_")[0]
+                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="SAP Punched").exists():
+                    unit_order_obj = UnitOrder.objects.get(grn_filename=search_file)
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     company_code = brand_company_dict[unit_order_obj.product.get_brand().lower()]
                     order_information = json.loads(unit_order_obj.order_information)
