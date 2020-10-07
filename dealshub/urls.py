@@ -176,4 +176,9 @@ urlpatterns = [
     url(r'^wish-list/fetch-wish-list/$', views.FetchWishList),
 
     url(r'^fetch-postaplus-details/$',views.FetchPostaPlusDetails),
+
+    url(r'^update-unit-order-qty-admin/$',views.UpdateUnitOrderQtyAdmin),
+    url(r'^update-order-shipping-admin/$',views.UpdateOrderShippingAdmin),
+
+    url(r'^grn-processing-cron/$',views.GRNProcessingCron),
 ]

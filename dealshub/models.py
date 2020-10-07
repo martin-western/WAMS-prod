@@ -761,9 +761,11 @@ class UnitOrder(models.Model):
         ("pending", "pending"),
         ("In GRN", "In GRN"),
         ("SAP Punched", "SAP Punched"),
+        ("Success", "Success"),
         ("Failed", "Failed")
     )
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
+    grn_filename = models.CharField(max_length=100, default="")
 
     def get_subtotal(self):
         return float(self.price)*float(self.quantity)

@@ -357,7 +357,7 @@ class FetchSuperCategoriesAPI(APIView):
                 if super_category_obj.image!=None:
                     temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
                 category_list = []
-                category_objs = Category.objects.filter(super_category=super_category_obj)[:3]
+                category_objs = Category.objects.filter(super_category=super_category_obj)[:30]
                 for category_obj in category_objs:
                     temp_dict2 = {}
                     temp_dict2["category_name"] = category_obj.name
@@ -838,7 +838,8 @@ class SectionBulkUploadAPI(APIView):
             logger.info("SectionBulkUploadAPI: %s", str(data))
 
             path = default_storage.save('tmp/temp-section.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            logger.info("PATH %s", str(path))
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
@@ -856,8 +857,8 @@ class SectionBulkUploadAPI(APIView):
 
             for i in range(rows):
                 try:
-                    product_id = dfs.iloc[i][0]
-
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     dealshub_product_obj.promotion = section_obj.promotion
 
@@ -909,7 +910,7 @@ class BannerBulkUploadAPI(APIView):
             logger.info("BannerBulkUploadAPI: %s", str(data))
 
             path = default_storage.save('tmp/temp-banner.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
@@ -925,7 +926,8 @@ class BannerBulkUploadAPI(APIView):
             unit_banner_obj.products.clear()
             for i in range(rows):
                 try:
-                    product_id = dfs.iloc[i][0]
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     unit_banner_obj.products.add(dealshub_product_obj)
                     dealshub_product_obj.promotion = unit_banner_obj.promotion
@@ -1573,10 +1575,19 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["start_time"] = None
                     temp_dict["end_time"] = None
                     temp_dict["promotion_tag"] = None
+                    temp_dict["remaining_time"] = None
                 else:
                     temp_dict["is_promotional"] = True
                     temp_dict["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
                     temp_dict["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
+                    now_time = datetime.datetime.now()
+                    total_seconds = (timezone.localtime(promotion_obj.end_time).replace(tzinfo=None) - now_time).total_seconds()
+                    temp_dict["remaining_time"] = {
+                        "days": int(total_seconds/(3600*24)),
+                        "hours": int(total_seconds/3600)%24,
+                        "minutes": int(total_seconds/60)%60,
+                        "seconds": int(total_seconds)%60
+                    }
                     temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
 
                 hovering_banner_img = section_obj.hovering_banner_image
@@ -2766,6 +2777,95 @@ class FetchPostaPlusDetailsAPI(APIView):
         return Response(data=response)
 
 
+class UpdateUnitOrderQtyAdminAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateUnitOrderQtyAdminAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["unitOrderUuid"]
+            quantity = int(data["quantity"])
+
+            unit_order_obj = UnitOrder.objects.get(uuid=uuid)
+            order_obj = unit_order_obj.order
+
+            if quantity==0:
+                unit_order_obj.delete()
+            else:
+                unit_order_obj.quantity = quantity
+                unit_order_obj.save()
+
+            update_order_bill(order_obj)
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateUnitOrderQtyAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateOrderShippingAdminAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("UpdateOrderShippingAdminAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            uuid = data["orderUuid"]
+
+            order_obj = Order.objects.get(uuid=uuid)
+
+            location_group_obj = order_obj.location_group
+            dealshub_user_obj = order_obj.owner
+
+            first_name = data["firstName"]
+            last_name = data["lastName"]
+            line1 = data["line1"]
+            line2 = data["line2"]
+            line3 = ""
+            line4 = location_group_obj.location.name
+            address_lines = json.dumps([line1, line2, line3, line4])
+            state = ""
+            postcode = ""
+            contact_number = data["contact_number"]
+            tag = "Home"
+
+            address_obj = Address.objects.create(first_name=first_name, 
+                                                 last_name=last_name, 
+                                                 address_lines=address_lines, 
+                                                 state=state, 
+                                                 postcode=postcode, 
+                                                 contact_number=contact_number, 
+                                                 user=dealshub_user_obj, 
+                                                 tag=tag, 
+                                                 location_group=location_group_obj)
+            order_obj.shipping_address = address_obj
+            order_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateOrderShippingAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
@@ -2881,3 +2981,7 @@ PublishVoucher = PublishVoucherAPI.as_view()
 UnPublishVoucher = UnPublishVoucherAPI.as_view()
 
 FetchPostaPlusDetails = FetchPostaPlusDetailsAPI.as_view()
+
+UpdateUnitOrderQtyAdmin = UpdateUnitOrderQtyAdminAPI.as_view()
+
+UpdateOrderShippingAdmin = UpdateOrderShippingAdminAPI.as_view()

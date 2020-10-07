@@ -162,6 +162,12 @@ def update_fast_cart_bill(fast_cart_obj):
     fast_cart_obj.save()
 
 
+def update_order_bill(order_obj):
+    
+    order_obj.to_pay = order_obj.get_total_amount()
+    order_obj.save()
+
+
 def send_order_confirmation_mail(order_obj):
     try:
         logger.info("send_order_confirmation_mail started!")
@@ -755,3 +761,31 @@ def create_section_banner_product_report(dealshub_product_objs, filename):
             logger.error("Error create_section_banner_product_report %s %s", e, str(exc_tb.tb_lineno))
 
     workbook.close()
+
+def get_all_the_charges(unit_order_obj):
+
+    charges = {
+        "courier_charge" : "",
+        "cod_charge" : "",
+        "voucher_charge" : "",
+        "other_charge" : "",
+        "promotional_charge" : ""
+    }
+
+    order_obj = unit_order_obj.order
+
+    cod_charge = order_obj.get_cod_charge()
+    courier_charge = order_obj.get_delivery_fee()
+
+    voucher_obj = order_obj.voucher
+    is_voucher_applied = voucher_obj is not None
+
+    voucher_charge = ""
+    if is_voucher_applied:
+        voucher_charge = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+
+    charges["cod_charge"] = cod_charge
+    charges["courier_charge"] = courier_charge
+    charges["voucher_charge"] = voucher_charge
+
+    return charges

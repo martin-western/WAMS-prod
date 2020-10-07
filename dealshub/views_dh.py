@@ -2991,8 +2991,6 @@ class ForgotLoginPinAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
-            
-            mshastra_info = json.loads(location_group_obj.mshastra_info)
 
             digits = "0123456789"
             pin = ""
@@ -3010,14 +3008,19 @@ class ForgotLoginPinAPI(APIView):
             dealshub_user_obj.save()
 
             # Trigger SMS
-            prefix_code = mshastra_info["prefix_code"]
-            sender_id = mshastra_info["sender_id"]
-            user = mshastra_info["user"]
-            pwd = mshastra_info["pwd"]
-
-            contact_number = prefix_code+contact_number
-            url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
-            r = requests.get(url)
+            if location_group_obj.website_group.name.lower()!="parajohn":
+                mshastra_info = json.loads(location_group_obj.mshastra_info)
+                prefix_code = mshastra_info["prefix_code"]
+                sender_id = mshastra_info["sender_id"]
+                user = mshastra_info["user"]
+                pwd = mshastra_info["pwd"]
+                contact_number = prefix_code+contact_number
+                url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
+                r = requests.get(url)
+            else:
+                contact_number = "971"+contact_number
+                url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to="+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+                r = requests.get(url)
 
             response["status"] = 200
 
@@ -3884,7 +3887,9 @@ class SetShippingMethodAPI(APIView):
             #             x_value = user_input_sap[seller_sku]
             #         order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
-            #         order_information["order_id"] = unit_order_obj.orderid
+            #         intercompany_order_id = str(uuid.uuid4()).split("-")[0]
+            #         order_information["order_id"] = intercompany_order_id
+            #         order_information["intercompany_order_id"] = intercompany_order_id
             #         order_information["seller_sku"] = seller_sku
             #         order_information["qty"] = unit_order_obj.quantity
             #         order_information["price"] = unit_order_obj.price
@@ -3917,7 +3922,8 @@ class SetShippingMethodAPI(APIView):
             #         if so_exists==0 or do_exists==0:
             #             error_flag = 1
             #             break
-            #         order_information["GRN_filename"] = str(do_id)+"_"+str(so_id)+".txt"
+            #         order_information["GRN_filename"] = str(do_id)
+            #         unit_order_obj.grn_filename = str(do_id)
             #         unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
             #         unit_order_obj.order_information = json.dumps(order_information)
             #         unit_order_obj.sap_status = "In GRN"
@@ -3929,15 +3935,19 @@ class SetShippingMethodAPI(APIView):
                         
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                 # try:
+                #     logger.info("Inside for loop 1")
                 #     seller_sku = unit_order_obj.product.get_seller_sku()
                 #     brand_name = unit_order_obj.product.get_brand()
                 #     company_code = brand_company_dict[brand_name.lower()]
                 #     order_information = json.loads(unit_order_obj.order_information)
+                #     order_information["order_id"] = unit_order_obj.orderid
+                #     unit_order_obj.order_information = json.dumps(order_information)
+                #     unit_order_obj.save()
                 #     p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
                 #     p1.start()
                 # except Exception as e:
                 #     exc_type, exc_obj, exc_tb = sys.exc_info()
-                #     logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                #     logger.error("SetShippingMethodAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 set_shipping_method(unit_order_obj, shipping_method)
 
             #response["sap_info_render"] = sap_info_render
@@ -4148,7 +4158,7 @@ class UploadOrdersAPI(APIView):
                 data = json.loads(data)
             
             path = default_storage.save('tmp/temp-orders.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
@@ -4940,6 +4950,68 @@ class FetchFastCartDetailsAPI(APIView):
         return Response(data=response)
 
 
+class GRNProcessingCronAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("GRNProcessingCronAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            from ftplib import FTP
+            ftp=FTP()
+            ftp.connect('geepasftp.selfip.com', 2221)
+            ftp.login('mapftpdev','western')
+            files = []
+            files = ftp.nlst("omnicom")
+
+            brand_company_dict = {
+                "geepas": "1200",
+                "baby plus": "5550",
+                "royalford": "3000",
+                "krypton": "2100",
+                "olsenmark": "1100",
+                "ken jardene": "5550",
+                "younglife": "5000",
+                "delcasa": "3050"
+            }
+
+            for f in files:
+                search_file = f.split("_")[0]
+                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="Success").exists():
+                    unit_order_obj = UnitOrder.objects.get(grn_filename=search_file)
+                    seller_sku = unit_order_obj.product.get_seller_sku()
+                    company_code = brand_company_dict[unit_order_obj.product.get_brand().lower()]
+                    order_information = json.loads(unit_order_obj.order_information)
+                    order_information["order_id"] = unit_order_obj.orderid
+                    order_information["charges"] = get_all_the_charges(unit_order_obj)
+
+                    logger.info("BEFORE FINAL BILLING : %s %s %s ",seller_sku, company_code,str(order_information))
+                    result = create_final_order(seller_sku, company_code, order_information)
+                    logger.info("RESULT FINAL: %s",str(result))
+                    
+                    unit_order_obj.sap_final_billing_info = json.dumps(result)
+                    unit_order_obj.sap_status = "SAP Punched"
+                    unit_order_obj.order_information = json.dumps(order_information)
+                    unit_order_obj.save()
+
+                    # Remove file from ftp - TBD
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("GRNProcessingCronAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
@@ -5091,3 +5163,5 @@ FetchWishList = FetchWishListAPI.as_view()
 FetchFastCartDetails = FetchFastCartDetailsAPI.as_view()
 
 UpdateFastCartDetails = UpdateFastCartDetailsAPI.as_view()
+
+GRNProcessingCron = GRNProcessingCronAPI.as_view()

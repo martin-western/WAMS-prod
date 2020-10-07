@@ -13,6 +13,7 @@ test_transfer_holding_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_ho
 test_online_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"  
 
 test_customer_id = "40000195"
+test_customer_id_final_billing = "50000151"
 
 def fetch_prices_and_stock(seller_sku,company_code):
     
@@ -168,6 +169,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        # credentials = ("WIABAP", "pradeepabap456")
         
         transfer_information = []
         
@@ -245,6 +247,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        logger.info(order_information)
 
         body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,test_customer_id,order_information)
         
@@ -325,13 +328,45 @@ def create_final_order(seller_sku,company_code,order_information):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 
-        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id,order_information)
-        
+        charges = order_information["charges"]
+        header_charges = []
+
+        if charges["courier_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZWJC"
+            temp_dict["value"] = charges["courier_charge"]
+            header_charges.append(temp_dict)
+
+        if charges["cod_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZCOD"
+            temp_dict["value"] = charges["cod_charge"]
+            header_charges.append(temp_dict)
+
+        if charges["voucher_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZWJS"
+            temp_dict["value"] = charges["voucher_charge"]
+            header_charges.append(temp_dict)
+
+        if charges["other_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZWJA"
+            temp_dict["value"] = charges["other_charge"]
+            header_charges.append(temp_dict)
+
+        order_information["promotional_charge"] = charges["promotional_charge"]
+        order_information["header_charges"] = header_charges
+
+        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id_final_billing,order_information)
+        logger.info("XML : %s",body)
+
         response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
         response_dict = json.loads(json.dumps(xml_content))
+        logger.info("Response : %s",response_dict)
 
         items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
 
@@ -396,21 +431,23 @@ def create_final_order(seller_sku,company_code,order_information):
         logger.error("create_final_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-
-
 def create_final_order_util(unit_order_obj, seller_sku,company_code,order_information):
     
     try:
+        logger.info("Inside create_final_order_util")
         does_file_exists = False
-        for i in range(10):
+        for i in range(12):
             from ftplib import FTP
             ftp=FTP()
             ftp.connect('geepasftp.selfip.com', 2221)
             ftp.login('mapftpdev','western')
             files = []
             files = ftp.nlst("omnicom")
-            if order_information["GRN_filename"] in files:
-                does_file_exists = True
+            for f in files:
+                if order_information["GRN_filename"] in f:
+                    does_file_exists = True
+                    break
+            if does_file_exists==True:
                 break
             time.sleep(600)
         

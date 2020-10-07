@@ -73,11 +73,11 @@ def xml_generator_for_holding_tansfer(company_code,customer_id,transfer_informat
                          <IM_EXTRA/>
                          <IM_FLAG/>
                          <IM_ID/>
-                         <IM_KUNNR>"""+ customer_id + """</IM_KUNNR>
+                         <IM_KUNNR>"""+ str(customer_id) + """</IM_KUNNR>
                          <IM_PERNR/>
                          <IM_PO_NUMBER/>
                          <IM_SPART/>
-                         <IM_VKORG>""" + company_code +"""</IM_VKORG>
+                         <IM_VKORG>""" + str(company_code) +"""</IM_VKORG>
                          <IM_VTWEG/>
                          <T_ITEM>"""
 
@@ -164,11 +164,11 @@ def xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,o
                                <IM_EXTRA></IM_EXTRA>
                                <IM_FLAG>X</IM_FLAG>
                                <IM_ID>""" + str(order_information["order_id"]) + """</IM_ID>
-                               <IM_KUNNR>""" + customer_id + """</IM_KUNNR>
+                               <IM_KUNNR>""" + str(customer_id) + """</IM_KUNNR>
                                <IM_PERNR></IM_PERNR>
                                <IM_PO_NUMBER></IM_PO_NUMBER>
                                <IM_SPART></IM_SPART>
-                               <IM_VKORG>""" + company_code + """</IM_VKORG>
+                               <IM_VKORG>""" + str(company_code) + """</IM_VKORG>
                                <IM_VTWEG></IM_VTWEG>
                                <T_CONDITION>
                                   <item>
@@ -264,6 +264,22 @@ def xml_generator_for_final_billing(seller_sku,company_code,customer_id,order_in
 
     try :
 
+        condition_feed = ""
+
+        for item in order_information["header_charges"]:
+            condition_feed += """<item>
+                                    <KPOSN></KPOSN>
+                                    <KSCHL>"""+ str(item["name"]) + """</KSCHL>
+                                    <KWERT>"""+ str(item["value"]) + """</KWERT>
+                                </item>"""
+
+        if condition_feed == "":
+            condition_feed = """<item>
+                                    <KPOSN></KPOSN>
+                                    <KSCHL></KSCHL>
+                                    <KWERT></KWERT>
+                                </item>"""
+
         xml_feed = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
                          <soapenv:Header/>
                          <soapenv:Body>
@@ -281,13 +297,7 @@ def xml_generator_for_final_billing(seller_sku,company_code,customer_id,order_in
                                <IM_NAME>""" + str(order_information["customer_name"]) + """</IM_NAME>
                                <IM_VKORG>""" + str(company_code) + """</IM_VKORG>
                                <IM_VTWEG></IM_VTWEG>
-                               <T_CONDITION>
-                                  <item>
-                                     <KPOSN></KPOSN>
-                                     <KSCHL></KSCHL>
-                                     <KWERT></KWERT>
-                                  </item>
-                               </T_CONDITION>
+                               <T_CONDITION>"""+ str(condition_feed) + """</T_CONDITION>
                                <T_DOCS>
                                   <item>
                                      <DOCTYP></DOCTYP>
@@ -304,12 +314,12 @@ def xml_generator_for_final_billing(seller_sku,company_code,customer_id,order_in
                                      <MAKTX></MAKTX>
                                      <QTY>"""+ str(order_information["qty"]) +"""</QTY>
                                      <UOM>""" + str(order_information["uom"]) + """</UOM>
-                                     <PRICE>"""+ str(order_information["price"]) + """</PRICE>
+                                     <PRICE></PRICE>
                                      <INDPRICE></INDPRICE>
                                      <DISC></DISC>
                                      <INDDISC></INDDISC>
-                                     <CHARG>BS</CHARG>
-                                     <MO_PRICE></MO_PRICE>
+                                     <CHARG>""" + str(order_information["batch"]) + """</CHARG>
+                                     <MO_PRICE>"""+ str(order_information["price"]) + """</MO_PRICE>
                                      <NO_STOCK_IND></NO_STOCK_IND>
                                      <NO_STOCK_FOC></NO_STOCK_FOC>
                                      <FOC_ITEM></FOC_ITEM>
@@ -328,7 +338,7 @@ def xml_generator_for_final_billing(seller_sku,company_code,customer_id,order_in
                                      <TEXT2></TEXT2>
                                      <CHARG_LIST></CHARG_LIST>
                                      <PRICE_CHANGE></PRICE_CHANGE>
-                                     <CONDITION1></CONDITION1>
+                                     <CONDITION1>""" + str(order_information["promotional_charge"]) +"""</CONDITION1>
                                      <CONDITION2></CONDITION2>
                                      <CONDITION3></CONDITION3>
                                      <CONDITION4></CONDITION4>
