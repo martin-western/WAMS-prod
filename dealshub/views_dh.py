@@ -4158,7 +4158,7 @@ class UploadOrdersAPI(APIView):
                 data = json.loads(data)
             
             path = default_storage.save('tmp/temp-orders.xlsx', data["import_file"])
-            path = "https://cdn.omnycomm.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
