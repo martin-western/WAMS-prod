@@ -926,7 +926,8 @@ class BannerBulkUploadAPI(APIView):
             unit_banner_obj.products.clear()
             for i in range(rows):
                 try:
-                    product_id = dfs.iloc[i][0]
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     unit_banner_obj.products.add(dealshub_product_obj)
                     dealshub_product_obj.promotion = unit_banner_obj.promotion
