@@ -338,6 +338,31 @@ def create_final_order(seller_sku,company_code,order_information):
             temp_dict["value"] = charges["courier_charge"]
             header_charges.append(temp_dict)
 
+        if charges["cod_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZCOD"
+            temp_dict["value"] = charges["cod_charge"]
+            header_charges.append(temp_dict)
+
+        if charges["voucher_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZWJS"
+            temp_dict["value"] = charges["voucher_charge"]
+            header_charges.append(temp_dict)
+
+        if charges["other_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZWJA"
+            temp_dict["value"] = charges["other_charge"]
+            header_charges.append(temp_dict)
+
+        if charges["promotional_charge"] != "":
+            temp_dict = {}
+            temp_dict["name"] = "ZWJP"
+            temp_dict["value"] = charges["promotional_charge"]
+            line_items.append(temp_dict)
+
+
         body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id_final_billing,order_information)
         logger.info("XML : %s",body)
 
