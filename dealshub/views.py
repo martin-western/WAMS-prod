@@ -839,7 +839,7 @@ class SectionBulkUploadAPI(APIView):
 
             path = default_storage.save('tmp/temp-section.xlsx', data["import_file"])
             logger.info("PATH %s", str(path))
-            path = "https://cdn.omnycomm.com.s3.amazonaws.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
