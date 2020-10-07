@@ -772,4 +772,5 @@ def get_all_the_charges(unit_order_obj):
         "promotional_charge" : ""
     }
 
+    
     return charges
