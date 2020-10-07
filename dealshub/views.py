@@ -859,6 +859,7 @@ class SectionBulkUploadAPI(APIView):
                 try:
                     product_id = dfs.iloc[i][0]
 
+                    logger.info("PRODUCT ID: %s", str(product_id))
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     dealshub_product_obj.promotion = section_obj.promotion
 
