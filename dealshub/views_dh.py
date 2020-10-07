@@ -4993,7 +4993,7 @@ class GRNProcessingCronAPI(APIView):
                     order_information["order_id"] = unit_order_obj.orderid
 
                     result = create_final_order(seller_sku, company_code, order_information)
-                    logger.info("RESULT FINAL: %s", str(result))
+                    logger.info("RESULT FINAL: %s",seller_sku, company_code,str(order_information), str(result))
                     unit_order_obj.sap_final_billing_info = json.dumps(result)
                     unit_order_obj.sap_status = "SAP Punched"
                     unit_order_obj.order_information = json.dumps(order_information)
