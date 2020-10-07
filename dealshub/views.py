@@ -838,7 +838,7 @@ class SectionBulkUploadAPI(APIView):
             logger.info("SectionBulkUploadAPI: %s", str(data))
 
             path = default_storage.save('tmp/temp-section.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "https://cdn.omnycomm.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
@@ -909,7 +909,7 @@ class BannerBulkUploadAPI(APIView):
             logger.info("BannerBulkUploadAPI: %s", str(data))
 
             path = default_storage.save('tmp/temp-banner.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "https://cdn.omnycomm.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
@@ -1578,8 +1578,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["is_promotional"] = True
                     temp_dict["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
                     temp_dict["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
-                    now_time = datetime.datetime.now().replace(tzinfo=promotion_obj.end_time.tzinfo)
-                    total_seconds = (promotion_obj.end_time - now_time).total_seconds()
+                    now_time = datetime.datetime.now()
+                    total_seconds = (timezone.localtime(promotion_obj.end_time).replace(tzinfo=None) - now_time).total_seconds()
                     temp_dict["remaining_time"] = {
                         "days": int(total_seconds/(3600*24)),
                         "hours": int(total_seconds/3600)%24,

@@ -75,7 +75,7 @@ class BulkUpdateAmazonUAEProductPriceAPI(APIView):
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-price.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "https://cdn.omnycomm.com/"+path
 
             try :
                 dfs = pd.read_excel(path, sheet_name=None)
@@ -200,7 +200,7 @@ class BulkUpdateAmazonUAEProductStockAPI(APIView):
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-stock.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "https://cdn.omnycomm.com/"+path
 
             try :
                 dfs = pd.read_excel(path, sheet_name=None)
@@ -320,7 +320,7 @@ class BulkUpdateAmazonUAEProductPriceAndStockAPI(APIView):
                 return Response(data=response)
 
             path = default_storage.save('tmp/bulk-upload-noon-price-and-stock.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "https://cdn.omnycomm.com/"+path
 
             try :
                 dfs = pd.read_excel(path, sheet_name=None)
