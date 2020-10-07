@@ -838,7 +838,7 @@ class SectionBulkUploadAPI(APIView):
             logger.info("SectionBulkUploadAPI: %s", str(data))
 
             path = default_storage.save('tmp/temp-section.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "https://cdn.omnycomm.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
@@ -909,7 +909,7 @@ class BannerBulkUploadAPI(APIView):
             logger.info("BannerBulkUploadAPI: %s", str(data))
 
             path = default_storage.save('tmp/temp-banner.xlsx', data["import_file"])
-            path = "https://wig-wams-s3-bucket.s3.ap-south-1.amazonaws.com/"+path
+            path = "https://cdn.omnycomm.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
