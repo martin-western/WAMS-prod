@@ -774,15 +774,15 @@ print()
 # if GRN_filename in files:
 #     does_file_exists = True
 
-# does_file_exists = False
-# from ftplib import FTP
-# ftp=FTP()
-# ftp.connect('geepasftp.selfip.com', 2221)
-# ftp.login('mapftpdev','western')
-# files = []
-# files = ftp.nlst("omnicom")
-# GRN_filename = "0080147464"
-# for f in files:
-#     if GRN_filename in f:
-#         does_file_exists = True
-#         break
+does_file_exists = False
+from ftplib import FTP
+ftp=FTP()
+ftp.connect('geepasftp.selfip.com', 2221)
+ftp.login('mapftpdev','western')
+files = []
+files = ftp.nlst("omnicom")
+GRN_filename = "0080147545"
+for f in files:
+    if GRN_filename in f:
+        does_file_exists = True
+        break
