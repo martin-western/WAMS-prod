@@ -780,11 +780,12 @@ def get_all_the_charges(unit_order_obj):
     voucher_obj = order_obj.voucher
     is_voucher_applied = voucher_obj is not None
 
+    voucher_charge = ""
     if is_voucher_applied:
         voucher_charge = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
 
     charges["cod_charge"] = cod_charge
     charges["courier_charge"] = courier_charge
     charges["voucher_charge"] = voucher_charge
-    
+
     return charges
