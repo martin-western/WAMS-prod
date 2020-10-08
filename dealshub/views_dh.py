@@ -3888,9 +3888,7 @@ class SetShippingMethodAPI(APIView):
                         x_value = user_input_sap[seller_sku]
                     order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
-                    intercompany_order_id = str(uuid.uuid4()).split("-")[0]
-                    order_information["order_id"] = intercompany_order_id
-                    order_information["intercompany_order_id"] = intercompany_order_id
+                    order_information["order_id"] = unit_order_obj.orderid
                     order_information["seller_sku"] = seller_sku
                     qty = round(float(unit_order_obj.quantity),2)
                     order_information["qty"] = qty
@@ -3931,20 +3929,6 @@ class SetShippingMethodAPI(APIView):
                     return Response(data=response)
                         
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                try:
-                    logger.info("Inside for loop 1")
-                    seller_sku = unit_order_obj.product.get_seller_sku()
-                    brand_name = unit_order_obj.product.get_brand()
-                    company_code = brand_company_dict[brand_name.lower()]
-                    order_information = json.loads(unit_order_obj.order_information)
-                    order_information["order_id"] = unit_order_obj.orderid
-                    unit_order_obj.order_information = json.dumps(order_information)
-                    unit_order_obj.save()
-                    p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
-                    p1.start()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("SetShippingMethodAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 set_shipping_method(unit_order_obj, shipping_method)
 
             response["sap_info_render"] = sap_info_render
@@ -5004,7 +4988,7 @@ class GRNProcessingCronAPI(APIView):
                         order_information["unit_order_information_list"] = unit_order_information_list
 
                         logger.info("BEFORE FINAL BILLING : %s ",str(order_information))
-                        # result = create_final_order(seller_sku, WIGME_COMPANY_CODE, order_information)
+                        # result = create_final_order(WIGME_COMPANY_CODE, order_information)
                         logger.info("RESULT FINAL: %s",str(result))
                         
                         order_obj.sap_final_billing_info = json.dumps(result)
