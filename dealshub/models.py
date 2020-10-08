@@ -601,6 +601,16 @@ class Order(models.Model):
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
+    sap_final_billing_info = models.TextField(default="{}")
+    SAP_STATUS = (
+        ("Pending", "Pending"),
+        ("In GRN", "In GRN"),
+        ("SAP Punched", "SAP Punched"),
+        ("Success", "Success"),
+        ("Failed", "Failed")
+    )
+    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
+
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
@@ -755,17 +765,17 @@ class UnitOrder(models.Model):
     uuid = models.CharField(max_length=200, default="")
 
     sap_intercompany_info = models.TextField(default="{}")
-    sap_final_billing_info = models.TextField(default="{}")
     order_information = models.TextField(default="{}")
     SAP_STATUS = (
         ("pending", "pending"),
         ("In GRN", "In GRN"),
-        ("SAP Punched", "SAP Punched"),
+        ("GRN Done", "GRN Done"),
         ("Success", "Success"),
         ("Failed", "Failed")
     )
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
     grn_filename = models.CharField(max_length=100, default="")
+    grn_filename_exists = models.BooleanField(default=False)
 
     def get_subtotal(self):
         return float(self.price)*float(self.quantity)

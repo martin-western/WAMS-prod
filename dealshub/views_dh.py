@@ -33,7 +33,7 @@ import math
 import random
 
 logger = logging.getLogger(__name__)
-
+WIGME_COMPANY_CODE = 1200
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
@@ -4974,35 +4974,29 @@ class GRNProcessingCronAPI(APIView):
             files = []
             files = ftp.nlst("omnicom")
 
-            brand_company_dict = {
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "delcasa": "3050"
-            }
-
             for f in files:
                 search_file = f.split("_")[0]
-                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="Success").exclude(sap_status="SAP Punched").exists():
+                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="Success").exclude(sap_status="GRN Done").exists():
                     unit_order_obj = UnitOrder.objects.get(grn_filename=search_file)
-                    seller_sku = unit_order_obj.product.get_seller_sku()
-                    company_code = brand_company_dict[unit_order_obj.product.get_brand().lower()]
-                    order_information = json.loads(unit_order_obj.order_information)
-                    order_information["order_id"] = unit_order_obj.orderid
-                    order_information["charges"] = get_all_the_charges(unit_order_obj)
+                    unit_order_obj.grn_filename_exists = True
 
-                    logger.info("BEFORE FINAL BILLING : %s %s %s ",seller_sku, company_code,str(order_information))
-                    result = create_final_order(seller_sku, company_code, order_information)
-                    logger.info("RESULT FINAL: %s",str(result))
+                    order_obj = unit_order_obj.order
+                    unit_order_objs = UnitOrder.objects.filter(order=order_obj,grn_filename_exists=False)
+
+                    if unit_order_objs.count() == 0:
                     
-                    unit_order_obj.sap_final_billing_info = json.dumps(result)
-                    unit_order_obj.sap_status = "SAP Punched"
-                    unit_order_obj.order_information = json.dumps(order_information)
-                    unit_order_obj.save()
+                        order_information = json.loads(order_obj.order_information)
+                        order_information["order_id"] = order_obj.bundleid
+                        order_information["charges"] = get_all_the_charges(order_obj)
+
+                        logger.info("BEFORE FINAL BILLING : %s %s %s ",seller_sku, WIGME_COMPANY_CODE,str(order_information))
+                        # result = create_final_order(seller_sku, WIGME_COMPANY_CODE, order_information)
+                        logger.info("RESULT FINAL: %s",str(result))
+                        
+                        order_obj.sap_final_billing_info = json.dumps(result)
+                        order_obj.sap_status = "SAP Punched"
+                        order_obj.order_information = json.dumps(order_information)
+                        order_obj.save()
 
                     # Remove file from ftp - TBD
 
