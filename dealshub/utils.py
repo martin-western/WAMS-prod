@@ -762,7 +762,7 @@ def create_section_banner_product_report(dealshub_product_objs, filename):
 
     workbook.close()
 
-def get_all_the_charges(unit_order_obj):
+def get_all_the_charges(order_obj):
 
     charges = {
         "courier_charge" : "",
@@ -771,8 +771,6 @@ def get_all_the_charges(unit_order_obj):
         "other_charge" : "",
         "promotional_charge" : ""
     }
-
-    order_obj = unit_order_obj.order
 
     cod_charge = order_obj.get_cod_charge()
     cod_charge = round(float(cod_charge),2)
