@@ -103,6 +103,17 @@ class HoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            brand_company_dict = {
+                "geepas": "1000",
+                "baby plus": "5550",
+                "royalford": "3000",
+                "krypton": "2100",
+                "olsenmark": "1100",
+                "ken jardene": "5550",
+                "younglife": "5000",
+                "delcasa": "3050"
+            }
+            
             seller_sku_list = ["GES4026","GESL121","GFL3855",
                                 "GFL3882","GK175","GPM825","GTR1384","GTR34"]
 

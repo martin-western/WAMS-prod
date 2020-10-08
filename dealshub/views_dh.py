@@ -3891,9 +3891,9 @@ class SetShippingMethodAPI(APIView):
                     order_information["order_id"] = intercompany_order_id
                     order_information["intercompany_order_id"] = intercompany_order_id
                     order_information["seller_sku"] = seller_sku
-                    qty = rounds(float(unit_order_obj.quantity),2)
+                    qty = round(float(unit_order_obj.quantity),2)
                     order_information["qty"] = qty
-                    price = rounds(float(unit_order_obj.price),2)
+                    price = round(float(unit_order_obj.price),2)
                     order_information["price"] = price
 
                     if unit_order_obj.order.payment_status=="paid":
@@ -4975,7 +4975,7 @@ class GRNProcessingCronAPI(APIView):
             files = ftp.nlst("omnicom")
 
             brand_company_dict = {
-                "geepas": "1200",
+                "geepas": "1000",
                 "baby plus": "5550",
                 "royalford": "3000",
                 "krypton": "2100",
