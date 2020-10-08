@@ -4975,7 +4975,7 @@ class GRNProcessingCronAPI(APIView):
                     unit_order_obj = UnitOrder.objects.get(grn_filename=search_file)
                     unit_order_obj.grn_filename_exists = True
                     unit_order_obj.save()
-                    
+
                     order_obj = unit_order_obj.order
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj,grn_filename_exists=False)
 
@@ -5003,7 +5003,7 @@ class GRNProcessingCronAPI(APIView):
                         
                         order_information["unit_order_information_list"] = unit_order_information_list
 
-                        logger.info("BEFORE FINAL BILLING : %s %s %s ",seller_sku, WIGME_COMPANY_CODE,str(order_information))
+                        logger.info("BEFORE FINAL BILLING : %s ",str(order_information))
                         # result = create_final_order(seller_sku, WIGME_COMPANY_CODE, order_information)
                         logger.info("RESULT FINAL: %s",str(result))
                         
