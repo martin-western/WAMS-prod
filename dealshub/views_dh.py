@@ -4978,6 +4978,7 @@ class GRNProcessingCronAPI(APIView):
                     order_obj = unit_order_obj.order
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj,grn_filename_exists=False)
 
+                    logger.info("HERE")
                     if unit_order_objs.count() == 0:
                     
                         order_information = {}
