@@ -250,7 +250,8 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         logger.info(order_information)
 
         body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,test_customer_id,order_information)
-        
+        logger.info("XML Intercompany: %s",body)
+
         response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
@@ -359,9 +360,9 @@ def create_final_order(seller_sku,company_code,order_information):
         order_information["header_charges"] = header_charges
 
         body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id_final_billing,order_information)
-        logger.info("XML : %s",body)
+        logger.info("XML Final: %s",body)
 
-        # response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
