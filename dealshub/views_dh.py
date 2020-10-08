@@ -3666,6 +3666,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
 
+                    temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
+                    temp_dict2["sapStatus"] = order_obj.sap_status
 
                     address_obj = order_obj.shipping_address
                     
@@ -3708,7 +3710,6 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["uuid"] = unit_order_obj.uuid
                         temp_dict2["currentStatus"] = unit_order_obj.current_status_admin
                         temp_dict2["sapStatus"] = unit_order_obj.sap_status
-                        temp_dict2["sap_final_billing_info"] = json.loads(unit_order_obj.sap_final_billing_info)
                         temp_dict2["sap_intercompany_info"] = json.loads(unit_order_obj.sap_intercompany_info)
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
@@ -3896,12 +3897,6 @@ class SetShippingMethodAPI(APIView):
                     price = round(float(unit_order_obj.price),2)
                     order_information["price"] = price
 
-                    if unit_order_obj.order.payment_status=="paid":
-                        order_information["order_type"] = "ZJCR"
-                    else:
-                        order_information["order_type"] = "ZJCD"
-                    order_information["city"] = str(unit_order_obj.order.location_group.location.name)
-                    order_information["customer_name"] = unit_order_obj.order.get_customer_full_name()
                     
                     orig_result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
                     temp_dict2 = {}
@@ -4985,16 +4980,33 @@ class GRNProcessingCronAPI(APIView):
 
                     if unit_order_objs.count() == 0:
                     
-                        order_information = json.loads(order_obj.order_information)
-                        order_information["order_id"] = order_obj.bundleid
+                        order_information = {}
+
+                        if order_obj.payment_status=="paid":
+                            order_information["order_type"] = "ZJCR"
+                        else:
+                            order_information["order_type"] = "ZJCD"
+
+                        order_information["city"] = str(order_obj.location_group.location.name)
+                        order_information["customer_name"] = order_obj.get_customer_full_name()
+                        order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["charges"] = get_all_the_charges(order_obj)
+
+                        unit_order_information_list = []
+
+                        for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+
+                            unit_order_information = json.loads(unit_order_obj.order_information)
+                            unit_order_information_list.append(unit_order_information)
+                        
+                        order_information["unit_order_information_list"] = unit_order_information_list
 
                         logger.info("BEFORE FINAL BILLING : %s %s %s ",seller_sku, WIGME_COMPANY_CODE,str(order_information))
                         # result = create_final_order(seller_sku, WIGME_COMPANY_CODE, order_information)
                         logger.info("RESULT FINAL: %s",str(result))
                         
                         order_obj.sap_final_billing_info = json.dumps(result)
-                        order_obj.sap_status = "SAP Punched"
+                        order_obj.sap_status = "Success"
                         order_obj.order_information = json.dumps(order_information)
                         order_obj.save()
 
