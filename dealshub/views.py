@@ -859,7 +859,6 @@ class SectionBulkUploadAPI(APIView):
                 try:
                     product_id = str(dfs.iloc[i][0]).strip()
                     product_id = product_id.split(".")[0]
-                    logger.info("PRODUCT ID: %s", str(product_id))
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     dealshub_product_obj.promotion = section_obj.promotion
 
@@ -911,7 +910,7 @@ class BannerBulkUploadAPI(APIView):
             logger.info("BannerBulkUploadAPI: %s", str(data))
 
             path = default_storage.save('tmp/temp-banner.xlsx', data["import_file"])
-            path = "https://cdn.omnycomm.com/"+path
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 
@@ -927,7 +926,8 @@ class BannerBulkUploadAPI(APIView):
             unit_banner_obj.products.clear()
             for i in range(rows):
                 try:
-                    product_id = dfs.iloc[i][0]
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     unit_banner_obj.products.add(dealshub_product_obj)
                     dealshub_product_obj.promotion = unit_banner_obj.promotion
