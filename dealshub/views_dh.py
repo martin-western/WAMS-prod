@@ -3667,7 +3667,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
 
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
-                    temp_dict2["sapStatus"] = order_obj.sap_status
+                    temp_dict["sapStatus"] = order_obj.sap_status
 
                     address_obj = order_obj.shipping_address
                     
