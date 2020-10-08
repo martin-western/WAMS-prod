@@ -3891,8 +3891,10 @@ class SetShippingMethodAPI(APIView):
                     order_information["order_id"] = intercompany_order_id
                     order_information["intercompany_order_id"] = intercompany_order_id
                     order_information["seller_sku"] = seller_sku
-                    order_information["qty"] = unit_order_obj.quantity
-                    order_information["price"] = unit_order_obj.price
+                    qty = unit_order_obj.quantity
+                    order_information["qty"] = float("{0:.2f}".format(qty))
+                    price = unit_order_obj.price
+                    order_information["price"] = float("{0:.2f}".format(price))
 
                     if unit_order_obj.order.payment_status=="paid":
                         order_information["order_type"] = "ZJCR"
@@ -4985,7 +4987,7 @@ class GRNProcessingCronAPI(APIView):
 
             for f in files:
                 search_file = f.split("_")[0]
-                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="Success").exists():
+                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="Success").exclude(sap_status="SAP Punched").exists():
                     unit_order_obj = UnitOrder.objects.get(grn_filename=search_file)
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     company_code = brand_company_dict[unit_order_obj.product.get_brand().lower()]
