@@ -241,7 +241,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         logger.error("transfer_from_atp_to_holding: %s at %s", str(e), str(exc_tb.tb_lineno))
         return {}
 
-def create_intercompany_sales_order(seller_sku,company_code,order_information):
+def create_intercompany_sales_order(company_code,order_information):
     
     try:
 
@@ -249,7 +249,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         logger.info(order_information)
 
-        body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,test_customer_id,order_information)
+        body = xml_generator_for_intercompany_tansfer(company_code,test_customer_id,order_information)
         logger.info("XML Intercompany: %s",body)
 
         response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)

@@ -151,7 +151,7 @@ def xml_generator_for_holding_tansfer(company_code,customer_id,transfer_informat
         logger.error("xml_generator_for_holding_tansfer: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,order_information):
+def xml_generator_for_intercompany_tansfer(company_code,customer_id,order_information):
 
     try :
 
@@ -191,7 +191,7 @@ def xml_generator_for_intercompany_tansfer(seller_sku,company_code,customer_id,o
         
         xml_feed+="""<item>
                      <MATKL></MATKL>
-                     <MATNR>"""+ str(seller_sku) + """</MATNR>
+                     <MATNR>"""+ str(order_information["seller_sku"]) + """</MATNR>
                      <ITEM></ITEM>
                      <MAKTX></MAKTX>
                      <QTY>"""+ str(order_information["qty"]) +"""</QTY>

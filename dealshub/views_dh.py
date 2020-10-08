@@ -3896,7 +3896,7 @@ class SetShippingMethodAPI(APIView):
                     order_information["price"] = price
 
                     
-                    orig_result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
+                    orig_result_pre = create_intercompany_sales_order(company_code, order_information)
                     temp_dict2 = {}
                     temp_dict2["seller_sku"] = seller_sku
                     temp_dict2["intercompany_sales_info"] = orig_result_pre
