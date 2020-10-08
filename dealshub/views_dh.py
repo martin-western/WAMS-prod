@@ -4974,7 +4974,8 @@ class GRNProcessingCronAPI(APIView):
                 if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="Success").exclude(sap_status="GRN Done").exists():
                     unit_order_obj = UnitOrder.objects.get(grn_filename=search_file)
                     unit_order_obj.grn_filename_exists = True
-
+                    unit_order_obj.save()
+                    
                     order_obj = unit_order_obj.order
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj,grn_filename_exists=False)
 
