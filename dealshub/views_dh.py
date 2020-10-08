@@ -3891,10 +3891,10 @@ class SetShippingMethodAPI(APIView):
                     order_information["order_id"] = intercompany_order_id
                     order_information["intercompany_order_id"] = intercompany_order_id
                     order_information["seller_sku"] = seller_sku
-                    qty = unit_order_obj.quantity
-                    order_information["qty"] = float("{0:.2f}".format(qty))
-                    price = unit_order_obj.price
-                    order_information["price"] = float("{0:.2f}".format(price))
+                    qty = rounds(float(unit_order_obj.quantity),2)
+                    order_information["qty"] = qty
+                    price = rounds(float(unit_order_obj.price),2)
+                    order_information["price"] = price
 
                     if unit_order_obj.order.payment_status=="paid":
                         order_information["order_type"] = "ZJCR"
