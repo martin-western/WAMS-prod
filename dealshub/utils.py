@@ -775,9 +775,9 @@ def get_all_the_charges(unit_order_obj):
     order_obj = unit_order_obj.order
 
     cod_charge = order_obj.get_cod_charge()
-    cod_charge = float("{0:.2f}".format(cod_charge))
+    cod_charge = round(float(cod_charge),2)
     courier_charge = order_obj.get_delivery_fee()
-    courier_charge = float("{0:.2f}".format(courier_charge))
+    courier_charge = round(float(courier_charge),2)
 
     voucher_obj = order_obj.voucher
     is_voucher_applied = voucher_obj is not None
@@ -785,7 +785,7 @@ def get_all_the_charges(unit_order_obj):
     voucher_charge = ""
     if is_voucher_applied:
         voucher_charge = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
-        voucher_charge = float("{0:.2f}".format(voucher_charge))
+        voucher_charge = round(float(voucher_charge),2)
 
     charges["cod_charge"] = cod_charge
     charges["courier_charge"] = courier_charge
