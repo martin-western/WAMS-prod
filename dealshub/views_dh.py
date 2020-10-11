@@ -3932,7 +3932,7 @@ class SetShippingMethodAPI(APIView):
                         
                         sap_info_render.append(temp_dict2)
                         
-                        unit_order_obj = UnitOrder.objects.get(product__product__base_product__seller_sku=item["seller_sku"])
+                        unit_order_obj = UnitOrder.objects.get(product__product__base_product__seller_sku=item["seller_sku"],order=order_obj)
                         
                         result_pre = orig_result_pre["doc_list"]
                         do_exists = 0
