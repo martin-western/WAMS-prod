@@ -190,6 +190,7 @@ def xml_generator_for_intercompany_tansfer(company_code,customer_id,order_inform
         msg_feed = "<T_MESSAGE>"
         
         for item in order_information["items"]:
+            
             xml_feed+="""<item>
                          <MATKL></MATKL>
                          <MATNR>"""+ str(item["seller_sku"]) + """</MATNR>
