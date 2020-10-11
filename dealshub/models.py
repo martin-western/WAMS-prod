@@ -313,6 +313,17 @@ class Section(models.Model):
         super(Section, self).save(*args, **kwargs)
 
 
+class CustomProductSection(models.Model):
+
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    section = models.ForeignKey(Section, on_delete=models.CASCADE)
+    order_index = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Custom ProductSection"
+        verbose_name_plural = "Custom ProductSections"
+
+
 class BannerType(models.Model):
 
     name = models.CharField(max_length=100)
@@ -376,6 +387,17 @@ class UnitBannerImage(models.Model):
             self.uuid = str(uuid.uuid4())
         
         super(UnitBannerImage, self).save(*args, **kwargs)
+
+
+class CustomProductUnitBanner(models.Model):
+
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    unit_banner = models.ForeignKey(UnitBannerImage, on_delete=models.CASCADE)
+    order_index = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Custom ProductUnitBanner"
+        verbose_name_plural = "Custom ProductUnitBanners"
 
 
 class Address(models.Model):

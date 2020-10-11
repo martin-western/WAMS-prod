@@ -280,7 +280,8 @@ class FetchSectionProductsAPI(APIView):
 
             uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
-            dealshub_product_objs = section_obj.products.all()
+            dealshub_product_uuid_list = CustomProductSection.objects.filter(section=section_obj).order_by("order_index").values_list("product__uuid", flat=True).distinct()
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
             dealshub_product_objs = dealshub_product_objs.exclude(now_price=0).exclude(stock=0)
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
@@ -664,11 +665,11 @@ class CreateAdminCategoryAPI(APIView):
             order_index = Banner.objects.filter(location_group=location_group_obj).count()+Section.objects.filter(location_group=location_group_obj).count()+1
 
             section_obj = Section.objects.create(location_group=location_group_obj, name=name, listing_type=listing_type, order_index=order_index)
+            order_index = 0
             for product in products:
                 dealshub_product_obj = DealsHubProduct.objects.get(uuid=product)
-                section_obj.products.add(dealshub_product_obj)
-
-            section_obj.save()
+                CustomProductUnitBanner.objects.create(section=section_obj, product=dealshub_product_obj, order_index=order_index)
+                order_index += 1
 
             response['uuid'] = str(section_obj.uuid)
             response['status'] = 200
@@ -724,12 +725,14 @@ class UpdateAdminCategoryAPI(APIView):
             section_obj.is_published = is_published
             section_obj.modified_by = None
             section_obj.promotion = promotion_obj
-            section_obj.products.clear()
+            CustomProductSection.objects.filter(section=section_obj).delete()
+            order_index = 0
             for product in products:
                 dealshub_product_obj = DealsHubProduct.objects.get(uuid=product)
                 dealshub_product_obj.promotion = promotion_obj
                 dealshub_product_obj.save()
-                section_obj.products.add(dealshub_product_obj)
+                CustomProductSection.objects.create(section=section_obj, product=dealshub_product_obj, order_index=order_index)
+                order_index += 1
 
             section_obj.save()
 
@@ -754,7 +757,8 @@ class DeleteAdminCategoryAPI(APIView):
             uuid = data["uuid"]
             
             section_obj = Section.objects.get(uuid=uuid)
-            dealshub_product_objs = section_obj.products.all()
+            dealshub_product_uuid_list = CustomProductSection.objects.filter(section=section_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
 
             for dealshub_product_obj in dealshub_product_objs:
                 dealshub_product_obj.promotion = None
@@ -850,10 +854,11 @@ class SectionBulkUploadAPI(APIView):
             products = []
             unsuccessful_count = 0
 
-            dealshub_product_objs = section_obj.products.all()
+            dealshub_product_uuid_list = CustomProductSection.objects.filter(section=section_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
             dealshub_product_objs.update(promotion=None)
 
-            section_obj.products.clear()
+            CustomProductSection.objects.filter(section=section_obj).delete()
 
             for i in range(rows):
                 try:
@@ -871,7 +876,7 @@ class SectionBulkUploadAPI(APIView):
                         dealshub_product_obj.promotional_price = promotional_price
                     dealshub_product_obj.save()
 
-                    section_obj.products.add(dealshub_product_obj)
+                    CustomProductSection.objects.create(section=section_obj, product=dealshub_product_obj, order_index=i)
 
                     temp_dict = {}
                     temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
@@ -918,18 +923,22 @@ class BannerBulkUploadAPI(APIView):
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
             location_group_obj = unit_banner_obj.banner.location_group
 
-            dealshub_product_objs = unit_banner_obj.products.all()
+
+            dealshub_product_uuid_list = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
             dealshub_product_objs.update(promotion=None)
+
+            CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj).delete()
 
             products = []
             unsuccessful_count = 0
-            unit_banner_obj.products.clear()
+            
             for i in range(rows):
                 try:
                     product_id = str(dfs.iloc[i][0]).strip()
                     product_id = product_id.split(".")[0]
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
-                    unit_banner_obj.products.add(dealshub_product_obj)
+                    CustomProductUnitBanner.objects.create(unit_banner=unit_banner_obj, product=dealshub_product_obj, order_index=i)
                     dealshub_product_obj.promotion = unit_banner_obj.promotion
 
                     promotional_price = dealshub_product_obj.now_price
@@ -981,7 +990,9 @@ class SectionBulkDownloadAPI(APIView):
             section_obj = Section.objects.get(uuid=uuid)
             location_group_obj = section_obj.location_group
 
-            dealshub_product_objs = section_obj.products.all()
+            dealshub_product_uuid_list = CustomProductSection.objects.filter(section=section_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
             filename = "files/reports/section-products-"+section_obj.name+".xlsx"
             create_section_banner_product_report(dealshub_product_objs, filename)
 
@@ -1009,7 +1020,10 @@ class BannerBulkDownloadAPI(APIView):
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
             location_group_obj = unit_banner_obj.banner.location_group
 
-            dealshub_product_objs = unit_banner_obj.products.all()
+            dealshub_product_uuid_list = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+
             filename = "files/reports/banner-products-"+unit_banner_obj.banner.name+".xlsx"
             create_section_banner_product_report(dealshub_product_objs, filename)
 
@@ -1228,7 +1242,9 @@ class DeleteUnitBannerAPI(APIView):
             uuid = data["uuid"]
 
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
-            dealshub_product_objs = unit_banner_obj.products.all()
+
+            dealshub_product_uuid_list = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
 
             for dealshub_product_obj in dealshub_product_objs:
                 dealshub_product_obj.promotion = None
@@ -1263,7 +1279,8 @@ class DeleteBannerAPI(APIView):
             unit_banner_objs = UnitBannerImage.objects.filter(banner=banner_obj)
 
             for unit_banner_obj in unit_banner_objs:
-                dealshub_product_objs = unit_banner_obj.products.all()
+                dealshub_product_uuid_list = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+                dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
                 for dealshub_product_obj in dealshub_product_objs:
                     dealshub_product_obj.promotion = None
                     dealshub_product_obj.save()
@@ -1449,8 +1466,8 @@ class DeleteProductFromSectionAPI(APIView):
             dealshub_product_obj.promotion = None
             dealshub_product_obj.save()
             
-            section_obj.products.remove(dealshub_product_obj)
-            section_obj.save()
+            custom_product_section_obj = CustomProductSection.objects.get(section=section_obj, product=dealshub_product_obj)
+            custom_product_section_obj.delete()
             
             response['status'] = 200
 
@@ -1555,7 +1572,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                                 
             dealshub_admin_sections = []
             for section_obj in section_objs:
-                if is_dealshub==True and section_obj.products.exclude(now_price=0).exclude(stock=0).exists()==False:
+                custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+                if is_dealshub==True and custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0).exists()==False:
                     continue
                 temp_dict = {}
                 temp_dict["orderIndex"] = section_obj.order_index
@@ -1603,7 +1621,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                 temp_products = []
 
-                section_products = section_obj.products.all()
+                dealshub_product_uuid_list = CustomProductSection.objects.filter(section=section_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+                section_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
                 if is_dealshub==True:
                     section_products = section_products.exclude(now_price=0).exclude(stock=0)
 
@@ -1715,7 +1734,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
 
 
-                    unit_banner_products = unit_banner_image_obj.products.all()
+                    dealshub_product_uuid_list = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+                    unit_banner_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+
                     if is_dealshub==True:
                         unit_banner_products = unit_banner_products.exclude(now_price=0).exclude(stock=0)
 
@@ -1835,12 +1856,14 @@ class SearchSectionProductsAutocompleteAPI(APIView):
 
             if type=="ProductListing":
                 section_obj = Section.objects.get(uuid=section_uuid)
-                dealshub_product_objs = dealshub_product_objs.exclude(id__in=section_obj.products.all())[:10]
+                dealshub_product_uuid_list = CustomProductSection.objects.filter(section=section_obj).order_by("order_index").values_list("product__uuid", flat=True).distinct()
+                dealshub_product_objs = dealshub_product_objs.exclude(uuid__in=dealshub_product_uuid_list)[:10]
             elif type=="Banner":
                 unit_banner_image_obj = UnitBannerImage.objects.get(uuid=section_uuid)
-                dealshub_product_objs = dealshub_product_objs.exclude(id__in=unit_banner_image_obj.products.all())[:10]
+                dealshub_product_uuid_list = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj).order_by("order_index").values_list("product__uuid", flat=True).distinct()
+                dealshub_product_objs = dealshub_product_objs.exclude(uuid__in=dealshub_product_uuid_list)[:10]
             else:
-                dealshub_products = dealshub_products[:10]
+                dealshub_product_objs = dealshub_product_objs[:10]
 
 
             dealshub_product_list = []
@@ -2090,8 +2113,11 @@ class AddProductToSectionAPI(APIView):
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
             response["stock"] = str(dealshub_product_obj.stock)
 
-            section_obj.products.add(dealshub_product_obj)
-            section_obj.save()
+            if CustomProductSection.objects.filter(section=section_obj, product=dealshub_product_obj).exists()==False:
+                order_index = 0
+                if CustomProductSection.objects.filter(section=section_obj).count()>0:
+                    order_index = CustomProductSection.objects.filter(section=section_obj).order_by("order_index").last().order_index+1
+                CustomProductSection.objects.create(section=section_obj, product=dealshub_product_obj, order_index=order_index)
             
             response['status'] = 200
 
@@ -2166,8 +2192,11 @@ class AddProductToUnitBannerAPI(APIView):
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
             response["stock"] = str(dealshub_product_obj.stock)
 
-            unit_banner_image_obj.products.add(dealshub_product_obj)
-            unit_banner_image_obj.save()
+            if CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj, product=dealshub_product_obj).exists()==False:
+                order_index = 0
+                if CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj).count()>0:
+                    order_index = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj).order_by("order_index").last().order_index+1
+                CustomProductUnitBanner.objects.create(unit_banner=unit_banner_image_obj, product=dealshub_product_obj, order_index=order_index)
             
             response['status'] = 200
 
@@ -2196,8 +2225,9 @@ class DeleteProductFromUnitBannerAPI(APIView):
             dealshub_product_obj.promotion = None
             dealshub_product_obj.save()
 
-            unit_banner_image_obj.products.remove(dealshub_product_obj)
-            unit_banner_image_obj.save()
+            
+            custom_product_unit_banner_obj = CustomProductUnitBanner.objects.get(unit_banner=unit_banner_image_obj, product=dealshub_product_obj)
+            custom_product_unit_banner_obj.delete()
 
             response['status'] = 200
 
@@ -2225,7 +2255,8 @@ class FetchUnitBannerProductsAPI(APIView):
             
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
 
-            dealshub_product_objs = unit_banner_image_obj.products.all()
+            dealshub_product_uuid_list = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj).order_by("order_index").values_list("product__uuid", flat=True).distinct()
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
             dealshub_product_objs = dealshub_product_objs.exclude(now_price=0).exclude(stock=0)
 
             page = int(data.get('page', 1))
@@ -2483,7 +2514,10 @@ class UpdateUnitBannerAPI(APIView):
             
             
             unit_banner_obj.promotion = promotion_obj
-            dealshub_product_objs = unit_banner_obj.products.all()
+            
+            dealshub_product_uuid_list = CustomProductSection.objects.filter(unit_banner=unit_banner_obj).order_by("order_index").values_list("product__uuid", flat=True).distinct()
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+
             for dealshub_product_obj in dealshub_product_objs:
                 dealshub_product_obj.promotion = promotion_obj
                 dealshub_product_obj.save()
