@@ -3932,6 +3932,8 @@ class SetShippingMethodAPI(APIView):
                         
                         sap_info_render.append(temp_dict2)
                         
+                        unit_order_obj = UnitOrder.objects.get(product__product__base_product__seller_sku=item["seller_sku"])
+                        
                         result_pre = orig_result_pre["doc_list"]
                         do_exists = 0
                         so_exists = 0
@@ -3945,26 +3947,22 @@ class SetShippingMethodAPI(APIView):
                             elif k["type"]=="SO":
                                 so_exists = 1
                                 so_id = k["id"]
-                        logger.info("DOC LIST: %s", str(result_pre))
                         
                         if so_exists==0 or do_exists==0:
                             error_flag = 1
+                            unit_order_obj.sap_status = "Failed"
+                            unit_order_obj.save()
                             break
                         
                         item["GRN_filename"] = str(do_id)
                         item["order_id"] = str(order_information["order_id"])
+                        
                         
                         unit_order_obj.grn_filename = str(do_id)
                         unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                         unit_order_obj.order_information = json.dumps(item)
                         unit_order_obj.sap_status = "In GRN"
                         unit_order_obj.save()
-
-                if error_flag==1:
-                    unit_order_obj.sap_status = "Failed"
-                    unit_order_obj.save()
-                    logger.error("SetShippingMethodAPI: error_flag is 1")
-                    return Response(data=response)
                         
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                 set_shipping_method(unit_order_obj, shipping_method)
