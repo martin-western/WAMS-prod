@@ -1022,7 +1022,7 @@ class BannerBulkDownloadAPI(APIView):
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
 
             custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj)
-            dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
+            dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
             dealshub_product_objs = list(dealshub_product_objs)
             dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
