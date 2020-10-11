@@ -3899,7 +3899,7 @@ class SetShippingMethodAPI(APIView):
                 
                 for brand_name in grouped_unit_orders: 
                     
-                    order_information = []
+                    order_information = {}
                     company_code = brand_company_dict[brand_name.lower()]
                     order_information["order_id"] = str(uuid.uuid4()).split("-")[0]
                     order_information["items"] = []
