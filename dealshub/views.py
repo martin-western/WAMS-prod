@@ -1734,7 +1734,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
 
 
-                    dealshub_product_uuid_list = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
+                    dealshub_product_uuid_list = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct()
                     unit_banner_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
 
                     if is_dealshub==True:
