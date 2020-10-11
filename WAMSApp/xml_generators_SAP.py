@@ -189,61 +189,63 @@ def xml_generator_for_intercompany_tansfer(company_code,customer_id,order_inform
 
         msg_feed = "<T_MESSAGE>"
         
-        xml_feed+="""<item>
-                     <MATKL></MATKL>
-                     <MATNR>"""+ str(order_information["seller_sku"]) + """</MATNR>
-                     <ITEM></ITEM>
-                     <MAKTX></MAKTX>
-                     <QTY>"""+ str(order_information["qty"]) +"""</QTY>
-                     <UOM>""" + str(order_information["uom"]) + """</UOM>
-                     <PRICE></PRICE>
-                     <INDPRICE></INDPRICE>
-                     <DISC></DISC>
-                     <INDDISC></INDDISC>
-                     <CHARG>""" + str(order_information["batch"]) + """</CHARG>
-                     <MO_PRICE></MO_PRICE>
-                     <NO_STOCK_IND></NO_STOCK_IND>
-                     <NO_STOCK_FOC></NO_STOCK_FOC>
-                     <FOC_ITEM></FOC_ITEM>
-                     <FOC_QTY></FOC_QTY>
-                     <FOC_UOM></FOC_UOM>
-                     <FOC_CHARG></FOC_CHARG>
-                     <PRC_DIFF_IND></PRC_DIFF_IND>
-                     <PRC_DIFF_NEW></PRC_DIFF_NEW>
-                     <SPCL_TEXT></SPCL_TEXT>
-                     <FOC_STD></FOC_STD>
-                     <FOC_ART></FOC_ART>
-                     <FOC_MCL></FOC_MCL>
-                     <INDICATOR1></INDICATOR1>
-                     <INDICATOR2></INDICATOR2>
-                     <TEXT1></TEXT1>
-                     <TEXT2></TEXT2>
-                     <CHARG_LIST></CHARG_LIST>
-                     <PRICE_CHANGE></PRICE_CHANGE>
-                     <CONDITION1></CONDITION1>
-                     <CONDITION2></CONDITION2>
-                     <CONDITION3></CONDITION3>
-                     <CONDITION4></CONDITION4>
-                     <FRM_HOLDING>""" + str(order_information["from_holding"]) + """</FRM_HOLDING>
-                  </item>"""
+        for item in order_information["items"]:
             
-        msg_feed+="""<item>
-                     <VBELN></VBELN>
-                     <TYPE></TYPE>
-                     <ID></ID>
-                     <NUMBER></NUMBER>
-                     <MESSAGE></MESSAGE>
-                     <LOG_NO></LOG_NO>
-                     <LOG_MSG_NO></LOG_MSG_NO>
-                     <MESSAGE_V1></MESSAGE_V1>
-                     <MESSAGE_V2></MESSAGE_V2>
-                     <MESSAGE_V3></MESSAGE_V3>
-                     <MESSAGE_V4></MESSAGE_V4>
-                     <PARAMETER></PARAMETER>
-                     <ROW></ROW>
-                     <FIELD></FIELD>
-                     <SYSTEM></SYSTEM>
-                  </item>"""      
+            xml_feed+="""<item>
+                         <MATKL></MATKL>
+                         <MATNR>"""+ str(item["seller_sku"]) + """</MATNR>
+                         <ITEM></ITEM>
+                         <MAKTX></MAKTX>
+                         <QTY>"""+ str(item["qty"]) +"""</QTY>
+                         <UOM>""" + str(item["uom"]) + """</UOM>
+                         <PRICE></PRICE>
+                         <INDPRICE></INDPRICE>
+                         <DISC></DISC>
+                         <INDDISC></INDDISC>
+                         <CHARG>""" + str(item["batch"]) + """</CHARG>
+                         <MO_PRICE></MO_PRICE>
+                         <NO_STOCK_IND></NO_STOCK_IND>
+                         <NO_STOCK_FOC></NO_STOCK_FOC>
+                         <FOC_ITEM></FOC_ITEM>
+                         <FOC_QTY></FOC_QTY>
+                         <FOC_UOM></FOC_UOM>
+                         <FOC_CHARG></FOC_CHARG>
+                         <PRC_DIFF_IND></PRC_DIFF_IND>
+                         <PRC_DIFF_NEW></PRC_DIFF_NEW>
+                         <SPCL_TEXT></SPCL_TEXT>
+                         <FOC_STD></FOC_STD>
+                         <FOC_ART></FOC_ART>
+                         <FOC_MCL></FOC_MCL>
+                         <INDICATOR1></INDICATOR1>
+                         <INDICATOR2></INDICATOR2>
+                         <TEXT1></TEXT1>
+                         <TEXT2></TEXT2>
+                         <CHARG_LIST></CHARG_LIST>
+                         <PRICE_CHANGE></PRICE_CHANGE>
+                         <CONDITION1></CONDITION1>
+                         <CONDITION2></CONDITION2>
+                         <CONDITION3></CONDITION3>
+                         <CONDITION4></CONDITION4>
+                         <FRM_HOLDING>""" + str(item["from_holding"]) + """</FRM_HOLDING>
+                      </item>"""
+                
+            msg_feed+="""<item>
+                         <VBELN></VBELN>
+                         <TYPE></TYPE>
+                         <ID></ID>
+                         <NUMBER></NUMBER>
+                         <MESSAGE></MESSAGE>
+                         <LOG_NO></LOG_NO>
+                         <LOG_MSG_NO></LOG_MSG_NO>
+                         <MESSAGE_V1></MESSAGE_V1>
+                         <MESSAGE_V2></MESSAGE_V2>
+                         <MESSAGE_V3></MESSAGE_V3>
+                         <MESSAGE_V4></MESSAGE_V4>
+                         <PARAMETER></PARAMETER>
+                         <ROW></ROW>
+                         <FIELD></FIELD>
+                         <SYSTEM></SYSTEM>
+                      </item>"""      
         
         xml_feed+="</T_ITEM>"
         msg_feed+="</T_MESSAGE>"

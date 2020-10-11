@@ -654,6 +654,7 @@ def get_recommended_products(dealshub_product_objs):
 
 
 def is_user_input_required_for_sap_punching(seller_sku, company_code):
+    
     try:
         result = fetch_prices_and_stock(seller_sku, company_code)
 
@@ -663,6 +664,7 @@ def is_user_input_required_for_sap_punching(seller_sku, company_code):
         if total_atp > atp_threshold:
             return False
         return True
+    
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("is_user_input_required_for_sap_punching: %s at %s", e, str(exc_tb.tb_lineno)) 
