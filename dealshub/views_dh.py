@@ -3915,9 +3915,9 @@ class SetShippingMethodAPI(APIView):
                         item =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                         
                         item["seller_sku"] = seller_sku
-                        qty = round(float(unit_order_obj.quantity),2)
+                        qty = format(unit_order_obj.quantity,'.2f')
                         item["qty"] = qty
-                        price = round(float(unit_order_obj.price),2)
+                        price = format(unit_order_obj.get_price_without_vat(),'.2f')
                         item["price"] = price
 
                         order_information["items"].append(item)
