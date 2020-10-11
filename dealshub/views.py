@@ -1782,7 +1782,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_products.append(temp_dict3)    # No need to Send all
                         temp_dict2["products"] = temp_products
                     
-                    temp_dict2["has_products"] = unit_banner_products.count()>0
+                    temp_dict2["has_products"] = len(unit_banner_products)>0
                     banner_images.append(temp_dict2)
 
                 temp_dict["bannerImages"] = banner_images
