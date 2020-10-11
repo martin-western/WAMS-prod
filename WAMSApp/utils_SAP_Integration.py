@@ -241,7 +241,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         logger.error("transfer_from_atp_to_holding: %s at %s", str(e), str(exc_tb.tb_lineno))
         return {}
 
-def create_intercompany_sales_order(seller_sku,company_code,order_information):
+def create_intercompany_sales_order(company_code,order_information):
     
     try:
 
@@ -249,7 +249,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         logger.info(order_information)
 
-        body = xml_generator_for_intercompany_tansfer(seller_sku,company_code,test_customer_id,order_information)
+        body = xml_generator_for_intercompany_tansfer(company_code,test_customer_id,order_information)
         logger.info("XML Intercompany: %s",body)
 
         response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
@@ -322,7 +322,7 @@ def create_intercompany_sales_order(seller_sku,company_code,order_information):
         logger.error("create_intercompany_sales_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def create_final_order(seller_sku,company_code,order_information):
+def create_final_order(company_code,order_information):
     
     try:
 
@@ -359,7 +359,7 @@ def create_final_order(seller_sku,company_code,order_information):
         order_information["promotional_charge"] = charges["promotional_charge"]
         order_information["header_charges"] = header_charges
 
-        body = xml_generator_for_final_billing(seller_sku,company_code,test_customer_id_final_billing,order_information)
+        body = xml_generator_for_final_billing(company_code,test_customer_id_final_billing,order_information)
         logger.info("XML Final: %s",body)
 
         response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
@@ -432,35 +432,3 @@ def create_final_order(seller_sku,company_code,order_information):
         logger.error("create_final_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def create_final_order_util(unit_order_obj, seller_sku,company_code,order_information):
-    
-    try:
-        logger.info("Inside create_final_order_util")
-        does_file_exists = False
-        for i in range(12):
-            from ftplib import FTP
-            ftp=FTP()
-            ftp.connect('geepasftp.selfip.com', 2221)
-            ftp.login('mapftpdev','western')
-            files = []
-            files = ftp.nlst("omnicom")
-            for f in files:
-                if order_information["GRN_filename"] in f:
-                    does_file_exists = True
-                    break
-            if does_file_exists==True:
-                break
-            time.sleep(600)
-        
-        if does_file_exists==True:
-            result = create_final_order(seller_sku,company_code,order_information)
-            logger.info("RESULT FINAL: %s", str(result))
-            unit_order_obj.sap_final_billing_info = json.dumps(result)
-            unit_order_obj.sap_status = "SAP Punched"
-            unit_order_obj.save()
-        else:
-            unit_order_obj.sap_status = "Failed"
-            unit_order_obj.save()
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("create_final_order_util: %s at %s", str(e), str(exc_tb.tb_lineno))

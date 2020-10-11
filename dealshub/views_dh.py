@@ -33,7 +33,7 @@ import math
 import random
 
 logger = logging.getLogger(__name__)
-
+WIGME_COMPANY_CODE = 1200
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
@@ -3666,6 +3666,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
 
+                    temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
+                    temp_dict["sapStatus"] = order_obj.sap_status
 
                     address_obj = order_obj.shipping_address
                     
@@ -3708,7 +3710,6 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["uuid"] = unit_order_obj.uuid
                         temp_dict2["currentStatus"] = unit_order_obj.current_status_admin
                         temp_dict2["sapStatus"] = unit_order_obj.sap_status
-                        temp_dict2["sap_final_billing_info"] = json.loads(unit_order_obj.sap_final_billing_info)
                         temp_dict2["sap_intercompany_info"] = json.loads(unit_order_obj.sap_intercompany_info)
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
@@ -3887,23 +3888,15 @@ class SetShippingMethodAPI(APIView):
                         x_value = user_input_sap[seller_sku]
                     order_information =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                     
-                    intercompany_order_id = str(uuid.uuid4()).split("-")[0]
-                    order_information["order_id"] = intercompany_order_id
-                    order_information["intercompany_order_id"] = intercompany_order_id
+                    order_information["order_id"] = unit_order_obj.orderid
                     order_information["seller_sku"] = seller_sku
-                    qty = rounds(float(unit_order_obj.quantity),2)
+                    qty = round(float(unit_order_obj.quantity),2)
                     order_information["qty"] = qty
-                    price = rounds(float(unit_order_obj.price),2)
+                    price = round(float(unit_order_obj.price),2)
                     order_information["price"] = price
 
-                    if unit_order_obj.order.payment_status=="paid":
-                        order_information["order_type"] = "ZJCR"
-                    else:
-                        order_information["order_type"] = "ZJCD"
-                    order_information["city"] = str(unit_order_obj.order.location_group.location.name)
-                    order_information["customer_name"] = unit_order_obj.order.get_customer_full_name()
                     
-                    orig_result_pre = create_intercompany_sales_order(seller_sku, company_code, order_information)
+                    orig_result_pre = create_intercompany_sales_order(company_code, order_information)
                     temp_dict2 = {}
                     temp_dict2["seller_sku"] = seller_sku
                     temp_dict2["intercompany_sales_info"] = orig_result_pre
@@ -3936,20 +3929,6 @@ class SetShippingMethodAPI(APIView):
                     return Response(data=response)
                         
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                try:
-                    logger.info("Inside for loop 1")
-                    seller_sku = unit_order_obj.product.get_seller_sku()
-                    brand_name = unit_order_obj.product.get_brand()
-                    company_code = brand_company_dict[brand_name.lower()]
-                    order_information = json.loads(unit_order_obj.order_information)
-                    order_information["order_id"] = unit_order_obj.orderid
-                    unit_order_obj.order_information = json.dumps(order_information)
-                    unit_order_obj.save()
-                    p1 = threading.Thread(target=create_final_order_util, args=(unit_order_obj, seller_sku,company_code,order_information,))
-                    p1.start()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("SetShippingMethodAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 set_shipping_method(unit_order_obj, shipping_method)
 
             response["sap_info_render"] = sap_info_render
@@ -4974,35 +4953,49 @@ class GRNProcessingCronAPI(APIView):
             files = []
             files = ftp.nlst("omnicom")
 
-            brand_company_dict = {
-                "geepas": "1200",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "delcasa": "3050"
-            }
-
             for f in files:
                 search_file = f.split("_")[0]
-                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="Success").exclude(sap_status="SAP Punched").exists():
+                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="GRN Done").exists():
                     unit_order_obj = UnitOrder.objects.get(grn_filename=search_file)
-                    seller_sku = unit_order_obj.product.get_seller_sku()
-                    company_code = brand_company_dict[unit_order_obj.product.get_brand().lower()]
-                    order_information = json.loads(unit_order_obj.order_information)
-                    order_information["order_id"] = unit_order_obj.orderid
-                    order_information["charges"] = get_all_the_charges(unit_order_obj)
-
-                    logger.info("BEFORE FINAL BILLING : %s %s %s ",seller_sku, company_code,str(order_information))
-                    result = create_final_order(seller_sku, company_code, order_information)
-                    logger.info("RESULT FINAL: %s",str(result))
-                    
-                    unit_order_obj.sap_final_billing_info = json.dumps(result)
-                    unit_order_obj.sap_status = "SAP Punched"
-                    unit_order_obj.order_information = json.dumps(order_information)
+                    unit_order_obj.grn_filename_exists = True
+                    unit_order_obj.sap_status = "GRN Done"
                     unit_order_obj.save()
+
+                    order_obj = unit_order_obj.order
+                    unit_order_objs = UnitOrder.objects.filter(order=order_obj,grn_filename_exists=False)
+
+                    logger.info("HERE")
+                    if unit_order_objs.count() == 0:
+                    
+                        order_information = {}
+
+                        if order_obj.payment_status=="paid":
+                            order_information["order_type"] = "ZJCR"
+                        else:
+                            order_information["order_type"] = "ZJCD"
+
+                        order_information["city"] = str(order_obj.location_group.location.name)
+                        order_information["customer_name"] = order_obj.get_customer_full_name()
+                        order_information["order_id"] = order_obj.bundleid.replace("-","")
+                        order_information["charges"] = get_all_the_charges(order_obj)
+
+                        unit_order_information_list = []
+
+                        for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+
+                            unit_order_information = json.loads(unit_order_obj.order_information)
+                            unit_order_information_list.append(unit_order_information)
+                        
+                        order_information["unit_order_information_list"] = unit_order_information_list
+
+                        logger.info("BEFORE FINAL BILLING : %s ",str(order_information))
+                        result = create_final_order(WIGME_COMPANY_CODE, order_information)
+                        logger.info("RESULT FINAL: %s",str(result))
+                        
+                        order_obj.sap_final_billing_info = json.dumps(result)
+                        order_obj.sap_status = "Success"
+                        order_obj.order_information = json.dumps(order_information)
+                        order_obj.save()
 
                     # Remove file from ftp - TBD
 
