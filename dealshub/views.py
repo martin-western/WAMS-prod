@@ -280,9 +280,14 @@ class FetchSectionProductsAPI(APIView):
 
             uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
-            dealshub_product_uuid_list = list(CustomProductSection.objects.filter(section=section_obj).order_by("order_index").values_list("product__uuid", flat=True).distinct())
-            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
-            dealshub_product_objs = dealshub_product_objs.exclude(now_price=0).exclude(stock=0)
+            
+            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+            custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
+            dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)            
+            dealshub_product_objs = list(dealshub_product_objs)
+            dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
+
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
             temp_dict["productsArray"] = []
@@ -2269,9 +2274,13 @@ class FetchUnitBannerProductsAPI(APIView):
             
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
 
-            dealshub_product_uuid_list = list(CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj).order_by("order_index").values_list("product__uuid", flat=True).distinct())
+            custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj)
+            custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
+            dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
-            dealshub_product_objs = dealshub_product_objs.exclude(now_price=0).exclude(stock=0)
+            dealshub_product_objs = list(dealshub_product_objs)
+            dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
+
 
             page = int(data.get('page', 1))
             paginator = Paginator(dealshub_product_objs, 50)
