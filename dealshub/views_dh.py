@@ -3961,6 +3961,8 @@ class SetShippingMethodAPI(APIView):
                         unit_order_obj.save()
 
                 if error_flag==1:
+                    unit_order_obj.sap_status = "Failed"
+                    unit_order_obj.save()
                     logger.error("SetShippingMethodAPI: error_flag is 1")
                     return Response(data=response)
                         
