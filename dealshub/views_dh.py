@@ -3917,7 +3917,7 @@ class SetShippingMethodAPI(APIView):
                         item["seller_sku"] = seller_sku
                         qty = format(unit_order_obj.quantity,'.2f')
                         item["qty"] = qty
-                        price = format(unit_order_obj.price,'.2f')
+                        price = format(unit_order_obj.get_price_without_vat(),'.2f')
                         item["price"] = price
 
                         order_information["items"].append(item)
