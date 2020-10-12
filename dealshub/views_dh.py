@@ -1843,6 +1843,7 @@ class FetchOfflineUserProfileAPI(APIView):
                     temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
                     temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
                     temp_dict['state'] = address_obj.state
+                    temp_dict['emirates'] = address_obj.emirates
                     temp_dict['country'] = address_obj.get_country()
                     temp_dict['postcode'] = address_obj.postcode
                     temp_dict['contactNumber'] = str(address_obj.contact_number)
