@@ -1624,6 +1624,7 @@ class FetchOrderDetailsAPI(APIView):
                     "line2": json.loads(address_obj.address_lines)[1],
                     "line3": json.loads(address_obj.address_lines)[2],
                     "line4": json.loads(address_obj.address_lines)[3],
+                    "emirates": address_obj.emirates,
                     "state": address_obj.state,
                     "country": address_obj.get_country(),
                     "postcode": address_obj.postcode,
