@@ -2891,7 +2891,7 @@ class UpdateOrderShippingAdminAPI(APIView):
             dealshub_user_obj = order_obj.owner
 
             first_name = data["firstName"]
-            last_name = data["lastName"]
+            last_name = data.get("lastName", "")
             line1 = data["line1"]
             line2 = data["line2"]
             line3 = ""
@@ -2901,6 +2901,7 @@ class UpdateOrderShippingAdminAPI(APIView):
             postcode = ""
             contact_number = data["contact_number"]
             tag = "Home"
+            emirates = data.get("emirates", "")
 
             address_obj = Address.objects.create(first_name=first_name, 
                                                  last_name=last_name, 
@@ -2910,7 +2911,8 @@ class UpdateOrderShippingAdminAPI(APIView):
                                                  contact_number=contact_number, 
                                                  user=dealshub_user_obj, 
                                                  tag=tag, 
-                                                 location_group=location_group_obj)
+                                                 location_group=location_group_obj,
+                                                 emirates=emirates)
             order_obj.shipping_address = address_obj
             order_obj.save()
 
