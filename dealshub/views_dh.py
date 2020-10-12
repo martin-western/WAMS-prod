@@ -183,6 +183,7 @@ class FetchShippingAddressListAPI(APIView):
                 temp_dict['postcode'] = address_obj.postcode
                 temp_dict['contactNumber'] = str(address_obj.contact_number)
                 temp_dict['tag'] = str(address_obj.tag)
+                temp_dict['emirates'] = str(address_obj.emirates)
                 temp_dict['uuid'] = str(address_obj.uuid)
 
                 address_list.append(temp_dict)
@@ -216,7 +217,7 @@ class EditShippingAddressAPI(APIView):
             address_lines = json.loads(address_obj.address_lines)
 
             first_name = data["firstName"]
-            last_name = data["lastName"]
+            last_name = data.get("lastName", "")
             line1 = data["line1"]
             line2 = data["line2"]
                 
@@ -225,11 +226,14 @@ class EditShippingAddressAPI(APIView):
 
             tag = data.get("tag", "Home")
 
+            emirates = data.get("emirates", "")
+
             address_obj = Address.objects.get(uuid=uuid)
             address_obj.first_name = first_name
             address_obj.last_name = last_name
             address_obj.address_lines = json.dumps(address_lines)
             address_obj.tag = tag
+            address_obj.emirates = emirates
             address_obj.save()
 
             response['status'] = 200
@@ -259,7 +263,7 @@ class CreateShippingAddressAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             first_name = data["firstName"]
-            last_name = data["lastName"]
+            last_name = data.get("lastName", "")
             line1 = data["line1"]
             line2 = data["line2"]
             line3 = ""
@@ -267,6 +271,7 @@ class CreateShippingAddressAPI(APIView):
             address_lines = json.dumps([line1, line2, line3, line4])
             state = ""
             postcode = ""
+            emirates = data.get("emirates", "")
             if postcode==None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
@@ -279,7 +284,7 @@ class CreateShippingAddressAPI(APIView):
                 dealshub_user_obj.last_name = last_name
                 dealshub_user_obj.save()
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj)
+            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj, emirates=emirates)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
@@ -319,6 +324,7 @@ class CreateOfflineShippingAddressAPI(APIView):
                 address_lines = json.dumps([line1, line2, line3, line4])
                 state = data["state"]
                 postcode = data["postcode"]
+                emirates = data.get("emirates", "")
                 if postcode==None:
                     postcode = ""
                 contact_number = dealshub_user_obj.contact_number
@@ -326,7 +332,7 @@ class CreateOfflineShippingAddressAPI(APIView):
                 if tag==None:
                     tag = ""
 
-                address_obj = Address.objects.create(user=dealshub_user_obj,first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj)
+                address_obj = Address.objects.create(user=dealshub_user_obj,first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj, emirates=emirates)
 
                 response["uuid"] = address_obj.uuid
                 response['status'] = 200
@@ -1460,7 +1466,7 @@ class FetchOrderListAPI(APIView):
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
                     temp_dict["paymentStatus"] = order_obj.payment_status
-                    temp_dict["customerName"] = order_obj.owner.first_name+" "+order_obj.owner.last_name
+                    temp_dict["customerName"] = order_obj.owner.first_name
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
@@ -1533,7 +1539,7 @@ class FetchOrderListAdminAPI(APIView):
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
                     temp_dict["paymentStatus"] = order_obj.payment_status
-                    temp_dict["customerName"] = order_obj.owner.first_name+" "+order_obj.owner.last_name
+                    temp_dict["customerName"] = order_obj.owner.first_name
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
@@ -1601,7 +1607,7 @@ class FetchOrderDetailsAPI(APIView):
             response["dateCreated"] = order_obj.get_date_created()
             response["paymentMode"] = order_obj.payment_mode
             response["paymentStatus"] = order_obj.payment_status
-            response["customerName"] = order_obj.owner.first_name + " " + order_obj.owner.last_name
+            response["customerName"] = order_obj.owner.first_name
             response["isVoucherApplied"] = is_voucher_applied
             if is_voucher_applied:
                 response["voucherCode"] = voucher_obj.voucher_code
@@ -1690,7 +1696,7 @@ class CreateOfflineCustomerAPI(APIView):
             contact_number = data["contact_number"]
             website_group_name = data["website_group_name"]
             first_name = data["first_name"]
-            last_name = data["last_name"]
+            last_name = data.get("last_name", "")
             email = data["email"]
 
             digits = "0123456789"
@@ -1738,7 +1744,7 @@ class UpdateOfflineUserProfileAPI(APIView):
             username = data["username"]
             email_id = data["emailId"]
             first_name = data["firstName"]
-            last_name = data["lastName"]
+            last_name = data.get("lastName", "")
             contact_number = data["contactNumber"]
 
             if DealsHubUser.objects.filter(username=username).exists():
@@ -1779,13 +1785,13 @@ class SearchCustomerAutocompleteAPI(APIView):
 
             user_objs = DealsHubUser.objects.filter(website_group=website_group_obj)
 
-            user_objs = user_objs.filter(Q(first_name__icontains=search_string) | Q(last_name__icontains=search_string) | Q(contact_number__icontains=search_string))[:5]
+            user_objs = user_objs.filter(Q(first_name__icontains=search_string) | Q(contact_number__icontains=search_string))[:5]
 
             user_list = []
             for user_obj in user_objs:
                 try:
                     temp_dict = {}
-                    temp_dict["name"] = user_obj.first_name + " " + user_obj.last_name + " | " + user_obj.contact_number
+                    temp_dict["name"] = user_obj.first_name + " | " + user_obj.contact_number
                     temp_dict["username"] = user_obj.username
                     user_list.append(temp_dict)
                 except Exception as e:
@@ -1895,7 +1901,7 @@ class UpdateUserProfileAPI(APIView):
 
             email_id = data["emailId"]
             first_name = data["firstName"]
-            last_name = data["lastName"]
+            last_name = data.get("lastName", "")
             contact_number = data["contactNumber"]
 
             dealshub_user = DealsHubUser.objects.get(email=email_id)
@@ -1934,7 +1940,7 @@ class FetchCustomerListAPI(APIView):
             dealshub_user_objs = DealsHubUser.objects.none()
             if len(search_list)>0:
                 for search_key in search_list:
-                    dealshub_user_objs |= website_dealshub_user_objs.filter(Q(first_name__icontains=search_key) | Q(last_name__icontains=search_key) | Q(contact_number__icontains=search_key))
+                    dealshub_user_objs |= website_dealshub_user_objs.filter(Q(first_name__icontains=search_key)| Q(contact_number__icontains=search_key))
                 dealshub_user_objs = dealshub_user_objs.distinct().order_by('-pk')
             else:
                 dealshub_user_objs = website_dealshub_user_objs.order_by('-pk')
@@ -1963,7 +1969,7 @@ class FetchCustomerListAPI(APIView):
             for dealshub_user_obj in dealshub_user_objs:
                 try:
                     temp_dict = {}
-                    temp_dict["name"] = dealshub_user_obj.first_name + " " + dealshub_user_obj.last_name
+                    temp_dict["name"] = dealshub_user_obj.first_name
                     temp_dict["emailId"] = dealshub_user_obj.email
                     temp_dict["contactNumber"] = dealshub_user_obj.contact_number
                     temp_dict["username"] = dealshub_user_obj.username
@@ -2009,7 +2015,7 @@ class FetchCustomerDetailsAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
 
             temp_dict = {}
-            temp_dict["customerName"] = dealshub_user_obj.first_name+" "+dealshub_user_obj.last_name
+            temp_dict["customerName"] = dealshub_user_obj.first_name
             temp_dict["emailId"] = dealshub_user_obj.email
             temp_dict["contactNumber"] = dealshub_user_obj.contact_number
             temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
@@ -3414,7 +3420,7 @@ class FetchProductReviewsAPI(APIView):
                 temp_dict = {}
 
                 temp_dict["username"] = str(review_obj.dealshub_user.username)
-                temp_dict["display_name"] = str(review_obj.dealshub_user.first_name)+" "+str(review_obj.dealshub_user.last_name)
+                temp_dict["display_name"] = str(review_obj.dealshub_user.first_name)
                 temp_dict["rating"] = str(review_obj.rating)
                 total_rating += int(review_obj.rating)
 
@@ -3637,7 +3643,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if len(search_list)>0:
                 temp_unit_order_objs = UnitOrder.objects.none()
                 for search_string in search_list:
-                    temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__owner__last_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string))
+                    temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string))
                 unit_order_objs = temp_unit_order_objs.distinct()
 
 
@@ -3681,7 +3687,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         "state": address_obj.state
                     }
 
-                    customer_name = address_obj.first_name + " " + address_obj.last_name
+                    customer_name = address_obj.first_name
 
 
                     temp_dict["customerName"] = customer_name
@@ -4093,7 +4099,7 @@ class DownloadOrdersAPI(APIView):
                     address_obj = order_obj.shipping_address
 
                     shipping_address = address_obj.get_shipping_address()
-                    customer_name = address_obj.first_name + " " + address_obj.last_name
+                    customer_name = address_obj.first_name
                     area = json.loads(address_obj.address_lines)[2]
 
                     delivery_fee_with_vat = order_obj.get_delivery_fee()

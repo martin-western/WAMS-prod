@@ -424,6 +424,8 @@ class Address(models.Model):
 
     contact_number = models.CharField(max_length=100, default="", blank=True)
 
+    emirates = models.CharField(max_length=100, default="", blank=True)
+
     date_created = models.DateTimeField(auto_now_add=True)
 
     is_shipping = models.BooleanField(default=True)
@@ -452,7 +454,7 @@ class Address(models.Model):
         return str(self.location_group.location.country)
 
     def get_shipping_address(self):
-        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state
+        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.emirates
 
     class Meta:
         verbose_name = "Address"
