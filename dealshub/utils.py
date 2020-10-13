@@ -654,6 +654,7 @@ def get_recommended_products(dealshub_product_objs):
 
 
 def is_user_input_required_for_sap_punching(seller_sku, company_code):
+    
     try:
         result = fetch_prices_and_stock(seller_sku, company_code)
 
@@ -663,6 +664,7 @@ def is_user_input_required_for_sap_punching(seller_sku, company_code):
         if total_atp > atp_threshold:
             return False
         return True
+    
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("is_user_input_required_for_sap_punching: %s at %s", e, str(exc_tb.tb_lineno)) 
@@ -762,7 +764,7 @@ def create_section_banner_product_report(dealshub_product_objs, filename):
 
     workbook.close()
 
-def get_all_the_charges(unit_order_obj):
+def get_all_the_charges(order_obj):
 
     charges = {
         "courier_charge" : "",
@@ -771,21 +773,30 @@ def get_all_the_charges(unit_order_obj):
         "other_charge" : "",
         "promotional_charge" : ""
     }
+    
+    try :
 
-    order_obj = unit_order_obj.order
+        cod_charge = order_obj.get_cod_charge_without_vat()
+        cod_charge = format(float(cod_charge),'.2f')
+        courier_charge = order_obj.get_delivery_fee_without_vat()
+        courier_charge = format(float(courier_charge),'.2f')
 
-    cod_charge = order_obj.get_cod_charge()
-    courier_charge = order_obj.get_delivery_fee()
+        voucher_obj = order_obj.voucher
+        is_voucher_applied = voucher_obj is not None
 
-    voucher_obj = order_obj.voucher
-    is_voucher_applied = voucher_obj is not None
+        voucher_charge = ""
+        if is_voucher_applied:
+            voucher_charge = voucher_obj.get_voucher_discount_without_vat(order_obj.get_subtotal())
+            voucher_charge = format(sloat(voucher_charge),'.2f')
 
-    voucher_charge = ""
-    if is_voucher_applied:
-        voucher_charge = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+        charges["cod_charge"] = cod_charge
+        charges["courier_charge"] = courier_charge
+        charges["voucher_charge"] = voucher_charge
 
-    charges["cod_charge"] = cod_charge
-    charges["courier_charge"] = courier_charge
-    charges["voucher_charge"] = voucher_charge
+        return charges
 
-    return charges
+    except Exception as e:
+
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_all_the_charges: %s at %s", e, str(exc_tb.tb_lineno))
+        return charges

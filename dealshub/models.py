@@ -313,6 +313,17 @@ class Section(models.Model):
         super(Section, self).save(*args, **kwargs)
 
 
+class CustomProductSection(models.Model):
+
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    section = models.ForeignKey(Section, on_delete=models.CASCADE)
+    order_index = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Custom ProductSection"
+        verbose_name_plural = "Custom ProductSections"
+
+
 class BannerType(models.Model):
 
     name = models.CharField(max_length=100)
@@ -378,6 +389,17 @@ class UnitBannerImage(models.Model):
         super(UnitBannerImage, self).save(*args, **kwargs)
 
 
+class CustomProductUnitBanner(models.Model):
+
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    unit_banner = models.ForeignKey(UnitBannerImage, on_delete=models.CASCADE)
+    order_index = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Custom ProductUnitBanner"
+        verbose_name_plural = "Custom ProductUnitBanners"
+
+
 class Address(models.Model):
 
     MR, MISS, MRS, MS, DR = ('Mr', 'Miss', 'Mrs', 'Ms', 'Dr')
@@ -401,6 +423,8 @@ class Address(models.Model):
     user = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
 
     contact_number = models.CharField(max_length=100, default="", blank=True)
+
+    emirates = models.CharField(max_length=100, default="", blank=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -430,7 +454,7 @@ class Address(models.Model):
         return str(self.location_group.location.country)
 
     def get_shipping_address(self):
-        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state
+        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.emirates
 
     class Meta:
         verbose_name = "Address"
@@ -601,6 +625,15 @@ class Order(models.Model):
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
+    sap_final_billing_info = models.TextField(default="{}")
+    SAP_STATUS = (
+        ("Pending", "Pending"),
+        ("In GRN", "In GRN"),
+        ("Success", "Success"),
+        ("Failed", "Failed")
+    )
+    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
+
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
@@ -755,17 +788,16 @@ class UnitOrder(models.Model):
     uuid = models.CharField(max_length=200, default="")
 
     sap_intercompany_info = models.TextField(default="{}")
-    sap_final_billing_info = models.TextField(default="{}")
     order_information = models.TextField(default="{}")
     SAP_STATUS = (
         ("pending", "pending"),
         ("In GRN", "In GRN"),
-        ("SAP Punched", "SAP Punched"),
-        ("Success", "Success"),
+        ("GRN Done", "GRN Done"),
         ("Failed", "Failed")
     )
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
     grn_filename = models.CharField(max_length=100, default="")
+    grn_filename_exists = models.BooleanField(default=False)
 
     def get_subtotal(self):
         return float(self.price)*float(self.quantity)
