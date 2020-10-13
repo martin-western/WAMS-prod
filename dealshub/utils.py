@@ -774,9 +774,9 @@ def get_all_the_charges(order_obj):
         "promotional_charge" : ""
     }
 
-    cod_charge = order_obj.get_cod_charge()
+    cod_charge = order_obj.get_cod_charge_without_vat()
     cod_charge = format(cod_charge,'.2f')
-    courier_charge = order_obj.get_delivery_fee()
+    courier_charge = order_obj.get_delivery_fee_without_vat()
     courier_charge = format(courier_charge,'.2f')
 
     voucher_obj = order_obj.voucher
@@ -784,7 +784,7 @@ def get_all_the_charges(order_obj):
 
     voucher_charge = ""
     if is_voucher_applied:
-        voucher_charge = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+        voucher_charge = voucher_obj.get_voucher_discount_without_vat(order_obj.get_subtotal())
         voucher_charge = format(voucher_charge,'.2f')
 
     charges["cod_charge"] = cod_charge
