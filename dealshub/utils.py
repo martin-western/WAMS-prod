@@ -773,22 +773,30 @@ def get_all_the_charges(order_obj):
         "other_charge" : "",
         "promotional_charge" : ""
     }
+    
+    try :
 
-    cod_charge = order_obj.get_cod_charge_without_vat()
-    cod_charge = format(cod_charge,'.2f')
-    courier_charge = order_obj.get_delivery_fee_without_vat()
-    courier_charge = format(courier_charge,'.2f')
+        cod_charge = order_obj.get_cod_charge_without_vat()
+        cod_charge = format(cod_charge,'.2f')
+        courier_charge = order_obj.get_delivery_fee_without_vat()
+        courier_charge = format(courier_charge,'.2f')
 
-    voucher_obj = order_obj.voucher
-    is_voucher_applied = voucher_obj is not None
+        voucher_obj = order_obj.voucher
+        is_voucher_applied = voucher_obj is not None
 
-    voucher_charge = ""
-    if is_voucher_applied:
-        voucher_charge = voucher_obj.get_voucher_discount_without_vat(order_obj.get_subtotal())
-        voucher_charge = format(voucher_charge,'.2f')
+        voucher_charge = ""
+        if is_voucher_applied:
+            voucher_charge = voucher_obj.get_voucher_discount_without_vat(order_obj.get_subtotal())
+            voucher_charge = format(voucher_charge,'.2f')
 
-    charges["cod_charge"] = cod_charge
-    charges["courier_charge"] = courier_charge
-    charges["voucher_charge"] = voucher_charge
+        charges["cod_charge"] = cod_charge
+        charges["courier_charge"] = courier_charge
+        charges["voucher_charge"] = voucher_charge
 
-    return charges
+        return charges
+
+    except Exception as e:
+
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_all_the_charges: %s at %s", e, str(exc_tb.tb_lineno))
+        return charges
