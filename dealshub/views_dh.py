@@ -5019,21 +5019,40 @@ class GRNProcessingCronAPI(APIView):
                     unit_order_objs = UnitOrder.objects.filter(grn_filename=search_file)
                     
                     ftp.cwd('/omnicom')
-                    filename = "0080147598_13102020142045.txt"
-                    with open(filename, "wb") as file:
+                    with open(f, "wb") as file:
                         # use FTP's RETR command to download the file
-                        ftp.retrbinary(f"RETR {filename}", file.write)
+                        ftp.retrbinary(f"RETR {f}", file.write)
 
                     fp = open(filename, 'rb')
                     GRN_File = fp.read().decode('utf-8')
 
                     GRN_products = GRN_File.split('\n')
+                    GRN_products = GRN_products[:-1]
+
+                    GRN_information_dict = {}
 
                     for product in GRN_products:
-                      info = product.split(';')
-                      print(info)
+                        info = product.split(';')
+                        temp_dict = {}
+                        seller_sku = info[1]
+                        temp_dict["seller_sku"] = seller_sku
+                        temp_dict["location"] = info[2]
+                        temp_dict["batch"] = info[3]
+                        temp_dict["qty"] = info[4]
+                        temp_dict["uom"] = info[5]
+                        GRN_information_dict[seller_sku] = temp_dict
 
                     for unit_order_obj in unit_order_objs:
+                        
+                        unit_order_information = json.loads(unit_order_obj.order_information)
+                        
+                        seller_sku = unit_order_obj.product.get_seller_sku()
+                        GRN_info = GRN_information_dict[seller_sku]
+                        GRN_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
+                        GRN_info["price"] = unit_order_information["intercompany_sales_info"]["price"]
+                        unit_order_information["final_billing_info"] = GRN_info
+                        
+                        unit_order_obj.order_information = json.dumps(unit_order_information)
                         unit_order_obj.grn_filename_exists = True
                         unit_order_obj.sap_status = "GRN Done"
                         unit_order_obj.save()
@@ -5059,7 +5078,7 @@ class GRNProcessingCronAPI(APIView):
 
                         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
 
-                            unit_order_information = json.loads(unit_order_obj.order_information)
+                            unit_order_information = json.loads(unit_order_obj.order_information)["final_billing_info"]
                             unit_order_information_list.append(unit_order_information)
                         
                         order_information["unit_order_information_list"] = unit_order_information_list
