@@ -533,7 +533,7 @@ class Cart(models.Model):
         subtotal = self.get_subtotal()
         if subtotal==0:
             return 0
-        if (cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
@@ -546,7 +546,7 @@ class Cart(models.Model):
         subtotal = self.get_subtotal()
         if subtotal==0:
             return 0
-        if (cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee(cod, offline)
         if cod==True:
@@ -900,7 +900,7 @@ class FastCart(models.Model):
         subtotal = self.get_subtotal()
         if subtotal==0:
             return 0
-        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if (self.location_group.is_voucher_allowed_on_cod==True or cod==False) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
@@ -913,7 +913,7 @@ class FastCart(models.Model):
         subtotal = self.get_subtotal()
         if subtotal==0:
             return 0
-        if cod==False and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+        if (self.location_group.is_voucher_allowed_on_cod==True or cod==False) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee(cod)
         if cod==True:
