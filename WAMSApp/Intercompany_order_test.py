@@ -797,15 +797,18 @@ ftp.login('mapftpdev','western')
 files = []
 files = ftp.nlst("omnicom")
 
-def getFile(ftp, filename):
-    try:
-        ftp.retrbinary("RETR " + filename ,open(filename, 'wb').write)
-    except Exception as e:
-        print(e)
+ftp.cwd('/omnicom')
+# the name of file you want to download from the FTP server
+filename = "0080147598_13102020142045.txt"
+with open(filename, "wb") as file:
+    # use FTP's RETR command to download the file
+    ftp.retrbinary(f"RETR {filename}", file.write)
 
- 
-ftp.cwd('/pub/')
-for f in files:
-  print(f)
-  getFile(ftp,"0080147548_08102020091018.txt")
-  break
+fp = open(filename, 'rb')
+GRN_File = fp.read().decode('utf-8')
+
+GRN_products = GRN_File.split('\n')
+
+for product in GRN_products:
+  info = product.split(';')
+  print(info)
