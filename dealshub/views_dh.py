@@ -3966,7 +3966,7 @@ class SetShippingMethodAPI(APIView):
                             break
                         
                         unit_order_information = {}
-                        item["GRN_filename"] = str(do_id)
+                        unit_order_information["intercompany_sales_info"] = {}
                         item["order_id"] = str(order_information["order_id"])
                         unit_order_information["intercompany_sales_info"] = item
                         unit_order_obj.order_information = json.dumps(unit_order_information)
@@ -5046,7 +5046,8 @@ class GRNProcessingCronAPI(APIView):
                     for unit_order_obj in unit_order_objs:
                         
                         unit_order_information = json.loads(unit_order_obj.order_information)
-                        
+                        unit_order_information["final_billing_info"] = {}
+
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         GRN_info = GRN_information_dict[seller_sku]
                         GRN_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
@@ -5079,8 +5080,8 @@ class GRNProcessingCronAPI(APIView):
 
                         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
 
-                            unit_order_information = json.loads(unit_order_obj.order_information)["final_billing_info"]
-                            unit_order_information_list.append(unit_order_information)
+                            unit_order_final_billing_information = json.loads(unit_order_obj.order_information)["final_billing_info"]
+                            unit_order_information_list.append(unit_order_final_billing_information)
                         
                         order_information["unit_order_information_list"] = unit_order_information_list
 
