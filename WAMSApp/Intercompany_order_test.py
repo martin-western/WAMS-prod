@@ -788,3 +788,24 @@ for f in files:
             ftp.retrbinary('STOR f', fp.write)
         does_file_exists = True
         break
+
+from ftplib import FTP
+import os
+ftp=FTP()
+ftp.connect('geepasftp.selfip.com', 2221)
+ftp.login('mapftpdev','western')
+files = []
+files = ftp.nlst("omnicom")
+
+def getFile(ftp, filename):
+    try:
+        ftp.retrbinary("RETR " + filename ,open(filename, 'wb').write)
+    except Exception as e:
+        print(e)
+
+ 
+ftp.cwd('/pub/')
+for f in files:
+  print(f)
+  getFile(ftp,"0080147548_08102020091018.txt")
+  break
