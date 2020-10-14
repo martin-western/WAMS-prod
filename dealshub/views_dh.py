@@ -1233,8 +1233,9 @@ class PlaceOrderAPI(APIView):
                 except Exception as e:
                     pass
 
-                cart_obj.voucher = None
-                cart_obj.save()
+                if location_group_obj.is_voucher_allowed_on_cod==False:
+                    cart_obj.voucher = None
+                    cart_obj.save()
 
                 update_cart_bill(cart_obj)
 
@@ -1286,8 +1287,9 @@ class PlaceOrderAPI(APIView):
                 except Exception as e:
                     pass
 
-                fast_cart_obj.voucher = None
-                fast_cart_obj.save()
+                if location_group_obj.is_voucher_allowed_on_cod==False:
+                    fast_cart_obj.voucher = None
+                    fast_cart_obj.save()
 
                 update_fast_cart_bill(fast_cart_obj)
 
@@ -4319,7 +4321,10 @@ class ApplyVoucherCodeAPI(APIView):
                     "vat": vat_with_cod,
                     "toPay": total_amount_with_cod,
                     "delivery_fee": delivery_fee_with_cod,
-                    "codCharge": location_group_obj.cod_charge
+                    "codCharge": location_group_obj.cod_charge,
+                    "is_voucher_applied": is_voucher_applied,
+                    "voucher_discount": voucher_discount,
+                    "voucher_code": voucher_code
                 }
             else:
                 fast_cart_obj.voucher = voucher_obj
@@ -4363,7 +4368,10 @@ class ApplyVoucherCodeAPI(APIView):
                     "vat": vat_with_cod,
                     "toPay": total_amount_with_cod,
                     "delivery_fee": delivery_fee_with_cod,
-                    "codCharge": location_group_obj.cod_charge
+                    "codCharge": location_group_obj.cod_charge,
+                    "is_voucher_applied": is_voucher_applied,
+                    "voucher_discount": voucher_discount,
+                    "voucher_code": voucher_code
                 }
 
             response["voucher_success"] = True
@@ -4436,7 +4444,10 @@ class RemoveVoucherCodeAPI(APIView):
                     "vat": vat_with_cod,
                     "toPay": total_amount_with_cod,
                     "delivery_fee": delivery_fee_with_cod,
-                    "codCharge": location_group_obj.cod_charge
+                    "codCharge": location_group_obj.cod_charge,
+                    "is_voucher_applied": is_voucher_applied,
+                    "voucher_discount": voucher_discount,
+                    "voucher_code": voucher_code
                 }
             else:
                 fast_cart_obj = FastCart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
@@ -4480,7 +4491,10 @@ class RemoveVoucherCodeAPI(APIView):
                     "vat": vat_with_cod,
                     "toPay": total_amount_with_cod,
                     "delivery_fee": delivery_fee_with_cod,
-                    "codCharge": location_group_obj.cod_charge
+                    "codCharge": location_group_obj.cod_charge,
+                    "is_voucher_applied": is_voucher_applied,
+                    "voucher_discount": voucher_discount,
+                    "voucher_code": voucher_code
                 }
             response["voucher_success"] = True
             response["status"] = 200

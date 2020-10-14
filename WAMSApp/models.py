@@ -221,6 +221,7 @@ class LocationGroup(models.Model):
     mshastra_info = models.TextField(default="{}")
     sms_country_info = models.TextField(default="{}")
     postaplus_info = models.TextField(default="{}")
+    is_voucher_allowed_on_cod = models.BooleanField(default=False)
     uuid = models.CharField(max_length=200, default="")
 
     def __str__(self):
