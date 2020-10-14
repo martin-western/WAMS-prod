@@ -5024,7 +5024,7 @@ class GRNProcessingCronAPI(APIView):
                         # use FTP's RETR command to download the file
                         ftp.retrbinary(f"RETR {f}", file.write)
 
-                    fp = open(filename, 'rb')
+                    fp = open(f, 'rb')
                     GRN_File = fp.read().decode('utf-8')
 
                     GRN_products = GRN_File.split('\n')
