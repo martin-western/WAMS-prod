@@ -121,7 +121,7 @@ class SignUpSubmitAPI(APIView):
 
         return Response(data=response)
 
-class FetchProductListByCategoryAPI(APIView):
+class SearchProductByBrandAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
 
@@ -138,14 +138,12 @@ class FetchProductListByCategoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            category_id = data["category_id"]
             brand_name = data.get("brand_name", None)
+            search_text = data.get("search_text", "")
             page = int(data.get('page', 1))
-            
-            product_objs = Product.objects.filter(base_product__category__uuid=category_id)
 
             if brand_name!=None:
-                product_objs = product_objs.filter(base_product__brand__name=brand_name)                            
+                product_objs = Product.objects.filter(base_product__brand__name=brand_name)                            
 
             paginator = Paginator(product_objs, 20)
             product_objs = paginator.page(page)
@@ -167,13 +165,16 @@ class FetchProductListByCategoryAPI(APIView):
             response["product_list"] = product_list
             response["total_pages"] = total_pages
             response['status'] = 200
+            response['message'] = "Successfull"
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchProductListByCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SearchProductByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 LoginSubmit = LoginSubmitAPI.as_view()
 
 SignUpSubmit = SignUpSubmitAPI.as_view()
+
+SearchProductByBrand = SearchProductByBrandAPI.as_view()
