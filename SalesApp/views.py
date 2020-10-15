@@ -272,9 +272,7 @@ class ProductChangeInFavouritesAPI(APIView):
 
         return Response(data=response)
 
-class SearchProductByBrandAPI(APIView):
-
-    permission_classes = (permissions.AllowAny,)
+class FetchFavouriteProductsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -284,22 +282,13 @@ class SearchProductByBrandAPI(APIView):
         try:
             
             data = request.data
-            logger.info("SearchProductByBrandAPI: %s", str(data))
+            logger.info("FetchFavouriteProductsAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             brand_name = data.get("brand_name", None)
-            search_text = data.get("search_text", "")
             page = int(data.get('page', 1))
-
-            if search_text != "":
-                product_objs = Product.objects.filter(
-                        Q(base_product__base_product_name__icontains=search_text) |
-                        Q(product_name__icontains=search_text) |
-                        Q(product_id__icontains=search_text) |
-                        Q(base_product__seller_sku__icontains=search_text)
-                    )
 
             if brand_name!=None:
                 brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
@@ -325,7 +314,7 @@ class SearchProductByBrandAPI(APIView):
                 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("SearchProductByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["product_list"] = product_list
             response["total_pages"] = total_pages
@@ -334,7 +323,7 @@ class SearchProductByBrandAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SearchProductByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
