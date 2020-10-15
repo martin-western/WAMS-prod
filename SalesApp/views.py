@@ -39,3 +39,39 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
     def enforce_csrf(self, request):
         return
+
+class UploadCategorySalesImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("UploadCategorySalesImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            category_uuid = data["category_uuid"]
+            image_type = data.get("image_type", "")
+            
+            category_obj = Category.objects.get(uuid=category_uuid)
+
+            image_obj = Image.objects.create(image=data["image"])
+
+            if image_type.lower()=="detailed":
+                category_obj.mobile_app_image_detailed = image_obj
+            else:
+                category_obj.mobile_app_image = image_obj
+            category_obj.save()
+
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadCategorySalesImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)

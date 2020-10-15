@@ -21,3 +21,9 @@ from django.template import loader
 
 logger = logging.getLogger(__name__)
 
+def convert_to_ascii(s):
+    
+    s = s.replace(u'\u2013', "-").replace(u'\u2019', "'").replace(u'\u2018', "'").replace(u'\u201d','"').replace(u'\u201c','"')
+    s = s.encode("ascii", "ignore")
+    
+    return s
