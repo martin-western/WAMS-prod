@@ -4,9 +4,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponseRedirect
 
-
 urlpatterns = [
     
     url(r'^login-submit/$', views.LoginSubmit),
-    
+    url(r'^signup-submit/$', views.SignUpSubmit),
+
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

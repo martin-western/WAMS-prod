@@ -55,13 +55,13 @@ class LoginSubmitAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            email_id = data.get("email_id", "")
+            email_id = data.get("email", "")
             password = data.get("password", "")
             fcm_id = data.get("fcm_id", "")
             
-            user = authenticate(username=username, password=password)
+            user = authenticate(username=email_id, password=password)
 
-			login(request, user)
+            login(request, user)
 
             response['status'] = 200
         
@@ -71,4 +71,37 @@ class LoginSubmitAPI(APIView):
 
         return Response(data=response)
 
+class SignUpSubmitAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("LoginSubmitAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            email_id = data.get("email", "")
+            password = data.get("password", "")
+            fcm_id = data.get("fcm_id", "")
+            
+            user = authenticate(username=email_id, password=password)
+
+            login(request, user)
+
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SignUpSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 LoginSubmit = LoginSubmitAPI.as_view()
+
+SignUpSubmit = SignUpSubmitAPI.as_view()
