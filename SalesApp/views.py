@@ -280,3 +280,5 @@ SignUpSubmit = SignUpSubmitAPI.as_view()
 SearchProductByBrand = SearchProductByBrandAPI.as_view()
 
 ProductChangeInFavourites = ProductChangeInFavouritesAPI.as_view()
+
+FetchFavouriteProducts = FetchFavouriteProductsAPI.as_view()

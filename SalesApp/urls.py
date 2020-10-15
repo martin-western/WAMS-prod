@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^signup-submit/$', views.SignUpSubmit),
     url(r'^search-product-by-brand/$', views.SearchProductByBrand),
     url(r'^product-change-in-favourites/$', views.ProductChangeInFavourites),
+    url(r'^fetch-favourite-products/$', views.FetchFavouriteProducts),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
