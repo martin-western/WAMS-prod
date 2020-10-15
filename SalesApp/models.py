@@ -95,11 +95,13 @@ class Image(models.Model):
 class SalesAppUser(User):
 
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
+    customer_id = models.CharField(max_length=200, default="",blank=True,null=True)
     first_name = models.CharField(max_length=200, default="",blank=True,null=True)
     last_name = models.CharField(max_length=200, default="",blank=True,null=True)
     email_id = models.CharField(max_length=200, default="",blank=True,null=True)
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     country = models.CharField(max_length=200, default="",blank=True,null=True)
+    favourite_products = models.ManyToManyField('wamsapp.product',blank=True)
     
     def save(self, *args, **kwargs):
         if self.pk == None:
