@@ -97,17 +97,15 @@ class SalesAppUser(User):
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
-    permission_list = models.TextField(default="[]")
-    website_group = models.ForeignKey("WebsiteGroup", null=True, blank=True, on_delete=models.SET_NULL)
-
+    
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.set_password(self.password)
-        super(OmnyCommUser, self).save(*args, **kwargs)
+        super(SalesAppUser, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.username
 
     class Meta:
-        verbose_name = "OmnyCommUser"
-        verbose_name_plural = "OmnyCommUser"
+        verbose_name = "SalesAppUser"
+        verbose_name_plural = "SalesAppUser"
