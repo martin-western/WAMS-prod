@@ -23,7 +23,6 @@ class Notification(models.Model):
     uuid = models.CharField(max_length=200, default="",blank=True,null=True)
     title = models.CharField(max_length=200, default="",blank=True,null=True)
     message = models.CharField(max_length=200, default="",blank=True,null=True)
-    user = models.ForeignKey(SalesAppUser, null=True, blank=True, on_delete=models.CASCADE)
     
     def save(self, *args, **kwargs):
         
@@ -49,12 +48,14 @@ class SalesAppUser(User):
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     country = models.CharField(max_length=200, default="",blank=True,null=True)
     favourite_products = models.ManyToManyField('wamsapp.product',blank=True)
+    notifications = models.ManyToManyField(Notification,blank=True)
     
     def save(self, *args, **kwargs):
         
         if self.pk == None:
             self.set_password(self.password)
-            self.customer_id = str(uuid.uuid4()).split(-)[0]
+            self.customer_id = str(uuid.uuid4()).split("-")[0]
+        
         super(SalesAppUser, self).save(*args, **kwargs)
 
     def __str__(self):
