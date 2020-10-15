@@ -142,8 +142,16 @@ class SearchProductByBrandAPI(APIView):
             search_text = data.get("search_text", "")
             page = int(data.get('page', 1))
 
+            if search_text != "":
+                product_objs = Product.objects.filter(
+                        Q(base_product__base_product_name__icontains=search_text) |
+                        Q(product_name__icontains=search_text) |
+                        Q(product_id__icontains=search_text) |
+                        Q(base_product__seller_sku__icontains=search_text)
+                    )
+
             if brand_name!=None:
-                product_objs = Product.objects.filter(base_product__brand__name=brand_name)                            
+                product_objs = product_objs.filter(base_product__brand__name=brand_name) 
 
             paginator = Paginator(product_objs, 20)
             product_objs = paginator.page(page)
