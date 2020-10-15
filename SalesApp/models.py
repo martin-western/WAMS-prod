@@ -92,6 +92,28 @@ class Image(models.Model):
 
         super(Image, self).save(*args, **kwargs)
 
+class Notification(models.Model):
+	
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="",blank=True,null=True)
+    title = models.CharField(max_length=200, default="",blank=True,null=True)
+    message = models.CharField(max_length=200, default="",blank=True,null=True)
+    user = models.ForeignKey(SalesAppUser, null=True, blank=True, on_delete=models.CASCADE)
+    
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = uuid.uuid4()
+        
+        super(Notification, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
+
 class SalesAppUser(User):
 
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
@@ -104,8 +126,10 @@ class SalesAppUser(User):
     favourite_products = models.ManyToManyField('wamsapp.product',blank=True)
     
     def save(self, *args, **kwargs):
+        
         if self.pk == None:
             self.set_password(self.password)
+            self.customer_id = str(uuid.uuid4()).split(-)[0]
         super(SalesAppUser, self).save(*args, **kwargs)
 
     def __str__(self):
