@@ -92,11 +92,25 @@ class Image(models.Model):
 
         super(Image, self).save(*args, **kwargs)
 
+class Country:
+
+	name = models.CharField(max_length=200)
+
+	def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Country"
+        verbose_name_plural = "Countries"
+
 class SalesAppUser(User):
 
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=200, default="",blank=True,null=True)
+    last_name = models.CharField(max_length=200, default="",blank=True,null=True)
+    email_id = models.CharField(max_length=200, default="",blank=True,null=True)
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
-    designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
+    country = models.CharField(max_length=200, default="",blank=True,null=True)
     
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -108,4 +122,4 @@ class SalesAppUser(User):
 
     class Meta:
         verbose_name = "SalesAppUser"
-        verbose_name_plural = "SalesAppUser"
+        verbose_name_plural = "SalesAppUsers"
