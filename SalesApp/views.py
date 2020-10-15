@@ -186,7 +186,7 @@ class SearchProductByBrandAPI(APIView):
 
         return Response(data=response)
 
-class SearchProductByBrandAPI(APIView):
+class ProductAddToFavouritesAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
 
@@ -247,7 +247,7 @@ class SearchProductByBrandAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SearchProductByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ProductAddToFavouritesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -257,3 +257,5 @@ LoginSubmit = LoginSubmitAPI.as_view()
 SignUpSubmit = SignUpSubmitAPI.as_view()
 
 SearchProductByBrand = SearchProductByBrandAPI.as_view()
+
+ProductAddToFavourites = ProductAddToFavouritesAPI.as_view()
