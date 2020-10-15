@@ -128,8 +128,6 @@ class SignUpSubmitAPI(APIView):
 
 class SearchProductByBrandAPI(APIView):
 
-    permission_classes = (permissions.AllowAny,)
-
     def post(self, request, *args, **kwargs):
 
         response = {}
