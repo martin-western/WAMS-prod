@@ -59,15 +59,9 @@ class LoginSubmitAPI(APIView):
             password = data.get("password", "")
             fcm_id = data.get("fcm_id", "")
             
-            sales_user = SalesAppUser.objects.get(uuid=category_uuid)
+            user = authenticate(username=username, password=password)
 
-            image_obj = Image.objects.create(image=data["image"])
-
-            if image_type.lower()=="detailed":
-                category_obj.mobile_app_image_detailed = image_obj
-            else:
-                category_obj.mobile_app_image = image_obj
-            category_obj.save()
+			login(request, user)
 
             response['status'] = 200
         
