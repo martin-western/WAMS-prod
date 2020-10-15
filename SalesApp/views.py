@@ -192,7 +192,7 @@ class SearchProductByBrandAPI(APIView):
 
         return Response(data=response)
 
-class ProductAddToFavouritesAPI(APIView):
+class ProductChangeInFavouritesAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
 
@@ -204,7 +204,7 @@ class ProductAddToFavouritesAPI(APIView):
         try:
             
             data = request.data
-            logger.info("ProductAddToFavouritesAPI: %s", str(data))
+            logger.info("ProductChangeInFavouritesAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -268,7 +268,7 @@ class ProductAddToFavouritesAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("ProductAddToFavouritesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ProductChangeInFavouritesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -279,4 +279,4 @@ SignUpSubmit = SignUpSubmitAPI.as_view()
 
 SearchProductByBrand = SearchProductByBrandAPI.as_view()
 
-ProductAddToFavourites = ProductAddToFavouritesAPI.as_view()
+ProductChangeInFavourites = ProductChangeInFavouritesAPI.as_view()
