@@ -40,7 +40,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return
 
-class UploadCategorySalesImageAPI(APIView):
+class LoginSubmitAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -50,7 +50,7 @@ class UploadCategorySalesImageAPI(APIView):
         try:
             
             data = request.data
-            logger.info("UploadCategorySalesImageAPI: %s", str(data))
+            logger.info("LoginSubmitAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -72,6 +72,8 @@ class UploadCategorySalesImageAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UploadCategorySalesImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("LoginSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+LoginSubmit = LoginSubmitAPI.as_view()
