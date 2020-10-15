@@ -272,6 +272,71 @@ class ProductChangeInFavouritesAPI(APIView):
 
         return Response(data=response)
 
+class SearchProductByBrandAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("SearchProductByBrandAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            brand_name = data.get("brand_name", None)
+            search_text = data.get("search_text", "")
+            page = int(data.get('page', 1))
+
+            if search_text != "":
+                product_objs = Product.objects.filter(
+                        Q(base_product__base_product_name__icontains=search_text) |
+                        Q(product_name__icontains=search_text) |
+                        Q(product_id__icontains=search_text) |
+                        Q(base_product__seller_sku__icontains=search_text)
+                    )
+
+            if brand_name!=None:
+                brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
+                product_objs = product_objs.filter(base_product__brand=brand_obj) 
+
+            paginator = Paginator(product_objs, 20)
+            product_objs = paginator.page(page)
+            total_pages = paginator.num_pages
+
+            product_list = []
+            
+            for product_obj in product_objs:
+                
+                try:
+                    
+                    temp_dict = {}
+                    temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["product_description"] = product_obj.product_description
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
+                    
+                    product_list.append(temp_dict)
+                
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SearchProductByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["product_list"] = product_list
+            response["total_pages"] = total_pages
+            response['status'] = 200
+            response['message'] = "Successfull"
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchProductByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 LoginSubmit = LoginSubmitAPI.as_view()
 
