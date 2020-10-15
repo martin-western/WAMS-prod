@@ -55,15 +55,18 @@ class LoginSubmitAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            email_id = data.get("email", "")
+            email = data.get("email", "")
             password = data.get("password", "")
             fcm_id = data.get("fcm_id", "")
             
-            user = authenticate(username=email_id, password=password)
+            user = authenticate(username=email, password=password)
 
-            login(request, user)
-
-            response['status'] = 200
+            if user == None:
+                response['status'] = 403
+                response['status'] = "Incorrect Password or Email ID"
+            else :
+                response['status'] = 200
+                response['status'] = "Successfully Logged In"
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -81,24 +84,93 @@ class SignUpSubmitAPI(APIView):
         try:
             
             data = request.data
-            logger.info("LoginSubmitAPI: %s", str(data))
+            logger.info("SignUpSubmitAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            email_id = data.get("email", "")
+            first_name = data.get("first_name", "")
+            last_name = data.get("last_name", "")
+            email = data.get("email", "")
+            phone = data.get("phone", "")
             password = data.get("password", "")
-            fcm_id = data.get("fcm_id", "")
+            country = data.get("country", "")
             
-            user = authenticate(username=email_id, password=password)
+            if SalesAppUser.objects.filter(username=email).exists():
+                response['status'] = 403
+                response['message'] = "Email ID alreay in use"
+                logger.warning("SignUpSubmitAPI : Email ID alreay in use")
+                return Response(data=response)
 
-            login(request, user)
+            sales_user = SalesAppUser.objects.create(username=email,password=password)
+
+            sales_user.first_name = first_name
+            sales_user.last_name = last_name
+            sales_user.email = email
+            sales_user.contact_number = phone
+            sales_user.country = country
+
+            sales_user.save()
 
             response['status'] = 200
+            response['message'] = "Successfully Signed Up"
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SignUpSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchProductListByCategoryAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchProductListByCategoryAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            category_id = data["category_id"]
+            brand_name = data.get("brand_name", None)
+            page = int(data.get('page', 1))
+            
+            product_objs = Product.objects.filter(base_product__category__uuid=category_id)
+
+            if brand_name!=None:
+                product_objs = product_objs.filter(base_product__brand__name=brand_name)                            
+
+            paginator = Paginator(product_objs, 20)
+            product_objs = paginator.page(page)
+            total_pages = paginator.num_pages
+
+            product_list = []
+            for product_obj in product_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["product_description"] = product_obj.product_description
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
+                    product_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchProductListByCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["product_list"] = product_list
+            response["total_pages"] = total_pages
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchProductListByCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
