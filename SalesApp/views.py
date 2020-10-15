@@ -55,10 +55,11 @@ class LoginSubmitAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            category_uuid = data["category_uuid"]
-            image_type = data.get("image_type", "")
+            email_id = data.get("email_id", "")
+            password = data.get("password", "")
+            fcm_id = data.get("fcm_id", "")
             
-            category_obj = Category.objects.get(uuid=category_uuid)
+            sales_user = SalesAppUser.objects.get(uuid=category_uuid)
 
             image_obj = Image.objects.create(image=data["image"])
 

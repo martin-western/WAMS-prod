@@ -14,10 +14,8 @@ logger = logging.getLogger(__name__)
 
 class SalesAppUser(User):
 
-    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
     customer_id = models.CharField(max_length=200, default="",blank=True,null=True)
     fcm_id = models.TextField(default="{}")
-    email_id = models.CharField(max_length=200, default="",blank=True,null=True)
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     country = models.CharField(max_length=200, default="",blank=True,null=True)
     favourite_products = models.ManyToManyField(Product,blank=True)
