@@ -133,7 +133,7 @@ class SearchProductByBrandAPI(APIView):
         try:
             
             data = request.data
-            logger.info("FetchProductListByCategoryAPI: %s", str(data))
+            logger.info("SearchProductByBrandAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -158,17 +158,22 @@ class SearchProductByBrandAPI(APIView):
             total_pages = paginator.num_pages
 
             product_list = []
+            
             for product_obj in product_objs:
+                
                 try:
+                    
                     temp_dict = {}
                     temp_dict["product_name"] = product_obj.product_name
                     temp_dict["product_description"] = product_obj.product_description
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
+                    
                     product_list.append(temp_dict)
+                
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchProductListByCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("SearchProductByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["product_list"] = product_list
             response["total_pages"] = total_pages
