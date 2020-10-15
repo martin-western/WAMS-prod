@@ -212,6 +212,14 @@ class ProductChangeInFavouritesAPI(APIView):
             brand_name = data.get("brand_name", None)
             seller_sku = data.get("seller_sku",None)
             operation = data.get("operation",None)
+            customer_id = data.get("customer_id",None)
+
+            if customer_id != None:
+                sales_user_obj = SalesAppUser.objects.get(customer_id=customer_id)
+            else :
+                response['status'] = 403
+                response['message'] = "User not Found with that customer ID"
+                return Response(data=response)
 
             if seller_sku == None:
                 
@@ -248,7 +256,6 @@ class ProductChangeInFavouritesAPI(APIView):
             if Product.objects.filter(base_product__brand=brand_obj,base_product__seller_sku=seller_sku).exists():
 
                 product_obj = Product.objects.get(base_product__brand=brand_obj,base_product__seller_sku=seller_sku)
-                sales_user_obj = SalesAppUser.objects.get(user=request.user)
 
                 if operation == "ADD":
                     sales_user_obj.favourite_products.add(product_obj)
@@ -288,7 +295,17 @@ class FetchFavouriteProductsAPI(APIView):
                 data = json.loads(data)
 
             brand_name = data.get("brand_name", None)
+            customer_id = data.get("customer_id", None)
             page = int(data.get('page', 1))
+
+            if customer_id != None:
+                sales_user_obj = SalesAppUser.objects.get(customer_id=customer_id)
+            else :
+                response['status'] = 403
+                response['message'] = "User not Found with that customer ID"
+                return Response(data=response)
+
+            product_objs = sales_user_obj.favourite_products
 
             if brand_name!=None:
                 brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
