@@ -887,7 +887,16 @@ class SectionBulkUploadAPI(APIView):
                     temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
                     temp_dict["name"] = dealshub_product_obj.get_name()
                     temp_dict["displayId"] = dealshub_product_obj.get_product_id()
+                    temp_dict["sellerSku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict["uuid"] = dealshub_product_obj.uuid
+
+                    promotion_obj = dealshub_product_obj.promotion
+                    
+                    temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+                    temp_dict["now_price"] = dealshub_product_obj.now_price
+                    temp_dict["was_price"] = dealshub_product_obj.was_price
+                    temp_dict["stock"] = dealshub_product_obj.stock
+
                     products.append(temp_dict)
 
                 except Exception as e:
@@ -897,7 +906,7 @@ class SectionBulkUploadAPI(APIView):
                     
             section_obj.save()
 
-            response["products"] = products
+            response["products"] = products[:40]
             response["unsuccessful_count"] = unsuccessful_count
             response["filepath"] = path
             response['status'] = 200
@@ -959,7 +968,16 @@ class BannerBulkUploadAPI(APIView):
                     temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
                     temp_dict["name"] = dealshub_product_obj.get_name()
                     temp_dict["displayId"] = dealshub_product_obj.get_product_id()
+                    temp_dict["sellerSku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict["uuid"] = dealshub_product_obj.uuid
+
+                    promotion_obj = dealshub_product_obj.promotion
+                    
+                    temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+                    temp_dict["now_price"] = dealshub_product_obj.now_price
+                    temp_dict["was_price"] = dealshub_product_obj.was_price
+                    temp_dict["stock"] = dealshub_product_obj.stock
+
                     products.append(temp_dict)
 
                 except Exception as e:
@@ -969,7 +987,7 @@ class BannerBulkUploadAPI(APIView):
                     
             unit_banner_obj.save()
 
-            response["products"] = products
+            response["products"] = products[:40]
             response["unsuccessful_count"] = unsuccessful_count
             response["filepath"] = path
             response['status'] = 200
