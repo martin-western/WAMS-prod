@@ -92,17 +92,6 @@ class Image(models.Model):
 
         super(Image, self).save(*args, **kwargs)
 
-class Country:
-
-	name = models.CharField(max_length=200)
-
-	def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = "Country"
-        verbose_name_plural = "Countries"
-
 class SalesAppUser(User):
 
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
