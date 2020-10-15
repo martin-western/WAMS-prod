@@ -6,11 +6,6 @@ import logging
 import json
 import uuid
 
-from PIL import Image as IMAGE
-from PIL import ExifTags
-from io import BytesIO
-from bs4 import BeautifulSoup
-
 from WAMSApp.models import *
 from SalesApp.utils import *
 from django.core.cache import cache
