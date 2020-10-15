@@ -788,3 +788,27 @@ for f in files:
             ftp.retrbinary('STOR f', fp.write)
         does_file_exists = True
         break
+
+from ftplib import FTP
+import os
+ftp=FTP()
+ftp.connect('geepasftp.selfip.com', 2221)
+ftp.login('mapftpdev','western')
+files = []
+files = ftp.nlst("omnicom")
+
+ftp.cwd('/omnicom')
+# the name of file you want to download from the FTP server
+filename = "0080147598_13102020142045.txt"
+with open(filename, "wb") as file:
+    # use FTP's RETR command to download the file
+    ftp.retrbinary(f"RETR {filename}", file.write)
+
+fp = open(filename, 'rb')
+GRN_File = fp.read().decode('utf-8')
+
+GRN_products = GRN_File.split('\n')
+
+for product in GRN_products:
+  info = product.split(';')
+  print(info)
