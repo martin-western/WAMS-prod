@@ -483,7 +483,25 @@ class SearchAPI(APIView):
                 available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
             
             if product_name!="":
-                available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
+                if available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name)).exists():
+                    available_dealshub_products = available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
+                else:
+                    search_tags = product_name.split(" ")
+                    target_brand = None
+                    for search_tag in search_tags:
+                        if website_group_obj.brands.filter(name=search_tag).exists():
+                            target_brand = website_group_obj.brands.filter(name=search_tag)[0]
+                            search_tags.remove(search_tag)
+                            break
+                    if target_brand!=None:
+                        available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
+
+                    if len(search_tags)>0:
+                        search_results = DealsHubProduct.objects.none()
+                        for search_tag in search_tags:
+                            search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
+                        available_dealshub_products = search_results.distinct()
+
 
             brand_list = []
             try:
@@ -1939,7 +1957,25 @@ class SearchProductsAutocompleteAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
-            category_key_list = DealsHubProduct.objects.filter(location_group=location_group_obj, is_published=True, product__base_product__brand__in=website_group_obj.brands.all()).filter(Q(product__product_name__icontains=search_string) | Q(product__base_product__seller_sku__icontains=search_string) | Q(product__base_product__brand__name__icontains=search_string)).exclude(now_price=0).exclude(stock=0).values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
+            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, is_published=True, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0)
+
+            search_tags = search_string.split(" ")
+            target_brand = None
+            for search_tag in search_tags:
+                if website_group_obj.brands.filter(name=search_tag).exists():
+                    target_brand = website_group_obj.brands.filter(name=search_tag)[0]
+                    search_tags.remove(search_tag)
+                    break
+            if target_brand!=None:
+                available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
+
+            if len(search_tags)>0:
+                search_results = DealsHubProduct.objects.none()
+                for search_tag in search_tags:
+                    search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
+                available_dealshub_products = search_results.distinct()
+
+            category_key_list = available_dealshub_products.values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
 
             category_list = []
             for category_key in category_key_list:
