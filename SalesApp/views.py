@@ -67,6 +67,9 @@ class LoginSubmitAPI(APIView):
                 response['status'] = 403
                 response['status'] = "Incorrect Password or Email ID"
             else :
+                
+                login(request,user)
+
                 response['status'] = 200
                 response['status'] = "Successfully Logged In"
         
@@ -201,16 +204,43 @@ class ProductAddToFavouritesAPI(APIView):
         try:
             
             data = request.data
-            logger.info("SearchProductByBrandAPI: %s", str(data))
+            logger.info("ProductAddToFavouritesAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             brand_name = data.get("brand_name", None)
-            seller_sku = data.get("seller_sku","")
+            seller_sku = data.get("seller_sku",None)
+
+            if seller_sku == None:
+                
+                response['status'] = 403
+                response['message'] = "Seller SKU not found"
+
+                return Response(data=response)
+
+            if brand_name != None:
+                
+                if Brand.objects.filter(name=brand_name,organization=ORGANIZATION).exists():
+                    brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
+
+                else:
+                    response['status'] = 403
+                    response['message'] = "Brand not found"
+
+                    return Response(data=response)
             
-            response['status'] = 200
-            response['message'] = "Successfull"
+            if Product.objects.filter(base_product__brand=brand_obj,base_product__seller_sku=seller_sku).exists():
+
+                product_obj = Product.objects.get(base_product__brand=brand_obj,base_product__seller_sku=seller_sku)
+
+                response['status'] = 200
+                response['message'] = "Successfully added to favourites"
+
+            else:
+
+                response['status'] = 200
+                response['message'] = "Product Not Found"
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
