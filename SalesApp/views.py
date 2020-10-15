@@ -211,11 +211,26 @@ class ProductAddToFavouritesAPI(APIView):
 
             brand_name = data.get("brand_name", None)
             seller_sku = data.get("seller_sku",None)
+            operation = data.get("operation",None)
 
             if seller_sku == None:
                 
                 response['status'] = 403
                 response['message'] = "Seller SKU not found"
+
+                return Response(data=response)
+
+            if operation == None:
+                
+                response['status'] = 403
+                response['message'] = "Operation Type not specified"
+
+                return Response(data=response)
+
+            if operation != "ADD" or operation != "REMOVE":
+                
+                response['status'] = 403
+                response['message'] = "Operation Type not valid"
 
                 return Response(data=response)
 
@@ -233,9 +248,18 @@ class ProductAddToFavouritesAPI(APIView):
             if Product.objects.filter(base_product__brand=brand_obj,base_product__seller_sku=seller_sku).exists():
 
                 product_obj = Product.objects.get(base_product__brand=brand_obj,base_product__seller_sku=seller_sku)
+                sales_user_obj = SalesAppUser.objects.get(user=request.user)
 
+                if operation == "ADD":
+                    sales_user_obj.favourite_products.add(product_obj)
+                    response['message'] = "Successfully added to favourites"
+
+                elif operation == "REMOVE":
+                    sales_user_obj.favourite_products.remove(product_obj)
+                    response['message'] = "Successfully removed to favourites"
+
+                sales_user_obj.save()
                 response['status'] = 200
-                response['message'] = "Successfully added to favourites"
 
             else:
 
