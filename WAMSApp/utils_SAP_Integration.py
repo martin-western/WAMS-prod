@@ -1,4 +1,4 @@
-from WAMSApp.models import *
+from WAMSApp.utils import *
 from WAMSApp.xml_generators_SAP import *
 
 import requests
