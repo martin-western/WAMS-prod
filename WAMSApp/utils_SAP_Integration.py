@@ -1,4 +1,4 @@
-from WAMSApp.models import *
+from WAMSApp.utils import *
 from WAMSApp.xml_generators_SAP import *
 
 import requests
@@ -129,6 +129,10 @@ def fetch_prices_and_stock(seller_sku,company_code):
         prices["OD_EA"] = str(OD_EA)
         prices["RET_EA"] = str(RET_EA)
         
+        result["prices"] = prices
+        result["stock_list"] = stock_list
+        result["total_atp"] = total_atp
+        result["total_holding"] = total_holding
 
         if isinstance(items,list):
             items = items[1]
@@ -136,24 +140,36 @@ def fetch_prices_and_stock(seller_sku,company_code):
         super_category = items["WWGHB1"]
         category = items["WWGHB2"]
         sub_category = items["WWGHB3"]
-        
-        if super_category != None and super_category!="None" and super_category != "":
-            
-            sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)
-            sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
-            sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
 
-            category_mapping , created = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
+        if isNoneOrEmpty(super_category):
+            result["status"] = 500
+            result["message"] = "SAP Super Category Not Found for :" + seller_sku
+            return result
 
-            atp_threshold = category_mapping.atp_threshold
-            holding_threshold = category_mapping.holding_threshold
+        if isNoneOrEmpty(category):
+            result["status"] = 500
+            result["message"] = "SAP Category Not Found :" + seller_sku
+            return result
 
-        result["prices"] = prices
-        result["stock_list"] = stock_list
-        result["total_atp"] = total_atp
-        result["total_holding"] = total_holding
+        if isNoneOrEmpty(sub_category):
+            result["status"] = 500
+            result["message"] = "SAP SubCategory Not Found :" + seller_sku
+            return result
+
+        sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)
+        sap_category , created  = SapCategory.objects.get_or_create(category=category,super_category=sap_super_category)
+        sap_sub_category , created  = SapSubCategory.objects.get_or_create(sub_category=sub_category,category=sap_category)
+
+        category_mapping , created = CategoryMapping.objects.get_or_create(sap_sub_category=sap_sub_category)
+
+        atp_threshold = category_mapping.atp_threshold
+        holding_threshold = category_mapping.holding_threshold
+
         result["atp_threshold"] = atp_threshold
         result["holding_threshold"] = holding_threshold
+        
+        result["status"] = 200
+        result["message"] = "Success"
 
         return result
 

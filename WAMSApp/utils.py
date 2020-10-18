@@ -2435,3 +2435,18 @@ def get_category_mapping(category_mapping_pk):
     all_data_category_mapping['recommended_browse_node'] = category_mapping.recommended_browse_node
 
     return all_data_category_mapping
+    
+def isNoneOrEmpty(variable):
+
+    try :
+
+        if variable == None or variable =="None" or variable == "":
+            return True
+
+        return False
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("isNoneOrEmpty: %s at %s", e, str(exc_tb.tb_lineno))
+        return True
+
