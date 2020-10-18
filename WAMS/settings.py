@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'auditlog',
     'WAMSApp',
-    'SalesApp',
     'dealshub',
     'SalesApp',
     'storages',
@@ -182,6 +181,7 @@ LOGFILE_SIZE = 20 * 1024 * 1024
 LOGFILE_COUNT = 5
 LOGFILE_APP = 'WAMSApp'
 LOGFILE_APP2 = 'dealshub'
+LOGFILE_APP3 = 'SalesApp'
 
 LOGGING = {
     'version': 1,
@@ -213,6 +213,11 @@ LOGGING = {
             'propagate': True,
         },
         LOGFILE_APP2: {
+            'handlers': ['applog'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        LOGFILE_APP3: {
             'handlers': ['applog'],
             'level': 'INFO',
             'propagate': True,
