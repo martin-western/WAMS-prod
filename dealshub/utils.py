@@ -656,13 +656,14 @@ def get_recommended_products(dealshub_product_objs):
 def is_user_input_required_for_sap_punching(stock_price_information):
     
     try:
-        result = fetch_prices_and_stock(seller_sku, company_code)
-
-        total_atp = result["total_atp"]
-        atp_threshold = result["atp_threshold"]
-        holding_threshold = result["holding_threshold"]
+        
+        total_atp = stock_price_information["total_atp"]
+        atp_threshold = stock_price_information["atp_threshold"]
+        holding_threshold = stock_price_information["holding_threshold"]
+        
         if total_atp > atp_threshold:
             return False
+        
         return True
     
     except Exception as e:

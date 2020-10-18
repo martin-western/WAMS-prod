@@ -143,17 +143,17 @@ def fetch_prices_and_stock(seller_sku,company_code):
 
         if isNoneOrEmpty(super_category):
             result["status"] = 500
-            result["message"] = "SAP Super Category Not Found!"
+            result["message"] = "SAP Super Category Not Found for :" + seller_sku
             return result
 
         if isNoneOrEmpty(category):
             result["status"] = 500
-            result["message"] = "SAP Category Not Found!"
+            result["message"] = "SAP Category Not Found :" + seller_sku
             return result
 
         if isNoneOrEmpty(sub_category):
             result["status"] = 500
-            result["message"] = "SAP SubCategory Not Found!"
+            result["message"] = "SAP SubCategory Not Found :" + seller_sku
             return result
 
         sap_super_category , created = SapSuperCategory.objects.get_or_create(super_category=super_category)

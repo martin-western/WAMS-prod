@@ -3871,7 +3871,14 @@ class SetShippingMethodAPI(APIView):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
                     company_code = brand_company_dict[brand_name.lower()]
-                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(seller_sku, company_code)
+                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
+
+                    if stock_price_information["status"] == 500:
+                        response["status"] = 403
+                        response["message"] = stock_price_information["message"]
+                        return Response(data=response)
+
+                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information)
 
                 user_input_sap = data.get("user_input_sap", None)
                 
