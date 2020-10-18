@@ -267,7 +267,7 @@ class ProductChangeInFavouritesAPI(APIView):
             operation = data.get("operation","")
             
             try :
-                sales_user_obj = SalesAppUser.objects.get(user=request.user)
+                sales_user_obj = SalesAppUser.objects.get(username=request.user.username)
             except Exception as e :
                 response['status'] = 403
                 response['message'] = "User not Logged In"
