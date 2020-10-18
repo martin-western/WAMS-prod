@@ -908,7 +908,7 @@ class BulkUpdateCartDetailsAPI(APIView):
                 unit_cart_obj.quantity = unit_cart["quantity"]
                 unit_cart_obj.save()            
 
-            cart_obj = Cart.objects.filter(owner__username=request.user.username, location_group__uuid=location_group_uuid)
+            cart_obj = Cart.objects.get(owner__username=request.user.username, location_group__uuid=location_group_uuid)
 
             update_cart_bill(cart_obj)
 
