@@ -215,11 +215,11 @@ class SearchProductByBrandAPI(APIView):
                 logger.warning("SearchProductByBrandAPI : Page number out of range")
                 return Response(data=response)
 
-            product_objs = paginator.page(page)
+            page_product_objs = paginator.page(page)
 
             product_list = []
             
-            for product_obj in product_objs:
+            for product_obj in page_product_objs:
                 
                 try:
                     
@@ -350,7 +350,7 @@ class FetchFavouriteProductsAPI(APIView):
                 logger.warning("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            product_objs = sales_user_obj.favourite_products
+            product_objs = sales_user_obj.favourite_products.all()
 
             paginator = Paginator(product_objs, 20)
             total_pages = paginator.num_pages
@@ -361,11 +361,11 @@ class FetchFavouriteProductsAPI(APIView):
                 logger.warning("FetchFavouriteProductsAPI : Page number out of range")
                 return Response(data=response)
 
-            product_objs = paginator.page(page)
+            page_product_objs = paginator.page(page)
 
             product_list = []
             
-            for product_obj in product_objs:
+            for product_obj in page_product_objs:
                 
                 try:
                     
