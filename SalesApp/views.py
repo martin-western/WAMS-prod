@@ -102,7 +102,7 @@ class SalesAppLoginSubmitAPI(APIView):
 
         return Response(data=response)
 
-class SignUpSubmitAPI(APIView):
+class SalesAppSignUpSubmitAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -112,41 +112,49 @@ class SignUpSubmitAPI(APIView):
         try:
             
             data = request.data
-            logger.info("SignUpSubmitAPI: %s", str(data))
+            logger.info("SalesAppSignUpSubmitAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            first_name = data.get("first_name", "")
-            last_name = data.get("last_name", "")
-            email = data.get("email", None)
-            phone = data.get("phone", "")
-            password = data.get("password", None)
-            country = data.get("country", "")
+            first_name = data.get("first_name", "").strip()
+            last_name = data.get("last_name", "").strip()
+            email = data.get("email", "").strip()
+            phone = data.get("phone", "").strip()
+            password = data.get("password", "").strip()
+            country = data.get("country", "").strip()
 
-            if email == None:
+            if email == "":
                 response['message'] = "Email ID can't be empty"
-                logger.warning("SignUpSubmitAPI : Email ID is Empty")
+                logger.warning("SalesAppSignUpSubmitAPI : Email ID is Empty")
                 return Response(data=response)
 
-            if password == None:
+            if password == "":
                 response['message'] = "Password can't be empty"
-                logger.warning("SignUpSubmitAPI : Password is Empty")
+                logger.warning("SalesAppSignUpSubmitAPI : Password is Empty")
                 return Response(data=response)
             
             if SalesAppUser.objects.filter(username=email).exists():
                 response['status'] = 403
                 response['message'] = "Email ID alreay in use"
-                logger.warning("SignUpSubmitAPI : Email ID alreay in use")
+                logger.warning("SalesAppSignUpSubmitAPI : Email ID alreay in use")
                 return Response(data=response)
 
             sales_user = SalesAppUser.objects.create(username=email,password=password)
 
-            sales_user.first_name = first_name
-            sales_user.last_name = last_name
+            if first_name != "":
+                sales_user.first_name = first_name
+            
+            if last_name != "":
+                sales_user.last_name = last_name
+            
             sales_user.email = email
-            sales_user.contact_number = phone
-            sales_user.country = country
+            
+            if contact_number != "":
+                sales_user.contact_number = phone
+            
+            if country != "":
+                sales_user.country = country
 
             sales_user.save()
 
@@ -155,7 +163,7 @@ class SignUpSubmitAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SignUpSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SalesAppSignUpSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -375,7 +383,7 @@ class FetchFavouriteProductsAPI(APIView):
 
 SalesAppLoginSubmit = SalesAppLoginSubmitAPI.as_view()
 
-SignUpSubmit = SignUpSubmitAPI.as_view()
+SalesAppSignUpSubmit = SalesAppSignUpSubmitAPI.as_view()
 
 SearchProductByBrand = SearchProductByBrandAPI.as_view()
 
