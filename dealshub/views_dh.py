@@ -1334,6 +1334,7 @@ class PlaceOrderAPI(APIView):
                 fast_cart_obj.to_pay = 0
                 fast_cart_obj.merchant_reference = ""
                 fast_cart_obj.payment_info = "{}"
+                fast_cart_obj.product = None
                 fast_cart_obj.save()
 
 
@@ -2478,6 +2479,7 @@ class PaymentTransactionAPI(APIView):
                     fast_cart_obj.to_pay = 0
                     fast_cart_obj.merchant_reference = ""
                     fast_cart_obj.payment_info = "{}"
+                    fast_cart_obj.product = None
                     fast_cart_obj.save()
 
                 # Trigger Email
@@ -4897,6 +4899,7 @@ class PlaceOnlineOrderAPI(APIView):
                 fast_cart_obj.to_pay = 0
                 fast_cart_obj.merchant_reference = ""
                 fast_cart_obj.payment_info = "{}"
+                fast_cart_obj.product = None
                 fast_cart_obj.save()
 
             # Trigger Email
