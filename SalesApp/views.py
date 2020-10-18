@@ -35,7 +35,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-ORGANIZATION = organization.objects.get(name="WIG")
+ORGANIZATION = Organization.objects.get(name="WIG")
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
@@ -191,8 +191,6 @@ class SearchProductByBrandAPI(APIView):
         return Response(data=response)
 
 class ProductChangeInFavouritesAPI(APIView):
-
-    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
