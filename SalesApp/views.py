@@ -72,17 +72,25 @@ class LoginSubmitAPI(APIView):
                 logger.warning("LoginSubmitAPI : Password is Empty")
                 return Response(data=response)
             
-            user = authenticate(username=email, password=password)
-
-            if user == None:
-                response['status'] = 403
-                response['status'] = "Incorrect Password or Email ID"
-            else :
+            credentials = {
+                "username": email,
+                "password": password
+            }
+            
+            r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+            
+            if "token" in json.loads(r.content):
                 
-                login(request,user)
+                token = json.loads(r.content)["token"]
+                response["token"] = token
 
                 response['status'] = 200
-                response['status'] = "Successfully Logged In"
+                response['message'] = "Successfully Logged In"
+
+            else:
+                response['status'] = 403
+                response['message'] = "Incorrect Password or Email ID"
+            
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
