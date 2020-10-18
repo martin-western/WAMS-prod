@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
+from SalesApp.models import *
 from SalesApp.utils import *
 from SalesApp.constants import *
 
