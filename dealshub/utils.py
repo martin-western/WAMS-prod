@@ -653,7 +653,7 @@ def get_recommended_products(dealshub_product_objs):
     return product_list
 
 
-def is_user_input_required_for_sap_punching(seller_sku, company_code):
+def is_user_input_required_for_sap_punching(stock_price_information):
     
     try:
         result = fetch_prices_and_stock(seller_sku, company_code)
