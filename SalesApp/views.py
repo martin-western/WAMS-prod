@@ -225,6 +225,8 @@ class SearchProductByBrandAPI(APIView):
 
 class ProductChangeInFavouritesAPI(APIView):
 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
