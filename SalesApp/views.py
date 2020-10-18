@@ -45,6 +45,8 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 class LoginSubmitAPI(APIView):
 
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -58,8 +60,8 @@ class LoginSubmitAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            email = data.get("email", "")
-            password = data.get("password", "")
+            email = data.get("email", None)
+            password = data.get("password", None)
             fcm_id = data.get("fcm_id", "")
 
             if email == None:
@@ -78,7 +80,8 @@ class LoginSubmitAPI(APIView):
             }
             
             r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
-            
+            response["token"] = ""
+
             if "token" in json.loads(r.content):
                 
                 token = json.loads(r.content)["token"]
