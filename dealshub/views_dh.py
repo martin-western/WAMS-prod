@@ -667,6 +667,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["quantity"] = unit_cart_obj.quantity
                 temp_dict["price"] = unit_cart_obj.product.get_actual_price()
                 temp_dict["stock"] = unit_cart_obj.product.stock
+                temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
@@ -4974,6 +4975,7 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["quantity"] = fast_cart_obj.quantity
             cart_details["price"] = fast_cart_obj.product.get_actual_price()
             cart_details["stock"] = fast_cart_obj.product.stock
+            cart_details["allowedQty"] = fast_cart_obj.product.get_allowed_qty()
             cart_details["currency"] = fast_cart_obj.product.get_currency()
             cart_details["productName"] = fast_cart_obj.product.get_name()
             cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()
