@@ -1005,14 +1005,18 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
         for dealshub_user_obj in dealshub_user_objs:
             try:
                 for location_group_obj in location_group_objs:
-                    if UnitCart.objects.filter(cart__owner=dealshub_user_obj, cart__location_group=location_group_obj).exists()==False:
+                    if FastCart.objects.filter(owner=dealshub_user_obj, location_group=location_group_obj).exclude(product=None).exists()==False and UnitCart.objects.filter(cart__owner=dealshub_user_obj, cart__location_group=location_group_obj).exists()==False:
                         continue
                     cnt += 1
-                    customer_name = (dealshub_user_obj.first_name + " " + dealshub_user_obj.last_name).strip()
+                    customer_name = (dealshub_user_obj.first_name).strip()
                     contact_number = dealshub_user_obj.contact_number
                     product_list = []
                     for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj, cart__location_group=location_group_obj):
                         product_list.append(unit_cart_obj.product.get_seller_sku()+" - "+unit_cart_obj.product.get_product_id())
+
+                    if FastCart.objects.filter(owner=dealshub_user_obj, location_group=location_group_obj).exclude(product=None).exists():
+                        fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                        product_list.append(fast_cart_obj.product.get_seller_sku()+" - "+fast_cart_obj.product.get_product_id())
 
                     common_row = ["" for i in range(5)]
                     common_row[0] = str(cnt)

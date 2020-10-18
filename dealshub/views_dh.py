@@ -1970,11 +1970,13 @@ class FetchCustomerListAPI(APIView):
             if "is_cart_empty" in filter_parameters:
                 if filter_parameters["is_cart_empty"]==True:
                     cart_objs = UnitCart.objects.all().values("cart")
-                    dealshub_user_objs = dealshub_user_objs.filter(cart=None) | dealshub_user_objs.exclude(cart__in=cart_objs)
-                    dealshub_user_objs = dealshub_user_objs.distinct()
+                    fast_cart_objs = FastCart.objects.exclude(product=None)
+                    dealshub_user_objs =  dealshub_user_objs.exclude(cart__in=cart_objs).exclude(fastcart__in=fast_cart_objs)
                 elif filter_parameters["is_cart_empty"]==False:
                     cart_objs = UnitCart.objects.all().values("cart")
-                    dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs)
+                    fast_cart_objs = FastCart.objects.exclude(product=None)
+                    dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs) | dealshub_user_objs.filter(fastcart__in=fast_cart_objs)
+                    dealshub_user_objs = dealshub_user_objs.distinct()
 
             page = data.get("page", 1)
             total_customers = dealshub_user_objs.count()
@@ -1989,7 +1991,7 @@ class FetchCustomerListAPI(APIView):
                     temp_dict["emailId"] = dealshub_user_obj.email
                     temp_dict["contactNumber"] = dealshub_user_obj.contact_number
                     temp_dict["username"] = dealshub_user_obj.username
-                    temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
+                    temp_dict["is_cart_empty"] = not (UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists() or FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists())
                     temp_dict["is_feedback_available"] = False
                     customer_list.append(temp_dict)
                 except Exception as e:
@@ -2034,7 +2036,7 @@ class FetchCustomerDetailsAPI(APIView):
             temp_dict["customerName"] = dealshub_user_obj.first_name
             temp_dict["emailId"] = dealshub_user_obj.email
             temp_dict["contactNumber"] = dealshub_user_obj.contact_number
-            temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
+            temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
             try:
                 if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
                     temp_dict["cart_last_modified"] = str(timezone.localtime(Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date).strftime("%d %b, %Y %H:%M"))
@@ -2052,6 +2054,16 @@ class FetchCustomerDetailsAPI(APIView):
             
             unit_cart_list = []
             for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj):
+                temp_dict2 = {}
+                temp_dict2["uuid"] = unit_cart_obj.uuid
+                temp_dict2["quantity"] = unit_cart_obj.quantity
+                temp_dict2["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict2["currency"] = unit_cart_obj.product.get_currency()
+                temp_dict2["productName"] = unit_cart_obj.product.get_name()
+                temp_dict2["productImageUrl"] = unit_cart_obj.product.get_main_image_url()
+                unit_cart_list.append(temp_dict2)
+
+            for unit_cart_obj in FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
                 temp_dict2["quantity"] = unit_cart_obj.quantity
