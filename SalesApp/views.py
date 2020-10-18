@@ -94,6 +94,7 @@ class SalesAppLoginSubmitAPI(APIView):
             else:
                 response['status'] = 403
                 response['message'] = "Incorrect Password or Email ID"
+                logger.warning("SalesAppLoginSubmitAPI : Incorrect Password or Email ID")
             
         
         except Exception as e:
