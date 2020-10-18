@@ -207,8 +207,15 @@ class SearchProductByBrandAPI(APIView):
                 product_objs = product_objs.filter(base_product__brand=brand_obj) 
 
             paginator = Paginator(product_objs, 20)
-            product_objs = paginator.page(page)
             total_pages = paginator.num_pages
+
+            if page > total_pages:
+                response['status'] = 404
+                response['message'] = "Page number out of range"
+                logger.warning("SearchProductByBrandAPI : Page number out of range")
+                return Response(data=response)
+
+            product_objs = paginator.page(page)
 
             product_list = []
             
