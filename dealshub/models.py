@@ -154,6 +154,7 @@ class DealsHubProduct(models.Model):
     now_price = models.FloatField(default=0)
     promotional_price = models.FloatField(default=0)
     stock = models.IntegerField(default=0)
+    allowed_qty = models.IntegerField(default=1000)
     is_cod_allowed = models.BooleanField(default=True)
     properties = models.TextField(null=True, blank=True, default="{}")
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
@@ -240,6 +241,9 @@ class DealsHubProduct(models.Model):
         if check_valid_promotion(self.promotion)==True:
             return self.promotional_price
         return self.now_price
+
+    def get_allowed_qty(self):
+        return min(self.stock, self.allowed_qty)
 
     def get_main_image_url(self):
         cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
