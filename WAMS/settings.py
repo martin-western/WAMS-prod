@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'auditlog',
     'WAMSApp',
     'dealshub',
+    'SalesApp',
     'storages',
     'django_extensions',
     'corsheaders'
