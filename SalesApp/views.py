@@ -43,7 +43,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return
 
-class LoginSubmitAPI(APIView):
+class SalesAppLoginSubmitAPI(APIView):
 
     permission_classes = (AllowAny,)
 
@@ -372,7 +372,7 @@ class FetchFavouriteProductsAPI(APIView):
 
         return Response(data=response)
 
-LoginSubmit = LoginSubmitAPI.as_view()
+SalesAppLoginSubmit = SalesAppLoginSubmitAPI.as_view()
 
 SignUpSubmit = SignUpSubmitAPI.as_view()
 
