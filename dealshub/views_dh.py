@@ -888,6 +888,79 @@ class UpdateCartDetailsAPI(APIView):
         return Response(data=response)
 
 
+class BulkUpdateCartDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateCartDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_cart_list = data["unitCartList"]
+            location_group_uuid = data["locationGroupUuid"]
+            
+            for unit_cart in unit_cart_list:
+                unit_cart_obj = UnitCart.objects.get(uuid=unit_cart["uuid"])
+                unit_cart_obj.quantity = unit_cart["quantity"]
+                unit_cart_obj.save()            
+
+            cart_obj = Cart.objects.filter(owner__username=request.user.username, location_group__uuid=location_group_uuid)
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=False)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=False)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=False)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class UpdateFastCartDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5297,6 +5370,8 @@ RemoveFromWishList = RemoveFromWishListAPI.as_view()
 FetchWishList = FetchWishListAPI.as_view()
 
 FetchFastCartDetails = FetchFastCartDetailsAPI.as_view()
+
+BulkUpdateCartDetails = BulkUpdateCartDetailsAPI.as_view()
 
 UpdateFastCartDetails = UpdateFastCartDetailsAPI.as_view()
 
