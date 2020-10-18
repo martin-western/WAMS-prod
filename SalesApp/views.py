@@ -298,7 +298,7 @@ class ProductChangeInFavouritesAPI(APIView):
             
             if Product.objects.filter(base_product__brand__organization=ORGANIZATION,base_product__seller_sku=seller_sku).exists():
 
-                product_obj = Product.objects.get(base_product__organization=ORGANIZATION,base_product__seller_sku=seller_sku)
+                product_obj = Product.objects.get(base_product__brand__organization=ORGANIZATION,base_product__seller_sku=seller_sku)
 
                 if operation == "ADD":
                     sales_user_obj.favourite_products.add(product_obj)
