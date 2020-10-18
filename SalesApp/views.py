@@ -289,7 +289,7 @@ class ProductChangeInFavouritesAPI(APIView):
 
                 return Response(data=response)
 
-            if operation != "ADD" or operation != "REMOVE":
+            if operation != "ADD" and operation != "REMOVE":
                 
                 response['status'] = 403
                 response['message'] = "Operation Type not valid"
