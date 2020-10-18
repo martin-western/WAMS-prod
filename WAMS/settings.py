@@ -11,7 +11,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'h4hjbt-$4vx3%yvk3t+i)s0)%v$thnnyk4+i&w=lpfiyvi$e-l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'auditlog',
     'WAMSApp',
+    'SalesApp',
     'dealshub',
     'storages',
     'django_extensions',
@@ -116,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE =  'Asia/Kolkata'
+TIME_ZONE =  'Asia/Dubai'
 
 USE_I18N = True
 
@@ -137,7 +138,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # MEDIA_URL = '/files/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
 
-
+"""
 AWS_ACCESS_KEY_ID = 'AKIA5NL25NAZB4FJDK65'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'wig-wams-s3-bucket'
@@ -149,6 +150,20 @@ AWS_S3_OBJECT_PARAMETERS = {
 
 DEFAULT_FILE_STORAGE = 'WAMSApp.storage_backends.MediaStorage'
 MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+"""
+AWS_ACCESS_KEY_ID = 'AKIA5NL25NAZB4FJDK65'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'cdn.omnycomm.com'
+#AWS_S3_CUSTOM_DOMAIN = '%s.omnycomm.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = AWS_STORAGE_BUCKET_NAME
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+#AWS_DEFAULT_ACL = None
+
+DEFAULT_FILE_STORAGE = 'WAMSApp.storage_backends.MediaStorage'
+MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+
 
 # Userid: tikenisarg@gmail.com
 # Acces Key ID: AKIA5NL25NAZB4FJDK65
