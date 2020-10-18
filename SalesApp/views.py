@@ -96,10 +96,20 @@ class SignUpSubmitAPI(APIView):
 
             first_name = data.get("first_name", "")
             last_name = data.get("last_name", "")
-            email = data.get("email", "")
+            email = data.get("email", None)
             phone = data.get("phone", "")
-            password = data.get("password", "")
+            password = data.get("password", None)
             country = data.get("country", "")
+
+            if email == None:
+                response['message'] = "Email ID can't be empty"
+                logger.warning("SignUpSubmitAPI : Email ID is Empty")
+                return Response(data=response)
+
+            if password == None:
+                response['message'] = "Password can't be empty"
+                logger.warning("SignUpSubmitAPI : Password is Empty")
+                return Response(data=response)
             
             if SalesAppUser.objects.filter(username=email).exists():
                 response['status'] = 403
