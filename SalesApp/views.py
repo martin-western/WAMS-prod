@@ -56,23 +56,23 @@ class SalesAppLoginSubmitAPI(APIView):
         try:
             
             data = request.data
-            logger.info("LoginSubmitAPI: %s", str(data))
+            logger.info("SalesAppLoginSubmitAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            email = data.get("email", None)
-            password = data.get("password", None)
-            fcm_id = data.get("fcm_id", "")
+            email = data.get("email", "").strip()
+            password = data.get("password", "").strip()
+            fcm_id = data.get("fcm_id", "").strip()
 
-            if email == None:
+            if email == "":
                 response['message'] = "Email ID can't be empty"
-                logger.warning("LoginSubmitAPI : Email ID is Empty")
+                logger.warning("SalesAppLoginSubmitAPI : Email ID is Empty")
                 return Response(data=response)
 
-            if password == None:
+            if password == "":
                 response['message'] = "Password can't be empty"
-                logger.warning("LoginSubmitAPI : Password is Empty")
+                logger.warning("SalesAppLoginSubmitAPI : Password is Empty")
                 return Response(data=response)
             
             credentials = {
@@ -98,11 +98,14 @@ class SalesAppLoginSubmitAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("LoginSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SalesAppLoginSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class SignUpSubmitAPI(APIView):
+class SalesAppSignUpSubmitAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
@@ -112,41 +115,49 @@ class SignUpSubmitAPI(APIView):
         try:
             
             data = request.data
-            logger.info("SignUpSubmitAPI: %s", str(data))
+            logger.info("SalesAppSignUpSubmitAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            first_name = data.get("first_name", "")
-            last_name = data.get("last_name", "")
-            email = data.get("email", None)
-            phone = data.get("phone", "")
-            password = data.get("password", None)
-            country = data.get("country", "")
+            first_name = data.get("first_name", "").strip()
+            last_name = data.get("last_name", "").strip()
+            email = data.get("email", "").strip()
+            phone = data.get("phone", "").strip()
+            password = data.get("password", "").strip()
+            country = data.get("country", "").strip()
 
-            if email == None:
+            if email == "":
                 response['message'] = "Email ID can't be empty"
-                logger.warning("SignUpSubmitAPI : Email ID is Empty")
+                logger.warning("SalesAppSignUpSubmitAPI : Email ID is Empty")
                 return Response(data=response)
 
-            if password == None:
+            if password == "":
                 response['message'] = "Password can't be empty"
-                logger.warning("SignUpSubmitAPI : Password is Empty")
+                logger.warning("SalesAppSignUpSubmitAPI : Password is Empty")
                 return Response(data=response)
             
             if SalesAppUser.objects.filter(username=email).exists():
                 response['status'] = 403
                 response['message'] = "Email ID alreay in use"
-                logger.warning("SignUpSubmitAPI : Email ID alreay in use")
+                logger.warning("SalesAppSignUpSubmitAPI : Email ID alreay in use")
                 return Response(data=response)
 
             sales_user = SalesAppUser.objects.create(username=email,password=password)
 
-            sales_user.first_name = first_name
-            sales_user.last_name = last_name
+            if first_name != "":
+                sales_user.first_name = first_name
+            
+            if last_name != "":
+                sales_user.last_name = last_name
+            
             sales_user.email = email
-            sales_user.contact_number = phone
-            sales_user.country = country
+            
+            if contact_number != "":
+                sales_user.contact_number = phone
+            
+            if country != "":
+                sales_user.country = country
 
             sales_user.save()
 
@@ -155,11 +166,14 @@ class SignUpSubmitAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SignUpSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SalesAppSignUpSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 class SearchProductByBrandAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
@@ -174,7 +188,7 @@ class SearchProductByBrandAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_name = data.get("brand_name", None)
+            brand_name = data.get("brand_name", "")
             search_text = data.get("search_text", "")
             page = int(data.get('page', 1))
 
@@ -186,7 +200,7 @@ class SearchProductByBrandAPI(APIView):
                         Q(base_product__seller_sku__icontains=search_text)
                     )
 
-            if brand_name!=None:
+            if brand_name!="":
                 brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
                 product_objs = product_objs.filter(base_product__brand=brand_obj) 
 
@@ -311,6 +325,8 @@ class ProductChangeInFavouritesAPI(APIView):
 
 class FetchFavouriteProductsAPI(APIView):
 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -375,7 +391,7 @@ class FetchFavouriteProductsAPI(APIView):
 
 SalesAppLoginSubmit = SalesAppLoginSubmitAPI.as_view()
 
-SignUpSubmit = SignUpSubmitAPI.as_view()
+SalesAppSignUpSubmit = SalesAppSignUpSubmitAPI.as_view()
 
 SearchProductByBrand = SearchProductByBrandAPI.as_view()
 
