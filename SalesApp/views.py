@@ -45,7 +45,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 class LoginSubmitAPI(APIView):
 
-    permission_classes = [AllowAny]
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
