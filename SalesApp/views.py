@@ -226,7 +226,7 @@ class SearchProductByBrandAPI(APIView):
 class ProductChangeInFavouritesAPI(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -240,26 +240,25 @@ class ProductChangeInFavouritesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_name = data.get("brand_name", None)
-            seller_sku = data.get("seller_sku",None)
-            operation = data.get("operation",None)
-            customer_id = data.get("customer_id",None)
-
-            if customer_id != None:
-                sales_user_obj = SalesAppUser.objects.get(customer_id=customer_id)
-            else :
+            brand_name = data.get("brand_name", "")
+            seller_sku = data.get("seller_sku","")
+            operation = data.get("operation","")
+            
+            try :
+                sales_user_obj = SalesAppUser.objects.get(user=request.user)
+            except Exception as e :
                 response['status'] = 403
-                response['message'] = "User not Found with that customer ID"
+                response['message'] = "User not Logged In"
                 return Response(data=response)
 
-            if seller_sku == None:
+            if seller_sku == "":
                 
                 response['status'] = 403
                 response['message'] = "Seller SKU not found"
 
                 return Response(data=response)
 
-            if operation == None:
+            if operation == "":
                 
                 response['status'] = 403
                 response['message'] = "Operation Type not specified"
@@ -273,7 +272,7 @@ class ProductChangeInFavouritesAPI(APIView):
 
                 return Response(data=response)
 
-            if brand_name != None:
+            if brand_name != "":
                 
                 if Brand.objects.filter(name=brand_name,organization=ORGANIZATION).exists():
                     brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
@@ -326,14 +325,13 @@ class FetchFavouriteProductsAPI(APIView):
                 data = json.loads(data)
 
             brand_name = data.get("brand_name", None)
-            customer_id = data.get("customer_id", None)
             page = int(data.get('page', 1))
 
-            if customer_id != None:
-                sales_user_obj = SalesAppUser.objects.get(customer_id=customer_id)
-            else :
+            try :
+                sales_user_obj = SalesAppUser.objects.get(user=request.user)
+            except Exception as e :
                 response['status'] = 403
-                response['message'] = "User not Found with that customer ID"
+                response['message'] = "User not Logged In"
                 return Response(data=response)
 
             product_objs = sales_user_obj.favourite_products
