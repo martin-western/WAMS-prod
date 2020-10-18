@@ -339,25 +339,29 @@ class FetchFavouriteProductsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_name = data.get("brand_name", None)
             page = int(data.get('page', 1))
 
             try :
-                sales_user_obj = SalesAppUser.objects.get(user=request.user)
+                sales_user_obj = SalesAppUser.objects.get(username=request.user.username)
             except Exception as e :
                 response['status'] = 403
                 response['message'] = "User not Logged In"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
             product_objs = sales_user_obj.favourite_products
 
-            if brand_name!=None:
-                brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
-                product_objs = product_objs.filter(base_product__brand=brand_obj) 
-
             paginator = Paginator(product_objs, 20)
-            product_objs = paginator.page(page)
             total_pages = paginator.num_pages
+            
+            if page > total_pages:
+                response['status'] = 404
+                response['message'] = "Page number out of range"
+                logger.warning("FetchFavouriteProductsAPI : Page number out of range")
+                return Response(data=response)
+
+            product_objs = paginator.page(page)
 
             product_list = []
             
