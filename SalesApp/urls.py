@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 
 urlpatterns = [
     
-    url(r'^login-submit/$', views.LoginSubmit),
+    url(r'^login-submit/$', views.SalesAppLoginSubmit),
     url(r'^signup-submit/$', views.SignUpSubmit),
     url(r'^search-product-by-brand/$', views.SearchProductByBrand),
     url(r'^product-change-in-favourites/$', views.ProductChangeInFavourites),
