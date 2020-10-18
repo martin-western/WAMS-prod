@@ -61,6 +61,16 @@ class LoginSubmitAPI(APIView):
             email = data.get("email", "")
             password = data.get("password", "")
             fcm_id = data.get("fcm_id", "")
+
+            if email == None:
+                response['message'] = "Email ID can't be empty"
+                logger.warning("LoginSubmitAPI : Email ID is Empty")
+                return Response(data=response)
+
+            if password == None:
+                response['message'] = "Password can't be empty"
+                logger.warning("LoginSubmitAPI : Password is Empty")
+                return Response(data=response)
             
             user = authenticate(username=email, password=password)
 
