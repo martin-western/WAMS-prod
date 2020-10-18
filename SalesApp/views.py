@@ -45,6 +45,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 class SalesAppLoginSubmitAPI(APIView):
 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
