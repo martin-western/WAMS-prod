@@ -104,6 +104,9 @@ class SalesAppLoginSubmitAPI(APIView):
 
 class SalesAppSignUpSubmitAPI(APIView):
 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = (AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -169,6 +172,9 @@ class SalesAppSignUpSubmitAPI(APIView):
 
 class SearchProductByBrandAPI(APIView):
 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = (AllowAny,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -182,7 +188,7 @@ class SearchProductByBrandAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_name = data.get("brand_name", None)
+            brand_name = data.get("brand_name", "")
             search_text = data.get("search_text", "")
             page = int(data.get('page', 1))
 
@@ -194,7 +200,7 @@ class SearchProductByBrandAPI(APIView):
                         Q(base_product__seller_sku__icontains=search_text)
                     )
 
-            if brand_name!=None:
+            if brand_name!="":
                 brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
                 product_objs = product_objs.filter(base_product__brand=brand_obj) 
 
