@@ -123,7 +123,7 @@ class SalesAppSignUpSubmitAPI(APIView):
             first_name = data.get("first_name", "").strip()
             last_name = data.get("last_name", "").strip()
             email = data.get("email", "").strip()
-            phone = data.get("phone", "").strip()
+            contact_number = data.get("contact_number", "").strip()
             password = data.get("password", "").strip()
             country = data.get("country", "").strip()
 
@@ -154,7 +154,7 @@ class SalesAppSignUpSubmitAPI(APIView):
             sales_user.email = email
             
             if contact_number != "":
-                sales_user.contact_number = phone
+                sales_user.contact_number = contact_number
             
             if country != "":
                 sales_user.country = country
