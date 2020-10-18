@@ -325,6 +325,8 @@ class ProductChangeInFavouritesAPI(APIView):
 
 class FetchFavouriteProductsAPI(APIView):
 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
