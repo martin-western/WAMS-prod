@@ -56,23 +56,23 @@ class SalesAppLoginSubmitAPI(APIView):
         try:
             
             data = request.data
-            logger.info("LoginSubmitAPI: %s", str(data))
+            logger.info("SalesAppLoginSubmitAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            email = data.get("email", None)
-            password = data.get("password", None)
-            fcm_id = data.get("fcm_id", "")
+            email = data.get("email", "").strip()
+            password = data.get("password", "").strip()
+            fcm_id = data.get("fcm_id", "").strip()
 
-            if email == None:
+            if email == "":
                 response['message'] = "Email ID can't be empty"
-                logger.warning("LoginSubmitAPI : Email ID is Empty")
+                logger.warning("SalesAppLoginSubmitAPI : Email ID is Empty")
                 return Response(data=response)
 
-            if password == None:
+            if password == "":
                 response['message'] = "Password can't be empty"
-                logger.warning("LoginSubmitAPI : Password is Empty")
+                logger.warning("SalesAppLoginSubmitAPI : Password is Empty")
                 return Response(data=response)
             
             credentials = {
@@ -98,7 +98,7 @@ class SalesAppLoginSubmitAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("LoginSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SalesAppLoginSubmitAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
