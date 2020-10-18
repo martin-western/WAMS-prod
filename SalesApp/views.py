@@ -271,6 +271,8 @@ class ProductChangeInFavouritesAPI(APIView):
             except Exception as e :
                 response['status'] = 403
                 response['message'] = "User not Logged In"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("ProductChangeInFavouritesAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
             if seller_sku == "":
