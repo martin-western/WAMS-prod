@@ -192,8 +192,10 @@ class SearchProductByBrandAPI(APIView):
             search_text = data.get("search_text", "")
             page = int(data.get('page', 1))
 
+            product_objs = Product.objects.filter(base_product__brand__organization=ORGANIZATION)
+
             if search_text != "":
-                product_objs = Product.objects.filter(
+                product_objs = product_objs.filter(
                         Q(base_product__base_product_name__icontains=search_text) |
                         Q(product_name__icontains=search_text) |
                         Q(product_id__icontains=search_text) |
