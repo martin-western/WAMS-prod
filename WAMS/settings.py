@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'WAMSApp',
     'SalesApp',
     'dealshub',
+    'SalesApp',
     'storages',
     'django_extensions',
     'corsheaders'
