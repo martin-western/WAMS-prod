@@ -277,24 +277,15 @@ class ProductChangeInFavouritesAPI(APIView):
                 return Response(data=response)
 
             if seller_sku == "":
-                
-                response['status'] = 403
                 response['message'] = "Seller SKU not found"
-
                 return Response(data=response)
 
             if operation == "":
-                
-                response['status'] = 403
                 response['message'] = "Operation Type not specified"
-
                 return Response(data=response)
 
             if operation != "ADD" and operation != "REMOVE":
-                
-                response['status'] = 403
                 response['message'] = "Operation Type not valid"
-
                 return Response(data=response)
             
             if Product.objects.filter(base_product__brand__organization=ORGANIZATION,base_product__seller_sku=seller_sku).exists():
@@ -313,9 +304,9 @@ class ProductChangeInFavouritesAPI(APIView):
                 response['status'] = 200
 
             else:
-
-                response['status'] = 200
                 response['message'] = "Product Not Found"
+                logger.warning("ProductChangeInFavouritesAPI : Product Not Found")
+
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
