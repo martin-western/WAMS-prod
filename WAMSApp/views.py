@@ -6453,6 +6453,7 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["now_price"] = dealshub_product_obj.now_price
             response["promotional_price"] = dealshub_product_obj.promotional_price
             response["stock"] = dealshub_product_obj.stock
+            response["allowed_qty"] = dealshub_product_obj.allowed_qty
             response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
             response["is_published"] = dealshub_product_obj.is_published
             response["category"] = dealshub_product_obj.get_category()
@@ -6497,6 +6498,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             now_price = data["now_price"]
             promotional_price = data["promotional_price"]
             stock = data["stock"]
+            allowed_qty = data.get("allowed_qty", 100)
             is_cod_allowed = data["is_cod_allowed"]
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
@@ -6505,6 +6507,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.now_price = now_price
             dealshub_product_obj.promotional_price = promotional_price
             dealshub_product_obj.stock = stock
+            dealshub_product_obj.allowed_qty = allowed_qty
             dealshub_product_obj.is_cod_allowed = is_cod_allowed
 
             category_obj = None
