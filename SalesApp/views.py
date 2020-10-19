@@ -226,6 +226,7 @@ class SearchProductByBrandAPI(APIView):
                     
                     temp_dict = {}
                     temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["image_url"] = product_obj.get_display_image_url()
                     temp_dict["product_description"] = product_obj.product_description
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
@@ -363,6 +364,7 @@ class FetchFavouriteProductsAPI(APIView):
                     
                     temp_dict = {}
                     temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["image_url"] = product_obj.get_display_image_url()
                     temp_dict["product_description"] = product_obj.product_description
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
