@@ -1693,6 +1693,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2 = {}
 
                     temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                    temp_dict2["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
                     temp_dict2["name"] = dealshub_product_obj.get_name()
                     temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict2["brand"] = dealshub_product_obj.get_brand()
@@ -1807,6 +1808,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3 = {}
 
                             temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                            temp_dict3["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
                             temp_dict3["name"] = dealshub_product_obj.get_name()
                             temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
                             temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
