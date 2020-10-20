@@ -282,7 +282,7 @@ class FetchSectionProductsAPI(APIView):
             uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
             
-            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj, product__is_published=True)
             custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)            
@@ -2337,7 +2337,7 @@ class FetchUnitBannerProductsAPI(APIView):
             
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
 
-            custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj)
+            custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj, product__is_published=True)
             custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
