@@ -905,8 +905,11 @@ class BulkUpdateCartDetailsAPI(APIView):
             
             for unit_cart in unit_cart_list:
                 unit_cart_obj = UnitCart.objects.get(uuid=unit_cart["uuid"])
-                unit_cart_obj.quantity = unit_cart["quantity"]
-                unit_cart_obj.save()            
+                if int(unit_cart["quantity"])==0:
+                    unit_cart_obj.delete()
+                else:
+                    unit_cart_obj.quantity = unit_cart["quantity"]
+                    unit_cart_obj.save()            
 
             cart_obj = Cart.objects.get(owner__username=request.user.username, location_group__uuid=location_group_uuid)
 
