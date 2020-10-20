@@ -282,7 +282,7 @@ class FetchSectionProductsAPI(APIView):
             uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
             
-            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj, product__is_published=True)
             custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)            
@@ -1693,6 +1693,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2 = {}
 
                     temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                    temp_dict2["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
                     temp_dict2["name"] = dealshub_product_obj.get_name()
                     temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict2["brand"] = dealshub_product_obj.get_brand()
@@ -1807,6 +1808,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3 = {}
 
                             temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                            temp_dict3["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
                             temp_dict3["name"] = dealshub_product_obj.get_name()
                             temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
                             temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
@@ -2335,7 +2337,7 @@ class FetchUnitBannerProductsAPI(APIView):
             
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
 
-            custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj)
+            custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj, product__is_published=True)
             custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
