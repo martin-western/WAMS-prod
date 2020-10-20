@@ -5205,7 +5205,7 @@ class GRNProcessingCronAPI(APIView):
 
                             unit_order_final_billing_information = json.loads(unit_order_obj.order_information)["final_billing_info"]
                             
-                            if unit_order_information != {}:
+                            if unit_order_final_billing_information != {}:
                                 unit_order_information_list.append(unit_order_final_billing_information)
                         
                         order_information["unit_order_information_list"] = unit_order_information_list
