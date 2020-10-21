@@ -354,7 +354,6 @@ class Image(models.Model):
                 self.mid_image = thumb_file2
 
             if self.webp_image == None:
-                logger.info("In here 1")
                 thumb = IMAGE.open(self.image)
                 infile = self.image.file.name
                 size = thumb.size
@@ -368,9 +367,7 @@ class Image(models.Model):
                 thumb.save(thumb_io, 'webp',optimize=True)
                
                 thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/webp', thumb_io.getbuffer().nbytes, None)
-                logger.info("In here 2")
                 self.webp_image = thumb_file
-                logger.info("In here 3")
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
