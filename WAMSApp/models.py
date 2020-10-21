@@ -356,6 +356,7 @@ class Image(models.Model):
             if self.webp_image == None:
                 logger.info("In here 1")
                 thumb = IMAGE.open(self.image)
+                infile = self.image.file.name
                 size = thumb.size
 
                 format_name = infile.split('.')[-1]
