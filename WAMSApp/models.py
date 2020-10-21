@@ -324,12 +324,13 @@ class Image(models.Model):
                 except Exception as e:
                     return image
 
-            infile = self.image.file.name
-            im_type = thumb.format 
+             
             
             if self.thumbnail == None:
                 size = 128, 128
                 thumb = IMAGE.open(self.image)
+                infile = self.image.file.name
+                im_type = thumb.format
                 thumb.thumbnail(size)
                 thumb_io = BytesIO()
                 thumb = rotate_image(thumb)
@@ -341,6 +342,8 @@ class Image(models.Model):
             if self.mid_image == None:
                 size2 = 512, 512
                 thumb2 = IMAGE.open(self.image)
+                infile = self.image.file.name
+                im_type = thumb2.format
                 thumb2.thumbnail(size2)
                 thumb_io2 = BytesIO()
                 thumb2 = rotate_image(thumb2)
