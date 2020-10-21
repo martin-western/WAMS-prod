@@ -282,6 +282,7 @@ class Image(models.Model):
     image = models.ImageField(upload_to='')
     thumbnail = models.ImageField(upload_to='thumbnails', null=True, blank=True)
     mid_image = models.ImageField(upload_to='midsize', null=True, blank=True)
+    webp_image = models.ImageField(upload_to='webp', null=True, blank=True)
 
     class Meta:
         verbose_name = "Image"
@@ -323,28 +324,49 @@ class Image(models.Model):
                 except Exception as e:
                     return image
 
-            size = 128, 128
-            thumb = IMAGE.open(self.image)
-            thumb.thumbnail(size)
             infile = self.image.file.name
             im_type = thumb.format 
-            thumb_io = BytesIO()
-            thumb = rotate_image(thumb)
-            thumb.save(thumb_io, im_type)
+            
+            if self.thumbnail == None:
+                size = 128, 128
+                thumb = IMAGE.open(self.image)
+                thumb.thumbnail(size)
+                thumb_io = BytesIO()
+                thumb = rotate_image(thumb)
+                thumb.save(thumb_io, im_type)
 
-            thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
-            self.thumbnail = thumb_file
+                thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
+                self.thumbnail = thumb_file
 
-            size2 = 512, 512
-            thumb2 = IMAGE.open(self.image)
-            thumb2.thumbnail(size2)
-            thumb_io2 = BytesIO()
-            thumb2 = rotate_image(thumb2)
-            thumb2.save(thumb_io2, format=im_type)
+            if self.mid_image == None:
+                size2 = 512, 512
+                thumb2 = IMAGE.open(self.image)
+                thumb2.thumbnail(size2)
+                thumb_io2 = BytesIO()
+                thumb2 = rotate_image(thumb2)
+                thumb2.save(thumb_io2, format=im_type)
 
-            thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
+                thumb_file2 = InMemoryUploadedFile(thumb_io2, None, infile, 'image/'+im_type, thumb_io2.getbuffer().nbytes, None)
 
-            self.mid_image = thumb_file2
+                self.mid_image = thumb_file2
+
+            if self.webp_image == None:
+                
+                thumb = IMAGE.open(self.image)
+                size = thumb.size
+
+                format_name = infile.split('.')[-1]
+                infile = infile.replace(format_name,"webp")
+
+                thumb = thumb.convert('RGB')
+                thumb_io = BytesIO()
+                thumb = rotate_image(thumb)
+                thumb.save(thumb_io, 'webp',optimize=True)
+               
+                thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/webp', thumb_io.getbuffer().nbytes, None)
+
+                self.webp_image = thumb_file
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
