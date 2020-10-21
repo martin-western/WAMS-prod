@@ -1757,7 +1757,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         if resolution=="low":
                             temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
                         else:
-                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            #temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            temp_dict2["url"] = unit_banner_image_obj.image.webp_image.url
 
                     temp_dict2["mobileUrl"] = ""
                     if unit_banner_image_obj.mobile_image!=None:
