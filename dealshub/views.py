@@ -1758,6 +1758,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
                         else:
                             #temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            logger.info("In here 109!")
                             temp_dict2["url"] = unit_banner_image_obj.image.webp_image.url
 
                     temp_dict2["mobileUrl"] = ""
