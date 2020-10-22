@@ -182,4 +182,6 @@ urlpatterns = [
     url(r'^update-order-shipping-admin/$',views.UpdateOrderShippingAdmin),
 
     url(r'^grn-processing-cron/$',views.GRNProcessingCron),
+
+    url(r'^fetch-seo-details/$',views.FetchSEODetails),
 ]

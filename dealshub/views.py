@@ -2990,6 +2990,65 @@ class UpdateOrderShippingAdminAPI(APIView):
         return Response(data=response)
 
 
+class FetchSEODetailsAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSEODetailsAPI: %s", str(data))
+            
+            page_type = data["page_type"]
+            name = data["name"]
+
+            page_description = ""
+            seo_title = ""
+            seo_keywords = ""
+            seo_description = ""
+
+            if page_type=="super_category":
+                super_category_obj = SuperCategory.objects.get(name=name)
+                page_description = super_category_obj.page_description
+                seo_title = super_category_obj.seo_title
+                seo_keywords = super_category_obj.seo_keywords
+                seo_description = super_category_obj.seo_description
+            elif page_type=="category":
+                category_obj = Category.objects.filter(name=name)[0]
+                page_description = category_obj.page_description
+                seo_title = category_obj.seo_title
+                seo_keywords = category_obj.seo_keywords
+                seo_description = category_obj.seo_description
+            elif page_type=="sub_category":
+                sub_category_obj = SubCategory.objects.filter(name=name)[0]
+                page_description = sub_category_obj.page_description
+                seo_title = sub_category_obj.seo_title
+                seo_keywords = sub_category_obj.seo_keywords
+                seo_description = sub_category_obj.seo_description
+            elif page_type=="brand":
+                brand_obj = Brand.objects.get(name=name, organization__name="WIG")
+                page_description = brand_obj.page_description
+                seo_title = brand_obj.seo_title
+                seo_keywords = brand_obj.seo_keywords
+                seo_description = brand_obj.seo_description
+
+            response["page_description"] = page_description
+            response["seo_title"] = seo_title
+            response["seo_keywords"] = seo_keywords
+            response["seo_description"] = seo_description
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSEODetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
@@ -3109,3 +3168,5 @@ FetchPostaPlusDetails = FetchPostaPlusDetailsAPI.as_view()
 UpdateUnitOrderQtyAdmin = UpdateUnitOrderQtyAdminAPI.as_view()
 
 UpdateOrderShippingAdmin = UpdateOrderShippingAdminAPI.as_view()
+
+FetchSEODetails = FetchSEODetailsAPI.as_view()
