@@ -483,7 +483,10 @@ class SearchAPI(APIView):
                 response["seo_keywords"] = seo_keywords
                 response["seo_description"] = seo_description
             except Exception as e:
-                pass
+                response["page_description"] = ""
+                response["seo_title"] = ""
+                response["seo_keywords"] = ""
+                response["seo_description"] = ""
 
             # filter_list = data.get("filters", "[]")
             # filter_list = json.loads(filter_list)
