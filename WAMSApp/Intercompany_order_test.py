@@ -265,48 +265,48 @@ content = json.loads(json.dumps(content))
 
 print(content)
 
-# # #################################
+#################################
 
-# # ###### After Holding ############
+###### After Holding ############
 
-# # ################################
+################################
 
-# response = fetch_prices(product_id,company_code,test_url,customer_id)
+response = fetch_prices(product_id,company_code,test_url,customer_id)
         
-# items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-# uom = "EA"
-# charg = None
-# total_atp = 0.0
-# total_holding = 0.0
-# prices_stock_list = []
+items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+uom = "EA"
+charg = None
+total_atp = 0.0
+total_holding = 0.0
+prices_stock_list = []
 
-# if isinstance(items, dict):
-#     temp_dict={}
-#     temp_dict["charg"] = items["CHARG"]
-#     temp_dict["uom"] = items["MEINS"]    
-#     temp_dict["atp_qty"] = float(items["ATP_QTY"])
-#     total_atp = total_atp+float(items["ATP_QTY"])
-#     temp_dict["qty_holding"] = float(items["HQTY"])
-#     total_holding = total_holding + float(items["HQTY"])
-#     prices_stock_list.append(temp_dict)
-# else:
-#     for item in items:
-#         temp_dict={}
-#         temp_dict["charg"] = item["CHARG"]
-#         temp_dict["uom"] = item["MEINS"]    
-#         temp_dict["atp_qty"] = float(item["ATP_QTY"])
-#         total_atp = total_atp+float(item["ATP_QTY"])
-#         temp_dict["qty_holding"] = float(item["HQTY"])
-#         total_holding = total_holding + float(item["HQTY"])
-#         prices_stock_list.append(temp_dict)
+if isinstance(items, dict):
+    temp_dict={}
+    temp_dict["charg"] = items["CHARG"]
+    temp_dict["uom"] = items["MEINS"]    
+    temp_dict["atp_qty"] = float(items["ATP_QTY"])
+    total_atp = total_atp+float(items["ATP_QTY"])
+    temp_dict["qty_holding"] = float(items["HQTY"])
+    total_holding = total_holding + float(items["HQTY"])
+    prices_stock_list.append(temp_dict)
+else:
+    for item in items:
+        temp_dict={}
+        temp_dict["charg"] = item["CHARG"]
+        temp_dict["uom"] = item["MEINS"]    
+        temp_dict["atp_qty"] = float(item["ATP_QTY"])
+        total_atp = total_atp+float(item["ATP_QTY"])
+        temp_dict["qty_holding"] = float(item["HQTY"])
+        total_holding = total_holding + float(item["HQTY"])
+        prices_stock_list.append(temp_dict)
 
-# print("After Holding : ")
-# print("Batch"+'\t'+"UOM"+'\t'+"ATP"+'\t'+"Holding")
-# for item in prices_stock_list:
-#     if item["charg"] != None:
-#         print(str(item["charg"])+'\t'+str(item["uom"])+'\t'+str(item["atp_qty"])+'\t'+str(item["qty_holding"]))
-# print("Total"+'\t'+'\t'+str(total_atp)+'\t'+str(total_holding))
-# print()
+print("After Holding : ")
+print("Batch"+'\t'+"UOM"+'\t'+"ATP"+'\t'+"Holding")
+for item in prices_stock_list:
+    if item["charg"] != None:
+        print(str(item["charg"])+'\t'+str(item["uom"])+'\t'+str(item["atp_qty"])+'\t'+str(item["qty_holding"]))
+print("Total"+'\t'+'\t'+str(total_atp)+'\t'+str(total_holding))
+print()
 
 
 ###################################
