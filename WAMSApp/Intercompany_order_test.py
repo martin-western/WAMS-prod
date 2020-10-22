@@ -131,7 +131,7 @@ print()
 
 ##################################
 
-qty_holding = 5.0
+qty_holding = 3.0
 
 body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
             <soapenv:Header/>
@@ -182,58 +182,8 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
                <PRICE_CHANGE></PRICE_CHANGE>
                <FRM_ATP></FRM_ATP>
               </item>
-              <item>
-               <MATKL></MATKL>
-               <MATNR>"""+ product_id + """</MATNR>
-               <ITEM></ITEM>
-               <MAKTX></MAKTX>
-               <QTY>"""+ str(qty_holding) + """</QTY>
-               <UOM>"""+ uom + """</UOM>
-               <PRICE></PRICE>
-               <INDPRICE></INDPRICE>
-               <DISC></DISC>
-               <INDDISC></INDDISC>
-               <CHARG></CHARG>
-               <MO_PRICE></MO_PRICE>
-               <NO_STOCK_IND></NO_STOCK_IND>
-               <NO_STOCK_FOC></NO_STOCK_FOC>
-               <FOC_ITEM></FOC_ITEM>
-               <FOC_QTY></FOC_QTY>
-               <FOC_UOM></FOC_UOM>
-               <FOC_CHARG></FOC_CHARG>
-               <PRC_DIFF_IND></PRC_DIFF_IND>
-               <PRC_DIFF_NEW></PRC_DIFF_NEW>
-               <SPCL_TEXT></SPCL_TEXT>
-               <FOC_STD></FOC_STD>
-               <FOC_ART></FOC_ART>
-               <FOC_MCL></FOC_MCL>
-               <INDICATOR1></INDICATOR1>
-               <INDICATOR2></INDICATOR2>
-               <TEXT1></TEXT1>
-               <TEXT2></TEXT2>
-               <CHARG_LIST></CHARG_LIST>
-               <PRICE_CHANGE></PRICE_CHANGE>
-               <FRM_ATP></FRM_ATP>
-              </item>
              </T_ITEM>
              <T_MESSAGE>
-              <item>
-               <VBELN></VBELN>
-               <TYPE></TYPE>
-               <ID></ID>
-               <NUMBER></NUMBER>
-               <MESSAGE></MESSAGE>
-               <LOG_NO></LOG_NO>
-               <LOG_MSG_NO></LOG_MSG_NO>
-               <MESSAGE_V1></MESSAGE_V1>
-               <MESSAGE_V2></MESSAGE_V2>
-               <MESSAGE_V3></MESSAGE_V3>
-               <MESSAGE_V4></MESSAGE_V4>
-               <PARAMETER></PARAMETER>
-               <ROW></ROW>
-               <FIELD></FIELD>
-               <SYSTEM></SYSTEM>
-              </item>
               <item>
                <VBELN></VBELN>
                <TYPE></TYPE>
