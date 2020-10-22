@@ -647,6 +647,7 @@ class Order(models.Model):
     SAP_STATUS = (
         ("Pending", "Pending"),
         ("In GRN", "In GRN"),
+        ("GRN Conflict","GRN Conflict")
         ("Success", "Success"),
         ("Failed", "Failed")
     )
