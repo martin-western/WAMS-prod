@@ -3806,7 +3806,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
+                    
                     if is_voucher_applied:
+                    
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
                         voucher_discount_vat = voucher_obj.get_voucher_discount_vat(voucher_discount)
@@ -3817,7 +3819,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     unit_order_list = []
                     subtotal = 0
+                    
                     for unit_order_obj in unit_order_objs.filter(order=order_obj):
+                    
                         temp_dict2 = {}
                         temp_dict2["orderId"] = unit_order_obj.orderid
                         temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
@@ -3834,7 +3838,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
+                        
                         unit_order_list.append(temp_dict2)
+                    
                     temp_dict["approved"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="approved").count()
                     temp_dict["picked"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="picked").count()
                     temp_dict["dispatched"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="dispatched").count()
@@ -4082,9 +4088,9 @@ class SetShippingMethodAPI(APIView):
                             break
                         
                         unit_order_information = {}
-                        unit_order_information["intercompany_sales_info"] = {}
+                        unit_order_information["intercompany_bill"] = {}
                         item["order_id"] = str(order_information["order_id"])
-                        unit_order_information["intercompany_sales_info"] = item
+                        unit_order_information["intercompany_bill"] = item
                         unit_order_obj.order_information = json.dumps(unit_order_information)
                         
                         unit_order_obj.grn_filename = str(do_id)
@@ -5167,15 +5173,15 @@ class GRNProcessingCronAPI(APIView):
                     for unit_order_obj in unit_order_objs:
                         
                         unit_order_information = json.loads(unit_order_obj.order_information)
-                        unit_order_information["final_billing_info"] = {}
+                        unit_order_information["final_bill"] = {}
 
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         GRN_info = GRN_information_dict.get(seller_sku,None)
 
                         if GRN_info != None:
-                            GRN_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
-                            GRN_info["price"] = unit_order_information["intercompany_sales_info"]["price"]
-                            unit_order_information["final_billing_info"] = GRN_info
+                            GRN_info["from_holding"] = unit_order_information["intercompany_bill"]["from_holding"]
+                            GRN_info["price"] = unit_order_information["intercompany_bill"]["price"]
+                            unit_order_information["final_bill"] = GRN_info
                         
                         unit_order_obj.order_information = json.dumps(unit_order_information)
                         unit_order_obj.grn_filename_exists = True
@@ -5203,7 +5209,7 @@ class GRNProcessingCronAPI(APIView):
 
                         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
 
-                            unit_order_final_billing_information = json.loads(unit_order_obj.order_information)["final_billing_info"]
+                            unit_order_final_billing_information = json.loads(unit_order_obj.order_information)["final_bill"]
                             
                             if unit_order_final_billing_information != {}:
                                 unit_order_information_list.append(unit_order_final_billing_information)
