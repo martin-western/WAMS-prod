@@ -647,6 +647,7 @@ class Order(models.Model):
     SAP_STATUS = (
         ("Pending", "Pending"),
         ("In GRN", "In GRN"),
+        ("GRN Conflict","GRN Conflict"),
         ("Success", "Success"),
         ("Failed", "Failed")
     )
@@ -835,6 +836,22 @@ class UnitOrder(models.Model):
         temp_total = self.get_subtotal()
         vat_divider = 1 + (self.order.location_group.vat/100)
         return  round(temp_total/vat_divider, 2)
+
+    def get_sap_intercompany_order_qty(self):
+        try:
+            intercompany_sales_info = json.loads(self.order_information)["intercompany_sales_info"]
+            qty = intercompany_sales_info["qty"]
+            return qty
+        except Exception as e:
+            return ""
+
+    def get_sap_final_order_qty(self):
+        try:
+            final_billing_info = json.loads(self.order_information)["final_billing_info"]
+            qty = final_billing_info["qty"]
+            return qty
+        except Exception as e:
+            return ""
 
     def save(self, *args, **kwargs):
         if self.pk == None:
