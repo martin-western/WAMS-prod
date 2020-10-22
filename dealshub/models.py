@@ -154,6 +154,7 @@ class DealsHubProduct(models.Model):
     now_price = models.FloatField(default=0)
     promotional_price = models.FloatField(default=0)
     stock = models.IntegerField(default=0)
+    allowed_qty = models.IntegerField(default=1000)
     is_cod_allowed = models.BooleanField(default=True)
     properties = models.TextField(null=True, blank=True, default="{}")
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
@@ -241,6 +242,9 @@ class DealsHubProduct(models.Model):
             return self.promotional_price
         return self.now_price
 
+    def get_allowed_qty(self):
+        return min(self.stock, self.allowed_qty)
+
     def get_main_image_url(self):
         cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
         if cached_url!="has_expired":
@@ -267,6 +271,20 @@ class DealsHubProduct(models.Model):
             display_image_url = lifestyle_image_objs[0].mid_image.url
             cache.set("display_url_"+str(self.uuid), display_image_url)
             return display_image_url
+        return self.get_main_image_url()
+
+    def get_optimized_display_image_url(self):
+        try:
+            cached_url = cache.get("optimized_display_url_"+str(self.uuid), "has_expired")
+            if cached_url!="has_expired":
+                return cached_url
+            lifestyle_image_objs = self.product.lifestyle_images.all()
+            if lifestyle_image_objs.exists():
+                display_image_url = lifestyle_image_objs[0].thumbnail.url
+                cache.set("optimized_display_url_"+str(self.uuid), display_image_url)
+                return display_image_url
+        except Exception as e:
+            pass
         return self.get_main_image_url()
 
     def save(self, *args, **kwargs):

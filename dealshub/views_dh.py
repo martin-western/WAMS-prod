@@ -667,6 +667,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["quantity"] = unit_cart_obj.quantity
                 temp_dict["price"] = unit_cart_obj.product.get_actual_price()
                 temp_dict["stock"] = unit_cart_obj.product.stock
+                temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
@@ -883,6 +884,82 @@ class UpdateCartDetailsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class BulkUpdateCartDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateCartDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_cart_list = data["unitCartList"]
+            location_group_uuid = data["locationGroupUuid"]
+            
+            for unit_cart in unit_cart_list:
+                unit_cart_obj = UnitCart.objects.get(uuid=unit_cart["uuid"])
+                if int(unit_cart["quantity"])==0:
+                    unit_cart_obj.delete()
+                else:
+                    unit_cart_obj.quantity = unit_cart["quantity"]
+                    unit_cart_obj.save()            
+
+            cart_obj = Cart.objects.get(owner__username=request.user.username, location_group__uuid=location_group_uuid)
+
+            update_cart_bill(cart_obj)
+
+            subtotal = cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee()
+            total_amount = cart_obj.get_total_amount()
+            vat = cart_obj.get_vat()
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=False)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=False)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=False)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -1334,6 +1411,7 @@ class PlaceOrderAPI(APIView):
                 fast_cart_obj.to_pay = 0
                 fast_cart_obj.merchant_reference = ""
                 fast_cart_obj.payment_info = "{}"
+                fast_cart_obj.product = None
                 fast_cart_obj.save()
 
 
@@ -1970,11 +2048,13 @@ class FetchCustomerListAPI(APIView):
             if "is_cart_empty" in filter_parameters:
                 if filter_parameters["is_cart_empty"]==True:
                     cart_objs = UnitCart.objects.all().values("cart")
-                    dealshub_user_objs = dealshub_user_objs.filter(cart=None) | dealshub_user_objs.exclude(cart__in=cart_objs)
-                    dealshub_user_objs = dealshub_user_objs.distinct()
+                    fast_cart_objs = FastCart.objects.exclude(product=None)
+                    dealshub_user_objs =  dealshub_user_objs.exclude(cart__in=cart_objs).exclude(fastcart__in=fast_cart_objs)
                 elif filter_parameters["is_cart_empty"]==False:
                     cart_objs = UnitCart.objects.all().values("cart")
-                    dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs)
+                    fast_cart_objs = FastCart.objects.exclude(product=None)
+                    dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs) | dealshub_user_objs.filter(fastcart__in=fast_cart_objs)
+                    dealshub_user_objs = dealshub_user_objs.distinct()
 
             page = data.get("page", 1)
             total_customers = dealshub_user_objs.count()
@@ -1989,7 +2069,7 @@ class FetchCustomerListAPI(APIView):
                     temp_dict["emailId"] = dealshub_user_obj.email
                     temp_dict["contactNumber"] = dealshub_user_obj.contact_number
                     temp_dict["username"] = dealshub_user_obj.username
-                    temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
+                    temp_dict["is_cart_empty"] = not (UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists() or FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists())
                     temp_dict["is_feedback_available"] = False
                     customer_list.append(temp_dict)
                 except Exception as e:
@@ -2034,7 +2114,7 @@ class FetchCustomerDetailsAPI(APIView):
             temp_dict["customerName"] = dealshub_user_obj.first_name
             temp_dict["emailId"] = dealshub_user_obj.email
             temp_dict["contactNumber"] = dealshub_user_obj.contact_number
-            temp_dict["is_cart_empty"] = not UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists()
+            temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
             try:
                 if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
                     temp_dict["cart_last_modified"] = str(timezone.localtime(Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date).strftime("%d %b, %Y %H:%M"))
@@ -2052,6 +2132,16 @@ class FetchCustomerDetailsAPI(APIView):
             
             unit_cart_list = []
             for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj):
+                temp_dict2 = {}
+                temp_dict2["uuid"] = unit_cart_obj.uuid
+                temp_dict2["quantity"] = unit_cart_obj.quantity
+                temp_dict2["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict2["currency"] = unit_cart_obj.product.get_currency()
+                temp_dict2["productName"] = unit_cart_obj.product.get_name()
+                temp_dict2["productImageUrl"] = unit_cart_obj.product.get_main_image_url()
+                unit_cart_list.append(temp_dict2)
+
+            for unit_cart_obj in FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
                 temp_dict2["quantity"] = unit_cart_obj.quantity
@@ -2466,6 +2556,7 @@ class PaymentTransactionAPI(APIView):
                     fast_cart_obj.to_pay = 0
                     fast_cart_obj.merchant_reference = ""
                     fast_cart_obj.payment_info = "{}"
+                    fast_cart_obj.product = None
                     fast_cart_obj.save()
 
                 # Trigger Email
@@ -2780,7 +2871,7 @@ class SendOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888", "940804016", "888888881"]:
+            if contact_number in ["888888888", "940804016", "888888881", "702290032"]:
                 OTP = "777777"
 
             is_new_user = False
@@ -3687,6 +3778,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["paymentMode"] = order_obj.payment_mode
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
+                    temp_dict["cancelStatus"] = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
 
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["sapStatus"] = order_obj.sap_status
@@ -3883,20 +3975,32 @@ class SetShippingMethodAPI(APIView):
             #         seller_sku = unit_order_obj.product.get_seller_sku()
             #         brand_name = unit_order_obj.product.get_brand()
             #         company_code = brand_company_dict[brand_name.lower()]
-            #         user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(seller_sku, company_code)
+            #         stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
+
+            #         if stock_price_information["status"] == 500:
+            #             response["status"] = 403
+            #             response["message"] = stock_price_information["message"]
+            #             return Response(data=response)
+
+            #         user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information)
 
             #     user_input_sap = data.get("user_input_sap", None)
                 
             #     if user_input_sap==None:
+                    
             #         modal_info_list = []
+                    
             #         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
             #             seller_sku = unit_order_obj.product.get_seller_sku()
             #             brand_name = unit_order_obj.product.get_brand()
             #             company_code = brand_company_dict[brand_name.lower()]
+                        
             #             if user_input_requirement[seller_sku]==True:
             #                 result = fetch_prices_and_stock(seller_sku, company_code)
             #                 result["seller_sku"] = seller_sku
+                            
             #                 modal_info_list.append(result)
+                    
             #         if len(modal_info_list)>0:
             #             response["modal_info_list"] = modal_info_list
             #             response["status"] = 200
@@ -4873,6 +4977,7 @@ class PlaceOnlineOrderAPI(APIView):
                 fast_cart_obj.to_pay = 0
                 fast_cart_obj.merchant_reference = ""
                 fast_cart_obj.payment_info = "{}"
+                fast_cart_obj.product = None
                 fast_cart_obj.save()
 
             # Trigger Email
@@ -4947,6 +5052,7 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["quantity"] = fast_cart_obj.quantity
             cart_details["price"] = fast_cart_obj.product.get_actual_price()
             cart_details["stock"] = fast_cart_obj.product.stock
+            cart_details["allowedQty"] = fast_cart_obj.product.get_allowed_qty()
             cart_details["currency"] = fast_cart_obj.product.get_currency()
             cart_details["productName"] = fast_cart_obj.product.get_name()
             cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()
@@ -5064,10 +5170,12 @@ class GRNProcessingCronAPI(APIView):
                         unit_order_information["final_billing_info"] = {}
 
                         seller_sku = unit_order_obj.product.get_seller_sku()
-                        GRN_info = GRN_information_dict[seller_sku]
-                        GRN_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
-                        GRN_info["price"] = unit_order_information["intercompany_sales_info"]["price"]
-                        unit_order_information["final_billing_info"] = GRN_info
+                        GRN_info = GRN_information_dict.get(seller_sku,None)
+
+                        if GRN_info != None:
+                            GRN_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
+                            GRN_info["price"] = unit_order_information["intercompany_sales_info"]["price"]
+                            unit_order_information["final_billing_info"] = GRN_info
                         
                         unit_order_obj.order_information = json.dumps(unit_order_information)
                         unit_order_obj.grn_filename_exists = True
@@ -5096,7 +5204,9 @@ class GRNProcessingCronAPI(APIView):
                         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
 
                             unit_order_final_billing_information = json.loads(unit_order_obj.order_information)["final_billing_info"]
-                            unit_order_information_list.append(unit_order_final_billing_information)
+                            
+                            if unit_order_final_billing_information != {}:
+                                unit_order_information_list.append(unit_order_final_billing_information)
                         
                         order_information["unit_order_information_list"] = unit_order_information_list
 
@@ -5268,6 +5378,8 @@ RemoveFromWishList = RemoveFromWishListAPI.as_view()
 FetchWishList = FetchWishListAPI.as_view()
 
 FetchFastCartDetails = FetchFastCartDetailsAPI.as_view()
+
+BulkUpdateCartDetails = BulkUpdateCartDetailsAPI.as_view()
 
 UpdateFastCartDetails = UpdateFastCartDetailsAPI.as_view()
 

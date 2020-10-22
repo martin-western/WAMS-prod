@@ -20,6 +20,9 @@ class MainImagesAdmin(admin.ModelAdmin):
 class SubImagesAdmin(admin.ModelAdmin):
     list_display = ('product', 'channel')
 
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ('name', 'organization')
+
 admin.site.register(OmnyCommUser)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ExportList)
@@ -29,7 +32,7 @@ admin.site.register(MaterialType)
 admin.site.register(Category)
 admin.site.register(SuperCategory)
 admin.site.register(SubCategory)
-admin.site.register(Brand)
+admin.site.register(Brand, BrandAdmin)
 admin.site.register(ProductIDType)
 admin.site.register(ImageBucket)
 admin.site.register(PFL)

@@ -424,8 +424,8 @@ def send_order_cancelled_mail(unit_order_obj):
                 "website_logo": website_logo,
                 "customer_name": customer_name,
                 "order_id": unit_order_obj.orderid,
-                "product_name": productInfo[unit_order_obj.product_code]["productName"],
-                "productImageUrl": productInfo[unit_order_obj.product_code]["productImageUrl"],
+                "product_name": unit_order_obj.product.get_name(),
+                "productImageUrl": unit_order_obj.product.get_display_image_url(),
                 "quantity": unit_order_obj.quantity,
                 "order_cancelled_date": order_cancelled_date,
                 "full_name": full_name,
@@ -653,16 +653,17 @@ def get_recommended_products(dealshub_product_objs):
     return product_list
 
 
-def is_user_input_required_for_sap_punching(seller_sku, company_code):
+def is_user_input_required_for_sap_punching(stock_price_information):
     
     try:
-        result = fetch_prices_and_stock(seller_sku, company_code)
-
-        total_atp = result["total_atp"]
-        atp_threshold = result["atp_threshold"]
-        holding_threshold = result["holding_threshold"]
+        
+        total_atp = stock_price_information["total_atp"]
+        atp_threshold = stock_price_information["atp_threshold"]
+        holding_threshold = stock_price_information["holding_threshold"]
+        
         if total_atp > atp_threshold:
             return False
+        
         return True
     
     except Exception as e:
@@ -786,7 +787,8 @@ def get_all_the_charges(order_obj):
 
         voucher_charge = ""
         if is_voucher_applied:
-            voucher_charge = voucher_obj.get_voucher_discount_without_vat(order_obj.get_subtotal())
+            voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+            voucher_charge = voucher_obj.get_voucher_discount_without_vat(voucher_discount)
             # voucher_charge = format(float(voucher_charge),'.2f')
 
         charges["cod_charge"] = cod_charge

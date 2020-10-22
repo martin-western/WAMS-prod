@@ -6,5 +6,6 @@ files/*
 static/*
 WAMSApp/migrations/*
 dealshub/migrations/*
+SalesApp/migrations/*
 WAMS/settings.py
 *.sql

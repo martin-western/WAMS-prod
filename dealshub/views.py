@@ -74,6 +74,7 @@ class FetchProductDetailsAPI(APIView):
             response["uuid"] = data["uuid"]
             response["name"] = dealshub_product_obj.get_name()
             response["stock"] = dealshub_product_obj.stock
+            response["allowedQty"] = dealshub_product_obj.get_allowed_qty()
             response["price"] = dealshub_product_obj.get_actual_price()
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = dealshub_product_obj.get_currency()
@@ -281,7 +282,7 @@ class FetchSectionProductsAPI(APIView):
             uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
             
-            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj, product__is_published=True)
             custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)            
@@ -306,6 +307,7 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
                 temp_dict2["stock"] = dealshub_product_obj.stock
+                temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
                 temp_dict2["is_promotional"] = dealshub_product_obj.promotion!=None
                 if dealshub_product_obj.promotion!=None:
@@ -543,6 +545,7 @@ class SearchAPI(APIView):
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
                     temp_dict["stock"] = dealshub_product_obj.stock
+                    temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
                     temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
                     if dealshub_product_obj.promotion!=None:
@@ -1690,6 +1693,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2 = {}
 
                     temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                    temp_dict2["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
                     temp_dict2["name"] = dealshub_product_obj.get_name()
                     temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict2["brand"] = dealshub_product_obj.get_brand()
@@ -1705,7 +1709,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
                     temp_dict2["now_price"] = dealshub_product_obj.now_price
                     temp_dict2["was_price"] = dealshub_product_obj.was_price
-                    temp_dict2["stock"] = dealshub_product_obj.stock 
+                    temp_dict2["stock"] = dealshub_product_obj.stock
+                    temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     if dealshub_product_obj.stock>0:
                         temp_dict2["isStockAvailable"] = True
                     else:
@@ -1753,6 +1758,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
                         else:
                             temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            #temp_dict2["url"] = unit_banner_image_obj.image.webp_image.url
 
                     temp_dict2["mobileUrl"] = ""
                     if unit_banner_image_obj.mobile_image!=None:
@@ -1803,6 +1809,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3 = {}
 
                             temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                            temp_dict3["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
                             temp_dict3["name"] = dealshub_product_obj.get_name()
                             temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
                             temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
@@ -1815,6 +1822,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3["now_price"] = dealshub_product_obj.now_price
                             temp_dict3["was_price"] = dealshub_product_obj.was_price
                             temp_dict3["stock"] = dealshub_product_obj.stock
+                            temp_dict3["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                             if dealshub_product_obj.stock>0:
                                 temp_dict3["isStockAvailable"] = True
                             else:
@@ -2185,6 +2193,7 @@ class AddProductToSectionAPI(APIView):
             response["was_price"] = str(dealshub_product_obj.was_price)
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
             response["stock"] = str(dealshub_product_obj.stock)
+            response["allowedQty"] = str(dealshub_product_obj.get_allowed_qty())
 
             if CustomProductSection.objects.filter(section=section_obj, product=dealshub_product_obj).exists()==False:
                 order_index = 0
@@ -2264,6 +2273,7 @@ class AddProductToUnitBannerAPI(APIView):
             response["was_price"] = str(dealshub_product_obj.was_price)
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
             response["stock"] = str(dealshub_product_obj.stock)
+            response["allowedQty"] = str(dealshub_product_obj.get_allowed_qty())
 
             if CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj, product=dealshub_product_obj).exists()==False:
                 order_index = 0
@@ -2328,7 +2338,7 @@ class FetchUnitBannerProductsAPI(APIView):
             
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
 
-            custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj)
+            custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj, product__is_published=True)
             custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
@@ -2351,6 +2361,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 temp_dict["was_price"] = dealshub_product_obj.was_price
                 temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
                 temp_dict["stock"] = dealshub_product_obj.stock
+                temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
                 temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
                 if dealshub_product_obj.promotion!=None:
@@ -2979,6 +2990,65 @@ class UpdateOrderShippingAdminAPI(APIView):
         return Response(data=response)
 
 
+class FetchSEODetailsAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSEODetailsAPI: %s", str(data))
+            
+            page_type = data["page_type"]
+            name = data["name"]
+
+            page_description = ""
+            seo_title = ""
+            seo_keywords = ""
+            seo_description = ""
+
+            if page_type=="super_category":
+                super_category_obj = SuperCategory.objects.get(name=name)
+                page_description = super_category_obj.page_description
+                seo_title = super_category_obj.seo_title
+                seo_keywords = super_category_obj.seo_keywords
+                seo_description = super_category_obj.seo_description
+            elif page_type=="category":
+                category_obj = Category.objects.filter(name=name)[0]
+                page_description = category_obj.page_description
+                seo_title = category_obj.seo_title
+                seo_keywords = category_obj.seo_keywords
+                seo_description = category_obj.seo_description
+            elif page_type=="sub_category":
+                sub_category_obj = SubCategory.objects.filter(name=name)[0]
+                page_description = sub_category_obj.page_description
+                seo_title = sub_category_obj.seo_title
+                seo_keywords = sub_category_obj.seo_keywords
+                seo_description = sub_category_obj.seo_description
+            elif page_type=="brand":
+                brand_obj = Brand.objects.get(name=name, organization__name="WIG")
+                page_description = brand_obj.page_description
+                seo_title = brand_obj.seo_title
+                seo_keywords = brand_obj.seo_keywords
+                seo_description = brand_obj.seo_description
+
+            response["page_description"] = page_description
+            response["seo_title"] = seo_title
+            response["seo_keywords"] = seo_keywords
+            response["seo_description"] = seo_description
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSEODetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
@@ -3098,3 +3168,5 @@ FetchPostaPlusDetails = FetchPostaPlusDetailsAPI.as_view()
 UpdateUnitOrderQtyAdmin = UpdateUnitOrderQtyAdminAPI.as_view()
 
 UpdateOrderShippingAdmin = UpdateOrderShippingAdminAPI.as_view()
+
+FetchSEODetails = FetchSEODetailsAPI.as_view()
