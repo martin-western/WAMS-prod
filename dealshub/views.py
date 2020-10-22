@@ -765,7 +765,6 @@ class UpdateAdminCategoryAPI(APIView):
             name = data["name"]
             listing_type = data["listingType"]
             is_published = data["isPublished"]
-            products = data["products"]
             is_promotional = data["is_promotional"]
             
             section_obj = Section.objects.get(uuid=uuid)
@@ -791,14 +790,11 @@ class UpdateAdminCategoryAPI(APIView):
             section_obj.is_published = is_published
             section_obj.modified_by = None
             section_obj.promotion = promotion_obj
-            CustomProductSection.objects.filter(section=section_obj).delete()
-            order_index = 0
-            for product in products:
-                dealshub_product_obj = DealsHubProduct.objects.get(uuid=product)
+            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+            for custom_product_section_obj in custom_product_section_objs:
+                dealshub_product_obj = custom_product_section_obj.product
                 dealshub_product_obj.promotion = promotion_obj
                 dealshub_product_obj.save()
-                CustomProductSection.objects.create(section=section_obj, product=dealshub_product_obj, order_index=order_index)
-                order_index += 1
 
             section_obj.save()
 
