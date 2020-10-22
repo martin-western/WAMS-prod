@@ -263,6 +263,8 @@ content = response_holding.content
 content = xmltodict.parse(content)
 content = json.loads(json.dumps(content))
 
+print(content)
+
 # # #################################
 
 # # ###### After Holding ############
@@ -774,41 +776,41 @@ content = json.loads(json.dumps(content))
 # if GRN_filename in files:
 #     does_file_exists = True
 
-does_file_exists = False
-from ftplib import FTP
-ftp=FTP()
-ftp.connect('geepasftp.selfip.com', 2221)
-ftp.login('mapftpdev','western')
-files = []
-files = ftp.nlst("omnicom")
-GRN_filename = "0080147545"
-for f in files:
-    if GRN_filename in f:
-        with open(f, 'wb') as fp:
-            ftp.retrbinary('STOR f', fp.write)
-        does_file_exists = True
-        break
+# does_file_exists = False
+# from ftplib import FTP
+# ftp=FTP()
+# ftp.connect('geepasftp.selfip.com', 2221)
+# ftp.login('mapftpdev','western')
+# files = []
+# files = ftp.nlst("omnicom")
+# GRN_filename = "0080147545"
+# for f in files:
+#     if GRN_filename in f:
+#         with open(f, 'wb') as fp:
+#             ftp.retrbinary('STOR f', fp.write)
+#         does_file_exists = True
+#         break
 
-from ftplib import FTP
-import os
-ftp=FTP()
-ftp.connect('geepasftp.selfip.com', 2221)
-ftp.login('mapftpdev','western')
-files = []
-files = ftp.nlst("omnicom")
+# from ftplib import FTP
+# import os
+# ftp=FTP()
+# ftp.connect('geepasftp.selfip.com', 2221)
+# ftp.login('mapftpdev','western')
+# files = []
+# files = ftp.nlst("omnicom")
 
-ftp.cwd('/omnicom')
-# the name of file you want to download from the FTP server
-filename = "0080147598_13102020142045.txt"
-with open(filename, "wb") as file:
-    # use FTP's RETR command to download the file
-    ftp.retrbinary(f"RETR {filename}", file.write)
+# ftp.cwd('/omnicom')
+# # the name of file you want to download from the FTP server
+# filename = "0080147598_13102020142045.txt"
+# with open(filename, "wb") as file:
+#     # use FTP's RETR command to download the file
+#     ftp.retrbinary(f"RETR {filename}", file.write)
 
-fp = open(filename, 'rb')
-GRN_File = fp.read().decode('utf-8')
+# fp = open(filename, 'rb')
+# GRN_File = fp.read().decode('utf-8')
 
-GRN_products = GRN_File.split('\n')
+# GRN_products = GRN_File.split('\n')
 
-for product in GRN_products:
-  info = product.split(';')
-  print(info)
+# for product in GRN_products:
+#   info = product.split(';')
+#   print(info)
