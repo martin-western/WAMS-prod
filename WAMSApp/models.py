@@ -361,13 +361,16 @@ class Image(models.Model):
                 format_name = infile.split('.')[-1]
                 infile = infile.replace(format_name,"webp")
 
-                thumb = thumb.convert('RGB')
-                thumb_io = BytesIO()
-                thumb = rotate_image(thumb)
-                thumb.save(thumb_io, 'webp',optimize=True)
-               
-                thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/webp', thumb_io.getbuffer().nbytes, None)
-                self.webp_image = thumb_file
+                if format_name.lower()=="gif":
+                    self.webp_image = self.image
+                else:
+                    thumb = thumb.convert('RGB')
+                    thumb_io = BytesIO()
+                    thumb = rotate_image(thumb)
+                    thumb.save(thumb_io, 'webp',optimize=True)
+                   
+                    thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/webp', thumb_io.getbuffer().nbytes, None)
+                    self.webp_image = thumb_file
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -454,6 +457,11 @@ class SuperCategory(models.Model):
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
 
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+
     def __str__(self):
         return self.name
 
@@ -479,6 +487,10 @@ class Category(models.Model):
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     mobile_app_image = models.ForeignKey(Image, related_name="mobile_app_image", null=True, blank=True, on_delete=models.SET_NULL)
     mobile_app_image_detailed = models.ForeignKey(Image, related_name="mobile_app_image_detailed", null=True, blank=True, on_delete=models.SET_NULL)
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -502,6 +514,10 @@ class SubCategory(models.Model):
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     property_data = models.TextField(default="[]", blank=True)
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -536,6 +552,11 @@ class Brand(models.Model):
     name = models.CharField(max_length=100)
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, null=True, blank=True)
+
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
  
     class Meta:
         verbose_name = "Brand"
