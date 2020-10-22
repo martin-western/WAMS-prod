@@ -2640,7 +2640,7 @@ class UpdateUnitBannerAPI(APIView):
             
             unit_banner_obj.promotion = promotion_obj
             
-            dealshub_product_uuid_list = list(CustomProductSection.objects.filter(unit_banner=unit_banner_obj).order_by("order_index").values_list("product__uuid", flat=True).distinct())
+            dealshub_product_uuid_list = list(CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj).order_by("order_index").values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
 
             for dealshub_product_obj in dealshub_product_objs:
