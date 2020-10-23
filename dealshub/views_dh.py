@@ -3834,6 +3834,16 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
+                        intercompany_qty = unit_order_obj.get_sap_intercompany_order_qty()
+                        final_qty = unit_order_obj.get_sap_final_order_qty()
+
+                        if intercompany_qty != "" and final_qty != "":
+                            if intercompany_qty != final_qty:
+                                order_obj.sap_status = "GRN Conflict"
+                                order_obj.save()
+
+                        temp_dict2["intercompany_qty"] = intercompany_qty
+                        temp_dict2["final_qty"] = final_qty
                         unit_order_list.append(temp_dict2)
                     temp_dict["approved"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="approved").count()
                     temp_dict["picked"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="picked").count()
