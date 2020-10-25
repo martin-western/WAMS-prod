@@ -569,7 +569,7 @@ class Cart(models.Model):
         delivery_fee = self.get_delivery_fee(cod, offline)
         if cod==True:
             subtotal += self.location_group.cod_charge
-        return subtotal+delivery_fee
+        return round(subtotal+delivery_fee, 2)
 
     def get_vat(self, cod=False, offline=False):
         total_amount = self.get_total_amount(cod, offline)
@@ -681,7 +681,7 @@ class Order(models.Model):
         subtotal = 0
         for unit_order_obj in unit_order_objs:
             subtotal += float(unit_order_obj.price)*float(unit_order_obj.quantity)
-        return subtotal
+        return round(subtotal, 2)
 
     def get_subtotal_vat(self):
         if self.location_group.vat==0:
@@ -741,7 +741,7 @@ class Order(models.Model):
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee()
         cod_charge = self.get_cod_charge()
-        return subtotal+delivery_fee+cod_charge
+        return round(subtotal+delivery_fee+cod_charge, 2)
 
     def get_vat(self):
         total_amount = self.get_total_amount()
