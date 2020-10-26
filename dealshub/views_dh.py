@@ -1345,7 +1345,9 @@ class PlaceOrderAPI(APIView):
                                                  to_pay=cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
-                                                 location_group=cart_obj.location_group)
+                                                 location_group=cart_obj.location_group,
+                                                 delivery_fee=cart_obj.get_delivery_fee(),
+                                                 cod_charge=cart_obj.location_group.cod_charge)
 
                 for unit_cart_obj in unit_cart_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -1397,7 +1399,9 @@ class PlaceOrderAPI(APIView):
                                                  to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
-                                                 location_group=fast_cart_obj.location_group)
+                                                 location_group=fast_cart_obj.location_group,
+                                                 delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                 cod_charge=fast_cart_obj.location_group.cod_charge)
 
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
@@ -1475,7 +1479,9 @@ class PlaceOfflineOrderAPI(APIView):
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
                                              is_order_offline = True,
-                                             location_group=cart_obj.location_group)
+                                             location_group=cart_obj.location_group,
+                                             delivery_fee=cart_obj.get_delivery_fee(),
+                                             cod_charge=cart_obj.location_group.cod_charge)
 
             for unit_cart_obj in unit_cart_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -2487,7 +2493,9 @@ class PaymentTransactionAPI(APIView):
                                                      payment_status="paid",
                                                      payment_info=json.dumps(data),
                                                      payment_mode=data.get("payment_option", "NA"),
-                                                     merchant_reference=merchant_reference)
+                                                     merchant_reference=merchant_reference,
+                                                     delivery_fee=cart_obj.get_delivery_fee(),
+                                                     cod_charge=0)
 
                     unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
                     for unit_cart_obj in unit_cart_objs:
@@ -2541,7 +2549,9 @@ class PaymentTransactionAPI(APIView):
                                                      payment_status="paid",
                                                      payment_info=json.dumps(data),
                                                      payment_mode=data.get("payment_option", "NA"),
-                                                     merchant_reference=merchant_reference)
+                                                     merchant_reference=merchant_reference,
+                                                     delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                     cod_charge=0)
 
                     
                     unit_order_obj = UnitOrder.objects.create(order=order_obj, 
@@ -4910,7 +4920,9 @@ class PlaceOnlineOrderAPI(APIView):
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
-                                                 merchant_reference=merchant_reference)
+                                                 merchant_reference=merchant_reference,
+                                                 delivery_fee=cart_obj.get_delivery_fee(),
+                                                 cod_charge=0)
 
                 for unit_cart_obj in unit_cart_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -4973,7 +4985,9 @@ class PlaceOnlineOrderAPI(APIView):
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
-                                                 merchant_reference=merchant_reference)
+                                                 merchant_reference=merchant_reference,
+                                                 delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                 cod_charge=0)
 
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
