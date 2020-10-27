@@ -4098,6 +4098,7 @@ class SetShippingMethodAPI(APIView):
                         if so_exists==0 or do_exists==0:
                             error_flag = 1
                             unit_order_obj.sap_status = "Failed"
+                            unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                             unit_order_obj.save()
                             break
                         
