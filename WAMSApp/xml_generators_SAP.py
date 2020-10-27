@@ -90,7 +90,7 @@ def xml_generator_for_holding_tansfer(company_code,customer_id,transfer_informat
                    <ITEM></ITEM>
                    <MAKTX></MAKTX>
                    <QTY>"""+ str(item["qty"]) + """</QTY>
-                   <UOM>"""+ str(item["uom"]) + """</UOM>
+                   <UOM>EA</UOM>
                    <PRICE></PRICE>
                    <INDPRICE></INDPRICE>
                    <DISC></DISC>
@@ -197,7 +197,7 @@ def xml_generator_for_intercompany_tansfer(company_code,customer_id,order_inform
                          <ITEM></ITEM>
                          <MAKTX></MAKTX>
                          <QTY>"""+ str(item["qty"]) +"""</QTY>
-                         <UOM>""" + str(item["uom"]) + """</UOM>
+                         <UOM>EA</UOM>
                          <PRICE></PRICE>
                          <INDPRICE></INDPRICE>
                          <DISC></DISC>
@@ -292,7 +292,7 @@ def xml_generator_for_final_billing(company_code,customer_id,order_information):
                              <ITEM></ITEM>
                              <MAKTX></MAKTX>
                              <QTY>"""+ str(item["qty"]) +"""</QTY>
-                             <UOM>""" + str(item["uom"]) + """</UOM>
+                             <UOM>EA</UOM>
                              <PRICE></PRICE>
                              <INDPRICE></INDPRICE>
                              <DISC></DISC>
