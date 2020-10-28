@@ -4100,7 +4100,7 @@ class SetShippingMethodAPI(APIView):
                             unit_order_obj.sap_status = "Failed"
                             unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                             unit_order_obj.save()
-                            break
+                            continue
                         
                         unit_order_information = {}
                         unit_order_information["intercompany_sales_info"] = {}
