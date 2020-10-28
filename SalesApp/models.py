@@ -65,18 +65,9 @@ class Notification(models.Model):
         verbose_name_plural = "Notifications"
 
     def get_image_url(self):
-        cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
-        if cached_url!="has_expired":
-            return cached_url
-        main_images_list = ImageBucket.objects.none()
-        main_images_objs = MainImages.objects.filter(product=self)
-        for main_images_obj in main_images_objs:
-            main_images_list |= main_images_obj.main_images.all()
-        main_images_list = main_images_list.distinct()
-        if main_images_list.all().count()>0:
-            main_image_url = main_images_list.all()[0].image.mid_image.url
-            cache.set("main_url_"+str(self.uuid), main_image_url)
-            return main_image_url
-        main_image_url = Config.objects.all()[0].product_404_image.image.url
-        cache.set("main_url_"+str(self.uuid), main_image_url)
-        return main_image_url
+        
+        image_url = self.image.image.mid_image.url
+        if image_url == None or image_url == "":
+            image_url = Config.objects.all()[0].product_404_image.image.url
+        
+        return image_url
