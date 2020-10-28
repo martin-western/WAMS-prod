@@ -386,7 +386,7 @@ class FetchFavouriteProductsAPI(APIView):
 
         return Response(data=response)
 
-class FetchFavouriteProductsAPI(APIView):
+class CreateNotification(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
@@ -398,12 +398,15 @@ class FetchFavouriteProductsAPI(APIView):
         try:
             
             data = request.data
-            logger.info("FetchFavouriteProductsAPI: %s", str(data))
+            logger.info("CreateNotification: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            page = int(data.get('page', 1))
+            title = data.get('title', "")
+            subtitle = data.get('subtitle', "")
+            body = data.get('body', "")
+            expiry_date = data.get('expiry_date', "")
 
             try :
                 sales_user_obj = SalesAppUser.objects.get(username=request.user.username)

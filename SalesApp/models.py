@@ -53,13 +53,12 @@ class Notification(models.Model):
     def save(self, *args, **kwargs):
         
         if self.pk == None:
-            self.set_password(self.password)
             self.notification_id = str(uuid.uuid4()).split("-")[0]
         
         super(Notification, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.username
+        return self.title
 
     class Meta:
         verbose_name = "Notification"
