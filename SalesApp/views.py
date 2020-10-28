@@ -810,12 +810,12 @@ class SendNotificationAPI(APIView):
                 logger.warning("SendNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            if result.status = 200:
+            if result.status_code == 200 :
                 notification_obj.status = "Sent"
                 result = result.json()
                 response["success_notifications"] = result["success"]
                 response["failure_notifications"] = result["failure"]
-                
+
             else:
                 notification_obj.status = "Failed"
 

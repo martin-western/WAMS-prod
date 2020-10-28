@@ -48,7 +48,7 @@ class Notification(models.Model):
         ("Sent", "Sent"),
         ("Failed", "Failed")
     )
-    status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
+    status = models.CharField(max_length=100, choices=STATUS, default="Pending")
     
     def save(self, *args, **kwargs):
         
