@@ -408,7 +408,37 @@ class CreateNotification(APIView):
             body = data.get('body', "")
             expiry_date = data.get('expiry_date', "")
 
-            
+            if title == "":
+                response['status'] = 403
+                response['message'] = "Title is not present"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            if body == "":
+                response['status'] = 403
+                response['message'] = "Body is not present"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            if Notification.objects.filter(title=title).exists():
+                response['status'] = 403
+                response['message'] = "Duplicate title found"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            if expiry_date != "":
+                try :
+                    expiry_date = datetime.datetime.strptime(expiry_date, "%b %d, %Y")
+                except Exception as e:
+                    response['status'] = 403
+                    response['message'] = "Expiry Date Format Invalid"
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+                    return Response(data=response)
+
             response['status'] = 200
             response['message'] = "Successful"
         
@@ -648,6 +678,3 @@ EditNotification = EditNotificationAPI.as_view()
 SendNotification = SendNotificationAPI.as_view()
 
 FetchNotificationList = FetchNotificationListAPI.as_view()
-
-#datetime.datetime.strptime(
-                    # data["start_date"], "%b %d, %Y")
