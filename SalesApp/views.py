@@ -758,6 +758,56 @@ class FetchNotificationListAPI(APIView):
 
         return Response(data=response)
 
+class SendNotificationAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("SendNotificationAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            notification_id = data.get('notification_id', "")
+
+            if notification_id == "":
+                response['status'] = 403
+                response['message'] = "Notification Id not sent"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("SendNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            try :
+                notification_obj = Notification.objects.get(notification_id=notification_id)
+            except Exception as e :
+                response['status'] = 403
+                response['message'] = "Notification Id not valid"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("SendNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            fcm_ids = SalesAppUser.objects.values_list('fcm_id',flat=True)
+
+
+            notification_obj.status = "Sent"
+            notification_obj.save()
+
+            response['status'] = 200
+            response['message'] = "Successful"
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SendNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 SalesAppLoginSubmit = SalesAppLoginSubmitAPI.as_view()
 
 SalesAppSignUpSubmit = SalesAppSignUpSubmitAPI.as_view()
