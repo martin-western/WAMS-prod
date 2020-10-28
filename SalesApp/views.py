@@ -806,7 +806,9 @@ CreateNotification = CreateNotificationAPI.as_view()
 
 GetNotificationDeatils = GetNotificationDeatilsAPI.as_view()
 
-EditNotification = EditNotificationAPI.as_view()
+SaveNotification = SaveNotificationAPI.as_view()
+
+UploadNotificationImage = UploadNotificationImageAPI.as_view()
 
 SendNotification = SendNotificationAPI.as_view()
 
