@@ -795,8 +795,30 @@ class SendNotificationAPI(APIView):
 
             fcm_ids = SalesAppUser.objects.values_list('fcm_id',flat=True)
 
+            notification_info = {}
+            notification_info["title"] = notification_obj.title
+            notification_info["subtitle"] = notification_obj.subtitle
+            notification_info["body"] = notification_obj.body
+            notification_info["image"] = notification_obj.get_image_url()
 
-            notification_obj.status = "Sent"
+            try:
+                result = send_firebase_notifications(fcm_ids,notification_info)
+            except Exception as e:
+                response['status'] = 403
+                response['message'] = "Firebase API error"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("SendNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            if result.status = 200:
+                notification_obj.status = "Sent"
+                result = result.json()
+                response["success_notifications"] = result["success"]
+                response["failure_notifications"] = result["failure"]
+                
+            else:
+                notification_obj.status = "Failed"
+
             notification_obj.save()
 
             response['status'] = 200

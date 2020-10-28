@@ -38,7 +38,6 @@ def send_firebase_notifications(fcm_ids,notification_info):
 
 	try :
 		
-		registration_ids = fcm_ids
 		message_title = notification_info["title"]
 		message_subtitle = notification_info["subtitle"]
 		message_body = notification_info["body"]
@@ -57,13 +56,13 @@ def send_firebase_notifications(fcm_ids,notification_info):
 		                            "image" : message_image
 		                            },
 		          'registration_ids':
-		              registration_ids,
+		              fcm_ids,
 		          'priority': 'high',
 		        #   'data': dataPayLoad,
 		        }
 		response = requests.post("https://fcm.googleapis.com/fcm/send",headers = headers, data=json.dumps(body))
 
-		return response.json()
+		return response
 
 	except Exception as e:
 		exc_type, exc_obj, exc_tb = sys.exc_info()
