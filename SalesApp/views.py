@@ -489,6 +489,7 @@ class GetNotificationDeatilsAPI(APIView):
             response["subtitle"] = notification_obj.subtitle
             response["body"] = notification_obj.body
             response["image"] = notification_obj.get_image_url()
+            response["expiry_date"] = notification_obj.get_expiry_date()
             
             response['status'] = 200
             response['message'] = "Successful"

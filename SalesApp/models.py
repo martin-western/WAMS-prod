@@ -71,3 +71,11 @@ class Notification(models.Model):
             image_url = Config.objects.all()[0].product_404_image.image.url
         
         return image_url
+
+    def get_expiry_date(self):
+        
+        expiry_date = self.expiry_date
+        if expiry_date != "":
+            expiry_date = str(timezone.localtime(self.expiry_date).strftime("%d %b, %Y %I:%M %p"))
+        
+        return expiry_date
