@@ -10,3 +10,9 @@ class SalesAppUserAdmin(admin.ModelAdmin):
     list_display = ('username',)
 
 admin.site.register(SalesAppUser, SalesAppUserAdmin)
+
+class SalesAppUserAdmin(admin.ModelAdmin):
+    list_display = ('username',)
+
+admin.site.register(SalesAppUser, SalesAppUserAdmin)
+
