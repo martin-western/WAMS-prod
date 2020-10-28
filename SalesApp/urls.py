@@ -11,5 +11,15 @@ urlpatterns = [
     url(r'^search-product-by-brand/$', views.SearchProductByBrand),
     url(r'^product-change-in-favourites/$', views.ProductChangeInFavourites),
     url(r'^fetch-favourite-products/$', views.FetchFavouriteProducts),
+    
+##################### Notification URLs ###################################
+
+    url(r'^create-notification/$', views.CreateNotification),
+    url(r'^get-notification-details/$', views.GetNotificationDeatils),
+    url(r'^save-notification/$', views.SaveNotification),
+    url(r'^upload-notification-image/$', views.UploadNotificationImage),
+    url(r'^delete-notification-image/$', views.DeleteNotificationImage),
+    url(r'^send-notification/$', views.SendNotification),
+    url(r'^fetch-notification-list/$', views.FetchNotificationList),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
