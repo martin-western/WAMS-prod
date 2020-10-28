@@ -816,6 +816,7 @@ class UnitOrder(models.Model):
         ("pending", "pending"),
         ("In GRN", "In GRN"),
         ("GRN Done", "GRN Done"),
+        ("GRN Conflict", "GRN Conflict"),
         ("Failed", "Failed")
     )
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
