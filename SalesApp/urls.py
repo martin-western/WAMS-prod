@@ -11,5 +11,6 @@ urlpatterns = [
     url(r'^search-product-by-brand/$', views.SearchProductByBrand),
     url(r'^product-change-in-favourites/$', views.ProductChangeInFavourites),
     url(r'^fetch-favourite-products/$', views.FetchFavouriteProducts),
+    url(r'^create-notification/$', views.CreateNotification),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -43,6 +43,12 @@ class Notification(models.Model):
     body = models.CharField(max_length=200)
     expiry_date = models.DateTimeField(blank=True,null=True,default="")
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
+    STATUS = (
+        ("Pending", "Pending"),
+        ("Sent", "Sent"),
+        ("Failed", "Failed")
+    )
+    status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
     
     def save(self, *args, **kwargs):
         
