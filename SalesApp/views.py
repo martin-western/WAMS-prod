@@ -469,7 +469,7 @@ class GetNotificationDeatilsAPI(APIView):
         try:
             
             data = request.data
-            logger.info("EditNotification: %s", str(data))
+            logger.info("GetNotificationDeatilsAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -477,48 +477,19 @@ class GetNotificationDeatilsAPI(APIView):
             notification_id = data.get('notification_id', "")
 
             try :
-                sales_user_obj = SalesAppUser.objects.get(username=request.user.username)
+                notification_obj = Notification.objects.get(notification_id=notification_id)
             except Exception as e :
                 response['status'] = 403
-                response['message'] = "User not Logged In"
+                response['message'] = "Notification Id not valid"
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("GetNotificationDeatilsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            product_objs = sales_user_obj.favourite_products.all()
-
-            paginator = Paginator(product_objs, 20)
-            total_pages = paginator.num_pages
+            response["title"] = notification_obj.title
+            response["subtitle"] = notification_obj.subtitle
+            response["body"] = notification_obj.body
+            response["image"] = notification_obj.get_image_url()
             
-            if page > total_pages:
-                response['status'] = 404
-                response['message'] = "Page number out of range"
-                logger.warning("FetchFavouriteProductsAPI : Page number out of range")
-                return Response(data=response)
-
-            page_product_objs = paginator.page(page)
-
-            product_list = []
-            
-            for product_obj in page_product_objs:
-                
-                try:
-                    
-                    temp_dict = {}
-                    temp_dict["product_name"] = product_obj.product_name
-                    temp_dict["image_url"] = product_obj.get_display_image_url()
-                    temp_dict["product_description"] = product_obj.product_description
-                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
-                    temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
-                    
-                    product_list.append(temp_dict)
-                
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            response["product_list"] = product_list
-            response["total_pages"] = total_pages
             response['status'] = 200
             response['message'] = "Successful"
         
