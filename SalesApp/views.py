@@ -17,6 +17,7 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db.models import Count
+from django.utils import timezone
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -430,15 +431,10 @@ class CreateNotification(APIView):
                 return Response(data=response)
 
             if expiry_date != "":
+                
                 try :
+                    
                     expiry_date = convert_to_datetime(expiry_date)
-
-                    if expiry_date < datetime.datetime.now():
-                        response['status'] = 403
-                        response['message'] = "Expiry Date Invalid"
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
-                        return Response(data=response)
 
                 except Exception as e:
                     response['status'] = 403
