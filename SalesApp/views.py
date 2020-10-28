@@ -387,7 +387,7 @@ class FetchFavouriteProductsAPI(APIView):
 
         return Response(data=response)
 
-class CreateNotification(APIView):
+class CreateNotificationAPI(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
@@ -399,7 +399,7 @@ class CreateNotification(APIView):
         try:
             
             data = request.data
-            logger.info("CreateNotification: %s", str(data))
+            logger.info("CreateNotificationAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -413,21 +413,21 @@ class CreateNotification(APIView):
                 response['status'] = 403
                 response['message'] = "Title is not present"
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("CreateNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
             if body == "":
                 response['status'] = 403
                 response['message'] = "Body is not present"
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("CreateNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
             if Notification.objects.filter(title=title).exists():
                 response['status'] = 403
                 response['message'] = "Duplicate title found"
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("CreateNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
             if expiry_date != "":
@@ -440,7 +440,7 @@ class CreateNotification(APIView):
                     response['status'] = 403
                     response['message'] = "Expiry Date Format Invalid"
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("CreateNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     return Response(data=response)
 
             notification_obj = Notification.objects.create(title=title,
@@ -453,7 +453,7 @@ class CreateNotification(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -679,6 +679,8 @@ SearchProductByBrand = SearchProductByBrandAPI.as_view()
 ProductChangeInFavourites = ProductChangeInFavouritesAPI.as_view()
 
 FetchFavouriteProducts = FetchFavouriteProductsAPI.as_view()
+
+################# Notification APIs ######################
 
 CreateNotification = CreateNotificationAPI.as_view()
 
