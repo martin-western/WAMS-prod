@@ -432,6 +432,14 @@ class CreateNotification(APIView):
             if expiry_date != "":
                 try :
                     expiry_date = datetime.datetime.strptime(expiry_date, "%b %d, %Y")
+
+                    if expiry_date < datetime.datetime.now():
+                        response['status'] = 403
+                        response['message'] = "Expiry Date Invalid"
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.warning("CreateNotification: %s at %s", e, str(exc_tb.tb_lineno))
+                        return Response(data=response)
+
                 except Exception as e:
                     response['status'] = 403
                     response['message'] = "Expiry Date Format Invalid"
