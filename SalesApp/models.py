@@ -34,3 +34,26 @@ class SalesAppUser(User):
     class Meta:
         verbose_name = "SalesAppUser"
         verbose_name_plural = "SalesAppUsers"
+
+class Notification(models.Model):
+
+    notification_id = models.CharField(max_length=200, default="",blank=True,null=True)
+    title = models.CharField(max_length=200, default="",blank=True,null=True)
+    subtitle = models.CharField(max_length=200, default="",blank=True,null=True)
+    body = models.CharField(max_length=200, default="",blank=True,null=True)
+    image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
+    
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.set_password(self.password)
+            self.notification_id = str(uuid.uuid4()).split("-")[0]
+        
+        super(Notification, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
