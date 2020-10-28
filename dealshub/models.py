@@ -655,7 +655,7 @@ class Order(models.Model):
         ("Success", "Success"),
         ("Failed", "Failed")
     )
-    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
+    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -813,13 +813,13 @@ class UnitOrder(models.Model):
     sap_intercompany_info = models.TextField(default="{}")
     order_information = models.TextField(default="{}")
     SAP_STATUS = (
-        ("pending", "pending"),
+        ("Pending", "Pending"),
         ("In GRN", "In GRN"),
         ("GRN Done", "GRN Done"),
         ("GRN Conflict", "GRN Conflict"),
         ("Failed", "Failed")
     )
-    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
+    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
     grn_filename = models.CharField(max_length=100, default="")
     grn_filename_exists = models.BooleanField(default=False)
 
