@@ -36,29 +36,36 @@ def convert_to_datetime(date_str):
 
 def send_firebase_notifications(fcm_ids,notification_info):
 
-	registration_ids = fcm_ids
-	message_title = notification_info["title"]
-	message_subtitle = notification_info["subtitle"]
-	message_body = notification_info["body"]
-	message_image = notification_info["image"]
-	
-	headers = {
-	        'Content-Type': 'application/json',
-	        'Authorization': 'key=' + SERVER_TOKEN,
-	      }
+	try :
+		
+		registration_ids = fcm_ids
+		message_title = notification_info["title"]
+		message_subtitle = notification_info["subtitle"]
+		message_body = notification_info["body"]
+		message_image = notification_info["image"]
+		
+		headers = {
+		        'Content-Type': 'application/json',
+		        'Authorization': 'key=' + SERVER_TOKEN,
+		      }
 
-	body = {
-	          'notification': {
-	          					"title": "Sample Title for notification -OmnyComm 5",
-	                            "subtitle" : "Sampe Subtitle for notification - OmnyComm 5",
-	                            "body" : "Sampe Body for notification - OmnyComm 5",
-	                            "image" : "https://cdn.omnycomm.com/l.jpeg"
-	                            },
-	          'registration_ids':
-	              registration_ids,
-	          'priority': 'high',
-	        #   'data': dataPayLoad,
-	        }
-	response = requests.post("https://fcm.googleapis.com/fcm/send",headers = headers, data=json.dumps(body))
+		body = {
+		          'notification': {
+		          					"title": message_title,
+		                            "subtitle" : message_subtitle,
+		                            "body" : message_body,
+		                            "image" : message_image
+		                            },
+		          'registration_ids':
+		              registration_ids,
+		          'priority': 'high',
+		        #   'data': dataPayLoad,
+		        }
+		response = requests.post("https://fcm.googleapis.com/fcm/send",headers = headers, data=json.dumps(body))
 
-	return response
+		return response.json()
+
+	except Exception as e:
+		exc_type, exc_obj, exc_tb = sys.exc_info()
+		logger.error("send_firebase_notifications: %s at %s", e, str(exc_tb.tb_lineno))
+		return []
