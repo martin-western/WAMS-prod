@@ -27,3 +27,7 @@ def convert_to_ascii(s):
     s = s.encode("ascii", "ignore")
     
     return s
+
+def convert_to_datetime(date_str):
+    date_str = date_str[:-1] + "+0400"
+    return date_str
