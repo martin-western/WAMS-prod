@@ -457,7 +457,7 @@ class CreateNotification(APIView):
 
         return Response(data=response)
 
-class FetchFavouriteProductsAPI(APIView):
+class GetNotificationDeatilsAPI(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
@@ -469,12 +469,12 @@ class FetchFavouriteProductsAPI(APIView):
         try:
             
             data = request.data
-            logger.info("FetchFavouriteProductsAPI: %s", str(data))
+            logger.info("EditNotification: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            page = int(data.get('page', 1))
+            notification_id = data.get('notification_id', "")
 
             try :
                 sales_user_obj = SalesAppUser.objects.get(username=request.user.username)
@@ -681,6 +681,8 @@ ProductChangeInFavourites = ProductChangeInFavouritesAPI.as_view()
 FetchFavouriteProducts = FetchFavouriteProductsAPI.as_view()
 
 CreateNotification = CreateNotificationAPI.as_view()
+
+GetNotificationDeatils = GetNotificationDeatilsAPI.as_view()
 
 EditNotification = EditNotificationAPI.as_view()
 

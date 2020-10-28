@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^fetch-favourite-products/$', views.FetchFavouriteProducts),
     
     url(r'^create-notification/$', views.CreateNotification),
+    url(r'^get-notification-details/$', views.GetNotificationDeatils),
     url(r'^edit-notification/$', views.EditNotification),
     url(r'^send-notification/$', views.SendNotification),
     url(r'^fetch-notification-list/$', views.FetchNotificationList),
