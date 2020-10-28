@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class SalesAppUser(User):
 
-    customer_id = models.CharField(max_length=200, default="",blank=True,null=True)
+    customer_id = models.CharField(max_length=200,blank=True,null=True)
     fcm_id_list = models.TextField(default="{}")
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     country = models.CharField(max_length=200, default="",blank=True,null=True)
@@ -37,11 +37,11 @@ class SalesAppUser(User):
 
 class Notification(models.Model):
 
-    notification_id = models.CharField(max_length=200, default="",blank=True,null=True)
-    title = models.CharField(max_length=200, default="",blank=True,null=True)
+    notification_id = models.CharField(max_length=200,blank=True,null=True)
+    title = models.CharField(max_length=200,unique=True)
     subtitle = models.CharField(max_length=200, default="",blank=True,null=True)
-    body = models.CharField(max_length=200, default="",blank=True,null=True)
-    expiry_date = models.DateTimeField(blank=True,null=True)
+    body = models.CharField(max_length=200)
+    expiry_date = models.DateTimeField(blank=True,null=True,default="")
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
     
     def save(self, *args, **kwargs):
