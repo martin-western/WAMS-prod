@@ -184,4 +184,7 @@ urlpatterns = [
     url(r'^grn-processing-cron/$',views.GRNProcessingCron),
 
     url(r'^fetch-seo-details/$',views.FetchSEODetails),
+    url(r'^fetch-seo-admin-autocomplete/$',views.FetchSEOAdminAutocomplete),
+    url(r'^fetch-seo-admin-details/$',views.FetchSEOAdminDetails),
+    url(r'^save-seo-admin-details/$',views.SaveSEOAdminDetails),
 ]
