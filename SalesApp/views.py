@@ -405,6 +405,7 @@ class CreateNotificationAPI(APIView):
                 data = json.loads(data)
 
             title = data.get('title', "")
+            subtitle = data.get('subtitle', "")
             body = data.get('body', "")
             expiry_date = data.get('expiry_date', "")
 
@@ -444,6 +445,7 @@ class CreateNotificationAPI(APIView):
 
             notification_obj = Notification.objects.create(title=title,
                                                             body=body,
+                                                            subtitle=subtitle,
                                                             expiry_date=expiry_date)
 
             response['status'] = 200
@@ -491,6 +493,7 @@ class GetNotificationDeatilsAPI(APIView):
                 return Response(data=response)
 
             response["title"] = notification_obj.title
+            response["subtitle"] = notification_obj.subtitle
             response["body"] = notification_obj.body
             response["image"] = notification_obj.get_image_url()
             response["expiry_date"] = notification_obj.get_expiry_date()
@@ -639,6 +642,7 @@ class SaveNotificationAPI(APIView):
                 data = json.loads(data)
 
             title = data.get('title', "")
+            subtitle = data.get('subtitle', "")
             body = data.get('body', "")
             expiry_date = data.get('expiry_date', "")
             notification_id = data.get('notification_id', "")
@@ -668,6 +672,7 @@ class SaveNotificationAPI(APIView):
 
             notification_obj.title=title
             notification_obj.body=body
+            notification_obj.subtitle=subtitle
             notification_obj.expiry_date=expiry_date
             notification_obj.save()
                                                             
@@ -729,6 +734,7 @@ class FetchNotificationListAPI(APIView):
                     
                     temp_dict = {}
                     temp_dict["title"] = notification_obj.title
+                    temp_dict["subtitle"] = notification_obj.subtitle
                     temp_dict["body"] = notification_obj.body
                     temp_dict["image"] = notification_obj.get_image_url()
                     temp_dict["expiry_date"] = notification_obj.get_expiry_date()
