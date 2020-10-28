@@ -6,7 +6,7 @@ from django.contrib import admin
 from SalesApp.models import *
 
 
-# class DealsHubProductAdmin(admin.ModelAdmin):
-#     list_display = ('product',)
+class SalesAppUserAdmin(admin.ModelAdmin):
+    list_display = ('username',)
 
-# admin.site.register(DealsHubProduct, DealsHubProductAdmin)
+admin.site.register(SalesAppUser, SalesAppUserAdmin)
