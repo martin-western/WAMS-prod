@@ -396,5 +396,9 @@ ProductChangeInFavourites = ProductChangeInFavouritesAPI.as_view()
 
 FetchFavouriteProducts = FetchFavouriteProductsAPI.as_view()
 
+CreateNotification = CreateNotificationAPI.as_view()
+
+EditNotification = EditNotificationAPI.as_view()
+
 #datetime.datetime.strptime(
                     # data["start_date"], "%b %d, %Y")
