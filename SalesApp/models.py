@@ -41,6 +41,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=200, default="",blank=True,null=True)
     subtitle = models.CharField(max_length=200, default="",blank=True,null=True)
     body = models.CharField(max_length=200, default="",blank=True,null=True)
+    expiry_date = models.DateTimeField(blank=True,null=True)
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
     
     def save(self, *args, **kwargs):

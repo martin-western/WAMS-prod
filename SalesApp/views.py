@@ -395,3 +395,6 @@ SearchProductByBrand = SearchProductByBrandAPI.as_view()
 ProductChangeInFavourites = ProductChangeInFavouritesAPI.as_view()
 
 FetchFavouriteProducts = FetchFavouriteProductsAPI.as_view()
+
+#datetime.datetime.strptime(
+                    # data["start_date"], "%b %d, %Y")
