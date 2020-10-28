@@ -686,5 +686,7 @@ EditNotification = EditNotificationAPI.as_view()
 
 SendNotification = SendNotificationAPI.as_view()
 
+FetchNotificationList = FetchNotificationListAPI.as_view()
+
 #datetime.datetime.strptime(
                     # data["start_date"], "%b %d, %Y")

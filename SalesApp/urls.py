@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^create-notification/$', views.CreateNotification),
     url(r'^edit-notification/$', views.EditNotification),
     url(r'^send-notification/$', views.SendNotification),
+    url(r'^fetch-notification-list/$', views.FetchNotificationList),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
