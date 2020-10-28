@@ -566,6 +566,64 @@ class UploadNotificationImageAPI(APIView):
 
         return Response(data=response)
 
+class DeleteNotificationImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+
+            data = request.data
+            logger.info("DeleteNotificationImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            notification_id = data.get('notification_id', "")
+            image_pk = int(data.get('image_pk', 0))
+
+            image_pk = int(data["image_pk"])
+            notification_id = data["product_pk"]
+
+            if notification_id == "":
+                response['status'] = 403
+                response['message'] = "Notification Id not sent"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("DeleteNotificationImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            if image_pk == 0:
+                response['status'] = 403
+                response['message'] = "Image PK not sent"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("DeleteNotificationImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            try :
+                notification_obj = Notification.objects.get(notification_id=notification_id)
+            except Exception as e :
+                response['status'] = 403
+                response['message'] = "Notification Id not valid"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("DeleteNotificationImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            notification_obj.image = None
+            notification_obj.save()
+            
+            Image.objects.get(pk=image_pk).delete()
+            
+            response['status'] = 200
+            response['message'] = "Successful"
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteNotificationImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 class FetchFavouriteProductsAPI(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -727,6 +785,8 @@ GetNotificationDeatils = GetNotificationDeatilsAPI.as_view()
 SaveNotification = SaveNotificationAPI.as_view()
 
 UploadNotificationImage = UploadNotificationImageAPI.as_view()
+
+DeleteNotificationImage = DeleteNotificationImageAPI.as_view()
 
 SendNotification = SendNotificationAPI.as_view()
 

@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^get-notification-details/$', views.GetNotificationDeatils),
     url(r'^save-notification/$', views.SaveNotification),
     url(r'^upload-notification-image/$', views.UploadNotificationImage),
+    url(r'^delete-notification-image/$', views.DeleteNotificationImage),
     url(r'^send-notification/$', views.SendNotification),
     url(r'^fetch-notification-list/$', views.FetchNotificationList),
 
