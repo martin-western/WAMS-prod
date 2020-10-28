@@ -490,6 +490,8 @@ class GetNotificationDeatilsAPI(APIView):
             response["body"] = notification_obj.body
             response["image"] = notification_obj.get_image_url()
             response["expiry_date"] = notification_obj.get_expiry_date()
+            response["notification_id"] = notification_obj.notification_id
+            response["notification_status"] = notification_obj.status
             
             response['status'] = 200
             response['message'] = "Successful"
@@ -497,6 +499,152 @@ class GetNotificationDeatilsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class UploadProductImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            if request.user.has_perm("WAMSApp.add_image") == False:
+                logger.warning("UploadProductImageAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            data = request.data
+            logger.info("UploadProductImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_obj = Product.objects.get(pk=int(data["product_pk"]))
+
+            if product_obj.locked:
+                logger.warning("UploadProductImageAPI Restricted Access - Locked!")
+                response['status'] = 403
+                return Response(data=response)
+
+            image_objs = []
+
+            image_count = int(data["image_count"])
+            for i in range(image_count):
+                image_obj = Image.objects.create(image=data["image_"+str(i)])
+                image_objs.append(image_obj)
+
+            if data["image_category"] == "main_images":
+
+                for image_obj in image_objs:
+                    image_bucket_obj = ImageBucket.objects.create(
+                        image=image_obj)
+                    product_obj.no_of_images_for_filter += 1
+
+                    if data["channel_name"] == "" or data["channel_name"] == None:
+
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+                        if main_images_obj.main_images.all().count() == image_count:
+                            image_bucket_obj = main_images_obj.main_images.all()[0]
+                            image_bucket_obj.is_main_image = True
+                            image_bucket_obj.save()
+                            try:
+                                pfl_obj = PFL.objects.filter(product=product_obj)[0]
+                                if pfl_obj.product_image == None:
+                                    pfl_obj.product_image = image_objs[0]
+                                    pfl_obj.save()
+                            except Exception as e:
+                                pass
+
+                        add_imagebucket_to_channel_main_images(image_bucket_obj,product_obj)
+
+                    else:
+                        channel_obj = Channel.objects.get(name=data["channel_name"])
+                        main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        main_images_obj.main_images.add(image_bucket_obj)
+                        main_images_obj.save()
+
+            elif data["image_category"] == "sub_images":
+                index = 0
+                if data["channel_name"] == "" or data["channel_name"] == None:
+                    sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                else:
+                    channel_obj = Channel.objects.get(name=data["channel_name"])
+                    sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                    
+                sub_images = sub_images_obj.sub_images.all().order_by('-sub_image_index')
+                if sub_images.count() > 0:
+                    index = sub_images[0].sub_image_index
+                for image_obj in image_objs:
+                    index += 1
+                    sub_image_index = 0
+                    is_sub_image = False
+                    product_obj.no_of_images_for_filter += 1
+                    if(index <= 8):
+                        sub_image_index = index
+                        is_sub_image = True
+                    image_bucket_obj = ImageBucket.objects.create(image=image_obj,
+                                                                  is_sub_image=is_sub_image,
+                                                                  sub_image_index=sub_image_index)
+                    sub_images_obj.sub_images.add(image_bucket_obj)
+                    sub_images_obj.save()
+            
+            elif data["image_category"] == "pfl_images":
+                for image_obj in image_objs:
+                    product_obj.pfl_images.add(image_obj)
+            elif data["image_category"] == "white_background_images":
+                for image_obj in image_objs:
+                    product_obj.no_of_images_for_filter += 1
+                    product_obj.white_background_images.add(image_obj)
+            elif data["image_category"] == "lifestyle_images":
+                for image_obj in image_objs:
+                    product_obj.no_of_images_for_filter += 1
+                    product_obj.lifestyle_images.add(image_obj)
+            elif data["image_category"] == "certificate_images":
+                for image_obj in image_objs:
+                    product_obj.certificate_images.add(image_obj)
+            elif data["image_category"] == "giftbox_images":
+                for image_obj in image_objs:
+                    product_obj.giftbox_images.add(image_obj)
+            elif data["image_category"] == "diecut_images":
+                for image_obj in image_objs:
+                    product_obj.diecut_images.add(image_obj)
+            elif data["image_category"] == "aplus_content_images":
+                for image_obj in image_objs:
+                    product_obj.aplus_content_images.add(image_obj)
+            elif data["image_category"] == "ads_images":
+                for image_obj in image_objs:
+                    product_obj.ads_images.add(image_obj)
+            elif data["image_category"] == "unedited_images":
+                for image_obj in image_objs:
+                    product_obj.base_product.unedited_images.add(image_obj)
+            elif data["image_category"] == "transparent_images":
+                for image_obj in image_objs:
+                    product_obj.transparent_images.add(image_obj)
+            elif data["image_category"] == "best_images":
+                number = 0
+                if product_obj.best_images.count()>0:
+                    number = ProductImage.objects.filter(product=product_obj).order_by('number').last().number
+                
+                for image_obj in image_objs:
+                    if ProductImage.objects.filter(product=product_obj, image=image_obj).exists():
+                        continue
+                    number += 1
+                    ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
+
+            product_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadProductImageAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
