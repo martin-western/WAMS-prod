@@ -9,10 +9,9 @@ from SalesApp.models import *
 class SalesAppUserAdmin(admin.ModelAdmin):
     list_display = ('username',)
 
-admin.site.register(SalesAppUser, SalesAppUserAdmin)
-
 class SalesAppUserAdmin(admin.ModelAdmin):
     list_display = ('username',)
 
 admin.site.register(SalesAppUser, SalesAppUserAdmin)
 
+admin.site.register(SalesAppUser, SalesAppUserAdmin)
