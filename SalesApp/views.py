@@ -681,11 +681,11 @@ class SaveNotificationAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SaveNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class FetchFavouriteProductsAPI(APIView):
+class FetchNotificationListAPI(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
@@ -697,7 +697,7 @@ class FetchFavouriteProductsAPI(APIView):
         try:
             
             data = request.data
-            logger.info("FetchFavouriteProductsAPI: %s", str(data))
+            logger.info("FetchNotificationListAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -710,49 +710,51 @@ class FetchFavouriteProductsAPI(APIView):
                 response['status'] = 403
                 response['message'] = "User not Logged In"
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("FetchNotificationListAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            product_objs = sales_user_obj.favourite_products.all()
+            notification_objs = Notification.objects.filter(expiry_date__lte=timezone.now)
 
-            paginator = Paginator(product_objs, 20)
+            paginator = Paginator(notification_objs, 20)
             total_pages = paginator.num_pages
             
             if page > total_pages:
                 response['status'] = 404
                 response['message'] = "Page number out of range"
-                logger.warning("FetchFavouriteProductsAPI : Page number out of range")
+                logger.warning("FetchNotificationListAPI : Page number out of range")
                 return Response(data=response)
 
-            page_product_objs = paginator.page(page)
+            page_notification_objs = paginator.page(page)
 
-            product_list = []
+            notification_list = []
             
-            for product_obj in page_product_objs:
+            for notification_obj in page_notification_objs:
                 
                 try:
                     
                     temp_dict = {}
-                    temp_dict["product_name"] = product_obj.product_name
-                    temp_dict["image_url"] = product_obj.get_display_image_url()
-                    temp_dict["product_description"] = product_obj.product_description
-                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
-                    temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
+                    temp_dict["title"] = notification_obj.title
+                    temp_dict["subtitle"] = notification_obj.subtitle
+                    temp_dict["body"] = notification_obj.body
+                    temp_dict["image"] = notification_obj.get_image_url()
+                    temp_dict["expiry_date"] = notification_obj.get_expiry_date()
+                    temp_dict["notification_id"] = notification_obj.notification_id
+                    temp_dict["notification_status"] = notification_obj.status
                     
-                    product_list.append(temp_dict)
+                    notification_list.append(temp_dict)
                 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchNotificationListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-            response["product_list"] = product_list
+            response["notification_list"] = notification_list
             response["total_pages"] = total_pages
             response['status'] = 200
             response['message'] = "Successful"
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchNotificationListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
