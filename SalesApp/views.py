@@ -612,7 +612,7 @@ class DeleteNotificationImageAPI(APIView):
 
             notification_obj.image = None
             notification_obj.save()
-            
+
             Image.objects.get(pk=image_pk).delete()
             
             response['status'] = 200
@@ -624,7 +624,7 @@ class DeleteNotificationImageAPI(APIView):
 
         return Response(data=response)
 
-class FetchFavouriteProductsAPI(APIView):
+class SaveNotificationAPI(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
@@ -636,56 +636,46 @@ class FetchFavouriteProductsAPI(APIView):
         try:
             
             data = request.data
-            logger.info("FetchFavouriteProductsAPI: %s", str(data))
+            logger.info("SaveNotificationAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            page = int(data.get('page', 1))
+            title = data.get('title', "")
+            subtitle = data.get('subtitle', "")
+            body = data.get('body', "")
+            expiry_date = data.get('expiry_date', "")
+            notification_id = data.get('notification_id', "")
+
+            if notification_id == "":
+                response['status'] = 403
+                response['message'] = "Notification Id not sent"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("SaveNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
 
             try :
-                sales_user_obj = SalesAppUser.objects.get(username=request.user.username)
+                notification_obj = Notification.objects.get(notification_id=notification_id)
             except Exception as e :
                 response['status'] = 403
-                response['message'] = "User not Logged In"
+                response['message'] = "Notification Id not valid"
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("SaveNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            product_objs = sales_user_obj.favourite_products.all()
-
-            paginator = Paginator(product_objs, 20)
-            total_pages = paginator.num_pages
-            
-            if page > total_pages:
-                response['status'] = 404
-                response['message'] = "Page number out of range"
-                logger.warning("FetchFavouriteProductsAPI : Page number out of range")
+            if Notification.objects.filter(title=title).exclude(notification_id=notification_id).exists():
+                response['status'] = 403
+                response['message'] = "Duplicate title found"
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("SaveNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            page_product_objs = paginator.page(page)
-
-            product_list = []
-            
-            for product_obj in page_product_objs:
-                
-                try:
-                    
-                    temp_dict = {}
-                    temp_dict["product_name"] = product_obj.product_name
-                    temp_dict["image_url"] = product_obj.get_display_image_url()
-                    temp_dict["product_description"] = product_obj.product_description
-                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
-                    temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
-                    
-                    product_list.append(temp_dict)
-                
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchFavouriteProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            response["product_list"] = product_list
-            response["total_pages"] = total_pages
+            notification_obj.title=title
+            notification_obj.body=body
+            notification_obj.subtitle=subtitle
+            notification_obj.expiry_date=expiry_date
+            notification_obj.save()
+                                                            
             response['status'] = 200
             response['message'] = "Successful"
         

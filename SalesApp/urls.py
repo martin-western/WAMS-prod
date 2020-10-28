@@ -12,6 +12,8 @@ urlpatterns = [
     url(r'^product-change-in-favourites/$', views.ProductChangeInFavourites),
     url(r'^fetch-favourite-products/$', views.FetchFavouriteProducts),
     
+##################### Notification URLs ###################################
+
     url(r'^create-notification/$', views.CreateNotification),
     url(r'^get-notification-details/$', views.GetNotificationDeatils),
     url(r'^save-notification/$', views.SaveNotification),
