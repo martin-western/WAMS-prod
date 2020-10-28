@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class SalesAppUser(User):
 
     customer_id = models.CharField(max_length=200,blank=True,null=True)
-    fcm_id_list = models.TextField(default="{}")
+    fcm_id_list = models.TextField(default="")
     contact_number = models.CharField(max_length=200, default="",blank=True,null=True)
     country = models.CharField(max_length=200, default="",blank=True,null=True)
     favourite_products = models.ManyToManyField(Product,blank=True)

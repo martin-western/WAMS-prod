@@ -88,6 +88,11 @@ class SalesAppLoginSubmitAPI(APIView):
                 token = json.loads(r.content)["token"]
                 response["token"] = token
 
+                sales_user_obj = SalesAppUser.objects.get(user__username=username)
+                sales_user_obj.fcm_id = fcm_id
+
+                sales_user_obj.save()
+                
                 response['status'] = 200
                 response['message'] = "Successfully Logged In"
 
@@ -399,6 +404,8 @@ FetchFavouriteProducts = FetchFavouriteProductsAPI.as_view()
 CreateNotification = CreateNotificationAPI.as_view()
 
 EditNotification = EditNotificationAPI.as_view()
+
+SendNotification = SendNotificationAPI.as_view()
 
 #datetime.datetime.strptime(
                     # data["start_date"], "%b %d, %Y")
