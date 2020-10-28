@@ -31,3 +31,12 @@ def convert_to_ascii(s):
 def convert_to_datetime(date_str):
     date_str = date_str[:-1] + "+0400"
     return date_str
+
+def send_firebase_notifications(fcm_ids,notification_info):
+
+	registration_ids = fcm_ids
+	message_title = notification_info["title"]
+	message_body = "Hope you're having fun this weekend, don't forget to check today's news"
+	result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body)
+
+	print(result)
