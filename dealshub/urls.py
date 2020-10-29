@@ -188,6 +188,6 @@ urlpatterns = [
     url(r'^fetch-seo-admin-details/$',views.FetchSEOAdminDetails),
     url(r'^save-seo-admin-details/$',views.SaveSEOAdminDetails),
 
-    url(r'^fetch-location-group-settings/$',views.FetchLocationGroupSettingsAPI),
+    url(r'^fetch-location-group-settings/$',views.FetchLocationGroupSettings),
     url(r'^update-location-group-settings/$',views.UpdateLocationGroupSettings),
 ]
