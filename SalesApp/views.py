@@ -716,7 +716,7 @@ class FetchNotificationListAPI(APIView):
                 logger.warning("FetchNotificationListAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            notification_objs = Notification.objects.filter(expiry_date__lte=timezone.now)
+            notification_objs = Notification.objects.filter(Q(expiry_date=None) | Q(expiry_date__gte=timezone.now()))
 
             paginator = Paginator(notification_objs, 20)
             total_pages = paginator.num_pages
