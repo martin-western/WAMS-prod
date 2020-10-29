@@ -3248,6 +3248,65 @@ class SaveSEOAdminDetailsAPI(APIView):
         
         return Response(data=response)
 
+
+class FetchLocationGroupSettingsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchLocationGroupSettingsAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            response["delivery_fee"] = location_group_obj.delivery_fee
+            response["cod_charge"] = location_group_obj.cod_charge
+            response["free_delivery_threshold"] = location_group_obj.free_delivery_threshold
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchLocationGroupSettingsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class UpdateLocationGroupSettingsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateLocationGroupSettingsAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+
+            delivery_fee = float(data["delivery_fee"])
+            cod_charge = float(data["cod_charge"])
+            free_delivery_threshold = float(data["free_delivery_threshold"])
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            location_group_obj.delivery_fee = delivery_fee
+            location_group_obj.cod_charge = cod_charge
+            location_group_obj.free_delivery_threshold = free_delivery_threshold
+            location_group_obj.save()
+            
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLocationGroupSettingsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
@@ -3375,3 +3434,7 @@ FetchSEOAdminAutocomplete = FetchSEOAdminAutocompleteAPI.as_view()
 FetchSEOAdminDetails = FetchSEOAdminDetailsAPI.as_view()
 
 SaveSEOAdminDetails = SaveSEOAdminDetailsAPI.as_view()
+
+FetchLocationGroupSettings = FetchLocationGroupSettingsAPI.as_view()
+
+UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()
