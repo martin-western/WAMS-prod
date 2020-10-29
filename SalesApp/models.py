@@ -67,8 +67,11 @@ class Notification(models.Model):
 
     def get_image_url(self):
         
-        image_url = self.image.image.mid_image.url
-        if image_url == None or image_url == "":
+        image_url = ""
+
+        try:
+            image_url = self.image.image.mid_image.url
+        except Exception as e:
             image_url = Config.objects.all()[0].product_404_image.image.url
         
         return image_url
