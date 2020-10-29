@@ -5,6 +5,7 @@ from django.utils import timezone
 import logging
 import json
 import uuid
+import datetime
 
 from WAMSApp.models import *
 from SalesApp.utils import *
@@ -41,7 +42,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=200,unique=True)
     subtitle = models.CharField(max_length=200, default="",blank=True,null=True)
     body = models.CharField(max_length=200)
-    expiry_date = models.DateTimeField(null=True,blank=True)
+    expiry_date = models.DateTimeField(null=True,blank=True,default=datetime.datetime.max)
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.CASCADE)
     STATUS = (
         ("Pending", "Pending"),
