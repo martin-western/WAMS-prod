@@ -445,8 +445,11 @@ class CreateNotificationAPI(APIView):
 
             notification_obj = Notification.objects.create(title=title,
                                                             body=body,
-                                                            subtitle=subtitle,
-                                                            expiry_date=expiry_date)
+                                                            subtitle=subtitle)
+
+            if expiry_date != "":
+                notification_obj.expiry_date=expiry_date
+                notification_obj.save()
 
             response['status'] = 200
             response['message'] = "Successful"
