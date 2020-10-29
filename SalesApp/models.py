@@ -72,7 +72,7 @@ class Notification(models.Model):
         try:
             image_url = self.image.image.mid_image.url
         except Exception as e:
-            image_url = Config.objects.all()[0].product_404_image.image.url
+            image_url = ""
         
         return image_url
 
