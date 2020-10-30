@@ -150,6 +150,8 @@ class DealsHubProductRecoveryManager(models.Manager):
 class DealsHubProduct(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
+    product_name = models.CharField(max_length=200, default="")
+    product_description = models.TextField(default="", blank=True)
     was_price = models.FloatField(default=0)
     now_price = models.FloatField(default=0)
     promotional_price = models.FloatField(default=0)
@@ -569,7 +571,7 @@ class Cart(models.Model):
         delivery_fee = self.get_delivery_fee(cod, offline)
         if cod==True:
             subtotal += self.location_group.cod_charge
-        return subtotal+delivery_fee
+        return round(subtotal+delivery_fee, 2)
 
     def get_vat(self, cod=False, offline=False):
         total_amount = self.get_total_amount(cod, offline)
@@ -625,6 +627,8 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
+    delivery_fee = models.FloatField(default=0)
+    cod_charge = models.FloatField(default=0)
     is_order_offline = models.BooleanField(default=False)
     order_placed_date = models.DateTimeField(null=True, default=timezone.now)
 
@@ -651,7 +655,7 @@ class Order(models.Model):
         ("Success", "Success"),
         ("Failed", "Failed")
     )
-    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
+    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -681,7 +685,7 @@ class Order(models.Model):
         subtotal = 0
         for unit_order_obj in unit_order_objs:
             subtotal += float(unit_order_obj.price)*float(unit_order_obj.quantity)
-        return subtotal
+        return round(subtotal, 2)
 
     def get_subtotal_vat(self):
         if self.location_group.vat==0:
@@ -741,7 +745,7 @@ class Order(models.Model):
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee()
         cod_charge = self.get_cod_charge()
-        return subtotal+delivery_fee+cod_charge
+        return round(subtotal+delivery_fee+cod_charge, 2)
 
     def get_vat(self):
         total_amount = self.get_total_amount()
@@ -809,12 +813,13 @@ class UnitOrder(models.Model):
     sap_intercompany_info = models.TextField(default="{}")
     order_information = models.TextField(default="{}")
     SAP_STATUS = (
-        ("pending", "pending"),
+        ("Pending", "Pending"),
         ("In GRN", "In GRN"),
         ("GRN Done", "GRN Done"),
+        ("GRN Conflict", "GRN Conflict"),
         ("Failed", "Failed")
     )
-    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="pending")
+    sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
     grn_filename = models.CharField(max_length=100, default="")
     grn_filename_exists = models.BooleanField(default=False)
 
@@ -840,7 +845,7 @@ class UnitOrder(models.Model):
     def get_sap_intercompany_order_qty(self):
         try:
             intercompany_sales_info = json.loads(self.order_information)["intercompany_sales_info"]
-            qty = intercompany_sales_info["qty"]
+            qty = float(intercompany_sales_info["qty"])
             return qty
         except Exception as e:
             return ""
@@ -848,7 +853,7 @@ class UnitOrder(models.Model):
     def get_sap_final_order_qty(self):
         try:
             final_billing_info = json.loads(self.order_information)["final_billing_info"]
-            qty = final_billing_info["qty"]
+            qty = float(final_billing_info["qty"])
             return qty
         except Exception as e:
             return ""

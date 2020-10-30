@@ -3086,6 +3086,227 @@ class FetchSEODetailsAPI(APIView):
         return Response(data=response)
 
 
+class FetchSEOAdminAutocompleteAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSEOAdminAutocompleteAPI: %s", str(data))
+            
+            page_type = data["page_type"]
+            search_string = data["search_string"]
+
+            autocomplete_list = []
+            if page_type=="super_category":
+                super_category_objs = SuperCategory.objects.filter(name__icontains=search_string)[:5]
+                for super_category_obj in super_category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = super_category_obj.name
+                    temp_dict["uuid"] = super_category_obj.uuid
+                    autocomplete_list.append(temp_dict)
+            elif page_type=="category":
+                category_objs = Category.objects.filter(name__icontains=search_string)[:5]
+                for category_obj in category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
+                    autocomplete_list.append(temp_dict)
+            elif page_type=="sub_category":
+                sub_category_objs = SubCategory.objects.filter(name__icontains=search_string)[:5]
+                for sub_category_obj in sub_category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = sub_category_obj.name
+                    temp_dict["uuid"] = sub_category_obj.uuid
+                    autocomplete_list.append(temp_dict)
+            elif page_type=="brand":
+                brand_objs = Brand.objects.filter(name__icontains=search_string, organization__name="WIG")
+                for brand_obj in brand_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = brand_obj.name
+                    temp_dict["uuid"] = brand_obj.name
+                    autocomplete_list.append(temp_dict)
+
+            response["autocomplete_list"] = autocomplete_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSEOAdminAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchSEOAdminDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSEOAdminDetailsAPI: %s", str(data))
+            
+            page_type = data["page_type"]
+            uuid = data["uuid"]
+
+            page_description = ""
+            seo_title = ""
+            seo_keywords = ""
+            seo_description = ""
+
+            if page_type=="super_category":
+                super_category_obj = SuperCategory.objects.get(uuid=uuid)
+                page_description = super_category_obj.page_description
+                seo_title = super_category_obj.seo_title
+                seo_keywords = super_category_obj.seo_keywords
+                seo_description = super_category_obj.seo_description
+            elif page_type=="category":
+                category_obj = Category.objects.get(uuid=uuid)
+                page_description = category_obj.page_description
+                seo_title = category_obj.seo_title
+                seo_keywords = category_obj.seo_keywords
+                seo_description = category_obj.seo_description
+            elif page_type=="sub_category":
+                sub_category_obj = SubCategory.objects.get(uuid=uuid)
+                page_description = sub_category_obj.page_description
+                seo_title = sub_category_obj.seo_title
+                seo_keywords = sub_category_obj.seo_keywords
+                seo_description = sub_category_obj.seo_description
+            elif page_type=="brand":
+                brand_obj = Brand.objects.get(name=uuid, organization__name="WIG")
+                page_description = brand_obj.page_description
+                seo_title = brand_obj.seo_title
+                seo_keywords = brand_obj.seo_keywords
+                seo_description = brand_obj.seo_description
+
+            response["page_description"] = page_description
+            response["seo_title"] = seo_title
+            response["seo_keywords"] = seo_keywords
+            response["seo_description"] = seo_description
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSEOAdminDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class SaveSEOAdminDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SaveSEOAdminDetailsAPI: %s", str(data))
+            
+            page_type = data["page_type"]
+            uuid = data["uuid"]
+
+            page_description = data["page_description"]
+            seo_title = data["seo_title"]
+            seo_keywords = data["seo_keywords"]
+            seo_description = data["seo_description"]
+
+            if page_type=="super_category":
+                super_category_obj = SuperCategory.objects.get(uuid=uuid)
+                super_category_obj.page_description = page_description
+                super_category_obj.seo_title = seo_title
+                super_category_obj.seo_keywords = seo_keywords
+                super_category_obj.seo_description = seo_description
+                super_category_obj.save()
+            elif page_type=="category":
+                category_obj = Category.objects.get(uuid=uuid)
+                category_obj.page_description = page_description
+                category_obj.seo_title = seo_title
+                category_obj.seo_keywords = seo_keywords
+                category_obj.seo_description = seo_description
+                category_obj.save()
+            elif page_type=="sub_category":
+                sub_category_obj = SubCategory.objects.get(uuid=uuid)
+                sub_category_obj.page_description = page_description
+                sub_category_obj.seo_title = seo_title
+                sub_category_obj.seo_keywords = seo_keywords
+                sub_category_obj.seo_description = seo_description
+                sub_category_obj.save()
+            elif page_type=="brand":
+                brand_obj = Brand.objects.get(name=uuid, organization__name="WIG")
+                brand_obj.page_description = page_description 
+                brand_obj.seo_title = seo_title
+                brand_obj.seo_keywords = seo_keywords
+                brand_obj.seo_description = seo_description
+                brand_obj.save()
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveSEOAdminDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchLocationGroupSettingsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchLocationGroupSettingsAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            response["delivery_fee"] = location_group_obj.delivery_fee
+            response["cod_charge"] = location_group_obj.cod_charge
+            response["free_delivery_threshold"] = location_group_obj.free_delivery_threshold
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchLocationGroupSettingsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class UpdateLocationGroupSettingsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateLocationGroupSettingsAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+
+            delivery_fee = float(data["delivery_fee"])
+            cod_charge = float(data["cod_charge"])
+            free_delivery_threshold = float(data["free_delivery_threshold"])
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            location_group_obj.delivery_fee = delivery_fee
+            location_group_obj.cod_charge = cod_charge
+            location_group_obj.free_delivery_threshold = free_delivery_threshold
+            location_group_obj.save()
+            
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateLocationGroupSettingsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
@@ -3207,3 +3428,13 @@ UpdateUnitOrderQtyAdmin = UpdateUnitOrderQtyAdminAPI.as_view()
 UpdateOrderShippingAdmin = UpdateOrderShippingAdminAPI.as_view()
 
 FetchSEODetails = FetchSEODetailsAPI.as_view()
+
+FetchSEOAdminAutocomplete = FetchSEOAdminAutocompleteAPI.as_view()
+
+FetchSEOAdminDetails = FetchSEOAdminDetailsAPI.as_view()
+
+SaveSEOAdminDetails = SaveSEOAdminDetailsAPI.as_view()
+
+FetchLocationGroupSettings = FetchLocationGroupSettingsAPI.as_view()
+
+UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()

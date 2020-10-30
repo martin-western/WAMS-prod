@@ -1345,7 +1345,9 @@ class PlaceOrderAPI(APIView):
                                                  to_pay=cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
-                                                 location_group=cart_obj.location_group)
+                                                 location_group=cart_obj.location_group,
+                                                 delivery_fee=cart_obj.get_delivery_fee(),
+                                                 cod_charge=cart_obj.location_group.cod_charge)
 
                 for unit_cart_obj in unit_cart_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -1397,7 +1399,9 @@ class PlaceOrderAPI(APIView):
                                                  to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
-                                                 location_group=fast_cart_obj.location_group)
+                                                 location_group=fast_cart_obj.location_group,
+                                                 delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                 cod_charge=fast_cart_obj.location_group.cod_charge)
 
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
@@ -1475,7 +1479,9 @@ class PlaceOfflineOrderAPI(APIView):
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
                                              is_order_offline = True,
-                                             location_group=cart_obj.location_group)
+                                             location_group=cart_obj.location_group,
+                                             delivery_fee=cart_obj.get_delivery_fee(),
+                                             cod_charge=cart_obj.location_group.cod_charge)
 
             for unit_cart_obj in unit_cart_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -2487,7 +2493,9 @@ class PaymentTransactionAPI(APIView):
                                                      payment_status="paid",
                                                      payment_info=json.dumps(data),
                                                      payment_mode=data.get("payment_option", "NA"),
-                                                     merchant_reference=merchant_reference)
+                                                     merchant_reference=merchant_reference,
+                                                     delivery_fee=cart_obj.get_delivery_fee(),
+                                                     cod_charge=0)
 
                     unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
                     for unit_cart_obj in unit_cart_objs:
@@ -2541,7 +2549,9 @@ class PaymentTransactionAPI(APIView):
                                                      payment_status="paid",
                                                      payment_info=json.dumps(data),
                                                      payment_mode=data.get("payment_option", "NA"),
-                                                     merchant_reference=merchant_reference)
+                                                     merchant_reference=merchant_reference,
+                                                     delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                     cod_charge=0)
 
                     
                     unit_order_obj = UnitOrder.objects.create(order=order_obj, 
@@ -3806,9 +3816,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
-                    
                     if is_voucher_applied:
-                    
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
                         voucher_discount_vat = voucher_obj.get_voucher_discount_vat(voucher_discount)
@@ -3819,9 +3827,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     unit_order_list = []
                     subtotal = 0
-                    
                     for unit_order_obj in unit_order_objs.filter(order=order_obj):
-                    
                         temp_dict2 = {}
                         temp_dict2["orderId"] = unit_order_obj.orderid
                         temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
@@ -3838,20 +3844,19 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
-                        
                         intercompany_qty = unit_order_obj.get_sap_intercompany_order_qty()
                         final_qty = unit_order_obj.get_sap_final_order_qty()
-                        
+
                         if intercompany_qty != "" and final_qty != "":
                             if intercompany_qty != final_qty:
                                 order_obj.sap_status = "GRN Conflict"
+                                unit_order_obj.sap_status = "GRN Conflict"
                                 order_obj.save()
+                                unit_order_obj.save()
 
                         temp_dict2["intercompany_qty"] = intercompany_qty
                         temp_dict2["final_qty"] = final_qty
-
                         unit_order_list.append(temp_dict2)
-                    
                     temp_dict["approved"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="approved").count()
                     temp_dict["picked"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="picked").count()
                     temp_dict["dispatched"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="dispatched").count()
@@ -3885,7 +3890,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     temp_dict["vat"] = str(vat)
                     temp_dict["toPay"] = str(to_pay)
-                    temp_dict["toPayWithoutVat"] = str(to_pay-vat)
+                    temp_dict["toPayWithoutVat"] = str(round(to_pay-vat, 2))
                     temp_dict["currency"] = str(order_obj.get_currency())
 
                     temp_dict["unitOrderList"] = unit_order_list
@@ -4095,8 +4100,9 @@ class SetShippingMethodAPI(APIView):
             #             if so_exists==0 or do_exists==0:
             #                 error_flag = 1
             #                 unit_order_obj.sap_status = "Failed"
+            #                 unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
             #                 unit_order_obj.save()
-            #                 break
+            #                 continue
                         
             #             unit_order_information = {}
             #             unit_order_information["intercompany_sales_info"] = {}
@@ -4917,7 +4923,9 @@ class PlaceOnlineOrderAPI(APIView):
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
-                                                 merchant_reference=merchant_reference)
+                                                 merchant_reference=merchant_reference,
+                                                 delivery_fee=cart_obj.get_delivery_fee(),
+                                                 cod_charge=0)
 
                 for unit_cart_obj in unit_cart_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -4980,7 +4988,9 @@ class PlaceOnlineOrderAPI(APIView):
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
-                                                 merchant_reference=merchant_reference)
+                                                 merchant_reference=merchant_reference,
+                                                 delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                 cod_charge=0)
 
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
