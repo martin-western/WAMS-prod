@@ -3802,7 +3802,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         "line2": json.loads(address_obj.address_lines)[1],
                         "line3": json.loads(address_obj.address_lines)[2],
                         "line4": json.loads(address_obj.address_lines)[3],
-                        "state": address_obj.state
+                        "state": address_obj.state,
+                        "emirates": address_obj.emirates
                     }
 
                     customer_name = address_obj.first_name
@@ -4239,7 +4240,7 @@ class DownloadOrdersAPI(APIView):
             order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
             unit_order_list = []
-            for order_obj in order_objs:
+            for order_obj in order_objs[:500]:
                 try:
                     address_obj = order_obj.shipping_address
 
@@ -4298,10 +4299,10 @@ class DownloadOrdersAPI(APIView):
 
             if report_type=="sap":
                 generate_sap_order_format(unit_order_list)
-                response["filepath"] = SERVER_IP+"/files/csv/sap-order-format.xlsx"
+                response["filepath"] = SERVER_IP+"/files/csv/sap-order-format.xlsx?abc=1"
             else:
                 generate_regular_order_format(unit_order_list)
-                response["filepath"] = SERVER_IP+"/files/csv/regular-order-format.xlsx"
+                response["filepath"] = SERVER_IP+"/files/csv/regular-order-format.xlsx?abc=2"
             
             response["status"] = 200
 
