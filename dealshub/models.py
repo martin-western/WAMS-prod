@@ -191,7 +191,12 @@ class DealsHubProduct(models.Model):
         return ""
 
     def get_name(self):
-        return str(self.product.product_name)
+        return str(self.product_name)
+
+    def get_description(self):
+        if self.product_description!="":
+            return str(self.product_description)
+        return str(self.product.product_description)
 
     def get_product_id(self):
         return str(self.product.product_id)

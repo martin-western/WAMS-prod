@@ -124,7 +124,8 @@ class FetchProductDetailsAPI(APIView):
             if dealshub_product_obj.stock>0:
                 response["isStockAvailable"] = True
 
-            response["productDispDetails"] = product_obj.product_description 
+            #response["productDispDetails"] = product_obj.product_description 
+            response["productDispDetails"] = dealshub_product_obj.get_description()
             try:
                 specifications = json.loads(product_obj.dynamic_form_attributes)
                 new_specifications = {}
