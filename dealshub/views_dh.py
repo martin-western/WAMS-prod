@@ -3788,7 +3788,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["paymentMode"] = order_obj.payment_mode
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
-                    temp_dict["cancelStatus"] = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
+                    cancel_status = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
+                    temp_dict["cancelStatus"] = cancel_status
+                    if cancel_status==True:
+                        cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
+                        temp_dict["cancelling_note"] = cancelling_note
 
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["sapStatus"] = order_obj.sap_status
