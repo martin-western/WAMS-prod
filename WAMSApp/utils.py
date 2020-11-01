@@ -822,6 +822,8 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
             return str(product_obj.product_id_type)
         if data_point_variable=="product_description":
             return product_obj.product_description
+        if data_point_variable=="product_description_without_html":
+            return product_obj.get_non_html_description()
         if is_part_of_list(data_point_variable, "pfl_product_feature_1"):
             num = get_attribute_number(data_point_variable)
             pfl_product_features = json.loads(product_obj.pfl_product_features)
