@@ -1701,6 +1701,11 @@ class FetchOrderDetailsAPI(APIView):
 
             unit_order_objs = UnitOrder.objects.filter(order=order_obj)
 
+            enable_order_edit = False
+            if order_obj.payment_status=="cod" and unit_order_objs.filter(current_status_admin=="pending").exists():
+                enable_order_edit = True
+
+            response["enableOrderEdit"] = enable_order_edit
             response["bundleId"] = order_obj.bundleid 
             response["dateCreated"] = order_obj.get_date_created()
             response["paymentMode"] = order_obj.payment_mode
