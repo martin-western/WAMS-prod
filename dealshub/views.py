@@ -124,7 +124,8 @@ class FetchProductDetailsAPI(APIView):
             if dealshub_product_obj.stock>0:
                 response["isStockAvailable"] = True
 
-            response["productDispDetails"] = product_obj.product_description 
+            #response["productDispDetails"] = product_obj.product_description 
+            response["productDispDetails"] = dealshub_product_obj.get_description()
             try:
                 specifications = json.loads(product_obj.dynamic_form_attributes)
                 new_specifications = {}
@@ -3307,6 +3308,91 @@ class UpdateLocationGroupSettingsAPI(APIView):
         return Response(data=response)
 
 
+class AddProductToOrderAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddProductToOrderAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_uuid = data["productUuid"]
+            order_uuid = data["orderUuid"]
+
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+
+            order_obj = Order.objects.get(uuid=order_uuid)
+
+            unit_order_obj = UnitOrder.objects.create(order=order_obj, 
+                                                      product=dealshub_product_obj, 
+                                                      quantity=1,
+                                                      price=dealshub_product_obj.get_actual_price())
+            UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+            update_order_bill(order_obj)
+
+            voucher_obj = order_obj.voucher
+            is_voucher_applied = voucher_obj is not None
+            unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+
+            response["isVoucherApplied"] = is_voucher_applied
+            if is_voucher_applied:
+                response["voucherCode"] = voucher_obj.voucher_code
+                response["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+
+            
+            temp_dict = {}
+            temp_dict["orderId"] = unit_order_obj.orderid
+            temp_dict["uuid"] = unit_order_obj.uuid
+            temp_dict["currentStatus"] = unit_order_obj.current_status
+            temp_dict["quantity"] = unit_order_obj.quantity
+            temp_dict["price"] = unit_order_obj.price
+            temp_dict["currency"] = unit_order_obj.product.get_currency()
+            temp_dict["productName"] = unit_order_obj.product.get_name()
+            temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url()
+            temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
+            temp_dict["productId"] = unit_order_obj.product.get_product_id()
+            temp_dict["productUuid"] = unit_order_obj.product.uuid
+
+            unit_order_status_list = []
+            unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
+            for unit_order_status_obj in unit_order_status_objs:
+                temp_dict2 = {}
+                temp_dict2["customerStatus"] = unit_order_status_obj.status
+                temp_dict2["adminStatus"] = unit_order_status_obj.status_admin
+                temp_dict2["date"] = unit_order_status_obj.get_date_created()
+                temp_dict2["time"] = unit_order_status_obj.get_time_created()
+                temp_dict2["uuid"] = unit_order_status_obj.uuid
+                unit_order_status_list.append(temp_dict2)
+
+            temp_dict["UnitOrderStatusList"] = unit_order_status_list
+
+            subtotal = order_obj.get_subtotal()
+            delivery_fee = order_obj.get_delivery_fee()
+            cod_fee = order_obj.get_cod_charge()
+            to_pay = order_obj.to_pay
+            vat = order_obj.get_vat()
+
+            response["subtotal"] = str(subtotal)
+            response["deliveryFee"] = str(delivery_fee)
+            response["codFee"] = str(cod_fee)
+            response["vat"] = str(vat)
+            response["toPay"] = str(to_pay)
+
+            response["newUnitOrder"] = temp_dict
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddProductToOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
@@ -3438,3 +3524,5 @@ SaveSEOAdminDetails = SaveSEOAdminDetailsAPI.as_view()
 FetchLocationGroupSettings = FetchLocationGroupSettingsAPI.as_view()
 
 UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()
+
+AddProductToOrder = AddProductToOrderAPI.as_view()

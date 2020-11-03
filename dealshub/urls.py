@@ -190,4 +190,6 @@ urlpatterns = [
 
     url(r'^fetch-location-group-settings/$',views.FetchLocationGroupSettings),
     url(r'^update-location-group-settings/$',views.UpdateLocationGroupSettings),
+
+    url(r'^add-product-to-order/$',views.AddProductToOrder),
 ]

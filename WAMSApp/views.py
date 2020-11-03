@@ -196,7 +196,7 @@ class CreateNewBaseProductAPI(APIView):
 
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
-                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
+                DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -273,7 +273,7 @@ class CreateNewProductAPI(APIView):
 
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
-                DealsHubProduct.objects.create(product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
+                DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -6447,6 +6447,7 @@ class FetchDealshubProductDetailsAPI(APIView):
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
 
             response["product_name"] = dealshub_product_obj.get_name()
+            response["product_description"] = dealshub_product_obj.get_description()
             response["seller_sku"] = dealshub_product_obj.get_seller_sku()
             response["product_id"] = dealshub_product_obj.get_product_id()
             response["was_price"] = dealshub_product_obj.was_price
@@ -6503,12 +6504,18 @@ class SaveDealshubProductDetailsAPI(APIView):
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
 
+            product_name = data.get("product_name", "")
+            product_description = data.get("product_description", "")
+
             dealshub_product_obj.was_price = was_price
             dealshub_product_obj.now_price = now_price
             dealshub_product_obj.promotional_price = promotional_price
             dealshub_product_obj.stock = stock
             dealshub_product_obj.allowed_qty = allowed_qty
             dealshub_product_obj.is_cod_allowed = is_cod_allowed
+
+            dealshub_product_obj.product_name = product_name
+            dealshub_product_obj.product_description = product_description
 
             category_obj = None
             try:

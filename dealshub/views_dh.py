@@ -1701,6 +1701,11 @@ class FetchOrderDetailsAPI(APIView):
 
             unit_order_objs = UnitOrder.objects.filter(order=order_obj)
 
+            enable_order_edit = False
+            if order_obj.payment_status=="cod" and unit_order_objs.filter(current_status_admin="pending").exists():
+                enable_order_edit = True
+
+            response["enableOrderEdit"] = enable_order_edit
             response["bundleId"] = order_obj.bundleid 
             response["dateCreated"] = order_obj.get_date_created()
             response["paymentMode"] = order_obj.payment_mode
@@ -3788,7 +3793,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["paymentMode"] = order_obj.payment_mode
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
-                    temp_dict["cancelStatus"] = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
+                    cancel_status = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
+                    temp_dict["cancelStatus"] = cancel_status
+                    if cancel_status==True:
+                        cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
+                        temp_dict["cancelling_note"] = cancelling_note
 
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["sapStatus"] = order_obj.sap_status
@@ -3802,7 +3811,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         "line2": json.loads(address_obj.address_lines)[1],
                         "line3": json.loads(address_obj.address_lines)[2],
                         "line4": json.loads(address_obj.address_lines)[3],
-                        "state": address_obj.state
+                        "state": address_obj.state,
+                        "emirates": address_obj.emirates
                     }
 
                     customer_name = address_obj.first_name
@@ -4239,7 +4249,7 @@ class DownloadOrdersAPI(APIView):
             order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
             unit_order_list = []
-            for order_obj in order_objs:
+            for order_obj in order_objs[:500]:
                 try:
                     address_obj = order_obj.shipping_address
 
@@ -4298,10 +4308,10 @@ class DownloadOrdersAPI(APIView):
 
             if report_type=="sap":
                 generate_sap_order_format(unit_order_list)
-                response["filepath"] = SERVER_IP+"/files/csv/sap-order-format.xlsx"
+                response["filepath"] = SERVER_IP+"/files/csv/sap-order-format.xlsx?abc=1"
             else:
                 generate_regular_order_format(unit_order_list)
-                response["filepath"] = SERVER_IP+"/files/csv/regular-order-format.xlsx"
+                response["filepath"] = SERVER_IP+"/files/csv/regular-order-format.xlsx?abc=2"
             
             response["status"] = 200
 
