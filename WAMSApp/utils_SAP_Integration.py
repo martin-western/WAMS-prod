@@ -237,6 +237,9 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
 
+            response_dict["total_holding_before"] = total_holding
+            response_dict["total_atp_before"] = total_atp
+
             logger.info(response_dict)
             return response_dict
 

@@ -110,23 +110,44 @@ class HoldingTransferAPI(APIView):
 
             row = ["Seller SKU",
                    "Brand Name",
-                   "Status",
+                   "Company Code",
                    "Holding Before",
                    "Holding After",
                    "ATP Before",
-                   "ATP After"]
+                   "ATP After",
+                   "Status"]
+
+            cnt = 0
+                
+            colnum = 0
+            for k in row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
 
             for dealshub_product in deashub_products:
 
+                common_row = ["" for i in range(8)]
+
                 seller_sku = dealshub_product.get_seller_sku()
                 brand_name = dealshub_product.get_brand()
+                status = "FAILED"
                 
                 try:
                     company_code = BRAND_COMPANY_DICT[brand_name.lower()]
                 except Exception as e:
-                    pass
+                    company_code = "BRAND NOT RECOGNIZED"
+                    continue
 
                 response_dict = transfer_from_atp_to_holding(seller_sku_list,company_code)
+                
+                common_row[0] = str(seller_sku)
+                common_row[1] = str(brand_name)
+                common_row[2] = str(company_code)
+                common_row[3] = str(response_dict["total_holding_before"])
+                common_row[4] = str(response_dict["total_holding_after"])
+                common_row[5] = str(response_dict["total_atp_before"])
+                common_row[6] = str(response_dict["total_atp_after"])
+                common_row[7] = str(status)
             
             response['status'] = 200
 
