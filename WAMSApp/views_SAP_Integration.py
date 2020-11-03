@@ -30,10 +30,6 @@ from django.core.files import File
 
 logger = logging.getLogger(__name__)
 
-customer_id = "40000195"
-
-stock_price_production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-
 class FetchPriceAndStockAPI(APIView):
 
     def post(self, request, *args, **kwargs):
