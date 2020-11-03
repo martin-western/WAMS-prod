@@ -8,13 +8,6 @@ import time
 
 logger = logging.getLogger(__name__)
 
-test_price_stock_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
-test_transfer_holding_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
-test_online_order_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"  
-
-test_customer_id = "40000195"
-test_customer_id_final_billing = "50000151"
-
 def fetch_prices_and_stock(seller_sku,company_code):
     
     try:
@@ -22,9 +15,9 @@ def fetch_prices_and_stock(seller_sku,company_code):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
-        body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,test_customer_id)
+        body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,CUSTOMER_ID)
         
-        response = requests.post(url=test_price_stock_url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=PRICE_STOCK_URL, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)

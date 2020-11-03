@@ -1,5 +1,5 @@
-from WAMSApp.models import *
 from dealshub.models import *
+from WAMSApp.SAP_constants import *
 from WAMSApp.utils import *
 from WAMSApp.utils_SAP_Integration import *
 
