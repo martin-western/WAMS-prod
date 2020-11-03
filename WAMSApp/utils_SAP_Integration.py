@@ -231,8 +231,8 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
             logger.info(transfer_information)
 
-            body = xml_generator_for_holding_tansfer(company_code,test_customer_id,transfer_information)
-            response = requests.post(url=test_transfer_holding_url, auth=credentials, data=body, headers=headers)
+            body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
+            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers)
             content = response.content
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
@@ -258,10 +258,10 @@ def create_intercompany_sales_order(company_code,order_information):
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         logger.info(order_information)
 
-        body = xml_generator_for_intercompany_tansfer(company_code,test_customer_id,order_information)
+        body = xml_generator_for_intercompany_tansfer(company_code,CUSTOMER_ID,order_information)
         logger.info("XML Intercompany: %s",body)
 
-        response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -368,10 +368,10 @@ def create_final_order(company_code,order_information):
         order_information["promotional_charge"] = charges["promotional_charge"]
         order_information["header_charges"] = header_charges
 
-        body = xml_generator_for_final_billing(company_code,test_customer_id_final_billing,order_information)
+        body = xml_generator_for_final_billing(company_code,CUSTOMER_ID_FINAL_BILLING,order_information)
         logger.info("XML Final: %s",body)
 
-        response = requests.post(url=test_online_order_url, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers)
         
         content = response.content
         xml_content = xmltodict.parse(content)
