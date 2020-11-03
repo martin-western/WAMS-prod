@@ -99,23 +99,19 @@ class HoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_company_dict = {
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "delcasa": "3050"
-            }
+            w = WebsiteGroup.objects.get(name="shopnesto")
+            deashub_products = DealsHubProduct.objects.filter(location_group__website_group=w, product__base_product__brand__in=w.brands.all())
             
-            seller_sku_list = ["GES4026","GESL121","GFL3855",
-                                "GFL3882","GK175","GPM825","GTR1384","GTR34"]
+            for dealshub_product in deashub_products:
 
-            company_code = "1000"
+                seller_sku = dealshub_product.get_seller_sku()
+                brand_name = dealshub_product.get_brand()
+                try:
+                    company_code = BRAND_COMPANY_DICT[brand_name.lower()]
+                except Exception as e:
+                    pass
 
-            response_dict = transfer_from_atp_to_holding(seller_sku_list,company_code)
+                response_dict = transfer_from_atp_to_holding(seller_sku_list,company_code)
             
             response['status'] = 200
 
