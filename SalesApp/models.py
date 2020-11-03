@@ -79,7 +79,9 @@ class Notification(models.Model):
     def get_expiry_date(self):
         
         expiry_date = self.expiry_date
+        
         if expiry_date != "" and expiry_date != None:
             expiry_date = str(timezone.localtime(self.expiry_date).strftime("%d %b, %Y %I:%M %p"))
-        
-        return expiry_date
+            return expiry_date
+
+        return ""
