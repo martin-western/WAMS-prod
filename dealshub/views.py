@@ -3333,7 +3333,8 @@ class AddProductToOrderAPI(APIView):
                                                       price=dealshub_product_obj.get_actual_price())
             UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
-            
+            update_order_bill(order_obj)
+
             voucher_obj = order_obj.voucher
             is_voucher_applied = voucher_obj is not None
             unit_order_objs = UnitOrder.objects.filter(order=order_obj)
