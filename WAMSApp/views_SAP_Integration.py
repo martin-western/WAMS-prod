@@ -23,6 +23,7 @@ import logging
 import sys
 import xlrd
 import time
+import datetime
 
 from datetime import datetime
 from django.utils import timezone
@@ -102,10 +103,24 @@ class HoldingTransferAPI(APIView):
             w = WebsiteGroup.objects.get(name="shopnesto")
             deashub_products = DealsHubProduct.objects.filter(location_group__website_group=w, product__base_product__brand__in=w.brands.all())
             
+            filename = "holding_transfer_report.xlsx"
+
+            workbook = xlsxwriter.Workbook('./'+filename)
+            worksheet = workbook.add_worksheet()
+
+            row = ["Seller SKU",
+                   "Brand Name",
+                   "Status",
+                   "Holding Before",
+                   "Holding After",
+                   "ATP Before",
+                   "ATP After"]
+
             for dealshub_product in deashub_products:
 
                 seller_sku = dealshub_product.get_seller_sku()
                 brand_name = dealshub_product.get_brand()
+                
                 try:
                     company_code = BRAND_COMPANY_DICT[brand_name.lower()]
                 except Exception as e:
