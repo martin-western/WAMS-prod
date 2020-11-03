@@ -237,11 +237,15 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
 
-            response_dict["total_holding_before"] = total_holding
-            response_dict["total_atp_before"] = total_atp
+            result = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
 
-            logger.info(response_dict)
-            return response_dict
+            result["total_holding_before"] = total_holding
+            result["total_atp_before"] = total_atp
+            result["total_holding_after"] = total_holding + total_holding_transfer
+            result["total_atp_after"] = total_atp -total_holding_transfer
+
+            logger.info(result)
+            return result
 
         else :
             logger.info("transfer_from_atp_to_holding : Nothing to transfer to Holding in this call",seller_sku_list)

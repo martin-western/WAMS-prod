@@ -115,7 +115,8 @@ class HoldingTransferAPI(APIView):
                    "Holding After",
                    "ATP Before",
                    "ATP After",
-                   "Status"]
+                   "Status",
+                   "SAP Message"]
 
             cnt = 0
                 
@@ -126,7 +127,7 @@ class HoldingTransferAPI(APIView):
 
             for dealshub_product in deashub_products:
 
-                common_row = ["" for i in range(8)]
+                common_row = ["" for i in range(9)]
 
                 seller_sku = dealshub_product.get_seller_sku()
                 brand_name = dealshub_product.get_brand()
@@ -138,16 +139,26 @@ class HoldingTransferAPI(APIView):
                     company_code = "BRAND NOT RECOGNIZED"
                     continue
 
-                response_dict = transfer_from_atp_to_holding(seller_sku_list,company_code)
-                
                 common_row[0] = str(seller_sku)
                 common_row[1] = str(brand_name)
                 common_row[2] = str(company_code)
-                common_row[3] = str(response_dict["total_holding_before"])
-                common_row[4] = str(response_dict["total_holding_after"])
-                common_row[5] = str(response_dict["total_atp_before"])
-                common_row[6] = str(response_dict["total_atp_after"])
-                common_row[7] = str(status)
+
+                try :
+                    response_dict = transfer_from_atp_to_holding(seller_sku_list,company_code)
+                    SAP_message = response_dict["T_MESSAGE"]["item"][1]["MESSAGE"]
+                    
+                   
+                    common_row[3] = str(response_dict["total_holding_before"])
+                    common_row[4] = str(response_dict["total_holding_after"])
+                    common_row[5] = str(response_dict["total_atp_before"])
+                    common_row[6] = str(response_dict["total_atp_after"])
+                    common_row[7] = str(response_dict["stock_status"])
+                    common_row[8] = str(SAP_message)
+
+
+                except Exception as e:
+                    common_row[7] = str("INTERNAL ERROR")
+                    continue
             
             response['status'] = 200
 
