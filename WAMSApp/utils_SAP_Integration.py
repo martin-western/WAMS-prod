@@ -251,9 +251,17 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             response_dict = json.loads(json.dumps(xml_content))
 
             response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
-            SAP_message = response_dict["T_MESSAGE"]["item"][1]["MESSAGE"]
+            items = response_dict["T_MESSAGE"]["item"]
 
-            result["SAP_message"] = SAP_message
+            if isinstance(items,list):
+                for item in items:
+                    if item["MESSAGE"] != None:
+                        SAP_message = item["MESSAGE"]
+                        result["SAP_message"] = SAP_message
+            else:
+                if items["MESSAGE"] != None:
+                    SAP_message = items["MESSAGE"]
+                    result["SAP_message"] = SAP_message
 
             prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
             
