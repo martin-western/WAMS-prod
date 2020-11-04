@@ -157,6 +157,7 @@ class HoldingTransferAPI(APIView):
                         common_row[8] = str(response_dict["SAP_message"])
 
                     except Exception as e:
+                        logger.info(e)
                         common_row[7] = str("INTERNAL ERROR")
                         
                 colnum = 0

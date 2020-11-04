@@ -196,7 +196,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             "total_atp_before" : "",
             "total_holding_after" : "",
             "total_atp_after" : "",
-            "stock_status" : ""
+            "stock_status" : "",
+            "SAP_message" : ""
         }
 
         prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
@@ -240,7 +241,6 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         else :
             result["stock_status"] = "GOOD"
 
-        result["SAP_message"] = "NO HOLDING TRANSFER"
         logger.info(transfer_information)
 
         if len(transfer_information) > 0:
@@ -290,6 +290,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             return result
 
         else :
+            result["SAP_message"] = "NO HOLDING TRANSFER"
             logger.info("transfer_from_atp_to_holding : Nothing to transfer to Holding in this call",seller_sku)
             return result
 
