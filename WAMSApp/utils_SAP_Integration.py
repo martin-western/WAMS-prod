@@ -282,7 +282,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             return result
 
         else :
-            logger.info("transfer_from_atp_to_holding : Nothing to transfer to Holding in this call",seller_sku_list)
+            logger.info("transfer_from_atp_to_holding : Nothing to transfer to Holding in this call",seller_sku)
             return result
 
     except Exception as e:
