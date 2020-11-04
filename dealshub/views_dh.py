@@ -35,7 +35,7 @@ import math
 import random
 
 logger = logging.getLogger(__name__)
-WIGME_COMPANY_CODE = 1200
+
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
@@ -5187,7 +5187,7 @@ class GRNProcessingCronAPI(APIView):
 
             for f in files:
                 search_file = f.split("_")[0]
-                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="GRN Done").exists():
+                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="GRN Done").exclude(sap_status="GRN Conflict").exists():
                     
                     unit_order_objs = UnitOrder.objects.filter(grn_filename=search_file)
                     
@@ -5249,6 +5249,7 @@ class GRNProcessingCronAPI(APIView):
                         order_information["customer_name"] = order_obj.get_customer_full_name()
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["charges"] = get_all_the_charges(order_obj)
+                        order_information["customer_id"] = order_obj.get_customer_id_for_final_sap_billing()
 
                         unit_order_information_list = []
 
@@ -5261,9 +5262,7 @@ class GRNProcessingCronAPI(APIView):
                         
                         order_information["unit_order_information_list"] = unit_order_information_list
 
-                        logger.info("BEFORE FINAL BILLING : %s ",str(order_information))
                         result = create_final_order(WIGME_COMPANY_CODE, order_information)
-                        logger.info("RESULT FINAL: %s",str(result))
                         
                         order_obj.sap_final_billing_info = json.dumps(result)
                         order_obj.sap_status = "Success"
