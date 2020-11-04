@@ -30,10 +30,6 @@ from datetime import datetime
 from django.utils import timezone
 from django.core.files import File
 
-from django.core.mail import send_mail, get_connection
-from django.core.mail import EmailMultiAlternatives
-from django.core.mail import EmailMessage
-
 logger = logging.getLogger(__name__)
 
 class FetchPriceAndStockAPI(APIView):
