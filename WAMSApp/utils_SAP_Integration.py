@@ -1,5 +1,6 @@
 from WAMSApp.utils import *
 from WAMSApp.xml_generators_SAP import *
+from WAMSApp.SAP_constants import *
 
 import requests
 import xmltodict
@@ -133,6 +134,9 @@ def fetch_prices_and_stock(seller_sku,company_code):
         super_category = items["WWGHB1"]
         category = items["WWGHB2"]
         sub_category = items["WWGHB3"]
+
+        result["atp_threshold"] = ""
+        result["holding_threshold"] = ""
 
         if isNoneOrEmpty(super_category):
             result["status"] = 500
