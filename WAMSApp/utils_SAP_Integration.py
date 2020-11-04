@@ -135,8 +135,8 @@ def fetch_prices_and_stock(seller_sku,company_code):
         category = items["WWGHB2"]
         sub_category = items["WWGHB3"]
 
-        result["atp_threshold"] = ""
-        result["holding_threshold"] = ""
+        result["atp_threshold"] = 0.0
+        result["holding_threshold"] = 0.0
 
         if isNoneOrEmpty(super_category):
             result["status"] = 500
