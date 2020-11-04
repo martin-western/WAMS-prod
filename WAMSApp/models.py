@@ -223,6 +223,7 @@ class LocationGroup(models.Model):
     postaplus_info = models.TextField(default="{}")
     is_voucher_allowed_on_cod = models.BooleanField(default=False)
     uuid = models.CharField(max_length=200, default="")
+    circular_category_index = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.name)
