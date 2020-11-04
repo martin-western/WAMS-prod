@@ -1,4 +1,3 @@
-from WAMSApp.models import *
 from dealshub.models import *
 import csv
 import urllib

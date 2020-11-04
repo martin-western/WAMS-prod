@@ -1,5 +1,5 @@
-from WAMSApp.models import *
 from dealshub.models import *
+from WAMSApp.SAP_constants import *
 from WAMSApp.utils import *
 from WAMSApp.utils_SAP_Integration import *
 
@@ -23,16 +23,13 @@ import logging
 import sys
 import xlrd
 import time
+import datetime
 
 from datetime import datetime
 from django.utils import timezone
 from django.core.files import File
 
 logger = logging.getLogger(__name__)
-
-customer_id = "40000195"
-
-stock_price_production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
 
 class FetchPriceAndStockAPI(APIView):
 
@@ -103,24 +100,69 @@ class HoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_company_dict = {
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "delcasa": "3050"
-            }
+            w = WebsiteGroup.objects.get(name="shopnesto")
+            deashub_products = DealsHubProduct.objects.filter(location_group__website_group=w, product__base_product__brand__in=w.brands.all())
             
-            seller_sku_list = ["GES4026","GESL121","GFL3855",
-                                "GFL3882","GK175","GPM825","GTR1384","GTR34"]
+            filename = "holding_transfer_report.xlsx"
 
-            company_code = "1000"
+            workbook = xlsxwriter.Workbook('./'+filename)
+            worksheet = workbook.add_worksheet()
 
-            response_dict = transfer_from_atp_to_holding(seller_sku_list,company_code)
+            row = ["Seller SKU",
+                   "Brand Name",
+                   "Company Code",
+                   "Holding Before",
+                   "Holding After",
+                   "ATP Before",
+                   "ATP After",
+                   "Status",
+                   "SAP Message"]
+
+            cnt = 0
+                
+            colnum = 0
+            for k in row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+            for dealshub_product in deashub_products:
+
+                common_row = ["" for i in range(9)]
+
+                seller_sku = dealshub_product.get_seller_sku()
+                brand_name = dealshub_product.get_brand()
+                status = "FAILED"
+                
+                try:
+                    company_code = BRAND_COMPANY_DICT[brand_name.lower()]
+                except Exception as e:
+                    company_code = "BRAND NOT RECOGNIZED"
+                    continue
+
+                common_row[0] = str(seller_sku)
+                common_row[1] = str(brand_name)
+                common_row[2] = str(company_code)
+
+                try :
+                    response_dict = transfer_from_atp_to_holding(seller_sku,company_code)
+                   
+                    common_row[3] = str(response_dict["total_holding_before"])
+                    common_row[5] = str(response_dict["total_atp_before"])
+                    common_row[4] = str(response_dict["total_holding_after"])
+                    common_row[6] = str(response_dict["total_atp_after"])
+                    common_row[7] = str(response_dict["stock_status"])
+                    common_row[8] = str(response_dict["SAP_message"])
+
+                except Exception as e:
+                    common_row[7] = str("INTERNAL ERROR")
+                    continue
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
             
+            workbook.close()
             response['status'] = 200
 
         except Exception as e:
