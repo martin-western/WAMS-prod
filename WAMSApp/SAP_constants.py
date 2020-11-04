@@ -9,6 +9,8 @@ BRAND_COMPANY_DICT = {
     "delcasa": "3050"
 }
 
+WIGME_COMPANY_CODE = 1200
+
 ######### TESTING URLS ############
 PRICE_STOCK_URL = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
 TRANSFER_HOLDING_URL = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
