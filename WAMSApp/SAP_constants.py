@@ -23,8 +23,8 @@ WIGME_COMPANY_CODE = 1200
 
 ######### PRODUCTION URLS ##########
 PRICE_STOCK_URL = "http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
-TRANSFER_HOLDING_URL = "http://s4hsrvr-glb.geepas.local:8002/sap/bc/srt/rfc/sap/zser_holding_so/300/zser_holding_so/zbin_holding_so"
-ONLINE_ORDER_URL = "http://s4hsrvr-glb.geepas.local:8002/sap/bc/srt/rfc/sap/zser_online_order/300/zser_online_order/zbin_online_order"  
+TRANSFER_HOLDING_URL = "http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_holding_so/300/zser_holding_so/zbin_holding_so"
+ONLINE_ORDER_URL = "http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_online_order/300/zser_online_order/zbin_online_order"  
 
 CUSTOMER_ID = "40000637"
 GRN_FOLDER_NAME = "OMNICOM-PRD"
