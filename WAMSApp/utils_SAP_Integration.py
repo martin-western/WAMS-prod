@@ -183,6 +183,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         # credentials = ("WIABAP", "pradeepabap456")
+
+        logger.info("In Utility Function : %s",seller_sku.company_code)
         
         transfer_information = []
 
@@ -239,10 +241,9 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             result["stock_status"] = "GOOD"
 
         result["SAP_message"] = "NO HOLDING TRANSFER"
+        logger.info(transfer_information)
 
         if len(transfer_information) > 0:
-
-            logger.info(transfer_information)
 
             body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
             response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers)
@@ -286,7 +287,6 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
 
             result["total_holding_after"] = total_holding
             result["total_atp_after"] = total_atp
-
             return result
 
         else :
@@ -294,10 +294,9 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             return result
 
     except Exception as e:
-        
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("transfer_from_atp_to_holding: %s at %s", str(e), str(exc_tb.tb_lineno))
-        return {}
+        return result
 
 def create_intercompany_sales_order(company_code,order_information):
     

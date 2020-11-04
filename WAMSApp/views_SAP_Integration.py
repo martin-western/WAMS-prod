@@ -133,31 +133,31 @@ class HoldingTransferAPI(APIView):
                 seller_sku = dealshub_product.get_seller_sku()
                 brand_name = dealshub_product.get_brand()
                 status = "FAILED"
+                logger.info(seller_sku)
                 
                 try:
                     company_code = BRAND_COMPANY_DICT[brand_name.lower()]
                 except Exception as e:
                     company_code = "BRAND NOT RECOGNIZED"
-                    continue
 
                 common_row[0] = str(seller_sku)
                 common_row[1] = str(brand_name)
                 common_row[2] = str(company_code)
 
-                try :
-                    response_dict = transfer_from_atp_to_holding(seller_sku,company_code)
-                   
-                    common_row[3] = str(response_dict["total_holding_before"])
-                    common_row[5] = str(response_dict["total_atp_before"])
-                    common_row[4] = str(response_dict["total_holding_after"])
-                    common_row[6] = str(response_dict["total_atp_after"])
-                    common_row[7] = str(response_dict["stock_status"])
-                    common_row[8] = str(response_dict["SAP_message"])
+                if company_code != "BRAND NOT RECOGNIZED":
+                    try :
+                        response_dict = transfer_from_atp_to_holding(seller_sku,company_code)
+                       
+                        common_row[3] = str(response_dict["total_holding_before"])
+                        common_row[5] = str(response_dict["total_atp_before"])
+                        common_row[4] = str(response_dict["total_holding_after"])
+                        common_row[6] = str(response_dict["total_atp_after"])
+                        common_row[7] = str(response_dict["stock_status"])
+                        common_row[8] = str(response_dict["SAP_message"])
 
-                except Exception as e:
-                    common_row[7] = str("INTERNAL ERROR")
-                    continue
-
+                    except Exception as e:
+                        common_row[7] = str("INTERNAL ERROR")
+                        
                 colnum = 0
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
