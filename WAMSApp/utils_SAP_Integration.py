@@ -240,9 +240,9 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                     if total_holding_transfer == 0:
                         break
         else :
-            if total_holding == holding_threshold and total_atp >=atp_threshold:
+            if total_holding == holding_threshold and total_atp >= atp_threshold:
                 result["stock_status"] = "GOOD"
-            elif total_holding < holding_threshold and total_atp >=atp_threshold:
+            elif total_holding < holding_threshold and total_atp >= atp_threshold:
                 result["stock_status"] = "CRITICAL HOLDING"
             elif total_holding == holding_threshold and total_atp < atp_threshold:
                 result["stock_status"] = "CRITICAL ATP"
@@ -425,7 +425,9 @@ def create_final_order(company_code,order_information):
         order_information["promotional_charge"] = charges["promotional_charge"]
         order_information["header_charges"] = header_charges
 
-        body = xml_generator_for_final_billing(company_code,CUSTOMER_ID_FINAL_BILLING,order_information)
+        customer_id = order_information["customer_id"]
+
+        body = xml_generator_for_final_billing(company_code,customer_id,order_information)
         logger.info("XML Final: %s",body)
 
         response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers)
