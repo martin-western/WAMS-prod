@@ -181,7 +181,6 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         # credentials = ("WIABAP", "pradeepabap456")
         
         transfer_information = []
-        result = {}
 
         if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
             continue
@@ -189,7 +188,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
         is_sap_exception = product_obj.is_sap_exception
 
-        result[seller_sku] ={
+        result ={
             "total_holding_before" : "",
             "total_atp_before" : ""
         }
@@ -206,8 +205,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         total_holding = prices_and_stock_information["total_holding"]
         total_atp = prices_and_stock_information["total_atp"]
 
-        result[seller_sku]["total_holding_before"] = total_holding
-        result[seller_sku]["total_atp_before"] = total_atp
+        result["total_holding_before"] = total_holding
+        result["total_atp_before"] = total_atp
         
         if total_holding < holding_threshold and total_atp > atp_threshold:
 
@@ -243,14 +242,16 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
 
-            result["SAP_Response"] = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
+            response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
+            SAP_message = response_dict["T_MESSAGE"]["item"][1]["MESSAGE"]
 
-            logger.info(result)
+            result["SAP_message"] = SAP_message
+
             return result
 
         else :
             logger.info("transfer_from_atp_to_holding : Nothing to transfer to Holding in this call",seller_sku_list)
-            return {}
+            return result
 
     except Exception as e:
         
