@@ -414,6 +414,9 @@ class AddToCartAPI(APIView):
 
             update_cart_bill(cart_obj)
 
+            response["price"] = dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj)
+            response["showNote"] = dealshub_product_obj.is_promo_restriction_note_required(dealshub_user_obj)
+
             subtotal = cart_obj.get_subtotal()
             
             delivery_fee = cart_obj.get_delivery_fee()
@@ -500,6 +503,9 @@ class AddToFastCartAPI(APIView):
             fast_cart_obj.save()
 
             update_fast_cart_bill(fast_cart_obj)
+
+            response["price"] = dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj)
+            response["showNote"] = dealshub_product_obj.is_promo_restriction_note_required(dealshub_user_obj)
 
             subtotal = fast_cart_obj.get_subtotal()
             
