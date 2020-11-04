@@ -5243,7 +5243,7 @@ class GRNProcessingCronAPI(APIView):
                         order_information["customer_name"] = order_obj.get_customer_full_name()
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["charges"] = get_all_the_charges(order_obj)
-                        order_information["customer_id"] = order_obj.get_customer_id_for_final_billing()
+                        order_information["customer_id"] = order_obj.get_customer_id_for_final_sap_billing()
 
                         unit_order_information_list = []
 
