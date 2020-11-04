@@ -203,11 +203,11 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             holding_threshold=product_obj.holding_threshold
             atp_threshold=product_obj.atp_threshold
         else:
-            holding_threshold = prices_and_stock_information["holding_threshold"]
-            atp_threshold = prices_and_stock_information["atp_threshold"]
+            holding_threshold = float(prices_and_stock_information["holding_threshold"])
+            atp_threshold = float(prices_and_stock_information["atp_threshold"])
 
-        total_holding = prices_and_stock_information["total_holding"]
-        total_atp = prices_and_stock_information["total_atp"]
+        total_holding = float(prices_and_stock_information["total_holding"])
+        total_atp = float(prices_and_stock_information["total_atp"])
 
         result["total_holding_before"] = total_holding
         result["total_atp_before"] = total_atp
