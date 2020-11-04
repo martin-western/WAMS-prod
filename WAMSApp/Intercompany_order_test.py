@@ -131,7 +131,7 @@ print()
 
 ##################################
 
-qty_holding = 3.0
+qty_holding = 8.0
 
 body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
             <soapenv:Header/>
@@ -151,7 +151,7 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
              <T_ITEM>
               <item>
                <MATKL></MATKL>
-               <MATNR>"""+ product_id + """</MATNR>
+               <MATNR>GTR34</MATNR>
                <ITEM></ITEM>
                <MAKTX></MAKTX>
                <QTY>"""+ str(qty_holding) + """</QTY>

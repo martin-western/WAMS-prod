@@ -181,6 +181,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         # credentials = ("WIABAP", "pradeepabap456")
         
         transfer_information = []
+        result = {}
         
         for seller_sku in seller_sku_list :
 
@@ -190,18 +191,25 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
             is_sap_exception = product_obj.is_sap_exception
 
-            result = fetch_prices_and_stock(seller_sku,company_code)
+            result[seller_sku] ={
+            "total_holding_before" : "",
+            "total_atp_before" : ""
+            }
+
+            prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
             
             if is_sap_exception == True:
                 holding_threshold=product_obj.holding_threshold
                 atp_threshold=product_obj.atp_threshold
             else:
-                holding_threshold = result["holding_threshold"]
-                atp_threshold = result["atp_threshold"]
+                holding_threshold = prices_and_stock_information["holding_threshold"]
+                atp_threshold = prices_and_stock_information["atp_threshold"]
 
-            total_holding = result["total_holding"]
-            total_atp = result["total_atp"]
+            total_holding = prices_and_stock_information["total_holding"]
+            total_atp = prices_and_stock_information["total_atp"]
 
+            result[seller_sku]["total_holding_before"] = total_holding
+            result[seller_sku]["total_atp_before"] = total_atp
             
             if total_holding < holding_threshold and total_atp > atp_threshold:
 
@@ -209,7 +217,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
 
                 while total_holding_transfer > 0:
 
-                    for item in result["stock_list"]:
+                    for item in prices_and_stock_information["stock_list"]:
 
                         if item["atp_qty"] >= total_holding_transfer:
 
@@ -237,17 +245,7 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
 
-            result = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
-            SAP_message = result["T_MESSAGE"]["item"][1]["MESSAGE"]
-            SAP_message_type = result["T_MESSAGE"]["item"][1]["TYPE"]
-
-            result["total_holding_before"] = total_holding
-            result["total_atp_before"] = total_atp
-            if SAP_message_type == "Success"
-            result["total_holding_after"] = total_holding + total_holding_transfer
-            result["total_atp_after"] = total_atp -total_holding_transfer
-
-            if result["total_holding_after"] < atp_threshold and result
+            result["SAP_Response"] = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
 
             logger.info(result)
             return result
