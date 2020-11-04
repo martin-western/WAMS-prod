@@ -156,7 +156,13 @@ class HoldingTransferAPI(APIView):
                 except Exception as e:
                     common_row[7] = str("INTERNAL ERROR")
                     continue
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
             
+            workbook.close()
             response['status'] = 200
 
         except Exception as e:
