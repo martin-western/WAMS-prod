@@ -172,7 +172,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def transfer_from_atp_to_holding(seller_sku_list,company_code):
+def transfer_from_atp_to_holding(seller_sku,company_code):
     
     try:
 
@@ -182,58 +182,56 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
         
         transfer_information = []
         result = {}
-        
-        for seller_sku in seller_sku_list :
 
-            if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
-                continue
+        if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
+            continue
 
-            product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
-            is_sap_exception = product_obj.is_sap_exception
+        product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+        is_sap_exception = product_obj.is_sap_exception
 
-            result[seller_sku] ={
+        result[seller_sku] ={
             "total_holding_before" : "",
             "total_atp_before" : ""
-            }
+        }
 
-            prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
-            
-            if is_sap_exception == True:
-                holding_threshold=product_obj.holding_threshold
-                atp_threshold=product_obj.atp_threshold
-            else:
-                holding_threshold = prices_and_stock_information["holding_threshold"]
-                atp_threshold = prices_and_stock_information["atp_threshold"]
+        prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
+        
+        if is_sap_exception == True:
+            holding_threshold=product_obj.holding_threshold
+            atp_threshold=product_obj.atp_threshold
+        else:
+            holding_threshold = prices_and_stock_information["holding_threshold"]
+            atp_threshold = prices_and_stock_information["atp_threshold"]
 
-            total_holding = prices_and_stock_information["total_holding"]
-            total_atp = prices_and_stock_information["total_atp"]
+        total_holding = prices_and_stock_information["total_holding"]
+        total_atp = prices_and_stock_information["total_atp"]
 
-            result[seller_sku]["total_holding_before"] = total_holding
-            result[seller_sku]["total_atp_before"] = total_atp
-            
-            if total_holding < holding_threshold and total_atp > atp_threshold:
+        result[seller_sku]["total_holding_before"] = total_holding
+        result[seller_sku]["total_atp_before"] = total_atp
+        
+        if total_holding < holding_threshold and total_atp > atp_threshold:
 
-                total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold)
+            total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold)
 
-                while total_holding_transfer > 0:
+            while total_holding_transfer > 0:
 
-                    for item in prices_and_stock_information["stock_list"]:
+                for item in prices_and_stock_information["stock_list"]:
 
-                        if item["atp_qty"] >= total_holding_transfer:
+                    if item["atp_qty"] >= total_holding_transfer:
 
-                            transfer_here = min(total_holding_transfer,item["atp_qty"])
-                            
-                            temp_dict = {}
-                            temp_dict["seller_sku"] = seller_sku
-                            temp_dict["qty"] = transfer_here
-                            temp_dict["uom"] = item["uom"]
-                            temp_dict["batch"] = item["batch"]
-                            transfer_information.append(temp_dict)
+                        transfer_here = min(total_holding_transfer,item["atp_qty"])
+                        
+                        temp_dict = {}
+                        temp_dict["seller_sku"] = seller_sku
+                        temp_dict["qty"] = transfer_here
+                        temp_dict["uom"] = item["uom"]
+                        temp_dict["batch"] = item["batch"]
+                        transfer_information.append(temp_dict)
 
-                            total_holding_transfer = total_holding_transfer-transfer_here
+                        total_holding_transfer = total_holding_transfer-transfer_here
 
-                        if total_holding_transfer == 0:
-                            break
+                    if total_holding_transfer == 0:
+                        break
 
         if len(transfer_information) > 0:
 
