@@ -185,8 +185,6 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         # credentials = ("WIABAP", "pradeepabap456")
 
-        logger.info("In Utility Function : %s at company code %s",seller_sku,company_code)
-        
         transfer_information = []
 
         product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
@@ -248,8 +246,6 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                 result["stock_status"] = "CRITICAL ATP"
             else:
                 result["stock_status"] = "CRITICAL STOCK"
-
-        logger.info(transfer_information)
 
         if len(transfer_information) > 0:
 
@@ -554,7 +550,6 @@ def create_holding_transfer_report(dealshub_product_objs):
             seller_sku = dealshub_product_obj.get_seller_sku()
             brand_name = dealshub_product_obj.get_brand()
             status = "FAILED"
-            logger.info(seller_sku)
             
             try:
                 company_code = BRAND_COMPANY_DICT[brand_name.lower()]
