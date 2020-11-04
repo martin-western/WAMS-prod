@@ -238,11 +238,16 @@ def transfer_from_atp_to_holding(seller_sku_list,company_code):
             response_dict = json.loads(json.dumps(xml_content))
 
             result = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
+            SAP_message = result["T_MESSAGE"]["item"][1]["MESSAGE"]
+            SAP_message_type = result["T_MESSAGE"]["item"][1]["TYPE"]
 
             result["total_holding_before"] = total_holding
             result["total_atp_before"] = total_atp
+            if SAP_message_type == "Success"
             result["total_holding_after"] = total_holding + total_holding_transfer
             result["total_atp_after"] = total_atp -total_holding_transfer
+
+            if result["total_holding_after"] < atp_threshold and result
 
             logger.info(result)
             return result

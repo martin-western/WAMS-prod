@@ -145,15 +145,13 @@ class HoldingTransferAPI(APIView):
 
                 try :
                     response_dict = transfer_from_atp_to_holding(seller_sku_list,company_code)
-                    SAP_message = response_dict["T_MESSAGE"]["item"][1]["MESSAGE"]
-                    
                    
                     common_row[3] = str(response_dict["total_holding_before"])
                     common_row[4] = str(response_dict["total_holding_after"])
                     common_row[5] = str(response_dict["total_atp_before"])
                     common_row[6] = str(response_dict["total_atp_after"])
                     common_row[7] = str(response_dict["stock_status"])
-                    common_row[8] = str(SAP_message)
+                    common_row[8] = str(response_dict["SAP_message"])
 
 
                 except Exception as e:
