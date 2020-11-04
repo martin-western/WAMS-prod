@@ -240,7 +240,14 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                     if total_holding_transfer == 0:
                         break
         else :
-            result["stock_status"] = "GOOD"
+            if total_holding == holding_threshold and total_atp >=atp_threshold:
+                result["stock_status"] = "GOOD"
+            elif total_holding < holding_threshold and total_atp >=atp_threshold:
+                result["stock_status"] = "CRITICAL HOLDING"
+            elif total_holding == holding_threshold and total_atp < atp_threshold:
+                result["stock_status"] = "CRITICAL ATP"
+            else:
+                result["stock_status"] = "CRITICAL STOCK"
 
         logger.info(transfer_information)
 
