@@ -741,15 +741,7 @@ class Order(models.Model):
         return str(round(subtotal/vat_divider, 2))
 
     def get_delivery_fee(self):
-        subtotal = self.get_subtotal()
-        if self.voucher!=None:
-            if self.voucher.voucher_type=="SD":
-                return 0
-            subtotal = self.voucher.get_discounted_price(subtotal)
-
-        if subtotal < self.location_group.free_delivery_threshold:
-            return self.location_group.delivery_fee
-        return 0
+        return self.delivery_fee
 
     def get_delivery_fee_vat(self):
         if self.location_group.vat==0:
@@ -764,9 +756,7 @@ class Order(models.Model):
         return str(round(delivery_fee/vat_divider, 2))
 
     def get_cod_charge(self):
-        if self.payment_mode=="COD":
-            return self.location_group.cod_charge
-        return 0
+        return self.cod_charge
 
     def get_cod_charge_vat(self):
         if self.location_group.vat==0:
