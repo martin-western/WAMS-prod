@@ -127,6 +127,7 @@ class HoldingTransferAPI(APIView):
 
             for dealshub_product in deashub_products:
 
+                cnt+=1
                 common_row = ["" for i in range(9)]
 
                 seller_sku = dealshub_product.get_seller_sku()
