@@ -101,7 +101,8 @@ class HoldingTransferAPI(APIView):
                 data = json.loads(data)
 
             w = WebsiteGroup.objects.get(name="shopnesto")
-            deashub_products = DealsHubProduct.objects.filter(location_group__website_group=w, product__base_product__brand__in=w.brands.all())
+            l = LocationGroup.objects.first()
+            deashub_products = DealsHubProduct.objects.filter(location_group=l, product__base_product__brand__in=w.brands.all())
             
             filename = "holding_transfer_report.xlsx"
 
