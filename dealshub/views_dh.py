@@ -5281,6 +5281,8 @@ class GRNProcessingCronAPI(APIView):
 
 class UpdateUserNameAndEmailAPI(APIView):
 
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
 
         response = {}
