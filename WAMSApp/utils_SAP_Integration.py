@@ -182,9 +182,6 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         
         transfer_information = []
 
-        if Product.objects.filter(base_product__seller_sku=seller_sku).exists()==False:
-            continue
-
         product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
         is_sap_exception = product_obj.is_sap_exception
 
@@ -268,9 +265,9 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
 
             if total_holding == holding_threshold and total_atp >=atp_threshold:
                 result["stock_status"] = "GOOD"
-            else if total_holding < holding_threshold and total_atp >=atp_threshold:
+            elif total_holding < holding_threshold and total_atp >=atp_threshold:
                 result["stock_status"] = "CRITICAL HOLDING"
-            else if total_holding == holding_threshold and total_atp < atp_threshold:
+            elif total_holding == holding_threshold and total_atp < atp_threshold:
                 result["stock_status"] = "CRITICAL ATP"
             else:
                 result["stock_status"] = "CRITICAL STOCK"
