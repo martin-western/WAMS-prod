@@ -190,7 +190,10 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
 
         result ={
             "total_holding_before" : "",
-            "total_atp_before" : ""
+            "total_atp_before" : "",
+            "total_holding_after" : "",
+            "total_atp_after" : "",
+            "stock_status" : ""
         }
 
         prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
@@ -231,6 +234,10 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
 
                     if total_holding_transfer == 0:
                         break
+        else :
+            result["stock_status"] = "GOOD"
+
+        result["SAP_message"] = "NO HOLDING TRANSFER"
 
         if len(transfer_information) > 0:
 
@@ -246,6 +253,30 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             SAP_message = response_dict["T_MESSAGE"]["item"][1]["MESSAGE"]
 
             result["SAP_message"] = SAP_message
+
+            prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
+            
+            if is_sap_exception == True:
+                holding_threshold=product_obj.holding_threshold
+                atp_threshold=product_obj.atp_threshold
+            else:
+                holding_threshold = prices_and_stock_information["holding_threshold"]
+                atp_threshold = prices_and_stock_information["atp_threshold"]
+
+            total_holding = prices_and_stock_information["total_holding"]
+            total_atp = prices_and_stock_information["total_atp"]
+
+            if total_holding == holding_threshold and total_atp >=atp_threshold:
+                result["stock_status"] = "GOOD"
+            else if total_holding < holding_threshold and total_atp >=atp_threshold:
+                result["stock_status"] = "CRITICAL HOLDING"
+            else if total_holding == holding_threshold and total_atp < atp_threshold:
+                result["stock_status"] = "CRITICAL ATP"
+            else:
+                result["stock_status"] = "CRITICAL STOCK"
+
+            result["total_holding_after"] = total_holding
+            result["total_atp_after"] = total_atp
 
             return result
 
