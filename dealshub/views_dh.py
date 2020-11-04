@@ -23,6 +23,8 @@ from django.utils import timezone
 
 from datetime import datetime
 
+from WAMSApp.utils_SAP_Integration import *
+
 import sys
 import logging
 import json
@@ -5175,7 +5177,7 @@ class GRNProcessingCronAPI(APIView):
             ftp.connect('geepasftp.selfip.com', 2221)
             ftp.login('mapftpdev','western')
             files = []
-            files = ftp.nlst("omnicom")
+            files = ftp.nlst(GRN_FOLDER_NAME)
 
             for f in files:
                 search_file = f.split("_")[0]
