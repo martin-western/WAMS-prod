@@ -146,15 +146,12 @@ class HoldingTransferAPI(APIView):
                 try :
                     response_dict = transfer_from_atp_to_holding(seller_sku,company_code)
                    
-                    common_row[3] = str(response_dict[seller_sku]["total_holding_before"])
-                    common_row[5] = str(response_dict[seller_sku]["total_atp_before"])
-
-                    response_dict = fetch_prices_and_stock(seller_sku,company_code)
+                    common_row[3] = str(response_dict["total_holding_before"])
+                    common_row[5] = str(response_dict["total_atp_before"])
                     common_row[4] = str(response_dict["total_holding_after"])
                     common_row[6] = str(response_dict["total_atp_after"])
                     common_row[7] = str(response_dict["stock_status"])
                     common_row[8] = str(response_dict["SAP_message"])
-
 
                 except Exception as e:
                     common_row[7] = str("INTERNAL ERROR")
