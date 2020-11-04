@@ -801,6 +801,22 @@ class Order(models.Model):
             return self.location_group.website_group.logo.image.url
         return ""
 
+    def get_customer_id_for_final_sap_billing(self):
+        shipping_method = UnitOrder.objects.filter(order=self)[0].shipping_method
+        if shipping_method=="WIG Fleet" and self.payment_status.lower()=="cod":
+            return "50000391"
+        if shipping_method=="WIG Fleet" and self.payment_status.lower()=="paid":
+            return "50000392"
+        if shipping_method=="Postaplus" and self.payment_status.lower()=="cod":
+            return "50000666"
+        if shipping_method=="Postaplus" and self.payment_status.lower()=="paid":
+            return "50000667"
+        if shipping_method=="Sendex" and self.payment_status.lower()=="cod":
+            return "50000876"
+        if shipping_method=="Sendex" and self.payment_status.lower()=="paid":
+            return "50000877"
+
+
 
 class UnitOrder(models.Model):
 
