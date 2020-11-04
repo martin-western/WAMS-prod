@@ -5181,7 +5181,7 @@ class GRNProcessingCronAPI(APIView):
 
             for f in files:
                 search_file = f.split("_")[0]
-                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="GRN Done").exists():
+                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="GRN Done").exclude(sap_status="GRN Conflict").exists():
                     
                     unit_order_objs = UnitOrder.objects.filter(grn_filename=search_file)
                     
