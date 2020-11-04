@@ -166,6 +166,8 @@ class DealsHubProduct(models.Model):
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=200, default="")
 
+    is_promo_restricted = models.BooleanField(default=False)
+
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
     recovery = DealsHubProductRecoveryManager()
@@ -248,6 +250,40 @@ class DealsHubProduct(models.Model):
         if check_valid_promotion(self.promotion)==True:
             return self.promotional_price
         return self.now_price
+
+    def get_actual_price_for_customer(self, dealshub_user_obj):
+        if self.is_promo_restricted==False:
+            return self.get_actual_price()
+        if self.promotion==None:
+            return self.now_price
+        if check_valid_promotion(self.promotion)==True:
+            promotional_price = self.promotional_price
+            if UnitOrder.objects.filter(order__owner=dealshub_user_obj, product=self, price=promotional_price).exists()==False:
+                return self.promotional_price
+        return self.now_price
+
+    def is_user_eligible_for_promotion(self, dealshub_user_obj):
+        if self.is_promo_restricted==False:
+            return False
+        if self.promotion==None:
+            return False
+        if check_valid_promotion(self.promotion)==True:
+            promotional_price = self.promotional_price
+            if UnitOrder.objects.filter(order__owner=dealshub_user_obj, product=self, price=promotional_price).exists()==False:
+                return True
+        return False
+
+    def is_promo_restriction_note_required(self, dealshub_user_obj):
+        if self.is_promo_restricted==False:
+            return False
+        if self.promotion==None:
+            return False
+        if check_valid_promotion(self.promotion)==True:
+            promotional_price = self.promotional_price
+            if UnitOrder.objects.filter(order__owner=dealshub_user_obj, product=self, price=promotional_price).exists()==False:
+                return False
+            return True
+        return False
 
     def get_allowed_qty(self):
         return min(self.stock, self.allowed_qty)
@@ -551,7 +587,7 @@ class Cart(models.Model):
         unit_cart_objs = UnitCart.objects.filter(cart=self)
         subtotal = 0
         for unit_cart_obj in unit_cart_objs:
-            subtotal += float(unit_cart_obj.product.get_actual_price())*float(unit_cart_obj.quantity)
+            subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
         return subtotal
 
     def get_delivery_fee(self, cod=False, offline=False):
@@ -938,7 +974,7 @@ class FastCart(models.Model):
         super(FastCart, self).save(*args, **kwargs)
 
     def get_subtotal(self):
-        subtotal = float(self.product.get_actual_price())*float(self.quantity)
+        subtotal = float(self.product.get_actual_price_for_customer(self.owner))*float(self.quantity)
         return subtotal
 
     def get_delivery_fee(self, cod=False):
