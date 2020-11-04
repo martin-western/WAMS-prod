@@ -5191,7 +5191,7 @@ class GRNProcessingCronAPI(APIView):
                     
                     unit_order_objs = UnitOrder.objects.filter(grn_filename=search_file)
                     
-                    ftp.cwd('/omnicom')
+                    ftp.cwd('/'+GRN_FOLDER_NAME)
                     with open(f, "wb") as file:
                         # use FTP's RETR command to download the file
                         ftp.retrbinary(f"RETR {f}", file.write)
