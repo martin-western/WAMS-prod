@@ -131,7 +131,7 @@ class FetchWishListAPI(APIView):
             for unit_wish_list_obj in unit_wish_list_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = unit_wish_list_obj.uuid
-                temp_dict["price"] = unit_wish_list_obj.product.get_actual_price()
+                temp_dict["price"] = unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                 temp_dict["currency"] = unit_wish_list_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_wish_list_obj.get_date_created()
                 temp_dict["productName"] = unit_wish_list_obj.product.get_name()
@@ -665,7 +665,8 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["stock"] = unit_cart_obj.product.stock
                 temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
@@ -753,7 +754,8 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
@@ -1256,7 +1258,8 @@ class FetchActiveOrderDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
@@ -1353,7 +1356,7 @@ class PlaceOrderAPI(APIView):
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                               product=unit_cart_obj.product,
                                                               quantity=unit_cart_obj.quantity,
-                                                              price=unit_cart_obj.product.get_actual_price())
+                                                              price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # Cart gets empty
@@ -1406,7 +1409,7 @@ class PlaceOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
                                                           quantity=fast_cart_obj.quantity,
-                                                          price=fast_cart_obj.product.get_actual_price())
+                                                          price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # cart_obj points to None
@@ -1487,7 +1490,7 @@ class PlaceOfflineOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=unit_cart_obj.product,
                                                           quantity=unit_cart_obj.quantity,
-                                                          price=unit_cart_obj.product.get_actual_price())
+                                                          price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
             # Cart gets empty
@@ -2146,7 +2149,8 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
                 temp_dict2["quantity"] = unit_cart_obj.quantity
-                temp_dict2["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict2["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict2["productName"] = unit_cart_obj.product.get_name()
                 temp_dict2["productImageUrl"] = unit_cart_obj.product.get_main_image_url()
@@ -2156,7 +2160,8 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
                 temp_dict2["quantity"] = unit_cart_obj.quantity
-                temp_dict2["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict2["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict2["productName"] = unit_cart_obj.product.get_name()
                 temp_dict2["productImageUrl"] = unit_cart_obj.product.get_main_image_url()
@@ -2507,7 +2512,7 @@ class PaymentTransactionAPI(APIView):
                         unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                                   product=unit_cart_obj.product,
                                                                   quantity=unit_cart_obj.quantity,
-                                                                  price=unit_cart_obj.product.get_actual_price())
+                                                                  price=unit_cart_obj.product.get_actual_price_for_customer(cart_obj.owner))
                         UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                     # Cart gets empty
@@ -2562,7 +2567,7 @@ class PaymentTransactionAPI(APIView):
                     unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                               product=fast_cart_obj.product,
                                                               quantity=fast_cart_obj.quantity,
-                                                              price=fast_cart_obj.product.get_actual_price())
+                                                              price=fast_cart_obj.product.get_actual_price_for_customer(fast_cart_obj.owner))
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                     # cart_obj points to None
@@ -4941,7 +4946,7 @@ class PlaceOnlineOrderAPI(APIView):
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                               product=unit_cart_obj.product,
                                                               quantity=unit_cart_obj.quantity,
-                                                              price=unit_cart_obj.product.get_actual_price())
+                                                              price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # Cart gets empty
@@ -5005,7 +5010,7 @@ class PlaceOnlineOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
                                                           quantity=fast_cart_obj.quantity,
-                                                          price=fast_cart_obj.product.get_actual_price())
+                                                          price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # cart_obj points to None
@@ -5087,7 +5092,8 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details = {}
             cart_details["uuid"] = fast_cart_obj.uuid
             cart_details["quantity"] = fast_cart_obj.quantity
-            cart_details["price"] = fast_cart_obj.product.get_actual_price()
+            cart_details["price"] = fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+            cart_details["showNote"] = fast_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
             cart_details["stock"] = fast_cart_obj.product.stock
             cart_details["allowedQty"] = fast_cart_obj.product.get_allowed_qty()
             cart_details["currency"] = fast_cart_obj.product.get_currency()
