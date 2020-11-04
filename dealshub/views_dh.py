@@ -5274,6 +5274,42 @@ class GRNProcessingCronAPI(APIView):
         return Response(data=response)
 
 
+class UpdateUserNameAndEmailAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateUserNameAndEmailAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+            first_name = data["firstName"]
+            email = data["email"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+            
+            dealshub_user_obj.first_name = first_name
+            dealshub_user_obj.email = email
+            dealshub_user_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateUserNameAndEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
@@ -5429,3 +5465,5 @@ BulkUpdateCartDetails = BulkUpdateCartDetailsAPI.as_view()
 UpdateFastCartDetails = UpdateFastCartDetailsAPI.as_view()
 
 GRNProcessingCron = GRNProcessingCronAPI.as_view()
+
+UpdateUserNameAndEmail = UpdateUserNameAndEmailAPI.as_view()
