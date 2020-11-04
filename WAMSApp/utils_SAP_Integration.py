@@ -184,7 +184,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         # credentials = ("WIABAP", "pradeepabap456")
 
-        logger.info("In Utility Function : %s",seller_sku.company_code)
+        logger.info("In Utility Function : %s at company code %s",seller_sku,company_code)
         
         transfer_information = []
 
