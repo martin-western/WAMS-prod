@@ -575,8 +575,8 @@ def create_holding_transfer_report(dealshub_product_objs):
                     common_row[7] = str(response_dict["stock_status"])
                     common_row[8] = str(response_dict["SAP_message"])
 
-                    if isNoneOrEmpty(total_holding_after) != True:
-                        dealshub_product_obj.stock = total_holding_after
+                    if isNoneOrEmpty(response_dict["total_holding_after"]) != True:
+                        dealshub_product_obj.stock = response_dict["total_holding_after"]
                         dealshub_product_obj.save()
 
                 except Exception as e:
