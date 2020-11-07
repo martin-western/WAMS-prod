@@ -84,6 +84,9 @@ class FetchPriceAndStockAPI(APIView):
 
 class HoldingTransferAPI(APIView):
 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
 
         response = {}
