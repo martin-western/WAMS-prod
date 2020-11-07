@@ -104,11 +104,6 @@ class HoldingTransferAPI(APIView):
             data = request.data
             logger.info("HoldingTransferAPI: %s", str(data))
 
-            if custom_permission_sap_functions(request.user,"holding_transfer") == False:
-                logger.warning("HoldingTransferAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
-
             if not isinstance(data, dict):
                 data = json.loads(data)
 
