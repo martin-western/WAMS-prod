@@ -1061,7 +1061,7 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["product_pk"] = product_obj.pk
                     temp_dict["product_uuid"] = dealshub_product_obj.uuid
                     temp_dict["product_id"] = product_obj.product_id
-                    temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["product_name"] = dealshub_product_obj.product_name
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     temp_dict["channel_status"] = dealshub_product_obj.is_published
                     temp_dict["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
@@ -6462,6 +6462,8 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.uuid)
             response["sub_category_uuid"] = "" if dealshub_product_obj.sub_category==None else str(dealshub_product_obj.sub_category.uuid)
 
+            response["is_promo_restricted"] = dealshub_product_obj.is_promo_restricted
+
             response["super_category"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category)
             response["super_category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category.uuid)
 
@@ -6507,12 +6509,15 @@ class SaveDealshubProductDetailsAPI(APIView):
             product_name = data.get("product_name", "")
             product_description = data.get("product_description", "")
 
+            is_promo_restricted = data.get("is_promo_restricted", False)
+
             dealshub_product_obj.was_price = was_price
             dealshub_product_obj.now_price = now_price
             dealshub_product_obj.promotional_price = promotional_price
             dealshub_product_obj.stock = stock
             dealshub_product_obj.allowed_qty = allowed_qty
             dealshub_product_obj.is_cod_allowed = is_cod_allowed
+            dealshub_product_obj.is_promo_restricted = is_promo_restricted
 
             dealshub_product_obj.product_name = product_name
             dealshub_product_obj.product_description = product_description

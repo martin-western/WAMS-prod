@@ -8,6 +8,7 @@ import uuid
 
 from WAMSApp.models import *
 from dealshub.core_utils import *
+from WAMSApp.SAP_constants import *
 from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
@@ -166,6 +167,8 @@ class DealsHubProduct(models.Model):
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=200, default="")
 
+    is_promo_restricted = models.BooleanField(default=False)
+
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
     recovery = DealsHubProductRecoveryManager()
@@ -248,6 +251,40 @@ class DealsHubProduct(models.Model):
         if check_valid_promotion(self.promotion)==True:
             return self.promotional_price
         return self.now_price
+
+    def get_actual_price_for_customer(self, dealshub_user_obj):
+        if self.is_promo_restricted==False:
+            return self.get_actual_price()
+        if self.promotion==None:
+            return self.now_price
+        if check_valid_promotion(self.promotion)==True:
+            promotional_price = self.promotional_price
+            if UnitOrder.objects.filter(order__owner=dealshub_user_obj, product=self, price=promotional_price).exists()==False:
+                return self.promotional_price
+        return self.now_price
+
+    def is_user_eligible_for_promotion(self, dealshub_user_obj):
+        if self.is_promo_restricted==False:
+            return False
+        if self.promotion==None:
+            return False
+        if check_valid_promotion(self.promotion)==True:
+            promotional_price = self.promotional_price
+            if UnitOrder.objects.filter(order__owner=dealshub_user_obj, product=self, price=promotional_price).exists()==False:
+                return True
+        return False
+
+    def is_promo_restriction_note_required(self, dealshub_user_obj):
+        if self.is_promo_restricted==False:
+            return False
+        if self.promotion==None:
+            return False
+        if check_valid_promotion(self.promotion)==True:
+            promotional_price = self.promotional_price
+            if UnitOrder.objects.filter(order__owner=dealshub_user_obj, product=self, price=promotional_price).exists()==False:
+                return False
+            return True
+        return False
 
     def get_allowed_qty(self):
         return min(self.stock, self.allowed_qty)
@@ -551,7 +588,7 @@ class Cart(models.Model):
         unit_cart_objs = UnitCart.objects.filter(cart=self)
         subtotal = 0
         for unit_cart_obj in unit_cart_objs:
-            subtotal += float(unit_cart_obj.product.get_actual_price())*float(unit_cart_obj.quantity)
+            subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
         return subtotal
 
     def get_delivery_fee(self, cod=False, offline=False):
@@ -705,15 +742,7 @@ class Order(models.Model):
         return str(round(subtotal/vat_divider, 2))
 
     def get_delivery_fee(self):
-        subtotal = self.get_subtotal()
-        if self.voucher!=None:
-            if self.voucher.voucher_type=="SD":
-                return 0
-            subtotal = self.voucher.get_discounted_price(subtotal)
-
-        if subtotal < self.location_group.free_delivery_threshold:
-            return self.location_group.delivery_fee
-        return 0
+        return self.delivery_fee
 
     def get_delivery_fee_vat(self):
         if self.location_group.vat==0:
@@ -728,9 +757,7 @@ class Order(models.Model):
         return str(round(delivery_fee/vat_divider, 2))
 
     def get_cod_charge(self):
-        if self.payment_mode=="COD":
-            return self.location_group.cod_charge
-        return 0
+        return self.cod_charge
 
     def get_cod_charge_vat(self):
         if self.location_group.vat==0:
@@ -774,6 +801,26 @@ class Order(models.Model):
         if self.location_group.website_group.logo!=None:
             return self.location_group.website_group.logo.image.url
         return ""
+
+    def get_customer_id_for_final_sap_billing(self):
+        shipping_method = UnitOrder.objects.filter(order=self)[0].shipping_method.lower()
+        if shipping_method=="wig fleet" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_WIG_COD
+        if shipping_method=="wig fleet" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE
+        if shipping_method=="postaplus" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_POSTAPLUS_COD
+        if shipping_method=="postaplus" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_POSTAPLUS_ONLINE
+        if shipping_method=="sendex" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_SENDEX_COD
+        if shipping_method=="sendex" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE
+        if shipping_method=="standard" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_STANDARD_COD
+        if shipping_method=="standard" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_STANDARD_ONLINE
+
 
 
 class UnitOrder(models.Model):
@@ -938,7 +985,7 @@ class FastCart(models.Model):
         super(FastCart, self).save(*args, **kwargs)
 
     def get_subtotal(self):
-        subtotal = float(self.product.get_actual_price())*float(self.quantity)
+        subtotal = float(self.product.get_actual_price_for_customer(self.owner))*float(self.quantity)
         return subtotal
 
     def get_delivery_fee(self, cod=False):

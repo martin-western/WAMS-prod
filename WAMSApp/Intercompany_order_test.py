@@ -87,9 +87,9 @@ def fetch_prices(product_id,company_code,url,customer_id):
 
 
 response = fetch_prices(product_id,company_code,test_url,customer_id)
+print(response)
 
 items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-# print(items)
 uom = "EA"
 charg = None
 total_atp = 0.0
@@ -131,7 +131,7 @@ print()
 
 ##################################
 
-qty_holding = 3.0
+qty_holding = 8.0
 
 body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
             <soapenv:Header/>
@@ -151,7 +151,40 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
              <T_ITEM>
               <item>
                <MATKL></MATKL>
-               <MATNR>"""+ product_id + """</MATNR>
+               <MATNR>GTR34</MATNR>
+               <ITEM></ITEM>
+               <MAKTX></MAKTX>
+               <QTY>"""+ str(qty_holding) + """</QTY>
+               <UOM>"""+ uom + """</UOM>
+               <PRICE></PRICE>
+               <INDPRICE></INDPRICE>
+               <DISC></DISC>
+               <INDDISC></INDDISC>
+               <CHARG></CHARG>
+               <MO_PRICE></MO_PRICE>
+               <NO_STOCK_IND></NO_STOCK_IND>
+               <NO_STOCK_FOC></NO_STOCK_FOC>
+               <FOC_ITEM></FOC_ITEM>
+               <FOC_QTY></FOC_QTY>
+               <FOC_UOM></FOC_UOM>
+               <FOC_CHARG></FOC_CHARG>
+               <PRC_DIFF_IND></PRC_DIFF_IND>
+               <PRC_DIFF_NEW></PRC_DIFF_NEW>
+               <SPCL_TEXT></SPCL_TEXT>
+               <FOC_STD></FOC_STD>
+               <FOC_ART></FOC_ART>
+               <FOC_MCL></FOC_MCL>
+               <INDICATOR1></INDICATOR1>
+               <INDICATOR2></INDICATOR2>
+               <TEXT1></TEXT1>
+               <TEXT2></TEXT2>
+               <CHARG_LIST></CHARG_LIST>
+               <PRICE_CHANGE></PRICE_CHANGE>
+               <FRM_ATP></FRM_ATP>
+              </item>
+              <item>
+               <MATKL></MATKL>
+               <MATNR>GESL4026</MATNR>
                <ITEM></ITEM>
                <MAKTX></MAKTX>
                <QTY>"""+ str(qty_holding) + """</QTY>
@@ -201,6 +234,23 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
                <FIELD></FIELD>
                <SYSTEM></SYSTEM>
               </item>
+              <item>
+               <VBELN></VBELN>
+               <TYPE></TYPE>
+               <ID></ID>
+               <NUMBER></NUMBER>
+               <MESSAGE></MESSAGE>
+               <LOG_NO></LOG_NO>
+               <LOG_MSG_NO></LOG_MSG_NO>
+               <MESSAGE_V1></MESSAGE_V1>
+               <MESSAGE_V2></MESSAGE_V2>
+               <MESSAGE_V3></MESSAGE_V3>
+               <MESSAGE_V4></MESSAGE_V4>
+               <PARAMETER></PARAMETER>
+               <ROW></ROW>
+               <FIELD></FIELD>
+               <SYSTEM></SYSTEM>
+              </item>
              </T_MESSAGE>
             </urn:ZAPP_HOLDING_SO>
             </soapenv:Body>
@@ -213,50 +263,52 @@ content = response_holding.content
 content = xmltodict.parse(content)
 content = json.loads(json.dumps(content))
 
-print(content)
+items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
 
-#################################
+print(items)
 
-###### After Holding ############
+# #################################
 
-################################
+# ###### After Holding ############
 
-response = fetch_prices(product_id,company_code,test_url,customer_id)
+# ################################
+
+# response = fetch_prices(product_id,company_code,test_url,customer_id)
         
-items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
-uom = "EA"
-charg = None
-total_atp = 0.0
-total_holding = 0.0
-prices_stock_list = []
+# items = response["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+# uom = "EA"
+# charg = None
+# total_atp = 0.0
+# total_holding = 0.0
+# prices_stock_list = []
 
-if isinstance(items, dict):
-    temp_dict={}
-    temp_dict["charg"] = items["CHARG"]
-    temp_dict["uom"] = items["MEINS"]    
-    temp_dict["atp_qty"] = float(items["ATP_QTY"])
-    total_atp = total_atp+float(items["ATP_QTY"])
-    temp_dict["qty_holding"] = float(items["HQTY"])
-    total_holding = total_holding + float(items["HQTY"])
-    prices_stock_list.append(temp_dict)
-else:
-    for item in items:
-        temp_dict={}
-        temp_dict["charg"] = item["CHARG"]
-        temp_dict["uom"] = item["MEINS"]    
-        temp_dict["atp_qty"] = float(item["ATP_QTY"])
-        total_atp = total_atp+float(item["ATP_QTY"])
-        temp_dict["qty_holding"] = float(item["HQTY"])
-        total_holding = total_holding + float(item["HQTY"])
-        prices_stock_list.append(temp_dict)
+# if isinstance(items, dict):
+#     temp_dict={}
+#     temp_dict["charg"] = items["CHARG"]
+#     temp_dict["uom"] = items["MEINS"]    
+#     temp_dict["atp_qty"] = float(items["ATP_QTY"])
+#     total_atp = total_atp+float(items["ATP_QTY"])
+#     temp_dict["qty_holding"] = float(items["HQTY"])
+#     total_holding = total_holding + float(items["HQTY"])
+#     prices_stock_list.append(temp_dict)
+# else:
+#     for item in items:
+#         temp_dict={}
+#         temp_dict["charg"] = item["CHARG"]
+#         temp_dict["uom"] = item["MEINS"]    
+#         temp_dict["atp_qty"] = float(item["ATP_QTY"])
+#         total_atp = total_atp+float(item["ATP_QTY"])
+#         temp_dict["qty_holding"] = float(item["HQTY"])
+#         total_holding = total_holding + float(item["HQTY"])
+#         prices_stock_list.append(temp_dict)
 
-print("After Holding : ")
-print("Batch"+'\t'+"UOM"+'\t'+"ATP"+'\t'+"Holding")
-for item in prices_stock_list:
-    if item["charg"] != None:
-        print(str(item["charg"])+'\t'+str(item["uom"])+'\t'+str(item["atp_qty"])+'\t'+str(item["qty_holding"]))
-print("Total"+'\t'+'\t'+str(total_atp)+'\t'+str(total_holding))
-print()
+# print("After Holding : ")
+# print("Batch"+'\t'+"UOM"+'\t'+"ATP"+'\t'+"Holding")
+# for item in prices_stock_list:
+#     if item["charg"] != None:
+#         print(str(item["charg"])+'\t'+str(item["uom"])+'\t'+str(item["atp_qty"])+'\t'+str(item["qty_holding"]))
+# print("Total"+'\t'+'\t'+str(total_atp)+'\t'+str(total_holding))
+# print()
 
 
 ###################################

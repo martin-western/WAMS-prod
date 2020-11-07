@@ -23,6 +23,8 @@ from django.utils import timezone
 
 from datetime import datetime
 
+from WAMSApp.utils_SAP_Integration import *
+
 import sys
 import logging
 import json
@@ -33,7 +35,7 @@ import math
 import random
 
 logger = logging.getLogger(__name__)
-WIGME_COMPANY_CODE = 1200
+
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
@@ -131,7 +133,7 @@ class FetchWishListAPI(APIView):
             for unit_wish_list_obj in unit_wish_list_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = unit_wish_list_obj.uuid
-                temp_dict["price"] = unit_wish_list_obj.product.get_actual_price()
+                temp_dict["price"] = unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                 temp_dict["currency"] = unit_wish_list_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_wish_list_obj.get_date_created()
                 temp_dict["productName"] = unit_wish_list_obj.product.get_name()
@@ -412,6 +414,9 @@ class AddToCartAPI(APIView):
 
             update_cart_bill(cart_obj)
 
+            response["price"] = dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj)
+            response["showNote"] = dealshub_product_obj.is_promo_restriction_note_required(dealshub_user_obj)
+
             subtotal = cart_obj.get_subtotal()
             
             delivery_fee = cart_obj.get_delivery_fee()
@@ -498,6 +503,9 @@ class AddToFastCartAPI(APIView):
             fast_cart_obj.save()
 
             update_fast_cart_bill(fast_cart_obj)
+
+            response["price"] = dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj)
+            response["showNote"] = dealshub_product_obj.is_promo_restriction_note_required(dealshub_user_obj)
 
             subtotal = fast_cart_obj.get_subtotal()
             
@@ -665,7 +673,8 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["stock"] = unit_cart_obj.product.stock
                 temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
@@ -753,7 +762,8 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
@@ -1256,7 +1266,8 @@ class FetchActiveOrderDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
@@ -1353,7 +1364,7 @@ class PlaceOrderAPI(APIView):
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                               product=unit_cart_obj.product,
                                                               quantity=unit_cart_obj.quantity,
-                                                              price=unit_cart_obj.product.get_actual_price())
+                                                              price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # Cart gets empty
@@ -1406,7 +1417,7 @@ class PlaceOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
                                                           quantity=fast_cart_obj.quantity,
-                                                          price=fast_cart_obj.product.get_actual_price())
+                                                          price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # cart_obj points to None
@@ -1487,7 +1498,7 @@ class PlaceOfflineOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=unit_cart_obj.product,
                                                           quantity=unit_cart_obj.quantity,
-                                                          price=unit_cart_obj.product.get_actual_price())
+                                                          price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
             # Cart gets empty
@@ -2146,7 +2157,8 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
                 temp_dict2["quantity"] = unit_cart_obj.quantity
-                temp_dict2["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict2["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict2["productName"] = unit_cart_obj.product.get_name()
                 temp_dict2["productImageUrl"] = unit_cart_obj.product.get_main_image_url()
@@ -2156,7 +2168,8 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
                 temp_dict2["quantity"] = unit_cart_obj.quantity
-                temp_dict2["price"] = unit_cart_obj.product.get_actual_price()
+                temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict2["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict2["productName"] = unit_cart_obj.product.get_name()
                 temp_dict2["productImageUrl"] = unit_cart_obj.product.get_main_image_url()
@@ -2507,7 +2520,7 @@ class PaymentTransactionAPI(APIView):
                         unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                                   product=unit_cart_obj.product,
                                                                   quantity=unit_cart_obj.quantity,
-                                                                  price=unit_cart_obj.product.get_actual_price())
+                                                                  price=unit_cart_obj.product.get_actual_price_for_customer(cart_obj.owner))
                         UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                     # Cart gets empty
@@ -2562,7 +2575,7 @@ class PaymentTransactionAPI(APIView):
                     unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                               product=fast_cart_obj.product,
                                                               quantity=fast_cart_obj.quantity,
-                                                              price=fast_cart_obj.product.get_actual_price())
+                                                              price=fast_cart_obj.product.get_actual_price_for_customer(fast_cart_obj.owner))
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                     # cart_obj points to None
@@ -3999,136 +4012,136 @@ class SetShippingMethodAPI(APIView):
                 "delcasa": "3050"
             }
 
-            # if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+            if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
 
-            #     user_input_requirement = {}
+                user_input_requirement = {}
                 
-            #     for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-            #         seller_sku = unit_order_obj.product.get_seller_sku()
-            #         brand_name = unit_order_obj.product.get_brand()
-            #         company_code = brand_company_dict[brand_name.lower()]
-            #         stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    seller_sku = unit_order_obj.product.get_seller_sku()
+                    brand_name = unit_order_obj.product.get_brand()
+                    company_code = brand_company_dict[brand_name.lower()]
+                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
 
-            #         if stock_price_information["status"] == 500:
-            #             response["status"] = 403
-            #             response["message"] = stock_price_information["message"]
-            #             return Response(data=response)
+                    if stock_price_information["status"] == 500:
+                        response["status"] = 403
+                        response["message"] = stock_price_information["message"]
+                        return Response(data=response)
 
-            #         user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information)
+                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information)
 
-            #     user_input_sap = data.get("user_input_sap", None)
+                user_input_sap = data.get("user_input_sap", None)
                 
-            #     if user_input_sap==None:
+                if user_input_sap==None:
                     
-            #         modal_info_list = []
+                    modal_info_list = []
                     
-            #         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-            #             seller_sku = unit_order_obj.product.get_seller_sku()
-            #             brand_name = unit_order_obj.product.get_brand()
-            #             company_code = brand_company_dict[brand_name.lower()]
+                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                        seller_sku = unit_order_obj.product.get_seller_sku()
+                        brand_name = unit_order_obj.product.get_brand()
+                        company_code = brand_company_dict[brand_name.lower()]
                         
-            #             if user_input_requirement[seller_sku]==True:
-            #                 result = fetch_prices_and_stock(seller_sku, company_code)
-            #                 result["seller_sku"] = seller_sku
+                        if user_input_requirement[seller_sku]==True:
+                            result = fetch_prices_and_stock(seller_sku, company_code)
+                            result["seller_sku"] = seller_sku
                             
-            #                 modal_info_list.append(result)
+                            modal_info_list.append(result)
                     
-            #         if len(modal_info_list)>0:
-            #             response["modal_info_list"] = modal_info_list
-            #             response["status"] = 200
-            #             return Response(data=response)
+                    if len(modal_info_list)>0:
+                        response["modal_info_list"] = modal_info_list
+                        response["status"] = 200
+                        return Response(data=response)
 
-            #     error_flag = 0
-            #     sap_info_render = []
+                error_flag = 0
+                sap_info_render = []
 
-            #     # [ List pf Querysets of (UnitOrder Objects grouped by Brand) ]
+                # [ List pf Querysets of (UnitOrder Objects grouped by Brand) ]
 
-            #     unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+                unit_order_objs = UnitOrder.objects.filter(order=order_obj)
 
-            #     grouped_unit_orders = {} 
+                grouped_unit_orders = {} 
 
-            #     for unit_order_obj in unit_order_objs:
+                for unit_order_obj in unit_order_objs:
                     
-            #         brand_name = unit_order_obj.product.get_brand()
+                    brand_name = unit_order_obj.product.get_brand()
                     
-            #         if brand_name not in grouped_unit_orders:
-            #             grouped_unit_orders[brand_name] = []
+                    if brand_name not in grouped_unit_orders:
+                        grouped_unit_orders[brand_name] = []
                     
-            #         grouped_unit_orders[brand_name].append(unit_order_obj)
+                    grouped_unit_orders[brand_name].append(unit_order_obj)
                 
-            #     for brand_name in grouped_unit_orders: 
+                for brand_name in grouped_unit_orders: 
                     
-            #         order_information = {}
-            #         company_code = brand_company_dict[brand_name.lower()]
-            #         order_information["order_id"] = str(uuid.uuid4()).split("-")[0]
-            #         order_information["items"] = []
+                    order_information = {}
+                    company_code = brand_company_dict[brand_name.lower()]
+                    order_information["order_id"] = str(uuid.uuid4()).split("-")[0]
+                    order_information["items"] = []
                     
-            #         for unit_order_obj in grouped_unit_orders[brand_name]:
+                    for unit_order_obj in grouped_unit_orders[brand_name]:
 
-            #             seller_sku = unit_order_obj.product.get_seller_sku()
-            #             x_value = ""
+                        seller_sku = unit_order_obj.product.get_seller_sku()
+                        x_value = ""
                         
-            #             if user_input_requirement[seller_sku]==True:
-            #                 x_value = user_input_sap[seller_sku]
+                        if user_input_requirement[seller_sku]==True:
+                            x_value = user_input_sap[seller_sku]
                         
-            #             item =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
+                        item =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
                         
-            #             item["seller_sku"] = seller_sku
-            #             qty = format(unit_order_obj.quantity,'.2f')
-            #             item["qty"] = qty
-            #             price = format(unit_order_obj.get_subtotal_without_vat(),'.2f')
-            #             item["price"] = price
+                        item["seller_sku"] = seller_sku
+                        qty = format(unit_order_obj.quantity,'.2f')
+                        item["qty"] = qty
+                        price = format(unit_order_obj.get_subtotal_without_vat(),'.2f')
+                        item["price"] = price
 
-            #             order_information["items"].append(item)
+                        order_information["items"].append(item)
 
-            #         orig_result_pre = create_intercompany_sales_order(company_code, order_information)
+                    orig_result_pre = create_intercompany_sales_order(company_code, order_information)
 
-            #         for item in order_information["items"]:
+                    for item in order_information["items"]:
                         
-            #             temp_dict2 = {}
-            #             temp_dict2["seller_sku"] = item["seller_sku"]
-            #             temp_dict2["intercompany_sales_info"] = orig_result_pre
+                        temp_dict2 = {}
+                        temp_dict2["seller_sku"] = item["seller_sku"]
+                        temp_dict2["intercompany_sales_info"] = orig_result_pre
                         
-            #             sap_info_render.append(temp_dict2)
+                        sap_info_render.append(temp_dict2)
                         
-            #             unit_order_obj = UnitOrder.objects.get(product__product__base_product__seller_sku=item["seller_sku"],order=order_obj)
+                        unit_order_obj = UnitOrder.objects.get(product__product__base_product__seller_sku=item["seller_sku"],order=order_obj)
                         
-            #             result_pre = orig_result_pre["doc_list"]
-            #             do_exists = 0
-            #             so_exists = 0
-            #             do_id = ""
-            #             so_id = ""
+                        result_pre = orig_result_pre["doc_list"]
+                        do_exists = 0
+                        so_exists = 0
+                        do_id = ""
+                        so_id = ""
                         
-            #             for k in result_pre:
-            #                 if k["type"]=="DO":
-            #                     do_exists = 1
-            #                     do_id = k["id"]
-            #                 elif k["type"]=="SO":
-            #                     so_exists = 1
-            #                     so_id = k["id"]
+                        for k in result_pre:
+                            if k["type"]=="DO":
+                                do_exists = 1
+                                do_id = k["id"]
+                            elif k["type"]=="SO":
+                                so_exists = 1
+                                so_id = k["id"]
                         
-            #             if so_exists==0 or do_exists==0:
-            #                 error_flag = 1
-            #                 unit_order_obj.sap_status = "Failed"
-            #                 unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
-            #                 unit_order_obj.save()
-            #                 continue
+                        if so_exists==0 or do_exists==0:
+                            error_flag = 1
+                            unit_order_obj.sap_status = "Failed"
+                            unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                            unit_order_obj.save()
+                            continue
                         
-            #             unit_order_information = {}
-            #             unit_order_information["intercompany_sales_info"] = {}
-            #             item["order_id"] = str(order_information["order_id"])
-            #             unit_order_information["intercompany_sales_info"] = item
-            #             unit_order_obj.order_information = json.dumps(unit_order_information)
+                        unit_order_information = {}
+                        unit_order_information["intercompany_sales_info"] = {}
+                        item["order_id"] = str(order_information["order_id"])
+                        unit_order_information["intercompany_sales_info"] = item
+                        unit_order_obj.order_information = json.dumps(unit_order_information)
                         
-            #             unit_order_obj.grn_filename = str(do_id)
-            #             unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
-            #             unit_order_obj.sap_status = "In GRN"
-            #             unit_order_obj.save()
+                        unit_order_obj.grn_filename = str(do_id)
+                        unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                        unit_order_obj.sap_status = "In GRN"
+                        unit_order_obj.save()
                         
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                 set_shipping_method(unit_order_obj, shipping_method)
 
-            #response["sap_info_render"] = sap_info_render
+            response["sap_info_render"] = sap_info_render
             response["status"] = 200
 
         except Exception as e:
@@ -4941,7 +4954,7 @@ class PlaceOnlineOrderAPI(APIView):
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                               product=unit_cart_obj.product,
                                                               quantity=unit_cart_obj.quantity,
-                                                              price=unit_cart_obj.product.get_actual_price())
+                                                              price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # Cart gets empty
@@ -5005,7 +5018,7 @@ class PlaceOnlineOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
                                                           quantity=fast_cart_obj.quantity,
-                                                          price=fast_cart_obj.product.get_actual_price())
+                                                          price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # cart_obj points to None
@@ -5087,7 +5100,8 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details = {}
             cart_details["uuid"] = fast_cart_obj.uuid
             cart_details["quantity"] = fast_cart_obj.quantity
-            cart_details["price"] = fast_cart_obj.product.get_actual_price()
+            cart_details["price"] = fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+            cart_details["showNote"] = fast_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
             cart_details["stock"] = fast_cart_obj.product.stock
             cart_details["allowedQty"] = fast_cart_obj.product.get_allowed_qty()
             cart_details["currency"] = fast_cart_obj.product.get_currency()
@@ -5169,15 +5183,15 @@ class GRNProcessingCronAPI(APIView):
             ftp.connect('geepasftp.selfip.com', 2221)
             ftp.login('mapftpdev','western')
             files = []
-            files = ftp.nlst("omnicom")
+            files = ftp.nlst(GRN_FOLDER_NAME)
 
             for f in files:
                 search_file = f.split("_")[0]
-                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="GRN Done").exists():
+                if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="GRN Done").exclude(sap_status="GRN Conflict").exists():
                     
                     unit_order_objs = UnitOrder.objects.filter(grn_filename=search_file)
                     
-                    ftp.cwd('/omnicom')
+                    ftp.cwd('/'+GRN_FOLDER_NAME)
                     with open(f, "wb") as file:
                         # use FTP's RETR command to download the file
                         ftp.retrbinary(f"RETR {f}", file.write)
@@ -5235,6 +5249,7 @@ class GRNProcessingCronAPI(APIView):
                         order_information["customer_name"] = order_obj.get_customer_full_name()
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["charges"] = get_all_the_charges(order_obj)
+                        order_information["customer_id"] = order_obj.get_customer_id_for_final_sap_billing()
 
                         unit_order_information_list = []
 
@@ -5247,15 +5262,15 @@ class GRNProcessingCronAPI(APIView):
                         
                         order_information["unit_order_information_list"] = unit_order_information_list
 
-                        logger.info("BEFORE FINAL BILLING : %s ",str(order_information))
                         result = create_final_order(WIGME_COMPANY_CODE, order_information)
-                        logger.info("RESULT FINAL: %s",str(result))
                         
                         order_obj.sap_final_billing_info = json.dumps(result)
                         order_obj.sap_status = "Success"
                         order_obj.order_information = json.dumps(order_information)
                         order_obj.save()
 
+                        refresh_stock(order_obj)
+                        
                     # Remove file from ftp - TBD
 
             response["status"] = 200
@@ -5263,6 +5278,44 @@ class GRNProcessingCronAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("GRNProcessingCronAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
+        return Response(data=response)
+
+
+class UpdateUserNameAndEmailAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateUserNameAndEmailAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+            first_name = data["firstName"]
+            email = data["email"]
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+            
+            dealshub_user_obj.first_name = first_name
+            dealshub_user_obj.email = email
+            dealshub_user_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateUserNameAndEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -5421,3 +5474,5 @@ BulkUpdateCartDetails = BulkUpdateCartDetailsAPI.as_view()
 UpdateFastCartDetails = UpdateFastCartDetailsAPI.as_view()
 
 GRNProcessingCron = GRNProcessingCronAPI.as_view()
+
+UpdateUserNameAndEmail = UpdateUserNameAndEmailAPI.as_view()

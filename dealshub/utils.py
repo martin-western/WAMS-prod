@@ -1,6 +1,6 @@
-from WAMSApp.models import *
 from dealshub.models import *
 from dealshub.core_utils import *
+from WAMSApp.utils_SAP_Integration import *
 
 import datetime
 from django.utils import timezone
@@ -516,33 +516,45 @@ def refresh_stock(order_obj):
         uuid_list = []
         for unit_order_obj in unit_order_objs:
             dealshub_product_obj = unit_order_obj.product
-            brand = dealshub_product_obj.get_brand().lower()
+            brand_name = dealshub_product_obj.get_brand().lower()
             seller_sku = dealshub_product_obj.get_seller_sku()
             stock = 0
+            company_code = ""
+            total_holding = 0.0
+
+            try :
+                company_code = BRAND_COMPANY_DICT[brand_name]
+            except Exception as e:
+                continue
+
             if "wigme" in seller_sku.lower():
                 continue
-            if brand=="geepas":
-                stock1 = fetch_refresh_stock(seller_sku, "1070", "TG01")
-                stock2 = fetch_refresh_stock(seller_sku, "1000", "AFS1")
-                stock = max(stock1, stock2)
-            elif brand=="baby plus":
-                stock = fetch_refresh_stock(seller_sku, "5550", "TG01")
-            elif brand=="royalford":
-                stock = fetch_refresh_stock(seller_sku, "3000", "AFS1")
-            elif brand=="krypton":
-                stock = fetch_refresh_stock(seller_sku, "2100", "TG01")
-            elif brand=="olsenmark":
-                stock = fetch_refresh_stock(seller_sku, "1100", "AFS1")
-            elif brand=="ken jardene":
-                stock = fetch_refresh_stock(seller_sku, "5550", "AFS1") # 
-            elif brand=="younglife":
-                stock = fetch_refresh_stock(seller_sku, "5000", "AFS1")
-            elif brand=="delcasa":
-                stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
+            
+            prices_stock_information = fetch_prices_and_stock(seller_sku, company_code)
+            total_holding = prices_stock_information["total_holding"]
+            holding_threshold = prices_stock_information["holding_threshold"]
 
-            if stock > 10:
-                dealshub_product_obj.stock = 5
-            else:
+            # if brand=="geepas":
+            #     stock2 = fetch_prices_and_stock(seller_sku, "1000")
+            #     stock = max(stock1, stock2)
+            # elif brand=="baby plus":
+            #     stock = fetch_refresh_stock(seller_sku, "5550", "TG01")
+            # elif brand=="royalford":
+            #     stock = fetch_refresh_stock(seller_sku, "3000", "AFS1")
+            # elif brand=="krypton":
+            #     stock = fetch_refresh_stock(seller_sku, "2100", "TG01")
+            # elif brand=="olsenmark":
+            #     stock = fetch_refresh_stock(seller_sku, "1100", "AFS1")
+            # elif brand=="ken jardene":
+            #     stock = fetch_refresh_stock(seller_sku, "5550", "AFS1") # 
+            # elif brand=="younglife":
+            #     stock = fetch_refresh_stock(seller_sku, "5000", "AFS1")
+            # elif brand=="delcasa":
+            #     stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
+
+            dealshub_product_obj.stock = total_holding
+            
+            if holding_threshold > total_holding:
                 try:
                     p2 = threading.Thread(target=notify_low_stock, args=(dealshub_product_obj,))
                     p2.start()

@@ -1,5 +1,5 @@
-from WAMSApp.models import *
 from dealshub.models import *
+from WAMSApp.SAP_constants import *
 from WAMSApp.utils import *
 from WAMSApp.utils_SAP_Integration import *
 
@@ -23,16 +23,14 @@ import logging
 import sys
 import xlrd
 import time
+import datetime
+import threading
 
 from datetime import datetime
 from django.utils import timezone
 from django.core.files import File
 
 logger = logging.getLogger(__name__)
-
-customer_id = "40000195"
-
-stock_price_production_url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
 
 class FetchPriceAndStockAPI(APIView):
 
@@ -83,6 +81,7 @@ class FetchPriceAndStockAPI(APIView):
 
         return Response(data=response)
 
+
 class HoldingTransferAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -103,24 +102,13 @@ class HoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_company_dict = {
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "delcasa": "3050"
-            }
+            website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
+            location_group_obj = LocationGroup.objects.first()
+            dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all())
             
-            seller_sku_list = ["GES4026","GESL121","GFL3855",
-                                "GFL3882","GK175","GPM825","GTR1384","GTR34"]
+            p1 = threading.Thread(target=create_holding_transfer_report, args=(dealshub_product_objs,))
+            p1.start()
 
-            company_code = "1000"
-
-            response_dict = transfer_from_atp_to_holding(seller_sku_list,company_code)
-            
             response['status'] = 200
 
         except Exception as e:
