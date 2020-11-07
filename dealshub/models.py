@@ -8,6 +8,7 @@ import uuid
 
 from WAMSApp.models import *
 from dealshub.core_utils import *
+from WAMSApp.SAP_constants import *
 from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
@@ -802,19 +803,23 @@ class Order(models.Model):
         return ""
 
     def get_customer_id_for_final_sap_billing(self):
-        shipping_method = UnitOrder.objects.filter(order=self)[0].shipping_method
-        if shipping_method=="WIG Fleet" and self.payment_status.lower()=="cod":
-            return "50000391"
-        if shipping_method=="WIG Fleet" and self.payment_status.lower()=="paid":
-            return "50000392"
-        if shipping_method=="Postaplus" and self.payment_status.lower()=="cod":
-            return "50000666"
-        if shipping_method=="Postaplus" and self.payment_status.lower()=="paid":
-            return "50000667"
-        if shipping_method=="Sendex" and self.payment_status.lower()=="cod":
-            return "50000876"
-        if shipping_method=="Sendex" and self.payment_status.lower()=="paid":
-            return "50000877"
+        shipping_method = UnitOrder.objects.filter(order=self)[0].shipping_method.lower()
+        if shipping_method=="wig fleet" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_WIG_COD
+        if shipping_method=="wig fleet" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE
+        if shipping_method=="postaplus" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_POSTAPLUS_COD
+        if shipping_method=="postaplus" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_POSTAPLUS_ONLINE
+        if shipping_method=="sendex" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_SENDEX_COD
+        if shipping_method=="sendex" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE
+        if shipping_method=="standard" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_STANDARD_COD
+        if shipping_method=="standard" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_STANDARD_ONLINE
 
 
 
