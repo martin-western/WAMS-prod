@@ -3,9 +3,11 @@ from WAMSApp.SAP_constants import *
 from WAMSApp.utils import *
 from WAMSApp.utils_SAP_Integration import *
 
-from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -31,6 +33,11 @@ from django.utils import timezone
 from django.core.files import File
 
 logger = logging.getLogger(__name__)
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return
 
 class FetchPriceAndStockAPI(APIView):
 
@@ -96,11 +103,6 @@ class HoldingTransferAPI(APIView):
             
             data = request.data
             logger.info("HoldingTransferAPI: %s", str(data))
-
-            if custom_permission_sap_functions(request.user,"holding_transfer") == False:
-                logger.warning("HoldingTransferAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
 
             if not isinstance(data, dict):
                 data = json.loads(data)
