@@ -5269,6 +5269,8 @@ class GRNProcessingCronAPI(APIView):
                         order_obj.order_information = json.dumps(order_information)
                         order_obj.save()
 
+                        refresh_stock(order_obj)
+                        
                     # Remove file from ftp - TBD
 
             response["status"] = 200
