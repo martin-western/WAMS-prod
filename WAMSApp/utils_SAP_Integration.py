@@ -273,17 +273,20 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
             items = response_dict["T_MESSAGE"]["item"]
 
-            if isinstance(items,list):
-                for item in items:
-                    if item["MESSAGE"] != None:
-                        SAP_message = item["MESSAGE"]
+            try :
+                if isinstance(items,list):
+                    for item in items:
+                        if item["MESSAGE"] != None:
+                            SAP_message = item["MESSAGE"]
+                            result["SAP_message"] = SAP_message
+                else:
+                    if items["MESSAGE"] != None:
+                        SAP_message = items["MESSAGE"]
                         result["SAP_message"] = SAP_message
-            else:
-                if items["MESSAGE"] != None:
-                    SAP_message = items["MESSAGE"]
-                    result["SAP_message"] = SAP_message
+            except Exception as e:
+                pass
 
-            time.sleep(1)
+            time.sleep(2)
             prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
             
             if is_sap_exception == True:
