@@ -913,7 +913,7 @@ class UnitOrder(models.Model):
     def get_sap_intercompany_order_id(self):
         try:
             intercompany_sales_info = json.loads(self.order_information)["intercompany_sales_info"]
-            order_id = float(intercompany_sales_info["order_id"])
+            order_id = intercompany_sales_info["order_id"]
             return order_id
         except Exception as e:
             return ""
