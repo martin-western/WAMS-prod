@@ -910,6 +910,14 @@ class UnitOrder(models.Model):
         except Exception as e:
             return ""
 
+    def get_sap_intercompany_order_id(self):
+        try:
+            intercompany_sales_info = json.loads(self.order_information)["intercompany_sales_info"]
+            order_id = float(intercompany_sales_info["order_id"])
+            return order_id
+        except Exception as e:
+            return ""
+
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
