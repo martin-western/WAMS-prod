@@ -5265,8 +5265,26 @@ class GRNProcessingCronAPI(APIView):
 
                         result = create_final_order(WIGME_COMPANY_CODE, order_information)
                         
+                        doc_list = result["doc_list"]
+                        do_exists = 0
+                        so_exists = 0
+                        inv_exists = 0
+                        
+                        for k in doc_list:
+                            if k["message_type"] == "S":
+                                if k["type"]=="DO":
+                                    do_exists+=1
+                                elif k["type"]=="SO":
+                                    so_exists+=1
+                                elif k["type"]=="INV":
+                                    inv_exists+=1
+
+                        if do_exists==2 and so_exists==1 and inv_exists==1:
+                            order_obj.sap_status = "Success"
+                        else:
+                            order_obj.sap_status = "Failed"
+                            
                         order_obj.sap_final_billing_info = json.dumps(result)
-                        order_obj.sap_status = "Success"
                         order_obj.order_information = json.dumps(order_information)
                         order_obj.save()
 
