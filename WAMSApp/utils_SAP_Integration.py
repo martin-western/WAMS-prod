@@ -12,6 +12,8 @@ import json
 import time
 import xlsxwriter
 
+import time
+
 logger = logging.getLogger(__name__)
 
 def fetch_prices_and_stock(seller_sku,company_code):
@@ -195,6 +197,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         is_sap_exception = product_obj.is_sap_exception
 
         result ={
+            "atp_threshold" : "",
+            "holding_threshold" : "",
             "total_holding_before" : "",
             "total_atp_before" : "",
             "total_holding_after" : "",
@@ -204,6 +208,16 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         }
 
         prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
+
+        total_holding = float(prices_and_stock_information["total_holding"])
+        total_atp = float(prices_and_stock_information["total_atp"])
+
+        result["total_holding_before"] = total_holding
+        result["total_atp_before"] = total_atp
+
+        if prices_and_stock_information["message"] !="Success":
+            result["SAP_message"] = prices_and_stock_information["message"]
+            return result
         
         if is_sap_exception == True:
             holding_threshold=product_obj.holding_threshold
@@ -212,11 +226,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             holding_threshold = float(prices_and_stock_information["holding_threshold"])
             atp_threshold = float(prices_and_stock_information["atp_threshold"])
 
-        total_holding = float(prices_and_stock_information["total_holding"])
-        total_atp = float(prices_and_stock_information["total_atp"])
-
-        result["total_holding_before"] = total_holding
-        result["total_atp_before"] = total_atp
+        result["holding_threshold"] = holding_threshold
+        result["atp_threshold"] = atp_threshold
         
         if total_holding < holding_threshold and total_atp > atp_threshold:
 
@@ -272,6 +283,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                     SAP_message = items["MESSAGE"]
                     result["SAP_message"] = SAP_message
 
+            time.sleep(1)
             prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
             
             if is_sap_exception == True:
@@ -532,10 +544,12 @@ def create_holding_transfer_report(dealshub_product_objs):
         row = ["Seller SKU",
                "Brand Name",
                "Company Code",
-               "Holding Before",
-               "Holding After",
+               "ATP Threshold",
                "ATP Before",
                "ATP After",
+               "Holding Threshold",
+               "Holding Before",
+               "Holding After",
                "Status",
                "SAP Message"]
 
@@ -549,7 +563,7 @@ def create_holding_transfer_report(dealshub_product_objs):
         for dealshub_product_obj in dealshub_product_objs:
 
             cnt+=1
-            common_row = ["" for i in range(9)]
+            common_row = ["" for i in range(11)]
 
             seller_sku = dealshub_product_obj.get_seller_sku()
             brand_name = dealshub_product_obj.get_brand()
@@ -568,12 +582,14 @@ def create_holding_transfer_report(dealshub_product_objs):
                 try :
                     response_dict = transfer_from_atp_to_holding(seller_sku,company_code)
                    
-                    common_row[3] = str(response_dict["total_holding_before"])
-                    common_row[5] = str(response_dict["total_atp_before"])
-                    common_row[4] = str(response_dict["total_holding_after"])
-                    common_row[6] = str(response_dict["total_atp_after"])
-                    common_row[7] = str(response_dict["stock_status"])
-                    common_row[8] = str(response_dict["SAP_message"])
+                    common_row[3] = str(response_dict["atp_threshold"])
+                    common_row[4] = str(response_dict["total_atp_before"])
+                    common_row[5] = str(response_dict["total_atp_after"])
+                    common_row[6] = str(response_dict["holding_threshold"])
+                    common_row[7] = str(response_dict["total_holding_before"])
+                    common_row[8] = str(response_dict["total_holding_after"])
+                    common_row[9] = str(response_dict["stock_status"])
+                    common_row[10] = str(response_dict["SAP_message"])
 
                     if isNoneOrEmpty(response_dict["total_holding_after"]) != True:
                         dealshub_product_obj.stock = response_dict["total_holding_after"]
@@ -581,7 +597,7 @@ def create_holding_transfer_report(dealshub_product_objs):
 
                 except Exception as e:
                     logger.info(e)
-                    common_row[7] = str("INTERNAL ERROR")
+                    common_row[9] = str("INTERNAL ERROR")
                     
             colnum = 0
             for k in common_row:
