@@ -4043,6 +4043,7 @@ class SetShippingMethodAPI(APIView):
                         
                         if user_input_requirement[seller_sku]==True:
                             result = fetch_prices_and_stock(seller_sku, company_code)
+                            result["uuid"] = unit_order_obj.uuid
                             result["seller_sku"] = seller_sku
                             
                             modal_info_list.append(result)
