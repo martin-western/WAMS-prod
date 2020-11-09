@@ -229,10 +229,9 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         result["holding_threshold"] = holding_threshold
         result["atp_threshold"] = atp_threshold
         
-        atp_threshold_temp = 20.0 
-        if total_holding < holding_threshold and total_atp > atp_threshold_temp:
+        if total_holding < holding_threshold and total_atp > atp_threshold:
 
-            total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold_temp)
+            total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold)
 
             while total_holding_transfer > 0:
 
