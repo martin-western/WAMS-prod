@@ -5845,8 +5845,11 @@ class DownloadBulkExportAPI(APIView):
             data_point_list = data["data_point_list"]
             product_uuid_list = data["product_uuid_list"]
 
-            generate_dynamic_export(product_uuid_list, data_point_list)
-            response["file_path"] = SERVER_IP+"/files/csv/dynamic_export.xlsx"
+            filename = str(datetime.datetime.now().strftime("%d%m%Y%H%M_dynamic_export"))+".xlsx"
+
+            generate_dynamic_export(filename, product_uuid_list, data_point_list)
+
+            response["file_path"] = SERVER_IP+"/files/csv/"+filename
             
             response['status'] = 200
         
