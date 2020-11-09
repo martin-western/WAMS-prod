@@ -1219,14 +1219,14 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
         return ""
 
 
-def generate_dynamic_export(product_uuid_list, data_point_list):
+def generate_dynamic_export(filename, product_uuid_list, data_point_list):
 
-    try:
-        os.system("rm ./files/csv/dynamic_export.xlsx")
-    except Exception as e:
-        pass
+    # try:
+    #     os.system("rm ./files/csv/dynamic_export.xlsx")
+    # except Exception as e:
+    #     pass
 
-    workbook = xlsxwriter.Workbook('./files/csv/dynamic_export.xlsx')
+    workbook = xlsxwriter.Workbook('./files/csv/'+filename)
     worksheet = workbook.add_worksheet()
 
     row = generate_dynamic_row(data_point_list)
@@ -1452,6 +1452,10 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                         base_product=base_product_obj,
                         product_id = product_id,
                     )
+
+                    location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
+                    for location_group_obj in location_group_objs:
+                        DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
 
                     channel_product_obj = product_obj.channel_product
 

@@ -585,6 +585,8 @@ def create_new_product_amazon_uk(row):
     product_obj = Product.objects.create(product_id=row[3],
                                          base_product = base_product_obj)
 
+    dealshub_product_obj = DealsHubProduct.objects.create(product=product_obj)
+
     channel_product_obj = product_obj.channel_product
 
     amazon_uk_product = json.loads(channel_product_obj.amazon_uk_product_json)

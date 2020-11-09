@@ -229,9 +229,10 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         result["holding_threshold"] = holding_threshold
         result["atp_threshold"] = atp_threshold
         
-        if total_holding < holding_threshold and total_atp > atp_threshold:
+        atp_threshold_temp = 20.0 
+        if total_holding < holding_threshold and total_atp > atp_threshold_temp:
 
-            total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold)
+            total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold_temp)
 
             while total_holding_transfer > 0:
 
@@ -599,7 +600,7 @@ def create_holding_transfer_report(dealshub_product_objs):
                     common_row[10] = str(response_dict["SAP_message"])
 
                     if isNoneOrEmpty(response_dict["total_holding_after"]) != True:
-                        dealshub_product_obj.stock = response_dict["total_holding_after"]
+                        dealshub_product_obj.stock = int(response_dict["total_holding_after"])
                         dealshub_product_obj.save()
 
                 except Exception as e:
