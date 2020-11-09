@@ -552,7 +552,7 @@ def refresh_stock(order_obj):
             # elif brand=="delcasa":
             #     stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
 
-            dealshub_product_obj.stock = total_holding
+            dealshub_product_obj.stock = int(total_holding)
             
             if holding_threshold > total_holding:
                 try:
