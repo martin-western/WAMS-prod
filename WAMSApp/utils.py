@@ -1219,14 +1219,14 @@ def get_data_value(product_obj, base_product_obj, channel_product_obj, data_poin
         return ""
 
 
-def generate_dynamic_export(product_uuid_list, data_point_list):
+def generate_dynamic_export(filename, product_uuid_list, data_point_list):
 
-    try:
-        os.system("rm ./files/csv/dynamic_export.xlsx")
-    except Exception as e:
-        pass
+    # try:
+    #     os.system("rm ./files/csv/dynamic_export.xlsx")
+    # except Exception as e:
+    #     pass
 
-    workbook = xlsxwriter.Workbook('./files/csv/dynamic_export.xlsx')
+    workbook = xlsxwriter.Workbook('./files/csv/'+filename)
     worksheet = workbook.add_worksheet()
 
     row = generate_dynamic_row(data_point_list)
