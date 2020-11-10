@@ -122,6 +122,62 @@ class HoldingTransferAPI(APIView):
 
         return Response(data=response)
 
+
+class BulkHoldingTransferAPI(APIView):
+
+    def post(self,request,*args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            logger.info("BulkHoldingTransferAPI: %s",str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            # TODO: get the seller_sku from xlxs file in request (" DOUBT ")
+            file_name = request.files['excel'].filename
+            content = request.files['excel'].read()
+            if sys.version_info[0] > 2:
+                # in order to support python 3 have to decode bytes to str
+                content = content.decode('utf-8')
+
+            df = pd.read_excel(file_name, sheet_name=None)
+
+            data_seller_skus = df['seller_sku'] 
+
+            # assuming the data_seller_skus is avaliable
+
+            transfer_information_list = []
+            for data_seller_sku in data_seller_skus:              
+                # TODO: transfer the holding to seller_sku
+                dealshub_product_obj = DealsHubProduct.objects.get(product__base_product__seller_sku=data_seller_sku)
+                brand_name = dealshub_product_obj.get_brand()
+
+                try:
+                    company_code = BRAND_COMPANY_DICT[brand_name.lower()]
+                except Exception as e:
+                    company_code = "BRAND NOT RECOGNIZED"
+                
+                if(company_code != "BRAND NOT RECOGNIZED"):
+                    transfer_information = transfer_from_atp_to_holding(data_seller_sku,company_code)
+                    transfer_information_list.append(transfer_information)
+            
+            response['transfer_information'] = transfer_information_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkHoldingTransferAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+BulkHoldingTransfer = BulkHoldingTransferAPI.as_view()
+
 FetchPriceAndStock = FetchPriceAndStockAPI.as_view()
 
 HoldingTransfer = HoldingTransferAPI.as_view()
