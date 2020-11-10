@@ -27,6 +27,7 @@ import xlrd
 import time
 import datetime
 import threading
+import pandas as pd
 
 from datetime import datetime
 from django.utils import timezone
@@ -129,6 +130,7 @@ class BulkHoldingTransferAPI(APIView):
         
         response = {}
         response['status'] = 500
+        response["message"] = ""
 
         try:
 
@@ -138,36 +140,101 @@ class BulkHoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            # TODO: get the seller_sku from xlxs file in request (" DOUBT ")
-            file_name = request.files['excel'].filename
-            content = request.files['excel'].read()
-            if sys.version_info[0] > 2:
-                # in order to support python 3 have to decode bytes to str
-                content = content.decode('utf-8')
+            if custom_permission_sap_functions(request.user,"holding_transfer") == False:
+                logger.warning("HoldingTransferAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
 
-            df = pd.read_excel(file_name, sheet_name=None)
+            path = default_storage.save('tmp/bulk-upload-holding-transfer.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
-            data_seller_skus = df['seller_sku'] 
+            try :
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                response['message'] = "UnSupported File Format"
+                logger.warning("BulkHoldingTransferAPI UnSupported File Format")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
+            except Exception as e:
+                response['status'] = 406
+                response['message'] = "Sheet1 not found!"
+                logger.warning("BulkHoldingTransferAPI Sheet1 not found")
+                return Response(data=response)
+
+            dfs = dfs.fillna("")
+            rows = len(dfs.iloc[:])
+            column_header = str(dfs.columns[0]).strip()
+
+            if column_header != "Seller SKU":
+                response['status'] = 405
+                response['message'] = "Seller SKU Column not found"
+                logger.warning("BulkHoldingTransferAPI Seller SKU Column not found")
+                return Response(data=response)
+
+
+            sku_list = dfs['Seller SKU'] 
 
             # assuming the data_seller_skus is avaliable
 
-            transfer_information_list = []
-            for data_seller_sku in data_seller_skus:              
+            excel_errors = []
+
+            for sku in sku_list:
+
+                sku = sku.strip()              
                 # TODO: transfer the holding to seller_sku
-                dealshub_product_obj = DealsHubProduct.objects.get(product__base_product__seller_sku=data_seller_sku)
-                brand_name = dealshub_product_obj.get_brand()
+                dealshub_product_objs = DealsHubProduct.objects.filter(product__base_product__seller_sku=data_seller_sku)
+                    
+                if dealshub_product_objs.count()==0:
+                    temp_dict = {}
+                    temp_dict["seller_sku"] = sku
+                    temp_dict['error_message'] = "Product not found"
+                    excel_errors.append(temp_dict)
+                    continue
+                    
+                if dealshub_product_objs.count()>1:
+                    temp_dict = {}
+                    temp_dict["seller_sku"] = sku
+                    temp_dict['error_message'] = "More then one product found"
+                    excel_errors.append(temp_dict)
+                    continue   
+
+                brand_name = dealshub_product_obj.get_brand().lower()
 
                 try:
-                    company_code = BRAND_COMPANY_DICT[brand_name.lower()]
+                    company_code = BRAND_COMPANY_DICT[brand_name]
                 except Exception as e:
                     company_code = "BRAND NOT RECOGNIZED"
+                    temp_dict = {}
+                    temp_dict["seller_sku"] = sku
+                    temp_dict['error_message'] = "BRAND NOT RECOGNIZED"
+                    excel_errors.append(temp_dict)
+                    continue
                 
-                if(company_code != "BRAND NOT RECOGNIZED"):
-                    transfer_information = transfer_from_atp_to_holding(data_seller_sku,company_code)
-                    transfer_information_list.append(transfer_information)
+                if company_code != "BRAND NOT RECOGNIZED":
+                    
+                    try :
+                        transfer_result = transfer_from_atp_to_holding(data_seller_sku,company_code)
+                        SAP_message = transfer_result["SAP_message"]
+                        
+                        if SAP_message != "NO HOLDING TRANSFER" and SAP_message != "Successfully Updated.":
+                            temp_dict = {}
+                            temp_dict["seller_sku"] = sku
+                            temp_dict['error_message'] = SAP_message
+                            excel_errors.append(temp_dict)
+
+                    except Exception as e:
+                        temp_dict = {}
+                        temp_dict["seller_sku"] = sku
+                        temp_dict['error_message'] = "INTERNAL ERROR"
+                        excel_errors.append(temp_dict)
+                        continue
             
-            response['transfer_information'] = transfer_information_list
+            response['excel_errors'] = excel_errors
             response['status'] = 200
+            response['message'] = "Succesful"
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
