@@ -5237,6 +5237,13 @@ class GRNProcessingCronAPI(APIView):
                         unit_order_obj.sap_status = "GRN Done"
                         unit_order_obj.save()
 
+                    try :
+                        ftp.delete(f)
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("GRNProcessingCronAPI FTP delete error for %s: %s at %s", f,e, str(exc_tb.tb_lineno))
+                        pass
+
                     order_obj = unit_order_objs[0].order
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj,grn_filename_exists=False)
 
