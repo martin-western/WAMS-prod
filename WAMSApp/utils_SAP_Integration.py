@@ -229,7 +229,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         result["holding_threshold"] = holding_threshold
         result["atp_threshold"] = atp_threshold
         
-        atp_threshold_temp = 20.0 
+        atp_threshold_temp = 20.0
+
         if total_holding < holding_threshold and total_atp > atp_threshold_temp:
 
             total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold_temp)
@@ -260,6 +261,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                 result["stock_status"] = "CRITICAL HOLDING"
             elif total_holding == holding_threshold and total_atp < atp_threshold:
                 result["stock_status"] = "CRITICAL ATP"
+            elif total_holding > holding_threshold:
+                result["stock_status"] = "MORE HOLDING"
             else:
                 result["stock_status"] = "CRITICAL STOCK"
 
@@ -306,6 +309,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                 result["stock_status"] = "CRITICAL HOLDING"
             elif total_holding == holding_threshold and total_atp < atp_threshold:
                 result["stock_status"] = "CRITICAL ATP"
+            elif total_holding > holding_threshold:
+                result["stock_status"] = "MORE HOLDING"
             else:
                 result["stock_status"] = "CRITICAL STOCK"
 
