@@ -109,9 +109,7 @@ urlpatterns = [
 
     url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),
     url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock),
-    url(r'^fetch-product-details-sales-integration/$',views.FetchProductDetailsSalesIntegration),
-    url(r'^fetch-bulk-product-details-sales-integration/$',views.FetchBulkProductDetailsSalesIntegration),
-
+    
     url(r'^upload-bulk-export/$',views.UploadBulkExport),
     url(r'^search-bulk-export/$',views.SearchBulkExport),
     url(r'^fetch-data-points/$',views.FetchDataPoints),
@@ -153,11 +151,5 @@ urlpatterns = [
     url(r'^update-category-mapping/$',views.UpdateCategoryMapping),
 
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
-
-    url(r'^fetch-category-list-by-brand/$',views.FetchCategoryListByBrand),
-    url(r'^fetch-product-list-by-category/$',views.FetchProductListByCategory),
-
-    url(r'^fetch-categories-for-sales/$',views.FetchCategoriesForSales),
-    url(r'^upload-category-sales-image/$',views.UploadCategorySalesImage),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
