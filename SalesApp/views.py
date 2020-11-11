@@ -1163,48 +1163,6 @@ class FetchCategoryListByBrandAPI(APIView):
                     temp_dict = {}
                     temp_dict["category_name"] = category_obj.name
                     temp_dict["category_id"] = category_obj.uuid
-                    category_list.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchCategoryListByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            response["category_list"] = category_list
-            response['status'] = 200
-        
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCategoryListByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-class FetchCategoryListByBrandAPI(APIView):
-
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        
-        try:
-            
-            data = request.data
-            logger.info("FetchCategoryListByBrandAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            brand_name = data["brand_name"]
-
-            category_ids = BaseProduct.objects.filter(brand__name=brand_name).values_list('category', flat=True).distinct()
-            category_objs = Category.objects.filter(id__in=category_ids)
-            
-            category_list = []
-            for category_obj in category_objs:
-                try:
-                    temp_dict = {}
-                    temp_dict["category_name"] = category_obj.name
-                    temp_dict["category_id"] = category_obj.uuid
                     if category_obj.mobile_app_image!=None:
                         temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
                     else:
