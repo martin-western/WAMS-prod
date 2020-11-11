@@ -822,14 +822,14 @@ class SearchWIGAPI(APIView):
 
 
             brand_list = []
-            try:
-                brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
-                brand_list = list(set(brand_list))
-                if len(brand_list)==1:
-                    brand_list = []
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchWIGAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
+            # try:
+            #     brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+            #     brand_list = list(set(brand_list))
+            #     if len(brand_list)==1:
+            #         brand_list = []
+            # except Exception as e:
+            #     exc_type, exc_obj, exc_tb = sys.exc_info()
+            #     logger.error("SearchWIGAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
 
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
