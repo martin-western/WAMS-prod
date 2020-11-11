@@ -982,6 +982,106 @@ class FetchNotificationListForAdminAPI(APIView):
 
         return Response(data=response)
 
+class FetchProductDetailsAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchProductDetailsSalesIntegrationAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            seller_sku = data["articleNumber"]
+
+            base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization__name="wig")
+            product_objs = Product.objects.filter(base_product=base_product_obj)
+
+            response["product_name"] = base_product_obj.base_product_name
+            response["seller_sku"] = base_product_obj.seller_sku
+            response["manufacturer_part_number"] = base_product_obj.manufacturer_part_number
+            response["brand_name"] = str(base_product_obj.brand)
+            response["manufacturer"] = str(base_product_obj.manufacturer)
+            response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
+            response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
+            response["dimensions"] = json.loads(base_product_obj.dimensions)
+            
+            variants = []
+            
+            for product_obj in product_objs:
+                temp_dict = {}
+                temp_dict["product_name"] = product_obj.product_name
+                temp_dict["product_id"] = product_obj.product_id
+                temp_dict["product_id_type"] = str(product_obj.product_id_type)
+                temp_dict["barcode"] = str(product_obj.barcode_string)
+                
+                try:
+                    temp_dict["factory_code"] = str(product_obj.factory.factory_code)
+                except Exception as e:
+                    temp_dict["factory_code"] = ""
+                temp_dict["color"] = str(product_obj.color)
+                temp_dict["color_map"] = str(product_obj.color_map)
+                temp_dict["material_type"] = str(product_obj.material_type)
+                temp_dict["moq"] = "" if product_obj.quantity==None else str(product_obj.quantity)
+                temp_dict["factory_notes"] = str(product_obj.factory_notes)
+                temp_dict["product_description"] = str(product_obj.product_description)
+                temp_dict["product_features"] = json.loads(product_obj.pfl_product_features)
+                
+                images = {}
+
+                try:
+                    main_images_list = ImageBucket.objects.none()
+                    sub_images_list = ImageBucket.objects.none()
+                    
+                    main_images_objs = MainImages.objects.filter(product=product_obj)
+                    for main_images_obj in main_images_objs:
+                        main_images_list |= main_images_obj.main_images.all()
+                    main_images_list = main_images_list.distinct()
+                    images["main_images"] = create_response_images_main_sub_list(main_images_list)
+
+                    sub_images_objs = SubImages.objects.filter(product=product_obj)
+                    for sub_images_obj in sub_images_objs:
+                        sub_images_list |= sub_images_obj.sub_images.all()
+                    sub_images_list = sub_images_list.distinct()
+                    images["sub_images"] = create_response_images_main_sub_list(sub_images_list)
+
+                    images["pfl_images"] = create_response_images_list(product_obj.pfl_images.all())
+                    images["pfl_generated_images"] = create_response_images_list(product_obj.pfl_images.all())
+                    images["white_background_images"] = create_response_images_list(product_obj.pfl_images.all())
+                    images["lifestyle_images"] = create_response_images_list(product_obj.pfl_images.all())
+                    images["certificate_images"] = create_response_images_list(product_obj.pfl_images.all())
+                    images["giftbox_images"] = create_response_images_list(product_obj.pfl_images.all())
+                    images["diecut_images"] = create_response_images_list(product_obj.pfl_images.all())
+                    images["aplus_content_images"] = create_response_images_list(product_obj.pfl_images.all())
+                    images["ads_images"] = create_response_images_list(product_obj.pfl_images.all())
+                    images["transparent_images"] = create_response_images_list(product_obj.pfl_images.all())
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    images["main_images"] = []
+                    pass
+
+                temp_dict["images"] = images
+                variants.append(temp_dict)
+
+            response["variants"] = variants
+            
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 SalesAppLoginSubmit = SalesAppLoginSubmitAPI.as_view()
 
 SalesAppSignUpSubmit = SalesAppSignUpSubmitAPI.as_view()
