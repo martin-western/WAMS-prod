@@ -1135,6 +1135,202 @@ class FetchBulkProductDetailsAPI(APIView):
 
         return Response(data=response)
 
+class FetchCategoryListByBrandAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchCategoryListByBrandAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            brand_name = data["brand_name"]
+
+            category_ids = BaseProduct.objects.filter(brand__name=brand_name).values_list('category', flat=True).distinct()
+            category_objs = Category.objects.filter(id__in=category_ids)
+            
+            category_list = []
+            for category_obj in category_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["category_name"] = category_obj.name
+                    temp_dict["category_id"] = category_obj.uuid
+                    category_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCategoryListByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["category_list"] = category_list
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoryListByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class FetchCategoryListByBrandAPI(APIView):
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchCategoryListByBrandAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            brand_name = data["brand_name"]
+
+            category_ids = BaseProduct.objects.filter(brand__name=brand_name).values_list('category', flat=True).distinct()
+            category_objs = Category.objects.filter(id__in=category_ids)
+            
+            category_list = []
+            for category_obj in category_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["category_name"] = category_obj.name
+                    temp_dict["category_id"] = category_obj.uuid
+                    if category_obj.mobile_app_image!=None:
+                        temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
+                    else:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    if category_obj.mobile_app_image_detailed!=None:
+                        temp_dict["image_url_detailed"] = category_obj.mobile_app_image_detailed.mid_image.url
+                    else:
+                        temp_dict["image_url_detailed"] = Config.objects.all()[0].product_404_image.image.url
+                    category_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCategoryListByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["category_list"] = category_list
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoryListByBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchCategoriesForSalesAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchCategoriesForSalesAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            page = int(data.get('page', 1))
+
+            has_image = data.get("has_image", None)
+            
+            category_objs = Category.objects.all()
+
+            if has_image==True:
+                category_objs = category_objs.exclude(mobile_app_image=None)
+            elif has_image==False:
+                category_objs = category_objs.filter(mobile_app_image=None)
+
+            paginator = Paginator(category_objs, 20)
+            category_objs = paginator.page(page)
+            total_pages = paginator.num_pages
+
+            category_list = []
+            for category_obj in category_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["category_name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
+                    temp_dict["super_category_name"] = category_obj.super_category.name
+                    if category_obj.mobile_app_image!=None:
+                        temp_dict["image_url"] = category_obj.mobile_app_image.mid_image.url
+                    else:
+                        temp_dict["image_url"] = Config.objects.all()[0].product_404_image.image.url
+                    if category_obj.mobile_app_image_detailed!=None:
+                        temp_dict["image_url_detailed"] = category_obj.mobile_app_image_detailed.mid_image.url
+                    else:
+                        temp_dict["image_url_detailed"] = Config.objects.all()[0].product_404_image.image.url
+                    category_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCategoriesForSalesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_available = True
+            
+            if paginator.num_pages == page:
+                is_available = False
+
+            response["category_list"] = category_list
+            response["is_available"] = is_available
+            response["total_pages"] = total_pages
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoriesForSalesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadCategorySalesImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("UploadCategorySalesImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            category_uuid = data["category_uuid"]
+            image_type = data.get("image_type", "")
+            
+            category_obj = Category.objects.get(uuid=category_uuid)
+
+            image_obj = Image.objects.create(image=data["image"])
+
+            if image_type.lower()=="detailed":
+                category_obj.mobile_app_image_detailed = image_obj
+            else:
+                category_obj.mobile_app_image = image_obj
+            category_obj.save()
+
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadCategorySalesImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 SalesAppLoginSubmit = SalesAppLoginSubmitAPI.as_view()
 
 SalesAppSignUpSubmit = SalesAppSignUpSubmitAPI.as_view()
