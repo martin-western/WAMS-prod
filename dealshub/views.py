@@ -802,7 +802,7 @@ class SearchWIGAPI(APIView):
             
             if product_name!="":
                 if available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name)).exists():
-                    available_dealshub_products = available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
+                    available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
                 else:
                     search_tags = product_name.split(" ")
                     target_brand = None
@@ -821,25 +821,19 @@ class SearchWIGAPI(APIView):
                         available_dealshub_products = search_results.distinct()
 
 
-            brand_list = []
-            try:
-                brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
-                brand_list = list(set(brand_list))
-                if len(brand_list)==1:
-                    brand_list = []
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchWIGAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
-
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
 
             paginator = Paginator(available_dealshub_products, 50)
             dealshub_product_objs = paginator.page(page)
-            dealshub_product_objs = dealshub_product_objs.prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+            temp_pk_list = []
+            for dealshub_product_obj in dealshub_product_objs:
+                temp_pk_list.append(dealshub_product_obj.pk)
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             products = []
             currency = location_group_obj.location.currency
-            for dealshub_product_obj in dealshub_product_objs[:5]:
+            for dealshub_product_obj in dealshub_product_objs:
                 try:
                     if dealshub_product_obj.get_actual_price()==0:
                         continue
@@ -860,15 +854,12 @@ class SearchWIGAPI(APIView):
                     temp_dict["currency"] = currency
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     temp_dict["id"] = dealshub_product_obj.uuid
-                    #temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+                    temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     
                     products.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-
-            response["brand_list"] = brand_list
 
             is_available = True
             if int(paginator.num_pages) == int(page):
