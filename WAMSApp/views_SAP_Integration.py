@@ -177,15 +177,12 @@ class BulkHoldingTransferAPI(APIView):
 
             sku_list = dfs['Seller SKU'] 
 
-            # assuming the data_seller_skus is avaliable
-
             excel_errors = []
 
             for sku in sku_list:
 
                 sku = sku.strip()              
-                # TODO: transfer the holding to seller_sku
-                dealshub_product_objs = DealsHubProduct.objects.filter(product__base_product__seller_sku=data_seller_sku)
+                dealshub_product_objs = DealsHubProduct.objects.filter(product__base_product__seller_sku=sku)
                     
                 if dealshub_product_objs.count()==0:
                     temp_dict = {}
