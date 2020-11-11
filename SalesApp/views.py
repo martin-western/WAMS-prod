@@ -1173,5 +1173,4 @@ DeleteNotificationImage = DeleteNotificationImageAPI.as_view()
 
 SendNotification = SendNotificationAPI.as_view()
 
-
 FetchNotificationListForAdmin = FetchNotificationListForAdminAPI.as_view()
