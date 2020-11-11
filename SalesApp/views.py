@@ -1113,3 +1113,5 @@ FetchProductListByCategoryForSalesApp = FetchProductListByCategoryForSalesAppAPI
 FetchNotificationListForAdmin = FetchNotificationListForAdminAPI.as_view()
 
 FetchProductDetails = FetchProductDetailsAPI.as_view()
+
+FetchBulkProductDetails = FetchBulkProductDetailsAPI.as_view()
