@@ -836,7 +836,11 @@ class SearchWIGAPI(APIView):
 
             paginator = Paginator(available_dealshub_products, 50)
             dealshub_product_objs = paginator.page(page)
-            dealshub_product_objs = dealshub_product_objs.prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+            temp_pk_list = []
+            for dealshub_product_obj in dealshub_product_objs:
+                temp_pk_list.append(dealshub_product_objs.pk)
+                
+            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             products = []
             currency = location_group_obj.location.currency
             for dealshub_product_obj in dealshub_product_objs[:5]:
