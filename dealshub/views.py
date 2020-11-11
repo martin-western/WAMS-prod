@@ -767,9 +767,6 @@ class SearchWIGAPI(APIView):
                 response["seo_keywords"] = ""
                 response["seo_description"] = ""
 
-            # filter_list = data.get("filters", "[]")
-            # filter_list = json.loads(filter_list)
-
             brand_filter = data.get("brand_filter", [])
             sort_filter = data.get("sort_filter", {})
 
@@ -862,7 +859,7 @@ class SearchWIGAPI(APIView):
                     temp_dict["currency"] = currency
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     temp_dict["id"] = dealshub_product_obj.uuid
-                    temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+                    #temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     
                     products.append(temp_dict)
                 except Exception as e:
