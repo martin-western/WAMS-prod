@@ -845,7 +845,7 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
         try:
             
             data = request.data
-            logger.info("FetchProductListByCategoryAPI: %s", str(data))
+            logger.info("FetchProductListByCategoryForSalesAppAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -874,7 +874,7 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
                     product_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchProductListByCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchProductListByCategoryForSalesAppAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["product_list"] = product_list
             response["total_pages"] = total_pages
@@ -882,7 +882,7 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchProductListByCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchProductListByCategoryForSalesAppAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -911,3 +911,5 @@ DeleteNotificationImage = DeleteNotificationImageAPI.as_view()
 SendNotification = SendNotificationAPI.as_view()
 
 FetchNotificationList = FetchNotificationListAPI.as_view()
+
+FetchProductListByCategoryForSalesApp = FetchProductListByCategoryForSalesAppAPI.as_view()
