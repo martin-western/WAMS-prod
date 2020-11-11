@@ -840,36 +840,36 @@ class SearchWIGAPI(APIView):
             for dealshub_product_obj in dealshub_product_objs:
                 temp_pk_list.append(dealshub_product_obj.pk)
 
-            # dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
-            # products = []
-            # currency = location_group_obj.location.currency
-            # for dealshub_product_obj in dealshub_product_objs:
-            #     try:
-            #         if dealshub_product_obj.get_actual_price()==0:
-            #             continue
-            #         temp_dict = {}
-            #         temp_dict["name"] = dealshub_product_obj.get_name()
-            #         temp_dict["brand"] = dealshub_product_obj.get_brand()
-            #         temp_dict["now_price"] = dealshub_product_obj.now_price
-            #         temp_dict["was_price"] = dealshub_product_obj.was_price
-            #         temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
-            #         temp_dict["stock"] = dealshub_product_obj.stock
-            #         temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
-            #         temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
-            #         temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
-            #         if dealshub_product_obj.promotion!=None:
-            #             temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
-            #         else:
-            #             temp_dict["promotion_tag"] = None
-            #         temp_dict["currency"] = currency
-            #         temp_dict["uuid"] = dealshub_product_obj.uuid
-            #         temp_dict["id"] = dealshub_product_obj.uuid
-            #         #temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+            products = []
+            currency = location_group_obj.location.currency
+            for dealshub_product_obj in dealshub_product_objs:
+                try:
+                    if dealshub_product_obj.get_actual_price()==0:
+                        continue
+                    temp_dict = {}
+                    temp_dict["name"] = dealshub_product_obj.get_name()
+                    temp_dict["brand"] = dealshub_product_obj.get_brand()
+                    temp_dict["now_price"] = dealshub_product_obj.now_price
+                    temp_dict["was_price"] = dealshub_product_obj.was_price
+                    temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+                    temp_dict["stock"] = dealshub_product_obj.stock
+                    temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+                    temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
+                    temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
+                    if dealshub_product_obj.promotion!=None:
+                        temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
+                    else:
+                        temp_dict["promotion_tag"] = None
+                    temp_dict["currency"] = currency
+                    temp_dict["uuid"] = dealshub_product_obj.uuid
+                    temp_dict["id"] = dealshub_product_obj.uuid
+                    #temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     
-            #         products.append(temp_dict)
-            #     except Exception as e:
-            #         exc_type, exc_obj, exc_tb = sys.exc_info()
-            #         logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    products.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
 
             # response["brand_list"] = brand_list
@@ -882,8 +882,8 @@ class SearchWIGAPI(APIView):
             # response["totalPages"] = paginator.num_pages
             # response["total_products"] = len(available_dealshub_products)
 
-            # search['products'] = products
-            # response['search'] = search
+            search['products'] = products
+            response['search'] = search
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
