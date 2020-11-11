@@ -1145,6 +1145,8 @@ ProductChangeInFavourites = ProductChangeInFavouritesAPI.as_view()
 
 FetchFavouriteProducts = FetchFavouriteProductsAPI.as_view()
 
+FetchNotificationList = FetchNotificationListAPI.as_view()
+
 FetchCategoryListByBrand = FetchCategoryListByBrandAPI.as_view()
 
 FetchCategoriesForSales = FetchCategoriesForSalesAPI.as_view()
@@ -1154,6 +1156,8 @@ UploadCategorySalesImage = UploadCategorySalesImageAPI.as_view()
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchBulkProductDetails = FetchBulkProductDetailsAPI.as_view()
+
+FetchProductListByCategory = FetchProductListByCategoryAPI.as_view()
 
 ################# Notification APIs ######################
 
@@ -1169,8 +1173,5 @@ DeleteNotificationImage = DeleteNotificationImageAPI.as_view()
 
 SendNotification = SendNotificationAPI.as_view()
 
-FetchNotificationList = FetchNotificationListAPI.as_view()
-
-FetchProductListByCategoryForSalesApp = FetchProductListByCategoryForSalesAppAPI.as_view()
 
 FetchNotificationListForAdmin = FetchNotificationListForAdminAPI.as_view()
