@@ -780,7 +780,7 @@ class SearchWIGAPI(APIView):
             if product_name!="":
                 SearchKeyword.objects.create(word=product_name, location_group=location_group_obj)
 
-            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
             # Filters
             if sort_filter.get("price", "")=="high-to-low":
@@ -835,7 +835,8 @@ class SearchWIGAPI(APIView):
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
 
             paginator = Paginator(available_dealshub_products, 50)
-            dealshub_product_objs = paginator.page(page)            
+            dealshub_product_objs = paginator.page(page)
+            dealshub_product_objs = dealshub_product_objs.prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             products = []
             currency = location_group_obj.location.currency
             for dealshub_product_obj in dealshub_product_objs[:5]:
