@@ -835,7 +835,7 @@ class SendNotificationAPI(APIView):
 
 class FetchProductListByCategoryForSalesAppAPI(APIView):
 
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
