@@ -835,7 +835,7 @@ class SendNotificationAPI(APIView):
 
         return Response(data=response)
 
-class FetchProductListByCategoryForSalesAppAPI(APIView):
+class FetchProductListByCategoryAPI(APIView):
 
     permission_classes = (AllowAny,)
 
@@ -848,7 +848,7 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
         try:
             
             data = request.data
-            logger.info("FetchProductListByCategoryForSalesAppAPI: %s", str(data))
+            logger.info("FetchProductListByCategoryAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -860,7 +860,7 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
             if category_id == "":
                 response['status'] = 404
                 response['message'] = "Category Id is Null"
-                logger.warning("FetchProductListByCategoryForSalesAppAPI: Category ID is Null")
+                logger.warning("FetchProductListByCategoryAPI: Category ID is Null")
                 return Response(data=response)
             
             try :
@@ -868,7 +868,7 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
             except Exception as e:
                 response['status'] = 404
                 response['message'] = "Category Id is Invalid"
-                logger.warning("FetchProductListByCategoryForSalesAppAPI: Category ID is Invalid")
+                logger.warning("FetchProductListByCategoryAPI: Category ID is Invalid")
                 return Response(data=response)
 
             if brand_name!=None and brand_name != "":
@@ -905,7 +905,7 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
                 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchProductListByCategoryForSalesAppAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchProductListByCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["product_list"] = product_list
             response["total_pages"] = total_pages
@@ -914,7 +914,7 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchProductListByCategoryForSalesAppAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchProductListByCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
