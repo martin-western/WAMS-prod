@@ -862,16 +862,19 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
                 return Response(data=response)
             
             try :
-                product_objs = Product.objects.filter(base_product__category__uuid=category_id)
+                product_objs = Product.objects.filter(base_product__brand__organization=ORGANIZATION,base_product__category__uuid=category_id)
             except Exception as e:
                 response['status'] = 404
                 response['message'] = "Category Id is Invalid"
                 logger.warning("FetchProductListByCategoryForSalesAppAPI: Category ID is Invalid")
                 return Response(data=response)
 
-            if brand_name!=None:
+            logger.info(product_objs)
+
+            if brand_name!=None and brand_name != "":
                 product_objs = product_objs.filter(base_product__brand__name=brand_name)
 
+            logger.info(category_id)
             logger.info(product_objs)
             
             sales_user_obj = None
