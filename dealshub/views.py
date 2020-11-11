@@ -505,7 +505,7 @@ class SearchAPI(APIView):
             if product_name!="":
                 SearchKeyword.objects.create(word=product_name, location_group=location_group_obj)
 
-            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
+            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
 
             # Filters
             if sort_filter.get("price", "")=="high-to-low":
@@ -575,6 +575,7 @@ class SearchAPI(APIView):
             paginator = Paginator(available_dealshub_products, 50)
             dealshub_product_objs = paginator.page(page)            
             products = []
+            currency = location_group_obj.location.currency
             for dealshub_product_obj in dealshub_product_objs:
                 try:
                     if dealshub_product_obj.get_actual_price()==0:
@@ -593,7 +594,7 @@ class SearchAPI(APIView):
                         temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
                     else:
                         temp_dict["promotion_tag"] = None
-                    temp_dict["currency"] = dealshub_product_obj.get_currency()
+                    temp_dict["currency"] = currency
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     temp_dict["id"] = dealshub_product_obj.uuid
                     temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
