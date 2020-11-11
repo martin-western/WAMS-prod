@@ -12,8 +12,9 @@ urlpatterns = [
     url(r'^product-change-in-favourites/$', views.ProductChangeInFavourites),
     url(r'^fetch-favourite-products/$', views.FetchFavouriteProducts),
     url(r'^fetch-product-list-by-category/$', views.FetchProductListByCategoryForSalesApp),
+    url(r'^fetch-notification-list/$', views.FetchNotificationList),
     
-##################### Notification URLs ###################################
+##################### Notification Dashboard URLs ###################################
 
     url(r'^create-notification/$', views.CreateNotification),
     url(r'^get-notification-details/$', views.GetNotificationDeatils),
@@ -21,6 +22,6 @@ urlpatterns = [
     url(r'^upload-notification-image/$', views.UploadNotificationImage),
     url(r'^delete-notification-image/$', views.DeleteNotificationImage),
     url(r'^send-notification/$', views.SendNotification),
-    url(r'^fetch-notification-list/$', views.FetchNotificationList),
+    url(r'^fetch-notification-list-for-admin/$', views.FetchNotificationListForAdmin),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
