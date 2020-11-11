@@ -872,6 +872,8 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
             if brand_name!=None:
                 product_objs = product_objs.filter(base_product__brand__name=brand_name)
 
+            logger.info(product_objs)
+            
             sales_user_obj = None
             favourite_product_objs = Product.objects.none()  
 
