@@ -721,169 +721,169 @@ class SearchWIGAPI(APIView):
             data = request.data
             logger.info("SearchWIGAPI: %s", str(data))
             
-            product_name = data.get("name", "").strip()
-            super_category_name = data.get("superCategory", "").strip()
-            category_name = data.get("category", "").strip()
-            subcategory_name = data.get("subcategory", "").strip()
-            brand_name = data.get("brand", "").strip()
+            # product_name = data.get("name", "").strip()
+            # super_category_name = data.get("superCategory", "").strip()
+            # category_name = data.get("category", "").strip()
+            # subcategory_name = data.get("subcategory", "").strip()
+            # brand_name = data.get("brand", "").strip()
 
-            page_description = ""
-            seo_title = ""
-            seo_keywords = ""
-            seo_description = ""
+            # page_description = ""
+            # seo_title = ""
+            # seo_keywords = ""
+            # seo_description = ""
 
-            # try:
-            #     if subcategory_name!="":
-            #         sub_category_obj = SubCategory.objects.filter(name=subcategory_name)[0]
-            #         page_description = sub_category_obj.page_description
-            #         seo_title = sub_category_obj.seo_title
-            #         seo_keywords = sub_category_obj.seo_keywords
-            #         seo_description = sub_category_obj.seo_description
-            #     elif category_name!="":
-            #         category_obj = Category.objects.filter(name=category_name)[0]
-            #         page_description = category_obj.page_description
-            #         seo_title = category_obj.seo_title
-            #         seo_keywords = category_obj.seo_keywords
-            #         seo_description = category_obj.seo_description
-            #     elif super_category_name!="":
-            #         super_category_obj = SuperCategory.objects.filter(name=super_category_name)[0]
-            #         page_description = super_category_obj.page_description
-            #         seo_title = super_category_obj.seo_title
-            #         seo_keywords = super_category_obj.seo_keywords
-            #         seo_description = super_category_obj.seo_description
-            #     elif brand_name!="":
-            #         brand_obj = Brand.objects.get(name=brand_name, organization__name="WIG")
-            #         page_description = brand_obj.page_description
-            #         seo_title = brand_obj.seo_title
-            #         seo_keywords = brand_obj.seo_keywords
-            #         seo_description = brand_obj.seo_description
-            #     response["page_description"] = page_description
-            #     response["seo_title"] = seo_title
-            #     response["seo_keywords"] = seo_keywords
-            #     response["seo_description"] = seo_description
-            # except Exception as e:
-            #     response["page_description"] = ""
-            #     response["seo_title"] = ""
-            #     response["seo_keywords"] = ""
-            #     response["seo_description"] = ""
+            # # try:
+            # #     if subcategory_name!="":
+            # #         sub_category_obj = SubCategory.objects.filter(name=subcategory_name)[0]
+            # #         page_description = sub_category_obj.page_description
+            # #         seo_title = sub_category_obj.seo_title
+            # #         seo_keywords = sub_category_obj.seo_keywords
+            # #         seo_description = sub_category_obj.seo_description
+            # #     elif category_name!="":
+            # #         category_obj = Category.objects.filter(name=category_name)[0]
+            # #         page_description = category_obj.page_description
+            # #         seo_title = category_obj.seo_title
+            # #         seo_keywords = category_obj.seo_keywords
+            # #         seo_description = category_obj.seo_description
+            # #     elif super_category_name!="":
+            # #         super_category_obj = SuperCategory.objects.filter(name=super_category_name)[0]
+            # #         page_description = super_category_obj.page_description
+            # #         seo_title = super_category_obj.seo_title
+            # #         seo_keywords = super_category_obj.seo_keywords
+            # #         seo_description = super_category_obj.seo_description
+            # #     elif brand_name!="":
+            # #         brand_obj = Brand.objects.get(name=brand_name, organization__name="WIG")
+            # #         page_description = brand_obj.page_description
+            # #         seo_title = brand_obj.seo_title
+            # #         seo_keywords = brand_obj.seo_keywords
+            # #         seo_description = brand_obj.seo_description
+            # #     response["page_description"] = page_description
+            # #     response["seo_title"] = seo_title
+            # #     response["seo_keywords"] = seo_keywords
+            # #     response["seo_description"] = seo_description
+            # # except Exception as e:
+            # #     response["page_description"] = ""
+            # #     response["seo_title"] = ""
+            # #     response["seo_keywords"] = ""
+            # #     response["seo_description"] = ""
 
-            brand_filter = data.get("brand_filter", [])
-            sort_filter = data.get("sort_filter", {})
+            # brand_filter = data.get("brand_filter", [])
+            # sort_filter = data.get("sort_filter", {})
 
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            website_group_obj = location_group_obj.website_group
+            # location_group_uuid = data["locationGroupUuid"]
+            # location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            # website_group_obj = location_group_obj.website_group
 
-            page = data.get("page", 1)
-            search = {}
+            # page = data.get("page", 1)
+            # search = {}
 
-            # if product_name!="":
-            #     SearchKeyword.objects.create(word=product_name, location_group=location_group_obj)
+            # # if product_name!="":
+            # #     SearchKeyword.objects.create(word=product_name, location_group=location_group_obj)
 
-            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
+            # available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
-            # Filters
-            if sort_filter.get("price", "")=="high-to-low":
-                available_dealshub_products = available_dealshub_products.order_by('-now_price')
-            if sort_filter.get("price", "")=="low-to-high":
-                available_dealshub_products = available_dealshub_products.order_by('now_price')
+            # # Filters
+            # if sort_filter.get("price", "")=="high-to-low":
+            #     available_dealshub_products = available_dealshub_products.order_by('-now_price')
+            # if sort_filter.get("price", "")=="low-to-high":
+            #     available_dealshub_products = available_dealshub_products.order_by('now_price')
 
-            if brand_name!="":
-                available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
+            # if brand_name!="":
+            #     available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
 
-            if super_category_name!="":
-                available_dealshub_products = available_dealshub_products.filter(category__super_category__name=super_category_name)
+            # if super_category_name!="":
+            #     available_dealshub_products = available_dealshub_products.filter(category__super_category__name=super_category_name)
 
-            if category_name!="ALL" and category_name!="":
-                available_dealshub_products = available_dealshub_products.filter(category__name=category_name)
+            # if category_name!="ALL" and category_name!="":
+            #     available_dealshub_products = available_dealshub_products.filter(category__name=category_name)
 
-            if subcategory_name!="":
-                available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
+            # if subcategory_name!="":
+            #     available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
             
-            if product_name!="":
-                if available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name)).exists():
-                    available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
-                else:
-                    search_tags = product_name.split(" ")
-                    target_brand = None
-                    for search_tag in search_tags:
-                        if website_group_obj.brands.filter(name=search_tag).exists():
-                            target_brand = website_group_obj.brands.filter(name=search_tag)[0]
-                            search_tags.remove(search_tag)
-                            break
-                    if target_brand!=None:
-                        available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
+            # if product_name!="":
+            #     if available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name)).exists():
+            #         available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
+            #     else:
+            #         search_tags = product_name.split(" ")
+            #         target_brand = None
+            #         for search_tag in search_tags:
+            #             if website_group_obj.brands.filter(name=search_tag).exists():
+            #                 target_brand = website_group_obj.brands.filter(name=search_tag)[0]
+            #                 search_tags.remove(search_tag)
+            #                 break
+            #         if target_brand!=None:
+            #             available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
 
-                    if len(search_tags)>0:
-                        search_results = DealsHubProduct.objects.none()
-                        for search_tag in search_tags:
-                            search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
-                        available_dealshub_products = search_results.distinct()
+            #         if len(search_tags)>0:
+            #             search_results = DealsHubProduct.objects.none()
+            #             for search_tag in search_tags:
+            #                 search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
+            #             available_dealshub_products = search_results.distinct()
 
 
-            brand_list = []
-            # try:
-            #     brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
-            #     brand_list = list(set(brand_list))
-            #     if len(brand_list)==1:
-            #         brand_list = []
-            # except Exception as e:
-            #     exc_type, exc_obj, exc_tb = sys.exc_info()
-            #     logger.error("SearchWIGAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
+            # brand_list = []
+            # # try:
+            # #     brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+            # #     brand_list = list(set(brand_list))
+            # #     if len(brand_list)==1:
+            # #         brand_list = []
+            # # except Exception as e:
+            # #     exc_type, exc_obj, exc_tb = sys.exc_info()
+            # #     logger.error("SearchWIGAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
 
-            if len(brand_filter)>0:
-                available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
+            # if len(brand_filter)>0:
+            #     available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
 
-            paginator = Paginator(available_dealshub_products, 50)
-            dealshub_product_objs = paginator.page(page)
-            temp_pk_list = []
-            for dealshub_product_obj in dealshub_product_objs:
-                temp_pk_list.append(dealshub_product_obj.pk)
+            # paginator = Paginator(available_dealshub_products, 50)
+            # dealshub_product_objs = paginator.page(page)
+            # temp_pk_list = []
+            # for dealshub_product_obj in dealshub_product_objs:
+            #     temp_pk_list.append(dealshub_product_obj.pk)
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
-            products = []
-            currency = location_group_obj.location.currency
-            for dealshub_product_obj in dealshub_product_objs[:5]:
-                try:
-                    if dealshub_product_obj.get_actual_price()==0:
-                        continue
-                    temp_dict = {}
-                    temp_dict["name"] = dealshub_product_obj.get_name()
-                    temp_dict["brand"] = dealshub_product_obj.get_brand()
-                    temp_dict["now_price"] = dealshub_product_obj.now_price
-                    temp_dict["was_price"] = dealshub_product_obj.was_price
-                    temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
-                    temp_dict["stock"] = dealshub_product_obj.stock
-                    temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
-                    temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
-                    temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
-                    if dealshub_product_obj.promotion!=None:
-                        temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
-                    else:
-                        temp_dict["promotion_tag"] = None
-                    temp_dict["currency"] = currency
-                    temp_dict["uuid"] = dealshub_product_obj.uuid
-                    temp_dict["id"] = dealshub_product_obj.uuid
-                    #temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+            # dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+            # products = []
+            # currency = location_group_obj.location.currency
+            # for dealshub_product_obj in dealshub_product_objs:
+            #     try:
+            #         if dealshub_product_obj.get_actual_price()==0:
+            #             continue
+            #         temp_dict = {}
+            #         temp_dict["name"] = dealshub_product_obj.get_name()
+            #         temp_dict["brand"] = dealshub_product_obj.get_brand()
+            #         temp_dict["now_price"] = dealshub_product_obj.now_price
+            #         temp_dict["was_price"] = dealshub_product_obj.was_price
+            #         temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+            #         temp_dict["stock"] = dealshub_product_obj.stock
+            #         temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+            #         temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
+            #         temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
+            #         if dealshub_product_obj.promotion!=None:
+            #             temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
+            #         else:
+            #             temp_dict["promotion_tag"] = None
+            #         temp_dict["currency"] = currency
+            #         temp_dict["uuid"] = dealshub_product_obj.uuid
+            #         temp_dict["id"] = dealshub_product_obj.uuid
+            #         #temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     
-                    products.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            #         products.append(temp_dict)
+            #     except Exception as e:
+            #         exc_type, exc_obj, exc_tb = sys.exc_info()
+            #         logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
 
-            response["brand_list"] = brand_list
+            # response["brand_list"] = brand_list
 
-            is_available = True
-            if int(paginator.num_pages) == int(page):
-                is_available = False
+            # is_available = True
+            # if int(paginator.num_pages) == int(page):
+            #     is_available = False
 
-            response["is_available"] = is_available
-            response["totalPages"] = paginator.num_pages
-            response["total_products"] = len(available_dealshub_products)
+            # response["is_available"] = is_available
+            # response["totalPages"] = paginator.num_pages
+            # response["total_products"] = len(available_dealshub_products)
 
-            search['products'] = products
-            response['search'] = search
+            # search['products'] = products
+            # response['search'] = search
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
