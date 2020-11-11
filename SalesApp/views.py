@@ -841,6 +841,7 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
 
         response = {}
         response['status'] = 500
+        response['message'] = ""
         
         try:
             
@@ -850,11 +851,23 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            category_id = data["category_id"]
+            category_id = data.get("category_id","")
             brand_name = data.get("brand_name", None)
             page = int(data.get('page', 1))
+
+            if category_id == "":
+                response['status'] = 404
+                response['message'] = "Category Id is Null"
+                logger.warning("FetchProductListByCategoryForSalesAppAPI: Category ID is Null")
+                return Response(data=response)
             
-            product_objs = Product.objects.filter(base_product__category__uuid=category_id)
+            try :
+                product_objs = Product.objects.filter(base_product__category__uuid=category_id)
+            except Exception as e:
+                response['status'] = 404
+                response['message'] = "Category Id is Invalid"
+                logger.warning("FetchProductListByCategoryForSalesAppAPI: Category ID is Invalid")
+                return Response(data=response)
 
             if brand_name!=None:
                 product_objs = product_objs.filter(base_product__brand__name=brand_name)                            
