@@ -155,8 +155,6 @@ urlpatterns = [
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
 
     url(r'^fetch-category-list-by-brand/$',views.FetchCategoryListByBrand),
-    url(r'^fetch-product-list-by-category/$',views.FetchProductListByCategory),
-
     url(r'^fetch-categories-for-sales/$',views.FetchCategoriesForSales),
     url(r'^upload-category-sales-image/$',views.UploadCategorySalesImage),
 
