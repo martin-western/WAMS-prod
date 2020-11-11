@@ -1001,7 +1001,7 @@ class FetchProductDetailsAPI(APIView):
 
             seller_sku = data["articleNumber"]
 
-            base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization__name="wig")
+            base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku,brand__organization=ORGANIZATION)
             product_objs = Product.objects.filter(base_product=base_product_obj)
 
             response["product_name"] = base_product_obj.base_product_name
@@ -1110,7 +1110,7 @@ class FetchBulkProductDetailsAPI(APIView):
             for seller_sku in seller_sku_list:
                 
                 try:
-                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization__name="wig")
+                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku,brand__organization=ORGANIZATION)
                     product_objs = Product.objects.filter(base_product=base_product_obj)
                     
                     main_images_list = ImageBucket.objects.none()
@@ -1154,7 +1154,7 @@ class FetchCategoryListByBrandAPI(APIView):
 
             brand_name = data["brand_name"]
 
-            category_ids = BaseProduct.objects.filter(brand__name=brand_name).values_list('category', flat=True).distinct()
+            category_ids = BaseProduct.objects.filter(brand__name=brand_name,brand__organization=ORGANIZATION).values_list('category', flat=True).distinct()
             category_objs = Category.objects.filter(id__in=category_ids)
             
             category_list = []
