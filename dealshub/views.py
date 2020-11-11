@@ -821,16 +821,6 @@ class SearchWIGAPI(APIView):
             #             available_dealshub_products = search_results.distinct()
 
 
-            # brand_list = []
-            # # try:
-            # #     brand_list = list(available_dealshub_products.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
-            # #     brand_list = list(set(brand_list))
-            # #     if len(brand_list)==1:
-            # #         brand_list = []
-            # # except Exception as e:
-            # #     exc_type, exc_obj, exc_tb = sys.exc_info()
-            # #     logger.error("SearchWIGAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
-
             # if len(brand_filter)>0:
             #     available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
 
@@ -871,16 +861,13 @@ class SearchWIGAPI(APIView):
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
 
-            # response["brand_list"] = brand_list
-
-            # is_available = True
-            # if int(paginator.num_pages) == int(page):
-            #     is_available = False
-
-            # response["is_available"] = is_available
-            # response["totalPages"] = paginator.num_pages
-            # response["total_products"] = len(available_dealshub_products)
+            response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
+            response["total_products"] = len(available_dealshub_products)
 
             search['products'] = products
             response['search'] = search
