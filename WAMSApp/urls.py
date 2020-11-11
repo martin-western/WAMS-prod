@@ -152,8 +152,4 @@ urlpatterns = [
 
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
 
-    url(r'^fetch-category-list-by-brand/$',views.FetchCategoryListByBrand),
-    url(r'^fetch-categories-for-sales/$',views.FetchCategoriesForSales),
-    url(r'^upload-category-sales-image/$',views.UploadCategorySalesImage),
-
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

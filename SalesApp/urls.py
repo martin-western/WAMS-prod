@@ -16,6 +16,9 @@ urlpatterns = [
 
     url(r'^fetch-product-details/$',views.FetchProductDetails),
     url(r'^fetch-bulk-product-details/$',views.FetchBulkProductDetails),
+    url(r'^fetch-category-list-by-brand/$',views.FetchCategoryListByBrand),
+    url(r'^fetch-categories-for-sales/$',views.FetchCategoriesForSales),
+    url(r'^upload-category-sales-image/$',views.UploadCategorySalesImage),
 
     
 ##################### Notification Dashboard URLs ###################################
