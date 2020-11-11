@@ -833,6 +833,89 @@ class SendNotificationAPI(APIView):
 
         return Response(data=response)
 
+class FetchProductListByCategoryForSalesAppAPI(APIView):
+
+    permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        response['message'] = ""
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchProductListByCategoryForSalesAppAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            category_id = data.get("category_id","")
+            brand_name = data.get("brand_name", None)
+            page = int(data.get('page', 1))
+
+            if category_id == "":
+                response['status'] = 404
+                response['message'] = "Category Id is Null"
+                logger.warning("FetchProductListByCategoryForSalesAppAPI: Category ID is Null")
+                return Response(data=response)
+            
+            try :
+                product_objs = Product.objects.filter(base_product__category__uuid=category_id)
+            except Exception as e:
+                response['status'] = 404
+                response['message'] = "Category Id is Invalid"
+                logger.warning("FetchProductListByCategoryForSalesAppAPI: Category ID is Invalid")
+                return Response(data=response)
+
+            if brand_name!=None:
+                product_objs = product_objs.filter(base_product__brand__name=brand_name)
+
+            sales_user_obj = None
+            favourite_product_objs = Product.objects.none()  
+
+            try :
+                sales_user_obj = SalesAppUser.objects.get(username=request.user.username)
+                favourite_product_objs = sales_user_obj.favourite_products.all()
+            except Exception as e :
+                pass
+
+            paginator = Paginator(product_objs, 20)
+            product_objs = paginator.page(page)
+            total_pages = paginator.num_pages
+
+            product_list = []
+            for product_obj in product_objs:
+                
+                try:
+                    
+                    temp_dict = {}
+                    temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["product_description"] = product_obj.product_description
+                    temp_dict["seller_sku"] = product_obj.base_product.seller_sku
+                    temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
+                    temp_dict["is_favourite"] = False
+                    if product_obj in favourite_product_objs:
+                        temp_dict["is_favourite"] = True
+
+                    product_list.append(temp_dict)
+                
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchProductListByCategoryForSalesAppAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["product_list"] = product_list
+            response["total_pages"] = total_pages
+            response['status'] = 200
+            response['message'] = "Successful"
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchProductListByCategoryForSalesAppAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 SalesAppLoginSubmit = SalesAppLoginSubmitAPI.as_view()
 
 SalesAppSignUpSubmit = SalesAppSignUpSubmitAPI.as_view()
@@ -858,3 +941,5 @@ DeleteNotificationImage = DeleteNotificationImageAPI.as_view()
 SendNotification = SendNotificationAPI.as_view()
 
 FetchNotificationList = FetchNotificationListAPI.as_view()
+
+FetchProductListByCategoryForSalesApp = FetchProductListByCategoryForSalesAppAPI.as_view()
