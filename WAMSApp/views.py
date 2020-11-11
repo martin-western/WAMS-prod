@@ -6935,9 +6935,3 @@ CreateExportTemplate = CreateExportTemplateAPI.as_view()
 DeleteExportTemplate = DeleteExportTemplateAPI.as_view()
 
 SecureDeleteProduct = SecureDeleteProductAPI.as_view()
-
-FetchCategoryListByBrand = FetchCategoryListByBrandAPI.as_view()
-
-FetchCategoriesForSales = FetchCategoriesForSalesAPI.as_view()
-
-UploadCategorySalesImage = UploadCategorySalesImageAPI.as_view()
