@@ -984,7 +984,7 @@ class FetchNotificationListForAdminAPI(APIView):
 
 class FetchProductDetailsAPI(APIView):
 
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
@@ -1084,7 +1084,7 @@ class FetchProductDetailsAPI(APIView):
 
 class FetchBulkProductDetailsAPI(APIView):
 
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
 

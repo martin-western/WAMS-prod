@@ -6899,10 +6899,6 @@ RefreshProductPriceAndStock = RefreshProductPriceAndStockAPI.as_view()
 
 RefreshPagePriceAndStock = RefreshPagePriceAndStockAPI.as_view()
 
-FetchProductDetailsSalesIntegration = FetchProductDetailsSalesIntegrationAPI.as_view()
-
-FetchBulkProductDetailsSalesIntegration = FetchBulkProductDetailsSalesIntegrationAPI.as_view()
-
 # Bulk Export APIs
 UploadBulkExport = UploadBulkExportAPI.as_view()
 
