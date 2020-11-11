@@ -14,6 +14,8 @@ urlpatterns = [
 
     url(r'^search/$', views.Search),
 
+    url(r'^search-wig/$', views.SearchWIG),
+
     url(r'^create-admin-category/$', views.CreateAdminCategory),
     url(r'^update-admin-category/$', views.UpdateAdminCategory),
     url(r'^delete-admin-category/$', views.DeleteAdminCategory),
