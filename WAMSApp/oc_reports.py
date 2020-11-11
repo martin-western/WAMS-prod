@@ -852,137 +852,141 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
 
 def create_order_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
-    worksheet = workbook.add_worksheet()
+    try:
+        logger.info("create_order_report started!")
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
 
-    row = ["Sr. No.",
-           "Datetime",
-           "Order ID",
-           "Order Item ID",
-           "Channel",
-           "Product Name",
-           "Product ID",
-           "Seller SKU",
-           "Currency",
-           "Strike Price",
-           "Selling Price",
-           "Delivery (inc. VAT)",
-           "Delivery VAT",
-           "Delivery (excl. VAT)",
-           "COD (inc. VAT)",
-           "COD VAT",
-           "COD (excl. VAT)",
-           "Subtotal (inc. VAT)",
-           "Subtotal VAT",
-           "Subtotal (excl. VAT)", 
-           "Quantity",
-           "Customer Name",
-           "Customer Email ID",
-           "Customer Phone Number",
-           "Billing Address",
-           "Shipping Address",
-           "Payment Status",
-           "Shipping Method",
-           "Order Tracking Status",
-           "Order Tracking Status Time"]
+        row = ["Sr. No.",
+               "Datetime",
+               "Order ID",
+               "Order Item ID",
+               "Channel",
+               "Product Name",
+               "Product ID",
+               "Seller SKU",
+               "Currency",
+               "Strike Price",
+               "Selling Price",
+               "Delivery (inc. VAT)",
+               "Delivery VAT",
+               "Delivery (excl. VAT)",
+               "COD (inc. VAT)",
+               "COD VAT",
+               "COD (excl. VAT)",
+               "Subtotal (inc. VAT)",
+               "Subtotal VAT",
+               "Subtotal (excl. VAT)", 
+               "Quantity",
+               "Customer Name",
+               "Customer Email ID",
+               "Customer Phone Number",
+               "Billing Address",
+               "Shipping Address",
+               "Payment Status",
+               "Shipping Method",
+               "Order Tracking Status",
+               "Order Tracking Status Time"]
 
-    cnt = 0
-        
-    colnum = 0
-    for k in row:
-        worksheet.write(cnt, colnum, k)
-        colnum += 1
+        cnt = 0
+            
+        colnum = 0
+        for k in row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
 
-    location_group_objs = custom_permission_obj.location_groups.all()
-    unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
-    if from_date!="":
-        from_date = from_date[:10]+"T00:00:00+04:00"
-        unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
-    if to_date!="":
-        to_date = to_date[:10]+"T23:59:59+04:00"
-        unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
-    order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
+        location_group_objs = custom_permission_obj.location_groups.all()
+        unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
+        if from_date!="":
+            from_date = from_date[:10]+"T00:00:00+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
+        if to_date!="":
+            to_date = to_date[:10]+"T23:59:59+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
+        order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
-    unit_order_list = []
-    for order_obj in order_objs:
-        try:
-            address_obj = order_obj.shipping_address
+        unit_order_list = []
+        for order_obj in order_objs:
+            try:
+                address_obj = order_obj.shipping_address
 
-            shipping_address = address_obj.get_shipping_address()
-            customer_name = address_obj.first_name
-            area = json.loads(address_obj.address_lines)[2]
+                shipping_address = address_obj.get_shipping_address()
+                customer_name = address_obj.first_name
 
-            delivery_fee_with_vat = order_obj.get_delivery_fee()
-            delivery_fee_vat = order_obj.get_delivery_fee_vat()
-            delivery_fee_without_vat = order_obj.get_delivery_fee_without_vat()
+                delivery_fee_with_vat = order_obj.get_delivery_fee()
+                delivery_fee_vat = order_obj.get_delivery_fee_vat()
+                delivery_fee_without_vat = order_obj.get_delivery_fee_without_vat()
 
-            cod_fee_with_vat = order_obj.get_cod_charge()
-            cod_fee_vat = order_obj.get_cod_charge_vat()
-            cod_fee_without_vat = order_obj.get_cod_charge_without_vat()
+                cod_fee_with_vat = order_obj.get_cod_charge()
+                cod_fee_vat = order_obj.get_cod_charge_vat()
+                cod_fee_without_vat = order_obj.get_cod_charge_without_vat()
 
-            for unit_order_obj in unit_order_objs.filter(order=order_obj):
+                for unit_order_obj in unit_order_objs.filter(order=order_obj):
 
-                subtotal_with_vat = unit_order_obj.get_subtotal()
-                subtotal_vat = unit_order_obj.get_total_vat()
-                subtotal_without_vat = unit_order_obj.get_subtotal_without_vat()
+                    subtotal_with_vat = unit_order_obj.get_subtotal()
+                    subtotal_vat = unit_order_obj.get_total_vat()
+                    subtotal_without_vat = unit_order_obj.get_subtotal_without_vat()
 
-                tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
+                    tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
 
-                cnt += 1
+                    cnt += 1
 
-                dealshub_product_obj = unit_order_obj.product
+                    dealshub_product_obj = unit_order_obj.product
 
-                common_row = ["" for i in range(len(row))]
-                common_row[0] = str(cnt)
-                common_row[1] = str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p"))
-                common_row[2] = order_obj.bundleid
-                common_row[3] = unit_order_obj.orderid
-                common_row[4] = dealshub_product_obj.location_group.name
-                common_row[5] = dealshub_product_obj.get_name()
-                common_row[6] = dealshub_product_obj.get_product_id()
-                common_row[7] = dealshub_product_obj.get_seller_sku()
-                common_row[8] = dealshub_product_obj.get_currency()
-                common_row[9] = str(dealshub_product_obj.was_price)
-                common_row[10] = str(unit_order_obj.price)
+                    common_row = ["" for i in range(len(row))]
+                    common_row[0] = str(cnt)
+                    common_row[1] = str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p"))
+                    common_row[2] = order_obj.bundleid
+                    common_row[3] = unit_order_obj.orderid
+                    common_row[4] = dealshub_product_obj.location_group.name
+                    common_row[5] = dealshub_product_obj.get_name()
+                    common_row[6] = dealshub_product_obj.get_product_id()
+                    common_row[7] = dealshub_product_obj.get_seller_sku()
+                    common_row[8] = dealshub_product_obj.get_currency()
+                    common_row[9] = str(dealshub_product_obj.was_price)
+                    common_row[10] = str(unit_order_obj.price)
 
-                common_row[11] = str(delivery_fee_with_vat)
-                common_row[12] = str(delivery_fee_vat)
-                common_row[13] = str(delivery_fee_without_vat)
-                common_row[14] = str(cod_fee_with_vat)
-                common_row[15] = str(cod_fee_vat)
-                common_row[16] = str(cod_fee_without_vat)
-                common_row[17] = str(subtotal_with_vat)
-                common_row[18] = str(subtotal_vat)
-                common_row[19] = str(subtotal_without_vat)
+                    common_row[11] = str(delivery_fee_with_vat)
+                    common_row[12] = str(delivery_fee_vat)
+                    common_row[13] = str(delivery_fee_without_vat)
+                    common_row[14] = str(cod_fee_with_vat)
+                    common_row[15] = str(cod_fee_vat)
+                    common_row[16] = str(cod_fee_without_vat)
+                    common_row[17] = str(subtotal_with_vat)
+                    common_row[18] = str(subtotal_vat)
+                    common_row[19] = str(subtotal_without_vat)
 
-                common_row[20] = str(unit_order_obj.quantity)
-                common_row[21] = customer_name
-                common_row[22] = order_obj.owner.email
-                common_row[23] = str(order_obj.owner.contact_number)
-                common_row[24] = shipping_address
-                common_row[25] = shipping_address
-                common_row[26] = order_obj.payment_status
-                common_row[27] = unit_order_obj.shipping_method
-                common_row[28] = unit_order_obj.current_status_admin
-                common_row[29] = tracking_status_time
-                
-                colnum = 0
-                for k in common_row:
-                    worksheet.write(cnt, colnum, k)
-                    colnum += 1
+                    common_row[20] = str(unit_order_obj.quantity)
+                    common_row[21] = customer_name
+                    common_row[22] = order_obj.owner.email
+                    common_row[23] = str(order_obj.owner.contact_number)
+                    common_row[24] = shipping_address
+                    common_row[25] = shipping_address
+                    common_row[26] = order_obj.payment_status
+                    common_row[27] = unit_order_obj.shipping_method
+                    common_row[28] = unit_order_obj.current_status_admin
+                    common_row[29] = tracking_status_time
+                    
+                    colnum = 0
+                    for k in common_row:
+                        worksheet.write(cnt, colnum, k)
+                        colnum += 1
 
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("create_order_report: %s at %s", e, str(exc_tb.tb_lineno))
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("create_order_report: %s at %s", e, str(exc_tb.tb_lineno))
 
-    workbook.close()
+        workbook.close()
 
-    oc_report_obj = OCReport.objects.get(uuid=uuid)
-    oc_report_obj.is_processed = True
-    oc_report_obj.completion_date = timezone.now()
-    oc_report_obj.save()
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
 
-    notify_user_for_report(oc_report_obj)
+        notify_user_for_report(oc_report_obj)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("create_order_report: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def create_verified_products_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj):
