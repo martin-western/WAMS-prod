@@ -744,9 +744,7 @@ class FetchNotificationListAPI(APIView):
                     temp_dict["subtitle"] = notification_obj.subtitle
                     temp_dict["body"] = notification_obj.body
                     temp_dict["image"] = notification_obj.get_image_url()
-                    temp_dict["expiry_date"] = notification_obj.get_expiry_date()
                     temp_dict["notification_id"] = notification_obj.notification_id
-                    temp_dict["notification_status"] = notification_obj.status
                     
                     notification_list.append(temp_dict)
                 
