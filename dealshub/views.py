@@ -838,7 +838,7 @@ class SearchWIGAPI(APIView):
             dealshub_product_objs = paginator.page(page)            
             products = []
             currency = location_group_obj.location.currency
-            for dealshub_product_obj in dealshub_product_objs:
+            for dealshub_product_obj in dealshub_product_objs[:5]:
                 try:
                     if dealshub_product_obj.get_actual_price()==0:
                         continue
