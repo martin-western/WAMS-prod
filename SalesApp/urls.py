@@ -15,6 +15,8 @@ urlpatterns = [
     url(r'^fetch-notification-list/$', views.FetchNotificationList),
 
     url(r'^fetch-product-details/$',views.FetchProductDetails),
+    url(r'^fetch-bulk-product-details/$',views.FetchBulkProductDetails),
+
     
 ##################### Notification Dashboard URLs ###################################
 

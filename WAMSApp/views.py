@@ -5534,60 +5534,6 @@ class FetchChannelProductListAPI(APIView):
 
         return Response(data=response)
 
-class FetchBulkProductDetailsSalesIntegrationAPI(APIView):
-
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        
-        try:
-            
-            data = request.data
-            logger.info("FetchBulkProductDetailsSalesIntegrationAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            seller_sku_list = data["articleNumberList"]
-            try:
-                seller_sku_list = json.loads(seller_sku_list)
-            except Exception as e:
-                pass
-
-            bulk_product_information_list = []
-
-            for seller_sku in seller_sku_list:
-                
-                try:
-                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku, brand__organization__name="wig")
-                    product_objs = Product.objects.filter(base_product=base_product_obj)
-                    
-                    main_images_list = ImageBucket.objects.none()
-                    for product_obj in product_objs:
-                        main_images_obj = MainImages.objects.get(product=product_obj, is_sourced=True)
-                        main_images_list |= main_images_obj.main_images.all()
-                    main_images_list = main_images_list.distinct()
-                    bulk_product_information_list.append(main_images_list[0].image.image.url)
-
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchBulkProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
-                    bulk_product_information_list.append("")
-
-            response["imagesList"] = bulk_product_information_list
-            
-            response['status'] = 200
-        
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchBulkProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
 class UploadBulkExportAPI(APIView):
 
     def post(self, request, *args, **kwargs):

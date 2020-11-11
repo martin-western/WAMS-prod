@@ -109,8 +109,7 @@ urlpatterns = [
 
     url(r'^refresh-page-price-and-stock/$',views.RefreshPagePriceAndStock),
     url(r'^refresh-product-price-and-stock/$',views.RefreshProductPriceAndStock),
-    url(r'^fetch-bulk-product-details-sales-integration/$',views.FetchBulkProductDetailsSalesIntegration),
-
+    
     url(r'^upload-bulk-export/$',views.UploadBulkExport),
     url(r'^search-bulk-export/$',views.SearchBulkExport),
     url(r'^fetch-data-points/$',views.FetchDataPoints),
