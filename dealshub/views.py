@@ -767,8 +767,8 @@ class SearchWIGAPI(APIView):
             # #     response["seo_keywords"] = ""
             # #     response["seo_description"] = ""
 
-            # brand_filter = data.get("brand_filter", [])
-            # sort_filter = data.get("sort_filter", {})
+            brand_filter = data.get("brand_filter", [])
+            sort_filter = data.get("sort_filter", {})
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -782,47 +782,47 @@ class SearchWIGAPI(APIView):
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
-            # # Filters
-            # if sort_filter.get("price", "")=="high-to-low":
-            #     available_dealshub_products = available_dealshub_products.order_by('-now_price')
-            # if sort_filter.get("price", "")=="low-to-high":
-            #     available_dealshub_products = available_dealshub_products.order_by('now_price')
+            # Filters
+            if sort_filter.get("price", "")=="high-to-low":
+                available_dealshub_products = available_dealshub_products.order_by('-now_price')
+            if sort_filter.get("price", "")=="low-to-high":
+                available_dealshub_products = available_dealshub_products.order_by('now_price')
 
-            # if brand_name!="":
-            #     available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
+            if brand_name!="":
+                available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
 
-            # if super_category_name!="":
-            #     available_dealshub_products = available_dealshub_products.filter(category__super_category__name=super_category_name)
+            if super_category_name!="":
+                available_dealshub_products = available_dealshub_products.filter(category__super_category__name=super_category_name)
 
-            # if category_name!="ALL" and category_name!="":
-            #     available_dealshub_products = available_dealshub_products.filter(category__name=category_name)
+            if category_name!="ALL" and category_name!="":
+                available_dealshub_products = available_dealshub_products.filter(category__name=category_name)
 
-            # if subcategory_name!="":
-            #     available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
+            if subcategory_name!="":
+                available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
             
-            # if product_name!="":
-            #     if available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name)).exists():
-            #         available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
-            #     else:
-            #         search_tags = product_name.split(" ")
-            #         target_brand = None
-            #         for search_tag in search_tags:
-            #             if website_group_obj.brands.filter(name=search_tag).exists():
-            #                 target_brand = website_group_obj.brands.filter(name=search_tag)[0]
-            #                 search_tags.remove(search_tag)
-            #                 break
-            #         if target_brand!=None:
-            #             available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
+            if product_name!="":
+                if available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name)).exists():
+                    available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
+                else:
+                    search_tags = product_name.split(" ")
+                    target_brand = None
+                    for search_tag in search_tags:
+                        if website_group_obj.brands.filter(name=search_tag).exists():
+                            target_brand = website_group_obj.brands.filter(name=search_tag)[0]
+                            search_tags.remove(search_tag)
+                            break
+                    if target_brand!=None:
+                        available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
 
-            #         if len(search_tags)>0:
-            #             search_results = DealsHubProduct.objects.none()
-            #             for search_tag in search_tags:
-            #                 search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
-            #             available_dealshub_products = search_results.distinct()
+                    if len(search_tags)>0:
+                        search_results = DealsHubProduct.objects.none()
+                        for search_tag in search_tags:
+                            search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
+                        available_dealshub_products = search_results.distinct()
 
 
-            # if len(brand_filter)>0:
-            #     available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
+            if len(brand_filter)>0:
+                available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
 
             paginator = Paginator(available_dealshub_products, 50)
             dealshub_product_objs = paginator.page(page)
