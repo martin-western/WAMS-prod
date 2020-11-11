@@ -228,7 +228,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
 
         result["holding_threshold"] = holding_threshold
         result["atp_threshold"] = atp_threshold
-        
+
         if total_holding < holding_threshold and total_atp > atp_threshold:
 
             total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold)
@@ -259,6 +259,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                 result["stock_status"] = "CRITICAL HOLDING"
             elif total_holding == holding_threshold and total_atp < atp_threshold:
                 result["stock_status"] = "CRITICAL ATP"
+            elif total_holding > holding_threshold:
+                result["stock_status"] = "MORE HOLDING"
             else:
                 result["stock_status"] = "CRITICAL STOCK"
 
@@ -271,6 +273,23 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             response_dict = json.loads(json.dumps(xml_content))
 
             response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
+            items = response_dict["T_ITEM"]["item"]
+
+            try :
+                if isinstance(items,list):
+                    for item in items:
+                        if item["INDICATOR1"] != None:
+                            indicator = item["INDICATOR1"]
+                            if indicator == "X":
+                                result["SAP_message"] = "PRICES NOT MAINTAINED"
+                else:
+                    if items["MESSAGE"] != None:
+                        indicator = items["INDICATOR1"]
+                        if indicator == "X":
+                            result["SAP_message"] = "PRICES NOT MAINTAINED"
+            except Exception as e:
+                pass
+
             items = response_dict["T_MESSAGE"]["item"]
 
             try :
@@ -305,6 +324,8 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                 result["stock_status"] = "CRITICAL HOLDING"
             elif total_holding == holding_threshold and total_atp < atp_threshold:
                 result["stock_status"] = "CRITICAL ATP"
+            elif total_holding > holding_threshold:
+                result["stock_status"] = "MORE HOLDING"
             else:
                 result["stock_status"] = "CRITICAL STOCK"
 
