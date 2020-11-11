@@ -869,9 +869,12 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
                 logger.warning("FetchProductListByCategoryForSalesAppAPI: Category ID is Invalid")
                 return Response(data=response)
 
-            if brand_name!=None or brand_name != "":
+            logger.info(product_objs)
+            
+            if brand_name!=None and brand_name != "":
                 product_objs = product_objs.filter(base_product__brand__name=brand_name)
 
+            logger.info(category_id)
             logger.info(product_objs)
             
             sales_user_obj = None
