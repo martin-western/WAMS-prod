@@ -721,16 +721,16 @@ class SearchWIGAPI(APIView):
             data = request.data
             logger.info("SearchWIGAPI: %s", str(data))
             
-            # product_name = data.get("name", "").strip()
-            # super_category_name = data.get("superCategory", "").strip()
-            # category_name = data.get("category", "").strip()
-            # subcategory_name = data.get("subcategory", "").strip()
-            # brand_name = data.get("brand", "").strip()
+            product_name = data.get("name", "").strip()
+            super_category_name = data.get("superCategory", "").strip()
+            category_name = data.get("category", "").strip()
+            subcategory_name = data.get("subcategory", "").strip()
+            brand_name = data.get("brand", "").strip()
 
-            # page_description = ""
-            # seo_title = ""
-            # seo_keywords = ""
-            # seo_description = ""
+            page_description = ""
+            seo_title = ""
+            seo_keywords = ""
+            seo_description = ""
 
             # # try:
             # #     if subcategory_name!="":
@@ -770,17 +770,17 @@ class SearchWIGAPI(APIView):
             # brand_filter = data.get("brand_filter", [])
             # sort_filter = data.get("sort_filter", {})
 
-            # location_group_uuid = data["locationGroupUuid"]
-            # location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            # website_group_obj = location_group_obj.website_group
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
 
-            # page = data.get("page", 1)
-            # search = {}
+            page = data.get("page", 1)
+            search = {}
 
             # # if product_name!="":
             # #     SearchKeyword.objects.create(word=product_name, location_group=location_group_obj)
 
-            # available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
+            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
             # # Filters
             # if sort_filter.get("price", "")=="high-to-low":
@@ -834,11 +834,11 @@ class SearchWIGAPI(APIView):
             # if len(brand_filter)>0:
             #     available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
 
-            # paginator = Paginator(available_dealshub_products, 50)
-            # dealshub_product_objs = paginator.page(page)
-            # temp_pk_list = []
-            # for dealshub_product_obj in dealshub_product_objs:
-            #     temp_pk_list.append(dealshub_product_obj.pk)
+            paginator = Paginator(available_dealshub_products, 50)
+            dealshub_product_objs = paginator.page(page)
+            temp_pk_list = []
+            for dealshub_product_obj in dealshub_product_objs:
+                temp_pk_list.append(dealshub_product_obj.pk)
 
             # dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             # products = []
