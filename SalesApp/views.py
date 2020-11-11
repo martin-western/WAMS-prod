@@ -1137,7 +1137,7 @@ class FetchBulkProductDetailsAPI(APIView):
 
 class FetchCategoryListByBrandAPI(APIView):
 
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
 
