@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^fetch-favourite-products/$', views.FetchFavouriteProducts),
     url(r'^fetch-product-list-by-category/$', views.FetchProductListByCategoryForSalesApp),
     url(r'^fetch-notification-list/$', views.FetchNotificationList),
+
+    url(r'^fetch-product-details/$',views.FetchProductDetails),
     
 ##################### Notification Dashboard URLs ###################################
 

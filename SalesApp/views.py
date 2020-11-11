@@ -994,7 +994,7 @@ class FetchProductDetailsAPI(APIView):
         try:
             
             data = request.data
-            logger.info("FetchProductDetailsSalesIntegrationAPI: %s", str(data))
+            logger.info("FetchProductDetails: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -1065,7 +1065,7 @@ class FetchProductDetailsAPI(APIView):
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchProductDetails: %s at %s", e, str(exc_tb.tb_lineno))
                     images["main_images"] = []
                     pass
 
@@ -1078,7 +1078,7 @@ class FetchProductDetailsAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchProductDetailsSalesIntegrationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchProductDetails: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1111,3 +1111,5 @@ FetchNotificationList = FetchNotificationListAPI.as_view()
 FetchProductListByCategoryForSalesApp = FetchProductListByCategoryForSalesAppAPI.as_view()
 
 FetchNotificationListForAdmin = FetchNotificationListForAdminAPI.as_view()
+
+FetchProductDetails = FetchProductDetailsAPI.as_view()
