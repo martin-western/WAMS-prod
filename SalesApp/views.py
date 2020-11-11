@@ -514,6 +514,8 @@ class GetNotificationDeatilsAPI(APIView):
 
 class UploadNotificationImageAPI(APIView):
 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -570,6 +572,8 @@ class UploadNotificationImageAPI(APIView):
         return Response(data=response)
 
 class DeleteNotificationImageAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
 
@@ -740,9 +744,7 @@ class FetchNotificationListAPI(APIView):
                     temp_dict["subtitle"] = notification_obj.subtitle
                     temp_dict["body"] = notification_obj.body
                     temp_dict["image"] = notification_obj.get_image_url()
-                    temp_dict["expiry_date"] = notification_obj.get_expiry_date()
                     temp_dict["notification_id"] = notification_obj.notification_id
-                    temp_dict["notification_status"] = notification_obj.status
                     
                     notification_list.append(temp_dict)
                 
@@ -869,13 +871,8 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
                 logger.warning("FetchProductListByCategoryForSalesAppAPI: Category ID is Invalid")
                 return Response(data=response)
 
-            logger.info(product_objs)
-
             if brand_name!=None and brand_name != "":
                 product_objs = product_objs.filter(base_product__brand__name=brand_name)
-
-            logger.info(category_id)
-            logger.info(product_objs)
             
             sales_user_obj = None
             favourite_product_objs = Product.objects.none()  
@@ -921,6 +918,70 @@ class FetchProductListByCategoryForSalesAppAPI(APIView):
 
         return Response(data=response)
 
+class FetchNotificationListForAdminAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchNotificationListAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            page = int(data.get('page', 1))
+
+            notification_objs = Notification.objects.all()
+
+            paginator = Paginator(notification_objs, 20)
+            total_pages = paginator.num_pages
+            
+            if page > total_pages:
+                response['status'] = 404
+                response['message'] = "Page number out of range"
+                logger.warning("FetchNotificationListForAdminAPI : Page number out of range")
+                return Response(data=response)
+
+            page_notification_objs = paginator.page(page)
+
+            notification_list = []
+            
+            for notification_obj in page_notification_objs:
+                
+                try:
+                    
+                    temp_dict = {}
+                    temp_dict["title"] = notification_obj.title
+                    temp_dict["subtitle"] = notification_obj.subtitle
+                    temp_dict["body"] = notification_obj.body
+                    temp_dict["image"] = notification_obj.get_image_url()
+                    temp_dict["expiry_date"] = notification_obj.get_expiry_date()
+                    temp_dict["notification_id"] = notification_obj.notification_id
+                    temp_dict["notification_status"] = notification_obj.status
+                    
+                    notification_list.append(temp_dict)
+                
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchNotificationListForAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["notification_list"] = notification_list
+            response["total_pages"] = total_pages
+            response['status'] = 200
+            response['message'] = "Successful"
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchNotificationListForAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 SalesAppLoginSubmit = SalesAppLoginSubmitAPI.as_view()
 
 SalesAppSignUpSubmit = SalesAppSignUpSubmitAPI.as_view()
@@ -948,3 +1009,5 @@ SendNotification = SendNotificationAPI.as_view()
 FetchNotificationList = FetchNotificationListAPI.as_view()
 
 FetchProductListByCategoryForSalesApp = FetchProductListByCategoryForSalesAppAPI.as_view()
+
+FetchNotificationListForAdmin = FetchNotificationListForAdminAPI.as_view()
