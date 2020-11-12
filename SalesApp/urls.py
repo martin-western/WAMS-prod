@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^search-product-by-brand/$', views.SearchProductByBrand),
     url(r'^product-change-in-favourites/$', views.ProductChangeInFavourites),
     url(r'^fetch-favourite-products/$', views.FetchFavouriteProducts),
-    url(r'^fetch-product-list-by-category/$', views.FetchProductListByCategoryAPI),
+    url(r'^fetch-product-list-by-category/$', views.FetchProductListByCategory),
     url(r'^fetch-notification-list/$', views.FetchNotificationList),
 
     url(r'^fetch-product-details/$',views.FetchProductDetails),
