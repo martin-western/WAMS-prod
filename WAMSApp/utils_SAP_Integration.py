@@ -228,12 +228,10 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
 
         result["holding_threshold"] = holding_threshold
         result["atp_threshold"] = atp_threshold
-        
-        atp_threshold_temp = 20.0
 
-        if total_holding < holding_threshold and total_atp > atp_threshold_temp:
+        if total_holding < holding_threshold and total_atp > atp_threshold:
 
-            total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold_temp)
+            total_holding_transfer = min(holding_threshold,total_holding+total_atp-atp_threshold)
 
             while total_holding_transfer > 0:
 
@@ -275,6 +273,23 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             response_dict = json.loads(json.dumps(xml_content))
 
             response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
+            items = response_dict["T_ITEM"]["item"]
+
+            try :
+                if isinstance(items,list):
+                    for item in items:
+                        if item["INDICATOR1"] != None:
+                            indicator = item["INDICATOR1"]
+                            if indicator == "X":
+                                result["SAP_message"] = "PRICES NOT MAINTAINED"
+                else:
+                    if items["MESSAGE"] != None:
+                        indicator = items["INDICATOR1"]
+                        if indicator == "X":
+                            result["SAP_message"] = "PRICES NOT MAINTAINED"
+            except Exception as e:
+                pass
+
             items = response_dict["T_MESSAGE"]["item"]
 
             try :
@@ -447,6 +462,10 @@ def create_final_order(company_code,order_information):
         order_information["header_charges"] = header_charges
 
         customer_id = order_information["customer_id"]
+
+        customer_name = order_information["customer_name"].replace("'","&apos;").replace("&","&amp;")
+        customer_name = customer_name[:30]
+        order_information["customer_name"] = customer_name
 
         body = xml_generator_for_final_billing(company_code,customer_id,order_information)
         logger.info("XML Final: %s",body)

@@ -27,6 +27,7 @@ import xlrd
 import time
 import datetime
 import threading
+import pandas as pd
 
 from datetime import datetime
 from django.utils import timezone
@@ -121,6 +122,125 @@ class HoldingTransferAPI(APIView):
             logger.error("HoldingTransferAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class BulkHoldingTransferAPI(APIView):
+
+    def post(self,request,*args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+        response["message"] = ""
+
+        try:
+
+            data = request.data
+            logger.info("BulkHoldingTransferAPI: %s",str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if custom_permission_sap_functions(request.user,"holding_transfer") == False:
+                logger.warning("HoldingTransferAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            path = default_storage.save('tmp/bulk-upload-holding-transfer.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            try :
+                dfs = pd.read_excel(path, sheet_name=None)
+            except Exception as e:
+                response['status'] = 407
+                response['message'] = "UnSupported File Format"
+                logger.warning("BulkHoldingTransferAPI UnSupported File Format")
+                return Response(data=response)
+
+            try :
+                dfs = dfs["Sheet1"]
+            except Exception as e:
+                response['status'] = 406
+                response['message'] = "Sheet1 not found!"
+                logger.warning("BulkHoldingTransferAPI Sheet1 not found")
+                return Response(data=response)
+
+            dfs = dfs.fillna("")
+            rows = len(dfs.iloc[:])
+            column_header = str(dfs.columns[0]).strip()
+
+            if column_header != "Seller SKU":
+                response['status'] = 405
+                response['message'] = "Seller SKU Column not found"
+                logger.warning("BulkHoldingTransferAPI Seller SKU Column not found")
+                return Response(data=response)
+
+
+            sku_list = dfs['Seller SKU'] 
+
+            excel_errors = []
+
+            for sku in sku_list:
+
+                sku = sku.strip()              
+                dealshub_product_objs = DealsHubProduct.objects.filter(product__base_product__seller_sku=sku)
+                    
+                if dealshub_product_objs.count()==0:
+                    temp_dict = {}
+                    temp_dict["seller_sku"] = sku
+                    temp_dict['error_message'] = "Product not found"
+                    excel_errors.append(temp_dict)
+                    continue
+                    
+                if dealshub_product_objs.count()>1:
+                    temp_dict = {}
+                    temp_dict["seller_sku"] = sku
+                    temp_dict['error_message'] = "More then one product found"
+                    excel_errors.append(temp_dict)
+                    continue   
+
+                brand_name = dealshub_product_obj.get_brand().lower()
+
+                try:
+                    company_code = BRAND_COMPANY_DICT[brand_name]
+                except Exception as e:
+                    company_code = "BRAND NOT RECOGNIZED"
+                    temp_dict = {}
+                    temp_dict["seller_sku"] = sku
+                    temp_dict['error_message'] = "BRAND NOT RECOGNIZED"
+                    excel_errors.append(temp_dict)
+                    continue
+                
+                if company_code != "BRAND NOT RECOGNIZED":
+                    
+                    try :
+                        transfer_result = transfer_from_atp_to_holding(data_seller_sku,company_code)
+                        SAP_message = transfer_result["SAP_message"]
+                        
+                        if SAP_message != "NO HOLDING TRANSFER" and SAP_message != "Successfully Updated.":
+                            temp_dict = {}
+                            temp_dict["seller_sku"] = sku
+                            temp_dict['error_message'] = SAP_message
+                            excel_errors.append(temp_dict)
+
+                    except Exception as e:
+                        temp_dict = {}
+                        temp_dict["seller_sku"] = sku
+                        temp_dict['error_message'] = "INTERNAL ERROR"
+                        excel_errors.append(temp_dict)
+                        continue
+            
+            response['excel_errors'] = excel_errors
+            response['status'] = 200
+            response['message'] = "Succesful"
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkHoldingTransferAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+BulkHoldingTransfer = BulkHoldingTransferAPI.as_view()
 
 FetchPriceAndStock = FetchPriceAndStockAPI.as_view()
 
