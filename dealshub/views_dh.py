@@ -4013,7 +4013,10 @@ class SetShippingMethodAPI(APIView):
                 "delcasa": "3050"
             }
 
-            if UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+            sap_info_render = []
+            
+            wigme_website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
+            if order_obj.location_group.website_group==wigme_website_group_obj and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
                 
