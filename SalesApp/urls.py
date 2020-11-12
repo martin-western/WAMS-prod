@@ -11,8 +11,15 @@ urlpatterns = [
     url(r'^search-product-by-brand/$', views.SearchProductByBrand),
     url(r'^product-change-in-favourites/$', views.ProductChangeInFavourites),
     url(r'^fetch-favourite-products/$', views.FetchFavouriteProducts),
-    url(r'^fetch-product-list-by-category/$', views.FetchProductListByCategoryForSalesApp),
+    url(r'^fetch-product-list-by-category/$', views.FetchProductListByCategoryAPI),
     url(r'^fetch-notification-list/$', views.FetchNotificationList),
+
+    url(r'^fetch-product-details/$',views.FetchProductDetails),
+    url(r'^fetch-bulk-product-details/$',views.FetchBulkProductDetails),
+    url(r'^fetch-category-list-by-brand/$',views.FetchCategoryListByBrand),
+    url(r'^fetch-categories-for-sales/$',views.FetchCategoriesForSales),
+    url(r'^upload-category-sales-image/$',views.UploadCategorySalesImage),
+
     
 ##################### Notification Dashboard URLs ###################################
 
