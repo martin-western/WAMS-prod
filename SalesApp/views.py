@@ -207,7 +207,16 @@ class SearchProductByBrandAPI(APIView):
 
             if brand_name!="":
                 brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
-                product_objs = product_objs.filter(base_product__brand=brand_obj) 
+                product_objs = product_objs.filter(base_product__brand=brand_obj)
+
+            sales_user_obj = None
+            favourite_product_objs = Product.objects.none()  
+
+            try :
+                sales_user_obj = SalesAppUser.objects.get(username=request.user.username)
+                favourite_product_objs = sales_user_obj.favourite_products.all()
+            except Exception as e :
+                pass 
 
             paginator = Paginator(product_objs, 20)
             total_pages = paginator.num_pages
@@ -232,7 +241,10 @@ class SearchProductByBrandAPI(APIView):
                     temp_dict["product_description"] = product_obj.product_description
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
-                    
+                    temp_dict["is_favourite"] = False
+                    if product_obj in favourite_product_objs:
+                        temp_dict["is_favourite"] = True
+
                     product_list.append(temp_dict)
                 
                 except Exception as e:
