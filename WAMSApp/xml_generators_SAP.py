@@ -321,11 +321,8 @@ def xml_generator_for_final_billing(company_code,customer_id,order_information):
                              <CONDITION2></CONDITION2>
                              <CONDITION3></CONDITION3>
                              <CONDITION4></CONDITION4>
-                             <FRM_HOLDING>"""+ str(item["from_holding"])+ """</FRM_HOLDING>
+                             <FRM_HOLDING></FRM_HOLDING>
                           </item>"""
-
-        order_information["customer_name"] = order_information["customer_name"].replace("'","&apos;")
-        order_information["customer_name"] = order_information["customer_name"].replace("&","&amp;")
 
         xml_feed = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
                          <soapenv:Header/>
