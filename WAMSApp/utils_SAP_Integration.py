@@ -463,8 +463,8 @@ def create_final_order(company_code,order_information):
 
         customer_id = order_information["customer_id"]
 
-        customer_name = order_information["customer_name"][:30]
-        customer_name = customer_name.replace("'","&apos;").replace("&","&amp;")
+        customer_name = order_information["customer_name"].replace("'","&apos;").replace("&","&amp;")
+        customer_name = customer_name[:30]
         order_information["customer_name"] = customer_name
 
         body = xml_generator_for_final_billing(company_code,customer_id,order_information)
