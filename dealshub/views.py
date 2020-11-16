@@ -843,6 +843,97 @@ class SearchWIGAPI(APIView):
         return Response(data=response)
 
 
+class FetchWIGCategoriesAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchWIGCategoriesAPI: %s", str(data))
+            
+            super_category_name = data.get("superCategory", "").strip()
+            category_name = data.get("category", "").strip()
+            subcategory_name = data.get("subcategory", "").strip()
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+
+            page = data.get("page", 1)
+            search = {}
+
+            brand_list = []
+            try:
+                brand_list = website_group_obj.brands.all().values_list("name", flat=True)
+                brand_list = list(set(brand_list))
+                if len(brand_list)==1:
+                    brand_list = []
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_super_category_available = False
+            category_list = []
+            try:
+                super_category_obj = None
+                if super_category_name!="":
+                    is_super_category_available = True
+                    super_category_obj = SuperCategory.objects.get(name=super_category_name)
+                elif category_name!=""
+                    super_category_obj = Category.objects.filter(name=category_name)[0].super_category
+                elif subcategory_name!="":
+                    super_category_obj = SubCategory.objects.filter(name=subcategory_name)[0].category.super_category
+                else:
+                    super_category_obj = website_group_obj.super_categories.all()[0]
+
+                category_objs = Category.objects.filter(super_category=super_category_obj)
+                for category_obj in category_objs:
+
+                    cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
+                    if cached_response!="has_expired":
+                        if "subCategoryList" in json.loads(cached_response):
+                            category_list.append(json.loads(cached_response))
+                        continue
+
+                    if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
+                        continue
+                    temp_dict = {}
+                    temp_dict["name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
+                    temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    sub_category_list = []
+                    for sub_category_obj in sub_category_objs:
+                        if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
+                            continue
+                        temp_dict2 = {}
+                        temp_dict2["name"] = sub_category_obj.name
+                        temp_dict2["uuid"] = sub_category_obj.uuid
+                        temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
+                        sub_category_list.append(temp_dict2)
+                    if len(sub_category_list)>0:
+                        temp_dict["subCategoryList"] = sub_category_list
+                        category_list.append(temp_dict)
+                    cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["categoryList"] = category_list
+            response["brand_list"] = brand_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchWIGCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class CreateAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3546,6 +3637,8 @@ FetchHeadingCategories = FetchHeadingCategoriesAPI.as_view()
 Search = SearchAPI.as_view()
 
 SearchWIG = SearchWIGAPI.as_view()
+
+FetchWIGCategories = FetchWIGCategoriesAPI.as_view()
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 
