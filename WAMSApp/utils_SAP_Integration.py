@@ -361,11 +361,37 @@ def create_intercompany_sales_order(company_code,order_information):
         response_dict = json.loads(json.dumps(xml_content))
         logger.info(response_dict)
 
-        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
-
         result = {}
         doc_list = []
         msg_list = []
+
+        items = response_dict["T_ITEM"]["item"]
+
+        try :
+            
+            if isinstance(items,list):
+                for item in items:
+                    if item["INDICATOR1"] != None:
+                        seller_sku = item["MATNR"]
+                        indicator = item["INDICATOR1"]
+                        if indicator == "X":
+                            temp_dict = {}
+                            temp_dict["message"] = "PRICES NOT MAINTAINED FOR" + seller_sku
+                            msg_list.append(temp_dict)
+            else:
+                if items["MESSAGE"] != None:
+                    seller_sku = items["MATNR"]
+                    indicator = items["INDICATOR1"]
+                    if indicator == "X":
+                        temp_dict = {}
+                        temp_dict["message"] = "PRICES NOT MAINTAINED FOR" + seller_sku
+                        msg_list.append(temp_dict)
+
+        except Exception as e:
+            pass
+
+        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
+
 
         if isinstance(items, dict):
             temp_dict={}
