@@ -718,6 +718,9 @@ class SearchWIGAPI(APIView):
         response = {}
         response['status'] = 500
         try:
+            data = request.data
+            logger.info("SearchWIGAPI: %s", str(data))
+
             search_string = data.get("name", "").strip()
             super_category_name = data.get("superCategory", "").strip()
             category_name = data.get("category", "").strip()
@@ -764,7 +767,7 @@ class SearchWIGAPI(APIView):
                 response["seo_keywords"] = ""
                 response["seo_description"] = ""
 
-            
+
             brand_filter = data.get("brand_filter", [])
             sort_filter = data.get("sort_filter", {})
             location_group_uuid = data["locationGroupUuid"]
