@@ -884,7 +884,7 @@ class FetchWIGCategoriesAPI(APIView):
                 if super_category_name!="":
                     is_super_category_available = True
                     super_category_obj = SuperCategory.objects.get(name=super_category_name)
-                elif category_name!=""
+                elif category_name!="":
                     super_category_obj = Category.objects.filter(name=category_name)[0].super_category
                 elif subcategory_name!="":
                     super_category_obj = SubCategory.objects.filter(name=subcategory_name)[0].category.super_category
