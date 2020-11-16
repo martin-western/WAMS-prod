@@ -500,7 +500,7 @@ def create_final_order(company_code,order_information):
             if len(names_list[ind]) +len(word) < 30:
                 names_list[ind] = names_list[ind] + word + " "
             else:
-                ind++
+                ind+=1
                 names_list[ind] = names_list[ind] + word + " "
 
         order_information["customer_first_name"] = names_list[0]
