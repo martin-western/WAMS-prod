@@ -490,8 +490,22 @@ def create_final_order(company_code,order_information):
         customer_id = order_information["customer_id"]
 
         customer_name = order_information["customer_name"].replace("'","&apos;").replace("&","&amp;")
-        customer_name = customer_name[:30]
-        order_information["customer_name"] = customer_name
+        customer_name = customer_name[:89]
+
+        words_list = customer_name.split(" ")
+        names_list = ["","",""]
+        ind = 0
+
+        for word in words_list:
+            if len(names_list[ind]) +len(word) < 30:
+                names_list[ind] = names_list[ind] + word + " "
+            else:
+                ind++
+                names_list[ind] = names_list[ind] + word + " "
+
+        order_information["customer_first_name"] = names_list[0]
+        order_information["customer_middle_name"] = names_list[1]
+        order_information["customer_last_name"] = names_list[2]
 
         body = xml_generator_for_final_billing(company_code,customer_id,order_information)
         logger.info("XML Final: %s",body)
