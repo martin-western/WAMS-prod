@@ -723,6 +723,48 @@ class SearchWIGAPI(APIView):
             category_name = data.get("category", "").strip()
             subcategory_name = data.get("subcategory", "").strip()
             brand_name = data.get("brand", "").strip()
+
+            page_description = ""
+            seo_title = ""
+            seo_keywords = ""
+            seo_description = ""
+
+            try:
+                if subcategory_name!="":
+                    sub_category_obj = SubCategory.objects.filter(name=subcategory_name)[0]
+                    page_description = sub_category_obj.page_description
+                    seo_title = sub_category_obj.seo_title
+                    seo_keywords = sub_category_obj.seo_keywords
+                    seo_description = sub_category_obj.seo_description
+                elif category_name!="":
+                    category_obj = Category.objects.filter(name=category_name)[0]
+                    page_description = category_obj.page_description
+                    seo_title = category_obj.seo_title
+                    seo_keywords = category_obj.seo_keywords
+                    seo_description = category_obj.seo_description
+                elif super_category_name!="":
+                    super_category_obj = SuperCategory.objects.filter(name=super_category_name)[0]
+                    page_description = super_category_obj.page_description
+                    seo_title = super_category_obj.seo_title
+                    seo_keywords = super_category_obj.seo_keywords
+                    seo_description = super_category_obj.seo_description
+                elif brand_name!="":
+                    brand_obj = Brand.objects.get(name=brand_name, organization__name="WIG")
+                    page_description = brand_obj.page_description
+                    seo_title = brand_obj.seo_title
+                    seo_keywords = brand_obj.seo_keywords
+                    seo_description = brand_obj.seo_description
+                response["page_description"] = page_description
+                response["seo_title"] = seo_title
+                response["seo_keywords"] = seo_keywords
+                response["seo_description"] = seo_description
+            except Exception as e:
+                response["page_description"] = ""
+                response["seo_title"] = ""
+                response["seo_keywords"] = ""
+                response["seo_description"] = ""
+
+            
             brand_filter = data.get("brand_filter", [])
             sort_filter = data.get("sort_filter", {})
             location_group_uuid = data["locationGroupUuid"]
