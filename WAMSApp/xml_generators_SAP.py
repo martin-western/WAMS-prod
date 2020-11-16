@@ -166,7 +166,7 @@ def xml_generator_for_intercompany_tansfer(company_code,customer_id,order_inform
                                <IM_ID>""" + str(order_information["order_id"]) + """</IM_ID>
                                <IM_KUNNR>""" + str(customer_id) + """</IM_KUNNR>
                                <IM_PERNR></IM_PERNR>
-                               <IM_PO_NUMBER></IM_PO_NUMBER>
+                               <IM_PO_NUMBER>"""+ str(order_information["refrence_id"]) +"""</IM_PO_NUMBER>
                                <IM_SPART></IM_SPART>
                                <IM_VKORG>""" + str(company_code) + """</IM_VKORG>
                                <IM_VTWEG></IM_VTWEG>
@@ -336,9 +336,11 @@ def xml_generator_for_final_billing(company_code,customer_id,order_information):
                                <IM_ID>""" + str(order_information["order_id"]) + """</IM_ID>
                                <IM_KUNNR>""" + str(customer_id) + """</IM_KUNNR>
                                <IM_PERNR></IM_PERNR>
-                               <IM_PO_NUMBER></IM_PO_NUMBER>
+                               <IM_PO_NUMBER>"""+ str(order_information["refrence_id"]) +"""</IM_PO_NUMBER>
                                <IM_SPART></IM_SPART>
-                               <IM_NAME>""" + str(order_information["customer_name"]) + """</IM_NAME>
+                               <IM_NAME>""" + str(order_information["customer_first_name"]) + """</IM_NAME>
+                               <IM_NAME2>""" + str(order_information["customer_middle_name"]) + """</IM_NAME2>
+                               <IM_NAME3>""" + str(order_information["customer_last_name"]) + """</IM_NAME3>
                                <IM_VKORG>""" + str(company_code) + """</IM_VKORG>
                                <IM_VTWEG></IM_VTWEG>
                                <T_CONDITION>"""+ str(condition_feed) + """</T_CONDITION>
