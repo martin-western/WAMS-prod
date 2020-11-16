@@ -95,12 +95,8 @@ def set_order_status(unit_order_obj, order_status):
         try:
             p1 = threading.Thread(target=send_order_dispatch_mail, args=(unit_order_obj,))
             p1.start()
-            try:
-                p2 = threading.Thread(target=send_order_dispatch_sms, args=(unit_order_obj,))
-                p2.start()
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+            p2 = threading.Thread(target=send_order_dispatch_sms, args=(unit_order_obj,))
+            p2.start()
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
@@ -122,12 +118,8 @@ def set_order_status(unit_order_obj, order_status):
             try:
                 p1 = threading.Thread(target=send_order_delivered_mail, args=(unit_order_obj,))
                 p1.start()
-                try:
-                    p2 = threading.Thread(target=send_order_delivered_sms, args=(unit_order_obj,))
-                    p2.start()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+                p2 = threading.Thread(target=send_order_delivered_sms, args=(unit_order_obj,))
+                p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
@@ -136,12 +128,8 @@ def set_order_status(unit_order_obj, order_status):
             try:
                 p1 = threading.Thread(target=send_order_delivery_failed_mail, args=(unit_order_obj,))
                 p1.start()
-                try:
-                    p2 = threading.Thread(target=send_order_delivery_failed_sms, args=(unit_order_obj,))
-                    p2.start()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+                p2 = threading.Thread(target=send_order_delivery_failed_sms, args=(unit_order_obj,))
+                p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
