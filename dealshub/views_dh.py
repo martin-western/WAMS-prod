@@ -4080,7 +4080,7 @@ class SetShippingMethodAPI(APIView):
                         
                         order_information = {}
                         company_code = brand_company_dict[brand_name.lower()]
-                        order_information["order_id"] = str(uuid.uuid4()).split("-")[0]
+                        order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#8211;")
                         order_information["items"] = []
                         
