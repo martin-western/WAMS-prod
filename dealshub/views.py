@@ -2069,7 +2069,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         if resolution=="low":
                             temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
                         else:
-                            #temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
                             temp_dict2["url"] = unit_banner_image_obj.image.webp_image.url
 
                     temp_dict2["mobileUrl"] = ""
@@ -2077,7 +2077,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         if resolution=="low":
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
                         else:
-                            #temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                            temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.webp_image.url
 
                     hovering_banner_img = unit_banner_image_obj.hovering_banner_image
