@@ -23,6 +23,9 @@ logger = logging.getLogger(__name__)
 
 SERVER_TOKEN = "AAAARH4JrjU:APA91bEi1uAlKWWMNnX7pCwXs2RBoAnLahZ0MAT92jOp80lE25Cbjn03iXHxNZeNvuMlYZYYKjXtmw21rz8IJEEGYHUS8khTiNzUgn61x_HFBQM78Q9QUNismYfmsc8B8WVrWRkTlX8S"
 
+def get_organization():    	
+    return Organization.objects.get(name="WIG")
+
 def convert_to_ascii(s):
     
     s = s.replace(u'\u2013', "-").replace(u'\u2019', "'").replace(u'\u2018', "'").replace(u'\u201d','"').replace(u'\u201c','"')

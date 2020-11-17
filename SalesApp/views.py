@@ -38,7 +38,6 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-ORGANIZATION = Organization.objects.get(name="WIG")
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
@@ -195,7 +194,7 @@ class SearchProductByBrandAPI(APIView):
             search_text = data.get("search_text", "")
             page = int(data.get('page', 1))
 
-            product_objs = Product.objects.filter(base_product__brand__organization=ORGANIZATION)
+            product_objs = Product.objects.filter(base_product__brand__organization=get_organization())
 
             if search_text != "":
                 product_objs = product_objs.filter(
@@ -206,7 +205,7 @@ class SearchProductByBrandAPI(APIView):
                     )
 
             if brand_name!="":
-                brand_obj = Brand.objects.get(name=brand_name,organization=ORGANIZATION)
+                brand_obj = Brand.objects.get(name=brand_name,organization=get_organization())
                 product_objs = product_objs.filter(base_product__brand=brand_obj)
 
             sales_user_obj = None
@@ -303,9 +302,9 @@ class ProductChangeInFavouritesAPI(APIView):
                 response['message'] = "Operation Type not valid"
                 return Response(data=response)
             
-            if Product.objects.filter(base_product__brand__organization=ORGANIZATION,base_product__seller_sku=seller_sku).exists():
+            if Product.objects.filter(base_product__brand__organization=get_organization(),base_product__seller_sku=seller_sku).exists():
 
-                product_obj = Product.objects.get(base_product__brand__organization=ORGANIZATION,base_product__seller_sku=seller_sku)
+                product_obj = Product.objects.get(base_product__brand__organization=get_organization(),base_product__seller_sku=seller_sku)
 
                 if operation == "ADD":
                     sales_user_obj.favourite_products.add(product_obj)
@@ -877,7 +876,7 @@ class FetchProductListByCategoryAPI(APIView):
                 return Response(data=response)
             
             try :
-                product_objs = Product.objects.filter(base_product__brand__organization=ORGANIZATION,base_product__category__uuid=category_id)
+                product_objs = Product.objects.filter(base_product__brand__organization=get_organization(),base_product__category__uuid=category_id)
             except Exception as e:
                 response['status'] = 404
                 response['message'] = "Category Id is Invalid"
@@ -1014,7 +1013,7 @@ class FetchProductDetailsAPI(APIView):
 
             seller_sku = data["articleNumber"]
 
-            base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku,brand__organization=ORGANIZATION)
+            base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku,brand__organization=get_organization())
             product_objs = Product.objects.filter(base_product=base_product_obj)
 
             response["product_name"] = base_product_obj.base_product_name
@@ -1123,7 +1122,7 @@ class FetchBulkProductDetailsAPI(APIView):
             for seller_sku in seller_sku_list:
                 
                 try:
-                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku,brand__organization=ORGANIZATION)
+                    base_product_obj = BaseProduct.objects.get(seller_sku=seller_sku,brand__organization=get_organization())
                     product_objs = Product.objects.filter(base_product=base_product_obj)
                     
                     main_images_list = ImageBucket.objects.none()
@@ -1167,7 +1166,7 @@ class FetchCategoryListByBrandAPI(APIView):
 
             brand_name = data["brand_name"]
 
-            category_ids = BaseProduct.objects.filter(brand__name=brand_name,brand__organization=ORGANIZATION).values_list('category', flat=True).distinct()
+            category_ids = BaseProduct.objects.filter(brand__name=brand_name,brand__organization=get_organization()).values_list('category', flat=True).distinct()
             category_objs = Category.objects.filter(id__in=category_ids)
             
             category_list = []
