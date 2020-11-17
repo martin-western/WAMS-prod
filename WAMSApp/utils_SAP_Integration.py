@@ -365,6 +365,7 @@ def create_intercompany_sales_order(company_code,order_information):
         doc_list = []
         msg_list = []
 
+        response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]
         items = response_dict["T_ITEM"]["item"]
 
         try :
@@ -409,7 +410,7 @@ def create_intercompany_sales_order(company_code,order_information):
                 temp_dict["message"] = item["MSGV1"]    
                 doc_list.append(temp_dict)
 
-        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_MESSAGE"]["item"]
+        items = response_dict["T_MESSAGE"]["item"]
 
         if isinstance(items, dict):
             temp_dict={}
