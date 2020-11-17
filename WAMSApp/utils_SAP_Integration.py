@@ -366,6 +366,7 @@ def create_intercompany_sales_order(company_code,order_information):
         msg_list = []
 
         response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]
+        
         items = response_dict["T_ITEM"]["item"]
 
         try :
@@ -391,7 +392,7 @@ def create_intercompany_sales_order(company_code,order_information):
         except Exception as e:
             pass
 
-        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
+        items = response_dict["T_DOCS"]["item"]
 
 
         if isinstance(items, dict):
