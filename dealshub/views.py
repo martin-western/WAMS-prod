@@ -3387,7 +3387,30 @@ class FetchSEODetailsAPI(APIView):
                 seo_title = brand_obj.seo_title
                 seo_keywords = brand_obj.seo_keywords
                 seo_description = brand_obj.seo_description
-
+            elif page_type=="product":
+                product_obj = DealsHubProduct.objects.filter(product_name=name)[0]
+                page_description = product_obj.page_description
+                seo_title = product_obj.seo_title
+                seo_keywords = product_obj.seo_keywords
+                seo_description = product_obj.seo_description
+            elif page_type=="brand_super_category":
+                brand_super_category_obj = BrandSuperCategory.objects.filter(name=name)[0]
+                page_description = brand_super_category_obj.page_description
+                seo_title = brand_super_category_obj.seo_title
+                seo_keywords = brand_super_category_obj.seo_keywords
+                seo_description = brand_super_category_obj.seo_description
+            elif page_type=="brand_category":
+                brand_category_obj = BrandCategory.objects.filter(name=name)[0]
+                page_description = brand_category_obj.page_description
+                seo_title = brand_category_obj.seo_title
+                seo_keywords = brand_category_obj.seo_keywords
+                seo_description = brand_category_obj.seo_description
+            elif page_type=="brand_sub_category":
+                brand_sub_category_obj = BrandSubCategory.objects.filter(name=name)[0]
+                page_description = brand_sub_category_obj.page_description
+                seo_title = brand_sub_category_obj.seo_title
+                seo_keywords = brand_sub_category_obj.seo_keywords
+                seo_description = brand_sub_category_obj.seo_description
             response["page_description"] = page_description
             response["seo_title"] = seo_title
             response["seo_keywords"] = seo_keywords
@@ -3443,7 +3466,40 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                     temp_dict["name"] = brand_obj.name
                     temp_dict["uuid"] = brand_obj.name
                     autocomplete_list.append(temp_dict)
-
+            elif page_type=="product":
+                product_objs = DealsHubProduct.filter(product_name__icontains=search_string, location_group__website_group__name="shopnesto")
+                for product_obj in product_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = product_obj.product_name
+                    temp_dict["uuid"] = product_obj.uuid
+                    autocomplete_list.append(temp_dict)
+            elif page_type=="brand_super_category":
+                brand_name = data["brand_name"]
+                brand_super_category_objs = BrandSuperCategory.objects.filter(brand__name__icontains=brand_name, brand__organization__name="WIG")
+                brand_super_category_objs = BrandSuperCategory.objects.filter(super_category__name__icontains=search_string)[:5]
+                for brand_super_category_obj in brand_super_category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = brand_super_category_obj.name
+                    temp_dict["uuid"] = brand_super_category_obj.uuid
+                    autocomplete_list.append(temp_dict)
+            elif page_type=="brand_category":
+                brand_name = data["brand_name"]
+                brand_category_objs = BrandCategory.objects.filter(brand__name__icontains=brand_name, brand__organization__name="WIG")
+                brand_category_objs = BrandCategory.objects.filter(category__name__icontains=search_string)[:5]
+                for brand_category_obj in brand_category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = brand_category_obj.name
+                    temp_dict["uuid"] = brand_category_obj.uuid
+                    autocomplete_list.append(temp_dict)
+            elif page_type=="brand_sub_category":
+                brand_name = data["brand_name"]
+                brand_sub_category_objs = BrandSubCategory.objects.filter(brand__name__icontains=brand_name, brand__organization__name="WIG")
+                brand_sub_category_objs = BrandSubCategory.objects.filter(sub_category__name__icontains=search_string)[:5]
+                for brand_sub_category_obj in brand_sub_category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = brand_sub_category_obj.name
+                    temp_dict["uuid"] = brand_sub_category_obj.uuid
+                    autocomplete_list.append(temp_dict)
             response["autocomplete_list"] = autocomplete_list
             response['status'] = 200
         except Exception as e:
@@ -3495,6 +3551,30 @@ class FetchSEOAdminDetailsAPI(APIView):
                 seo_title = brand_obj.seo_title
                 seo_keywords = brand_obj.seo_keywords
                 seo_description = brand_obj.seo_description
+            elif page_type=="product":
+                product_obj = DealsHubProduct.objects.get(uuid=uuid)
+                page_description = product_obj.page_description
+                seo_title = product_obj.seo_title
+                seo_keywords = product_obj.seo_keywords
+                seo_description = product_obj.seo_description
+            elif page_type=="brand_super_category":
+                brand_super_category_obj = BrandSuperCategory.objects.get(uuid=uuid)
+                page_description = brand_super_category_obj.page_description
+                seo_title = brand_super_category_obj.seo_title
+                seo_keywords = brand_super_category_obj.seo_keywords
+                seo_description = brand_super_category_obj.seo_description
+            elif page_type=="brand_category":
+                brand_category_obj = BrandCategory.objects.get(uuid=uuid)
+                page_description = brand_category_obj.page_description
+                seo_title = brand_category_obj.seo_title
+                seo_keywords = brand_category_obj.seo_keywords
+                seo_description = brand_category_obj.seo_description
+            elif page_type=="brand_sub_category":
+                brand_sub_category_obj = BrandSubCategory.objects.get(uuid=uuid)
+                page_description = brand_sub_category_obj.page_description
+                seo_title = brand_sub_category_obj.seo_title
+                seo_keywords = brand_sub_category_obj.seo_keywords
+                seo_description = brand_sub_category_obj.seo_description
 
             response["page_description"] = page_description
             response["seo_title"] = seo_title
@@ -3555,6 +3635,34 @@ class SaveSEOAdminDetailsAPI(APIView):
                 brand_obj.seo_keywords = seo_keywords
                 brand_obj.seo_description = seo_description
                 brand_obj.save()
+            elif page_type=="product":
+                product_obj = DealsHubProduct.objects.get(uuid=uuid)
+                product_obj.page_description = page_description
+                product_obj.seo_title = seo_title
+                product_obj.seo_keywords = seo_keywords
+                product_obj.seo_description = seo_description
+                product_obj.save()
+            elif page_type=="brand_super_category":
+                brand_super_category_obj = BrandSuperCategory.objects.get(uuid=uuid)
+                brand_super_category_obj.page_description = page_description
+                brand_super_category_obj.seo_title = seo_title
+                brand_super_category_obj.seo_keywords = seo_keywords
+                brand_super_category_obj.seo_description = seo_description
+                brand_super_category_obj.save()
+            elif page_type=="brand_category":
+                brand_category_obj = BrandCategory.objects.get(uuid=uuid)
+                brand_category_obj.page_description = page_description
+                brand_category_obj.seo_title = seo_title
+                brand_category_obj.seo_keywords = seo_keywords
+                brand_category_obj.seo_description = seo_description
+                brand_category_obj.save()
+            elif page_type=="brand_sub_category":
+                brand_sub_category_obj = BrandSubCategory.objects.get(uuid=uuid)
+                brand_sub_category_obj.page_description = page_description
+                brand_sub_category_obj.seo_title = seo_title
+                brand_sub_category_obj.seo_keywords = seo_keywords
+                brand_sub_category_obj.seo_description = seo_description
+                brand_sub_category_obj.save()
             
             response['status'] = 200
         except Exception as e:
