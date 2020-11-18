@@ -165,6 +165,7 @@ class DealsHubProduct(models.Model):
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     category = models.ForeignKey(Category, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
+    url = models.CharField(max_length=200, default="")
     uuid = models.CharField(max_length=200, default="")
 
     is_promo_restricted = models.BooleanField(default=False)
