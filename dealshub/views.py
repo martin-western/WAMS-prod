@@ -317,6 +317,7 @@ class FetchSectionProductsAPI(APIView):
                     temp_dict2["promotion_tag"] = None
                 temp_dict2["currency"] = dealshub_product_obj.get_currency()
                 temp_dict2["uuid"] = dealshub_product_obj.uuid
+                temp_dict2["link"] = dealshub_product_obj.url
                 temp_dict2["id"] = dealshub_product_obj.uuid
                 temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
 
@@ -596,6 +597,7 @@ class SearchAPI(APIView):
                         temp_dict["promotion_tag"] = None
                     temp_dict["currency"] = currency
                     temp_dict["uuid"] = dealshub_product_obj.uuid
+                    temp_dict["link"] = dealshub_product_obj.url
                     temp_dict["id"] = dealshub_product_obj.uuid
                     temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     
@@ -866,6 +868,7 @@ class SearchWIGAPI(APIView):
                         temp_dict["promotion_tag"] = None
                     temp_dict["currency"] = currency
                     temp_dict["uuid"] = dealshub_product_obj.uuid
+                    temp_dict["link"] = dealshub_product_obj.url
                     temp_dict["id"] = dealshub_product_obj.uuid
                     temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     products.append(temp_dict)
@@ -2011,6 +2014,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["brand"] = dealshub_product_obj.get_brand()
                     temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
                     temp_dict2["uuid"] = dealshub_product_obj.uuid
+                    temp_dict2["link"] = dealshub_product_obj.url
 
                     if is_dealshub==True:
                         temp_dict2["category"] = dealshub_product_obj.get_category()
@@ -2128,6 +2132,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
                             temp_dict3["brand"] = dealshub_product_obj.get_brand()
                             temp_dict3["uuid"] = dealshub_product_obj.uuid
+                            temp_dict3["link"] = dealshub_product_obj.url
 
                             promotion_obj = dealshub_product_obj.promotion
                             
@@ -2722,6 +2727,7 @@ class FetchUnitBannerProductsAPI(APIView):
                     temp_dict["promotion_tag"] = None
                 temp_dict["currency"] = dealshub_product_obj.get_currency()
                 temp_dict["uuid"] = dealshub_product_obj.uuid
+                temp_dict["link"] = dealshub_product_obj.url
                 temp_dict["id"] = dealshub_product_obj.uuid
                 temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                 

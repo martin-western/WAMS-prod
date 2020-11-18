@@ -139,6 +139,7 @@ class FetchWishListAPI(APIView):
                 temp_dict["productName"] = unit_wish_list_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_wish_list_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_wish_list_obj.product.uuid
+                temp_dict["link"] = unit_wish_list_obj.product.url
                 temp_dict["brand"] = unit_wish_list_obj.product.get_brand()
                 temp_dict["isStockAvailable"] = unit_wish_list_obj.product.stock > 0
                 unit_wish_list.append(temp_dict)
@@ -682,6 +683,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["link"] = unit_cart_obj.product.url
                 temp_dict["brand"] = unit_cart_obj.product.get_brand()
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
@@ -769,6 +771,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["link"] = unit_cart_obj.product.url
                 temp_dict["brand"] = unit_cart_obj.product.get_brand()
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
@@ -1273,6 +1276,7 @@ class FetchActiveOrderDetailsAPI(APIView):
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["link"] = unit_cart_obj.product.url
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
@@ -1761,6 +1765,7 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
                 temp_dict["productUuid"] = unit_order_obj.product.uuid
+                temp_dict["link"] = unit_order_obj.product.url
 
                 unit_order_status_list = []
                 unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
@@ -5116,6 +5121,7 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["productName"] = fast_cart_obj.product.get_name()
             cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()
             cart_details["productUuid"] = fast_cart_obj.product.uuid
+            cart_details["link"] = fast_cart_obj.product.url
             cart_details["brand"] = fast_cart_obj.product.get_brand()
             cart_details["isStockAvailable"] = fast_cart_obj.product.stock > 0
 
