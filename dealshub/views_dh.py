@@ -1438,6 +1438,9 @@ class PlaceOrderAPI(APIView):
             try:
                 p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
+                if order_obj.location_group.website_group=="parajohn":
+                    p2 = threading.Thread(target=send_order_confirmation_sms, args=(order_obj,))
+                    p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
