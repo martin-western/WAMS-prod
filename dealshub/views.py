@@ -802,7 +802,7 @@ class SearchWIGAPI(APIView):
                     available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
 
                 if len(words)==1:
-                    available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0])
+                    available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=words[0]) | Q(product__base_product__seller_sku__icontains=words[0]))
                 elif len(words)==2:
                     if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
                         available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
@@ -2296,7 +2296,7 @@ class SearchProductsAutocompleteAPI(APIView):
                 words = search_string.split(" ")
 
                 if len(words)==1:
-                    available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0])
+                    available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=words[0]) | Q(product__base_product__seller_sku__icontains=words[0]))
                 elif len(words)==2:
                     if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
                         available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
