@@ -78,7 +78,7 @@ def set_order_status(unit_order_obj, order_status):
         unit_order_obj.current_status_admin = order_status
         unit_order_obj.save()
         UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="ordered", status_admin=order_status)
-        return 
+        return
     
     if unit_order_obj.current_status_admin=="picked" and order_status in ["dispatched"]:
         unit_order_obj.current_status = "intransit"
@@ -89,6 +89,9 @@ def set_order_status(unit_order_obj, order_status):
         try:
             p1 = threading.Thread(target=send_order_dispatch_mail, args=(unit_order_obj,))
             p1.start()
+            if unit_order_obj.order.location_group.website_group=="parajohn":
+                p2 = threading.Thread(target=send_order_dispatch_sms, args=(unit_order_obj,))
+                p2.start()
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
@@ -110,13 +113,20 @@ def set_order_status(unit_order_obj, order_status):
             try:
                 p1 = threading.Thread(target=send_order_delivered_mail, args=(unit_order_obj,))
                 p1.start()
+                if unit_order_obj.order.location_group.website_group=="parajohn":
+                    p2 = threading.Thread(target=send_order_delivered_sms, args=(unit_order_obj,))
+                    p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+        
         elif order_status=="delivery failed":
             try:
                 p1 = threading.Thread(target=send_order_delivery_failed_mail, args=(unit_order_obj,))
                 p1.start()
+                if unit_order_obj.order.location_group.website_group=="parajohn":
+                    p2 = threading.Thread(target=send_order_delivery_failed_sms, args=(unit_order_obj,))
+                    p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
@@ -166,6 +176,62 @@ def update_order_bill(order_obj):
     
     order_obj.to_pay = order_obj.get_total_amount()
     order_obj.save()
+
+
+def send_order_confirmation_sms(order_obj):
+    try:
+        dealshub_user_obj = order_obj.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        contact_number = dealshub_user_obj.contact_number
+        message = 'Your order has been confirmed'
+        url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to=971"+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+        requests.get(url)  
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_confirmation_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_order_dispatch_sms(unit_order_obj):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        contact_number = dealshub_user_obj.contact_number
+        message = 'Your order has been dispatched!' 
+        url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to=971"+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+        requests.get(url)  
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_dispatch_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_order_delivered_sms(unit_order_obj):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        contact_number = dealshub_user_obj.contact_number
+        message = 'Your order has been delivered!'
+        url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to=971"+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+        requests.get(url)  
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_delivered_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_order_delivery_failed_sms(unit_order_obj):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        contact_number = dealshub_user_obj.contact_number
+        message = 'Sorry, we were unable to deliver your order'
+        url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to=971"+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+        requests.get(url)  
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_delivery_failed_sms: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def send_order_confirmation_mail(order_obj):
@@ -814,3 +880,13 @@ def get_all_the_charges(order_obj):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("get_all_the_charges: %s at %s", e, str(exc_tb.tb_lineno))
         return charges
+
+def remove_stopwords(string):
+    words = string.strip().split(" ")
+    stopwords = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"]
+    cleaned_words = []
+    for word in words:
+        if word not in stopwords:
+            cleaned_words.append(word)
+    cleaned_string = " ".join(cleaned_words)
+    return cleaned_string

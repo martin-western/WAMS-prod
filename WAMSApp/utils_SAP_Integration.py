@@ -361,11 +361,39 @@ def create_intercompany_sales_order(company_code,order_information):
         response_dict = json.loads(json.dumps(xml_content))
         logger.info(response_dict)
 
-        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_DOCS"]["item"]
-
         result = {}
         doc_list = []
         msg_list = []
+
+        response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]
+        
+        items = response_dict["T_ITEM"]["item"]
+
+        try :
+            
+            if isinstance(items,list):
+                for item in items:
+                    if item["INDICATOR1"] != None:
+                        seller_sku = item["MATNR"]
+                        indicator = item["INDICATOR1"]
+                        if indicator == "X":
+                            temp_dict = {}
+                            temp_dict["message"] = "PRICES NOT MAINTAINED FOR" + seller_sku
+                            msg_list.append(temp_dict)
+            else:
+                if items["MESSAGE"] != None:
+                    seller_sku = items["MATNR"]
+                    indicator = items["INDICATOR1"]
+                    if indicator == "X":
+                        temp_dict = {}
+                        temp_dict["message"] = "PRICES NOT MAINTAINED FOR" + seller_sku
+                        msg_list.append(temp_dict)
+
+        except Exception as e:
+            pass
+
+        items = response_dict["T_DOCS"]["item"]
+
 
         if isinstance(items, dict):
             temp_dict={}
@@ -383,7 +411,7 @@ def create_intercompany_sales_order(company_code,order_information):
                 temp_dict["message"] = item["MSGV1"]    
                 doc_list.append(temp_dict)
 
-        items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ONLINE_ORDERResponse"]["T_MESSAGE"]["item"]
+        items = response_dict["T_MESSAGE"]["item"]
 
         if isinstance(items, dict):
             temp_dict={}
@@ -464,8 +492,22 @@ def create_final_order(company_code,order_information):
         customer_id = order_information["customer_id"]
 
         customer_name = order_information["customer_name"].replace("'","&apos;").replace("&","&amp;")
-        customer_name = customer_name[:30]
-        order_information["customer_name"] = customer_name
+        customer_name = customer_name[:89]
+
+        words_list = customer_name.split(" ")
+        names_list = ["","",""]
+        ind = 0
+
+        for word in words_list:
+            if len(names_list[ind]) +len(word) < 30:
+                names_list[ind] = names_list[ind] + word + " "
+            else:
+                ind+=1
+                names_list[ind] = names_list[ind] + word + " "
+
+        order_information["customer_first_name"] = names_list[0]
+        order_information["customer_middle_name"] = names_list[1]
+        order_information["customer_last_name"] = names_list[2]
 
         body = xml_generator_for_final_billing(company_code,customer_id,order_information)
         logger.info("XML Final: %s",body)

@@ -535,6 +535,60 @@ class SubCategory(models.Model):
         super(SubCategory, self).save(*args, **kwargs)
 
 
+class BrandSuperCategory(models.Model):
+
+    super_category = models.ForeignKey(SuperCategory, on_delete=models.CASCADE)
+    brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "BrandSuperCategory"
+        verbose_name_plural = "BrandSuperCategory"
+
+    def __str__(self):
+        return str(self.name)
+
+
+class BrandCategory(models.Model):
+
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "BrandCategory"
+        verbose_name_plural = "BrandCategory"
+
+    def __str__(self):
+        return str(self.name)
+
+
+class BrandSubCategory(models.Model):
+
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "BrandSubCategory"
+        verbose_name_plural = "BrandSubCategory"
+
+    def __str__(self):
+        return str(self.name)
+
+
 class Channel(models.Model):
     
     name = models.CharField(unique=True,max_length=200)

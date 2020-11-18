@@ -317,6 +317,7 @@ class FetchSectionProductsAPI(APIView):
                     temp_dict2["promotion_tag"] = None
                 temp_dict2["currency"] = dealshub_product_obj.get_currency()
                 temp_dict2["uuid"] = dealshub_product_obj.uuid
+                temp_dict2["link"] = dealshub_product_obj.url
                 temp_dict2["id"] = dealshub_product_obj.uuid
                 temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
 
@@ -596,6 +597,7 @@ class SearchAPI(APIView):
                         temp_dict["promotion_tag"] = None
                     temp_dict["currency"] = currency
                     temp_dict["uuid"] = dealshub_product_obj.uuid
+                    temp_dict["link"] = dealshub_product_obj.url
                     temp_dict["id"] = dealshub_product_obj.uuid
                     temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     
@@ -720,8 +722,8 @@ class SearchWIGAPI(APIView):
         try:
             data = request.data
             logger.info("SearchWIGAPI: %s", str(data))
-            
-            product_name = data.get("name", "").strip()
+
+            search_string = data.get("name", "").strip()
             super_category_name = data.get("superCategory", "").strip()
             category_name = data.get("category", "").strip()
             subcategory_name = data.get("subcategory", "").strip()
@@ -767,69 +769,82 @@ class SearchWIGAPI(APIView):
                 response["seo_keywords"] = ""
                 response["seo_description"] = ""
 
+
             brand_filter = data.get("brand_filter", [])
             sort_filter = data.get("sort_filter", {})
-
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
-
             page = data.get("page", 1)
             search = {}
-
-            if product_name!="":
-                SearchKeyword.objects.create(word=product_name, location_group=location_group_obj)
-
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
-
             # Filters
             if sort_filter.get("price", "")=="high-to-low":
                 available_dealshub_products = available_dealshub_products.order_by('-now_price')
             if sort_filter.get("price", "")=="low-to-high":
                 available_dealshub_products = available_dealshub_products.order_by('now_price')
-
             if brand_name!="":
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name=brand_name)
-
             if super_category_name!="":
                 available_dealshub_products = available_dealshub_products.filter(category__super_category__name=super_category_name)
-
             if category_name!="ALL" and category_name!="":
                 available_dealshub_products = available_dealshub_products.filter(category__name=category_name)
-
             if subcategory_name!="":
                 available_dealshub_products = available_dealshub_products.filter(sub_category__name=subcategory_name)
-            
-            if product_name!="":
-                if available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name)).exists():
-                    available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
+            if search_string!="":
+                search_string = remove_stopwords(search_string)
+                words = search_string.split(" ")
+                target_brand = None
+                for word in words:
+                    if website_group_obj.brands.filter(name=word).exists():
+                        target_brand = website_group_obj.brands.filter(name=word)[0]
+                        words.remove(word)
+                        break
+                if target_brand!=None:
+                    available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
+
+                if len(words)==1:
+                    available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=words[0]) | Q(product__base_product__seller_sku__icontains=words[0]))
+                elif len(words)==2:
+                    if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
+                        available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
+                    else:
+                        if available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1]).exists():
+                            available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1])
+                        else:
+                            available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=words[0]) | Q(product__product_name__icontains=words[1]))
+                elif len(words)==3:
+                    if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
+                        available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
+                    else:
+                        if available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1]).filter(product__product_name__icontains=words[2]).exists():
+                            available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1]).filter(product__product_name__icontains=words[2])
+                        else:
+                            temp_available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1])
+                            temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[1]).filter(product__product_name__icontains=words[2])
+                            temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[2])
+                            if temp_available_dealshub_products.exists()==False:
+                                temp_available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0])
+                                temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[1])
+                                temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[2])
+                            available_dealshub_products = temp_available_dealshub_products
                 else:
-                    search_tags = product_name.split(" ")
-                    target_brand = None
-                    for search_tag in search_tags:
-                        if website_group_obj.brands.filter(name=search_tag).exists():
-                            target_brand = website_group_obj.brands.filter(name=search_tag)[0]
-                            search_tags.remove(search_tag)
-                            break
-                    if target_brand!=None:
-                        available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
-
-                    if len(search_tags)>0:
-                        search_results = DealsHubProduct.objects.none()
-                        for search_tag in search_tags:
-                            search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
-                        available_dealshub_products = search_results.distinct()
-
+                    if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
+                        available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
+                    else:
+                        if len(words)>0:
+                            search_results = DealsHubProduct.objects.none()
+                            for word in words:
+                                search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=word) | Q(product__base_product__seller_sku__icontains=word))
+                            available_dealshub_products = search_results.distinct()
 
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
-
             paginator = Paginator(available_dealshub_products, 50)
             dealshub_product_objs = paginator.page(page)
             temp_pk_list = []
             for dealshub_product_obj in dealshub_product_objs:
                 temp_pk_list.append(dealshub_product_obj.pk)
-
             dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             products = []
             currency = location_group_obj.location.currency
@@ -853,28 +868,116 @@ class SearchWIGAPI(APIView):
                         temp_dict["promotion_tag"] = None
                     temp_dict["currency"] = currency
                     temp_dict["uuid"] = dealshub_product_obj.uuid
+                    temp_dict["link"] = dealshub_product_obj.url
                     temp_dict["id"] = dealshub_product_obj.uuid
                     temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
-                    
                     products.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
             is_available = True
             if int(paginator.num_pages) == int(page):
                 is_available = False
-
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
             response["total_products"] = len(available_dealshub_products)
-
             search['products'] = products
             response['search'] = search
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchWIGCategoriesAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchWIGCategoriesAPI: %s", str(data))
+            
+            super_category_name = data.get("superCategory", "").strip()
+            category_name = data.get("category", "").strip()
+            subcategory_name = data.get("subcategory", "").strip()
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+
+            page = data.get("page", 1)
+            search = {}
+
+            brand_list = []
+            try:
+                brand_list = website_group_obj.brands.all().values_list("name", flat=True)
+                brand_list = list(set(brand_list))
+                if len(brand_list)==1:
+                    brand_list = []
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_super_category_available = False
+            category_list = []
+            try:
+                super_category_obj = None
+                if super_category_name!="":
+                    is_super_category_available = True
+                    super_category_obj = SuperCategory.objects.get(name=super_category_name)
+                elif category_name!="":
+                    super_category_obj = Category.objects.filter(name=category_name)[0].super_category
+                elif subcategory_name!="":
+                    super_category_obj = SubCategory.objects.filter(name=subcategory_name)[0].category.super_category
+                else:
+                    super_category_obj = website_group_obj.super_categories.all()[0]
+
+                category_objs = Category.objects.filter(super_category=super_category_obj)
+                for category_obj in category_objs:
+
+                    cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
+                    if cached_response!="has_expired":
+                        if "subCategoryList" in json.loads(cached_response):
+                            category_list.append(json.loads(cached_response))
+                        continue
+
+                    if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
+                        continue
+                    temp_dict = {}
+                    temp_dict["name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
+                    temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    sub_category_list = []
+                    for sub_category_obj in sub_category_objs:
+                        if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
+                            continue
+                        temp_dict2 = {}
+                        temp_dict2["name"] = sub_category_obj.name
+                        temp_dict2["uuid"] = sub_category_obj.uuid
+                        temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
+                        sub_category_list.append(temp_dict2)
+                    if len(sub_category_list)>0:
+                        temp_dict["subCategoryList"] = sub_category_list
+                        category_list.append(temp_dict)
+                    cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["categoryList"] = category_list
+            response["brand_list"] = brand_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchWIGCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -1911,6 +2014,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["brand"] = dealshub_product_obj.get_brand()
                     temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
                     temp_dict2["uuid"] = dealshub_product_obj.uuid
+                    temp_dict2["link"] = dealshub_product_obj.url
 
                     if is_dealshub==True:
                         temp_dict2["category"] = dealshub_product_obj.get_category()
@@ -1969,7 +2073,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         if resolution=="low":
                             temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
                         else:
-                            #temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
                             temp_dict2["url"] = unit_banner_image_obj.image.webp_image.url
 
                     temp_dict2["mobileUrl"] = ""
@@ -1977,7 +2081,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         if resolution=="low":
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
                         else:
-                            #temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                            temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.webp_image.url
 
                     hovering_banner_img = unit_banner_image_obj.hovering_banner_image
@@ -2028,6 +2132,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
                             temp_dict3["brand"] = dealshub_product_obj.get_brand()
                             temp_dict3["uuid"] = dealshub_product_obj.uuid
+                            temp_dict3["link"] = dealshub_product_obj.url
 
                             promotion_obj = dealshub_product_obj.promotion
                             
@@ -2192,10 +2297,48 @@ class SearchProductsAutocompleteAPI(APIView):
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
 
             if len(search_tags)>0:
-                search_results = DealsHubProduct.objects.none()
-                for search_tag in search_tags:
-                    search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
-                available_dealshub_products = search_results.distinct()
+                search_string = remove_stopwords(search_string)
+                words = search_string.split(" ")
+
+                if len(words)==1:
+                    available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=words[0]) | Q(product__base_product__seller_sku__icontains=words[0]))
+                elif len(words)==2:
+                    if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
+                        available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
+                    else:
+                        if available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1]).exists():
+                            available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1])
+                        else:
+                            available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=words[0]) | Q(product__product_name__icontains=words[1]))
+                elif len(words)==3:
+                    if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
+                        available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
+                    else:
+                        if available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1]).filter(product__product_name__icontains=words[2]).exists():
+                            available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1]).filter(product__product_name__icontains=words[2])
+                        else:
+                            temp_available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1])
+                            temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[1]).filter(product__product_name__icontains=words[2])
+                            temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[2])
+                            if temp_available_dealshub_products.exists()==False:
+                                temp_available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0])
+                                temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[1])
+                                temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[2])
+                            available_dealshub_products = temp_available_dealshub_products
+                else:
+                    if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
+                        available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
+                    else:
+                        if len(words)>0:
+                            search_results = DealsHubProduct.objects.none()
+                            for word in words:
+                                search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=word) | Q(product__base_product__seller_sku__icontains=word))
+                            available_dealshub_products = search_results.distinct()
+
+                # search_results = DealsHubProduct.objects.none()
+                # for search_tag in search_tags:
+                #     search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
+                # available_dealshub_products = search_results.distinct()
 
             category_key_list = available_dealshub_products.values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
 
@@ -2584,6 +2727,7 @@ class FetchUnitBannerProductsAPI(APIView):
                     temp_dict["promotion_tag"] = None
                 temp_dict["currency"] = dealshub_product_obj.get_currency()
                 temp_dict["uuid"] = dealshub_product_obj.uuid
+                temp_dict["link"] = dealshub_product_obj.url
                 temp_dict["id"] = dealshub_product_obj.uuid
                 temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                 
@@ -3249,6 +3393,40 @@ class FetchSEODetailsAPI(APIView):
                 seo_title = brand_obj.seo_title
                 seo_keywords = brand_obj.seo_keywords
                 seo_description = brand_obj.seo_description
+            elif page_type=="product":
+                dealshub_product_obj = DealsHubProduct.objects.get(uuid=name)
+                page_description = dealshub_product_obj.page_description
+                seo_title = dealshub_product_obj.seo_title
+                seo_keywords = dealshub_product_obj.seo_keywords
+                seo_description = dealshub_product_obj.seo_description
+            elif page_type=="brand_super_category":
+                brand_obj = Brand.objects.get(name=name, organization__name="WIG")
+                super_category_name = data["super_category_name"]
+                super_category_obj = SuperCategory.objects.get(name=super_category_name)
+                brand_super_category_obj = BrandSuperCategory.objects.get(brand=brand_obj, super_category=super_category_obj)
+                page_description = brand_super_category_obj.page_description
+                seo_title = brand_super_category_obj.seo_title
+                seo_keywords = brand_super_category_obj.seo_keywords
+                seo_description = brand_super_category_obj.seo_description
+            elif page_type=="brand_category":
+                brand_obj = Brand.objects.get(name=name, organization__name="WIG")
+                category_name = data["category_name"]
+                category_obj = Category.objects.get(name=category_name)
+                brand_category_obj = BrandCategory.objects.get(brand=brand_obj, category=category_obj)
+                page_description = brand_category_obj.page_description
+                seo_title = brand_category_obj.seo_title
+                seo_keywords = brand_category_obj.seo_keywords
+                seo_description = brand_category_obj.seo_description
+            elif page_type=="brand_sub_category":
+                brand_obj = Brand.objects.get(name=name, organization__name="WIG")
+                sub_category_name = data["sub_category_name"]
+                sub_category_obj = SubCategory.objects.get(name=sub_category_name)
+                brand_sub_category_obj = BrandSubCategory.objects.get(brand=brand_obj, sub_category=sub_category_obj)
+                page_description = brand_sub_category_obj.page_description
+                seo_title = brand_sub_category_obj.seo_title
+                seo_keywords = brand_sub_category_obj.seo_keywords
+                seo_description = brand_sub_category_obj.seo_description
+
 
             response["page_description"] = page_description
             response["seo_title"] = seo_title
@@ -3305,6 +3483,37 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                     temp_dict["name"] = brand_obj.name
                     temp_dict["uuid"] = brand_obj.name
                     autocomplete_list.append(temp_dict)
+            elif page_type=="product":
+                dealshub_product_objs = DealsHubProduct.filter(product_name__icontains=search_string, location_group__website_group__name="shopnesto")[:5]
+                for dealshub_product_obj in dealshub_product_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = dealshub_product_obj.get_name()
+                    temp_dict["uuid"] = dealshub_product_obj.uuid
+                    autocomplete_list.append(temp_dict)
+            elif page_type=="brand_super_category":
+                brand_name = data["brand_name"]
+                brand_super_category_objs = BrandSuperCategory.objects.filter(brand__name__icontains=brand_name, super_category__name__icontains=search_string, brand__organization__name="WIG")[:5]
+                for brand_super_category_obj in brand_super_category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = brand_super_category_obj.name
+                    temp_dict["uuid"] = brand_super_category_obj.uuid
+                    autocomplete_list.append(temp_dict)
+            elif page_type=="brand_category":
+                brand_name = data["brand_name"]
+                brand_category_objs = BrandCategory.objects.filter(brand__name__icontains=brand_name, category__name__icontains=search_string, brand__organization__name="WIG")[:5]
+                for brand_category_obj in brand_category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = brand_category_obj.name
+                    temp_dict["uuid"] = brand_category_obj.uuid
+                    autocomplete_list.append(temp_dict)
+            elif page_type=="brand_sub_category":
+                brand_name = data["brand_name"]
+                brand_sub_category_objs = BrandSubCategory.objects.filter(brand__name__icontains=brand_name, sub_category__name__icontains=search_string, brand__organization__name="WIG")[:5]
+                for brand_sub_category_obj in brand_sub_category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = brand_sub_category_obj.name
+                    temp_dict["uuid"] = brand_sub_category_obj.uuid
+                    autocomplete_list.append(temp_dict)
 
             response["autocomplete_list"] = autocomplete_list
             response['status'] = 200
@@ -3357,6 +3566,30 @@ class FetchSEOAdminDetailsAPI(APIView):
                 seo_title = brand_obj.seo_title
                 seo_keywords = brand_obj.seo_keywords
                 seo_description = brand_obj.seo_description
+            elif page_type=="product":
+                product_obj = DealsHubProduct.objects.get(uuid=uuid)
+                page_description = product_obj.page_description
+                seo_title = product_obj.seo_title
+                seo_keywords = product_obj.seo_keywords
+                seo_description = product_obj.seo_description
+            elif page_type=="brand_super_category":
+                brand_super_category_obj = BrandSuperCategory.objects.get(uuid=uuid)
+                page_description = brand_super_category_obj.page_description
+                seo_title = brand_super_category_obj.seo_title
+                seo_keywords = brand_super_category_obj.seo_keywords
+                seo_description = brand_super_category_obj.seo_description
+            elif page_type=="brand_category":
+                brand_category_obj = BrandCategory.objects.get(uuid=uuid)
+                page_description = brand_category_obj.page_description
+                seo_title = brand_category_obj.seo_title
+                seo_keywords = brand_category_obj.seo_keywords
+                seo_description = brand_category_obj.seo_description
+            elif page_type=="brand_sub_category":
+                brand_sub_category_obj = BrandSubCategory.objects.get(uuid=uuid)
+                page_description = brand_sub_category_obj.page_description
+                seo_title = brand_sub_category_obj.seo_title
+                seo_keywords = brand_sub_category_obj.seo_keywords
+                seo_description = brand_sub_category_obj.seo_description
 
             response["page_description"] = page_description
             response["seo_title"] = seo_title
@@ -3412,11 +3645,39 @@ class SaveSEOAdminDetailsAPI(APIView):
                 sub_category_obj.save()
             elif page_type=="brand":
                 brand_obj = Brand.objects.get(name=uuid, organization__name="WIG")
-                brand_obj.page_description = page_description 
+                brand_obj.page_description = page_description
                 brand_obj.seo_title = seo_title
                 brand_obj.seo_keywords = seo_keywords
                 brand_obj.seo_description = seo_description
                 brand_obj.save()
+            elif page_type=="product":
+                product_obj = DealsHubProduct.objects.get(uuid=uuid)
+                product_obj.page_description = page_description
+                product_obj.seo_title = seo_title
+                product_obj.seo_keywords = seo_keywords
+                product_obj.seo_description = seo_description
+                product_obj.save()
+            elif page_type=="brand_super_category":
+                brand_super_category_obj = BrandSuperCategory.objects.get(uuid=uuid)
+                brand_super_category_obj.page_description = page_description
+                brand_super_category_obj.seo_title = seo_title
+                brand_super_category_obj.seo_keywords = seo_keywords
+                brand_super_category_obj.seo_description = seo_description
+                brand_super_category_obj.save()
+            elif page_type=="brand_category":
+                brand_category_obj = BrandCategory.objects.get(uuid=uuid)
+                brand_category_obj.page_description = page_description
+                brand_category_obj.seo_title = seo_title
+                brand_category_obj.seo_keywords = seo_keywords
+                brand_category_obj.seo_description = seo_description
+                brand_category_obj.save()
+            elif page_type=="brand_sub_category":
+                brand_sub_category_obj = BrandSubCategory.objects.get(uuid=uuid)
+                brand_sub_category_obj.page_description = page_description
+                brand_sub_category_obj.seo_title = seo_title
+                brand_sub_category_obj.seo_keywords = seo_keywords
+                brand_sub_category_obj.seo_description = seo_description
+                brand_sub_category_obj.save()
             
             response['status'] = 200
         except Exception as e:
@@ -3582,6 +3843,8 @@ FetchHeadingCategories = FetchHeadingCategoriesAPI.as_view()
 Search = SearchAPI.as_view()
 
 SearchWIG = SearchWIGAPI.as_view()
+
+FetchWIGCategories = FetchWIGCategoriesAPI.as_view()
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 

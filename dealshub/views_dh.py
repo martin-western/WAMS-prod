@@ -139,6 +139,7 @@ class FetchWishListAPI(APIView):
                 temp_dict["productName"] = unit_wish_list_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_wish_list_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_wish_list_obj.product.uuid
+                temp_dict["link"] = unit_wish_list_obj.product.url
                 temp_dict["brand"] = unit_wish_list_obj.product.get_brand()
                 temp_dict["isStockAvailable"] = unit_wish_list_obj.product.stock > 0
                 unit_wish_list.append(temp_dict)
@@ -682,6 +683,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["link"] = unit_cart_obj.product.url
                 temp_dict["brand"] = unit_cart_obj.product.get_brand()
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
@@ -769,6 +771,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["link"] = unit_cart_obj.product.url
                 temp_dict["brand"] = unit_cart_obj.product.get_brand()
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
@@ -1273,6 +1276,7 @@ class FetchActiveOrderDetailsAPI(APIView):
                 temp_dict["productName"] = unit_cart_obj.product.get_name()
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                temp_dict["link"] = unit_cart_obj.product.url
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
@@ -1434,6 +1438,9 @@ class PlaceOrderAPI(APIView):
             try:
                 p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
+                if order_obj.location_group.website_group=="parajohn":
+                    p2 = threading.Thread(target=send_order_confirmation_sms, args=(order_obj,))
+                    p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1761,6 +1768,7 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
                 temp_dict["productUuid"] = unit_order_obj.product.uuid
+                temp_dict["link"] = unit_order_obj.product.url
 
                 unit_order_status_list = []
                 unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
@@ -4080,7 +4088,8 @@ class SetShippingMethodAPI(APIView):
                         
                         order_information = {}
                         company_code = brand_company_dict[brand_name.lower()]
-                        order_information["order_id"] = str(uuid.uuid4()).split("-")[0]
+                        order_information["order_id"] = order_obj.bundleid.replace("-","")
+                        order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
@@ -5115,6 +5124,7 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["productName"] = fast_cart_obj.product.get_name()
             cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()
             cart_details["productUuid"] = fast_cart_obj.product.uuid
+            cart_details["link"] = fast_cart_obj.product.url
             cart_details["brand"] = fast_cart_obj.product.get_brand()
             cart_details["isStockAvailable"] = fast_cart_obj.product.stock > 0
 
@@ -5262,6 +5272,7 @@ class GRNProcessingCronAPI(APIView):
                         order_information["city"] = str(order_obj.location_group.location.name)
                         order_information["customer_name"] = order_obj.get_customer_full_name()
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
+                        order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         order_information["charges"] = get_all_the_charges(order_obj)
                         order_information["customer_id"] = order_obj.get_customer_id_for_final_sap_billing()
 
