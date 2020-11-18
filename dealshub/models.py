@@ -167,6 +167,10 @@ class DealsHubProduct(models.Model):
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     url = models.CharField(max_length=200, default="")
     uuid = models.CharField(max_length=200, default="")
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
 
     is_promo_restricted = models.BooleanField(default=False)
 
