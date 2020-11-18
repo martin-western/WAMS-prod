@@ -4086,7 +4086,7 @@ class SetShippingMethodAPI(APIView):
                         order_information = {}
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
-                        order_information["refrence_id"] = order_obj.bundleid.replace("-","&#8211;")
+                        order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
@@ -5269,7 +5269,7 @@ class GRNProcessingCronAPI(APIView):
                         order_information["city"] = str(order_obj.location_group.location.name)
                         order_information["customer_name"] = order_obj.get_customer_full_name()
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
-                        order_information["refrence_id"] = order_obj.bundleid.replace("-","&#8211;")
+                        order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         order_information["charges"] = get_all_the_charges(order_obj)
                         order_information["customer_id"] = order_obj.get_customer_id_for_final_sap_billing()
 
