@@ -550,7 +550,7 @@ class BrandSuperCategory(models.Model):
         verbose_name_plural = "BrandSuperCategory"
 
     def __str__(self):
-        return str(self.name)
+        return str(self.uuid)
 
 
 class BrandCategory(models.Model):
@@ -568,7 +568,7 @@ class BrandCategory(models.Model):
         verbose_name_plural = "BrandCategory"
 
     def __str__(self):
-        return str(self.name)
+        return str(self.uuid)
 
 
 class BrandSubCategory(models.Model):
@@ -586,7 +586,7 @@ class BrandSubCategory(models.Model):
         verbose_name_plural = "BrandSubCategory"
 
     def __str__(self):
-        return str(self.name)
+        return str(self.uuid)
 
 
 class Channel(models.Model):
