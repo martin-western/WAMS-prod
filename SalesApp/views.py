@@ -548,15 +548,13 @@ class UploadNotificationImageAPI(APIView):
             if notification_id == "":
                 response['status'] = 403
                 response['message'] = "Notification Id not sent"
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("UploadNotificationImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("UploadNotificationImageAPI: Notification Id not sent")
                 return Response(data=response)
 
             if image_url == "":
                 response['status'] = 403
                 response['message'] = "Image URL not sent"
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("UploadNotificationImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("UploadNotificationImageAPI: Image URL not sent")
                 return Response(data=response)
 
             try :
@@ -564,8 +562,7 @@ class UploadNotificationImageAPI(APIView):
             except Exception as e :
                 response['status'] = 403
                 response['message'] = "Notification Id not valid"
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("UploadNotificationImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("UploadNotificationImageAPI: Notification Id not valid")
                 return Response(data=response)
 
             
