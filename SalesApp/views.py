@@ -566,7 +566,7 @@ class UploadNotificationImageAPI(APIView):
                 return Response(data=response)
 
             
-            image_obj = Image.objects.create(image_url)
+            image_obj = Image.objects.create(image=image_url)
             notification_obj.image = image_obj
 
             notification_obj.save()
