@@ -599,21 +599,10 @@ class DeleteNotificationImageAPI(APIView):
                 data = json.loads(data)
 
             notification_id = data.get('notification_id', "")
-            image_pk = int(data.get('image_pk', 0))
-
-            image_pk = int(data["image_pk"])
-            notification_id = data["product_pk"]
 
             if notification_id == "":
                 response['status'] = 403
                 response['message'] = "Notification Id not sent"
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("DeleteNotificationImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
-                return Response(data=response)
-
-            if image_pk == 0:
-                response['status'] = 403
-                response['message'] = "Image PK not sent"
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("DeleteNotificationImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
