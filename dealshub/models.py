@@ -171,6 +171,7 @@ class DealsHubProduct(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    search_keywords = models.TextField(default="")
 
     is_promo_restricted = models.BooleanField(default=False)
 
