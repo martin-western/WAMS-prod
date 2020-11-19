@@ -266,6 +266,132 @@ class FetchSimilarProductsAPI(APIView):
 
         return Response(data=response)
 
+class FetchOnSaleProductsAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response["status"] = 500
+        try:
+            data = request.data
+            logger.info("FetchOnSaleProductsAPI: %s", str(data))
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_on_sale=True).prefetch_related('promotion')
+
+            page = int(data.get("page",1))
+            paginator = Paginator(dealshub_product_objs, 40)
+            dealshub_product_objs = paginator.page(page)
+
+            temp_dict = {}
+            temp_dict["is_on_sale"] = True
+            temp_dict["productArray"] = []
+            for dealshub_product_obj in dealshub_product_objs:
+                if dealshub_product_obj.get_actual_price()==0:
+                    continue
+                
+                temp_dict2 = {}
+                temp_dict2["name"] = dealshub_product_obj.get_name()
+                temp_dict2["brand"] = dealshub_product_obj.get_brand()
+                temp_dict2["now_price"] = dealshub_product_obj.now_price
+                temp_dict2["was_price"] = dealshub_product_obj.was_price
+                temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
+                temp_dict2["stock"] = dealshub_product_obj.stock
+                temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+                temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
+                temp_dict2["is_promotional"] = dealshub_product_obj.promotion!=None
+                if dealshub_product_obj.promotion!=None:
+                    temp_dict2["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
+                else:
+                    temp_dict2["promotion_tag"] = None
+                temp_dict2["currency"] = dealshub_product_obj.get_currency()
+                temp_dict2["uuid"] = dealshub_product_obj.uuid
+                temp_dict2["id"] = dealshub_product_obj.uuid
+                temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+
+                temp_dict["productsArray"].append(temp_dict2)
+            
+            is_available = True
+            
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
+            response["newArrivalProducts"] = temp_dict
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOnSaleProductsAPI: %s at %s", e, str(exc_tb.tb_lineno)) 
+
+        return Response(data=response)
+
+
+class FetchNewArrivalProductsAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response["status"] = 500
+        try:
+            data = request.data
+            logger.info("FetchNewArrivalProductsAPI: %s", str(data))
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_new_arrival=True).order_by('-product__created_date').prefetch_related('promotion')
+
+            page = int(data.get("page",1))
+            paginator = Paginator(dealshub_product_objs, 40)
+            dealshub_product_objs = paginator.page(page)
+
+            temp_dict = {}
+            temp_dict["is_new_arrival"] = True
+            temp_dict["productArray"] = []
+            for dealshub_product_obj in dealshub_product_objs:
+                if dealshub_product_obj.get_actual_price()==0:
+                    continue
+                
+                temp_dict2 = {}
+                temp_dict2["name"] = dealshub_product_obj.get_name()
+                temp_dict2["brand"] = dealshub_product_obj.get_brand()
+                temp_dict2["now_price"] = dealshub_product_obj.now_price
+                temp_dict2["was_price"] = dealshub_product_obj.was_price
+                temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
+                temp_dict2["stock"] = dealshub_product_obj.stock
+                temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+                temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
+                temp_dict2["is_promotional"] = dealshub_product_obj.promotion!=None
+                if dealshub_product_obj.promotion!=None:
+                    temp_dict2["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
+                else:
+                    temp_dict2["promotion_tag"] = None
+                temp_dict2["currency"] = dealshub_product_obj.get_currency()
+                temp_dict2["uuid"] = dealshub_product_obj.uuid
+                temp_dict2["id"] = dealshub_product_obj.uuid
+                temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+
+                temp_dict["productsArray"].append(temp_dict2)
+            
+            is_available = True
+            
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
+            response["newArrivalProducts"] = temp_dict
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchNewArrivalProductsAPI: %s at %s", e, str(exc_tb.tb_lineno)) 
+
+        return Response(data=response)
 
 class FetchSectionProductsAPI(APIView):
     
@@ -3710,6 +3836,10 @@ class AddProductToOrderAPI(APIView):
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
+
+FetchNewArrivalProducts = FetchNewArrivalProductsAPI.as_view()
+
+FetchOnSaleProducts = FetchOnSaleProductsAPI.as_view()
 
 FetchSectionProducts = FetchSectionProductsAPI.as_view()
 

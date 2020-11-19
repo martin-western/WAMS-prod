@@ -168,6 +168,8 @@ class DealsHubProduct(models.Model):
     uuid = models.CharField(max_length=200, default="")
 
     is_promo_restricted = models.BooleanField(default=False)
+    is_new_arrival = models.BooleanField(default=False)
+    is_on_sale = models.BooleanField(default=False)
 
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
