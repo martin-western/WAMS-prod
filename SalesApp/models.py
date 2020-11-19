@@ -70,9 +70,12 @@ class Notification(models.Model):
         image_url = ""
 
         try:
-            image_url = self.image.image.mid_image.url
+            image_url = self.image.mid_image.url
         except Exception as e:
-            image_url = ""
+            try:
+                image_url = self.image.image.url
+            except Exception as e:
+                image_url = ""
         
         return image_url
 
