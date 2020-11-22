@@ -6358,8 +6358,8 @@ class SaveDealshubProductDetailsAPI(APIView):
             stock = data["stock"]
             allowed_qty = data.get("allowed_qty", 100)
             is_cod_allowed = data["is_cod_allowed"]
-            is_new_arrival = data["is_new_arrival"]
-            is_on_sale = data["is_on_sale"]
+            is_new_arrival = data.get("is_new_arrival", False)
+            is_on_sale = data.get("is_on_sale", False)
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
 

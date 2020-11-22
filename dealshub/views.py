@@ -266,6 +266,7 @@ class FetchSimilarProductsAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchOnSaleProductsAPI(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -279,10 +280,14 @@ class FetchOnSaleProductsAPI(APIView):
             data = request.data
             logger.info("FetchOnSaleProductsAPI: %s", str(data))
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(is_on_sale=True).prefetch_related('promotion')
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            
+            dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_on_sale=True).exclude(now_price=0).exclude(stock=0).prefetch_related('promotion')
 
             page = int(data.get("page",1))
-            paginator = Paginator(dealshub_product_objs, 40)
+            paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
 
             temp_dict = {}
@@ -343,10 +348,14 @@ class FetchNewArrivalProductsAPI(APIView):
             data = request.data
             logger.info("FetchNewArrivalProductsAPI: %s", str(data))
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(is_new_arrival=True).order_by('-product__created_date').prefetch_related('promotion')
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            
+            dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_new_arrival=True).exclude(now_price=0).exclude(stock=0).order_by('-product__created_date').prefetch_related('promotion')
 
             page = int(data.get("page",1))
-            paginator = Paginator(dealshub_product_objs, 40)
+            paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
 
             temp_dict = {}
@@ -392,6 +401,7 @@ class FetchNewArrivalProductsAPI(APIView):
             logger.error("FetchNewArrivalProductsAPI: %s at %s", e, str(exc_tb.tb_lineno)) 
 
         return Response(data=response)
+
 
 class FetchSectionProductsAPI(APIView):
     
