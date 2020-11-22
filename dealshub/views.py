@@ -3497,7 +3497,7 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                 brand_super_category_objs = BrandSuperCategory.objects.filter(brand__name__icontains=brand_name, super_category__name__icontains=search_string, brand__organization__name="WIG")[:5]
                 for brand_super_category_obj in brand_super_category_objs:
                     temp_dict = {}
-                    temp_dict["name"] = brand_super_category_obj.name
+                    temp_dict["name"] = brand_super_category_obj.super_category.name
                     temp_dict["uuid"] = brand_super_category_obj.uuid
                     autocomplete_list.append(temp_dict)
             elif page_type=="brand_category":
@@ -3505,7 +3505,7 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                 brand_category_objs = BrandCategory.objects.filter(brand__name__icontains=brand_name, category__name__icontains=search_string, brand__organization__name="WIG")[:5]
                 for brand_category_obj in brand_category_objs:
                     temp_dict = {}
-                    temp_dict["name"] = brand_category_obj.name
+                    temp_dict["name"] = brand_category_obj.category.name
                     temp_dict["uuid"] = brand_category_obj.uuid
                     autocomplete_list.append(temp_dict)
             elif page_type=="brand_sub_category":
@@ -3513,7 +3513,7 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                 brand_sub_category_objs = BrandSubCategory.objects.filter(brand__name__icontains=brand_name, sub_category__name__icontains=search_string, brand__organization__name="WIG")[:5]
                 for brand_sub_category_obj in brand_sub_category_objs:
                     temp_dict = {}
-                    temp_dict["name"] = brand_sub_category_obj.name
+                    temp_dict["name"] = brand_sub_category_obj.sub_category.name
                     temp_dict["uuid"] = brand_sub_category_obj.uuid
                     autocomplete_list.append(temp_dict)
 
