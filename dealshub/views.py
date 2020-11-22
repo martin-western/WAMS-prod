@@ -3486,7 +3486,7 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                     temp_dict["uuid"] = brand_obj.name
                     autocomplete_list.append(temp_dict)
             elif page_type=="product":
-                dealshub_product_objs = DealsHubProduct.filter(product_name__icontains=search_string, location_group__website_group__name="shopnesto")[:5]
+                dealshub_product_objs = DealsHubProduct.objects.filter(product_name__icontains=search_string, location_group__website_group__name="shopnesto")[:5]
                 for dealshub_product_obj in dealshub_product_objs:
                     temp_dict = {}
                     temp_dict["name"] = dealshub_product_obj.get_name()
