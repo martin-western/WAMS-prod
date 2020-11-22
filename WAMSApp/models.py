@@ -462,6 +462,8 @@ class SuperCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -492,6 +494,8 @@ class Category(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -519,6 +523,8 @@ class SubCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -544,6 +550,8 @@ class BrandSuperCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     class Meta:
         verbose_name = "BrandSuperCategory"
@@ -569,6 +577,8 @@ class BrandCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     class Meta:
         verbose_name = "BrandCategory"
@@ -594,6 +604,8 @@ class BrandSubCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     class Meta:
         verbose_name = "BrandSubCategory"
@@ -633,6 +645,8 @@ class Brand(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
  
     class Meta:
         verbose_name = "Brand"

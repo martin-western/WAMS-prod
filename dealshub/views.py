@@ -3543,6 +3543,8 @@ class FetchSEOAdminDetailsAPI(APIView):
             seo_title = ""
             seo_keywords = ""
             seo_description = ""
+            short_description = ""
+            long_description = ""
 
             if page_type=="super_category":
                 super_category_obj = SuperCategory.objects.get(uuid=uuid)
@@ -3550,24 +3552,32 @@ class FetchSEOAdminDetailsAPI(APIView):
                 seo_title = super_category_obj.seo_title
                 seo_keywords = super_category_obj.seo_keywords
                 seo_description = super_category_obj.seo_description
+                short_description = super_category_obj.short_description
+                long_description = super_category_obj.long_description
             elif page_type=="category":
                 category_obj = Category.objects.get(uuid=uuid)
                 page_description = category_obj.page_description
                 seo_title = category_obj.seo_title
                 seo_keywords = category_obj.seo_keywords
                 seo_description = category_obj.seo_description
+                short_description = category_obj.short_description
+                long_description = category_obj.long_description
             elif page_type=="sub_category":
                 sub_category_obj = SubCategory.objects.get(uuid=uuid)
                 page_description = sub_category_obj.page_description
                 seo_title = sub_category_obj.seo_title
                 seo_keywords = sub_category_obj.seo_keywords
                 seo_description = sub_category_obj.seo_description
+                short_description = sub_category_obj.short_description
+                long_description = sub_category_obj.long_description
             elif page_type=="brand":
                 brand_obj = Brand.objects.get(name=uuid, organization__name="WIG")
                 page_description = brand_obj.page_description
                 seo_title = brand_obj.seo_title
                 seo_keywords = brand_obj.seo_keywords
                 seo_description = brand_obj.seo_description
+                short_description = brand_obj.short_description
+                long_description = brand_obj.long_description
             elif page_type=="product":
                 product_obj = DealsHubProduct.objects.get(uuid=uuid)
                 page_description = product_obj.page_description
@@ -3580,18 +3590,24 @@ class FetchSEOAdminDetailsAPI(APIView):
                 seo_title = brand_super_category_obj.seo_title
                 seo_keywords = brand_super_category_obj.seo_keywords
                 seo_description = brand_super_category_obj.seo_description
+                short_description = brand_super_category_obj.short_description
+                long_description = brand_super_category_obj.long_description
             elif page_type=="brand_category":
                 brand_category_obj = BrandCategory.objects.get(uuid=uuid)
                 page_description = brand_category_obj.page_description
                 seo_title = brand_category_obj.seo_title
                 seo_keywords = brand_category_obj.seo_keywords
                 seo_description = brand_category_obj.seo_description
+                short_description = brand_category.short_description
+                long_description = brand_category.long_description
             elif page_type=="brand_sub_category":
                 brand_sub_category_obj = BrandSubCategory.objects.get(uuid=uuid)
                 page_description = brand_sub_category_obj.page_description
                 seo_title = brand_sub_category_obj.seo_title
                 seo_keywords = brand_sub_category_obj.seo_keywords
                 seo_description = brand_sub_category_obj.seo_description
+                short_description = brand_sub_category.short_description
+                long_description = brand_sub_category.long_description
 
             response["page_description"] = page_description
             response["seo_title"] = seo_title
@@ -3623,6 +3639,8 @@ class SaveSEOAdminDetailsAPI(APIView):
             seo_title = data["seo_title"]
             seo_keywords = data["seo_keywords"]
             seo_description = data["seo_description"]
+            short_description = data.get("short_description")
+            long_description = data.get("long_description")
 
             if page_type=="super_category":
                 super_category_obj = SuperCategory.objects.get(uuid=uuid)
@@ -3630,6 +3648,8 @@ class SaveSEOAdminDetailsAPI(APIView):
                 super_category_obj.seo_title = seo_title
                 super_category_obj.seo_keywords = seo_keywords
                 super_category_obj.seo_description = seo_description
+                super_category_obj.short_description = short_description
+                super_category_obj.long_description = long_description
                 super_category_obj.save()
             elif page_type=="category":
                 category_obj = Category.objects.get(uuid=uuid)
@@ -3637,6 +3657,8 @@ class SaveSEOAdminDetailsAPI(APIView):
                 category_obj.seo_title = seo_title
                 category_obj.seo_keywords = seo_keywords
                 category_obj.seo_description = seo_description
+                category_obj.short_description = short_description
+                category_obj.long_description = long_description
                 category_obj.save()
             elif page_type=="sub_category":
                 sub_category_obj = SubCategory.objects.get(uuid=uuid)
@@ -3644,6 +3666,8 @@ class SaveSEOAdminDetailsAPI(APIView):
                 sub_category_obj.seo_title = seo_title
                 sub_category_obj.seo_keywords = seo_keywords
                 sub_category_obj.seo_description = seo_description
+                sub_category_obj.short_description = short_description
+                sub_category_obj.long_description = long_description
                 sub_category_obj.save()
             elif page_type=="brand":
                 brand_obj = Brand.objects.get(name=uuid, organization__name="WIG")
@@ -3651,6 +3675,8 @@ class SaveSEOAdminDetailsAPI(APIView):
                 brand_obj.seo_title = seo_title
                 brand_obj.seo_keywords = seo_keywords
                 brand_obj.seo_description = seo_description
+                brand_obj.short_description = short_description
+                brand_obj.long_description = long_description
                 brand_obj.save()
             elif page_type=="product":
                 product_obj = DealsHubProduct.objects.get(uuid=uuid)
@@ -3665,6 +3691,8 @@ class SaveSEOAdminDetailsAPI(APIView):
                 brand_super_category_obj.seo_title = seo_title
                 brand_super_category_obj.seo_keywords = seo_keywords
                 brand_super_category_obj.seo_description = seo_description
+                brand_super_category_obj.short_description = short_description
+                brand_super_category_obj.long_description = long_description
                 brand_super_category_obj.save()
             elif page_type=="brand_category":
                 brand_category_obj = BrandCategory.objects.get(uuid=uuid)
@@ -3672,6 +3700,8 @@ class SaveSEOAdminDetailsAPI(APIView):
                 brand_category_obj.seo_title = seo_title
                 brand_category_obj.seo_keywords = seo_keywords
                 brand_category_obj.seo_description = seo_description
+                brand_category_obj.short_description = short_description
+                brand_category_obj.long_description = long_description
                 brand_category_obj.save()
             elif page_type=="brand_sub_category":
                 brand_sub_category_obj = BrandSubCategory.objects.get(uuid=uuid)
@@ -3679,6 +3709,8 @@ class SaveSEOAdminDetailsAPI(APIView):
                 brand_sub_category_obj.seo_title = seo_title
                 brand_sub_category_obj.seo_keywords = seo_keywords
                 brand_sub_category_obj.seo_description = seo_description
+                brand_sub_category_obj.short_description = short_description
+                brand_sub_category_obj.long_description = long_description
                 brand_sub_category_obj.save()
             
             response['status'] = 200
