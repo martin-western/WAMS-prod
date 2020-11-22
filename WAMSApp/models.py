@@ -552,6 +552,13 @@ class BrandSuperCategory(models.Model):
     def __str__(self):
         return str(self.uuid)
 
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(BrandSuperCategory, self).save(*args, **kwargs)
+
 
 class BrandCategory(models.Model):
 
@@ -570,6 +577,13 @@ class BrandCategory(models.Model):
     def __str__(self):
         return str(self.uuid)
 
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(BrandCategory, self).save(*args, **kwargs)
+
 
 class BrandSubCategory(models.Model):
 
@@ -587,6 +601,13 @@ class BrandSubCategory(models.Model):
 
     def __str__(self):
         return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(BrandSubCategory, self).save(*args, **kwargs)
 
 
 class Channel(models.Model):
