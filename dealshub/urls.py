@@ -138,6 +138,7 @@ urlpatterns = [
 
     url(r'^apply-offline-voucher-code/$', views.ApplyOfflineVoucherCode),
     url(r'^remove-offline-voucher-code/$', views.RemoveOfflineVoucherCode),
+    url(r'^add-offline-reference-medium/$', views.AddOfflineReferenceMedium),
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
