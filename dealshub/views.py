@@ -864,46 +864,93 @@ class SearchWIGAPI(APIView):
             category_name = data.get("category", "").strip()
             subcategory_name = data.get("subcategory", "").strip()
             brand_name = data.get("brand", "").strip()
+            page_type = data.get("page_type", "").strip()
 
             page_description = ""
             seo_title = ""
             seo_keywords = ""
             seo_description = ""
+            short_description = ""
+            long_description = ""
 
             try:
-                if subcategory_name!="":
-                    sub_category_obj = SubCategory.objects.filter(name=subcategory_name)[0]
-                    page_description = sub_category_obj.page_description
-                    seo_title = sub_category_obj.seo_title
-                    seo_keywords = sub_category_obj.seo_keywords
-                    seo_description = sub_category_obj.seo_description
-                elif category_name!="":
+                if page_type=="super_category":
+                    super_category_obj = SuperCategory.objects.get(name=super_category_name)
+                    page_description = super_category_obj.page_description
+                    seo_title = super_category_obj.seo_title
+                    seo_keywords = super_category_obj.seo_keywords
+                    seo_description = super_category_obj.seo_description
+                    short_description = super_category_obj.short_description
+                    long_description = super_category_obj.long_description
+                elif page_type=="category":
                     category_obj = Category.objects.filter(name=category_name)[0]
                     page_description = category_obj.page_description
                     seo_title = category_obj.seo_title
                     seo_keywords = category_obj.seo_keywords
                     seo_description = category_obj.seo_description
-                elif super_category_name!="":
-                    super_category_obj = SuperCategory.objects.filter(name=super_category_name)[0]
-                    page_description = super_category_obj.page_description
-                    seo_title = super_category_obj.seo_title
-                    seo_keywords = super_category_obj.seo_keywords
-                    seo_description = super_category_obj.seo_description
-                elif brand_name!="":
+                    short_description = category_obj.short_description
+                    long_description = category_obj.long_description
+                elif page_type=="sub_category":
+                    sub_category_obj = SubCategory.objects.filter(name=subcategory_name)[0]
+                    page_description = sub_category_obj.page_description
+                    seo_title = sub_category_obj.seo_title
+                    seo_keywords = sub_category_obj.seo_keywords
+                    seo_description = sub_category_obj.seo_description
+                    short_description = sub_category_obj.short_description
+                    long_description = sub_category_obj.long_description
+                elif page_type=="brand":
                     brand_obj = Brand.objects.get(name=brand_name, organization__name="WIG")
                     page_description = brand_obj.page_description
                     seo_title = brand_obj.seo_title
                     seo_keywords = brand_obj.seo_keywords
                     seo_description = brand_obj.seo_description
+                    short_description = brand_obj.short_description
+                    long_description = brand_obj.long_description
+                elif page_type=="brand_super_category":
+                    brand_obj = Brand.objects.get(name=brand_name, organization__name="WIG")
+                    super_category_obj = SuperCategory.objects.get(name=super_category_name)
+                    brand_super_category_obj = BrandSuperCategory.objects.get(brand=brand_obj, super_category=super_category_obj)
+                    page_description = brand_super_category_obj.page_description
+                    seo_title = brand_super_category_obj.seo_title
+                    seo_keywords = brand_super_category_obj.seo_keywords
+                    seo_description = brand_super_category_obj.seo_description
+                    short_description = brand_super_category_obj.short_description
+                    long_description = brand_super_category_obj.long_description
+                elif page_type=="brand_category":
+                    brand_obj = Brand.objects.get(name=brand_name, organization__name="WIG")
+                    category_obj = Category.objects.get(name=category_name)
+                    brand_category_obj = BrandCategory.objects.get(brand=brand_obj, category=category_obj)
+                    page_description = brand_category_obj.page_description
+                    seo_title = brand_category_obj.seo_title
+                    seo_keywords = brand_category_obj.seo_keywords
+                    seo_description = brand_category_obj.seo_description
+                    short_description = brand_category_obj.short_description
+                    long_description = brand_category_obj.long_description
+                elif page_type=="brand_sub_category":
+                    brand_obj = Brand.objects.get(name=name, organization__name="WIG")
+                    sub_category_name = data["sub_category_name"]
+                    sub_category_obj = SubCategory.objects.get(name=sub_category_name)
+                    brand_sub_category_obj = BrandSubCategory.objects.get(brand=brand_obj, sub_category=sub_category_obj)
+                    page_description = brand_sub_category_obj.page_description
+                    seo_title = brand_sub_category_obj.seo_title
+                    seo_keywords = brand_sub_category_obj.seo_keywords
+                    seo_description = brand_sub_category_obj.seo_description
+                    short_description = brand_sub_category_obj.short_description
+                    long_description = brand_sub_category_obj.long_description
+
                 response["page_description"] = page_description
                 response["seo_title"] = seo_title
                 response["seo_keywords"] = seo_keywords
                 response["seo_description"] = seo_description
+                response["short_description"] = short_description
+                response["long_description"] = long_description
             except Exception as e:
                 response["page_description"] = ""
                 response["seo_title"] = ""
                 response["seo_keywords"] = ""
                 response["seo_description"] = ""
+                response["short_description"] = ""
+                response["long_description"] = ""
 
 
             brand_filter = data.get("brand_filter", [])
