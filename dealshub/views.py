@@ -3613,6 +3613,8 @@ class FetchSEOAdminDetailsAPI(APIView):
             response["seo_title"] = seo_title
             response["seo_keywords"] = seo_keywords
             response["seo_description"] = seo_description
+            response["short_description"] = short_description
+            response["long_description"] = long_description
             
             response['status'] = 200
         except Exception as e:
