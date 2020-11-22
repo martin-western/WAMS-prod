@@ -797,6 +797,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
+                    
             response["referenceMedium"] = cart_obj.reference_medium
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
