@@ -1257,14 +1257,14 @@ def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permiss
                     common_row[9] = str(order_obj.owner.contact_number)
                     common_row[10] = unit_order_obj.sap_status
                     common_row[11] = unit_order_obj.grn_filename
-                    intercompany_doc_list = unit_order_obj.sap_intercompany_info.get(doc_list)
-                    common_row[12] = str(intercompany_doc_list.get(1).id) + " " + intercompany_doc_list.get(1).message
-                    common_row[13] = str(intercompany_doc_list.get(2).id) + " " + intercompany_doc_list.get(2).message
-                    final_billing_doc_list = order_obj.sap_final_billing_info.get(doc_list)
-                    common_row[14] = str(final_billing_doc_list.get(1).id) + " " + final_billing_doc_list.get(1).message
-                    common_row[15] = str(final_billing_doc_list.get(2).id) + " " + final_billing_doc_list.get(2).message
-                    common_row[16] = str(final_billing_doc_list.get(3).id) + " " + final_billing_doc_list.get(3).message
-                    common_row[17] = str(final_billing_doc_list.get(4).id) + " " + final_billing_doc_list.get(4).message
+                    intercompany_doc_list = unit_order_obj.sap_intercompany_info["doc_list"]
+                    common_row[12] = str(intercompany_doc_list[1].id) + " " + intercompany_doc_list[1].message
+                    common_row[13] = str(intercompany_doc_list[2].id) + " " + intercompany_doc_list[2].message
+                    final_billing_doc_list = order_obj.sap_final_billing_info["doc_list"]
+                    common_row[14] = str(final_billing_doc_list[1].id) + " " + final_billing_doc_list[1].message
+                    common_row[15] = str(final_billing_doc_list[2].id) + " " + final_billing_doc_list[2].message
+                    common_row[16] = str(final_billing_doc_list[3].id) + " " + final_billing_doc_list[3].message
+                    common_row[17] = str(final_billing_doc_list[4].id) + " " + final_billing_doc_list[4].message
 
                     colnum = 0
                     for k in common_row:
