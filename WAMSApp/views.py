@@ -1065,6 +1065,8 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     temp_dict["channel_status"] = dealshub_product_obj.is_published
                     temp_dict["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
+                    temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                    temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
                     temp_dict["category"] = dealshub_product_obj.get_category()
                     temp_dict["sub_category"] = dealshub_product_obj.get_sub_category()
                     temp_dict["was_price"] = str(dealshub_product_obj.was_price)
@@ -6308,6 +6310,8 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["allowed_qty"] = dealshub_product_obj.allowed_qty
             response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
             response["is_published"] = dealshub_product_obj.is_published
+            response["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+            response["is_on_sale"] = dealshub_product_obj.is_on_sale
             response["category"] = dealshub_product_obj.get_category()
             response["sub_category"] = dealshub_product_obj.get_sub_category()
             response["category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.uuid)
@@ -6354,6 +6358,8 @@ class SaveDealshubProductDetailsAPI(APIView):
             stock = data["stock"]
             allowed_qty = data.get("allowed_qty", 100)
             is_cod_allowed = data["is_cod_allowed"]
+            is_new_arrival = data["is_new_arrival"]
+            is_on_sale = data["is_on_sale"]
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
 
@@ -6368,6 +6374,8 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.stock = stock
             dealshub_product_obj.allowed_qty = allowed_qty
             dealshub_product_obj.is_cod_allowed = is_cod_allowed
+            dealshub_product_obj.is_new_arrival = is_new_arrival
+            dealshub_product_obj.is_on_sale = is_on_sale
             dealshub_product_obj.is_promo_restricted = is_promo_restricted
 
             dealshub_product_obj.product_name = product_name
