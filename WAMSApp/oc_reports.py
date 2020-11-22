@@ -1183,3 +1183,106 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_abandoned_cart_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permission_obj):
+    try:
+        logger.info('Sap billing report start..')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["Sr. No.",
+               "Datetime",
+               "Order ID",
+               "Order Item ID",
+               "Product Name",
+               "Product ID",
+               "Seller SKU",
+               "Customer Name",
+               "Customer Email ID",
+               "Customer Phone Number",
+               "sap Status",
+               "grn filename",
+               "intercompany order SO",
+               "intercompany order DO",
+               "final bill SO",
+               "final bill DO",
+               "final bill DO",
+               "final bill INV"]
+
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+
+        cnt = 0
+
+        colnum = 0
+        for k in row:
+            worksheet.write(cnt,colnum,k,header_format)
+            colnum += 1
+        
+        location_group_objs = custom_permission_obj.location_groups.all()
+        unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
+        if from_date!="":
+            from_date = from_date[:10]+"T00:00:00+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
+        if to_date!="":
+            to_date = to_date[:10]+"T23:59:59+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
+        order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
+
+        for order_obj in order_objs:
+            try:
+                address_obj = order_obj.shipping_address
+                customer_name = address_obj.first_name
+                
+                for unit_order_obj in unit_order_objs.filter(order=order_obj):
+
+                    cnt += 1
+
+                    dealshub_product_obj = unit_order_obj.product
+                    common_row = ["" for i in range(len(row))]
+                    common_row[0] = str(cnt)
+                    common_row[1] = str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p"))
+                    common_row[2] = order_obj.bundleid
+                    common_row[3] = unit_order_obj.orderid
+                    common_row[4] = dealshub_product_obj.get_name()
+                    common_row[5] = dealshub_product_obj.get_product_id()
+                    common_row[6] = dealshub_product_obj.get_seller_sku()
+                    common_row[7] = customer_name
+                    common_row[8] = order_obj.owner.email
+                    common_row[9] = str(order_obj.owner.contact_number)
+                    common_row[10] = unit_order_obj.sap_status
+                    common_row[11] = unit_order_obj.grn_filename
+                    intercompany_doc_list = unit_order_obj.sap_intercompany_info["doc_list"]
+                    common_row[12] = str(intercompany_doc_list[1].id) + " " + intercompany_doc_list[1].message
+                    common_row[13] = str(intercompany_doc_list[2].id) + " " + intercompany_doc_list[2].message
+                    final_billing_doc_list = order_obj.sap_final_billing_info["doc_list"]
+                    common_row[14] = str(final_billing_doc_list[1].id) + " " + final_billing_doc_list[1].message
+                    common_row[15] = str(final_billing_doc_list[2].id) + " " + final_billing_doc_list[2].message
+                    common_row[16] = str(final_billing_doc_list[3].id) + " " + final_billing_doc_list[3].message
+                    common_row[17] = str(final_billing_doc_list[4].id) + " " + final_billing_doc_list[4].message
+
+                    colnum = 0
+                    for k in common_row:
+                        worksheet.write(cnt, colnum, k)
+                        colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error create_sap_billing_report %s %s", e, str(exc_tb.tb_lineno))
+        
+        workbook.close()
+        
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_sap_billing_report %s %s", e, str(exc_tb.tb_lineno))
