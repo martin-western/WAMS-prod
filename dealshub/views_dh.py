@@ -797,7 +797,8 @@ class FetchOfflineCartDetailsAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
+                    
+            response["referenceMedium"] = cart_obj.reference_medium
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
@@ -1496,6 +1497,7 @@ class PlaceOfflineOrderAPI(APIView):
                                              to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
+                                             reference_medium= cart_obj.reference_medium,
                                              is_order_offline = True,
                                              location_group=cart_obj.location_group,
                                              delivery_fee=cart_obj.get_delivery_fee(),
@@ -3822,6 +3824,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["sapStatus"] = order_obj.sap_status
+                    temp_dict["isOrderOffline"] = order_obj.is_order_offline
+                    temp_dict["call_status"] = order_obj.call_status
 
                     address_obj = order_obj.shipping_address
                     
@@ -4193,6 +4197,35 @@ class SetOrdersStatusAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SetOrdersStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
+        return Response(data=response)
+
+
+class SetCallStatusAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SetCallStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            updated_call_status = data["call_status"]
+            order_uuid  = data["orderUuid"]
+
+            order_obj = Order.objects.get(uuid=order_uuid)
+            order_obj.call_status = updated_call_status
+            order_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SetCallStatusAPI: %s at %s",e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
@@ -4860,6 +4893,36 @@ class RemoveOfflineVoucherCodeAPI(APIView):
 
         return Response(data=response)
 
+class AddOfflineReferenceMediumAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddOfflineReferenceMediumAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            reference_medium = data["reference_medium"]
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+            cart_obj.reference_medium = reference_medium
+            cart_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddOfflineReferenceMediumAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class FetchOrderAnalyticsParamsAPI(APIView):
 
@@ -5244,6 +5307,16 @@ class GRNProcessingCronAPI(APIView):
                             GRN_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
                             GRN_info["price"] = unit_order_information["intercompany_sales_info"]["price"]
                             unit_order_information["final_billing_info"] = GRN_info
+                        else:
+                            temp_dict_default = {}
+                            temp_dict_default["seller_sku"] = seller_sku
+                            temp_dict_default["location"] = ""
+                            temp_dict_default["batch"] = ""
+                            temp_dict_default["qty"] = 0.0
+                            temp_dict_default["uom"] = ""
+                            temp_dict_default["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
+                            temp_dict_default["price"] = unit_order_information["intercompany_sales_info"]["price"]
+                            unit_order_information["final_billing_info"] = temp_dict_default
                         
                         unit_order_obj.order_information = json.dumps(unit_order_information)
                         unit_order_obj.grn_filename_exists = True
@@ -5484,6 +5557,8 @@ SetShippingMethod = SetShippingMethodAPI.as_view()
 
 SetOrdersStatus = SetOrdersStatusAPI.as_view()
 
+SetCallStatus = SetCallStatusAPI.as_view()
+
 CancelOrders = CancelOrdersAPI.as_view()
 
 DownloadOrders = DownloadOrdersAPI.as_view()
@@ -5497,6 +5572,8 @@ RemoveVoucherCode = RemoveVoucherCodeAPI.as_view()
 ApplyOfflineVoucherCode = ApplyOfflineVoucherCodeAPI.as_view()
 
 RemoveOfflineVoucherCode = RemoveOfflineVoucherCodeAPI.as_view()
+
+AddOfflineReferenceMedium = AddOfflineReferenceMediumAPI.as_view()
 
 FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
 

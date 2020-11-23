@@ -462,6 +462,8 @@ class SuperCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -492,6 +494,8 @@ class Category(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -519,6 +523,8 @@ class SubCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -544,13 +550,22 @@ class BrandSuperCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     class Meta:
         verbose_name = "BrandSuperCategory"
         verbose_name_plural = "BrandSuperCategory"
 
     def __str__(self):
-        return str(self.name)
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(BrandSuperCategory, self).save(*args, **kwargs)
 
 
 class BrandCategory(models.Model):
@@ -562,13 +577,22 @@ class BrandCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     class Meta:
         verbose_name = "BrandCategory"
         verbose_name_plural = "BrandCategory"
 
     def __str__(self):
-        return str(self.name)
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(BrandCategory, self).save(*args, **kwargs)
 
 
 class BrandSubCategory(models.Model):
@@ -580,13 +604,22 @@ class BrandSubCategory(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
 
     class Meta:
         verbose_name = "BrandSubCategory"
         verbose_name_plural = "BrandSubCategory"
 
     def __str__(self):
-        return str(self.name)
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        
+        super(BrandSubCategory, self).save(*args, **kwargs)
 
 
 class Channel(models.Model):
@@ -612,6 +645,8 @@ class Brand(models.Model):
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
  
     class Meta:
         verbose_name = "Brand"

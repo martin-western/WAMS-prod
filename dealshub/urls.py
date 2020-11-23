@@ -11,6 +11,8 @@ urlpatterns = [
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-super-categories/$', views.FetchSuperCategories),
     url(r'^fetch-heading-categories/$', views.FetchHeadingCategories),
+    url(r'^fetch-on-sale-products/$', views.FetchOnSaleProducts),
+    url(r'^fetch-new-arrival-products/$', views.FetchNewArrivalProducts),
 
     url(r'^search/$', views.Search),
 
@@ -129,6 +131,7 @@ urlpatterns = [
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
     url(r'^set-orders-status/$', views.SetOrdersStatus),
+    url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
 
     url(r'^download-orders/$', views.DownloadOrders),
@@ -138,6 +141,7 @@ urlpatterns = [
 
     url(r'^apply-offline-voucher-code/$', views.ApplyOfflineVoucherCode),
     url(r'^remove-offline-voucher-code/$', views.RemoveOfflineVoucherCode),
+    url(r'^add-offline-reference-medium/$', views.AddOfflineReferenceMedium),
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 

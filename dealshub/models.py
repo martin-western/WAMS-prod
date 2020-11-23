@@ -174,6 +174,8 @@ class DealsHubProduct(models.Model):
     search_keywords = models.TextField(default="")
 
     is_promo_restricted = models.BooleanField(default=False)
+    is_new_arrival = models.BooleanField(default=False)
+    is_on_sale = models.BooleanField(default=False)
 
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
@@ -188,6 +190,12 @@ class DealsHubProduct(models.Model):
 
     def get_currency(self):
         return str(self.location_group.location.currency)
+
+    def get_super_category(self):
+        if self.category!=None:
+            if self.category.super_category!=None:
+                return str(self.category.super_category)
+        return ""
 
     def get_category(self):
         if self.category!=None:
@@ -582,6 +590,7 @@ class Cart(models.Model):
     merchant_reference = models.CharField(max_length=200, default="")
     payment_info = models.TextField(default="{}")
     modified_date = models.DateTimeField(null=True, blank=True)
+    reference_medium = models.CharField(max_length=200,default="")
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -679,6 +688,12 @@ class Order(models.Model):
     cod_charge = models.FloatField(default=0)
     is_order_offline = models.BooleanField(default=False)
     order_placed_date = models.DateTimeField(null=True, default=timezone.now)
+    CALL_STATUS = (
+        ("Unconfirmed", "Unconfirmed"),
+        ("Confirmed", "Confirmed"),
+        ("No Response", "No Response")
+    )
+    call_status = models.CharField(max_length=100, choices=CALL_STATUS, default="Unconfirmed")
 
     PENDING, PAID = ('cod', 'paid')
     PAYMENT_STATUS = (
@@ -692,6 +707,7 @@ class Order(models.Model):
     postaplus_info = models.TextField(default="{}")
     is_postaplus = models.BooleanField(default=False)
 
+    reference_medium = models.CharField(max_length=200, default="")
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
