@@ -5307,6 +5307,16 @@ class GRNProcessingCronAPI(APIView):
                             GRN_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
                             GRN_info["price"] = unit_order_information["intercompany_sales_info"]["price"]
                             unit_order_information["final_billing_info"] = GRN_info
+                        else:
+                            temp_dict_default = {}
+                            temp_dict_default["seller_sku"] = seller_sku
+                            temp_dict_default["location"] = ""
+                            temp_dict_default["batch"] = ""
+                            temp_dict_default["qty"] = 0.0
+                            temp_dict_default["uom"] = ""
+                            temp_dict_default["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
+                            temp_dict_default["price"] = unit_order_information["intercompany_sales_info"]["price"]
+                            unit_order_information["final_billing_info"] = temp_dict_default
                         
                         unit_order_obj.order_information = json.dumps(unit_order_information)
                         unit_order_obj.grn_filename_exists = True
