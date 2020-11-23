@@ -69,6 +69,7 @@ class FetchProductDetailsAPI(APIView):
             base_product_obj = product_obj.base_product
 
             response["brand"] = dealshub_product_obj.get_brand()
+            response["superCategory"] = dealshub_product_obj.get_super_category()
             response["category"] = dealshub_product_obj.get_category()
             response["subCategory"] = dealshub_product_obj.get_sub_category()
             response["uuid"] = data["uuid"]

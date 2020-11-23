@@ -191,6 +191,12 @@ class DealsHubProduct(models.Model):
     def get_currency(self):
         return str(self.location_group.location.currency)
 
+    def get_super_category(self):
+        if self.category!=None:
+            if self.category.super_category!=None:
+                return str(self.category.super_category)
+        return ""
+
     def get_category(self):
         if self.category!=None:
             return str(self.category)
