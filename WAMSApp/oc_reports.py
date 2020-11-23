@@ -1503,3 +1503,137 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_standard_courier_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def create_postaplus_courier_report(filename, uuid, from_date, to_date, custom_permission_obj):
+    try:
+        logger.info('Postaplus Courier report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "Shipment Type",
+               "CustomerAc#",
+               "CneeName100",
+               "CompanyName100",
+               "Address250",
+               "AddressIdendityNumber",
+               "Cnee Country Code",
+               "Cnee Province Code",
+               "Cnee City Name",
+               "Cnee City Code",
+               "CneeArea",
+               "Cnee AreaCode",
+               "AutodialerMobile1",
+               "Email1",
+               "ServiceID",
+               "DescriptionOfGoods100",
+               "Pcs",
+               "Wt",
+               "CODAmount",
+               "CODCurrency",
+               "CostOfGoodsAmount",
+               "Currency",
+               "OriginOfCountry",
+               "Ref2100",
+               "Note4250",
+               "Ref1100"]
+
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+
+        cnt = 0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        location_group_objs = custom_permission_obj.location_groups.all()
+        unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
+        if from_date!="":
+            from_date = from_date[:10]+"T00:00:00+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
+        if to_date!="":
+            to_date = to_date[:10]+"T23:59:59+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
+        order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
+
+        for order_obj in order_objs:
+            try:
+                address_obj = order_obj.shipping_address              
+
+                description_product_list = []
+                order_total_items = 0
+                order_total_weight = 0
+                for unit_order_obj in unit_order_objs.filter(order=order_obj):
+                    dealshub_product_obj = unit_order_obj.product
+
+                    description_product_list.append(dealshub_product_obj.get_seller_sku())
+                    order_total_items += unit_order_obj.quantity
+                    order_total_weight += unit_order_obj.quantity * dealshub_product_obj.get_weight()
+                
+                customer_name = address_obj.first_name + " " + address_obj.last_name
+                description_products = ", ".join(description_product_list)
+
+                address_lines = json.loads(address_obj.address_lines)
+                address_lines_list = [customer_name, address_lines[0], address_lines[1], address_lines[2], address_lines[3]]
+                address_lines_list = list(filter(None, address_lines_list))
+                address_lines_combined = "\n".join(address_lines_list)
+
+                cnt += 1
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = ""
+                common_row[2] = ""
+                common_row[3] = customer_name
+                common_row[4] = ""
+                common_row[5] = address_lines_combined
+                common_row[6] = ""
+                common_row[7] = ""
+                common_row[8] = ""
+                common_row[9] = address_obj.emirates
+                common_row[10] = ""
+                common_row[11] = ""
+                common_row[12] = ""
+                common_row[13] = address_obj.contact_number
+                common_row[14] = ""
+                common_row[15] = ""
+                common_row[16] = description_products
+                common_row[17] = order_total_items
+                common_row[18] = order_total_weight
+                common_row[19] = order_obj.to_pay
+                common_row[20] = order_obj.get_currency()
+                common_row[21] = ""
+                common_row[22] = ""
+                common_row[23] = ""
+                common_row[24] = order_obj.bundleid
+                common_row[25] = ""
+                common_row[26] = ""
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+                
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error create_postaplus_courier_report %s %s", e, str(exc_tb.tb_lineno))
+
+        workbook.close()
+        
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_postaplus_courier_report %s %s", e, str(exc_tb.tb_lineno))
