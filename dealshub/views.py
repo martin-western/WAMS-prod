@@ -3782,16 +3782,16 @@ class FetchSEOAdminDetailsAPI(APIView):
                 seo_title = brand_category_obj.seo_title
                 seo_keywords = brand_category_obj.seo_keywords
                 seo_description = brand_category_obj.seo_description
-                short_description = brand_category.short_description
-                long_description = brand_category.long_description
+                short_description = brand_category_obj.short_description
+                long_description = brand_category_obj.long_description
             elif page_type=="brand_sub_category":
                 brand_sub_category_obj = BrandSubCategory.objects.get(uuid=uuid)
                 page_description = brand_sub_category_obj.page_description
                 seo_title = brand_sub_category_obj.seo_title
                 seo_keywords = brand_sub_category_obj.seo_keywords
                 seo_description = brand_sub_category_obj.seo_description
-                short_description = brand_sub_category.short_description
-                long_description = brand_sub_category.long_description
+                short_description = brand_sub_category_obj.short_description
+                long_description = brand_sub_category_obj.long_description
 
             response["page_description"] = page_description
             response["seo_title"] = seo_title
