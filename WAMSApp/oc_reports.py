@@ -1358,14 +1358,14 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
                 common_row[0] = str(cnt)
                 common_row[1] = order_obj.bundleid
                 common_row[2] = customer_name
-                common_row[3] = address_obj.contact_number
+                common_row[3] = str(address_obj.contact_number)
                 common_row[4] = address_obj.emirates
                 common_row[5] = address_lines_combined
                 common_row[6] = description_products
-                common_row[7] = order_total_items
-                common_row[8] = order_total_weight
+                common_row[7] = str(order_total_items)
+                common_row[8] = str(order_total_weight)
                 common_row[9] = order_obj.payment_mode
-                common_row[10] = order_obj.to_pay
+                common_row[10] = str(order_obj.to_pay)
 
                 colnum = 0
                 for k in common_row:
@@ -1473,14 +1473,14 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
                 common_row[6] = address_lines_combined
                 common_row[7] = address_obj.emirates
                 common_row[8] = ""# adress type
-                common_row[9] = address_obj.contact_number
+                common_row[9] = str(address_obj.contact_number)
                 common_row[10] = ""# courier fee responcible
-                common_row[11] = order_obj.to_pay
+                common_row[11] = str(order_obj.to_pay)
                 common_row[12] = ""# package type
                 common_row[13] = ""# item category
                 common_row[14] = description_products
-                common_row[15] = order_total_items
-                common_row[16] = order_total_weight
+                common_row[15] = str(order_total_items)
+                common_row[16] = str(order_total_weight)
 
                 colnum = 0
                 for k in common_row:
@@ -1601,13 +1601,13 @@ def create_postaplus_courier_report(filename, uuid, from_date, to_date, custom_p
                 common_row[10] = ""
                 common_row[11] = ""
                 common_row[12] = ""
-                common_row[13] = address_obj.contact_number
+                common_row[13] = str(address_obj.contact_number)
                 common_row[14] = ""
                 common_row[15] = ""
                 common_row[16] = description_products
-                common_row[17] = order_total_items
-                common_row[18] = order_total_weight
-                common_row[19] = order_obj.to_pay
+                common_row[17] = str(order_total_items)
+                common_row[18] = str(order_total_weight)
+                common_row[19] = str(order_obj.to_pay)
                 common_row[20] = order_obj.get_currency()
                 common_row[21] = ""
                 common_row[22] = ""
