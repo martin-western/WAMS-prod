@@ -5919,7 +5919,11 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="abandoned cart":
                 p1 = threading.Thread(target=create_abandoned_cart_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
                 p1.start()
-
+            elif report_type.lower()=="delivery":
+                shipping_method = data["shipping_method"]
+                if shipping_method.lower()=="sendex":
+                    p1 = threading.Thread(target=create_sendex_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                    p1.start()
 
             response["approved"] = True
             response['status'] = 200
