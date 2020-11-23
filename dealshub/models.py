@@ -687,6 +687,12 @@ class Order(models.Model):
     cod_charge = models.FloatField(default=0)
     is_order_offline = models.BooleanField(default=False)
     order_placed_date = models.DateTimeField(null=True, default=timezone.now)
+    CALL_STATUS = (
+        ("Unconfirmed", "Unconfirmed"),
+        ("Confirmed", "Confirmed"),
+        ("No Response", "No Response")
+    )
+    call_status = models.CharField(max_length=100, choices=CALL_STATUS, default="Unconfirmed")
 
     PENDING, PAID = ('cod', 'paid')
     PAYMENT_STATUS = (
