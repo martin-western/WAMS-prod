@@ -1287,6 +1287,7 @@ def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permiss
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_sap_billing_report %s %s", e, str(exc_tb.tb_lineno))
 
+
 def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_permission_obj):
     try:
         logger.info('Sendex Courier report start...')
@@ -1343,9 +1344,12 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
                     order_total_items += unit_order_obj.quantity
                     order_total_weight += unit_order_obj.quantity * dealshub_product_obj.get_weight()
                 
+                customer_name = address_obj.first_name + " " + address_obj.last_name
                 description_products = ", ".join(description_product_list)
+
                 address_lines = json.loads(address_obj.address_lines)
-                address_lines_list = [address_lines[0], address_lines[1], address_lines[2], address_lines[3]]
+                address_lines_list = [customer_name, address_lines[0], address_lines[1], address_lines[2], address_lines[3]]
+                address_lines_list = list(filter(None, address_lines_list))
                 address_lines_combined = "\n".join(address_lines_list)
 
                 cnt += 1
@@ -1353,7 +1357,7 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
                 common_row[1] = order_obj.bundleid
-                common_row[2] = address_obj.first_name + " " + address_obj.last_name
+                common_row[2] = customer_name
                 common_row[3] = address_obj.contact_number
                 common_row[4] = address_obj.emirates
                 common_row[5] = address_lines_combined
@@ -1384,3 +1388,118 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_sendex_courier_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def create_standard_courier_report(filename, uuid, from_date, to_date, custom_permission_obj):
+    try:
+        logger.info('Standard Courier report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["Sr. No.",
+               "Reference No",
+               "Delivery Type",
+               "Sender Name",
+               "Sender Destination",
+               "Consignee Name",
+               "Consignee Address",
+               "Destination Code",
+               "Consignee Address Type",
+               "Consignee Mobile No",
+               "Courier Fees Responsible",
+               "COD Amount",
+               "Package Type",
+               "Item category",
+               "Item Description",
+               "Item Quantity",
+               "Item Weight in KG"]
+
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+
+        cnt = 0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        location_group_objs = custom_permission_obj.location_groups.all()
+        unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
+        if from_date!="":
+            from_date = from_date[:10]+"T00:00:00+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
+        if to_date!="":
+            to_date = to_date[:10]+"T23:59:59+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
+        order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
+
+        for order_obj in order_objs:
+            try:
+                address_obj = order_obj.shipping_address              
+
+                description_product_list = []
+                order_total_items = 0
+                order_total_weight = 0
+                for unit_order_obj in unit_order_objs.filter(order=order_obj):
+                    dealshub_product_obj = unit_order_obj.product
+                    product_quantity = unit_order_obj.quantity
+                    dealshub_product_seller_sku = dealshub_product_obj.get_seller_sku() + "(" + str(product_quantity) + ")" if product_quantity>1 else dealshub_product_obj.get_seller_sku()
+                    description_product_list.append(dealshub_product_seller_sku)
+                    order_total_items += product_quantity
+                    order_total_weight += product_quantity * dealshub_product_obj.get_weight()
+                
+                customer_name = address_obj.first_name + " " + address_obj.last_name
+                description_products = ", ".join(description_product_list)
+
+                address_lines = json.loads(address_obj.address_lines)
+                address_lines_list = [customer_name, address_lines[0], address_lines[1], address_lines[2], address_lines[3]]
+                address_lines_list = list(filter(None, address_lines_list))
+                address_lines_combined = "\n".join(address_lines_list)
+
+                cnt += 1
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = order_obj.bundleid
+                common_row[2] = ""# delivery type
+                common_row[3] = ""# sender name
+                common_row[4] = ""# sender destination
+                common_row[5] = customer_name
+                common_row[6] = address_lines_combined
+                common_row[7] = address_obj.emirates
+                common_row[8] = ""# adress type
+                common_row[9] = address_obj.contact_number
+                common_row[10] = ""# courier fee responcible
+                common_row[11] = order_obj.to_pay
+                common_row[12] = ""# package type
+                common_row[13] = ""# item category
+                common_row[14] = description_products
+                common_row[15] = order_total_items
+                common_row[16] = order_total_weight
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+                
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error create_standard_courier_report %s %s", e, str(exc_tb.tb_lineno))
+
+        workbook.close()
+        
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_standard_courier_report %s %s", e, str(exc_tb.tb_lineno))
