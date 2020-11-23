@@ -797,7 +797,8 @@ class FetchOfflineCartDetailsAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
+                    
+            response["referenceMedium"] = cart_obj.reference_medium
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
@@ -1496,6 +1497,7 @@ class PlaceOfflineOrderAPI(APIView):
                                              to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
+                                             reference_medium= cart_obj.reference_medium,
                                              is_order_offline = True,
                                              location_group=cart_obj.location_group,
                                              delivery_fee=cart_obj.get_delivery_fee(),
@@ -4891,6 +4893,36 @@ class RemoveOfflineVoucherCodeAPI(APIView):
 
         return Response(data=response)
 
+class AddOfflineReferenceMediumAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddOfflineReferenceMediumAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            reference_medium = data["reference_medium"]
+
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+            cart_obj.reference_medium = reference_medium
+            cart_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddOfflineReferenceMediumAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class FetchOrderAnalyticsParamsAPI(APIView):
 
@@ -5530,6 +5562,8 @@ RemoveVoucherCode = RemoveVoucherCodeAPI.as_view()
 ApplyOfflineVoucherCode = ApplyOfflineVoucherCodeAPI.as_view()
 
 RemoveOfflineVoucherCode = RemoveOfflineVoucherCodeAPI.as_view()
+
+AddOfflineReferenceMedium = AddOfflineReferenceMediumAPI.as_view()
 
 FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
 

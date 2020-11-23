@@ -590,6 +590,7 @@ class Cart(models.Model):
     merchant_reference = models.CharField(max_length=200, default="")
     payment_info = models.TextField(default="{}")
     modified_date = models.DateTimeField(null=True, blank=True)
+    reference_medium = models.CharField(max_length=200,default="")
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -706,6 +707,7 @@ class Order(models.Model):
     postaplus_info = models.TextField(default="{}")
     is_postaplus = models.BooleanField(default=False)
 
+    reference_medium = models.CharField(max_length=200, default="")
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
