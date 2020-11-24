@@ -3788,6 +3788,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if len(search_list)>0:
                 temp_unit_order_objs = UnitOrder.objects.none()
                 for search_string in search_list:
+                    search_string = search_string.strip()
                     temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string))
                 unit_order_objs = temp_unit_order_objs.distinct()
 
