@@ -18,6 +18,7 @@ urlpatterns = [
 
     url(r'^search-wig/$', views.SearchWIG),
     url(r'^fetch-wig-categories/$', views.FetchWIGCategories),
+    url(r'^fetch-parajohn-categories/$', views.FetchParajohnCategories),
 
     url(r'^create-admin-category/$', views.CreateAdminCategory),
     url(r'^update-admin-category/$', views.UpdateAdminCategory),

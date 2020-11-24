@@ -1162,6 +1162,51 @@ class FetchWIGCategoriesAPI(APIView):
         return Response(data=response)
 
 
+class FetchParajohnCategoriesAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchParajohnCategoriesAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+
+            category_list = []
+            try:
+                category_objs = website_group_obj.categories.all()
+                for category_obj in category_objs:
+                    temp_dict = {}
+                    temp_dict["name"] = category_obj.name
+                    temp_dict["uuid"] = category_obj.uuid
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    sub_category_list = []
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict2 = {}
+                        temp_dict2["name"] = sub_category_obj.name
+                        temp_dict2["uuid"] = sub_category_obj.uuid
+                        temp_dict2["image"] = sub_category_obj.get_image()
+                        sub_category_list.append(temp_dict2)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("FetchParajohnCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["categoryList"] = category_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchParajohnCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class CreateAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4065,6 +4110,8 @@ Search = SearchAPI.as_view()
 SearchWIG = SearchWIGAPI.as_view()
 
 FetchWIGCategories = FetchWIGCategoriesAPI.as_view()
+
+FetchParajohnCategories = FetchParajohnCategoriesAPI.as_view()
 
 CreateAdminCategory = CreateAdminCategoryAPI.as_view()
 

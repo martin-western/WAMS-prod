@@ -518,6 +518,7 @@ class SubCategory(models.Model):
     name = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
+    image = models.ForeignKey(Image, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     property_data = models.TextField(default="[]", blank=True)
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -532,6 +533,11 @@ class SubCategory(models.Model):
     class Meta:
         verbose_name = "Sub Category"
         verbose_name_plural = "Sub Categories"
+
+    def get_image(self):
+        if self.image!=None:
+            return self.image.mid_image.url
+        return ""
 
     def save(self, *args, **kwargs):
         
