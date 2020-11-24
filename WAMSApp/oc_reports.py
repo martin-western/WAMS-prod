@@ -1365,7 +1365,7 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
                 common_row[7] = str(order_total_items)
                 common_row[8] = str(order_total_weight)
                 common_row[9] = order_obj.payment_mode
-                common_row[10] = str(order_obj.to_pay)
+                common_row[10] = str(order_obj.to_pay) if order_obj.payment_mode=="COD" else "0" 
 
                 colnum = 0
                 for k in common_row:
@@ -1460,24 +1460,25 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
                 address_lines_list = [customer_name, address_lines[0], address_lines[1], address_lines[2], address_lines[3]]
                 address_lines_list = list(filter(None, address_lines_list))
                 address_lines_combined = "\n".join(address_lines_list)
+                check_alain_location = ("alain" in address_lines_combined) or ("Alain" in address_lines_combined)
 
                 cnt += 1
 
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
                 common_row[1] = order_obj.bundleid
-                common_row[2] = ""# delivery type
-                common_row[3] = ""# sender name
-                common_row[4] = ""# sender destination
+                common_row[2] = "Standard Delivery"
+                common_row[3] = "WIGME"
+                common_row[4] = "DXB"
                 common_row[5] = customer_name
                 common_row[6] = address_lines_combined
-                common_row[7] = address_obj.emirates
-                common_row[8] = ""# adress type
+                common_row[7] = "Alain" if check_alain_location else "Abu Dhabi"
+                common_row[8] = "Home"
                 common_row[9] = str(address_obj.contact_number)
-                common_row[10] = ""# courier fee responcible
-                common_row[11] = str(order_obj.to_pay)
-                common_row[12] = ""# package type
-                common_row[13] = ""# item category
+                common_row[10] = "PPD"
+                common_row[11] = str(order_obj.to_pay) if order_obj.payment_mode=="COD" else "0" 
+                common_row[12] = "Box"
+                common_row[13] = "Electronics"
                 common_row[14] = description_products
                 common_row[15] = str(order_total_items)
                 common_row[16] = str(order_total_weight)
