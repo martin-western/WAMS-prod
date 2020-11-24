@@ -1194,6 +1194,8 @@ class FetchParajohnCategoriesAPI(APIView):
                         temp_dict2["uuid"] = sub_category_obj.uuid
                         temp_dict2["image"] = sub_category_obj.get_image()
                         sub_category_list.append(temp_dict2)
+                    temp_dict["subCategoryList"] = sub_category_list
+                    category_list.append(temp_dict)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("FetchParajohnCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
