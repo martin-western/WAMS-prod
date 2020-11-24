@@ -1090,7 +1090,7 @@ class FetchWIGCategoriesAPI(APIView):
             
             super_category_name = data.get("superCategory", "").strip()
             category_name = data.get("category", "").strip()
-            subcategory_name = data.get("subcategory", "").strip()
+            subcategory_name = data.get("subCategory", "").strip()
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
