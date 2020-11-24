@@ -291,9 +291,7 @@ class FetchOnSaleProductsAPI(APIView):
             paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
 
-            temp_dict = {}
-            temp_dict["is_on_sale"] = True
-            temp_dict["productArray"] = []
+            products = []
             for dealshub_product_obj in dealshub_product_objs:
                 if dealshub_product_obj.get_actual_price()==0:
                     continue
@@ -314,10 +312,10 @@ class FetchOnSaleProductsAPI(APIView):
                     temp_dict2["promotion_tag"] = None
                 temp_dict2["currency"] = dealshub_product_obj.get_currency()
                 temp_dict2["uuid"] = dealshub_product_obj.uuid
+                temp_dict2["link"] = dealshub_product_obj.url
                 temp_dict2["id"] = dealshub_product_obj.uuid
                 temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
-
-                temp_dict["productsArray"].append(temp_dict2)
+                products.append(temp_dict2)
             
             is_available = True
             
@@ -326,7 +324,7 @@ class FetchOnSaleProductsAPI(APIView):
 
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
-            response["newArrivalProducts"] = temp_dict
+            response["products"] = products
             response['status'] = 200
 
         except Exception as e:
@@ -359,9 +357,7 @@ class FetchNewArrivalProductsAPI(APIView):
             paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
 
-            temp_dict = {}
-            temp_dict["is_new_arrival"] = True
-            temp_dict["productArray"] = []
+            products = []
             for dealshub_product_obj in dealshub_product_objs:
                 if dealshub_product_obj.get_actual_price()==0:
                     continue
@@ -385,7 +381,7 @@ class FetchNewArrivalProductsAPI(APIView):
                 temp_dict2["id"] = dealshub_product_obj.uuid
                 temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
 
-                temp_dict["productsArray"].append(temp_dict2)
+                products.append(temp_dict2)
             
             is_available = True
             
@@ -394,7 +390,7 @@ class FetchNewArrivalProductsAPI(APIView):
 
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
-            response["newArrivalProducts"] = temp_dict
+            response["products"] = products
             response['status'] = 200
 
         except Exception as e:
