@@ -1122,7 +1122,7 @@ class FetchWIGCategoriesAPI(APIView):
                     super_category_obj = website_group_obj.super_categories.all()[0]
 
                 if category_name.lower()=="all":
-                    available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
+                    available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(category=None).exclude(now_price=0).exclude(stock=0)
                     search_string = remove_stopwords(search_string)
                     words = search_string.split(" ")
                     target_brand = None
