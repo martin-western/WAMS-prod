@@ -1119,6 +1119,57 @@ class FetchWIGCategoriesAPI(APIView):
                 else:
                     super_category_obj = website_group_obj.super_categories.all()[0]
 
+                if category_name.lower()=="all":
+                    available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
+                    search_string = remove_stopwords(search_string)
+                    words = search_string.split(" ")
+                    target_brand = None
+                    for word in words:
+                        if website_group_obj.brands.filter(name=word).exists():
+                            target_brand = website_group_obj.brands.filter(name=word)[0]
+                            words.remove(word)
+                            break
+                    if target_brand!=None:
+                        available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
+
+                    if len(words)==1:
+                        available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=words[0]) | Q(product__base_product__seller_sku__icontains=words[0]))
+                    elif len(words)==2:
+                        if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
+                            available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
+                        else:
+                            if available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1]).exists():
+                                available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1])
+                            else:
+                                available_dealshub_products = available_dealshub_products.filter(Q(product__product_name__icontains=words[0]) | Q(product__product_name__icontains=words[1]))
+                    elif len(words)==3:
+                        if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
+                            available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
+                        else:
+                            if available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1]).filter(product__product_name__icontains=words[2]).exists():
+                                available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1]).filter(product__product_name__icontains=words[2])
+                            else:
+                                temp_available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[1])
+                                temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[1]).filter(product__product_name__icontains=words[2])
+                                temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[0]).filter(product__product_name__icontains=words[2])
+                                if temp_available_dealshub_products.exists()==False:
+                                    temp_available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=words[0])
+                                    temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[1])
+                                    temp_available_dealshub_products |= available_dealshub_products.filter(product__product_name__icontains=words[2])
+                                available_dealshub_products = temp_available_dealshub_products
+                    else:
+                        if available_dealshub_products.filter(product__product_name__icontains=search_string).exists():
+                            available_dealshub_products = available_dealshub_products.filter(product__product_name__icontains=search_string)
+                        else:
+                            if len(words)>0:
+                                search_results = DealsHubProduct.objects.none()
+                                for word in words:
+                                    search_results |= available_dealshub_products.filter(Q(product__product_name__icontains=word) | Q(product__base_product__seller_sku__icontains=word))
+                                available_dealshub_products = search_results.distinct()
+
+                    if available_dealshub_products.exists():
+                        super_category_obj = available_dealshub_products[0].category.super_category
+
                 category_objs = Category.objects.filter(super_category=super_category_obj)
                 for category_obj in category_objs:
 
