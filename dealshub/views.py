@@ -1084,6 +1084,8 @@ class FetchWIGCategoriesAPI(APIView):
             data = request.data
             logger.info("FetchWIGCategoriesAPI: %s", str(data))
             
+            search_string = data.get("name", "").strip()
+
             super_category_name = data.get("superCategory", "").strip()
             category_name = data.get("category", "").strip()
             subcategory_name = data.get("subCategory", "").strip()
