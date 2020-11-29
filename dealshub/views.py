@@ -201,6 +201,21 @@ class FetchProductDetailsAPI(APIView):
 
             response["productImagesUrl"] = image_list
 
+            try:
+                page_description = dealshub_product_obj.page_description
+                seo_title = dealshub_product_obj.seo_title
+                seo_keywords = dealshub_product_obj.seo_keywords
+                seo_description = dealshub_product_obj.seo_description
+                response["page_description"] = page_description
+                response["seo_title"] = seo_title
+                response["seo_keywords"] = seo_description
+                response["seo_description"] = seo_description
+            except Exception as e:
+                response["page_description"] = ""
+                response["seo_title"] = ""
+                response["seo_keywords"] = ""
+                response["seo_description"] = ""
+
 
             location_group_obj = dealshub_product_obj.location_group
 
