@@ -1041,6 +1041,10 @@ class SearchWIGAPI(APIView):
             for dealshub_product_obj in dealshub_product_objs:
                 temp_pk_list.append(dealshub_product_obj.pk)
             dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+            if sort_filter.get("price", "")=="high-to-low":
+                dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
+            if sort_filter.get("price", "")=="low-to-high":
+                dealshub_product_objs = dealshub_product_objs.order_by('now_price')
             products = []
             currency = location_group_obj.location.currency
             for dealshub_product_obj in dealshub_product_objs:
