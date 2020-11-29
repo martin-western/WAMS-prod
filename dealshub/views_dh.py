@@ -3159,7 +3159,7 @@ class ForgotLoginPinAPI(APIView):
             dealshub_user_obj.save()
 
             # Trigger SMS
-            if location_group_obj.website_group.name.lower()!="parajohn":
+            if location_group_obj.website_group.name.lower() in ["shopnesto", "daycart"]:
                 mshastra_info = json.loads(location_group_obj.mshastra_info)
                 prefix_code = mshastra_info["prefix_code"]
                 sender_id = mshastra_info["sender_id"]
@@ -3168,9 +3168,13 @@ class ForgotLoginPinAPI(APIView):
                 contact_number = prefix_code+contact_number
                 url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
                 r = requests.get(url)
-            else:
+            elif location_group_obj.website_group.name.lower()=="parajohn":
                 contact_number = "971"+contact_number
                 url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to="+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+                r = requests.get(url)
+            elif location_group_obj.website_group.name.lower()=="kryptonworld":
+                contact_number = "971"+contact_number
+                url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
                 r = requests.get(url)
 
             response["status"] = 200
