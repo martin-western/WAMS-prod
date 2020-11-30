@@ -3830,6 +3830,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["sapStatus"] = order_obj.sap_status
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
+                    temp_dict["referenceMedium"] = order_obj.reference_medium
                     temp_dict["call_status"] = order_obj.call_status
 
                     address_obj = order_obj.shipping_address
