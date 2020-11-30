@@ -547,10 +547,92 @@ class SubCategory(models.Model):
         super(SubCategory, self).save(*args, **kwargs)
 
 
+class SEOSuperCategory(models.Model):
+
+    super_category = models.ForeignKey(SuperCategory, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "SEOSuperCategory"
+        verbose_name_plural = "SEOSuperCategory"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(SEOSuperCategory, self).save(*args, **kwargs)
+
+
+class SEOCategory(models.Model):
+    
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "SEOCategory"
+        verbose_name_plural = "SEOCategory"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(SEOCategory, self).save(*args, **kwargs)
+
+
+class SEOSubCategory(models.Model):
+
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "SEOSubCategory"
+        verbose_name_plural = "SEOSubCategory"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(SEOSubCategory, self).save(*args, **kwargs)
+
+
 class BrandSuperCategory(models.Model):
 
     super_category = models.ForeignKey(SuperCategory, on_delete=models.CASCADE)
     brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=256, blank=True, default='')
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -578,6 +660,7 @@ class BrandCategory(models.Model):
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=256, blank=True, default='')
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -605,6 +688,7 @@ class BrandSubCategory(models.Model):
 
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=256, blank=True, default='')
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -660,6 +744,33 @@ class Brand(models.Model):
 
     def __str__(self):
         return str(self.name)
+
+
+class SEOBrand(models.Model):
+
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "SEOBrand"
+        verbose_name_plural = "SEOBrand"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(SEOBrand, self).save(*args, **kwargs)
 
 
 class WebsiteGroup(models.Model):
