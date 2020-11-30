@@ -1807,6 +1807,43 @@ class FetchOrderDetailsAPI(APIView):
         
         return Response(data=response)
 
+
+class FetchOrderVersionDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOrderVersionDetails: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_uuid = data["uuid"]
+            order_obj = Order.objects.get(uuid=order_uuid)
+            
+            version_order_list = []
+            version_order_objs = VersionOrder.objects.filter(order=order_obj).order_by('-pk')
+
+            for version_order_obj in version_order_objs:
+                temp_dict = {}
+                temp_dict["uuid"] = version_order_obj.uuid
+                temp_dict["timestamp"] = version_order_obj.timestamp
+                temp_dict["user"] = version_order_obj.user.username
+                temp_dict["change_info"] = version_order_obj.change_information
+                version_order_list.append(temp_dict)
+            
+            response['status'] = 200
+            response['version_order_list'] = version_order_list
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrderVersionDetails: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class CreateOfflineCustomerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4162,6 +4199,19 @@ class SetShippingMethodAPI(APIView):
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                 set_shipping_method(unit_order_obj, shipping_method)
 
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            order_status_change_information = {
+                "event": "order_status",
+                "information": {
+                    "old_status": "pending",
+                    "new_status": "approved"
+                }
+            }
+
+            VersionOrder.objects.create(order=order_obj,
+                                        user= omnycomm_user,
+                                        changed_information=json.dumps(order_status_change_information))
+
             response["sap_info_render"] = sap_info_render
             response["status"] = 200
 
@@ -4187,10 +4237,24 @@ class SetOrdersStatusAPI(APIView):
 
             order_status = data["orderStatus"]
             unit_order_uuid_list = data["unitOrderUuidList"]
+            first_unit_order_obj  = UnitOrder.objects.get(uuid=unit_order_uuid_list[0])
 
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
                 set_order_status(unit_order_obj, order_status)
+
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            order_status_change_information = {
+                "event": "order_status",
+                "information": {
+                    "old_status": first_unit_order_obj.current_status_admin,
+                    "new_status": order_status
+                }
+            }
+
+            VersionOrder.objects.create(order=first_unit_order_obj.order,
+                                        user= omnycomm_user,
+                                        changed_information=json.dumps(order_status_change_information))
 
             response["status"] = 200
 
@@ -4249,6 +4313,17 @@ class CancelOrdersAPI(APIView):
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
                 cancel_order_admin(unit_order_obj, cancelling_note)
+                
+            order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)
+            order_cancel_information = {
+                "event" : "order_cancel",
+                "information" : {}
+            }
+
+            VersionOrder.objects.create(order=order_obj,
+                                        user= omnycomm_user,
+                                        changed_information=json.dumps(order_cancel_information))
 
             response["status"] = 200
 
@@ -5479,6 +5554,8 @@ FetchOrderList = FetchOrderListAPI.as_view()
 FetchOrderListAdmin = FetchOrderListAdminAPI.as_view()
 
 FetchOrderDetails = FetchOrderDetailsAPI.as_view()
+
+FetchOrderVersionDetails = FetchOrderVersionDetailsAPI.as_view()
 
 CreateOfflineCustomer = CreateOfflineCustomerAPI.as_view()
 
