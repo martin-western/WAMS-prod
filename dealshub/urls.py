@@ -131,6 +131,7 @@ urlpatterns = [
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
     url(r'^set-orders-status/$', views.SetOrdersStatus),
+    url(r'^update-orders-status/$', views.UpdateOrderStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
 
     url(r'^download-orders/$', views.DownloadOrders),
