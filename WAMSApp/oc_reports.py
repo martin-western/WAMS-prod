@@ -1321,7 +1321,7 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
             colomn += 1
         
         location_group_objs = custom_permission_obj.location_groups.all()
-        unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
+        unit_order_objs = UnitOrder.objects.filter(shipping_method="sendex", order__location_group__in=location_group_objs).order_by('-pk')
         if from_date!="":
             from_date = from_date[:10]+"T00:00:00+04:00"
             unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
@@ -1429,7 +1429,7 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
             colomn += 1
         
         location_group_objs = custom_permission_obj.location_groups.all()
-        unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
+        unit_order_objs = UnitOrder.objects.filter(shipping_method="standard", order__location_group__in=location_group_objs).order_by('-pk')
         if from_date!="":
             from_date = from_date[:10]+"T00:00:00+04:00"
             unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
