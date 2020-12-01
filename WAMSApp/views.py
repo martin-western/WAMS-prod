@@ -1272,6 +1272,57 @@ class BulkUpdateDealshubProductStockAPI(APIView):
         return Response(data=response)
 
 
+class BulkUpdateDealshubProductPublishStatusAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("BulkUpdateDealshubProductPublishStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+
+            path = default_storage.save('tmp/bulk-publish-product.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            try:
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            except Exception as e:
+                response['status'] = 406
+                logger.warning("BulkUpdateDealshubProductPublishStatusAPI: UnSupported File Format or Sheet1 not found")
+                return Response(data=response)
+            
+            rows = len(dfs.iloc[:])
+            for i in range(rows):
+                try:
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
+                    is_published_str = str(dfs.iloc[i][1]).strip()
+                    is_published = True if is_published_str=='True' or is_published_str=='TRUE' else False
+
+                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+                    dh_product_obj.is_published = is_published
+                    dh_product_obj.save()
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class SaveBaseProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6702,6 +6753,8 @@ UpdateDealshubProduct = UpdateDealshubProductAPI.as_view()
 BulkUpdateDealshubProductPrice = BulkUpdateDealshubProductPriceAPI.as_view()
 
 BulkUpdateDealshubProductStock = BulkUpdateDealshubProductStockAPI.as_view()
+
+BulkUpdateDealshubProductPublishStatus  = BulkUpdateDealshubProductPublishStatusAPI.as_view()
 
 FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 
