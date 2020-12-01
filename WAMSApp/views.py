@@ -1307,12 +1307,18 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                 return Response(data=response)
             
             rows = len(dfs.iloc[:])
+            excel_errors = []
+
             for i in range(rows):
                 try:
                     product_id = str(dfs.iloc[i][0]).strip()
                     product_id = product_id.split(".")[0]
-                    is_published_str = str(dfs.iloc[i][1]).strip()
-                    is_published = True if is_published_str=='True' or is_published_str=='TRUE' else False
+                    is_published_str = str(dfs.iloc[i][1]).strip().lower()
+                    
+                    if is_published_str!="true" and is_published_str!="false":
+                        excel_errors.append("status for "+product_id+" is not proper")
+                        continue
+                    is_published = True if is_published_str=="true" else False
 
                     dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
                     dh_product_obj.is_published = is_published
@@ -1321,9 +1327,9 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
+            
+            response['excel_errors'] = excel_errors
             response['status'] = 200
-
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
