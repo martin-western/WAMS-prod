@@ -1258,6 +1258,7 @@ class FetchParajohnCategoriesAPI(APIView):
                     temp_dict = {}
                     temp_dict["name"] = category_obj.name
                     temp_dict["uuid"] = category_obj.uuid
+                    temp_dict["image"] = category_obj.get_image()
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
