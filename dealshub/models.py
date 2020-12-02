@@ -348,7 +348,7 @@ class DealsHubProduct(models.Model):
     def save(self, *args, **kwargs):
         
         if self.uuid == None or self.uuid == "":
-            self.uuid = str(uuid.uuid4())
+            self.uuid = str(uuid.uuid4())[:8]
         
         super(DealsHubProduct, self).save(*args, **kwargs)
 
