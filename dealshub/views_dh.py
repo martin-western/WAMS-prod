@@ -3830,6 +3830,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["sapStatus"] = order_obj.sap_status
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
+                    temp_dict["referenceMedium"] = order_obj.reference_medium
                     temp_dict["call_status"] = order_obj.call_status
 
                     address_obj = order_obj.shipping_address
@@ -3894,6 +3895,12 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                                 unit_order_obj.sap_status = "GRN Conflict"
                                 order_obj.save()
                                 unit_order_obj.save()
+                                try:
+                                    p1 = threading.Thread(target=notify_grn_error, args=(order_obj,))
+                                    p1.start()
+                                except Exception as e:
+                                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                                    logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                         temp_dict2["intercompany_qty"] = intercompany_qty
                         temp_dict2["final_qty"] = final_qty
@@ -5385,6 +5392,12 @@ class GRNProcessingCronAPI(APIView):
                             order_obj.sap_status = "Success"
                         else:
                             order_obj.sap_status = "Failed"
+                            try:
+                                p1 = threading.Thread(target=notify_grn_error, args=(order_obj,))
+                                p1.start()
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                         order_obj.sap_final_billing_info = json.dumps(result)
                         order_obj.order_information = json.dumps(order_information)

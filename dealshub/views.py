@@ -1258,6 +1258,7 @@ class FetchParajohnCategoriesAPI(APIView):
                     temp_dict = {}
                     temp_dict["name"] = category_obj.name
                     temp_dict["uuid"] = category_obj.uuid
+                    temp_dict["image"] = category_obj.get_image()
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     sub_category_list = []
                     for sub_category_obj in sub_category_objs:
@@ -4039,6 +4040,7 @@ class FetchLocationGroupSettingsAPI(APIView):
             response["delivery_fee"] = location_group_obj.delivery_fee
             response["cod_charge"] = location_group_obj.cod_charge
             response["free_delivery_threshold"] = location_group_obj.free_delivery_threshold
+            response["vat"] = location_group_obj.vat
             
             response['status'] = 200
         except Exception as e:
@@ -4063,14 +4065,15 @@ class UpdateLocationGroupSettingsAPI(APIView):
             delivery_fee = float(data["delivery_fee"])
             cod_charge = float(data["cod_charge"])
             free_delivery_threshold = float(data["free_delivery_threshold"])
+            vat = float(data.get("vat", 5))
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             location_group_obj.delivery_fee = delivery_fee
             location_group_obj.cod_charge = cod_charge
             location_group_obj.free_delivery_threshold = free_delivery_threshold
+            location_group_obj.vat = vat
             location_group_obj.save()
-            
             
             response['status'] = 200
         except Exception as e:
