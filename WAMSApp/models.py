@@ -326,7 +326,7 @@ class Image(models.Model):
                     return image
 
              
-            
+                      
             if self.thumbnail == None:
                 size = 128, 128
                 thumb = IMAGE.open(self.image)
@@ -372,7 +372,7 @@ class Image(models.Model):
                    
                     thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/webp', thumb_io.getbuffer().nbytes, None)
                     self.webp_image = thumb_file
-
+            
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
