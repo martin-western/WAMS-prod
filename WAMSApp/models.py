@@ -500,6 +500,11 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    def get_image(self):
+        if self.image!=None:
+            return self.image.mid_image.url
+        return ""
+
     class Meta:
         verbose_name = "Category"
         verbose_name_plural = "Categories"
