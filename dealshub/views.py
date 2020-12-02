@@ -4065,7 +4065,7 @@ class UpdateLocationGroupSettingsAPI(APIView):
             delivery_fee = float(data["delivery_fee"])
             cod_charge = float(data["cod_charge"])
             free_delivery_threshold = float(data["free_delivery_threshold"])
-            vat = float(data["vat"])
+            vat = float(data.get("vat", 5))
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
