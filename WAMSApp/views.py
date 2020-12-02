@@ -1195,27 +1195,31 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
 
             price_permission = custom_permission_price(request.user, "dealshub")
-            if price_permission:
-                path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
-                path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-                rows = len(dfs.iloc[:])
+            if not price_permission:
+                response['status'] = 407
+                logger.error("BulkUpdateDealshubProductPriceAPI: Permission not granted")
+                return Response(data=response)
 
-                for i in range(rows):
-                    try:
-                        product_id = str(dfs.iloc[i][0]).strip()
-                        product_id = product_id.split(".")[0]
+            path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
 
-                        now_price = float(dfs.iloc[i][1])
-                        was_price = float(dfs.iloc[i][2])
-                        
-                        dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                        dh_product_obj.now_price = now_price
-                        dh_product_obj.was_price = was_price
-                        dh_product_obj.save()
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            for i in range(rows):
+                try:
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
+
+                    now_price = float(dfs.iloc[i][1])
+                    was_price = float(dfs.iloc[i][2])
+                    
+                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+                    dh_product_obj.now_price = now_price
+                    dh_product_obj.was_price = was_price
+                    dh_product_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response['status'] = 200
 
@@ -1244,30 +1248,91 @@ class BulkUpdateDealshubProductStockAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
 
             stock_permission = custom_permission_stock(request.user, "dealshub")
-            if stock_permission:
-                path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
-                path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-                rows = len(dfs.iloc[:])
+            if not stock_permission:
+                response['status'] = 407
+                logger.error("BulkUpdateDealshubProductStockAPI: Permission not granted")
+                return Response(data=response)
 
-                for i in range(rows):
-                    try:
-                        product_id = str(dfs.iloc[i][0]).strip()
-                        product_id = product_id.split(".")[0]
-                        stock = float(dfs.iloc[i][1])
-                        
-                        dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                        dh_product_obj.stock = stock
-                        dh_product_obj.save()
-                    except Exception as e:
-                        exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            for i in range(rows):
+                try:
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
+                    stock = float(dfs.iloc[i][1])
+                    
+                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+                    dh_product_obj.stock = stock
+                    dh_product_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class BulkUpdateDealshubProductPublishStatusAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("BulkUpdateDealshubProductPublishStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+
+            path = default_storage.save('tmp/bulk-publish-product.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            try:
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            except Exception as e:
+                response['status'] = 406
+                logger.warning("BulkUpdateDealshubProductPublishStatusAPI: UnSupported File Format or Sheet1 not found")
+                return Response(data=response)
+            
+            rows = len(dfs.iloc[:])
+            excel_errors = []
+
+            for i in range(rows):
+                try:
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
+                    is_published_str = str(dfs.iloc[i][1]).strip().lower()
+                    
+                    if is_published_str!="true" and is_published_str!="false":
+                        excel_errors.append("status for "+product_id+" is not proper")
+                        continue
+                    is_published = True if is_published_str=="true" else False
+
+                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+                    dh_product_obj.is_published = is_published
+                    dh_product_obj.save()
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response['excel_errors'] = excel_errors
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6702,6 +6767,8 @@ UpdateDealshubProduct = UpdateDealshubProductAPI.as_view()
 BulkUpdateDealshubProductPrice = BulkUpdateDealshubProductPriceAPI.as_view()
 
 BulkUpdateDealshubProductStock = BulkUpdateDealshubProductStockAPI.as_view()
+
+BulkUpdateDealshubProductPublishStatus  = BulkUpdateDealshubProductPublishStatusAPI.as_view()
 
 FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 

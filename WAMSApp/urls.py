@@ -93,6 +93,7 @@ urlpatterns = [
     url(r'^update-dealshub-product/$',views.UpdateDealshubProduct),
     url(r'^bulk-update-dealshub-product-price/$',views.BulkUpdateDealshubProductPrice),
     url(r'^bulk-update-dealshub-product-stock/$',views.BulkUpdateDealshubProductStock),
+    url(r'^bulk-update-dealshub-product-publish-status/$', views.BulkUpdateDealshubProductPublishStatus),
     url(r'^fetch-dealshub-product-details/$',views.FetchDealshubProductDetails),
     url(r'^save-dealshub-product-details/$',views.SaveDealshubProductDetails),
 
