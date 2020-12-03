@@ -3742,6 +3742,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
+            sap_status_list = data.get("sapStatusList", [])
             search_list = data.get("searchList", [])
             location_group_uuid = data["locationGroupUuid"]
 
@@ -3775,6 +3776,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             if len(tracking_status_list)>0:
                 unit_order_objs = unit_order_objs.filter(current_status_admin__in=tracking_status_list)
+
+            if len(sap_status_list)>0:
+                unit_order_objs = unit_order_objs.filter(sap_status__in=sap_status_list)
 
             if max_qty!="":
                 unit_order_objs = unit_order_objs.filter(quantity__lte=int(max_qty))
