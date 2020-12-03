@@ -151,6 +151,16 @@ urlpatterns = [
     url(r'^fetch-category-list/$',views.FetchCategoryList),
     url(r'^update-category-mapping/$',views.UpdateCategoryMapping),
 
+    url(r'^fetch-super-categories/$', views.FetchSuperCategories),
+    url(r'^fetch-categories/$', views.FetchCategories),
+    url(r'^fetch-sub-categories/$', views.FetchSubCategories),
+    url(r'^update-super-category-details/$', views.UpdateSuperCategoryDetails),
+    url(r'^update-category-details/$', views.UpdateCategoryDetails),
+    url(r'^update-sub-category-details/$', views.UpdateSubCategoryDetails),
+    url(r'^add-new-super-category/$', views.AddNewSuperCategory),
+    url(r'^add-new-category/$', views.AddNewCategory),
+    url(r'^add-new-sub-category/$', views.AddNewSubCategory),
+
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
 
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

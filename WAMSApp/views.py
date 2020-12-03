@@ -31,7 +31,7 @@ from WAMSApp.views_amazon_uk import *
 from WAMSApp.views_noon_integration import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
-from WAMSApp.views_category_list import *
+from WAMSApp.views_category_manager import *
 from WAMSApp.views_SAP_Integration import *
 from WAMSApp.utils_SAP_Integration import *
 
