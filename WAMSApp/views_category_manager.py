@@ -83,6 +83,7 @@ class FetchCategoryListAPI(APIView):
 
         return Response(data=response)
 
+
 class UpdateCategoryMappingAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -161,6 +162,7 @@ class FetchSuperCategoriesAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchCategoriesAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -197,6 +199,7 @@ class FetchCategoriesAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchSubCategoriesAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -232,8 +235,7 @@ class FetchSubCategoriesAPI(APIView):
             logger.error("FetchSubCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
-    
+  
 
 class UpdateSuperCategoryDetailsAPI(APIView):
     
@@ -449,7 +451,7 @@ class AddNewSubCategoryAPI(APIView):
 
         return Response(data=response)
 
-
+ 
 FetchCategoryList = FetchCategoryListAPI.as_view()
 
 UpdateCategoryMapping = UpdateCategoryMappingAPI.as_view()
