@@ -3742,6 +3742,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
+            sap_status_list = data.get("sapStatusList", [])
             search_list = data.get("searchList", [])
             location_group_uuid = data["locationGroupUuid"]
 
@@ -3776,6 +3777,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if len(tracking_status_list)>0:
                 unit_order_objs = unit_order_objs.filter(current_status_admin__in=tracking_status_list)
 
+            if len(sap_status_list)>0:
+                unit_order_objs = unit_order_objs.filter(sap_status__in=sap_status_list)
+
             if max_qty!="":
                 unit_order_objs = unit_order_objs.filter(quantity__lte=int(max_qty))
 
@@ -3793,7 +3797,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 temp_unit_order_objs = UnitOrder.objects.none()
                 for search_string in search_list:
                     search_string = search_string.strip()
-                    temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string))
+                    temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string) | Q(order__sap_final_billing_info__icontains=search_string) | Q(sap_intercompany_info__icontains=search_string))
                 unit_order_objs = temp_unit_order_objs.distinct()
 
 
