@@ -647,7 +647,9 @@ def refresh_stock(order_obj):
             # elif brand=="delcasa":
             #     stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
 
-            dealshub_product_obj.stock = int(total_holding)
+            wigme_location_group_obj = LocationGroup.objects.get(name="WIGMe - UAE")
+            if dealshub_product_obj.location_group==wigme_location_group_obj:
+                dealshub_product_obj.stock = int(total_holding)
             
             if holding_threshold > total_holding:
                 try:
