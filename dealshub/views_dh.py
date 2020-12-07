@@ -4161,6 +4161,13 @@ class SetShippingMethodAPI(APIView):
                                 unit_order_obj.sap_status = "Failed"
                                 unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                                 unit_order_obj.save()
+                                try:
+                                    p1 = threading.Thread(target=notify_grn_error, args=(unit_order_obj.order,))
+                                    p1.start()
+                                except Exception as e:
+                                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                                    logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
+
                                 continue
                             
                             unit_order_information = {}
