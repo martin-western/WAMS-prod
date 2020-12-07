@@ -477,8 +477,8 @@ class UnitBannerImage(models.Model):
     mobile_image = models.ForeignKey(Image, related_name="mobile_image", on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
-    image_ar = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True)
-    mobile_image_ar = models.ForeignKey(Image, related_name="mobile_image", on_delete=models.SET_NULL, null=True)
+    image_ar = models.ForeignKey(Image, on_delete=models.SET_NULL,related_name="image_ar", null=True)
+    mobile_image_ar = models.ForeignKey(Image, related_name="mobile_image_ar", on_delete=models.SET_NULL, null=True)
     http_link_ar = models.TextField(default="")
 
     products = models.ManyToManyField(DealsHubProduct, blank=True)
