@@ -1771,6 +1771,12 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
                 temp_dict["productUuid"] = unit_order_obj.product.uuid
                 temp_dict["link"] = unit_order_obj.product.url
+                temp_dict["user_cancellation_status"] = unit_order_obj.user_cancellation_status
+
+                unit_order_status = unit_order_obj.current_status_admin
+                temp_dict["can_user_cancel_unitorder"] = False
+                if unit_order_status=="pending" or unit_order_status=="approved" or unit_order_status=="picked":
+                    temp_dict["can_user_cancel_unitorder"] = True
 
                 unit_order_status_list = []
                 unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
@@ -1806,6 +1812,69 @@ class FetchOrderDetailsAPI(APIView):
             logger.error("FetchOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
+
+
+class CreateUnitOrderCancellationRequestAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data 
+            logger.info("CreateUnitOrderCancellationRequestAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_order_uuid = data["unit_order_uuid"]
+            cancellation_note = data.get("note","")
+
+            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
+            unit_order_obj.cancelled_by_user = True
+            unit_order_obj.user_cancellation_note = cancellation_note
+            unit_order_obj.user_cancellation_status = "pending"
+
+            unit_order_obj.save()
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateUnitOrderCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateOrderCancellationRequestAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data 
+            logger.info("CreateOrderCancellationRequestAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_uuid = data["order_uuid"]
+            cancellation_note = data.get("note","")
+            
+            unit_order_objs = UnitOrder.objects.filter(order__uuid=order_uuid)
+
+            for unit_order_obj in unit_order_objs:
+                unit_order_obj.cancelled_by_user = True
+                unit_order_obj.user_cancellation_note = cancellation_note
+                unit_order_obj.user_cancellation_status = "pending"
+                unit_order_obj.save()
+                
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOrderCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class CreateOfflineCustomerAPI(APIView):
 
@@ -3739,6 +3808,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             max_qty = data.get("maxQty", "")
             min_price = data.get("minPrice", "")
             max_price = data.get("maxPrice", "")
+            cancellation_requested = data.get("cancellation_requested",False)
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
@@ -3791,7 +3861,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             if min_price!="":
                 unit_order_objs = unit_order_objs.filter(price__gte=int(min_price))
-
+            
+            if cancellation_requested!=False:
+                unit_order_objs = unit_order_objs.filter(cancelled_by_user=True)
 
             if len(search_list)>0:
                 temp_unit_order_objs = UnitOrder.objects.none()
@@ -3890,6 +3962,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
                         temp_dict2["intercompany_order_id"] = unit_order_obj.get_sap_intercompany_order_id()
+                        temp_dict2["cancelled_by_user"] = unit_order_obj.cancelled_by_user
+                        temp_dict2["user_cancellation_note"] = unit_order_obj.user_cancellation_note
+                        temp_dict2["user_cancellation_status"] = unit_order_obj.user_cancellation_status
                         intercompany_qty = unit_order_obj.get_sap_intercompany_order_qty()
                         final_qty = unit_order_obj.get_sap_final_order_qty()
 
@@ -4271,6 +4346,105 @@ class CancelOrdersAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CancelOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
+        return Response(data=response)
+
+
+class ApproveCancellationRequestAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            data = request.data
+            logger.info("ApproveCancellationRequestAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_order_uuid = data["unit_order_uuid"]
+
+            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
+
+            if unit_order_obj.order.payment_mode=="COD":
+                unit_order_obj.user_cancellation_status="approved"
+                unit_order_obj.save()
+
+                notify_order_cancel_status_to_user(unit_order_obj,"approved")
+            else:
+                unit_order_obj.user_cancellation_status="refund processed"
+                unit_order_obj.save()
+
+                notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
+
+            cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ApproveCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class RejectCancellationRequestAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            data = request.data
+            logger.info("RejectCancellationRequestAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_order_uuid = data["unit_order_uuid"]
+
+            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)       
+            unit_order_obj.user_cancellation_status = "rejected"
+            unit_order_obj.save()
+
+            notify_order_cancel_status_to_user(unit_order_obj,"rejected")
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RejectCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class UpdateCancellationRequestRefundStatusAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            data = request.data
+            logger.info("UpdateCancellationRequestRefundStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_order_uuid = data["unit_order_uuid"]
+
+            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
+            unit_order_obj.user_cancellation_status = "refunded"
+            unit_order_obj.save()
+            
+            notify_order_cancel_status_to_user(unit_order_obj,"refunded")
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateCancellationRequestRefundStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
@@ -5475,6 +5649,10 @@ AddToOfflineCart = AddToOfflineCartAPI.as_view()
 
 FetchCartDetails = FetchCartDetailsAPI.as_view()
 
+CreateUnitOrderCancellationRequest = CreateUnitOrderCancellationRequestAPI.as_view()
+
+CreateOrderCancellationRequest = CreateOrderCancellationRequestAPI.as_view()
+
 FetchOfflineCartDetails = FetchOfflineCartDetailsAPI.as_view()
 
 UpdateCartDetails = UpdateCartDetailsAPI.as_view()
@@ -5582,6 +5760,12 @@ SetOrdersStatus = SetOrdersStatusAPI.as_view()
 SetCallStatus = SetCallStatusAPI.as_view()
 
 CancelOrders = CancelOrdersAPI.as_view()
+
+ApproveCancellationRequest = ApproveCancellationRequestAPI.as_view()
+
+RejectCancellationRequest = RejectCancellationRequestAPI.as_view()
+
+UpdateCancellationRequestRefundStatus = UpdateCancellationRequestRefundStatusAPI.as_view()
 
 DownloadOrders = DownloadOrdersAPI.as_view()
 

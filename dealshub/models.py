@@ -877,6 +877,10 @@ class UnitOrder(models.Model):
     )
     shipping_method = models.CharField(max_length=100, choices=SHIPPING_METHOD, default="pending")
 
+    cancelled_by_user = models.BooleanField(default=False)
+    user_cancellation_note = models.CharField(max_length=256,default="")
+    user_cancellation_status = models.CharField(max_length=100,default="")
+
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)

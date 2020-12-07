@@ -108,6 +108,8 @@ urlpatterns = [
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),
+    url(r'^order/create-unit-order-cancellation-request/$', views.CreateUnitOrderCancellationRequest),
+    url(r'^order/create-order-cancellation-request/$', views.CreateOrderCancellationRequest),
 
     url(r'^payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
     url(r'^payment/make-purchase-request/$', views.MakePurchaseRequest),
@@ -134,6 +136,9 @@ urlpatterns = [
     url(r'^set-orders-status/$', views.SetOrdersStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
+    url(r'^approve-cancellation-request/$', views.ApproveCancellationRequest),
+    url(r'^reject-cancellation-request/$', views.RejectCancellationRequest),
+    url(r'^update-cancellation-request-refund-status/$', views.UpdateCancellationRequestRefundStatus),
 
     url(r'^download-orders/$', views.DownloadOrders),
     url(r'^upload-orders/$', views.UploadOrders),
