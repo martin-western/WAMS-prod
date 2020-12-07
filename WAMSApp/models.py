@@ -454,6 +454,7 @@ class Organization(models.Model):
 class SuperCategory(models.Model):
 
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
@@ -484,6 +485,7 @@ class Category(models.Model):
 
     super_category = models.ForeignKey(SuperCategory, blank=True, default=None, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     property_data = models.TextField(default="[]", blank=True)
@@ -516,6 +518,7 @@ class SubCategory(models.Model):
 
     category = models.ForeignKey(Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, default=None, on_delete=models.SET_NULL)
@@ -644,6 +647,7 @@ class Channel(models.Model):
 class Brand(models.Model):
 
     name = models.CharField(max_length=100)
+    name_ar = models.CharField(max_length=100,default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, null=True, blank=True)
 
@@ -827,6 +831,7 @@ class Product(models.Model):
     product_id = models.CharField(max_length=200,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
     product_description = models.TextField(blank=True)
+    product_description_ar = models.TextField(blank=True,default='')
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
    
@@ -841,6 +846,8 @@ class Product(models.Model):
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
     pfl_product_features = models.TextField(default="[]")
+    pfl_product_name_ar = models.CharField(max_length=300, default="")
+    pfl_product_features_ar = models.TextField(default="[]")
 
     product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
