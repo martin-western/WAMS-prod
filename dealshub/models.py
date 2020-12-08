@@ -152,7 +152,9 @@ class DealsHubProduct(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
     product_name = models.CharField(max_length=200, default="")
+    product_name_ar = models.CharField(max_length=200,default="")
     product_description = models.TextField(default="", blank=True)
+    product_description_ar = models.TextField(default="", blank=True)
     was_price = models.FloatField(default=0)
     now_price = models.FloatField(default=0)
     promotional_price = models.FloatField(default=0)
@@ -197,9 +199,19 @@ class DealsHubProduct(models.Model):
                 return str(self.category.super_category)
         return ""
 
+    def get_super_category_ar(self):
+        if self.category!=None:
+            if self.category.super_category!=None:
+                return self.category.super_category.name_ar
+
     def get_category(self):
         if self.category!=None:
             return str(self.category)
+        return ""
+
+    def get_category_ar(self):
+        if self.category!=None:
+            return self.category.name_ar
         return ""
 
     def get_sub_category(self):
@@ -207,19 +219,35 @@ class DealsHubProduct(models.Model):
             return str(self.sub_category)
         return ""
 
+    def get_sub_category_ar(self):
+        if self.sub_category!=None:
+            return self.sub_category.name_ar
+        return ""
+
     def get_name(self):
         return str(self.product_name)
+
+    def get_name_ar(self):
+        return str(self.product_name_ar)
 
     def get_description(self):
         if self.product_description!="":
             return str(self.product_description)
         return str(self.product.product_description)
 
+    def get_description_ar(self):
+        if self.product_description!="":
+            return str(self.product_description)
+        return str(self.product.product_description_ar)        
+
     def get_product_id(self):
         return str(self.product.product_id)
 
     def get_brand(self):
         return str(self.product.base_product.brand)
+
+    def get_brand_ar(self):
+        return str(self.product.base_product.brand.name_ar)    
 
     def get_seller_sku(self):
         return str(self.product.base_product.seller_sku)
@@ -358,6 +386,7 @@ class Section(models.Model):
     uuid = models.CharField(max_length=200, unique=True)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=300, default="")
+    name_ar = models.CharField(max_length=300, default="")
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
 
@@ -448,6 +477,9 @@ class UnitBannerImage(models.Model):
     mobile_image = models.ForeignKey(Image, related_name="mobile_image", on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
+    image_ar = models.ForeignKey(Image, on_delete=models.SET_NULL,related_name="image_ar", null=True)
+    mobile_image_ar = models.ForeignKey(Image, related_name="mobile_image_ar", on_delete=models.SET_NULL, null=True)
+    http_link_ar = models.TextField(default="")
 
     products = models.ManyToManyField(DealsHubProduct, blank=True)
     hovering_banner_image = models.ForeignKey(Image, related_name="unit_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
