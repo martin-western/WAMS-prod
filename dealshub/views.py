@@ -311,6 +311,7 @@ class FetchOnSaleProductsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOnSaleProductsAPI: %s", str(data))
+            language_type = data.get("language","english")
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -328,8 +329,12 @@ class FetchOnSaleProductsAPI(APIView):
                     continue
                 
                 temp_dict2 = {}
-                temp_dict2["name"] = dealshub_product_obj.get_name()
-                temp_dict2["brand"] = dealshub_product_obj.get_brand()
+                if language_type = "arabic":      
+                    temp_dict2["name"] = dealshub_product_obj.get_name()
+                    temp_dict2["brand"] = dealshub_product_obj.get_brand()
+                else:
+                    temp_dict2["name"] = dealshub_product_obj.get_name_ar()
+                    temp_dict2["brand"] = dealshub_product_obj.get_brand_ar()                    
                 temp_dict2["now_price"] = dealshub_product_obj.now_price
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
