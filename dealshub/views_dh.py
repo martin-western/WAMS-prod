@@ -3898,7 +3898,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         final_qty = unit_order_obj.get_sap_final_order_qty()
 
                         if intercompany_qty != "" and final_qty != "":
-                            if intercompany_qty != final_qty:
+                            if intercompany_qty != final_qty and order_obj.sap_status!="GRN Conflict":
                                 order_obj.sap_status = "GRN Conflict"
                                 unit_order_obj.sap_status = "GRN Conflict"
                                 order_obj.save()
