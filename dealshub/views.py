@@ -329,7 +329,7 @@ class FetchOnSaleProductsAPI(APIView):
                     continue
                 
                 temp_dict2 = {}
-                if language_type = "arabic":      
+                if language_type == "arabic":      
                     temp_dict2["name"] = dealshub_product_obj.get_name()
                     temp_dict2["brand"] = dealshub_product_obj.get_brand()
                 else:
