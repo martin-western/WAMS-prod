@@ -64,6 +64,7 @@ class FetchProductDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            language_type = data["language"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["uuid"])
             product_obj = dealshub_product_obj.product
             base_product_obj = product_obj.base_product
@@ -80,6 +81,13 @@ class FetchProductDetailsAPI(APIView):
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = dealshub_product_obj.get_currency()
             response["warranty"] = dealshub_product_obj.get_warranty()
+
+            if language_type == "arabic":
+                response["brand"] = dealshub_product_obj.get_brand_ar()
+                response["superCategory"] = dealshub_product_obj.get_super_category_ar()
+                response["category"] = dealshub_product_obj.get_category_ar()
+                response["subCategory"] = dealshub_product_obj.get_sub_category_ar()
+                response["name"] = dealshub_product_obj.get_name_ar()
 
             response["dimensions"] = dealshub_product_obj.get_dimensions()
             response["color"] = dealshub_product_obj.get_color()
@@ -112,7 +120,10 @@ class FetchProductDetailsAPI(APIView):
                 dealshub_product_objs = DealsHubProduct.objects.filter(location_group=dealshub_product_obj.location_group, product__base_product=product_obj.base_product, is_published=True).exclude(now_price=0).exclude(stock=0)
                 for dealshub_product_obj in dealshub_product_objs:
                     temp_dict = {}
-                    temp_dict["product_name"] = dealshub_product_obj.get_name()
+                    if language_type == "english":
+                        temp_dict["product_name"] = dealshub_product_obj.get_name()
+                    else:
+                        temp_dict["product_name"] = dealshub_product_obj.get_name_ar()
                     temp_dict["image_url"] = dealshub_product_obj.get_display_image_url()
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     variant_list.append(temp_dict)
@@ -125,8 +136,11 @@ class FetchProductDetailsAPI(APIView):
             if dealshub_product_obj.stock>0:
                 response["isStockAvailable"] = True
 
-            #response["productDispDetails"] = product_obj.product_description 
-            response["productDispDetails"] = dealshub_product_obj.get_description()
+            #response["productDispDetails"] = product_obj.product_description
+            if language_type == "arabic":
+                response["productDispDetails"] = dealshub_product_obj.get_description()
+            else:
+                response["productDispDetails"] = dealshub_product_obj.get_description_ar()
             try:
                 specifications = json.loads(product_obj.dynamic_form_attributes)
                 new_specifications = {}
@@ -139,6 +153,8 @@ class FetchProductDetailsAPI(APIView):
 
             try:
                 response["features"] = json.loads(product_obj.pfl_product_features)
+                if language_type == "arabic":
+                    response["features"] = json.loads(product_obj.pfl_product_features_ar)
             except Exception as e:
                 response["features"] = []
 
