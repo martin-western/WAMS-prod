@@ -80,6 +80,8 @@ class FetchProductDetailsAPI(APIView):
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = dealshub_product_obj.get_currency()
             response["warranty"] = dealshub_product_obj.get_warranty()
+            response["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+            response["is_on_sale"] = dealshub_product_obj.is_on_sale
 
             response["dimensions"] = dealshub_product_obj.get_dimensions()
             response["color"] = dealshub_product_obj.get_color()
@@ -386,6 +388,8 @@ class FetchNewArrivalProductsAPI(APIView):
                 temp_dict2["stock"] = dealshub_product_obj.stock
                 temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
+                temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
                 temp_dict2["is_promotional"] = dealshub_product_obj.promotion!=None
                 if dealshub_product_obj.promotion!=None:
                     temp_dict2["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
@@ -456,6 +460,8 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
                 temp_dict2["stock"] = dealshub_product_obj.stock
+                temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
                 temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
                 temp_dict2["is_promotional"] = dealshub_product_obj.promotion!=None
@@ -736,6 +742,8 @@ class SearchAPI(APIView):
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
                     temp_dict["stock"] = dealshub_product_obj.stock
+                    temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                    temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
                     temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
                     temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
@@ -1058,6 +1066,8 @@ class SearchWIGAPI(APIView):
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
                     temp_dict["stock"] = dealshub_product_obj.stock
+                    temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                    temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
                     temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
                     temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
@@ -2326,6 +2336,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["now_price"] = dealshub_product_obj.now_price
                     temp_dict2["was_price"] = dealshub_product_obj.was_price
                     temp_dict2["stock"] = dealshub_product_obj.stock
+                    temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                    temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
                     temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     if dealshub_product_obj.stock>0:
                         temp_dict2["isStockAvailable"] = True
@@ -3020,6 +3032,8 @@ class FetchUnitBannerProductsAPI(APIView):
                 temp_dict["was_price"] = dealshub_product_obj.was_price
                 temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
                 temp_dict["stock"] = dealshub_product_obj.stock
+                temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
                 temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
                 temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None

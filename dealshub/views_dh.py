@@ -3742,6 +3742,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
+            is_order_offline = data.get("isOrderOffline", None)
             sap_status_list = data.get("sapStatusList", [])
             search_list = data.get("searchList", [])
             location_group_uuid = data["locationGroupUuid"]
@@ -3779,6 +3780,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             if len(sap_status_list)>0:
                 unit_order_objs = unit_order_objs.filter(sap_status__in=sap_status_list)
+
+            if is_order_offline!=None:
+                unit_order_objs = unit_order_objs.filter(order__is_order_offline=is_order_offline)                
 
             if max_qty!="":
                 unit_order_objs = unit_order_objs.filter(quantity__lte=int(max_qty))
@@ -3894,7 +3898,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         final_qty = unit_order_obj.get_sap_final_order_qty()
 
                         if intercompany_qty != "" and final_qty != "":
-                            if intercompany_qty != final_qty:
+                            if intercompany_qty != final_qty and order_obj.sap_status!="GRN Conflict":
                                 order_obj.sap_status = "GRN Conflict"
                                 unit_order_obj.sap_status = "GRN Conflict"
                                 order_obj.save()
@@ -4161,6 +4165,13 @@ class SetShippingMethodAPI(APIView):
                                 unit_order_obj.sap_status = "Failed"
                                 unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                                 unit_order_obj.save()
+                                try:
+                                    p1 = threading.Thread(target=notify_grn_error, args=(unit_order_obj.order,))
+                                    p1.start()
+                                except Exception as e:
+                                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                                    logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
+
                                 continue
                             
                             unit_order_information = {}
