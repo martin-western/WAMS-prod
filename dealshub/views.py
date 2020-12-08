@@ -64,7 +64,7 @@ class FetchProductDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            language_type = data["language"]
+            language_type = data.get("language","english")
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["uuid"])
             product_obj = dealshub_product_obj.product
             base_product_obj = product_obj.base_product
@@ -137,7 +137,7 @@ class FetchProductDetailsAPI(APIView):
                 response["isStockAvailable"] = True
 
             #response["productDispDetails"] = product_obj.product_description
-            if language_type == "arabic":
+            if language_type == "english":
                 response["productDispDetails"] = dealshub_product_obj.get_description()
             else:
                 response["productDispDetails"] = dealshub_product_obj.get_description_ar()
