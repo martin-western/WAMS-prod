@@ -89,7 +89,8 @@ def set_order_status(unit_order_obj, order_status):
         try:
             p1 = threading.Thread(target=send_order_dispatch_mail, args=(unit_order_obj,))
             p1.start()
-            if unit_order_obj.order.location_group.website_group=="parajohn":
+            website_group = unit_order_obj.order.location_group.website_group
+            if website_group=="parajohn" or website_group=="shopnesto":
                 p2 = threading.Thread(target=send_order_dispatch_sms, args=(unit_order_obj,))
                 p2.start()
         except Exception as e:
@@ -113,7 +114,8 @@ def set_order_status(unit_order_obj, order_status):
             try:
                 p1 = threading.Thread(target=send_order_delivered_mail, args=(unit_order_obj,))
                 p1.start()
-                if unit_order_obj.order.location_group.website_group=="parajohn":
+                website_group = unit_order_obj.order.location_group.website_group
+                if website_group=="parajohn" or website_group=="shopnesto":
                     p2 = threading.Thread(target=send_order_delivered_sms, args=(unit_order_obj,))
                     p2.start()
             except Exception as e:
