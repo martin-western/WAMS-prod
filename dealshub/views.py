@@ -1070,7 +1070,9 @@ class SearchWIGAPI(APIView):
                     temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
                     temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
-                    temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
+                    temp_dict["is_promotional"] = False
+                    if dealshub_user_obj.promotion!=None and check_valid_promotion(dealshub_user_obj.promotion)==True:
+                        temp_dict["is_promotional"] = True
                     if dealshub_product_obj.promotion!=None:
                         temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
                     else:
