@@ -3834,9 +3834,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     if cancel_status==True:
                         cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
                         temp_dict["cancelling_note"] = cancelling_note
-
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
-                    temp_dict["sapStatus"] = order_obj.sap_status
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
                     temp_dict["call_status"] = order_obj.call_status
@@ -3918,6 +3916,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["dispatched"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="dispatched").count()
                     temp_dict["delivered"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="delivered").count()
                     temp_dict["deliveryFailed"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="delivery failed").count()
+
+                    temp_dict["sapStatus"] = order_obj.sap_status
+                    sap_warning_list = ["GRN Conflict", "Failed"]
+                    sap_warning = True if unit_order_objs.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
+                    temp_dict["showSapWarning"] = sap_warning
 
                     subtotal = order_obj.get_subtotal()
                     subtotal_vat = order_obj.get_subtotal_vat()
