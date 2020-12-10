@@ -3862,7 +3862,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if min_price!="":
                 unit_order_objs = unit_order_objs.filter(price__gte=int(min_price))
             
-            if cancellation_requested!=False:
+            if cancellation_requested:
                 unit_order_objs = unit_order_objs.filter(cancelled_by_user=True)
 
             if len(search_list)>0:
