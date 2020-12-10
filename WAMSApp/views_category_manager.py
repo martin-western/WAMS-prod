@@ -128,7 +128,7 @@ class UpdateCategoryMappingAPI(APIView):
         return Response(data=response)
 
 
-class FetchSuperCategoriesAPI(APIView):
+class FetchAdminSuperCategoriesAPI(APIView):
 
     def post(self, request, *args, **kwargs):
     
@@ -138,7 +138,7 @@ class FetchSuperCategoriesAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchSuperCategoriesAPI: %s", str(data))
+            logger.info("FetchAdminSuperCategoriesAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -158,12 +158,12 @@ class FetchSuperCategoriesAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchAdminSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class FetchCategoriesAPI(APIView):
+class FetchAdminCategoriesAPI(APIView):
     
     def post(self, request, *args, **kwargs):
     
@@ -173,7 +173,7 @@ class FetchCategoriesAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchCategoriesAPI: %s", str(data))
+            logger.info("FetchAdminCategoriesAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -195,12 +195,12 @@ class FetchCategoriesAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchAdminCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class FetchSubCategoriesAPI(APIView):
+class FetchAdminSubCategoriesAPI(APIView):
     
     def post(self, request, *args, **kwargs):
     
@@ -210,7 +210,7 @@ class FetchSubCategoriesAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchSubCategoriesAPI: %s", str(data))
+            logger.info("FetchAdminSubCategoriesAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -232,12 +232,12 @@ class FetchSubCategoriesAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchSubCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchAdminSubCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
   
 
-class UpdateSuperCategoryDetailsAPI(APIView):
+class UpdateAdminSuperCategoryDetailsAPI(APIView):
     
     def post(self, request, *args, **kwargs):
     
@@ -247,7 +247,7 @@ class UpdateSuperCategoryDetailsAPI(APIView):
         try:
 
             data = request.data
-            logger.info("UpdateSuperCategoryDetailsAPI: %s", str(data))
+            logger.info("UpdateAdminSuperCategoryDetailsAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -270,12 +270,12 @@ class UpdateSuperCategoryDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateSuperCategoryDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateAdminSuperCategoryDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class UpdateCategoryDetailsAPI(APIView):
+class UpdateAdminCategoryDetailsAPI(APIView):
     
     def post(self, request, *args, **kwargs):
     
@@ -285,7 +285,7 @@ class UpdateCategoryDetailsAPI(APIView):
         try:
 
             data = request.data
-            logger.info("UpdateCategoryDetailsAPI: %s", str(data))
+            logger.info("UpdateAdminCategoryDetailsAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -308,12 +308,12 @@ class UpdateCategoryDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateCategoryDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateAdminCategoryDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class UpdateSubCategoryDetailsAPI(APIView):
+class UpdateAdminSubCategoryDetailsAPI(APIView):
     
     def post(self, request, *args, **kwargs):
     
@@ -323,7 +323,7 @@ class UpdateSubCategoryDetailsAPI(APIView):
         try:
 
             data = request.data
-            logger.info("UpdateSubCategoryDetailsAPI: %s", str(data))
+            logger.info("UpdateAdminSubCategoryDetailsAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -346,12 +346,12 @@ class UpdateSubCategoryDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateSubCategoryDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateAdminSubCategoryDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class AddNewSuperCategoryAPI(APIView):
+class AddNewAdminSuperCategoryAPI(APIView):
     
     def post(self, request, *args, **kwargs):
     
@@ -361,7 +361,7 @@ class AddNewSuperCategoryAPI(APIView):
         try:
 
             data = request.data
-            logger.info("AddNewSuperCategoryAPI: %s", str(data))
+            logger.info("AddNewAdminSuperCategoryAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -377,12 +377,12 @@ class AddNewSuperCategoryAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddNewSuperCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddNewAdminSuperCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class AddNewCategoryAPI(APIView):
+class AddNewAdminCategoryAPI(APIView):
     
     def post(self, request, *args, **kwargs):
     
@@ -392,7 +392,7 @@ class AddNewCategoryAPI(APIView):
         try:
 
             data = request.data
-            logger.info("AddNewCategoryAPI: %s", str(data))
+            logger.info("AddNewAdminCategoryAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -412,12 +412,12 @@ class AddNewCategoryAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddNewCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddNewAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class AddNewSubCategoryAPI(APIView):
+class AddNewAdminSubCategoryAPI(APIView):
     
     def post(self, request, *args, **kwargs):
     
@@ -427,7 +427,7 @@ class AddNewSubCategoryAPI(APIView):
         try:
 
             data = request.data
-            logger.info("AddNewSubCategoryAPI: %s", str(data))
+            logger.info("AddNewAdminSubCategoryAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -447,7 +447,7 @@ class AddNewSubCategoryAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddNewSubCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddNewAdminSubCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -456,20 +456,20 @@ FetchCategoryList = FetchCategoryListAPI.as_view()
 
 UpdateCategoryMapping = UpdateCategoryMappingAPI.as_view()
 
-FetchSuperCategories = FetchSuperCategoriesAPI.as_view()
+FetchAdminSuperCategories = FetchAdminSuperCategoriesAPI.as_view()
 
-FetchCategories = FetchCategoriesAPI.as_view()
+FetchAdminCategories = FetchAdminCategoriesAPI.as_view()
 
-FetchSubCategories = FetchSubCategoriesAPI.as_view()
+FetchAdminSubCategories = FetchAdminSubCategoriesAPI.as_view()
 
-UpdateSuperCategoryDetails = UpdateSuperCategoryDetailsAPI.as_view()
+UpdateAdminSuperCategoryDetails = UpdateAdminSuperCategoryDetailsAPI.as_view()
 
-UpdateCategoryDetails = UpdateCategoryDetailsAPI.as_view()
+UpdateAdminCategoryDetails = UpdateAdminCategoryDetailsAPI.as_view()
 
-UpdateSubCategoryDetails = UpdateSubCategoryDetailsAPI.as_view()
+UpdateAdminSubCategoryDetails = UpdateAdminSubCategoryDetailsAPI.as_view()
 
-AddNewSuperCategory = AddNewSuperCategoryAPI.as_view()
+AddNewAdminSuperCategory = AddNewAdminSuperCategoryAPI.as_view()
 
-AddNewCategory = AddNewCategoryAPI.as_view()
+AddNewAdminCategory = AddNewAdminCategoryAPI.as_view()
 
-AddNewSubCategory = AddNewSubCategoryAPI.as_view()
+AddNewAdminSubCategory = AddNewAdminSubCategoryAPI.as_view()
