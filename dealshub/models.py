@@ -193,61 +193,51 @@ class DealsHubProduct(models.Model):
     def get_currency(self):
         return str(self.location_group.location.currency)
 
-    def get_super_category(self):
+    def get_super_category(self,language = "en"):
         if self.category!=None:
             if self.category.super_category!=None:
-                return str(self.category.super_category)
+                if language == "en":
+                    return str(self.category.super_category)
+                else:
+                    return str(self.category.super_category.name_ar)
         return ""
 
-    def get_super_category_ar(self):
+    def get_category(self,language = "en"):
         if self.category!=None:
-            if self.category.super_category!=None:
-                return self.category.super_category.name_ar
-
-    def get_category(self):
-        if self.category!=None:
-            return str(self.category)
+            if language == "en":
+                return str(self.category)
+            else:
+                return str(self.category.name_ar)
         return ""
 
-    def get_category_ar(self):
-        if self.category!=None:
-            return self.category.name_ar
-        return ""
-
-    def get_sub_category(self):
+    def get_sub_category(self,language = "en"):
         if self.sub_category!=None:
-            return str(self.sub_category)
+            if language == "en":
+                return str(self.sub_category)
+            else:
+                return str(slef.get_sub_category_ar.name_ar)
         return ""
 
-    def get_sub_category_ar(self):
-        if self.sub_category!=None:
-            return self.sub_category.name_ar
-        return ""
-
-    def get_name(self):
+    def get_name(self,language = "en"):
+        if language == "ar":
+            return str(self.product_name_ar)
         return str(self.product_name)
 
-    def get_name_ar(self):
-        return str(self.product_name_ar)
-
-    def get_description(self):
+    def get_description(self,language = "en"):
         if self.product_description!="":
-            return str(self.product_description)
-        return str(self.product.product_description)
-
-    def get_description_ar(self):
-        if self.product_description!="":
-            return str(self.product_description)
-        return str(self.product.product_description_ar)        
+            if language == "en":
+                return str(self.product_description)
+            else:
+                return str(self.product.product_description_ar)
+            return str(self.product.product_description)
 
     def get_product_id(self):
         return str(self.product.product_id)
 
-    def get_brand(self):
-        return str(self.product.base_product.brand)
-
-    def get_brand_ar(self):
-        return str(self.product.base_product.brand.name_ar)    
+    def get_brand(self,language = "en"):
+        if language == "ar":
+            return str(self.product.base_product.brand.name_ar)
+        return str(self.product.base_product.brand.name_ar)
 
     def get_seller_sku(self):
         return str(self.product.base_product.seller_sku)

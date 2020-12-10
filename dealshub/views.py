@@ -64,31 +64,23 @@ class FetchProductDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            language_type = data.get("language","english")
+            language_code = data.get("language","en")
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["uuid"])
             product_obj = dealshub_product_obj.product
             base_product_obj = product_obj.base_product
 
-            response["brand"] = dealshub_product_obj.get_brand()
-            response["superCategory"] = dealshub_product_obj.get_super_category()
-            response["category"] = dealshub_product_obj.get_category()
-            response["subCategory"] = dealshub_product_obj.get_sub_category()
+            response["brand"] = dealshub_product_obj.get_brand(language_code)
+            response["superCategory"] = dealshub_product_obj.get_super_category(language_code)
+            response["category"] = dealshub_product_obj.get_category(language_code)
+            response["subCategory"] = dealshub_product_obj.get_sub_category(language_code)
             response["uuid"] = data["uuid"]
-            response["name"] = dealshub_product_obj.get_name()
+            response["name"] = dealshub_product_obj.get_name(language_code)
             response["stock"] = dealshub_product_obj.stock
             response["allowedQty"] = dealshub_product_obj.get_allowed_qty()
             response["price"] = dealshub_product_obj.get_actual_price()
             response["wasPrice"] = dealshub_product_obj.was_price
             response["currency"] = dealshub_product_obj.get_currency()
             response["warranty"] = dealshub_product_obj.get_warranty()
-
-            if language_type == "arabic":
-                response["brand"] = dealshub_product_obj.get_brand_ar()
-                response["superCategory"] = dealshub_product_obj.get_super_category_ar()
-                response["category"] = dealshub_product_obj.get_category_ar()
-                response["subCategory"] = dealshub_product_obj.get_sub_category_ar()
-                response["name"] = dealshub_product_obj.get_name_ar()
-
             response["dimensions"] = dealshub_product_obj.get_dimensions()
             response["color"] = dealshub_product_obj.get_color()
             if dealshub_product_obj.get_weight()==0.0:
@@ -120,10 +112,7 @@ class FetchProductDetailsAPI(APIView):
                 dealshub_product_objs = DealsHubProduct.objects.filter(location_group=dealshub_product_obj.location_group, product__base_product=product_obj.base_product, is_published=True).exclude(now_price=0).exclude(stock=0)
                 for dealshub_product_obj in dealshub_product_objs:
                     temp_dict = {}
-                    if language_type == "english":
-                        temp_dict["product_name"] = dealshub_product_obj.get_name()
-                    else:
-                        temp_dict["product_name"] = dealshub_product_obj.get_name_ar()
+                    temp_dict["product_name"] = dealshub_product_obj.get_name(language_code) 
                     temp_dict["image_url"] = dealshub_product_obj.get_display_image_url()
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     variant_list.append(temp_dict)
@@ -137,10 +126,7 @@ class FetchProductDetailsAPI(APIView):
                 response["isStockAvailable"] = True
 
             #response["productDispDetails"] = product_obj.product_description
-            if language_type == "english":
-                response["productDispDetails"] = dealshub_product_obj.get_description()
-            else:
-                response["productDispDetails"] = dealshub_product_obj.get_description_ar()
+                response["productDispDetails"] = dealshub_product_obj.get_description(language_code)
             try:
                 specifications = json.loads(product_obj.dynamic_form_attributes)
                 new_specifications = {}
@@ -153,7 +139,7 @@ class FetchProductDetailsAPI(APIView):
 
             try:
                 response["features"] = json.loads(product_obj.pfl_product_features)
-                if language_type == "arabic":
+                if language_code == "ar":
                     response["features"] = json.loads(product_obj.pfl_product_features_ar)
             except Exception as e:
                 response["features"] = []
@@ -273,6 +259,7 @@ class FetchSimilarProductsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+            language_code = data.get("language","en")
 
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["uuid"])
 
@@ -283,10 +270,10 @@ class FetchSimilarProductsAPI(APIView):
             brand_obj = dealshub_product_obj.product.base_product.brand
 
             dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, category=category_obj, product__base_product__brand__in=dealshub_product_obj.location_group.website_group.brands.all(), product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
-            similar_category_products = get_recommended_products(dealshub_product_objs)
+            similar_category_products = get_recommended_products(dealshub_product_objs,language_code)
 
             dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand=brand_obj, product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
-            similar_brand_products = get_recommended_products(dealshub_product_objs)
+            similar_brand_products = get_recommended_products(dealshub_product_objs,language_code)
 
             response["similar_category_products"] = similar_category_products
             response["similar_brand_products"] = similar_brand_products
@@ -311,7 +298,7 @@ class FetchOnSaleProductsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOnSaleProductsAPI: %s", str(data))
-            language_type = data.get("language","english")
+            language_code = data.get("language","english")
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -329,12 +316,8 @@ class FetchOnSaleProductsAPI(APIView):
                     continue
                 
                 temp_dict2 = {}
-                if language_type == "english":      
-                    temp_dict2["name"] = dealshub_product_obj.get_name()
-                    temp_dict2["brand"] = dealshub_product_obj.get_brand()
-                else:
-                    temp_dict2["name"] = dealshub_product_obj.get_name_ar()
-                    temp_dict2["brand"] = dealshub_product_obj.get_brand_ar()                    
+                temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
+                temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
                 temp_dict2["now_price"] = dealshub_product_obj.now_price
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
@@ -382,7 +365,7 @@ class FetchNewArrivalProductsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchNewArrivalProductsAPI: %s", str(data))
-            language_type = data.get("language","english")
+            language_code = data.get("language","en")
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -400,12 +383,8 @@ class FetchNewArrivalProductsAPI(APIView):
                     continue
                 
                 temp_dict2 = {}
-                if language_type == "english":                
-                    temp_dict2["name"] = dealshub_product_obj.get_name()
-                    temp_dict2["brand"] = dealshub_product_obj.get_brand()
-                else:
-                    temp_dict2["name"] = dealshub_product_obj.get_name_ar()
-                    temp_dict2["brand"] = dealshub_product_obj.get_brand_ar()
+                temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
+                temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
                 temp_dict2["now_price"] = dealshub_product_obj.now_price
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
@@ -453,6 +432,7 @@ class FetchSectionProductsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchSectionProductsAPI: %s", str(data))
+            language_code = data.get("language","en")
 
             uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
@@ -476,8 +456,8 @@ class FetchSectionProductsAPI(APIView):
                 if dealshub_product_obj.get_actual_price()==0:
                     continue
                 temp_dict2 = {}
-                temp_dict2["name"] = dealshub_product_obj.get_name()
-                temp_dict2["brand"] = dealshub_product_obj.get_brand()
+                temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
+                temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
                 temp_dict2["now_price"] = dealshub_product_obj.now_price
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
@@ -525,6 +505,7 @@ class FetchSuperCategoriesAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
+            language_code = data.get("language","en")
             logger.info("FetchSuperCategoriesAPI: %s", str(data))
             website_group_name = data["websiteGroupName"]
 
@@ -535,7 +516,7 @@ class FetchSuperCategoriesAPI(APIView):
             super_category_list = []
             for super_category_obj in super_category_objs:
                 temp_dict = {}
-                temp_dict["name"] = super_category_obj.name
+                temp_dict["name"] = super_category_obj.get_name(language_code)
                 temp_dict["uuid"] = super_category_obj.uuid
                 temp_dict["imageUrl"] = ""
                 if super_category_obj.image!=None:
@@ -544,7 +525,7 @@ class FetchSuperCategoriesAPI(APIView):
                 category_objs = Category.objects.filter(super_category=super_category_obj)[:30]
                 for category_obj in category_objs:
                     temp_dict2 = {}
-                    temp_dict2["category_name"] = category_obj.name
+                    temp_dict2["category_name"] = category_obj.get_name(language_code)
                     category_list.append(temp_dict2)
                 temp_dict["category_list"] = category_list
                 super_category_list.append(temp_dict)
@@ -570,6 +551,7 @@ class FetchHeadingCategoriesAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
+            language_code = data.get("language","en")
             logger.info("FetchHeadingCategoriesAPI: %s", str(data))
             website_group_name = data["websiteGroupName"]
 
@@ -580,7 +562,7 @@ class FetchHeadingCategoriesAPI(APIView):
             category_list = []
             for category_obj in category_objs:
                 temp_dict = {}
-                temp_dict["name"] = category_obj.name
+                temp_dict["name"] = category_obj.get_name(language_code)
                 temp_dict["uuid"] = category_obj.uuid
                 temp_dict["imageUrl"] = ""
                 if category_obj.image!=None:
@@ -589,7 +571,7 @@ class FetchHeadingCategoriesAPI(APIView):
                 sub_category_objs = SubCategory.objects.filter(category=category_obj)
                 for sub_category_obj in sub_category_objs:
                     temp_dict2 = {}
-                    temp_dict2["name"] = sub_category_obj.name
+                    temp_dict2["name"] = sub_category_obj.get_name(language_code)
                     temp_dict2["uuid"] = sub_category_obj.uuid
                     sub_category_list.append(temp_dict2)
                 temp_dict["subCategoryList"] = sub_category_list
@@ -1127,6 +1109,7 @@ class FetchWIGCategoriesAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
+            language_code = data.get("language","en")
             logger.info("FetchWIGCategoriesAPI: %s", str(data))
             
             search_string = data.get("name", "").strip()
@@ -1144,7 +1127,10 @@ class FetchWIGCategoriesAPI(APIView):
 
             brand_list = []
             try:
-                brand_list = website_group_obj.brands.all().values_list("name", flat=True)
+                if language_code == "en":
+                    brand_list = website_group_obj.brands.all().values_list("name", flat=True)
+                else:
+                    brand_list = website_group_obj.brands.all().values_list("name_ar", flat=True)
                 brand_list = list(set(brand_list))
                 if len(brand_list)==1:
                     brand_list = []
@@ -1229,7 +1215,7 @@ class FetchWIGCategoriesAPI(APIView):
                     if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
                     temp_dict = {}
-                    temp_dict["name"] = category_obj.name
+                    temp_dict["name"] = category_obj.get_name(language_code)
                     temp_dict["uuid"] = category_obj.uuid
                     temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
@@ -1238,7 +1224,7 @@ class FetchWIGCategoriesAPI(APIView):
                         if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                             continue
                         temp_dict2 = {}
-                        temp_dict2["name"] = sub_category_obj.name
+                        temp_dict2["name"] = sub_category_obj.get_name(language_code)
                         temp_dict2["uuid"] = sub_category_obj.uuid
                         temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                         sub_category_list.append(temp_dict2)
@@ -1858,6 +1844,7 @@ class UpdateBannerImageAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateBannerImageAPI: %s", str(data))
+            language_code = data.get("language","en")
 
             uuid = data["uuid"]
             banner_image = data["image"]
@@ -1867,10 +1854,15 @@ class UpdateBannerImageAPI(APIView):
             image_obj = Image.objects.create(image=banner_image)
             
             if image_type=="mobile":
-                unit_banner_image_obj.mobile_image = image_obj
+                if language_code == "en":
+                    unit_banner_image_obj.mobile_image = image_obj
+                else:
+                    unit_banner_image_obj.mobile_image_ar = image_obj
             else:
-                unit_banner_image_obj.image = image_obj
-
+                if language_code == "en":
+                    unit_banner_image_obj.image = image_obj
+                else:
+                    unit_banner_image_obj.image_ar = image_obj
             unit_banner_image_obj.save()
 
             response['uuid'] = unit_banner_image_obj.uuid
@@ -1900,9 +1892,15 @@ class DeleteBannerImageAPI(APIView):
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
 
             if image_type=="mobile":
-                unit_banner_image_obj.mobile_image = None
+                if language_code == "en":
+                    unit_banner_image_obj.mobile_image = None
+                else:
+                    unit_banner_image_obj.mobile_image_ar = None
             else:
-                unit_banner_image_obj.image = None
+                if language_code == "en":
+                    unit_banner_image_obj.image = None
+                else:
+                    unit_banner_image_obj.image_ar = None
 
             unit_banner_image_obj.save()
 
@@ -2224,6 +2222,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
         try:
 
             data = request.data
+            language_code = data.get("language","en")
             logger.info("FetchDealshubAdminSectionsAPI: %s", str(data))
 
             limit = data.get("limit", False)
@@ -2335,15 +2334,15 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                     temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
                     temp_dict2["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
-                    temp_dict2["name"] = dealshub_product_obj.get_name()
+                    temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
                     temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
-                    temp_dict2["brand"] = dealshub_product_obj.get_brand()
+                    temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
                     temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
                     temp_dict2["uuid"] = dealshub_product_obj.uuid
                     temp_dict2["link"] = dealshub_product_obj.url
 
                     if is_dealshub==True:
-                        temp_dict2["category"] = dealshub_product_obj.get_category()
+                        temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
                         temp_dict2["currency"] = dealshub_product_obj.get_currency()
 
                     promotion_obj = dealshub_product_obj.promotion
@@ -2455,10 +2454,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                             temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
                             temp_dict3["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
-                            temp_dict3["name"] = dealshub_product_obj.get_name()
+                            temp_dict3["name"] = dealshub_product_obj.get_name(language_code)
                             temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
                             temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
-                            temp_dict3["brand"] = dealshub_product_obj.get_brand()
+                            temp_dict3["brand"] = dealshub_product_obj.get_brand(language_code)
                             temp_dict3["uuid"] = dealshub_product_obj.uuid
                             temp_dict3["link"] = dealshub_product_obj.url
 
@@ -2605,6 +2604,7 @@ class SearchProductsAutocompleteAPI(APIView):
         try:
 
             data = request.data
+            language_code = data.get("language","en")
             logger.info("SearchProductsAutocompleteAPI: %s", str(data))
 
             search_string = data["searchString"]
@@ -2673,7 +2673,7 @@ class SearchProductsAutocompleteAPI(APIView):
             category_list = []
             for category_key in category_key_list:
                 try:
-                    category_name = Category.objects.get(pk=category_key["category"]).name
+                    category_name = Category.objects.get(pk=category_key["category"]).get_name(language_code)
                     category_list.append(category_name)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2702,6 +2702,7 @@ class SearchProductsAPI(APIView):
             data = request.data
             logger.info("SearchProductsAPI: %s", str(data))
 
+            language_code = data.get("language","en")
             search_string = data["searchString"]
             location_group_uuid = data["locationGroupUuid"]
 
@@ -2710,14 +2711,14 @@ class SearchProductsAPI(APIView):
 
             dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0)
 
-            dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string))
+            dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string) | Q(product__product_name_ar__icontains=search_string))
 
             dealshub_product_objs = dealshub_product_objs[:10]
 
             dealshub_product_list = []
             for dealshub_product_obj in dealshub_product_objs:
                 temp_dict = {}
-                temp_dict["name"] = dealshub_product_obj.get_name()
+                temp_dict["name"] = dealshub_product_obj.get_name(language_code)
                 temp_dict["uuid"] = dealshub_product_obj.uuid
                 dealshub_product_list.append(temp_dict)
 
@@ -2906,6 +2907,7 @@ class FetchWebsiteGroupBrandsAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
+            language_code = data.get("language","en")
             logger.info("FetchWebsiteGroupBrandsAPI: %s", str(data))
 
             website_group_name = data["websiteGroupName"]
@@ -2915,7 +2917,7 @@ class FetchWebsiteGroupBrandsAPI(APIView):
             brand_list = []
             for brand_obj in brand_objs:
                 temp_dict = {}
-                temp_dict["name"] = brand_obj.name
+                temp_dict["name"] = brand_obj.get_name(language_code)
                 brand_list.append(temp_dict)
 
             response["brandList"] = brand_list
@@ -3018,7 +3020,7 @@ class FetchUnitBannerProductsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchUnitBannerProductsAPI: %s", str(data))
-
+            language_code = data.get("language","en")
             unit_banner_image_uuid = data["unitBannerImageUuid"]
             
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
@@ -3040,8 +3042,8 @@ class FetchUnitBannerProductsAPI(APIView):
                 if dealshub_product_obj.get_actual_price()==0:
                     continue
                 temp_dict = {}
-                temp_dict["name"] = dealshub_product_obj.get_name()
-                temp_dict["brand"] = dealshub_product_obj.get_brand()
+                temp_dict["name"] = dealshub_product_obj.get_name(language_code)
+                temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
                 temp_dict["now_price"] = dealshub_product_obj.now_price
                 temp_dict["was_price"] = dealshub_product_obj.was_price
                 temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
