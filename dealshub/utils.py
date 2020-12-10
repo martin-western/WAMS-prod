@@ -90,8 +90,11 @@ def set_order_status(unit_order_obj, order_status):
             p1 = threading.Thread(target=send_order_dispatch_mail, args=(unit_order_obj,))
             p1.start()
             website_group = unit_order_obj.order.location_group.website_group
-            if website_group=="parajohn" or website_group=="shopnesto":
+            if website_group=="parajohn":
                 p2 = threading.Thread(target=send_order_dispatch_sms, args=(unit_order_obj,))
+                p2.start()
+            if website_group=="shopnesto":
+                p2 = threading.Thread(target=send_order_dispatch_wigme_sms, args=(unit_order_obj,))
                 p2.start()
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -115,8 +118,11 @@ def set_order_status(unit_order_obj, order_status):
                 p1 = threading.Thread(target=send_order_delivered_mail, args=(unit_order_obj,))
                 p1.start()
                 website_group = unit_order_obj.order.location_group.website_group
-                if website_group=="parajohn" or website_group=="shopnesto":
+                if website_group=="parajohn":
                     p2 = threading.Thread(target=send_order_delivered_sms, args=(unit_order_obj,))
+                    p2.start()
+                if website_group=="shopnesto":
+                    p2 = threading.Thread(target=send_order_delivered_wigme_sms , args=(unit_order_obj,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -127,8 +133,11 @@ def set_order_status(unit_order_obj, order_status):
                 p1 = threading.Thread(target=send_order_delivery_failed_mail, args=(unit_order_obj,))
                 p1.start()
                 website_group = unit_order_obj.order.location_group.website_group
-                if website_group=="parajohn" or website_group=="shopnesto":
+                if website_group=="parajohn":
                     p2 = threading.Thread(target=send_order_delivery_failed_sms, args=(unit_order_obj,))
+                    p2.start()
+                if website_group=="shopnesto":
+                    p2 = threading.Thread(target=send_order_delivery_failed_wigme_sms , args=(unit_order_obj,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -179,6 +188,99 @@ def update_order_bill(order_obj):
     
     order_obj.to_pay = order_obj.get_total_amount()
     order_obj.save()
+
+
+def send_order_dispatch_wigme_sms(unit_order_obj):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        
+        location_group_obj = unit_order_obj.order.location_group
+        sms_country_info = json.loads(location_group_obj.sms_country_info)
+        prefix_code = sms_country_info["prefix_code"]
+        user = sms_country_info["user"]
+        pwd = sms_country_info["pwd"]
+        contact_number = prefix_code+dealshub_user_obj.contact_number
+
+        message = "Your order has been dispatched!"
+
+        url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+        req_data = {
+            "user" : user,
+            "passwd": pwd,
+            "message": message,
+            "mobilenumber": contact_number,
+            "mtype":"N",
+            "DR":"Y"
+        }
+        r = requests.post(url=url, data=req_data)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_dispatch_wigme_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_order_delivered_wigme_sms(unit_order_obj):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        
+        location_group_obj = unit_order_obj.order.location_group
+        sms_country_info = json.loads(location_group_obj.sms_country_info)
+        prefix_code = sms_country_info["prefix_code"]
+        user = sms_country_info["user"]
+        pwd = sms_country_info["pwd"]
+        contact_number = prefix_code+dealshub_user_obj.contact_number
+
+        message = "Your order has been delivered!"
+
+        url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+        req_data = {
+            "user" : user,
+            "passwd": pwd,
+            "message": message,
+            "mobilenumber": contact_number,
+            "mtype":"N",
+            "DR":"Y"
+        }
+        r = requests.post(url=url, data=req_data)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_delivered_wigme_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_order_delivery_failed_wigme_sms(unit_order_obj):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        
+        location_group_obj = unit_order_obj.order.location_group
+        sms_country_info = json.loads(location_group_obj.sms_country_info)
+        prefix_code = sms_country_info["prefix_code"]
+        user = sms_country_info["user"]
+        pwd = sms_country_info["pwd"]
+        contact_number = prefix_code+dealshub_user_obj.contact_number
+
+        message = "Sorry, we were unable to deliver your order!"
+
+        url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+        req_data = {
+            "user" : user,
+            "passwd": pwd,
+            "message": message,
+            "mobilenumber": contact_number,
+            "mtype":"N",
+            "DR":"Y"
+        }
+        r = requests.post(url=url, data=req_data)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_delivery_failed_wigme_sms: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def send_order_confirmation_sms(order_obj):
