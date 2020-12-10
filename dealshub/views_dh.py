@@ -1491,6 +1491,7 @@ class PlaceOfflineOrderAPI(APIView):
 
             cart_obj.to_pay += cart_obj.location_group.cod_charge
             cart_obj.save()
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
@@ -1501,7 +1502,8 @@ class PlaceOfflineOrderAPI(APIView):
                                              is_order_offline = True,
                                              location_group=cart_obj.location_group,
                                              delivery_fee=cart_obj.get_delivery_fee(),
-                                             cod_charge=cart_obj.location_group.cod_charge)
+                                             cod_charge=cart_obj.location_group.cod_charge,
+                                             offline_sales_person=omnycomm_user_obj)
 
             for unit_cart_obj in unit_cart_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -3840,6 +3842,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
                     temp_dict["call_status"] = order_obj.call_status
+                    if order_obj.is_order_offline :
+                        temp_dict["salesPerson"] = order_obj.offline_sales_person.username
 
                     address_obj = order_obj.shipping_address
                     
