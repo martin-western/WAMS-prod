@@ -3919,8 +3919,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     temp_dict["sapStatus"] = order_obj.sap_status
                     sap_warning_list = ["GRN Conflict", "Failed"]
-                    sap_warning = False if unit_order_objs.filter(order=order_obj, sap_status__in=sap_fail_list).exists() else True
-                    temp_dict["sapWarning"] = sap_warning
+                    sap_warning = True if unit_order_objs.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
+                    temp_dict["showSapWarning"] = sap_warning
 
                     subtotal = order_obj.get_subtotal()
                     subtotal_vat = order_obj.get_subtotal_vat()
