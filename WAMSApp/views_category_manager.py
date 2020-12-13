@@ -190,7 +190,7 @@ class FetchAdminCategoriesAPI(APIView):
                 temp_dict["image"] = category_obj.image.image.url
                 category_list.append(temp_dict)
             
-            response["CategoryList"] = category_list            
+            response["categoryList"] = category_list            
             response['status'] = 200 
 
         except Exception as e:
@@ -227,7 +227,7 @@ class FetchAdminSubCategoriesAPI(APIView):
                 temp_dict["image"] = sub_category_obj.image.image.url
                 sub_category_list.append(temp_dict)
             
-            response["CategoryList"] = sub_category_list   
+            response["subCategoryList"] = sub_category_list   
             response['status'] = 200 
 
         except Exception as e:
@@ -371,7 +371,7 @@ class AddNewAdminSuperCategoryAPI(APIView):
             image_obj = Image.objects.create(image=image)
 
             SuperCategory.objects.create(name=name,
-                                        image=image_obj)
+                                         image=image_obj)
             
             response['status'] = 200 
 
