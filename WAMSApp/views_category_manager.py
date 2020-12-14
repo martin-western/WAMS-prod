@@ -150,7 +150,10 @@ class FetchAdminSuperCategoriesAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = super_category_obj.uuid
                 temp_dict["name"] = super_category_obj.name
-                temp_dict["image"] = super_category_obj.image.image.url
+                if super_category_obj.image!=None:
+                    temp_dict["image"] = super_category_obj.image.image.url
+                else:
+                    temp_dict["image"] = ""
                 super_category_list.append(temp_dict)
             
             response["superCategoryList"] = super_category_list
@@ -187,7 +190,10 @@ class FetchAdminCategoriesAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = category_obj.uuid
                 temp_dict["name"] = category_obj.name
-                temp_dict["image"] = category_obj.image.image.url
+                if category_obj.image!=None:
+                    temp_dict["image"] = category_obj.image.image.url
+                else:
+                    temp_dict["image"] = ""
                 category_list.append(temp_dict)
             
             response["categoryList"] = category_list            
@@ -224,7 +230,10 @@ class FetchAdminSubCategoriesAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = sub_category_obj.uuid
                 temp_dict["name"] = sub_category_obj.name
-                temp_dict["image"] = sub_category_obj.image.image.url
+                if sub_category_obj.image!=None:
+                    temp_dict["image"] = sub_category_obj.image.image.url
+                else:
+                    temp_dict["image"] = ""
                 sub_category_list.append(temp_dict)
             
             response["subCategoryList"] = sub_category_list   
