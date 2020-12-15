@@ -4244,6 +4244,46 @@ class SetOrdersStatusAPI(APIView):
         return Response(data=response)
 
 
+class UpdateOrderStatusAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self,request,*args,**kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateOrderStatusAPI: %s", str(data))
+            bundle_id = data["bundle_id"]
+            incoming_order_status = data["incoming_order_status"]
+
+            order_obj = Order.objects.get(bundleid = bundle_id)
+            unit_order_objs = UnitOrder.objects.filter(order = order_obj)
+
+            for unit_order_obj in unit_order_objs:
+                if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":               
+                    unit_order_obj.current_status_admin = incoming_order_status
+                    unit_order_obj.current_status = "intransit"
+                elif incoming_order_status == "delivered" and current_status_admin == "dispatched":
+                    unit_order_obj.current_status_admin = incoming_order_status
+                    unit_order_obj.current_status = "delivered"
+                else:
+                    logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
+                    break
+                UnitOrderStatus.objects.create(
+                    unit_order = unit_order_obj,
+                    status = unit_order_obj.status,
+                    status_admin = incoming_order_status,
+                    date_created = datetime.datetime.now(),
+                    uuid = uuid.uuid1())
+                response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data = response)
+
+
 class SetCallStatusAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -5641,6 +5681,8 @@ FetchShippingMethod = FetchShippingMethodAPI.as_view()
 SetShippingMethod = SetShippingMethodAPI.as_view()
 
 SetOrdersStatus = SetOrdersStatusAPI.as_view()
+
+UpdateOrderStatus = UpdateOrderStatusAPI.as_view()
 
 SetCallStatus = SetCallStatusAPI.as_view()
 
