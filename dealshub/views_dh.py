@@ -3800,7 +3800,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 unit_order_objs = unit_order_objs.filter(price__gte=int(min_price))
 
             if sales_person!="":
-                unit_order_objs = unit_order_objs.filter(order__offline_sales_person=sales_person)
+                unit_order_objs = unit_order_objs.filter(order__offline_sales_person__username=sales_person)
 
             if len(search_list)>0:
                 temp_unit_order_objs = UnitOrder.objects.none()
