@@ -5507,6 +5507,8 @@ class GRNProcessingCronAPI(APIView):
 
                         if do_exists==2 and so_exists==1 and inv_exists==1:
                             order_obj.sap_status = "Success"
+                            for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                                set_order_status(unit_order_obj,"picked")
                         else:
                             order_obj.sap_status = "Failed"
                             try:
