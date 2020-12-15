@@ -595,15 +595,18 @@ class AddToOfflineCartAPI(APIView):
                 unit_cart_obj.quantity += quantity
                 unit_cart_obj.save()
             else:
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity)
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, 
+                                                        product=dealshub_product_obj, 
+                                                        quantity=quantity,
+                                                        offline_price=dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj))
 
-            update_cart_bill(cart_obj)
+            update_cart_bill(cart_obj,offline=True)
 
-            subtotal = cart_obj.get_subtotal()
+            subtotal = cart_obj.get_offline_subtotal()
 
-            delivery_fee = cart_obj.get_delivery_fee()
-            total_amount = cart_obj.get_total_amount()
-            vat = cart_obj.get_vat()
+            delivery_fee = cart_obj.get_delivery_fee(offline=True)
+            total_amount = cart_obj.get_total_amount(offline=True)
+            vat = cart_obj.get_vat(offline=True)
 
             delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
             total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
@@ -764,7 +767,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict["price"] = unit_cart_obj.offline_price
                 temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
@@ -776,13 +779,13 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
-            update_cart_bill(cart_obj)
+            update_cart_bill(cart_obj,offline=True)
 
-            subtotal = cart_obj.get_subtotal()
+            subtotal = cart_obj.get_offline_subtotal()
 
-            delivery_fee = cart_obj.get_delivery_fee()
-            total_amount = cart_obj.get_total_amount()
-            vat = cart_obj.get_vat()
+            delivery_fee = cart_obj.get_delivery_fee(offline=True)
+            total_amount = cart_obj.get_total_amount(offline=True)
+            vat = cart_obj.get_vat(offline=True)
 
             delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
             total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
@@ -844,20 +847,23 @@ class UpdateCartDetailsAPI(APIView):
             unit_cart_uuid = data["unitCartUuid"]
             quantity = int(data["quantity"])
             is_order_offline = data.get("is_order_offline", False)
+            offline_price = data.get("offline_price",0)
 
             unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
             unit_cart_obj.quantity = quantity
+            if is_order_offline:
+                unit_cart_obj.offline_price = offline_price
             unit_cart_obj.save()
 
-            update_cart_bill(unit_cart_obj.cart)
+            update_cart_bill(unit_cart_obj.cart,offline=is_order_offline)
 
             cart_obj = unit_cart_obj.cart
 
-            subtotal = cart_obj.get_subtotal()
+            subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
             
-            delivery_fee = cart_obj.get_delivery_fee()
-            total_amount = cart_obj.get_total_amount()
-            vat = cart_obj.get_vat()
+            delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
+            total_amount = cart_obj.get_total_amount(offline=is_order_offline)
+            vat = cart_obj.get_vat(offline=is_order_offline)
 
             delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline)
             total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline)
@@ -1061,22 +1067,23 @@ class RemoveFromCartAPI(APIView):
                 data = json.loads(data)
 
             unit_cart_uuid = data["unitCartUuid"]
-            
+            is_order_offline = data.get("is_order_offline",False)
+
             unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
             cart_obj = unit_cart_obj.cart
             unit_cart_obj.delete()
 
-            update_cart_bill(cart_obj)
+            update_cart_bill(cart_obj,offline=is_order_offline)
 
-            subtotal = cart_obj.get_subtotal()
+            subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
             
-            delivery_fee = cart_obj.get_delivery_fee()
-            total_amount = cart_obj.get_total_amount()
-            vat = cart_obj.get_vat()
+            delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
+            total_amount = cart_obj.get_total_amount(offline=is_order_offline)
+            vat = cart_obj.get_vat(offline=is_order_offline)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True)
-            vat_with_cod = cart_obj.get_vat(cod=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True,offline=is_order_offline)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True,offline=is_order_offline)
+            vat_with_cod = cart_obj.get_vat(cod=True,offline=is_order_offline)
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -1478,7 +1485,7 @@ class PlaceOfflineOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
-            update_cart_bill(cart_obj)
+            update_cart_bill(cart_obj,offline=True)
 
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
@@ -1507,7 +1514,7 @@ class PlaceOfflineOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=unit_cart_obj.product,
                                                           quantity=unit_cart_obj.quantity,
-                                                          price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+                                                          price=unit_cart_obj.offline_price)
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
             # Cart gets empty

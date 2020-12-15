@@ -605,9 +605,19 @@ class Cart(models.Model):
         for unit_cart_obj in unit_cart_objs:
             subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
         return subtotal
+    
+    def get_offline_subtotal(self):
+        unit_cart_objs = UnitCart.objects.filter(cart=self)
+        subtotal = 0
+        for unit_cart_obj in unit_cart_objs:
+            subtotal += float(unit_cart_obj.offline_price)*float(unit_cart_obj.quantity)
+        return subtotal
 
     def get_delivery_fee(self, cod=False, offline=False):
-        subtotal = self.get_subtotal()
+        if offline==True:
+            subtotal = self.get_offline_subtotal()
+        else:
+            subtotal = self.get_subtotal()
         if subtotal==0:
             return 0
         if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
@@ -620,7 +630,10 @@ class Cart(models.Model):
         return 0
 
     def get_total_amount(self, cod=False, offline=False):
-        subtotal = self.get_subtotal()
+        if offline==True:
+            subtotal = self.get_offline_subtotal()
+        else:
+            subtotal = self.get_subtotal()
         if subtotal==0:
             return 0
         if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
@@ -657,7 +670,8 @@ class UnitCart(models.Model):
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
-    
+    offline_price = models.IntegerField(default=0)
+
     date_created = models.DateTimeField(auto_now_add=True)
     uuid = models.CharField(max_length=200, default="")
 
