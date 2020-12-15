@@ -695,7 +695,7 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
         try:
             product_obj = dh_product_obj.product
             cnt += 1
-            common_row = ["" for i in range(8)]
+            common_row = ["" for i in range(11)]
             common_row[0] = str(cnt)
             common_row[1] = str(product_obj.product_id)
             common_row[2] = str(product_obj.base_product.seller_sku)
