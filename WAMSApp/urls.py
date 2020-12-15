@@ -93,6 +93,7 @@ urlpatterns = [
     url(r'^update-dealshub-product/$',views.UpdateDealshubProduct),
     url(r'^bulk-update-dealshub-product-price/$',views.BulkUpdateDealshubProductPrice),
     url(r'^bulk-update-dealshub-product-stock/$',views.BulkUpdateDealshubProductStock),
+    url(r'^bulk-update-dealshub-product-publish-status/$', views.BulkUpdateDealshubProductPublishStatus),
     url(r'^fetch-dealshub-product-details/$',views.FetchDealshubProductDetails),
     url(r'^save-dealshub-product-details/$',views.SaveDealshubProductDetails),
 
@@ -149,6 +150,16 @@ urlpatterns = [
 
     url(r'^fetch-category-list/$',views.FetchCategoryList),
     url(r'^update-category-mapping/$',views.UpdateCategoryMapping),
+
+    url(r'^admin/fetch-admin-super-categories/$', views.FetchAdminSuperCategories),
+    url(r'^admin/fetch-admin-categories/$', views.FetchAdminCategories),
+    url(r'^admin/fetch-admin-sub-categories/$', views.FetchAdminSubCategories),
+    url(r'^admin/update-admin-super-category-details/$', views.UpdateAdminSuperCategoryDetails),
+    url(r'^admin/update-admin-category-details/$', views.UpdateAdminCategoryDetails),
+    url(r'^admin/update-admin-sub-category-details/$', views.UpdateAdminSubCategoryDetails),
+    url(r'^admin/add-new-admin-super-category/$', views.AddNewAdminSuperCategory),
+    url(r'^admin/add-new-admin-category/$', views.AddNewAdminCategory),
+    url(r'^admin/add-new-admin-sub-category/$', views.AddNewAdminSubCategory),
 
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
 

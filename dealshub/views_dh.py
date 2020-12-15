@@ -1439,8 +1439,15 @@ class PlaceOrderAPI(APIView):
             try:
                 p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
-                if order_obj.location_group.website_group=="parajohn":
-                    p2 = threading.Thread(target=send_order_confirmation_sms, args=(order_obj,))
+                website_group = order_obj.location_group.website_group.name
+                unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                if website_group=="parajohn":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group=="shopnesto":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1491,6 +1498,7 @@ class PlaceOfflineOrderAPI(APIView):
 
             cart_obj.to_pay += cart_obj.location_group.cod_charge
             cart_obj.save()
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
@@ -1501,7 +1509,8 @@ class PlaceOfflineOrderAPI(APIView):
                                              is_order_offline = True,
                                              location_group=cart_obj.location_group,
                                              delivery_fee=cart_obj.get_delivery_fee(),
-                                             cod_charge=cart_obj.location_group.cod_charge)
+                                             cod_charge=cart_obj.location_group.cod_charge,
+                                             offline_sales_person=omnycomm_user_obj)
 
             for unit_cart_obj in unit_cart_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -3207,7 +3216,7 @@ class ForgotLoginPinAPI(APIView):
             dealshub_user_obj.save()
 
             # Trigger SMS
-            if location_group_obj.website_group.name.lower()!="parajohn":
+            if location_group_obj.website_group.name.lower() in ["shopnesto", "daycart"]:
                 mshastra_info = json.loads(location_group_obj.mshastra_info)
                 prefix_code = mshastra_info["prefix_code"]
                 sender_id = mshastra_info["sender_id"]
@@ -3216,9 +3225,13 @@ class ForgotLoginPinAPI(APIView):
                 contact_number = prefix_code+contact_number
                 url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
                 r = requests.get(url)
-            else:
+            elif location_group_obj.website_group.name.lower()=="parajohn":
                 contact_number = "971"+contact_number
                 url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to="+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+                r = requests.get(url)
+            elif location_group_obj.website_group.name.lower()=="kryptonworld":
+                contact_number = "971"+contact_number
+                url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
                 r = requests.get(url)
 
             response["status"] = 200
@@ -3783,9 +3796,12 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             max_qty = data.get("maxQty", "")
             min_price = data.get("minPrice", "")
             max_price = data.get("maxPrice", "")
+            sales_person = data.get("salesPerson","")
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
+            is_order_offline = data.get("isOrderOffline", None)
+            sap_status_list = data.get("sapStatusList", [])
             search_list = data.get("searchList", [])
             location_group_uuid = data["locationGroupUuid"]
 
@@ -3820,6 +3836,12 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if len(tracking_status_list)>0:
                 unit_order_objs = unit_order_objs.filter(current_status_admin__in=tracking_status_list)
 
+            if len(sap_status_list)>0:
+                unit_order_objs = unit_order_objs.filter(sap_status__in=sap_status_list)
+
+            if is_order_offline!=None:
+                unit_order_objs = unit_order_objs.filter(order__is_order_offline=is_order_offline)                
+
             if max_qty!="":
                 unit_order_objs = unit_order_objs.filter(quantity__lte=int(max_qty))
 
@@ -3832,12 +3854,14 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if min_price!="":
                 unit_order_objs = unit_order_objs.filter(price__gte=int(min_price))
 
+            if sales_person!="":
+                unit_order_objs = unit_order_objs.filter(order__offline_sales_person__username=sales_person)
 
             if len(search_list)>0:
                 temp_unit_order_objs = UnitOrder.objects.none()
                 for search_string in search_list:
                     search_string = search_string.strip()
-                    temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string))
+                    temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string) | Q(order__sap_final_billing_info__icontains=search_string) | Q(sap_intercompany_info__icontains=search_string))
                 unit_order_objs = temp_unit_order_objs.distinct()
 
 
@@ -3870,11 +3894,12 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     if cancel_status==True:
                         cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
                         temp_dict["cancelling_note"] = cancelling_note
-
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
-                    temp_dict["sapStatus"] = order_obj.sap_status
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
+                    temp_dict["referenceMedium"] = order_obj.reference_medium
                     temp_dict["call_status"] = order_obj.call_status
+                    if order_obj.is_order_offline :
+                        temp_dict["salesPerson"] = order_obj.offline_sales_person.username
 
                     address_obj = order_obj.shipping_address
                     
@@ -3933,11 +3958,17 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         final_qty = unit_order_obj.get_sap_final_order_qty()
 
                         if intercompany_qty != "" and final_qty != "":
-                            if intercompany_qty != final_qty:
+                            if intercompany_qty != final_qty and order_obj.sap_status!="GRN Conflict":
                                 order_obj.sap_status = "GRN Conflict"
                                 unit_order_obj.sap_status = "GRN Conflict"
                                 order_obj.save()
                                 unit_order_obj.save()
+                                try:
+                                    p1 = threading.Thread(target=notify_grn_error, args=(order_obj,))
+                                    p1.start()
+                                except Exception as e:
+                                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                                    logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                         temp_dict2["intercompany_qty"] = intercompany_qty
                         temp_dict2["final_qty"] = final_qty
@@ -3947,6 +3978,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["dispatched"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="dispatched").count()
                     temp_dict["delivered"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="delivered").count()
                     temp_dict["deliveryFailed"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="delivery failed").count()
+
+                    temp_dict["sapStatus"] = order_obj.sap_status
+                    sap_warning_list = ["GRN Conflict", "Failed"]
+                    sap_warning = True if unit_order_objs.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
+                    temp_dict["showSapWarning"] = sap_warning
 
                     subtotal = order_obj.get_subtotal()
                     subtotal_vat = order_obj.get_subtotal_vat()
@@ -4194,6 +4230,13 @@ class SetShippingMethodAPI(APIView):
                                 unit_order_obj.sap_status = "Failed"
                                 unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                                 unit_order_obj.save()
+                                try:
+                                    p1 = threading.Thread(target=notify_grn_error, args=(unit_order_obj.order,))
+                                    p1.start()
+                                except Exception as e:
+                                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                                    logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
+
                                 continue
                             
                             unit_order_information = {}
@@ -4276,6 +4319,46 @@ class SetOrdersStatusAPI(APIView):
         return Response(data=response)
 
 
+class UpdateOrderStatusAPI(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self,request,*args,**kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateOrderStatusAPI: %s", str(data))
+            bundle_id = data["bundle_id"]
+            incoming_order_status = data["incoming_order_status"]
+
+            order_obj = Order.objects.get(bundleid = bundle_id)
+            unit_order_objs = UnitOrder.objects.filter(order = order_obj)
+
+            for unit_order_obj in unit_order_objs:
+                if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":               
+                    unit_order_obj.current_status_admin = incoming_order_status
+                    unit_order_obj.current_status = "intransit"
+                elif incoming_order_status == "delivered" and current_status_admin == "dispatched":
+                    unit_order_obj.current_status_admin = incoming_order_status
+                    unit_order_obj.current_status = "delivered"
+                else:
+                    logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
+                    break
+                UnitOrderStatus.objects.create(
+                    unit_order = unit_order_obj,
+                    status = unit_order_obj.status,
+                    status_admin = incoming_order_status,
+                    date_created = datetime.datetime.now(),
+                    uuid = uuid.uuid1())
+                response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data = response)
+
+
 class SetCallStatusAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -4302,6 +4385,41 @@ class SetCallStatusAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SetCallStatusAPI: %s at %s",e, str(exc_tb.tb_lineno))
         
+        return Response(data=response)
+
+
+class FetchOCSalesPersonsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOCSalesPersonsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            custom_permission_objs = location_group_obj.custompermission_set.all()
+
+            sales_person_list=[]
+            for custom_permission_obj in custom_permission_objs:
+                temp_dict = {}
+                temp_dict["username"] = custom_permission_obj.user.username
+                temp_dict["firstName"] = custom_permission_obj.user.first_name
+                temp_dict["lastName"] = custom_permission_obj.user.last_name
+                sales_person_list.append(temp_dict)
+        
+            response["salesPersonList"] = sales_person_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOCSalesPersonsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -5467,6 +5585,12 @@ class GRNProcessingCronAPI(APIView):
                             order_obj.sap_status = "Success"
                         else:
                             order_obj.sap_status = "Failed"
+                            try:
+                                p1 = threading.Thread(target=notify_grn_error, args=(order_obj,))
+                                p1.start()
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                         order_obj.sap_final_billing_info = json.dumps(result)
                         order_obj.order_information = json.dumps(order_information)
@@ -5646,9 +5770,13 @@ SetShippingMethod = SetShippingMethodAPI.as_view()
 
 SetOrdersStatus = SetOrdersStatusAPI.as_view()
 
+UpdateOrderStatus = UpdateOrderStatusAPI.as_view()
+
 SetCallStatus = SetCallStatusAPI.as_view()
 
 CancelOrders = CancelOrdersAPI.as_view()
+
+FetchOCSalesPersons = FetchOCSalesPersonsAPI.as_view()
 
 DownloadOrders = DownloadOrdersAPI.as_view()
 
