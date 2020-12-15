@@ -3595,7 +3595,11 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
             order_obj = unit_order_obj.order
 
             if quantity==0:
-                unit_order_obj.delete()
+                if UnitOrder.objects.filter(order=order_obj).count()==1:
+                    response["message"] = "order cannot be empty"
+                    return Response(data=response)
+                else:
+                    unit_order_obj.delete()
             else:
                 unit_order_obj.quantity = quantity
                 unit_order_obj.save()
