@@ -703,6 +703,7 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="cod")
     payment_info = models.TextField(default="{}")
     merchant_reference = models.CharField(max_length=200, default="")
+    offline_sales_person = models.ForeignKey(OmnyCommUser, on_delete=models.SET_NULL, null=True, default=None)
 
     postaplus_info = models.TextField(default="{}")
     is_postaplus = models.BooleanField(default=False)
