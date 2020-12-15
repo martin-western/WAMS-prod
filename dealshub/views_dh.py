@@ -4245,6 +4245,7 @@ class SetOrdersStatusAPI(APIView):
 
 
 class UpdateOrderStatusAPI(APIView):
+    
     authentication_classes = (CsrfExemptSessionAuthentication,) 
     permission_classes = [AllowAny]
 
@@ -4254,10 +4255,20 @@ class UpdateOrderStatusAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateOrderStatusAPI: %s", str(data))
-            bundle_id = data["bundle_id"]
+            sap_invoice_id = data["sap_invoice_id"]
             incoming_order_status = data["incoming_order_status"]
 
-            order_obj = Order.objects.get(bundleid = bundle_id)
+            order_obj = Order.objects.get(sap_final_billing_info__icontains=sap_invoice_id)
+            doc_list = json.loads(order_obj.sap_final_billing_info)["doc_list"]
+            flag = False
+            for doc in doc_list:
+                if doc["id"]==sap_invoice_id:
+                    flag = True
+                    break
+
+            if flag==False:
+                return Response(data = response)
+
             unit_order_objs = UnitOrder.objects.filter(order = order_obj)
 
             for unit_order_obj in unit_order_objs:
@@ -4270,13 +4281,12 @@ class UpdateOrderStatusAPI(APIView):
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
                     break
-                UnitOrderStatus.objects.create(
-                    unit_order = unit_order_obj,
-                    status = unit_order_obj.status,
-                    status_admin = incoming_order_status,
-                    date_created = datetime.datetime.now(),
-                    uuid = uuid.uuid1())
-                response['status'] = 200
+                unit_order_obj.save()
+                UnitOrderStatus.objects.create(unit_order = unit_order_obj,
+                                               status = unit_order_obj.status,
+                                               status_admin = incoming_order_status)
+            
+            response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
