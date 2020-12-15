@@ -1439,8 +1439,15 @@ class PlaceOrderAPI(APIView):
             try:
                 p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
-                if order_obj.location_group.website_group=="parajohn":
-                    p2 = threading.Thread(target=send_order_confirmation_sms, args=(order_obj,))
+                website_group = order_obj.location_group.website_group.name
+                unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                if website_group=="parajohn":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group=="shopnesto":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()

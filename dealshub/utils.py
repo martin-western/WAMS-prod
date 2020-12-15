@@ -240,20 +240,6 @@ def send_parajohn_order_status_sms(unit_order_obj,message):
         logger.error("send_parajohn_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
 
 
-def send_order_confirmation_sms(order_obj):
-    try:
-        dealshub_user_obj = order_obj.owner
-        if dealshub_user_obj.contact_verified==False:
-            return
-        contact_number = dealshub_user_obj.contact_number
-        message = 'Your order has been confirmed'
-        url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to=971"+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
-        requests.get(url)  
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("send_order_confirmation_sms: %s at %s", e, str(exc_tb.tb_lineno))
-
-
 def send_order_confirmation_mail(order_obj):
     try:
         logger.info("send_order_confirmation_mail started!")
