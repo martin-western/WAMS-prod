@@ -134,6 +134,7 @@ urlpatterns = [
     url(r'^set-orders-status/$', views.SetOrdersStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
+    url(r'^fetch-oc-sales-persons/$', views.FetchOCSalesPersons),
 
     url(r'^download-orders/$', views.DownloadOrders),
     url(r'^upload-orders/$', views.UploadOrders),

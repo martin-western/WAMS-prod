@@ -1498,6 +1498,7 @@ class PlaceOfflineOrderAPI(APIView):
 
             cart_obj.to_pay += cart_obj.location_group.cod_charge
             cart_obj.save()
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
@@ -1508,7 +1509,8 @@ class PlaceOfflineOrderAPI(APIView):
                                              is_order_offline = True,
                                              location_group=cart_obj.location_group,
                                              delivery_fee=cart_obj.get_delivery_fee(),
-                                             cod_charge=cart_obj.location_group.cod_charge)
+                                             cod_charge=cart_obj.location_group.cod_charge,
+                                             offline_sales_person=omnycomm_user_obj)
 
             for unit_cart_obj in unit_cart_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -3746,6 +3748,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             max_qty = data.get("maxQty", "")
             min_price = data.get("minPrice", "")
             max_price = data.get("maxPrice", "")
+            sales_person = data.get("salesPerson","")
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
@@ -3803,6 +3806,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if min_price!="":
                 unit_order_objs = unit_order_objs.filter(price__gte=int(min_price))
 
+            if sales_person!="":
+                unit_order_objs = unit_order_objs.filter(order__offline_sales_person__username=sales_person)
 
             if len(search_list)>0:
                 temp_unit_order_objs = UnitOrder.objects.none()
@@ -3845,6 +3850,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
                     temp_dict["call_status"] = order_obj.call_status
+                    if order_obj.is_order_offline :
+                        temp_dict["salesPerson"] = order_obj.offline_sales_person.username
 
                     address_obj = order_obj.shipping_address
                     
@@ -4263,6 +4270,41 @@ class SetCallStatusAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SetCallStatusAPI: %s at %s",e, str(exc_tb.tb_lineno))
         
+        return Response(data=response)
+
+
+class FetchOCSalesPersonsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOCSalesPersonsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            custom_permission_objs = location_group_obj.custompermission_set.all()
+
+            sales_person_list=[]
+            for custom_permission_obj in custom_permission_objs:
+                temp_dict = {}
+                temp_dict["username"] = custom_permission_obj.user.username
+                temp_dict["firstName"] = custom_permission_obj.user.first_name
+                temp_dict["lastName"] = custom_permission_obj.user.last_name
+                sales_person_list.append(temp_dict)
+        
+            response["salesPersonList"] = sales_person_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOCSalesPersonsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -5603,6 +5645,8 @@ SetOrdersStatus = SetOrdersStatusAPI.as_view()
 SetCallStatus = SetCallStatusAPI.as_view()
 
 CancelOrders = CancelOrdersAPI.as_view()
+
+FetchOCSalesPersons = FetchOCSalesPersonsAPI.as_view()
 
 DownloadOrders = DownloadOrdersAPI.as_view()
 
