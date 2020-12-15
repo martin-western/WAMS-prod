@@ -672,6 +672,9 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
            "Product ID",
            "Seller SKU",
            "Product Name",
+           "Super Category",
+           "Category",
+           "Sub Category",
            "Active",
            "Was Price",
            "Now Price",
@@ -697,10 +700,13 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
             common_row[1] = str(product_obj.product_id)
             common_row[2] = str(product_obj.base_product.seller_sku)
             common_row[3] = str(product_obj.product_name)
-            common_row[4] = str(dh_product_obj.is_published)
-            common_row[5] = str(dh_product_obj.was_price)
-            common_row[6] = str(dh_product_obj.now_price)
-            common_row[7] = str(dh_product_obj.stock)
+            common_row[4] = product_obj.get_super_category()
+            common_row[5] = product_obj.get_category()
+            common_row[6] = product_obj.get_sub_category()
+            common_row[7] = str(dh_product_obj.is_published)
+            common_row[8] = str(dh_product_obj.was_price)
+            common_row[9] = str(dh_product_obj.now_price)
+            common_row[10] = str(dh_product_obj.stock)
             
             colnum = 0
             for k in common_row:
