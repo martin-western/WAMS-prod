@@ -996,7 +996,7 @@ class VersionOrder(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     uuid = models.CharField(max_length=200, default="")
     timestamp = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(OmnyCommUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(OmnyCommUser, on_delete=models.SET_NULL, null=True)
     change_information = models.TextField(default="{}")
 
     def __str__(self):
