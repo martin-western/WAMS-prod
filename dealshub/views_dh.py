@@ -4283,7 +4283,7 @@ class UpdateOrderStatusAPI(APIView):
                     break
                 unit_order_obj.save()
                 UnitOrderStatus.objects.create(unit_order = unit_order_obj,
-                                               status = unit_order_obj.status,
+                                               status = unit_order_obj.current_status,
                                                status_admin = incoming_order_status)
             
             response['status'] = 200
