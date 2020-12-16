@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^search/$', views.Search),
 
     url(r'^search-wig/$', views.SearchWIG),
+    url(r'^search-wig2/$', views.SearchWIG2),
     url(r'^fetch-wig-categories/$', views.FetchWIGCategories),
     url(r'^fetch-parajohn-categories/$', views.FetchParajohnCategories),
 
@@ -57,6 +58,7 @@ urlpatterns = [
 
     url(r'^search-section-products-autocomplete/$', views.SearchSectionProductsAutocomplete),
     url(r'^search-products-autocomplete/$', views.SearchProductsAutocomplete),
+    url(r'^search-products-autocomplete2/$', views.SearchProductsAutocomplete2),
     url(r'^search-products/$', views.SearchProducts),
 
     url(r'^fetch-dealshub-price/$', views.FetchDealshubPrice),
