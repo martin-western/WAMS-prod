@@ -3850,7 +3850,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
                     temp_dict["call_status"] = order_obj.call_status
-                    if order_obj.is_order_offline :
+                    if order_obj.is_order_offline and order_obj.offline_sales_person!=None:
                         temp_dict["salesPerson"] = order_obj.offline_sales_person.username
 
                     address_obj = order_obj.shipping_address
