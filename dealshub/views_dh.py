@@ -1801,7 +1801,8 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = version_order_obj.uuid
                 temp_dict["timestamp"] = version_order_obj.timestamp
-                temp_dict["user"] = version_order_obj.user.username
+                if version_order_obj.user!=None:
+                    temp_dict["user"] = version_order_obj.user.username
                 temp_dict["change_info"] = version_order_obj.change_information
                 version_order_list.append(temp_dict) 
             
@@ -1850,7 +1851,8 @@ class FetchOrderVersionDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = version_order_obj.uuid
                 temp_dict["timestamp"] = version_order_obj.timestamp
-                temp_dict["user"] = version_order_obj.user.username
+                if version_order_obj.user!=None:
+                    temp_dict["user"] = version_order_obj.user.username
                 temp_dict["change_info"] = version_order_obj.change_information
                 version_order_list.append(temp_dict)
             
