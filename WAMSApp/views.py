@@ -6391,6 +6391,11 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["is_published"] = dealshub_product_obj.is_published
             response["is_new_arrival"] = dealshub_product_obj.is_new_arrival
             response["is_on_sale"] = dealshub_product_obj.is_on_sale
+
+            response["search_keywords"] = dealshub_product_obj.get_search_keywords()
+
+            response["url"] = dealshub_product_obj.url
+
             response["category"] = dealshub_product_obj.get_category()
             response["sub_category"] = dealshub_product_obj.get_sub_category()
             response["category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.uuid)
@@ -6447,6 +6452,10 @@ class SaveDealshubProductDetailsAPI(APIView):
 
             is_promo_restricted = data.get("is_promo_restricted", False)
 
+            search_keywords = data.get("search_keywords", [])
+
+            url = data.get("url", "default-product")
+
             dealshub_product_obj.was_price = was_price
             dealshub_product_obj.now_price = now_price
             dealshub_product_obj.promotional_price = promotional_price
@@ -6459,6 +6468,9 @@ class SaveDealshubProductDetailsAPI(APIView):
 
             dealshub_product_obj.product_name = product_name
             dealshub_product_obj.product_description = product_description
+            dealshub_product_obj.url = url
+
+            dealshub_product_obj.set_search_keywords(search_keywords)
 
             category_obj = None
             try:
