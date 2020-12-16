@@ -469,6 +469,11 @@ class SuperCategory(models.Model):
     def __str__(self):
         return self.name
 
+    def get_name(self,language="en"):
+        if language == "ar":
+            return self.name_ar
+        return self.name
+
     class Meta:
         verbose_name = "Super Category"
         verbose_name_plural = "Super Categories"
@@ -500,6 +505,11 @@ class Category(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language = "en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     def get_image(self):
@@ -536,6 +546,11 @@ class SubCategory(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language="en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     class Meta:
