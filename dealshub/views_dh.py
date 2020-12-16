@@ -639,7 +639,7 @@ class AddToOfflineCartAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.offline_cod_charge,
                 "is_voucher_applied": is_voucher_applied,
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code
@@ -817,7 +817,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.offline_cod_charge,
                 "is_voucher_applied": is_voucher_applied,
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code
@@ -847,12 +847,17 @@ class UpdateCartDetailsAPI(APIView):
             unit_cart_uuid = data["unitCartUuid"]
             quantity = int(data["quantity"])
             is_order_offline = data.get("is_order_offline", False)
-            offline_price = data.get("offline_price",0)
+            if is_order_offline:
+                offline_price = data["offline_price"]
+                offline_cod_charge = data["offline_cod_charge"]
+                offline_delivery_fee = data["offline_delivery_fee"]
 
             unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
             unit_cart_obj.quantity = quantity
             if is_order_offline:
                 unit_cart_obj.offline_price = offline_price
+                unit_cart_obj.offline_cod_charge = offline_cod_charge
+                unit_cart_obj.offline_delivery_fee = offline_delivery_fee
             unit_cart_obj.save()
 
             update_cart_bill(unit_cart_obj.cart,offline=is_order_offline)
@@ -894,7 +899,7 @@ class UpdateCartDetailsAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.offline_cod_charge if is_order_offline==True else cart_obj.location_group.cod_charge,
                 "is_voucher_applied": is_voucher_applied,
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code
@@ -1110,7 +1115,7 @@ class RemoveFromCartAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.offline_cod_charge if is_order_offline==True else cart_obj.location_group.cod_charge,
                 "is_voucher_applied": is_voucher_applied,
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code
@@ -1845,7 +1850,7 @@ class CreateOfflineCustomerAPI(APIView):
                 dealshub_user_obj.save()
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
-                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj, offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
 
@@ -2928,7 +2933,7 @@ class SendOTPSMSLoginAPI(APIView):
                 is_new_user = True
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
-                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj, offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
 
@@ -2999,7 +3004,7 @@ class CheckUserPinSetAPI(APIView):
                 is_new_user = True
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
-                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj, offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
             else:

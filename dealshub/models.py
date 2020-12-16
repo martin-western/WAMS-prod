@@ -591,6 +591,8 @@ class Cart(models.Model):
     payment_info = models.TextField(default="{}")
     modified_date = models.DateTimeField(null=True, blank=True)
     reference_medium = models.CharField(max_length=200,default="")
+    offline_delivery_fee = models.IntegerField(default=0)
+    offline_cod_charge = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -626,7 +628,7 @@ class Cart(models.Model):
             subtotal = self.voucher.get_discounted_price(subtotal)
 
         if subtotal < self.location_group.free_delivery_threshold:
-            return self.location_group.delivery_fee
+            return self.offline_delivery_fee if offline==True else self.location_group.delivery_fee
         return 0
 
     def get_total_amount(self, cod=False, offline=False):
@@ -640,7 +642,7 @@ class Cart(models.Model):
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee(cod, offline)
         if cod==True:
-            subtotal += self.location_group.cod_charge
+            subtotal += self.offline_cod_charge if offline==True else self.location_group.cod_charge
         return round(subtotal+delivery_fee, 2)
 
     def get_vat(self, cod=False, offline=False):
