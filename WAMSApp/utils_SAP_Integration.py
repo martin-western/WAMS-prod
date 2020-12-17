@@ -456,6 +456,7 @@ def create_intercompany_sales_order(company_code,order_information):
 def is_manual_intervention_required(result):
 
     try:
+        logger.info("is_manual_intervention_required: %s", str(result))
         msg_list = result["msg_list"]
         for item in msg_list:
             if "PRICES NOT MAINTAINED FOR" in item["message"]:
@@ -463,7 +464,7 @@ def is_manual_intervention_required(result):
         return False
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("create_final_order: %s at %s", str(e), str(exc_tb.tb_lineno))
+        logger.error("is_manual_intervention_required: %s at %s", str(e), str(exc_tb.tb_lineno))
         return True
 
 
