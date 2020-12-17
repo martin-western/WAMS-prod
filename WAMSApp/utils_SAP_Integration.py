@@ -452,6 +452,19 @@ def create_intercompany_sales_order(company_code,order_information):
         logger.error("create_intercompany_sales_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
+
+def is_manual_intervention_required(result):
+
+    try:
+        msg_list = result["msg_list"]
+        for item in msg_list:
+            if "PRICES NOT MAINTAINED FOR" in item["message"]:
+                return True
+        return False
+    except Exception as e:
+        return True
+
+
 def create_final_order(company_code,order_information):
     
     try:
