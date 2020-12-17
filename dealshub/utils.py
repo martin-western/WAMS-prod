@@ -768,7 +768,7 @@ def get_recommended_products(dealshub_product_objs):
     return product_list
 
 
-def is_user_input_required_for_sap_punching(stock_price_information):
+def is_user_input_required_for_sap_punching(stock_price_information, order_qty):
     
     try:
         
@@ -776,7 +776,7 @@ def is_user_input_required_for_sap_punching(stock_price_information):
         atp_threshold = stock_price_information["atp_threshold"]
         holding_threshold = stock_price_information["holding_threshold"]
         
-        if total_atp > atp_threshold:
+        if total_atp > atp_threshold and total_atp >= order_qty:
             return False
         
         return True
