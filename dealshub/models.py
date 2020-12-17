@@ -345,6 +345,23 @@ class DealsHubProduct(models.Model):
             pass
         return self.get_main_image_url()
 
+    def get_search_keywords(self):
+        try:
+            search_keywords = self.search_keywords.split(",")
+            return filter(None, search_keywords)
+        except Exception as e:
+            return []
+
+    def set_search_keywords(self, search_tags):
+        try:
+            if len(search_tags)>0:
+                search_keywords = ","+",".join(search_tags)+","
+                self.search_keywords = search_keywords
+                super(DealsHubProduct, self).save()
+        except Exception as e:
+            pass
+
+
     def save(self, *args, **kwargs):
         
         if self.uuid == None or self.uuid == "":
