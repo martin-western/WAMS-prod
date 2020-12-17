@@ -4433,6 +4433,9 @@ class UpdateManualOrderAPI(APIView):
 
             order_obj.sap_status = "Success"
             order_obj.save()
+
+            unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+            unit_order_objs.update(sap_status="GRN Done")
             
             response["status"] = 200
 
