@@ -735,7 +735,8 @@ class Order(models.Model):
         ("In GRN", "In GRN"),
         ("GRN Conflict","GRN Conflict"),
         ("Success", "Success"),
-        ("Failed", "Failed")
+        ("Failed", "Failed"),
+        ("Manual", "Manual")
     )
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
 
