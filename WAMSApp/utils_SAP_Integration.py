@@ -462,6 +462,8 @@ def is_manual_intervention_required(result):
                 return True
         return False
     except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("create_final_order: %s at %s", str(e), str(exc_tb.tb_lineno))
         return True
 
 
