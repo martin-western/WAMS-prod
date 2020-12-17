@@ -4404,6 +4404,35 @@ class ResendSAPOrderAPI(APIView):
         return Response(data=response)
 
 
+class UpdateManualOrderAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateManualOrderAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_uuid = data["orderUuid"]
+
+            order_obj = Order.objects.get(uuid=order_uuid)
+
+            order_obj.sap_status = "Success"
+            order_obj.save()
+            
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateManualOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class SetOrdersStatusAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5882,6 +5911,8 @@ FetchShippingMethod = FetchShippingMethodAPI.as_view()
 SetShippingMethod = SetShippingMethodAPI.as_view()
 
 ResendSAPOrder = ResendSAPOrderAPI.as_view()
+
+UpdateManualOrder = UpdateManualOrderAPI.as_view()
 
 SetOrdersStatus = SetOrdersStatusAPI.as_view()
 
