@@ -2943,22 +2943,32 @@ class SendOTPSMSLoginAPI(APIView):
             message = "Login OTP is " + OTP
 
             # Trigger SMS
-            prefix_code = sms_country_info["prefix_code"]
-            user = sms_country_info["user"]
-            pwd = sms_country_info["pwd"]
+            try:
+                if location_group_obj.website_group.name.lower() in ["shopnesto", "daycart"]:
+                    prefix_code = sms_country_info["prefix_code"]
+                    user = sms_country_info["user"]
+                    pwd = sms_country_info["pwd"]
 
-            contact_number = prefix_code+contact_number
+                    contact_number = prefix_code+contact_number
 
-            url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
-            req_data = {
-                "user" : user,
-                "passwd": pwd,
-                "message": message,
-                "mobilenumber": contact_number,
-                "mtype":"N",
-                "DR":"Y"
-            }
-            r = requests.post(url=url, data=req_data)
+                    url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+                    req_data = {
+                        "user" : user,
+                        "passwd": pwd,
+                        "message": message,
+                        "mobilenumber": contact_number,
+                        "mtype":"N",
+                        "DR":"Y"
+                    }
+                    r = requests.post(url=url, data=req_data)
+                elif location_group_obj.website_group.name.lower()=="kryptonworld":
+                    contact_number = "971"+contact_number
+                    url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
+                    r = requests.get(url)
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SendOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["isNewUser"] = is_new_user
             response["status"] = 200
