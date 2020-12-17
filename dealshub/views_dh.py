@@ -4092,7 +4092,7 @@ class SetShippingMethodAPI(APIView):
                         response["message"] = stock_price_information["message"]
                         return Response(data=response)
 
-                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information)
+                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information, unit_order_obj.quantity)
 
                 user_input_sap = data.get("user_input_sap", None)
                 
@@ -4282,7 +4282,7 @@ class ResendSAPOrderAPI(APIView):
                         response["message"] = stock_price_information["message"]
                         return Response(data=response)
 
-                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information)
+                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information, unit_order_obj.quantity)
 
                 user_input_sap = data.get("user_input_sap", None)
                 
