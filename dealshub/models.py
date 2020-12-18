@@ -215,7 +215,7 @@ class DealsHubProduct(models.Model):
             if language == "en":
                 return str(self.sub_category)
             else:
-                return str(slef.get_sub_category_ar.name_ar)
+                return str(self.sub_category.name_ar)
         return ""
 
     def get_name(self,language = "en"):
@@ -228,8 +228,8 @@ class DealsHubProduct(models.Model):
             if language == "en":
                 return str(self.product_description)
             else:
-                return str(self.product.product_description_ar)
-            return str(self.product.product_description)
+                return str(self.product_description_ar)
+        return str(self.product.product_description)
 
     def get_product_id(self):
         return str(self.product.product_id)
@@ -237,7 +237,7 @@ class DealsHubProduct(models.Model):
     def get_brand(self,language = "en"):
         if language == "ar":
             return str(self.product.base_product.brand.name_ar)
-        return str(self.product.base_product.brand.name_ar)
+        return str(self.product.base_product.brand.name)
 
     def get_seller_sku(self):
         return str(self.product.base_product.seller_sku)
@@ -469,7 +469,6 @@ class UnitBannerImage(models.Model):
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
     image_ar = models.ForeignKey(Image, on_delete=models.SET_NULL,related_name="image_ar", null=True)
     mobile_image_ar = models.ForeignKey(Image, related_name="mobile_image_ar", on_delete=models.SET_NULL, null=True)
-    http_link_ar = models.TextField(default="")
 
     products = models.ManyToManyField(DealsHubProduct, blank=True)
     hovering_banner_image = models.ForeignKey(Image, related_name="unit_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)

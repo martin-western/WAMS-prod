@@ -126,7 +126,7 @@ class FetchProductDetailsAPI(APIView):
                 response["isStockAvailable"] = True
 
             #response["productDispDetails"] = product_obj.product_description
-                response["productDispDetails"] = dealshub_product_obj.get_description(language_code)
+            response["productDispDetails"] = dealshub_product_obj.get_description(language_code)
             try:
                 specifications = json.loads(product_obj.dynamic_form_attributes)
                 new_specifications = {}
@@ -298,7 +298,7 @@ class FetchOnSaleProductsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOnSaleProductsAPI: %s", str(data))
-            language_code = data.get("language","english")
+            language_code = data.get("language","en")
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -691,7 +691,7 @@ class SearchAPI(APIView):
                     target_brand = None
                     for search_tag in search_tags:
                         if website_group_obj.brands.filter(Q(name=search_tag) | Q(name_ar=search_tag)).exists():
-                            target_brand = website_group_obj.brands.filter(name=search_tag)[0]
+                            target_brand = website_group_obj.brands.filter(Q(name=search_tag) | Q(name_ar=search_tag))[0]
                             search_tags.remove(search_tag)
                             break
                     if target_brand!=None:
@@ -943,7 +943,7 @@ class SearchWIGAPI(APIView):
                     long_description = brand_super_category_obj.long_description
                 elif page_type=="brand_category":
                     brand_obj = Brand.objects.filter((Q(name=brand_name) | Q(name_ar=brand_name)), organization__name="WIG")[0]
-                    category_obj = Category.objects.filter(Q(name_ar=category_name) | Q(name_ar=category_name))[0]
+                    category_obj = Category.objects.filter(Q(name=category_name) | Q(name_ar=category_name))[0]
                     brand_category_obj = BrandCategory.objects.get(brand=brand_obj, category=category_obj)
                     page_description = brand_category_obj.page_description
                     seo_title = brand_category_obj.seo_title
@@ -1164,7 +1164,7 @@ class FetchWIGCategoriesAPI(APIView):
                     target_brand = None
                     for word in words:
                         if website_group_obj.brands.filter(Q(name=word) | Q(name_ar=word)).exists():
-                            target_brand = website_group_obj.brands.filter(name=word)[0]
+                            target_brand = website_group_obj.brands.filter(Q(name=word) | Q(name_ar=word))[0]
                             words.remove(word)
                             break
                     if target_brand!=None:
@@ -2716,7 +2716,7 @@ class SearchProductsAPI(APIView):
 
             dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0)
 
-            dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string) | Q(product__product_name_ar__icontains=search_string))
+            dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__seller_sku__icontains=search_string) | Q(product__product_name__icontains=search_string) | Q(product_name_ar__icontains=search_string))
 
             dealshub_product_objs = dealshub_product_objs[:10]
 

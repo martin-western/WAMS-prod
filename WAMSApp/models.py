@@ -851,7 +851,6 @@ class Product(models.Model):
     product_id = models.CharField(max_length=200,null=True)
     product_id_type = models.ForeignKey(ProductIDType,null=True,blank=True,on_delete=models.SET_NULL)
     product_description = models.TextField(blank=True)
-    product_description_ar = models.TextField(blank=True,default='')
     created_date = models.DateTimeField()
     modified_date = models.DateTimeField()
    
@@ -866,7 +865,6 @@ class Product(models.Model):
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
     pfl_product_features = models.TextField(default="[]")
-    pfl_product_name_ar = models.CharField(max_length=300, default="")
     pfl_product_features_ar = models.TextField(default="[]")
 
     product_name_sap = models.CharField(max_length=300, default="")
