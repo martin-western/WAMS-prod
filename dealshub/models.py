@@ -959,6 +959,11 @@ class UnitOrder(models.Model):
         vat_divider = 1 + (self.order.location_group.vat/100)
         return  round(temp_total/vat_divider, 2)
 
+    def get_subtotal_without_vat_custom_qty(self, qty):
+        temp_total = float(self.price)*float(qty)
+        vat_divider = 1 + (self.order.location_group.vat/100)
+        return round(temp_total/vat_divider, 2)
+
     def get_sap_intercompany_order_qty(self):
         try:
             intercompany_sales_info = json.loads(self.order_information)["intercompany_sales_info"]

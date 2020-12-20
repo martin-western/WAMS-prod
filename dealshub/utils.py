@@ -787,7 +787,7 @@ def is_user_input_required_for_sap_punching(stock_price_information, order_qty):
         return True
 
 
-def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
+def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, order_qty):
 
     try:
 
@@ -799,56 +799,78 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
         total_holding = result["total_holding"]
         atp_threshold = result["atp_threshold"]
         holding_threshold = result["holding_threshold"]
-
-        order_information = {}
         
-        if total_atp > atp_threshold:
+        total_stock_info = []
+
+        if total_atp > atp_threshold and total_atp>=order_qty:
             from_holding=""
-            max_atp_qty = 0
-            max_batch = ""
-            max_uom = ""
             for item in stock_list:
                 atp_qty = item["atp_qty"]
                 batch = item["batch"]
                 uom = item["uom"]
-                if atp_qty>=max_atp_qty:
-                    max_atp_qty = atp_qty
-                    max_batch = batch
-                    max_uom = uom
+                if atp_qty>0:
+                    temp_dict = {
+                        "atp_qty": atp_qty,
+                        "batch": batch,
+                        "uom": uom
+                    }
+                    total_stock_info.append(temp_dict)
         else:
             from_holding = x_value
-            max_holding_qty = 0
-            max_batch = ""
-            max_uom = ""
             if from_holding == "X":
                 for item in stock_list:
                     holding_qty = item["holding_qty"]
                     batch = item["batch"]
                     uom = item["uom"]
-                    if holding_qty>=max_holding_qty:
-                        max_holding_qty = holding_qty
-                        max_batch = batch
-                        max_uom = uom
+                    if atp_qty>0:
+                        temp_dict = {
+                            "atp_qty": holding_qty,
+                            "batch": batch,
+                            "uom": uom
+                        }
+                        total_stock_info.append(temp_dict)
             else:
                 for item in stock_list:
                     atp_qty = item["atp_qty"]
                     batch = item["batch"]
                     uom = item["uom"]
-                    if atp_qty>=max_holding_qty:
-                        max_holding_qty = atp_qty
-                        max_batch = batch
-                        max_uom = uom
+                    if atp_qty>0:
+                        temp_dict = {
+                            "atp_qty": atp_qty,
+                            "batch": batch,
+                            "uom": uom
+                        }
+                        total_stock_info.append(temp_dict)
 
-        order_information["from_holding"] = from_holding
-        order_information["uom"] = max_uom
-        order_information["batch"] = max_batch
+        total_stock_info = sorted(total_stock_info, key=lambda k: k["atp_qty"], reverse=True) 
+        order_information_list = []
+        remaining_qty = order_qty
+        for stock_info in total_stock_info:
+            if stock_info["atp_qty"]>=remaining_qty:
+                temp_dict = {
+                    "qty": format(remaining_qty,'.2f'),
+                    "batch": stock_info["batch"],
+                    "uom": stock_info["uom"],
+                    "from_holding": from_holding,
+                    "seller_sku": seller_sku
+                }
+            else:
+                temp_dict = {
+                    "qty": format(stock_info["atp_qty"],'.2f'),
+                    "batch": stock_info["batch"],
+                    "uom": stock_info["uom"],
+                    "from_holding": from_holding,
+                    "seller_sku": seller_sku
+                }
+                remaining_qty -= stock_info["atp_qty"]
+            order_information_list.append(temp_dict)
 
-        return order_information
+        return order_information_list
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_order_information_for_sap_punching: %s at %s", e, str(exc_tb.tb_lineno))
-        return {}
+        return []
 
 
 def create_section_banner_product_report(dealshub_product_objs, filename):

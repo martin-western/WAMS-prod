@@ -4058,15 +4058,6 @@ class SetShippingMethodAPI(APIView):
 
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
 
-            # if shipping_method=="WIG Fleet":
-            #     for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-            #         set_shipping_method(unit_order_obj, shipping_method)
-            # elif shipping_method=="Postaplus":
-            #     if order_obj.is_postaplus==False:
-            #         request_postaplus(order_obj)
-            # else:
-            #     logger.warning("SetShippingMethodAPI: No method set!")
-
             brand_company_dict = {
                 
                 "geepas": "1000",
@@ -4096,6 +4087,7 @@ class SetShippingMethodAPI(APIView):
                     if stock_price_information["status"] == 500:
                         response["status"] = 403
                         response["message"] = stock_price_information["message"]
+                        logger.error("SetShippingMethodAPI: fetch prices and stock gave 500!")
                         return Response(data=response)
 
                     user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information, unit_order_obj.quantity)
@@ -4144,7 +4136,9 @@ class SetShippingMethodAPI(APIView):
                         grouped_unit_orders[brand_name].append(unit_order_obj)
                     
                     for brand_name in grouped_unit_orders: 
-                        
+                        if grouped_unit_orders[brand_name][0].sap_status=="In GRN":
+                            continue
+
                         order_information = {}
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
@@ -4159,15 +4153,11 @@ class SetShippingMethodAPI(APIView):
                             if user_input_requirement[seller_sku]==True:
                                 x_value = user_input_sap[seller_sku]
                             
-                            item =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
-                            
-                            item["seller_sku"] = seller_sku
-                            qty = format(unit_order_obj.quantity,'.2f')
-                            item["qty"] = qty
-                            price = format(unit_order_obj.get_subtotal_without_vat(),'.2f')
-                            item["price"] = price
-
-                            order_information["items"].append(item)
+                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, unit_order_obj.quantity)
+                            for item in item_list:
+                                price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
+                                item.update({"price": price})
+                            order_information["items"] += item_list
 
                         orig_result_pre = create_intercompany_sales_order(company_code, order_information)
 
@@ -4334,7 +4324,9 @@ class ResendSAPOrderAPI(APIView):
                         grouped_unit_orders[brand_name].append(unit_order_obj)
                     
                     for brand_name in grouped_unit_orders: 
-                        
+                        if grouped_unit_orders[brand_name][0].sap_status=="In GRN":
+                            continue
+
                         order_information = {}
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
@@ -4349,15 +4341,11 @@ class ResendSAPOrderAPI(APIView):
                             if user_input_requirement[seller_sku]==True:
                                 x_value = user_input_sap[seller_sku]
                             
-                            item =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value)
-                            
-                            item["seller_sku"] = seller_sku
-                            qty = format(unit_order_obj.quantity,'.2f')
-                            item["qty"] = qty
-                            price = format(unit_order_obj.get_subtotal_without_vat(),'.2f')
-                            item["price"] = price
-
-                            order_information["items"].append(item)
+                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, unit_order_obj.quantity)
+                            for item in item_list:
+                                price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
+                                item.update({"price": price})
+                            order_information["items"] += item_list
 
                         orig_result_pre = create_intercompany_sales_order(company_code, order_information)
 
