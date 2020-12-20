@@ -235,9 +235,12 @@ class DealsHubProduct(models.Model):
         return str(self.product.product_id)
 
     def get_brand(self,language = "en"):
-        if language == "ar":
-            return str(self.product.base_product.brand.name_ar)
-        return str(self.product.base_product.brand.name)
+        try:
+            if language == "ar":
+                return str(self.product.base_product.brand.name_ar)
+            return str(self.product.base_product.brand.name)
+        except Exception as e:
+            return ""
 
     def get_seller_sku(self):
         return str(self.product.base_product.seller_sku)
