@@ -682,6 +682,11 @@ class Brand(models.Model):
         verbose_name = "Brand"
         verbose_name_plural = "Brands"
 
+    def get_name(self, language="en"):
+        if language=="ar":
+            return self.name_ar
+        return self.name
+
     def __str__(self):
         return str(self.name)
 
