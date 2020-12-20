@@ -459,8 +459,9 @@ def is_manual_intervention_required(result):
         logger.info("is_manual_intervention_required: %s", str(result))
         msg_list = result["msg_list"]
         for item in msg_list:
-            if item["message"]!=None and "PRICES NOT MAINTAINED FOR" in item["message"]:
-                return True
+            if item["message"]!=None:
+                if "PRICES NOT MAINTAINED FOR" in item["message"] or "Price is not maintained for" in item["message"]:
+                    return True
         return False
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
