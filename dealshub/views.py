@@ -2685,7 +2685,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
                             temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
-                            if unit_banner_obj.mobile_image_ar!=None:
+                            if unit_banner_image_obj.mobile_image_ar!=None:
                                 temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
                                 temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
                                 temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
