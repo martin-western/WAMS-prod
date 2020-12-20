@@ -363,6 +363,23 @@ class DealsHubProduct(models.Model):
             pass
         return self.get_main_image_url()
 
+    def get_search_keywords(self):
+        try:
+            search_keywords = self.search_keywords.split(",")
+            return filter(None, search_keywords)
+        except Exception as e:
+            return []
+
+    def set_search_keywords(self, search_tags):
+        try:
+            if len(search_tags)>0:
+                search_keywords = ","+",".join(search_tags)+","
+                self.search_keywords = search_keywords
+                super(DealsHubProduct, self).save()
+        except Exception as e:
+            pass
+
+
     def save(self, *args, **kwargs):
         
         if self.uuid == None or self.uuid == "":
@@ -724,6 +741,7 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="cod")
     payment_info = models.TextField(default="{}")
     merchant_reference = models.CharField(max_length=200, default="")
+    offline_sales_person = models.ForeignKey(OmnyCommUser, on_delete=models.SET_NULL, null=True, default=None)
 
     postaplus_info = models.TextField(default="{}")
     is_postaplus = models.BooleanField(default=False)
@@ -738,7 +756,8 @@ class Order(models.Model):
         ("In GRN", "In GRN"),
         ("GRN Conflict","GRN Conflict"),
         ("Success", "Success"),
-        ("Failed", "Failed")
+        ("Failed", "Failed"),
+        ("Manual", "Manual")
     )
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
 

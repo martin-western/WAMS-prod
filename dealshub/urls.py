@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^search/$', views.Search),
 
     url(r'^search-wig/$', views.SearchWIG),
+    url(r'^search-wig2/$', views.SearchWIG2),
     url(r'^fetch-wig-categories/$', views.FetchWIGCategories),
     url(r'^fetch-parajohn-categories/$', views.FetchParajohnCategories),
 
@@ -57,6 +58,7 @@ urlpatterns = [
 
     url(r'^search-section-products-autocomplete/$', views.SearchSectionProductsAutocomplete),
     url(r'^search-products-autocomplete/$', views.SearchProductsAutocomplete),
+    url(r'^search-products-autocomplete2/$', views.SearchProductsAutocomplete2),
     url(r'^search-products/$', views.SearchProducts),
 
     url(r'^fetch-dealshub-price/$', views.FetchDealshubPrice),
@@ -131,9 +133,13 @@ urlpatterns = [
 
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
+    url(r'^resend-sap-order/$', views.ResendSAPOrder),
+    url(r'^update-manual-order/$', views.UpdateManualOrder),
     url(r'^set-orders-status/$', views.SetOrdersStatus),
+    url(r'^update-order-status/$', views.UpdateOrderStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
+    url(r'^fetch-oc-sales-persons/$', views.FetchOCSalesPersons),
 
     url(r'^download-orders/$', views.DownloadOrders),
     url(r'^upload-orders/$', views.UploadOrders),
