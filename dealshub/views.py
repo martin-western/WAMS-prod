@@ -2399,22 +2399,49 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["uid"] = unit_banner_image_obj.uuid
                     temp_dict2["httpLink"] = unit_banner_image_obj.http_link
                     temp_dict2["url"] = ""
+                    temp_dict2["url-ar"] = ""
                     if unit_banner_image_obj.image!=None:
                         if resolution=="low":
                             temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
+                            if unit_banner_image_obj.image_ar!=None:
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image.mid_image.url
+                            else:
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
                         else:
                             temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
                             temp_dict2["url"] = unit_banner_image_obj.image.image.url
                             temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
+                            if unit_banner_obj.image_ar!=None:
+                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
+                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
+                            else:
+                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
+
 
                     temp_dict2["mobileUrl"] = ""
+                    temp_dict2["mobileUrl-ar"] = ""
                     if unit_banner_image_obj.mobile_image!=None:
                         if resolution=="low":
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
+                            if unit_banner_image_obj.mobile_image_ar!=None:
+                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
+                            else:
+                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
                         else:
                             temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
                             temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
+                            if unit_banner_obj.mobile_image_ar!=None:
+                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
+                            else:
+                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
 
                     hovering_banner_img = unit_banner_image_obj.hovering_banner_image
                     if hovering_banner_img is not None:
