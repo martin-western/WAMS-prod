@@ -804,32 +804,44 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
         
         if total_atp > atp_threshold:
             from_holding=""
+            max_atp_qty = 0
+            max_batch = ""
+            max_uom = ""
             for item in stock_list:
                 atp_qty = item["atp_qty"]
                 batch = item["batch"]
                 uom = item["uom"]
-                if atp_qty>0.0:
-                    break
+                if atp_qty>=max_atp_qty:
+                    max_atp_qty = atp_qty
+                    max_batch = batch
+                    max_uom = uom
         else:
             from_holding = x_value
+            max_holding_qty = 0
+            max_batch = ""
+            max_uom = ""
             if from_holding == "X":
                 for item in stock_list:
                     holding_qty = item["holding_qty"]
                     batch = item["batch"]
                     uom = item["uom"]
-                    if holding_qty>0.0:
-                        break
+                    if holding_qty>=max_holding_qty:
+                        max_holding_qty = holding_qty
+                        max_batch = batch
+                        max_uom = uom
             else:
                 for item in stock_list:
                     atp_qty = item["atp_qty"]
                     batch = item["batch"]
                     uom = item["uom"]
-                    if atp_qty>0.0:
-                        break
+                    if atp_qty>=max_holding_qty:
+                        max_holding_qty = atp_qty
+                        max_batch = batch
+                        max_uom = uom
 
         order_information["from_holding"] = from_holding
-        order_information["uom"] = uom
-        order_information["batch"] = batch
+        order_information["uom"] = max_uom
+        order_information["batch"] = max_batch
 
         return order_information
     
